@@ -110,11 +110,8 @@
 
   // ---------------------------------------------------------------- HUD (tools row)
   A.drawAuthorHud = function (ctx, w, h, U) {
-    if (A.mode !== 'cake' || A.photo) return; const narrow = w < 720; let x = narrow ? 30 : w / 2 - 150; const y = narrow ? 112 : 96;
-    U.txt(ctx, 'TOOL', x, y, U.DIM, 'left', 8.5); x += 40;
-    [['orbit', 'ORBIT'], ['candle', 'CANDLES'], ['pipe', 'PIPE']].forEach(([k, l]) => { const on = A.tool === k; U.txt(ctx, l, x, y, on ? U.INK : U.AMB, 'left', 9); const ww = ctx.measureText(l).width; if (on) { ctx.fillStyle = U.AMB; ctx.fillRect(x, y + 3, ww, 1.5); } U.addHit(x - 4, y - 12, ww + 8, 20, () => A.setTool(k), 'tool-' + k, l + ' tool'); x += ww + 16; });
-    const api = H.cakeAPI; if (api) { const lit = api.candles.filter(c => !c.off).length; U.txt(ctx, `${lit}/${api.candles.length} LIT${g().burn ? ' · BURNING' : ''}`, x + 6, y, U.DIM, 'left', 8.5); }
-    if (A.tool !== 'orbit') { const m = A.tool === 'candle' ? 'CLICK ICING: PLACE · CLICK CANDLE: LIGHT / SNUFF · SHIFT: REMOVE · Z: UNDO' : 'DRAG ON THE ICING TO PIPE · Z: UNDO · NIB IN DESIGN'; U.txt(ctx, m, w / 2, h - 80, U.AMB, 'center', 8.5); }
+    if (A.mode !== 'cake' || A.photo) return;
+    if (A.tool !== 'orbit') { const m = A.tool === 'candle' ? 'CLICK ICING: PLACE · CLICK CANDLE: LIGHT / SNUFF · SHIFT: REMOVE · Z: UNDO' : 'DRAG ON THE ICING TO PIPE · Z: UNDO'; U.txt(ctx, m, w / 2, h - 80, U.AMB, 'center', 8.5); }
   };
 
   // ---------------------------------------------------------------- drawer extensions

@@ -65,18 +65,42 @@
       { name: 'SURFACE', specs: [En('L1:SPONGE', 'sponge', idx(CO.SPONGES.length), { names: names(CO.SPONGES) }), En('L2:ICING', 'icing', idx(CO.ICINGS.length), { names: names(CO.ICINGS) }), Nu('L3:DRIPS', 'drips', 0, 1, { fmt: v => Math.round(v * 100) + '%' }), En('R1:TOPPING', 'topping', CO.TOPPINGS), En('R2:DUST', 'dust', [0, 1], { names: ['NONE', 'DUSTED'] })] },
       { name: 'CANDLES', specs: [En('L1:CANDLE', 'candle', CO.CANDLES, { after: resetSlots }), Nu('L2:AGE', 'age', 1, 40, { int: true, after: resetSlots, fmt: v => v + (v > 1 ? ' CANDLES' : ' CANDLE') }), En('L3:LAYOUT', 'arr', CO.ARRS, { after: resetSlots }), En('R1:BURN', 'burn', [0, 1, 6], { live: true, names: ['STILL', 'BURNING', 'TIME-LAPSE'] }), Nu('R2:PARTY', 'balloons', 0, 5, { int: true, fmt: v => v + ' BALLOONS' })] },
       { name: 'WRITING', specs: [LetterSpec, En('L2:SCRIPT', 'font', CO.FONTS), En('L3:MEDIUM', 'medium', CO.MEDIA), En('R1:INK', 'ink', idx(CO.INKS.length), { names: names(CO.INKS) }), En('R2:LAYOUT', 'layout', CO.LAYOUTS)] },
+      sysBank(),
     ],
     bug: () => { const B = H.builders.bug, O = B.opts || {}; return [
       { name: 'LENS', lens: true },
       { name: 'EYE', specs: [En('L1:EYE', 'eyeType', O.EYE_TYPES), En('L2:FACETS', 'facetShape', ['hex', 'square', 'round']), Nu('L3:BULGE', 'bulge', 0, 1, { live: true }), Nu('R1:BAND', 'eyeBand', 0, 1, { live: true }), Nu('R2:GLOW', 'glow', 0, 1, { live: true })] },
       { name: 'BODY', specs: [En('L1:PLAN', 'plan', O.PLANS, { after: (g, v) => B.applyPlan(g, v) }), Nu('L2:LEGS', 'legLen', 0.5, 1.8), Nu('L3:ANTENNA', 'antLen', 0.3, 2.5), Nu('R1:JAW', 'jawLen', 0.3, 2), Nu('R2:SIZE', 'mm', 4, 60, { int: true, live: true, fmt: v => v + ' MM' })] },
       { name: 'SURFACE', specs: [En('L1:PATTERN', 'pattern', O.PATTERNS), Nu('L2:MATTE', 'dull', 0, 1), Nu('L3:METAL', 'metal', 0, 1), Nu('R1:EYE HUE', 'eyeHue', 0, 1, { live: true }), En('R2:STAGE', 'stage', O.STAGES)] },
+      sysBank(),
     ]; },
     child: () => [
       { name: 'LENS', lens: true },
       { name: 'LOOK', specs: [En('L1:SKIN', 'skin', idx(6), { names: ['PORCELAIN', 'PEACH', 'GOLDEN', 'OLIVE', 'BROWN', 'DEEP'] }), En('L2:HAIR', 'hair', idx(6), { names: ['BLOND', 'LT BROWN', 'DK BROWN', 'BLACK', 'RED', 'AUBURN'] }), En('L3:STYLE', 'style', ['bangs', 'curly', 'short', 'pony', 'bob']), Nu('R1:EYES', 'iris', 0, 1), Nu('R2:FACES', 'count', 1, 3, { int: true, fmt: v => v + (v > 1 ? ' FACES' : ' FACE') })] },
+      sysBank(),
     ],
   };
+  // ---------------------------------------------------------------- SYSTEM bank: everything that used to be a menu on the glass
+  A.sysIdx = { action: 0, out: 0, mode: -1, recipe: 0, variant: -1 };
+  const MODES = ['film', 'bug', 'cake', 'child'];
+  const OUTS = [['SNAPSHOT', () => A.snapshot()], ['STILL 4K', () => A.still()], ['CLIP 8s', () => A.recordClip()], ['SHARE LINK', () => A.shareLink()], ['SPEC FILE', () => A.downloadSpec()]];
+  const actionList = () => { const L = [['REPLAY', () => A.replay()], ['REROLL', () => A.reroll()], ['GALLERY', () => A.gallery()], ['OTHERWISE', () => A.cycleVariant()], ['MATCH FILM', () => A.toggleMatch()], ['FIT FILM', () => A.fitFromFilm()], ['FIT PHOTO', () => A.pickPhoto()], ['UNDO', () => A.undo(false)], ['REDO', () => A.undo(true)], ['BLOW / XRAY', () => A.ops.compare()]];
+    if (A.mode === 'cake') L.push(['KEEP CLEAR', () => A.keepClear()], ['CLEAR PIPING', () => A.clearStrokes()], ['SNUFF ALL', () => A.setAllCandles(false)], ['LIGHT ALL', () => A.setAllCandles(true)]);
+    L.push(['PHOTO MODE', () => A.togglePhoto()], ['SOUND', () => A.toggleSonic && A.toggleSonic()], ['NARRATE', () => A.toggleNarrate && A.toggleNarrate()], ['DRAWER', () => A.toggleDrawer()], ['HELP', () => document.getElementById('v5Help').classList.toggle('on')]); return L; };
+  const deb = {}; const later = (k, fn, ms) => { clearTimeout(deb[k]); deb[k] = setTimeout(fn, ms || 320); };
+  function Sys(label, nFn, getFn, setFn, readFn) { return { label, sys: true, live: true, fit: false, fitVals: [], get enumN() { return nFn(); }, norm: () => (getFn() + 0.5) / nFn(), apply(g, v) { const N = nFn(), i = clamp(Math.floor(v * N), 0, N - 1); if (i === getFn()) return false; setFn(i); return true; }, step(g, d) { const i = clamp(getFn() + d, 0, nFn() - 1); if (i === getFn()) return false; setFn(i); return true; }, read: readFn }; }
+  const recipeNames = () => Object.keys(A.cakeRecipes || {}).concat(['FILM']);
+  const variantNames = () => (H.builders[H.kind].variants || []).map(v => v.code.replace(/^(CANONICAL|OTHERWISE [IV]+):?\s*/, (m, a) => a === 'CANONICAL' ? 'CANON ' : a.replace('OTHERWISE', 'OTH') + ' ').split('[')[0].trim().slice(0, 14));
+  A.setVariant = function (n) { const b = H.builders[H.kind], g = H.genome; if (!b.variants[n]) return; Object.assign(g, b.variants[n].patch, { variant: n }); H.rebuild(false); if (A.syncHeroRings) A.syncHeroRings(); if (A.rebuildDrawer) A.rebuildDrawer(); toast(b.variants[n].code); };
+  const sysBank = () => ({ name: 'SYSTEM', specs: [
+    Sys('L1:MODE', () => 4, () => A.sysIdx.mode >= 0 ? A.sysIdx.mode : MODES.indexOf(A.mode), i => { A.sysIdx.mode = i; later('mode', () => { const m = MODES[A.sysIdx.mode]; A.sysIdx.mode = -1; if (m !== A.mode) A.setMode(m); }); }, () => (MODES[A.sysIdx.mode >= 0 ? A.sysIdx.mode : MODES.indexOf(A.mode)] || '').toUpperCase()),
+    Sys('L2:TOOL', () => 3, () => ['orbit', 'candle', 'pipe'].indexOf(A.tool), i => A.setTool(['orbit', 'candle', 'pipe'][i]), () => (A.tool || 'orbit').toUpperCase()),
+    Sys('L3:RECIPE', () => H.kind === 'cake' ? recipeNames().length : Math.max(1, variantNames().length), () => H.kind === 'cake' ? A.sysIdx.recipe : (A.sysIdx.variant >= 0 ? A.sysIdx.variant : Math.max(0, H.genome.variant)), i => { if (H.kind === 'cake') { A.sysIdx.recipe = i; later('rec', () => { const n = recipeNames()[A.sysIdx.recipe]; n === 'FILM' ? A.canon() : A.applyRecipe(n); }); } else { A.sysIdx.variant = i; later('var', () => { A.setVariant(A.sysIdx.variant); A.sysIdx.variant = -1; }); } }, () => H.kind === 'cake' ? recipeNames()[A.sysIdx.recipe] : (variantNames()[A.sysIdx.variant >= 0 ? A.sysIdx.variant : Math.max(0, H.genome.variant)] || 'CANON')),
+    Sys('R1:ACTION', () => actionList().length, () => Math.min(A.sysIdx.action, actionList().length - 1), i => { A.sysIdx.action = i; }, () => (actionList()[Math.min(A.sysIdx.action, actionList().length - 1)] || ['?'])[0]),
+    Sys('R2:OUTPUT', () => OUTS.length, () => A.sysIdx.out, i => { A.sysIdx.out = i; }, () => OUTS[A.sysIdx.out][0]),
+  ] });
+  A.bankIsSystem = () => A.mode !== 'film' && A.bankName() === 'SYSTEM';
+  A.execSystem = function () { const r = window.state ? state.activeCoupledRing | 0 : 0; if (r === 4) { OUTS[A.sysIdx.out][1](); return; } if (r === 3 || r === 0) { const a = actionList()[Math.min(A.sysIdx.action, actionList().length - 1)]; if (a) { toast('EXECUTE · ' + a[0]); a[1](); } return; } toast('TURN R1 (ACTION) OR R2 (OUTPUT), THEN PRESS THE RED DOT'); };
   const state_ = { bank: {}, banks: {} }; const orig = {};
   const kindNow = () => H.kind;
   const banksOf = k => state_.banks[k] || (state_.banks[k] = BANKS[k] ? BANKS[k]() : [{ name: 'LENS', lens: true }]);
@@ -153,18 +177,15 @@
   ['dragover', 'drop'].forEach(ev => window.addEventListener(ev, e => { if (!window.state || state.engineVersion !== 'v5' || A.mode === 'film') return; const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if (ev === 'dragover') { if (e.dataTransfer && [...(e.dataTransfer.types || [])].includes('Files')) e.preventDefault(); return; } if (f && /^image\//.test(f.type)) { e.preventDefault(); fitFile(f); } }));
   window.addEventListener('keydown', e => { if (e.key === 'Escape' && A.designFit) A.designFit.cancel = true; }, true);
 
-  // ---------------------------------------------------------------- HUD: bank tabs + fit
+  // ---------------------------------------------------------------- HUD: only the inverse-design progress (no menus on the glass)
   const prevHud = A.drawAuthorHud;
   A.drawAuthorHud = function (ctx, w, h, U) {
-    if (prevHud) prevHud(ctx, w, h, U); if (A.photo || A.mode === 'film') return; const narrow = w < 720; const y = narrow ? 132 : (A.mode === 'cake' ? 116 : 96); let x = narrow ? 30 : w / 2 - 150;
-    U.txt(ctx, 'BANK', x, y, U.DIM, 'left', 8.5); x += 40; const cur = A.bankIndex();
-    A.banksList().forEach((n, i) => { const on = i === cur; U.txt(ctx, n, x, y, on ? U.INK : U.AMB, 'left', 9); const ww = ctx.measureText(n).width; if (on) { ctx.fillStyle = U.AMB; ctx.fillRect(x, y + 3, ww, 1.5); } U.addHit(x - 4, y - 12, ww + 8, 20, () => A.setBank(i), 'bank-' + n, n + ' bank'); x += ww + 14; });
-    U.txt(ctx, 'FIT', x + 8, y, U.AMB, 'left', 9); const fw = ctx.measureText('FIT').width; U.addHit(x + 4, y - 12, fw + 8, 20, () => A.fitFromFilm(), 'fit', 'Inverse design from the film'); x += fw + 28; U.txt(ctx, 'PHOTO', x, y, U.AMB, 'left', 9); const pw = ctx.measureText('PHOTO').width; U.addHit(x - 4, y - 12, pw + 8, 20, () => A.pickPhoto(), 'photo-fit', 'Inverse design from your photo');
+    if (prevHud) prevHud(ctx, w, h, U);
     if (A.designFit) { const F = A.designFit; U.txt(ctx, `INVERSE DESIGN · ${F.label} · MATCH ${(F.score * 100).toFixed(0)} · ${F.step}/${F.total} · ESC TO STOP`, w / 2, h - 96, U.AMB, 'center', 9.5); const bw = 260, bx = w / 2 - bw / 2, by = h - 88; ctx.fillStyle = 'rgba(247,236,222,.2)'; ctx.fillRect(bx, by, bw, 2); ctx.fillStyle = U.AMB; ctx.fillRect(bx, by, bw * clamp(F.step / Math.max(1, F.total), 0, 1), 2); }
   };
   // rocker: left/right = bank, up/down = dolly (hero modes)
-  const ops = window.V5OPS; if (ops) { const od = ops.dpad; ops.dpad = function (dx, dy) { if (A.mode !== 'film' && !A.designFit) { if (Math.abs(dx) >= Math.abs(dy)) { if (!A._rk || performance.now() - A._rk > 280) { A._rk = performance.now(); A.cycleBank(dx > 0 ? 1 : -1); } } else H.nudge(0, 0, dy * 0.1); return; } od(dx, dy); }; const oi = ops.imprint; ops.imprint = function () { if (A.mode !== 'film' && A.bankIsWriting()) { A.commitLetter(); return; } oi(); }; ops.inverseFit = () => A.fitFromFilm(); }
-  window.addEventListener('keydown', e => { if (!window.state || state.engineVersion !== 'v5' || A.mode === 'film') return; if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return; const k = e.key; if (k === 'PageUp' || k === 'PageDown') { e.preventDefault(); e.stopImmediatePropagation(); A.cycleBank(k === 'PageDown' ? 1 : -1); } else if (k === 'i' || k === 'I') { e.preventDefault(); e.stopImmediatePropagation(); e.shiftKey ? A.pickPhoto() : A.fitFromFilm(); } else if ((k === 'ArrowUp' || k === 'ArrowDown') && !e.altKey) { const r = window.state ? state.activeCoupledRing | 0 : 0; if (A.stepRing(r, k === 'ArrowUp' ? 1 : -1, e.shiftKey)) { e.preventDefault(); e.stopImmediatePropagation(); } } else if ((k === 'Enter') && A.bankIsWriting()) { e.preventDefault(); e.stopImmediatePropagation(); A.commitLetter(); } }, true);
+  const ops = window.V5OPS; if (ops) { const od = ops.dpad; ops.dpad = function (dx, dy) { if (A.mode !== 'film' && !A.designFit) { if (Math.abs(dx) >= Math.abs(dy)) { if (!A._rk || performance.now() - A._rk > 280) { A._rk = performance.now(); A.cycleBank(dx > 0 ? 1 : -1); } } else H.nudge(0, 0, dy * 0.1); return; } od(dx, dy); }; const oi = ops.imprint; ops.imprint = function () { if (A.mode !== 'film' && A.bankIsWriting()) { A.commitLetter(); return; } if (A.mode !== 'film' && A.bankIsSystem()) { A.execSystem(); return; } oi(); }; ops.inverseFit = () => A.fitFromFilm(); }
+  window.addEventListener('keydown', e => { if (!window.state || state.engineVersion !== 'v5' || A.mode === 'film') return; if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return; const k = e.key; if (k === 'PageUp' || k === 'PageDown') { e.preventDefault(); e.stopImmediatePropagation(); A.cycleBank(k === 'PageDown' ? 1 : -1); } else if (k === 'i' || k === 'I') { e.preventDefault(); e.stopImmediatePropagation(); e.shiftKey ? A.pickPhoto() : A.fitFromFilm(); } else if ((k === 'ArrowUp' || k === 'ArrowDown') && !e.altKey) { const r = window.state ? state.activeCoupledRing | 0 : 0; if (A.stepRing(r, k === 'ArrowUp' ? 1 : -1, e.shiftKey)) { e.preventDefault(); e.stopImmediatePropagation(); } } else if (k === 'Enter' && A.bankIsWriting()) { e.preventDefault(); e.stopImmediatePropagation(); A.commitLetter(); } else if (k === 'Enter' && A.bankIsSystem()) { e.preventDefault(); e.stopImmediatePropagation(); A.execSystem(); } }, true);
   // replays assume the LENS bank
   const rp = A.replay; if (rp) A.replay = function (n) { A.setBank(0, true); return rp.call(this, n); };
 })();
