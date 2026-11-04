@@ -328,7 +328,7 @@ const SCENE_QUOTES = {
 };
 
 const state = {
-  engineVersion: 'v4',
+  engineVersion: 'v5',
   viewMode: 'sculpt',
   scene: 'beetle',
   powerOn: true,
@@ -1007,7 +1007,9 @@ function setRingAngle(idx, deg, playClick = false) {
   state.activeCoupledRing = idx;
 
   // Store this dial adjustment into the currently selected SAM object's 5-dial parameter state!
-  if (!state._syncingNode) {
+  if (!state._syncingNode && state.engineVersion === 'v5' && window.ATLAS) {
+    window.ATLAS.onRing(idx, norm);
+  } else if (!state._syncingNode) {
     const shot = state.activeShot || 'bugeye';
     const params = ensureObjectParams(shot);
     const selIdx = ((state.selectedNodeIdx || 0) % 4 + 4) % 4;
@@ -2650,8 +2652,9 @@ function getOrbLayoutCenterY(h) {
 }
 
 function cycleEngineVersion(explicitVer = null) {
-  const order = ['v4', 'v3', 'v2', 'v1'];
+  const order = ['v5', 'v4', 'v3', 'v2', 'v1'];
   const labels = {
+    v5: 'ENGINE: V5 ATLAS',
     v4: 'ENGINE: V4 SAM-RELIEF',
     v3: 'ENGINE: V3 HYBRID-3D',
     v2: 'ENGINE: V2 PURE-3D',
@@ -2659,12 +2662,14 @@ function cycleEngineVersion(explicitVer = null) {
   };
   const nextVer = (explicitVer && order.includes(explicitVer))
     ? explicitVer
-    : order[(order.indexOf(state.engineVersion || 'v4') + 1) % order.length];
+    : order[(order.indexOf(state.engineVersion || 'v5') + 1) % order.length];
   state.engineVersion = nextVer;
   const btn = document.getElementById('engineVerBtn');
-  if (btn) btn.textContent = labels[nextVer] || labels.v4;
+  if (btn) btn.textContent = labels[nextVer] || labels.v5;
   const wgl = document.getElementById('webglCanvas');
-  if (wgl) wgl.style.display = (nextVer === 'v1') ? 'none' : 'block';
+  if (wgl) wgl.style.display = (nextVer === 'v1' || nextVer === 'v5') ? 'none' : 'block';
+  document.body.classList.toggle('v5', nextVer === 'v5');
+  if (window.ATLAS && window.ATLAS.onEngine) window.ATLAS.onEngine(nextVer);
   playMicroSwitchClick(true, 180);
 }
 window.cycleEngineVersion = cycleEngineVersion;
@@ -3179,6 +3184,7 @@ function renderOrbHardware() {
     const selNode = nodes[selIdx] || null;
     const stripY = cy - 118;
     const rOffs = [-82 - spreadPx * 0.36, -42 - spreadPx * 0.17, 0, 42 + spreadPx * 0.17, 82 + spreadPx * 0.36];
+    if (state.engineVersion === 'v5' && window.drawV5OrbStrip) { window.drawV5OrbStrip(ctx, cx, stripY, rOffs); } else {
     const protoKey = (state.scene === 'birthday') ? 'cake' : 'bug';
     const protoObj = (window.OPERATOR_PROTOCOLS && window.OPERATOR_PROTOCOLS[protoKey]) || null;
     const rTags = (protoObj && protoObj.dialLabels) ? protoObj.dialLabels : ['L1:SOLID', 'L2:FOCUS', 'L3:MORPH', 'R1:LUMA', 'R2:TINT'];
@@ -3208,6 +3214,7 @@ function renderOrbHardware() {
       ctx.font = '700 5.3px "JetBrains Mono", monospace';
       ctx.textAlign = 'center';
       ctx.fillText(`${rTags[i]}`, tagX, stripY + 1.5);
+    }
     }
     ctx.restore();
   }
@@ -3392,8 +3399,9 @@ function drawOuterGripPod(ctx, cx, cy, side, spreadPx, isXray, specShift) {
     drawSpunMetalButton(ctx, bLockX, bLockY, 8.5, true, state.pressedOnPropBtn === 'lock_btn');
     drawRedStencilCallout(ctx, bLockX - 6, bLockY + 9, -8, 7, 'AF');
     registerHitbox('lock_btn', 'LEFT POD RED-DOT LOCK / IMPRINT BUTTON [IMPRINTS MEMORY TO WALLACE GLASS BEARING]', bLockX - 10, bLockY - 10, 20, 20,
-      () => { state.pressedOnPropBtn = 'lock_btn'; triggerBearingImprint(); },
-      () => { state.pressedOnPropBtn = null; playMicroSwitchClick(false, 300); }
+      () => { state.pressedOnPropBtn = 'lock_btn'; state._btnT = performance.now(); triggerBearingImprint(); },
+      () => { state.pressedOnPropBtn = null; playMicroSwitchClick(false, 300);
+        if (state.engineVersion === 'v5' && window.V5OPS) { (performance.now() - state._btnT > 600) ? V5OPS.bootstrap() : V5OPS.imprint(); } }
     );
 
     // 2. Adjacent Aux Spun Button + Pad-Printed "ON •" Label & Crimson Brackets
@@ -3410,8 +3418,8 @@ function drawOuterGripPod(ctx, cx, cy, side, spreadPx, isXray, specShift) {
     drawRedStencilCallout(ctx, x0 + 11, y0 + 46, -4, 12, 'M');
 
     registerHitbox('aux_btn', 'LEFT POD AUX POWER / MAGNETIC REED TOGGLE BUTTON', bAuxX - 8, bAuxY - 8, 16, 16,
-      () => { state.pressedOnPropBtn = 'aux_btn'; toggleMagneticReed(); },
-      () => { state.pressedOnPropBtn = null; }
+      () => { state.pressedOnPropBtn = 'aux_btn'; state._btnT = performance.now(); if (!(state.engineVersion === 'v5' && window.V5OPS)) toggleMagneticReed(); },
+      () => { state.pressedOnPropBtn = null; if (state.engineVersion === 'v5' && window.V5OPS) { (performance.now() - state._btnT > 600) ? V5OPS.reset() : V5OPS.cycleView(); } }
     );
 
     // 3. Black Concave 4-Way Rocker with Pad-Printed Camera Glyphs (+/-, Flower, ∞)
@@ -3446,6 +3454,7 @@ function drawOuterGripPod(ctx, cx, cy, side, spreadPx, isXray, specShift) {
         const dx = (mx - dpadX) * 0.012;
         const dy = (my - dpadY) * 0.012;
         pressDpad('orb', dx, dy);
+        if (state.engineVersion === 'v5' && window.V5OPS) V5OPS.dpad(dx / 0.012 / 13, dy / 0.012 / 13);
       },
       () => releaseDpad()
     );
@@ -3506,7 +3515,7 @@ function drawOuterGripPod(ctx, cx, cy, side, spreadPx, isXray, specShift) {
     ctx.stroke();
 
     registerHitbox('savage_window', 'RECESSED DISTANCE SCALE WINDOW [CLICK TO TOGGLE ADAM SAVAGE / MIKE HILL LICENSED LED]', winX - 2, winY - 2, winW + 4, winH + 4,
-      () => toggleSavageWindowLight()
+      () => { toggleSavageWindowLight(); if (state.engineVersion === 'v5' && window.V5OPS) V5OPS.sonic(); }
     );
 
     // 5. Lower Left 4-Button Animatronic Motor Actuator Cluster (Drives M1–M4!)
@@ -3520,8 +3529,8 @@ function drawOuterGripPod(ctx, cx, cy, side, spreadPx, isXray, specShift) {
       const active = state.rings[b.ring].motorDir !== 0 || state.pressedOnPropBtn === b.id;
       drawSpunMetalButton(ctx, b.x, b.y, b.r, b.red, active);
       registerHitbox(b.id, b.label, b.x - 9, b.y - 9, 18, 18,
-        () => { state.pressedOnPropBtn = b.id; startMotorSpin(b.ring, b.dir); },
-        () => { state.pressedOnPropBtn = null; stopMotorSpin(b.ring); }
+        () => { state.pressedOnPropBtn = b.id; state._btnT = performance.now(); startMotorSpin(b.ring, b.dir); },
+        () => { state.pressedOnPropBtn = null; stopMotorSpin(b.ring); if (state.engineVersion === 'v5' && window.V5OPS && performance.now() - state._btnT < 240) V5OPS.fitRing(b.ring); }
       );
     });
   } else {
@@ -3576,8 +3585,10 @@ function drawOuterGripPod(ctx, cx, cy, side, spreadPx, isXray, specShift) {
         state.drag.mode = 'dome';
         state.drag.startY = my;
         state.drag.startVal = state.speedDome;
+        state._btnT = performance.now(); state._domeMoved = false;
         playMicroSwitchClick(true, 140);
-      }
+      },
+      () => { if (state.engineVersion === 'v5' && window.V5OPS && !state._domeMoved && performance.now() - state._btnT < 300) V5OPS.weave(); }
     );
 
     // 2. Recessed Knurled Jog Thumbwheel (decal_right_top.jpg)
@@ -3611,6 +3622,7 @@ function drawOuterGripPod(ctx, cx, cy, side, spreadPx, isXray, specShift) {
       (mx, my) => {
         state.drag.active = true;
         state.drag.mode = 'jog';
+        state.drag.lastJog = 0;
         state.drag.startY = my;
         state.drag.startVal = state.rings[2].angle;
         playDetentTick(2, 1.0);
@@ -3624,6 +3636,7 @@ function drawOuterGripPod(ctx, cx, cy, side, spreadPx, isXray, specShift) {
     registerHitbox('quad_btn', 'RIGHT POD [SELECT] SUB-OBJECT & CAMERA NODE BUTTON [CLICK TO CYCLE 3D SAM ITEM]', quadX - 12, quadY - 12, 24, 24,
       () => {
         state.pressedOnPropBtn = 'quad_btn';
+        if (state.engineVersion === 'v5' && window.V5OPS) { V5OPS.selectNext(); return; }
         if (typeof window.selectSceneObject === 'function') {
           window.selectSceneObject(((state.selectedNodeIdx || 0) + 1) % 4);
         } else {
@@ -3640,6 +3653,7 @@ function drawOuterGripPod(ctx, cx, cy, side, spreadPx, isXray, specShift) {
     registerHitbox('mid_r_btn', 'RIGHT POD ENGRAM SELECTOR BUTTON [CLICK TO CYCLE MEMORY CARTRIDGE]', midBtnX - 9, midBtnY - 9, 18, 18,
       () => {
         state.pressedOnPropBtn = 'mid_r_btn';
+        if (state.engineVersion === 'v5' && window.V5OPS) { V5OPS.chapter(1); return; }
         const order = ['beetle', 'birthday', 'horse', 'snow'];
         const next = order[(order.indexOf(state.scene) + 1) % order.length];
         selectMemoryScene(next);
@@ -3659,16 +3673,16 @@ function drawOuterGripPod(ctx, cx, cy, side, spreadPx, isXray, specShift) {
     drawPillArrowIcon(ctx, thumbX + 9, thumbY + 23);
 
     registerHitbox('thumb_m5', 'PRIMARY RED-RING THUMB BUTTON [HOLD TO ACTUATE CENTER KNURLED RING 03 MOTOR]', thumbX - 11, thumbY - 11, 22, 22,
-      () => { state.pressedOnPropBtn = 'thumb_m5'; startMotorSpin(2, 1); },
-      () => { state.pressedOnPropBtn = null; stopMotorSpin(2); }
+      () => { state.pressedOnPropBtn = 'thumb_m5'; state._btnT = performance.now(); startMotorSpin(2, 1); },
+      () => { state.pressedOnPropBtn = null; stopMotorSpin(2); if (state.engineVersion === 'v5' && window.V5OPS && performance.now() - state._btnT < 240) V5OPS.place(); }
     );
 
     // 6. Lower Right Motor 5 & X-Ray Toggle Buttons
     const lr1X = x0 + 28, lr1Y = y0 + 158;
     drawSpunMetalButton(ctx, lr1X, lr1Y, 7.5, false, state.rings[4].motorDir !== 0 || state.pressedOnPropBtn === 'lr1_btn');
     registerHitbox('lr1_btn', 'LOWER RIGHT MOTOR BUTTON 05 [HOLD TO SPIN RIGHT COLLAR RING 05: KELVIN / CAKE]', lr1X - 9, lr1Y - 9, 18, 18,
-      () => { state.pressedOnPropBtn = 'lr1_btn'; startMotorSpin(4, 1); },
-      () => { state.pressedOnPropBtn = null; stopMotorSpin(4); }
+      () => { state.pressedOnPropBtn = 'lr1_btn'; state._btnT = performance.now(); startMotorSpin(4, 1); },
+      () => { state.pressedOnPropBtn = null; stopMotorSpin(4); if (state.engineVersion === 'v5' && window.V5OPS && performance.now() - state._btnT < 240) V5OPS.fitRing(4); }
     );
 
     const lr2X = x0 + 22, lr2Y = y0 + 176;
@@ -3676,6 +3690,7 @@ function drawOuterGripPod(ctx, cx, cy, side, spreadPx, isXray, specShift) {
     registerHitbox('lr2_btn', 'LOWER RIGHT AUX BUTTON [CLICK TO TOGGLE MOXIE TOOLS 5-MOTOR CAD X-RAY CUTAWAY]', lr2X - 9, lr2Y - 9, 18, 18,
       () => {
         state.pressedOnPropBtn = 'lr2_btn';
+        if (state.engineVersion === 'v5' && window.V5OPS) { V5OPS.compare(); return; }
         setViewMode(state.viewMode === 'xray' ? 'sculpt' : 'xray');
       },
       () => { state.pressedOnPropBtn = null; }
@@ -4021,11 +4036,13 @@ orbCanvas.addEventListener('pointermove', e => {
     setAccordionSpread(state.drag.startVal + dx * 0.62, true);
   } else if (state.drag.mode === 'dome') {
     const dy = state.drag.startY - y;
+    if (Math.abs(dy) > 4) state._domeMoved = true;
     setSpeedDome(state.drag.startVal + dy * 0.018);
   } else if (state.drag.mode === 'jog') {
     const dy = y - state.drag.startY;
     state.jogWheelPhase = Math.abs(dy);
-    setRingAngle(2, state.drag.startVal + dy * 0.9, true);
+    if (state.engineVersion === 'v5' && window.V5OPS) { V5OPS.scrubDrag(dy - (state.drag.lastJog || 0)); state.drag.lastJog = dy; playDetentTick(2, 0.6); }
+    else setRingAngle(2, state.drag.startVal + dy * 0.9, true);
   }
 });
 
@@ -4167,7 +4184,9 @@ function tick() {
   }
 
   updateInverseWeaveSequencer();
-  if (state.engineVersion === 'v1') {
+  if (state.engineVersion === 'v5' && typeof window.renderAtlasScene === 'function') {
+    window.renderAtlasScene(state, holoCanvas, holoCtx);
+  } else if (state.engineVersion === 'v1') {
     const wgl = document.getElementById('webglCanvas');
     if (wgl && wgl.style.display !== 'none') wgl.style.display = 'none';
     renderHologramChamber();
@@ -4250,5 +4269,13 @@ window.addEventListener('DOMContentLoaded', () => {
 </script>
 <script src="assets/stelline-sam-data.js"></script>
 <script src="assets/stelline-3d-engine.js"></script>
+<script src="assets/atlas/atlas-data.js"></script>
+<script src="assets/atlas-core.js"></script>
+<script src="assets/atlas-builder.js"></script>
+<script src="assets/atlas-hero.js"></script>
+<script src="assets/atlas-bug.js"></script>
+<script src="assets/atlas-cake.js"></script>
+<script src="assets/atlas-ui.js"></script>
+<script src="assets/atlas-sense.js"></script>
 </body>
 </html>
