@@ -2641,12 +2641,12 @@ function registerHitbox(id, label, x, y, w, h, onDown, onUp) {
 
 function getOrbLayoutScale(w, h) {
   const naturalW = 550 + state.accordionSpread * 168;
-  const naturalH = (window.innerWidth <= 820 || document.body.classList.contains('force-mobile')) ? 320 : 255;
-  return Math.min(1.0, Math.min((w - 12) / naturalW, (h - 10) / naturalH));
+  const naturalH = (window.innerWidth <= 820 || document.body.classList.contains('force-mobile')) ? 385 : 260;
+  return Math.min(1.0, Math.min((w - 16) / naturalW, (h - 12) / naturalH));
 }
 
 function getOrbLayoutCenterY(h) {
-  return (window.innerWidth <= 820 || document.body.classList.contains('force-mobile')) ? h * 0.34 : h * 0.47;
+  return (window.innerWidth <= 820 || document.body.classList.contains('force-mobile')) ? h * 0.36 : h * 0.47;
 }
 
 function cycleEngineVersion(explicitVer = null) {
@@ -3292,6 +3292,7 @@ function renderOrbHardware() {
     );
     ctx.restore();
   }
+  ctx.restore();
 }
 
 function drawOuterGripPod(ctx, cx, cy, side, spreadPx, isXray, specShift) {
@@ -3681,7 +3682,6 @@ function drawOuterGripPod(ctx, cx, cy, side, spreadPx, isXray, specShift) {
     );
   }
 
-  ctx.restore();
   ctx.restore();
 }
 
