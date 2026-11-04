@@ -77,7 +77,15 @@
     if (!moved) { hist.undo.pop(); toast('NOTHING IS ON THE WRITING'); return; } H.rebuild(false); toast(moved + ' CANDLES MOVED OFF THE WRITING'); say(moved + ' candles moved off the writing.');
   };
   A.setAllCandles = function (on) { const api = H.cakeAPI; if (!api) return; push(); ensureCustom(); api.candles.forEach((c, i) => { if (c.off === !on) return; c.off = !on; g().cslots[i].off = c.off; if (c.slot) c.slot.off = c.off; if (c.off) { api.puff(c); c.puffed = true; } else { c.puffed = false; c.burn = 0; } }); };
-  A.setCandleType = function (t) { const G = g(); push(); G.candle = t; if (G.cslots) G.cslots.forEach(c => { delete c.type; }); if (t === 'sparkler') G.age = Math.min(G.age, 9); H.rebuild(false); say(t + ' candles.'); };
+  A.setCandleType = function (t) { const G = g(); push(); G.candle = t; G.cslots = null; if (t === 'sparkler') G.age = Math.min(G.age, 9); if (t === 'braid' || t === 'daisy') G.age = Math.min(G.age, 8); if (t === 'number') G.age = clamp(G.age, 1, 99); H.rebuild(false); say(t + ' candles.'); };
+  A.applyRecipe = function (name) {
+    const b = H.builders.cake; push(); const keepName = g().name; const ng = H.recipeGenome(name, H.seed); if (keepName) { ng.name = keepName; ng.text = keepName.toUpperCase(); } H.start('cake', H.seed, ng); H.sel = -1; H.overview(); H.frame(b.overview, true); if (A.syncHeroRings) A.syncHeroRings(); if (A.rebuildDrawer) A.rebuildDrawer(); toast('RECIPE · ' + name); say('Recipe ' + name + '.');
+  };
+  A.setCake = function (key, val) {
+    const G = g(); push(); G[key] = val; G.variant = -1; if (key === 'arr' || key === 'shape') G.cslots = null;
+    if (key === 'shape') { const D = { drum: 'sponge', poly: 'ganache', opera: 'opera' }; if (D[val]) { const ok = { drum: ['sponge', 'frosted', 'naked', 'ganache'], poly: ['ganache', 'frosted'], opera: ['opera'] }[val]; if (!ok.includes(G.finish)) G.finish = D[val]; if (G.scene !== 'void') { G.scene = 'void'; G.table = 'none'; } G.view = 'hero'; } else if (G.view === 'hero') G.view = 'tq'; }
+    H.rebuild(false); H.overview(); if (A.rebuildDrawer) A.rebuildDrawer();
+  };
   A.setBurn = function (v) { g().burn = v; toast(v === 0 ? 'BURN OFF' : v === 1 ? 'BURNING DOWN · REAL TIME' : 'BURNING DOWN · TIME-LAPSE'); };
 
   // ---------------------------------------------------------------- piping
@@ -110,7 +118,7 @@
   };
 
   // ---------------------------------------------------------------- drawer extensions
-  const FONTS = ['script', 'sans', 'serif', 'brush', 'round'], MEDIA = ['pipe', 'gel', 'choc', 'gold'], LAYOUTS = ['top', 'arc', 'side', 'topper'], CANDLES = ['striped', 'taper', 'tealight', 'sparkler'];
+  const FONTS = ['piped', 'script', 'sans', 'serif', 'brush', 'round'], MEDIA = ['pipe', 'gel', 'choc', 'gold'], LAYOUTS = ['top', 'arc', 'side', 'topper'], CANDLES = ['striped', 'braid', 'daisy', 'number', 'taper', 'tealight', 'sparkler'];
   const row = (attr, list, cur) => `<div class="drow" style="margin-top:3px;gap:4px">${list.map(t => `<button class="dbtn${cur === t ? ' amber' : ''}" ${attr}="${t}">${t.toUpperCase()}</button>`).join('')}</div>`;
   const sl = (id, label, v, min, max) => `<label>${label}</label><input type="range" id="${id}" min="${min}" max="${max}" value="${v}">`;
   A.extendDrawer = function (drawer, G) {
@@ -133,6 +141,14 @@
       $('#eSplit').onclick = e => { const v = G.split ? 0 : 1; A.patchGenome({ split: v }, true); e.target.textContent = v ? 'ASYMMETRIC' : 'SYMMETRIC'; };
     }
     if (A.mode === 'cake') {
+      const O = A.cakeOptions; const FIN = ['sponge', 'frosted', 'naked', 'ganache', 'opera'];
+      drawer.insertAdjacentHTML('afterbegin', `<h5>RECIPES</h5><div class="drow" style="margin:0 0 4px;gap:4px">${Object.keys(A.cakeRecipes).map(n => `<button class="dbtn" data-recipe="${n}">${n}</button>`).join('')}<button class="dbtn amber" id="rFilm">FILM</button></div>
+        <h5>CAKE BODY</h5><label>SHAPE</label>${row('data-shape', O.SHAPES, G.shape)}<label>FINISH · DRUM / POLY / OPERA</label>${row('data-fin', FIN, G.finish)}<label>BORDER</label>${row('data-bord', O.BORDERS, G.border)}<label>SIDE DECORATION</label>${row('data-side', O.SIDEDECS, G.sidedec)}<label>CANDLE LAYOUT</label>${row('data-arr', O.ARRS, G.arr)}
+        <div class="drow"><button class="dbtn${G.dust ? ' amber' : ''}" id="bDust">${G.dust ? 'DUSTED' : 'NO DUST'}</button><button class="dbtn" id="bSides">POLY SIDES ${G.sides || 12}</button></div>`);
+      drawer.querySelectorAll('[data-recipe]').forEach(b => b.onclick = () => A.applyRecipe(b.dataset.recipe)); drawer.querySelector('#rFilm').onclick = () => { A.canon(); };
+      const bind = (attr, key) => drawer.querySelectorAll(`[${attr}]`).forEach(b => b.onclick = () => A.setCake(key, b.getAttribute(attr)));
+      bind('data-shape', 'shape'); bind('data-fin', 'finish'); bind('data-bord', 'border'); bind('data-side', 'sidedec'); bind('data-arr', 'arr');
+      drawer.querySelector('#bDust').onclick = () => A.setCake('dust', G.dust ? 0 : 1); drawer.querySelector('#bSides').onclick = () => A.setCake('sides', G.sides >= 16 ? 5 : (G.sides || 12) + 1);
       const PRE = A.writingPresets || [];
       drawer.insertAdjacentHTML('beforeend', `<h5>WRITING</h5><label>PRESETS</label><div class="drow" style="margin-top:3px;gap:4px">${PRE.map((p, i) => `<button class="dbtn" data-pre="${i}">${p[0].length > 12 ? p[0].slice(0, 10) + '…' : p[0]}</button>`).join('')}</div>
         <label>SCRIPT</label>${row('data-font', FONTS, G.font)}<label>MEDIUM</label>${row('data-med', MEDIA, G.medium)}<label>LAYOUT</label>${row('data-lay', LAYOUTS, G.layout)}

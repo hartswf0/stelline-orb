@@ -25,6 +25,10 @@ Buttons: SELECT = next part (camera racks to it) · ENGRAM = new specimen (film:
 
 Scene makes the interface: ring positions are the specimen's genome, the ◆ on each orb gauge is the film's canon, the orb's casing takes the scene's light (candle flicker included), and the accordion spread follows the shot scale. Interface makes the scene: every ring edit rebuilds or re-lights the specimen.
 
+### Cake engine
+
+Build any cake from parts. **Bodies:** drum (tall cylinder), 12-gon polygon, opera slab, round tiers, square, heart, bundt, naked layers, cupcake tower. **Finishes:** crumb sponge, ridged buttercream, mirror ganache, naked layers with caramel, opera stripes. **Borders:** piped shells, beads, sugar crystals. **Sides:** orange slices, gold leaf. **Dust.** **Candles:** striped, braided, daisy, wax numbers from the age with drips, taper, tealight, sparkler, each in a holder; layouts auto / grid / row / arc / cluster. **Lettering:** real 3D piped tubes from a single-stroke font (A–Z, 0–9, & ! . - '), drawn stroke by stroke by the L3 ring; other scripts fall back to a texture. **Scene:** pure black void, no table, hero framing. **RECIPES** in the drawer rebuild five reference cakes (LUZ, BEA, IZZY, NIA, MARA); typing a name pipes it. Random genomes (`G` gallery) mix all of these.
+
 ### Authoring (key `D` opens the drawer; `C` cycles tools; `Z` undo / `Shift+Z` redo)
 
 - **CANDLES tool:** click the icing to place a candle, click a candle to light or snuff it, shift-click to remove. The ghost candle turns red when too close to another and yellow when it sits on the writing; `KEEP CLEAR` moves candles off the inscription. Snuffed candles stop lighting the icing and leave a smoke wisp; `BURN` shortens candles in real time or ×6 until they gutter; all out = a wish is made.
