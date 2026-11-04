@@ -29,6 +29,7 @@
 <script src="assets/v6/qrcode.js"></script>
 <script src="assets/v6/hands.js"></script>
 <script src="assets/v6/core.js"></script>
+<script src="assets/v6/design.js"></script>
 <script src="assets/v6/orb.js"></script>
 <script src="assets/v6/anatomy.js"></script>
 <script src="assets/v6/scene.js"></script>
@@ -45,6 +46,7 @@
   const orbCv = document.getElementById('orb'), sceneCv = document.getElementById('scene');
   ORB.attach(orbCv);
   await CORE.load('assets/v6/atlas/');
+  DESIGN.init('assets/v6/', () => { if (window.SCENE) SCENE.dirty = true; CORE.touch && CORE.touch('design'); });
   if (ROLE === 'scene') SCENE.init(sceneCv);
   // the room: four letters, kept for this tab, shown on the device's left screen with a code for the phone's camera
   let room = (Q.get('room') || '').toUpperCase();
@@ -94,6 +96,9 @@
   requestAnimationFrame(loop);
   // ?t=BEAT.FRACTION opens at a moment; &play=1 plays it
   if (Q.get('t') && ROLE === 'scene') { CORE.setRing(0, parseFloat(Q.get('t'))); ST.playing = Q.has('play'); if (Q.has('play')) ST.mode = 'watch'; }
+  // &d=words:2,lit:0 opens the beat re-made (the same as turning those facets in CUT); &cut opens in CUT on the first facet
+  if (Q.get('t') && ROLE === 'scene' && (Q.has('cut') || Q.get('d'))) { const n = CORE.curShot().n; for (const kv of (Q.get('d') || '').split(',').filter(Boolean)) { const [k, v] = kv.split(':'); DESIGN.set(n, k, parseFloat(v)); }
+    CORE.press('cut'); const D = CORE.ringDefs(), ps = CORE.partsOf(CORE.curShot()).length, f = (Q.get('d') || '').split(':')[0], i = DESIGN.facets(n).findIndex(x => x[0] === f); if (DESIGN.has(n)) CORE.setRing(1, ps + Math.max(0, i)); }
   if (Q.get('sim') && ROLE === 'scene') setTimeout(() => HAND.SIM.run(Q.get('sim'), +(Q.get('speed') || 1)), 800);
   window.APP = { ROLE, room, orbURL };
 })();

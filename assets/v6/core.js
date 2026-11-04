@@ -6,7 +6,7 @@
   const ST = window.ST = {
     atlas: null, TL: [], t: 0, fr: 0, clock: 0, part: 0, mode: 'watch', spread: 0, view: 0, light: .5, iso: 0, playing: true, shotClock: 0,
     proto: null, build: { items: [], sel: 0, ref: null, n: 0 }, ring: 0, mems: 0, score: null, last: null,
-    lcd: { left: '', right: '', note: '' }, steps: null, step: 0, stepAt: 0, hands: { n: 0, src: '', who: '' }, edits: {}, rec: [], recFrom: 0, replaying: false, pair: { room: null, peers: 0 }, rev: 0, log: []
+    lcd: { left: '', right: '', note: '' }, steps: null, step: 0, stepAt: 0, hands: { n: 0, src: '', who: '' }, edits: {}, design: {}, dsel: null, rec: [], recFrom: 0, replaying: false, pair: { room: null, peers: 0 }, rev: 0, log: []
   };
   const bus = {}; const on = (k, f) => (bus[k] = bus[k] || []).push(f); const emit = (k, ...a) => (bus[k] || []).forEach(f => { try { f(...a); } catch (e) { console.error(e); } });
   const touch = (why) => { ST.rev++; ST.last = why; emit('change', why); };
@@ -56,7 +56,12 @@
       get: () => ST.t + (curShot() && cur().kind === 'film' ? ST.fr / curShot().T : 0), set: v => { const t = Math.floor(v + 1e-6), f = v - t; setT(t, f < 1e-4 ? null : f); } });
     // 2 PART: the parts of this shot, or the facets of the bench
     if (mode === 'build') { const F = facetsOfBuild(); D.push({ key: 'part', title: 'FACET', labels: F.map(x => (x.it.name + ' ' + x.f[1]).toUpperCase()), disc: true, long: F.map(x => x.it.name + ' · ' + x.f[1].toLowerCase()), get: () => ST.build.sel, set: v => { ST.build.sel = clamp(Math.round(v), 0, Math.max(0, F.length - 1)); } }); }
-    else { const ps = partsOf(sh); D.push({ key: 'part', title: 'PART', labels: ps.map(p => partName(sh, p).toUpperCase()), disc: true, long: ps.map(p => partName(sh, p) + (p.kind === 'ground' ? ' (ground)' : '')), get: () => ST.part, set: v => { ST.part = clamp(Math.round(v), 0, Math.max(0, ps.length - 1)); } }); }
+    else { const ps = partsOf(sh), DF = mode === 'cut' ? designFacets(sh) : [];
+      // in CUT, after the parts come the details the film lets you re-make: the facets of the part she works on
+      D.push({ key: 'part', title: 'PART', labels: ps.map(p => partName(sh, p).toUpperCase()).concat(DF.map(f => (f.part + ' ' + f.f[1]).toUpperCase())), disc: true,
+        long: ps.map(p => partName(sh, p) + (p.kind === 'ground' ? ' (ground)' : '')).concat(DF.map(f => f.part + ' · ' + f.f[1].toLowerCase() + ', re-made from the film')),
+        get: () => ST.dsel != null && DF[ST.dsel] ? ps.length + ST.dsel : ST.part,
+        set: v => { const i = clamp(Math.round(v), 0, Math.max(0, ps.length + DF.length - 1)); if (i < ps.length) { ST.part = i; ST.dsel = null; } else { ST.dsel = i - ps.length; const k = ps.findIndex(p => p.name === DF[ST.dsel].part); if (k >= 0) ST.part = k; } } }); }
     // 3 DEPTH: the same picture as film, as cut layers, as a model
     D.push({ key: 'depth', title: 'DEPTH', labels: DEPTH_L, get: () => ST.spread * 4, set: v => { ST.spread = clamp(v / 4, 0, 1); } });
     // 4 VIEW (watch), ISOLATE (cut), MAKE (build): the facet's value
@@ -64,6 +69,10 @@
         const labels = step ? Array.from({ length: n }, (_, i) => String(a + i * step)) : k === 'shape' ? SHAPES : [lab, '', '', '', ''].map((s, i) => i === 0 ? '0' : i === 4 ? 'MAX' : i === 2 ? lab : '');
         D.push({ key: 'make', title: lab, labels, long: labels.map((_, i) => F.it.name + ' · ' + lab.toLowerCase() + ' ' + (step ? labels[i] : k === 'shape' ? labels[i].toLowerCase() : Math.round(i / (labels.length - 1) * 100) + '%')), disc: !!step || k === 'shape', get: () => (F.it[k] - a) / (b - a) * (labels.length - 1), set: v => { let x = a + clamp(v / (labels.length - 1), 0, 1) * (b - a); if (step) x = Math.round(x); F.it[k] = x; } }); }
       else D.push({ key: 'make', title: 'MAKE', labels: ['-'], get: () => 0, set: () => { } }); }
+    else if (mode === 'cut' && ST.dsel != null && designFacets(sh)[ST.dsel]) { const F = designFacets(sh)[ST.dsel], [k, lab, a, b, step, opts] = F.f, n = opts ? opts.length : step ? (b - a) / step + 1 : 5, DS = window.DESIGN;
+      const labels = opts ? opts.slice() : step ? Array.from({ length: n }, (_, i) => String(a + i * step)) : ['0', '', lab, '', b > 1 ? Math.round(b * 100) + '%' : 'MAX'];
+      D.push({ key: 'design', title: lab, labels, disc: !!(opts || step), long: labels.map((l, i) => F.part + ' · ' + lab.toLowerCase() + ' ' + (opts ? l + (i === 0 ? ' (as filmed)' : DS.filmWord(l) ? ' (her own characters, re-set)' : ' (typed, piped)') : step ? l : Math.round((a + i / 4 * (b - a)) * 100) + '%')),
+        get: () => (DS.get(sh.n, k, ST.fr) - a) / (b - a) * (labels.length - 1), set: v => { let x = a + clamp(v / (labels.length - 1), 0, 1) * (b - a); if (opts || step) x = Math.round(x); DS.set(sh.n, k, x); emit('design', sh.n); } }); }
     else if (mode === 'cut') { const E = edit(); D.push({ key: 'push', title: 'PUSH', labels: ['BACK', '', 'AS CUT', '', 'FORWARD'], get: () => (E.z + 1) * 2, set: v => { E.z = clamp(v / 2 - 1, -1, 1); } }); }
     else if (moment()) { const m = moment(), keys = Object.keys(m.curves), ck = keys[0], cv = m.curves[ck], lab = ({ focusR: 'RIGHT EYE', focusL: 'LEFT EYE', ring: 'HER RING', needle: 'RETICLE', appear: 'APPEAR', tilt: 'TILT', upright: 'UPRIGHT', light: 'CANDLELIGHT', flames: 'FLAMES' })[ck] || ck.toUpperCase();
       // in a moment, ring 4 is the ring the film itself turns: it moves as the film plays, and turning it finds the film's frame with that value
@@ -75,6 +84,8 @@
     if (mode === 'cut') D[4].get = () => edit().light * 4;
     return D;
   }
+  // the details of a beat that can be re-made from the film's pixels (design.js), named by the part they belong to
+  function designFacets(sh) { const DS = window.DESIGN; if (!sh || !DS || !DS.has(sh.n)) return []; return DS.facets(sh.n).map(f => ({ f, part: DS.part(sh.n) })); }
   // a correction to the film's model, for the part in hand: how far forward it stands, how it is lit
   function edit(n, k) { const sh = curShot(); if (n == null) { if (!sh) return { z: 0, light: .5 }; const p = partsOf(sh)[ST.part]; if (!p) return { z: 0, light: .5 }; n = sh.n; k = p.k; }
     const key = n + ':' + k; return ST.edits[key] || (ST.edits[key] = { z: 0, light: .5 }); }
@@ -85,7 +96,7 @@
   // a place in the film: a beat, and a frame inside it (f, 0..1, or null for the beat's key frame)
   function setT(t, f) { t = clamp(t, 0, ST.TL.length - 1); const sh0 = curShot(), same = t === ST.t; const e = ST.TL[t], sh = e && e.kind === 'film' ? ST.atlas.shots[e.n] : null;
     const fr = sh ? (f == null ? (same ? ST.fr : sh.key) : clamp(Math.floor(f * sh.T), 0, sh.T - 1)) : 0;
-    if (same && fr === ST.fr) return; ST.t = t; ST.fr = fr; ST.clock = sh ? sh.t[fr] - sh.start : 0; if (same) { emit('frame', fr); return; } ST.shotClock = 0; const ps = partsOf(curShot()); if (ST.part >= ps.length) ST.part = 0;
+    if (same && fr === ST.fr) return; ST.t = t; ST.fr = fr; ST.clock = sh ? sh.t[fr] - sh.start : 0; if (same) { emit('frame', fr); return; } ST.shotClock = 0; ST.dsel = null; const ps = partsOf(curShot()); if (ST.part >= ps.length) ST.part = 0;
     if (ST.mode === 'build' && cur().kind === 'film' && !ST.build.items.some(i => i.src && (i.src.ks || i.src.n === ST.build.ref))) ST.build.ref = cur().n; emit('shot', cur()); }
 
   /* ---- the ten buttons ---- */
@@ -99,7 +110,7 @@
     if (k === 'watch') { if (ST.mode === 'watch') ST.playing = !ST.playing; else { ST.mode = 'watch'; ST.playing = true; } }
     else if (k === 'cut') { ST.mode = 'cut'; ST.playing = false; }
     else if (k === 'build') { if (!ST.build.items.length) startProto('anything'); else ST.mode = 'build'; }
-    else if (k === 'zero') { if (ST.mode === 'build') { const p = ST.proto; ST.build.items = []; startProto(p || 'anything'); } else { ST.spread = 0; ST.view = 0; ST.light = .5; ST.iso = 0; } }
+    else if (k === 'zero') { if (ST.mode === 'build') { const p = ST.proto; ST.build.items = []; startProto(p || 'anything'); } else { if (ST.mode === 'cut' && curShot() && window.DESIGN) window.DESIGN.reset(curShot().n); ST.spread = 0; ST.view = 0; ST.light = .5; ST.iso = 0; } }
     else if (k === 'take') take();
     else if (k === 'bug' || k === 'birthday' || k === 'anything') { if (long) { emit('demo', k); return; } startProto(k); }
     else if (k === 'otherwise') otherwise();
@@ -119,6 +130,7 @@
     const F = facetsOfBuild(); ST.build.sel = Math.max(0, F.findIndex(x => x.it === it)); ST.mode = 'build'; ST.playing = false;
     const i = ST.TL.findIndex(e => e.kind === 'film' && e.n === ST.build.ref); if (i >= 0) { ST.t = i; emit('shot', cur()); } emit('bench'); }
   function otherwise() {
+    if (ST.mode === 'cut' && designFacets(curShot()).length) { const n = curShot().n; for (const { f } of designFacets(curShot())) { const [k, , a, b, step, opts] = f; let v = a + Math.random() * (b - a); if (step || opts) v = Math.round(v); window.DESIGN.set(n, k, v); } emit('design', n); return; }
     if (ST.mode !== 'build') { const ps = partsOf(curShot()); ST.part = (ST.part + 1) % Math.max(1, ps.length); return; }
     for (const it of ST.build.items) for (const f of facetList(it)) { const [k, , a, b, step] = f; let v = a + Math.random() * (b - a); if (step) v = Math.round(v); if (k !== 'appear' && k !== 'skin') it[k] = v; }
     emit('bench'); }
@@ -178,5 +190,5 @@
       if (e.kind !== 'film') { if (ST.clock > 6) { setT(ST.t + 1 >= ST.TL.length ? 0 : ST.t + 1, 0); touch('play'); } return; }
       const sh = ST.atlas.shots[e.n], now = sh.start + ST.clock; if (now >= sh.end) { setT(ST.t + 1 >= ST.TL.length ? 0 : ST.t + 1, 0); ST.clock = 0; touch('play'); return; }
       let j = 0; while (j + 1 < sh.T && sh.t[j + 1] <= now) j++; if (j !== ST.fr) { ST.fr = j; emit('frame', j); touch('frame'); } } }
-  window.CORE = { ST, edit, setT, curveAt, nowT, moment, momentNote, on, emit, touch, ringDefs, turn, setRing, press, BUTTONS, FACETS, SHAPES, startProto, take, addMemory, load, tick, cur, curShot, partsOf, partName, figures, fmt, actOf, gradeOf, facetsOfBuild, check, log, PROTO_STEPS, item };
+  window.CORE = { ST, designFacets, edit, setT, curveAt, nowT, moment, momentNote, on, emit, touch, ringDefs, turn, setRing, press, BUTTONS, FACETS, SHAPES, startProto, take, addMemory, load, tick, cur, curShot, partsOf, partName, figures, fmt, actOf, gradeOf, facetsOfBuild, check, log, PROTO_STEPS, item };
 })();

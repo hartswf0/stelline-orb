@@ -50,10 +50,15 @@
   }
   // the relief the DEPTH ring grows: 0 is the flat frame
   const reliefOf = sp => .95 * Math.pow(Math.max(0, sp), .7);
-  function frameTex(L, n, j, f) { const u = L.material.uniforms; u.map.value = tex(url(f || 'f', n, j)); u.mask.value = tex(url('m', n, j), true); u.depth.value = tex(url('e', n, j)); }
+  // a frame the user has re-made (design.js): the film's own pixels mixed per facet; until its layers arrive, the frame itself
+  const dTex = new WeakMap();
+  function designTex(n, j) { const DS = window.DESIGN; if (!DS || !DS.active(n)) return null; const c = DS.render(n, j, DS.img(url('f', n, j))); if (!c) return null;
+    let t = dTex.get(c); if (!t) { t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.wrapS = t.wrapT = T.MirroredRepeatWrapping; t.minFilter = T.LinearFilter; t.generateMipmaps = false; dTex.set(c, t); } return t; }
+  S.designTex = designTex;
+  function frameTex(L, n, j, f) { const u = L.material.uniforms; u.map.value = (!f || f === 'f') && designTex(n, j) || tex(url(f || 'f', n, j)); u.mask.value = tex(url('m', n, j), true); u.depth.value = tex(url('e', n, j)); }
   function updateFilm(now, dt) {
     if (!FM || FM.mem) return; const n = FM.n, sh = ST.atlas.shots[n], sp = S.sp, cutting = ST.mode === 'cut', t = now / 1000, j = jOf(n), rel = reliefOf(sp);
-    for (let q = 1; q <= 3; q++) if (j + q < sh.T) { tex(url('f', n, j + q)); tex(url('m', n, j + q), true); tex(url('e', n, j + q)); }
+    for (let q = 1; q <= 3; q++) if (j + q < sh.T) { if (window.DESIGN && DESIGN.active(n)) { DESIGN.prefetch(n, j + q); DESIGN.img(url('f', n, j + q)); } tex(url('f', n, j + q)); tex(url('m', n, j + q), true); tex(url('e', n, j + q)); }
     // the back wall: the frame (or the still beat's clean plate where figures stood), shaped by the depth behind the figures
     const bm = FM.back.material.uniforms; frameTex(FM.back, n, j); bm.map2.value = tex(url('b', n)); bm.zl.value = 0; bm.relief.value = rel; bm.light.value = cutting ? .5 : ST.light; bm.dim.value = cutting ? .45 : 0;
     bm.mixp.value = Math.max(0, Math.min(1, (sp - .1) / .3)); bm.blurUnder.value = 0; loadMask(n, j);
@@ -224,7 +229,14 @@
            #include <encodings_fragment>`); };
       mat.customProgramCacheKey = () => 'skin'; }); }
   // a thing is at rest when the skin is on and nothing has been changed from what the film shows
-  const atRest = it => it.fit && it.canon && it.skin > .95 && !(S.benchOrbit && (S.benchOrbit[0] || S.benchOrbit[1])) && Object.keys(it.canon).every(k => Math.abs((it[k] || 0) - it.canon[k]) < .02);
+  // facets the film's own pixels can re-make on the bench's reference beat (design.js): the thing stays at rest and the frame changes
+  const DKEYS = { 7: { beetle: ['focusR', 'focusL'] }, 29: { cake: ['flames'] } };
+  const dkeys = it => ((DKEYS[ST.build.ref] || {})[it.type]) || [];
+  const atRest = it => it.fit && it.canon && it.skin > .95 && !(S.benchOrbit && (S.benchOrbit[0] || S.benchOrbit[1])) && Object.keys(it.canon).every(k => dkeys(it).includes(k) || Math.abs((it[k] || 0) - it.canon[k]) < .02);
+  function benchDesign() { const DS = window.DESIGN, ref = ST.build.ref; if (!DS || !DKEYS[ref]) return; const st = ST.design[ref] || {};
+    for (const it of ST.build.items) { if (!dkeys(it).length || it.skin < .5) continue;
+      if (it.type === 'beetle') for (const k of ['focusR', 'focusL']) { const v = Math.abs(it[k] - it.canon[k]) < .02 ? null : +it[k].toFixed(3); if (st[k] !== v) DS.set(ref, k, v); }
+      if (it.type === 'cake') { const v = Math.abs(it.flames - it.canon.flames) < .02 ? null : Math.round(it.flames * DS.BEATS[ref].total); if (st.lit !== v) DS.set(ref, 'lit', v); } } }
   // the film's own variations: for a facet the film shows changing (the eyes racked into focus, the children faded in),
   // the bench stands on the frame of that beat where the film had the value asked for
   function filmVariant() { const M = ST.moments || {}, sh = ST.atlas.shots[ST.build.ref]; if (!sh) return;
@@ -241,6 +253,7 @@
     // when the cake's candles or flames are changed, the frame under it is the one with its candles painted out
     const cakeIt = ST.build.items.find(i => i.type === 'cake'), C = cakeIt && cakeIt.canon, CLEAN = { 24: 'c24.jpg' };
     B.alt = CLEAN[ref] && C && (cakeIt.candles !== C.candles || cakeIt.flames < C.flames - .05) ? tex(ST.base + CLEAN[ref]) : null;
+    benchDesign(); if (!B.alt) B.alt = designTex(ref, ST.build.refFr) || null;
     for (const L of B.film.layers) { if (!L.map0) L.map0 = L.m.material.uniforms.map.value; }
     { const F = B.film, bu = F.back.material.uniforms; if (!F.map0) F.map0 = bu.map.value; bu.map.value = B.alt || F.map0; }
     for (const [, h] of B.items) h.o.traverse(m => { if (m.material && m.material.userData && m.material.userData.sh) m.material.userData.sh.uniforms.ftex.value = B.alt || tex(url('f', ref)); });
