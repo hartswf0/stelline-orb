@@ -1026,6 +1026,7 @@
       uniform float uCameraOrbit;
       uniform float uLiveMode;
       uniform float uWireOverlay;
+      uniform float uFrostingShift;
       uniform sampler2D uTexF0;
       uniform sampler2D uTexF1;
       uniform sampler2D uTexF2;
