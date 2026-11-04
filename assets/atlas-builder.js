@@ -647,6 +647,82 @@
     A.critic.last = res; A.emit('critic', res); return res;
   };
 
+
+  // --------------------------------------------------------------------------
+  // NO-REFERENCE QUALITY CRITIC: is this a usable film image, whatever it depicts?
+  // Judged against the film's own statistics (exposure, contrast, colour, subject isolation),
+  // not against one frame. Also a descriptor for diversity.
+  // --------------------------------------------------------------------------
+  const filmPri = (() => {
+    const L = [], C = [], S = []; D.sec.forEach(x => { L.push(x.luma); C.push(x.contrast); S.push(x.sat); });
+    const q = (a, p) => { const b = a.slice().sort((x, y) => x - y); return b[Math.floor(p * (b.length - 1))]; };
+    return { luma: [q(L, .05), q(L, .95)], contrast: [q(C, .05), q(C, .95)], sat: [q(S, .05), q(S, .95)] };
+  })();
+  A.filmPriors = filmPri;
+  A.critic.quality = function (cv) {
+    const w = cv.width, h = cv.height; const d = cv.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, w, h).data; const n = w * h;
+    const lum = new Float32Array(n); let m = 0, sat = 0, clipHi = 0, crush = 0; const hist = new Float32Array(64);
+    for (let i = 0; i < n; i++) { const o = i * 4, r = d[o], g = d[o + 1], b = d[o + 2], L = 0.299 * r + 0.587 * g + 0.114 * b; lum[i] = L; m += L; sat += Math.max(r, g, b) - Math.min(r, g, b); if (L > 247) clipHi++; if (L < 12) crush++; hist[L >> 2]++; }
+    m /= n; sat /= n; const pct = p => { let a = 0; for (let k = 0; k < 64; k++) { a += hist[k]; if (a >= p * n) return k * 4; } return 255; };
+    const p5 = pct(.05), p50 = pct(.5), p95 = pct(.95); let v = 0; for (let i = 0; i < n; i++) v += (lum[i] - m) * (lum[i] - m); const sd = Math.sqrt(v / n);
+    // edge energy: centre vs periphery (subject isolation / depth of field)
+    let ec = 0, ep = 0, nc = 0, np = 0, sub = 0;
+    for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) { const i = y * w + x; const gx = lum[i + 1] - lum[i - 1], gy = lum[i + w] - lum[i - w]; const e = Math.hypot(gx, gy); const cx = Math.abs(x / w - 0.5) < 0.25 && Math.abs(y / h - 0.5) < 0.25; if (cx) { ec += e; nc++; } else { ep += e; np++; } }
+    ec /= nc; ep /= np; const iso = ec / Math.max(0.5, ep);
+    // subject coverage: pixels far from the border colour
+    let br = 0, bg = 0, bb = 0, bn = 0; for (let x = 0; x < w; x++) for (const y of [0, 1, h - 2, h - 1]) { const o = (y * w + x) * 4; br += d[o]; bg += d[o + 1]; bb += d[o + 2]; bn++; } br /= bn; bg /= bn; bb /= bn;
+    for (let i = 0; i < n; i++) { const o = i * 4; if (Math.abs(d[o] - br) + Math.abs(d[o + 1] - bg) + Math.abs(d[o + 2] - bb) > 70) sub++; } sub /= n;
+    const notes = []; let score = 0;
+    // 1 exposure (0-20)
+    let e = 20; if (m < 22) { e -= 12; notes.push('too dark overall'); } else if (m < 34) e -= 4; if (m > 165) { e -= 12; notes.push('overexposed'); } else if (m > 135) e -= 5; if (clipHi / n > 0.06) { e -= 8; notes.push('highlights clip to white'); } if (crush / n > 0.8) { e -= 8; notes.push('nearly black'); } score += clamp(e, 0, 20);
+    // 2 dynamic range (0-20)
+    const dr = p95 - p5; let r = clamp((dr - 25) / 90, 0, 1) * 20; if (dr < 55) notes.push('flat tonal range'); score += r;
+    // 3 subject isolation / depth (0-20)
+    let s3 = clamp((iso - 0.8) / 1.2, 0, 1) * 20; if (iso < 1.1) notes.push('subject does not separate from the background'); score += s3;
+    // 4 subject size (0-15)
+    let s4 = sub > 0.08 && sub < 0.75 ? 15 : sub <= 0.08 ? clamp(sub / 0.08, 0, 1) * 15 : clamp((1 - sub) / 0.25, 0, 1) * 15; if (sub <= 0.08) notes.push('subject too small'); if (sub >= 0.75) notes.push('frame is all subject'); score += s4;
+    // 5 film style fit (0-25): luma, contrast, saturation inside the film's own 5-95% range (soft)
+    const lN = m / 255, cN = sd / 255, sN = sat / 255 / 0.5 * 0.5; const fit = (x, [lo, hi]) => { const span = hi - lo + 1e-6; return x < lo ? clamp(1 - (lo - x) / span, 0, 1) : x > hi ? clamp(1 - (x - hi) / span, 0, 1) : 1; };
+    const f1 = fit(lN, [filmPri.luma[0] * 0.5, Math.min(0.75, filmPri.luma[1] * 1.15)]), f2 = fit(cN, [filmPri.contrast[0] * 0.6, filmPri.contrast[1] * 1.5]), f3 = fit(sat / 255, [0.04, 0.42]); score += 25 * (0.4 * f1 + 0.3 * f2 + 0.3 * f3); if (f3 < 0.6) notes.push(sat / 255 > 0.42 ? 'more saturated than anything in the film' : 'greyer than the film');
+    // descriptor: 4x3 mean colour + edge grid
+    const desc = []; for (let gy = 0; gy < 3; gy++) for (let gx = 0; gx < 4; gx++) { let rr = 0, gg = 0, bb2 = 0, c = 0; for (let y = Math.floor(gy * h / 3); y < Math.floor((gy + 1) * h / 3); y += 2) for (let x = Math.floor(gx * w / 4); x < Math.floor((gx + 1) * w / 4); x += 2) { const o = (y * w + x) * 4; rr += d[o]; gg += d[o + 1]; bb2 += d[o + 2]; c++; } desc.push(rr / c / 255, gg / c / 255, bb2 / c / 255); }
+    return { score: clamp(score, 0, 100), notes, desc, stats: { mean: m, sd, p5, p50, p95, sat, iso, sub, clipHi: clipHi / n } };
+  };
+  A.critic.distance = (a, b) => { let s = 0; for (let i = 0; i < a.length; i++) s += (a[i] - b[i]) * (a[i] - b[i]); return Math.sqrt(s / a.length); };
+
+
+  // --------------------------------------------------------------------------
+  // LEARNED CRITIC FEATURES: 20 low-level statistics that separate real film frames from renders.
+  // A logistic model on these (weights in atlas-critic.js, trained in-browser on film frames vs
+  // our own renders) is the "blind critic": its accuracy is how far we still are from the film.
+  // --------------------------------------------------------------------------
+  A.critic.FEATURE_NAMES = ['luma', 'contrast', 'p5', 'p95', 'sat', 'colour-spread', 'warmth', 'dark-frac', 'bright-frac', 'detail', 'detail-centre', 'detail-ratio', 'edge-density', 'local-contrast', 'tone-entropy', 'hue-entropy', 'grain', 'top-bottom', 'sat-luma', 'spectral-slope'];
+  A.critic.features = function (cv) {
+    const w = cv.width, h = cv.height; const d = cv.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, w, h).data; const n = w * h;
+    const L = new Float32Array(n); let m = 0, sat = 0, warm = 0, dark = 0, bright = 0; const hist = new Float32Array(32), hh = new Float32Array(8); const sats = new Float32Array(n);
+    for (let i = 0; i < n; i++) { const o = i * 4, r = d[o], g = d[o + 1], b = d[o + 2], l = 0.299 * r + 0.587 * g + 0.114 * b; L[i] = l; m += l; const mx = Math.max(r, g, b), mn = Math.min(r, g, b); const sa = mx - mn; sats[i] = sa; sat += sa; warm += r - b; if (l < 24) dark++; if (l > 230) bright++; hist[l >> 3]++; if (sa > 12) { const hue = Math.atan2(Math.sqrt(3) * (g - b), 2 * r - g - b); hh[(((hue / Math.PI + 1) * 4) | 0) & 7] += sa; } }
+    m /= n; sat /= n; warm /= n; let v = 0; for (let i = 0; i < n; i++) v += (L[i] - m) * (L[i] - m); const sd = Math.sqrt(v / n); const hs = []; for (let k = 0; k < 32; k++) hs.push(hist[k]);
+    const cum = []; let a = 0; for (let k = 0; k < 32; k++) { a += hist[k]; cum.push(a / n); } const pc = p => { for (let k = 0; k < 32; k++) if (cum[k] >= p) return k * 8; return 255; };
+    let lapC = 0, lapP = 0, nc = 0, np = 0, lapAll = 0, edge = 0, flatLap = 0, nf = 0, gE1 = 0; const L2 = new Float32Array((w >> 1) * (h >> 1)); const w2 = w >> 1;
+    for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) { const i = y * w + x; const lap = Math.abs(4 * L[i] - L[i - 1] - L[i + 1] - L[i - w] - L[i + w]); const gx = L[i + 1] - L[i - 1], gy = L[i + w] - L[i - w]; const ge = Math.hypot(gx, gy); lapAll += lap; gE1 += ge; if (ge > 20) edge++; if (ge < 4) { flatLap += lap; nf++; } const cx = Math.abs(x / w - 0.5) < 0.25 && Math.abs(y / h - 0.5) < 0.25; if (cx) { lapC += lap; nc++; } else { lapP += lap; np++; } }
+    for (let y = 0; y < (h >> 1); y++) for (let x = 0; x < w2; x++) L2[y * w2 + x] = (L[(2 * y) * w + 2 * x] + L[(2 * y) * w + 2 * x + 1] + L[(2 * y + 1) * w + 2 * x] + L[(2 * y + 1) * w + 2 * x + 1]) / 4;
+    let gE2 = 0; for (let y = 1; y < (h >> 1) - 1; y++) for (let x = 1; x < w2 - 1; x++) { const i = y * w2 + x; gE2 += Math.hypot(L2[i + 1] - L2[i - 1], L2[i + w2] - L2[i - w2]); }
+    lapAll /= n; lapC /= nc; lapP /= np; edge /= n; flatLap = nf ? flatLap / nf : 0; gE1 /= n; gE2 /= (w2 * (h >> 1));
+    const bm = []; for (let by = 0; by < h - 8; by += 8) for (let bx = 0; bx < w - 8; bx += 8) { let s = 0; for (let y = 0; y < 8; y += 2) for (let x = 0; x < 8; x += 2) s += L[(by + y) * w + bx + x]; bm.push(s / 16); } const bmm = bm.reduce((p, q) => p + q, 0) / bm.length; const lc = Math.sqrt(bm.reduce((p, q) => p + (q - bmm) * (q - bmm), 0) / bm.length);
+    let ent = 0; hs.forEach(c => { const p = c / n; if (p > 0) ent -= p * Math.log2(p); }); let he = 0; const hsum = hh.reduce((p, q) => p + q, 0) + 1e-6; hh.forEach(c => { const p = c / hsum; if (p > 0) he -= p * Math.log2(p); });
+    let top = 0, bot = 0; for (let y = 0; y < h / 2; y++) for (let x = 0; x < w; x++) { top += L[y * w + x]; bot += L[(y + (h >> 1)) * w + x]; } top /= (n / 2); bot /= (n / 2);
+    let cs = 0; for (let i = 0; i < n; i++) cs += (sats[i] - sat) * (L[i] - m); cs /= n * (sd * 20 + 1e-3);
+    let sv = 0; for (let i = 0; i < n; i++) sv += (sats[i] - sat) * (sats[i] - sat); sv = Math.sqrt(sv / n);
+    return [m / 255, sd / 255, pc(.05) / 255, pc(.95) / 255, sat / 255, sv / 255, warm / 255, dark / n, bright / n, lapAll / 40, lapC / 40, lapC / (lapP + 0.5), edge, lc / 255, ent / 5, he / 3, flatLap / 6, (top - bot) / 255, clamp(cs, -1, 1), Math.log((gE1 + 0.5) / (gE2 + 0.5))];
+  };
+  // trained blind critic: P(this frame is real film)
+  A.critic.filmLike = function (cv) {
+    const M = window.STELLINE_CRITIC; if (!M) return null; const f = A.critic.features(cv); let z = M.b; for (let i = 0; i < f.length; i++) z += M.w[i] * (f[i] - M.mean[i]) / (M.std[i] + 1e-6);
+    const contrib = f.map((x, i) => ({ name: A.critic.FEATURE_NAMES[i], c: M.w[i] * (x - M.mean[i]) / (M.std[i] + 1e-6) })).sort((a, b) => a.c - b.c);
+    return { p: 1 / (1 + Math.exp(-z)), z, worst: contrast_(contrib), feats: f };
+  };
+  function contrast_(c) { return c.slice(0, 3).map(x => x.name); }
+
   // initial kit / hand
   A.activeKit = null;
   setTimeout(() => A.restoreBin && A.restoreBin(), 400);

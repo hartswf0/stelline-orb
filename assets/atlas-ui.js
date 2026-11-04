@@ -48,6 +48,17 @@
   .stp b{font-weight:500;font-size:16px;min-width:30px;text-align:center}
   .dbtn.amber{color:#f0b050;border-color:rgba(240,176,80,.5)}
   .drow{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  #v5Gal{position:absolute;inset:0;background:rgba(8,5,3,.94);display:none;flex-direction:column;pointer-events:auto;z-index:12}
+  #v5Gal.on{display:flex}
+  #v5GalHead{padding:16px 36px 6px;font-size:9.5px;letter-spacing:.12em;color:rgba(243,231,214,.6);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  #v5GalGrid{flex:1;overflow:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:6px 36px 14px;align-content:start}
+  .gcell{position:relative;border:1px solid rgba(243,231,214,.14);cursor:pointer;background:#000;aspect-ratio:16/9}
+  .gcell:hover{border-color:#f0b050}
+  .gcell canvas{width:100%;height:100%;display:block}
+  .gcell .q{position:absolute;left:6px;top:5px;font-size:9px;color:#f0b050;text-shadow:0 0 4px #000}
+  .gcell .more{position:absolute;right:6px;bottom:5px;font-size:8px;letter-spacing:.14em;color:#f3e7d6;background:rgba(0,0,0,.55);border:1px solid rgba(243,231,214,.3);padding:2px 5px}
+  .gcell .nm{position:absolute;left:6px;bottom:5px;font-size:8px;color:rgba(243,231,214,.8);text-shadow:0 0 4px #000;max-width:60%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  @media (max-width:760px){#v5GalGrid{grid-template-columns:repeat(2,1fr);padding:6px 14px}#v5GalHead{padding:12px 14px 4px}}
   #v5Toast{position:absolute;left:50%;bottom:92px;transform:translateX(-50%);background:rgba(14,9,6,.8);border:1px solid rgba(240,176,80,.5);color:#f0b050;padding:6px 14px;font-size:9.5px;letter-spacing:.14em;opacity:0;transition:opacity .35s;pointer-events:none;white-space:nowrap}
   #v5Toast.on{opacity:1}
   #v5Flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
@@ -71,11 +82,12 @@
   <nav class="sr-only" id="v5SR" aria-label="Stelline controls"></nav>
   <div id="v5TLwrap"><canvas id="v5TL" aria-label="Timeline of the whole film"></canvas></div>
   <aside id="v5Drawer" aria-label="Design"></aside>
+  <div id="v5Gal"><div id="v5GalHead"></div><div id="v5GalGrid"></div></div>
   <div id="v5Toast"></div><div id="v5Flash"></div>
   <input type="file" id="v5File" accept="video/*" style="display:none">
   <div id="v5Help"><b style="color:#f0b050;letter-spacing:.2em;font-weight:500">THE ORB IS THE INTERFACE · THE KEYS MIRROR IT</b>
    <h3>ORB</h3>rings <b>L1–R2</b> edit the specimen's genome (labels and readouts change with what you build) · <b>SELECT</b> next part · <b>ENGRAM</b> new specimen (film: next chapter) · <b>red dot</b> snapshot card (hold: share link) · <b>aux</b> switch FILM / BUG / BIRTHDAY (hold: back to the film's canon) · <b>jog wheel</b> rack focus (film: scrub) · <b>rocker</b> orbit &amp; dolly · <b>X-RAY</b> bug: anatomy / cake: blow the candles · <b>speed dome</b> tap: OTHERWISE (the film's counterfactual variants) · <b>big red thumb</b> MATCH: put the film frame beside your model and let the critic score it · <b>M1–M4, LR1</b> tap: that ring seeks the film's canon, hold: spin · <b>scale window</b> sound
-   <h3>KEYS</h3><kbd>W</kbd> mode · <kbd>Tab</kbd> next part · <kbd>1</kbd>–<kbd>5</kbd> pick a ring, <kbd>↑</kbd><kbd>↓</kbd> turn it (<kbd>Shift</kbd> fine) · <kbd>←</kbd><kbd>→</kbd> orbit (film: step a second) · <kbd>[</kbd><kbd>]</kbd> dolly · <kbd>E</kbd> new specimen · <kbd>T</kbd> OTHERWISE · <kbd>R</kbd> x-ray / blow · <kbd>Y</kbd> canon · <kbd>Q</kbd> snapshot · <kbd>L</kbd> share link · <kbd>D</kbd> design drawer · <kbd>M</kbd> watch the film (wipe + critic; <kbd>,</kbd><kbd>.</kbd> step the film) · <kbd>X</kbd> photo mode · <kbd>P</kbd> sound · <kbd>N</kbd> narrate · <kbd>H</kbd> describe · <kbd>?</kbd> this page
+   <h3>KEYS</h3><kbd>W</kbd> mode · <kbd>Tab</kbd> next part · <kbd>1</kbd>–<kbd>5</kbd> pick a ring, <kbd>↑</kbd><kbd>↓</kbd> turn it (<kbd>Shift</kbd> fine) · <kbd>←</kbd><kbd>→</kbd> orbit (film: step a second) · <kbd>[</kbd><kbd>]</kbd> dolly · <kbd>E</kbd> new specimen · <kbd>T</kbd> OTHERWISE · <kbd>R</kbd> x-ray / blow · <kbd>Y</kbd> canon · <kbd>Q</kbd> snapshot · <kbd>L</kbd> share link · <kbd>D</kbd> design drawer · <kbd>M</kbd> watch the film (wipe + critic; <kbd>,</kbd><kbd>.</kbd> step the film) · <kbd>B</kbd> REPLAY the film's beats (the eye 0:29, the writing 2:17, the children 2:32, the face 2:51): the orb turns itself, the screen answers, the reticle follows · drag the reticle's arc to turn its ring · <kbd>G</kbd> gallery: dream 30, keep the 12 best and most different, breed from any · <kbd>K</kbd> 4K still · <kbd>J</kbd> 8 s turntable clip (webm) · <kbd>X</kbd> photo mode · <kbd>P</kbd> sound · <kbd>N</kbd> narrate · <kbd>H</kbd> describe · <kbd>?</kbd> this page
    <h3>FILM MODE</h3>407 seconds, 57 shots, every second segmented and relief-modelled. <kbd>Space</kbd> play · <kbd>Shift</kbd>+arrows shots · <kbd>PgUp</kbd><kbd>PgDn</kbd> chapters · <kbd>V</kbd> film / parts / relief · <kbd>C</kbd> compare with the blind critic · <kbd>Z</kbd> rebuild zero → film
    <h3>THE LOOP</h3>Observe the film's bug and cake → isolate their parts → model them with the rings → compose your own specimen → compare with the critic → the orb remembers what each kind of part needs. The scene makes the interface; the interface makes the scene.
    <div style="margin-top:10px"><button class="dbtn" onclick="document.getElementById('v5Help').classList.remove('on')">CLOSE</button> <button class="dbtn" onclick="document.getElementById('v5Help').classList.remove('on');cycleEngineVersion()">LEGACY ENGINES V4–V1</button> <button class="dbtn" onclick="document.getElementById('v5File').click()">LOAD MY COPY OF THE FILM</button></div></div>`;
@@ -99,13 +111,13 @@
       const b = H.builders[m]; const seed = opts.seed || H.hash(m + 'film'); const g = opts.genome || (b.filmCanon ? b.filmCanon(seed) : b.makeGenome(seed));
       H.blown = 0; H.start(m, seed, g); syncRingsToGenome(); buildDrawer();
     }
-    A.emit('mode', m); say(m === 'film' ? 'Film mode. The whole footage, segmented.' : (m === 'bug' ? 'Bug designer. ' : 'Birthday designer. ') + builderOf().title(H.genome));
+    A.emit('mode', m); say(m === 'film' ? 'Film mode. The whole footage, segmented.' : ({ bug: 'Bug designer. ', cake: 'Birthday designer. ', child: 'Child portrait. ' }[m] || '') + builderOf().title(H.genome));
     refreshSR();
   };
   function syncRingsToGenome() { const b = builderOf(); if (!b || !window.setRingAngle) return; const d = b.dials(H.genome); state._syncingNode = true; for (let r = 0; r < 5; r++) setRingAngle(r, d[r], false); state._syncingNode = false; }
   A.syncHeroRings = syncRingsToGenome;
-  const cycleModes = ['film', 'bug', 'cake'];
-  const nextMode = () => A.setMode(cycleModes[(cycleModes.indexOf(A.mode) + 1) % 3]);
+  const cycleModes = ['film', 'bug', 'cake', 'child'];
+  const nextMode = () => A.setMode(cycleModes[(cycleModes.indexOf(A.mode) + 1) % cycleModes.length]);
   A.cycleVariant = function () {
     const b = builderOf(); if (!b) return; const g = H.genome; const n = ((g.variant < 0 ? 0 : g.variant) + 1) % b.variants.length;
     Object.assign(g, b.variants[n].patch, { variant: n }); H.rebuild(false); H.select(H.sel, false); syncRingsToGenome(); buildDrawer(); toast(b.variants[n].code); say(b.variants[n].code);
@@ -113,6 +125,58 @@
   A.canon = function () { const b = builderOf(); if (!b) return; const keep = { name: H.genome.name, age: H.genome.age, text: H.genome.text }; H.genome = b.filmCanon(H.seed); if (A.mode === 'cake') H.genome.age = keep.age; H.rebuild(false); H.select(H.sel, false); syncRingsToGenome(); buildDrawer(); toast('FILM CANON'); };
   A.reroll = function () { if (A.mode === 'film') return; const keep = A.mode === 'cake' ? { name: H.genome.name, age: H.genome.age, text: H.genome.text } : {}; const seed = (Math.random() * 4294967295) >>> 0; H.start(A.mode, seed, null, { keepSel: true }); Object.assign(H.genome, keep); if (keep.text !== undefined) H.rebuild(false); syncRingsToGenome(); buildDrawer(); toast('NEW SPECIMEN · ' + H.seedName(seed)); say('New specimen. ' + builderOf().title(H.genome)); if (A.chime) A.chime(); };
   A.selectPart = function (d) { if (A.mode === 'film') { A.cycleSel(d || 1); return; } H.cyclePart(d || 1); const p = H.parts[H.sel]; if (p) say(`${p.id}. ${p.name}.`); if (A.tick1) A.tick1(); };
+
+  // -------------------------------------------------------------------------- GALLERY: imagine many, keep the good and the different
+  const galEl = $('#v5Gal'), galGrid = $('#v5GalGrid'), galHead = $('#v5GalHead');
+  const nextTick = (ms) => new Promise(r => setTimeout(r, ms || 60));
+  A.galleryOpen = false;
+  A.gallery = async function (parent) {
+    if (A.mode === 'film') { toast('OPEN BUG OR BIRTHDAY'); return; } if (A.galleryBusy) return;
+    const b = builderOf(), kind = A.mode; const saved = { g: JSON.parse(JSON.stringify(H.genome)), seed: H.seed, sel: H.sel };
+    A.galleryBusy = true; A.galleryOpen = true; galEl.classList.add('on'); galGrid.innerHTML = ''; drawer.classList.remove('on'); H.lockRef = null; A.matchOn = false;
+    const tryN = parent ? 16 : 30, wantN = 12, rngSeed = (Math.random() * 4294967295) >>> 0; const R = H.rng(rngSeed); const cand = [];
+    for (let i = 0; i < tryN; i++) {
+      galHead.innerHTML = `<span>DREAMING ${i + 1} / ${tryN} · ${parent ? 'CHILDREN OF THE ONE YOU PICKED' : 'NEW SPECIMENS'}</span><span><button class="dbtn" id="gClose">STOP</button></span>`; $('#gClose').onclick = () => { A.galleryStop = true; };
+      if (A.galleryStop) break;
+      const seed = (R() * 4294967295) >>> 0; const genome = parent ? b.mutate(parent, H.rng(seed), 0.55 + 0.5 * (i / tryN)) : b.makeGenome(seed); genome.seed = seed;
+      H.start(kind, seed, genome); H.sel = -1; H.frame(b.overview, true); H.syncCam(); H.updaters.forEach(u => u(0.016, H.t)); H.syncCam(); await nextTick(30);
+      const cv = H.capture(320, 180); const q = A.critic.quality(cv); cand.push({ genome: JSON.parse(JSON.stringify(genome)), seed, thumb: cv, q });
+    }
+    A.galleryStop = false;
+    // curate: quality first, then farthest-point sampling so the twelve are different
+    cand.sort((x, y) => y.q.score - x.q.score); const pool = cand.slice(0, Math.max(wantN, Math.ceil(cand.length * 0.7))); const picked = [];
+    while (picked.length < Math.min(wantN, pool.length)) { let best = null, bs = -1; pool.forEach(c => { if (picked.includes(c)) return; const dmin = picked.length ? Math.min(...picked.map(p => A.critic.distance(p.q.desc, c.q.desc))) : 0.3; const sc = 0.5 * c.q.score / 100 + 0.5 * Math.min(1, dmin * 4); if (sc > bs) { bs = sc; best = c; } }); if (!best) break; picked.push(best); }
+    // diversity: mean nearest-neighbour distance of the picked set (0..1 scaled)
+    let div = 0; picked.forEach(p => { let m = 9; picked.forEach(o => { if (o !== p) m = Math.min(m, A.critic.distance(p.q.desc, o.q.desc)); }); div += m; }); div = picked.length > 1 ? div / picked.length : 0; const dRaw = cand.length > 1 ? (() => { let t = 0; cand.forEach(p => { let m = 9; cand.forEach(o => { if (o !== p) m = Math.min(m, A.critic.distance(p.q.desc, o.q.desc)); }); t += m; }); return t / cand.length; })() : 0;
+    const meanQ = picked.reduce((a, p) => a + p.q.score, 0) / Math.max(1, picked.length), allQ = cand.reduce((a, p) => a + p.q.score, 0) / Math.max(1, cand.length);
+    // restore what the user was working on
+    H.start(kind, saved.seed, saved.g, { keepSel: false }); H.sel = saved.sel; if (H.sel >= 0) H.select(H.sel, true); syncRingsToGenome(); buildDrawer();
+    galHead.innerHTML = `<span>${picked.length} KEPT OF ${cand.length} DREAMT · QUALITY ${meanQ.toFixed(0)} (raw ${allQ.toFixed(0)}) · DIVERSITY ${(div * 100).toFixed(0)} (raw ${(dRaw * 100).toFixed(0)}) · CLICK TO LOAD · <b style="color:#f0b050">MORE LIKE THIS</b> BREEDS FROM IT</span><span><button class="dbtn" id="gAgain">DREAM AGAIN</button> <button class="dbtn" id="gClose2">CLOSE</button></span>`;
+    $('#gAgain').onclick = () => A.gallery(); $('#gClose2').onclick = () => A.closeGallery();
+    galGrid.innerHTML = ''; picked.forEach(c => {
+      const cell = document.createElement('div'); cell.className = 'gcell'; cell.title = (c.q.notes.join(' · ') || 'no complaints'); const cv = document.createElement('canvas'); cv.width = 320; cv.height = 180; cv.getContext('2d').drawImage(c.thumb, 0, 0); cell.appendChild(cv);
+      cell.insertAdjacentHTML('beforeend', `<span class="q">Q ${c.q.score.toFixed(0)}</span><span class="nm">${b.title(c.genome)}</span><span class="more">MORE LIKE THIS</span>`);
+      cell.onclick = e => { if (e.target.classList.contains('more')) { A.gallery(c.genome); return; } A.closeGallery(); H.start(kind, c.seed, c.genome); syncRingsToGenome(); buildDrawer(); toast('LOADED · ' + b.title(c.genome)); say('Loaded ' + b.title(c.genome)); };
+      galGrid.appendChild(cell);
+    }); A.galleryBusy = false; A.lastGallery = { picked, cand, meanQ, allQ, div, dRaw };
+    say(`Dreamt ${cand.length}, kept ${picked.length}. Average quality ${meanQ.toFixed(0)} out of 100.`);
+  };
+  A.closeGallery = function () { A.galleryStop = true; A.galleryOpen = false; galEl.classList.remove('on'); };
+
+  // -------------------------------------------------------------------------- FILM-GRADE OUTPUT
+  const download = (blob, name) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500); };
+  A.still = function (w, h) {
+    if (A.mode === 'film') { toast('STILL IS FOR BUG / BIRTHDAY'); return; } w = w || 3840; h = h || 2160;
+    toast('RENDERING ' + w + '×' + h + '…'); setTimeout(() => { const maxT = A.renderer.capabilities.maxTextureSize || 4096; const ss = Math.min(1.5, maxT / Math.max(w, h)); const c = H.capture(w, h, Math.max(1, ss)); c.toBlob(bl => { download(bl, `stelline-${A.mode}-${H.seedName(H.seed)}-${w}x${h}.png`); toast('STILL SAVED · ' + w + '×' + h); }); }, 60);
+  };
+  A.recordClip = function (secs) {
+    if (A.mode === 'film') { toast('CLIP IS FOR BUG / BIRTHDAY'); return; } if (!window.MediaRecorder || !A.canvas.captureStream) { toast('THIS BROWSER CANNOT RECORD'); return; } if (H.clip) return;
+    secs = secs || 8; const mime = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'].find(m => MediaRecorder.isTypeSupported(m)); const stream = A.canvas.captureStream(30); const rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 14e6 }); const chunks = [];
+    rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); }; rec.onstop = () => { H.recSize = null; download(new Blob(chunks, { type: 'video/webm' }), `stelline-${A.mode}-${H.seedName(H.seed)}.webm`); toast('CLIP SAVED'); };
+    A.photo = true; document.body.classList.add('photo'); H.recSize = [1920, 1080]; H.lockRef = null; if (H.sel < 0) H.overview();
+    const o = H.orbit; H.clip = { t: 0, dur: secs, y0: o.userYaw, p0: o.userPitch, d0: o.userDist, done: () => { rec.stop(); A.photo = false; document.body.classList.remove('photo'); o.userYaw = o.userPitch = 0; o.userDist = 1; } };
+    rec.start(); toast('RECORDING ' + secs + 's TURNTABLE'); say('Recording a turntable clip.');
+  };
 
   // -------------------------------------------------------------------------- WATCH THE FILM (critic <-> builders)
   A.matchOn = false; A.wipe = 0.5; A.matchSec = null; A.criticT = 0;
@@ -139,26 +203,37 @@
       <label>DRIPS</label><input type="range" id="dDrips" min="0" max="100" value="${Math.round(g.drips * 100)}">
       <h5>THE PARTY</h5><label>BALLOONS</label><input type="range" id="dBal" min="0" max="5" value="${g.balloons}"><label>SMARTIES</label><input type="range" id="dSma" min="0" max="36" value="${g.smarties}">
       <div class="drow"><button class="dbtn" id="dSpr">SPRINKLES ${g.sprinkles ? 'ON' : 'OFF'}</button><button class="dbtn" id="dCut">FILM CHILDREN ${g.cutouts ? 'ON' : 'OFF'}</button></div>
-      <div class="drow"><button class="dbtn amber" id="dCard">CARD ↓</button><button class="dbtn" id="dLink">LINK</button><button class="dbtn" id="dJson">SPEC</button></div>`;
+      <div class="drow"><button class="dbtn amber" id="dCard">CARD ↓</button><button class="dbtn" id="dLink">LINK</button><button class="dbtn" id="dJson">SPEC</button></div><div class="drow"><button class="dbtn" id="dStill">STILL 4K</button><button class="dbtn" id="dClip">CLIP 8s</button><button class="dbtn" id="dGal">GALLERY</button></div>`;
       $('#dName', drawer).oninput = e => { const t = e.target.value.trim(); g.name = e.target.value; if (t && (/HAPPY BIRTHDAY/.test(g.text) || g.text === '生日快樂')) { g.text = 'HAPPY BIRTHDAY\n' + t.toUpperCase(); $('#dText', drawer).value = g.text; patch({}, true); } else if (!t && /^HAPPY BIRTHDAY\n/.test(g.text)) { g.text = 'HAPPY BIRTHDAY'; $('#dText', drawer).value = g.text; patch({}, true); } };
       $('#dText', drawer).oninput = e => patch({ text: e.target.value }, true);
       drawer.querySelectorAll('[data-act]').forEach(b => b.onclick = () => { const d = b.dataset.act === 'age+' ? 1 : -1; const age = clamp(g.age + d, 1, 30); patch({ age }, true); $('#dAge', drawer).textContent = age; });
       $('#dDrips', drawer).oninput = e => patch({ drips: e.target.value / 100 }, true); $('#dBal', drawer).oninput = e => patch({ balloons: +e.target.value }, true); $('#dSma', drawer).oninput = e => patch({ smarties: +e.target.value }, true);
       $('#dCut', drawer).onclick = e => { const v = g.cutouts ? 0 : 1; patch({ cutouts: v }, true); e.target.textContent = 'FILM CHILDREN ' + (v ? 'ON' : 'OFF'); };
       $('#dSpr', drawer).onclick = e => { const v = g.sprinkles ? 0 : 1; patch({ sprinkles: v }, true); e.target.textContent = 'SPRINKLES ' + (v ? 'ON' : 'OFF'); };
+    } else if (A.mode === 'child') {
+      const O = A.childOptions;
+      drawer.innerHTML = `<h5>CHILD PORTRAIT</h5><label>AGE</label><div class="stp"><button data-act="age-">−</button><b id="dAge">${g.age}</b><button data-act="age+">+</button></div>
+      <label>SKIN</label>${swatches(O.SKINS.map(c => [c[0], 'rgb(' + c[1].map(v => Math.round(v * 255)).join(',') + ')']), g.skin, 'skin')}<label>HAIR COLOUR</label>${swatches(O.HAIRS.map(c => [c[0], 'rgb(' + c[1].map(v => Math.round(v * 255)).join(',') + ')']), g.hair, 'hair')}
+      <label>HAIR STYLE</label><div class="drow" style="margin-top:3px">${O.STYLES.map(st => `<button class="dbtn${g.style === st ? ' amber' : ''}" data-style="${st}">${st.toUpperCase()}</button>`).join('')}</div>
+      <label>EYE COLOUR</label><input type="range" id="dIris" min="0" max="100" value="${Math.round(g.iris * 100)}"><label>FACES IN THE SCENE</label><input type="range" id="dCount" min="1" max="3" value="${g.count}">
+      <div class="drow"><button class="dbtn amber" id="dCard">CARD ↓</button><button class="dbtn" id="dLink">LINK</button><button class="dbtn" id="dJson">SPEC</button></div><div class="drow"><button class="dbtn" id="dStill">STILL 4K</button><button class="dbtn" id="dClip">CLIP 8s</button><button class="dbtn" id="dGal">GALLERY</button></div>`;
+      drawer.querySelectorAll('[data-act]').forEach(b => b.onclick = () => { const d = b.dataset.act === 'age+' ? 1 : -1; const age = clamp(g.age + d, 4, 12); patch({ age }, true); $('#dAge', drawer).textContent = age; });
+      drawer.querySelectorAll('[data-style]').forEach(b => b.onclick = () => { patch({ style: b.dataset.style }, true); setTimeout(buildDrawer, 300); });
+      $('#dIris', drawer).oninput = e => patch({ iris: e.target.value / 100 }, true); $('#dCount', drawer).oninput = e => patch({ count: +e.target.value }, true);
     } else {
       drawer.innerHTML = `<h5>BUG DESIGNER</h5><label>SPECIES</label><input type="text" id="dSp" value="${g.name}" maxlength="30"><label>LENGTH · ${g.mm} MM</label><input type="range" id="dMm" min="4" max="60" value="${g.mm}">
       <label>HABITAT</label><div class="drow" style="margin-top:3px"><button class="dbtn${g.habitat === 'leaf' ? ' amber' : ''}" data-hab="leaf">LEAF</button><button class="dbtn${g.habitat === 'bark' ? ' amber' : ''}" data-hab="bark">BARK</button></div>
       <label>ELYTRA PATTERN</label><input type="range" id="dStr" min="0" max="3" value="${g.stripes}">
       <label>JAW · LEGS · ANTENNAE</label><input type="range" id="dJaw" min="30" max="140" value="${Math.round(g.jaw * 100)}"><input type="range" id="dLeg" min="70" max="140" value="${Math.round(g.leg * 100)}"><input type="range" id="dAnt" min="60" max="150" value="${Math.round(g.ant * 100)}">
       <div class="drow"><button class="dbtn" id="dSplit">${g.split ? 'ASYMMETRIC EYES' : 'SYMMETRIC EYES'}</button></div>
-      <div class="drow"><button class="dbtn amber" id="dCard">CARD ↓</button><button class="dbtn" id="dLink">LINK</button><button class="dbtn" id="dJson">SPEC</button></div>`;
+      <div class="drow"><button class="dbtn amber" id="dCard">CARD ↓</button><button class="dbtn" id="dLink">LINK</button><button class="dbtn" id="dJson">SPEC</button></div><div class="drow"><button class="dbtn" id="dStill">STILL 4K</button><button class="dbtn" id="dClip">CLIP 8s</button><button class="dbtn" id="dGal">GALLERY</button></div>`;
       $('#dSp', drawer).oninput = e => { g.name = e.target.value; }; $('#dMm', drawer).oninput = e => { g.mm = +e.target.value; };
       drawer.querySelectorAll('[data-hab]').forEach(b => b.onclick = () => { patch({ habitat: b.dataset.hab }, true); setTimeout(buildDrawer, 300); });
       $('#dStr', drawer).oninput = e => patch({ stripes: +e.target.value }, true); $('#dJaw', drawer).oninput = e => patch({ jaw: e.target.value / 100 }, true); $('#dLeg', drawer).oninput = e => patch({ leg: e.target.value / 100 }, true); $('#dAnt', drawer).oninput = e => patch({ ant: e.target.value / 100 }, true);
       $('#dSplit', drawer).onclick = e => { const v = g.split ? 0 : 1; patch({ split: v }, true); e.target.textContent = v ? 'ASYMMETRIC EYES' : 'SYMMETRIC EYES'; };
     }
     drawer.querySelectorAll('.sw').forEach(s => s.onclick = () => { patch({ [s.dataset.k]: +s.dataset.i }, true); drawer.querySelectorAll(`.sw[data-k="${s.dataset.k}"]`).forEach(x => x.classList.toggle('on', x === s)); });
+    $('#dStill', drawer).onclick = () => A.still(); $('#dClip', drawer).onclick = () => A.recordClip(); $('#dGal', drawer).onclick = () => A.gallery();
     $('#dCard', drawer).onclick = () => A.snapshot(); $('#dLink', drawer).onclick = () => A.shareLink(); $('#dJson', drawer).onclick = () => A.downloadSpec();
   }
   A.toggleDrawer = () => { if (A.mode === 'film') { toast('OPEN BUG OR BIRTHDAY TO DESIGN'); return; } drawer.classList.toggle('on'); };
@@ -173,10 +248,10 @@
     const gr = x.createLinearGradient(0, 0, W, Hh); gr.addColorStop(0, pageTint); gr.addColorStop(1, '#050403'); x.fillStyle = gr; x.fillRect(0, 0, W, Hh);
     x.drawImage(img, 60, 120, 1040, 585); x.strokeStyle = 'rgba(247,236,222,.35)'; x.lineWidth = 1; x.strokeRect(60.5, 120.5, 1040, 585);
     const mono = '"JetBrains Mono","SF Mono",Menlo,monospace'; x.textBaseline = 'alphabetic';
-    x.fillStyle = '#f0b050'; x.font = `500 13px ${mono}`; x.fillText(A.mode === 'cake' ? 'STELLINE · BIRTHDAY MEMORY' : 'STELLINE · SPECIMEN PLATE', 60, 70);
+    x.fillStyle = '#f0b050'; x.font = `500 13px ${mono}`; x.fillText(A.mode === 'cake' ? 'STELLINE · BIRTHDAY MEMORY' : A.mode === 'child' ? 'STELLINE · MEMORY PORTRAIT' : 'STELLINE · SPECIMEN PLATE', 60, 70);
     x.fillStyle = '#f3e7d6'; x.font = `500 32px ${mono}`; x.fillText(b.title(g), 60, 106);
     let y = 150; b.spec(g).forEach(([k, v]) => { x.font = `500 12px ${mono}`; x.fillStyle = 'rgba(243,231,214,.45)'; x.fillText(k, 1150, y); x.fillStyle = '#f3e7d6'; x.font = `500 15px ${mono}`; const lines = wrap(String(v), 36); lines.forEach((l, i) => x.fillText(l, 1150, y + 20 + i * 19)); y += 44 + (lines.length - 1) * 19; });
-    const ref = D.sec[A.mode === 'cake' ? 154 : 34]; ref.segs.slice().sort((a, b) => b.a - a.a).slice(0, 6).forEach((s, i) => { x.fillStyle = s.rgb; x.fillRect(1150 + i * 56, 780, 48, 14); });
+    const ref = D.sec[A.mode === 'cake' ? 154 : A.mode === 'child' ? 172 : 34]; ref.segs.slice().sort((a, b) => b.a - a.a).slice(0, 6).forEach((s, i) => { x.fillStyle = s.rgb; x.fillRect(1150 + i * 56, 780, 48, 14); });
     x.fillStyle = 'rgba(243,231,214,.5)'; x.font = `500 10px ${mono}`; x.fillText('PALETTE OF THE FILM MOMENT THIS WAS BUILT FROM', 1150, 814);
     x.fillText(`SEED ${H.seedName(H.seed)} · ${new Date().toISOString().slice(0, 10)} · DESIGNED ON THE STELLINE MEMORY ORB`, 60, 750); x.fillStyle = 'rgba(243,231,214,.28)'; x.fillText('Anything real should be a mess.', 60, 840);
     c.toBlob(bl => { const a = document.createElement('a'); a.href = URL.createObjectURL(bl); a.download = `stelline-${A.mode}-${H.seedName(H.seed)}.png`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800); });
@@ -186,6 +261,92 @@
   A.shareURL = function () { const q = btoa(unescape(encodeURIComponent(JSON.stringify(H.genome)))); return location.origin + location.pathname + '?m=' + A.mode + '&g=' + q; };
   A.shareLink = function () { const u = A.shareURL(); const done = () => toast('LINK COPIED · ANYONE CAN OPEN THIS DESIGN'); if (navigator.clipboard) navigator.clipboard.writeText(u).then(done, () => window.prompt('Copy this link', u)); else window.prompt('Copy this link', u); say('Share link copied.'); };
   A.downloadSpec = function () { const b = builderOf(); const o = { kind: A.mode, seed: H.seed, genome: H.genome, spec: b ? b.spec(H.genome) : [] }; const bl = new Blob([JSON.stringify(o, null, 2)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(bl); a.download = `stelline-${A.mode}-${H.seedName(H.seed)}.json`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800); toast('SPEC SAVED'); };
+
+  // -------------------------------------------------------------------------- ONE EVENT: ring <-> screen <-> reticle
+  // Every ring move goes through setRing: the orb ring turns, the builder's parameter changes,
+  // the reticle's arc follows the same value. Dragging the reticle's arc does the reverse.
+  const dialOfV = v => 20 + 180 * clamp(v, 0, 1);
+  A.setRing = function (r, ang, sound) { const b = builderOf(); if (!b) return; state._syncingNode = true; setRingAngle(r, ang, !!sound); state._syncingNode = false; b.onDial(r, ang); state.activeCoupledRing = r; };
+  const RET = { x: 0, y: 0, vis: 0, rot: 0, prev: [0, 0, 0, 0, 0], vel: 0, lastRing: -1, flash: 0, force: null, cx: 0, cy: 0, ring: 0 };
+  A.reticleForce = o => { RET.force = o; };
+  const _rp = new THREE.Vector3();
+  function reticleTarget() {
+    if (RET.force && RET.force.target) return RET.force.target;
+    if (A.mode === 'film' || !H.active) return null;
+    if (H.cursorWorld && H.genome.pipe < 0.995 && H.genome.pipe > 0.01 && A.mode === 'cake') return H.cursorWorld;
+    const p = H.parts[H.sel]; if (p) return _rp.set(p.focus.pos[0], p.focus.pos[1], p.focus.pos[2]);
+    return null;
+  }
+  function drawReticle(ctx, w, h, dt) {
+    if (A.mode === 'film' || !H.active) return; const b = builderOf(); if (!b) return;
+    // small head arcs for the film's children while they materialise
+    if (A.mode === 'cake' && H.cutHeads && H.genome.cutouts && H.genome.solid < 0.985) { H.cutHeads.forEach((p, i) => { _rp.set(p[0], p[1], p[2]).project(H.cam); const sx = (_rp.x * .5 + .5) * w, sy = (-_rp.y * .5 + .5) * h; const k = clamp(H.genome.solid, 0, 1); ctx.strokeStyle = 'rgba(247,236,222,.85)'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(sx + 20, sy - 6, 11 + 3 * Math.sin(hudTime * 3 + i), -2.2 + hudTime * 0.6 * (1 - k), -2.2 + hudTime * 0.6 * (1 - k) + 0.9 + k * 4.2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(sx + 9, sy - 3); ctx.lineTo(sx + 2, sy); ctx.stroke(); }); }
+    const tg = reticleTarget(); const wantVis = !!tg && !A.photo && (RET.force ? (RET.force.show !== false) : H.sel >= 0);
+    RET.vis += ((wantVis ? 1 : 0) - RET.vis) * Math.min(1, dt * 6); if (RET.vis < 0.02 || !tg) return;
+    _rp.copy(tg).project(H.cam); const sx = (_rp.x * .5 + .5) * w, sy = (-_rp.y * .5 + .5) * h; if (RET.vis < 0.05 || RET.x === 0) { RET.x = sx; RET.y = sy; } RET.x += (sx - RET.x) * Math.min(1, dt * 7); RET.y += (sy - RET.y) * Math.min(1, dt * 7);
+    const ring = RET.force && RET.force.ring != null ? RET.force.ring : Math.max(0, state.activeCoupledRing | 0); const dl = b.dials(H.genome); const v = clamp((dl[ring] - 20) / 180, 0, 1);
+    const cv = b.dials(b.filmCanon(H.seed))[ring]; const lockV = clamp((cv - 20) / 180, 0, 1);
+    RET.vel += ((Math.abs(v - RET.prev[ring]) / Math.max(dt, 0.001)) - RET.vel) * Math.min(1, dt * 8); RET.prev[ring] = v; RET.rot += dt * (0.5 + RET.vel * 14);
+    const side = RET.x < w / 2 ? 1 : -1; const cx = clamp(RET.x + side * 118, 110, w - 110), cy = clamp(RET.y - 26, 150, h - 150); RET.cx = cx; RET.cy = cy; RET.ring = ring;
+    const sweep = 0.5 + v * 5.3, a0 = RET.rot, R1 = 36, R2 = 30; const al = RET.vis;
+    ctx.save(); ctx.globalAlpha = al; ctx.lineCap = 'round';
+    ctx.strokeStyle = 'rgba(247,236,222,.2)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(cx, cy, R1 + 9, 0, 7); ctx.stroke();       // faint guide ring
+    ctx.strokeStyle = 'rgba(247,236,222,.95)'; ctx.lineWidth = 1.8; ctx.beginPath(); ctx.arc(cx, cy, R1, a0, a0 + sweep); ctx.stroke();    // the crescent: opens with the ring value
+    ctx.strokeStyle = 'rgba(247,236,222,.5)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(cx, cy, R2, a0 + 0.25, a0 + Math.max(0.3, sweep - 0.25)); ctx.stroke();
+    const ex = cx + Math.cos(a0 + sweep) * R1, ey = cy + Math.sin(a0 + sweep) * R1; ctx.fillStyle = state.activeCoupledRing === ring && RET.vel > 0.02 ? AMB : INK; ctx.beginPath(); ctx.arc(ex, ey, 2.6, 0, 7); ctx.fill();
+    // leader: from the crescent to the exact thing being changed
+    const ang = Math.atan2(RET.y - cy, RET.x - cx), lx = cx + Math.cos(ang) * (R1 + 9), ly = cy + Math.sin(ang) * (R1 + 9);
+    ctx.strokeStyle = 'rgba(247,236,222,.8)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(RET.x, RET.y); ctx.stroke(); ctx.beginPath(); ctx.arc(RET.x, RET.y, 3.4, 0, 7); ctx.stroke(); ctx.beginPath(); ctx.moveTo(RET.x - 8, RET.y); ctx.lineTo(RET.x + 8, RET.y); ctx.moveTo(RET.x, RET.y - 8); ctx.lineTo(RET.x, RET.y + 8); ctx.globalAlpha = al * 0.45; ctx.stroke(); ctx.globalAlpha = al;
+    // lock: the ring has found the film's value
+    const locked = Math.abs(v - lockV) < 0.025; if (locked && !RET.wasLocked) RET.flash = 1; RET.wasLocked = locked; RET.flash = Math.max(0, RET.flash - dt * 1.6);
+    if (locked) { ctx.strokeStyle = AMB; ctx.lineWidth = 1.4; for (let k = 0; k < 4; k++) { const aa = k * 1.5708 + 0.785; ctx.beginPath(); ctx.moveTo(cx + Math.cos(aa) * (R1 + 12), cy + Math.sin(aa) * (R1 + 12)); ctx.lineTo(cx + Math.cos(aa) * (R1 + 17 + RET.flash * 8), cy + Math.sin(aa) * (R1 + 17 + RET.flash * 8)); ctx.stroke(); } txt(ctx, 'LOCK', cx, cy + R1 + 32, AMB, 'center', 8); }
+    txt(ctx, b.labels[ring].replace(':', ' '), cx, cy - R1 - 16, state.activeCoupledRing === ring && RET.vel > 0.02 ? AMB : DIM, 'center', 8); txt(ctx, b.readout(H.genome, ring), cx, cy + 3, INK, 'center', 9.5);
+    ctx.restore(); hits.push({ x: cx - 48, y: cy - 48, w: 96, h: 96, reticle: { cx, cy, ring }, id: 'reticle', label: 'Reticle: drag around the arc to turn ' + b.labels[ring] });
+  }
+
+  // -------------------------------------------------------------------------- REPLAY: the film's beats, choreographed
+  const ease = t => t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t); const sg = (t, a, b2) => ease((t - a) / (b2 - a)); const lerp = (a, b2, u) => a + (b2 - a) * u;
+  const REPLAYS = [['eye', 'THE EYE · 0:29'], ['cake', 'THE WRITING · 2:17'], ['kids', 'THE CHILDREN · 2:32'], ['face', 'THE FACE · 2:51']]; let replayIdx = 0; A.REPLAYS = REPLAYS; A.tl = null;
+  const SEQ = {
+    eye: { mode: 'bug', dur: 8.6,
+      setup() { const b = H.builders.bug; const g = b.filmCanon(H.hash('bug-eye-replay')); Object.assign(g, { focus: 0.06, facets: 0.26, gait: 0.3 }); H.start('bug', g.seed, g); H.sel = -1; this.eye = H.parts[0].focus.pos; H.setCam({ pos: [0, 1.2, 0.4], dist: 17, yaw: 0.55, pitch: 0.5, snap: true }); H.syncCam(); syncRingsToGenome(); this.locked = false; say('The beetle on the wet leaf. Her thumb finds the lens ring.'); },
+      step(t) { const g = H.genome; state.pressedOnPropBtn = t < 0.8 ? 'thumb_m5' : null;
+        const f = sg(t, 0.8, 4.3); A.setRing(1, dialOfV(lerp(0.06, 0.92, f)), true);
+        const dv = sg(t, 0.8, 4.5); H.setCam({ pos: [lerp(0, this.eye[0], dv), lerp(1.2, this.eye[1], dv), lerp(0.4, this.eye[2], dv)], dist: lerp(17, 3.3, dv), yaw: lerp(0.55, 0.0, dv), pitch: lerp(0.5, 0.03, dv) });
+        const fa = sg(t, 2.0, 5.2); if (t > 2.0) A.setRing(0, dialOfV(lerp(0.26, 0.56, fa)), true); if (t < 2.0 || t > 5.2) state.activeCoupledRing = 1;
+        A.reticleForce({ target: _rp2.set(this.eye[0], this.eye[1], this.eye[2]), ring: t < 3.6 ? 1 : 0, show: t > 1.5 && t < 7.6 });
+        if (t > 4.4 && !this.locked) { this.locked = true; if (A.chime) A.chime(); toast('FOCUS LOCK · FACETS RESOLVED'); } } },
+    cake: { mode: 'cake', dur: 9.4,
+      setup() { const b = H.builders.cake; const g = b.filmCanon(H.hash('cake-replay')); Object.assign(g, { solid: 0.1, temp: -0.85, pipe: 0, age: 3, cutouts: 0 }); H.start('cake', g.seed, g); H.sel = -1; H.tumbleAmt = 1; H.setCam({ pos: [0, 3.4, 0], dist: 17, yaw: 0.25, pitch: 0.16, snap: true }); H.syncCam(); syncRingsToGenome(); this.age5 = false; this.age7 = false; this.ins = H.parts.find(p => p.id === 'INSCRIPTION'); say('A cake begins to spawn in the dark, cold, unfinished.'); },
+      step(t) { const g = H.genome; state.pressedOnPropBtn = t < 0.7 ? 'lock_btn' : null;
+        if (t > 0.5) { A.setRing(0, dialOfV(lerp(0.1, 0.94, sg(t, 0.5, 2.8))), true); }
+        if (t > 0.9) { A.setRing(4, dialOfV(lerp(0.075, 0.78, sg(t, 0.9, 3.0))), true); }
+        if (t > 1.2 && !this.age5) { this.age5 = true; g.age = 5; H.rebuild(false); } if (t > 2.0 && !this.age7) { this.age7 = true; g.age = 7; H.rebuild(false); }
+        H.tumbleAmt = 1 - sg(t, 2.6, 3.8); const cm = sg(t, 2.6, 4.2); H.setCam({ pos: [0, lerp(3.4, 2.6, cm), 0], dist: lerp(17, 12.5, cm), yaw: lerp(0.25, 0.1, cm), pitch: lerp(0.16, 0.52, cm) });
+        const pp = sg(t, 3.9, 7.0); if (t > 3.9) { A.setRing(2, dialOfV(lerp(0.0, 1.0, pp)), true); } else if (t > 2.8) state.activeCoupledRing = 2;
+        const tgt = this.ins ? _rp2.set(this.ins.focus.pos[0], this.ins.focus.pos[1], this.ins.focus.pos[2]) : null; A.reticleForce({ target: tgt, ring: t < 2.7 ? (t < 1.6 ? 0 : 4) : 2, show: t > 0.8 && t < 8.2 && !!tgt });
+        if (t > 8.0) { const pb = sg(t, 8.0, 9.2); H.setCam({ dist: lerp(12.5, 15, pb), pitch: lerp(0.52, 0.25, pb) }); } } },
+    kids: { mode: 'cake', dur: 8.6,
+      setup() { const b = H.builders.cake; const g = b.filmCanon(H.hash('kids-replay')); Object.assign(g, { solid: 0.1, cakeSolid: 1, cutouts: 1, temp: 0.55, pipe: 1 }); H.start('cake', g.seed, g); H.sel = -1; H.setCam({ pos: [0.4, 3.3, 0], dist: 25, yaw: 0, pitch: 0.12, snap: true }); H.syncCam(); syncRingsToGenome(); say('The cake waits on its table. The children are only an idea.'); },
+      step(t) { state.pressedOnPropBtn = t < 0.7 ? 'lock_btn' : null; if (t > 0.6) A.setRing(0, dialOfV(lerp(0.1, 0.96, sg(t, 0.6, 5.2))), true); A.reticleForce({ target: null, show: false }); const cm = sg(t, 5.2, 8.2); H.setCam({ dist: lerp(25, 19, cm), pos: [lerp(0.4, 0.2, cm), lerp(3.3, 2.6, cm), 0] }); } },
+    face: { mode: 'child', dur: 10.4,
+      setup() { const b = H.builders.child; if (!b) { toast('FACE BUILDER NOT LOADED'); A.tl = null; return; } const g = b.filmCanon(H.hash('face-replay')); Object.assign(g, { solid: 0.1, focus: 0.05, expr: 0.1, glow: 0.2, count: 3 }); H.start('child', g.seed, g); H.sel = -1; H.blown = 0; syncRingsToGenome(); say('Three faces, barely there, in the dark.'); },
+      step(t) { const g = H.genome; state.pressedOnPropBtn = t < 0.7 ? 'lock_btn' : null;
+        if (t > 0.6) A.setRing(0, dialOfV(lerp(0.1, 0.95, sg(t, 0.6, 3.6))), true);
+        if (t > 2.0) A.setRing(3, dialOfV(lerp(0.2, 0.86, sg(t, 2.0, 4.6))), true);
+        if (t > 4.4) A.setRing(1, dialOfV(lerp(0.05, 0.95, sg(t, 4.4, 6.6))), true);
+        if (t > 6.2) A.setRing(2, dialOfV(lerp(0.1, 0.98, sg(t, 6.2, 8.2))), true);
+        const fp = H.parts.find(p => p.id === 'FACE'); A.reticleForce({ target: fp ? _rp2.set(fp.focus.pos[0], fp.focus.pos[1], fp.focus.pos[2]) : null, ring: t < 2 ? 0 : t < 4.4 ? 3 : t < 6.2 ? 1 : 2, show: t > 1.0 && t < 9.6 && !!fp });
+        if (t > 8.6 && !H.blown) { H.blow(); } } },
+  };
+  const _rp2 = new THREE.Vector3();
+  A.replay = function (name) {
+    name = name || REPLAYS[replayIdx][0]; const sq = SEQ[name]; if (!sq) return; replayIdx = (REPLAYS.findIndex(r => r[0] === name) + 1) % REPLAYS.length;
+    if (A.mode !== sq.mode) { A.mode = sq.mode; document.body.classList.remove('film-on'); } H.lockRef = null; A.matchOn = false; drawer.classList.remove('on'); A.galleryOpen = false; galEl && galEl.classList.remove('on');
+    sq.setup(); if (A.tl === null && name === 'face' && !H.builders.child) return; A.tl = { name, t: 0, sq }; RET.force = null; RET.x = 0; toast('REPLAY · ' + REPLAYS.find(r => r[0] === name)[1]); say('Replaying ' + REPLAYS.find(r => r[0] === name)[1] + '. The orb turns itself; watch the screen and the reticle follow.');
+  };
+  A.stopReplay = function () { A.tl = null; RET.force = null; state.pressedOnPropBtn = null; };
+  function tickReplay(dt) { const tl = A.tl; if (!tl) return; tl.t += dt; tl.sq.step(tl.t); if (tl.t >= tl.sq.dur) { A.tl = null; RET.force = null; state.pressedOnPropBtn = null; syncRingsToGenome(); buildDrawer(); toast('MEMORY REPLAYED · NOW IT IS YOURS'); say('Replay finished. The orb is yours.'); } }
 
   // -------------------------------------------------------------------------- HUD (hairline viewfinder)
   const INK = 'rgba(247,236,222,.9)', DIM = 'rgba(247,236,222,.4)', FAINT = 'rgba(247,236,222,.16)', AMB = '#f0b050';
@@ -240,15 +401,15 @@
     for (let i = 0; i < 5; i++) { const x = x0 + span * i / 4; const on = act === i; txt(ctx, labs[i], x, y, on ? AMB : DIM, 'center', 8); txt(ctx, vals[i], x, y + 13, on ? AMB : INK, 'center', 10); addHit(x - 46, y - 12, 92, 32, () => { if (window.state) state.activeCoupledRing = i; }, 'ring-' + i, labs[i] + ' ' + vals[i]); }
   }
   function topBlocks(ctx, w, h) {
-    const b = builderOf(); const narrow = w < 720; const labels = [['FILM', 'film'], ['BUG', 'bug'], ['BIRTHDAY', 'cake']]; let x = narrow ? 30 : w / 2 - 118;
+    const b = builderOf(); const narrow = w < 720; const labels = [['FILM', 'film'], ['BUG', 'bug'], ['BIRTHDAY', 'cake'], ['CHILD', 'child']]; let x = narrow ? 30 : w / 2 - 150;
     labels.forEach(([l, m]) => { const on = A.mode === m; txt(ctx, l, x, 44, on ? INK : DIM, 'left', 10.5); const lw = ctx.measureText(l).width; if (on) { ctx.fillStyle = AMB; ctx.fillRect(x, 50, lw, 1.5); } addHit(x - 6, 30, lw + 12, 26, () => A.setMode(m), 'mode-' + m, l + ' mode'); x += lw + 26; });
     let l1, l2, l3;
     if (A.mode === 'film') { const ch = A.chapterAt(A.t); l1 = 'FOOTAGE-WIDE SEGMENTATION, 407 SECONDS,'; l2 = 'EVERY SECOND SEGMENTED AND RELIEF-MODELLED. '; l3 = `${fmtT(A.t)} · ${ch.name} · SHOT ${D.sec[Math.max(0, A.sec)].shot + 1}/${D.shots.length}`; }
     else if (b) { l1 = b.caption[0]; l2 = b.caption[1] + ' '; l3 = b.title(H.genome) + (H.genome.variant >= 0 ? ' · ' + b.variants[H.genome.variant].code.split('[')[0].trim() : ''); }
-    if (!narrow) { txt(ctx, l1, 36, 38, INK, 'left', 9); txt(ctx, l2, 36, 51, INK, 'left', 9); const aw = ctx.measureText(l2).width; txt(ctx, A.mode === 'film' ? 'THE FILM, AS DATA.' : (A.mode === 'cake' ? 'CANDLES SOLD SEPARATELY.' : 'LEGS SOLD SEPARATELY.'), 36 + aw, 51, AMB, 'left', 9); if (l3) txt(ctx, l3, 36, 68, DIM, 'left', 8.5); txt(ctx, (A.mode === 'film' ? 60 : (H.fps || 60)) + ' FPS', w - 36, 28, DIM, 'right', 9); txt(ctx, 'PHOTO MODE ' + (A.photo ? 'ON' : 'OFF'), w - 36, 41, DIM, 'right', 9); addHit(w - 150, 14, 120, 36, () => A.togglePhoto(), 'photo2', 'Photo mode'); }
+    if (!narrow) { txt(ctx, l1, 36, 38, INK, 'left', 9); txt(ctx, l2, 36, 51, INK, 'left', 9); const aw = ctx.measureText(l2).width; txt(ctx, A.mode === 'film' ? 'THE FILM, AS DATA.' : (A.mode === 'cake' ? 'CANDLES SOLD SEPARATELY.' : A.mode === 'child' ? 'FACES SOLD SEPARATELY.' : 'LEGS SOLD SEPARATELY.'), 36 + aw, 51, AMB, 'left', 9); if (l3) txt(ctx, l3, 36, 68, DIM, 'left', 8.5); txt(ctx, (A.mode === 'film' ? 60 : (H.fps || 60)) + ' FPS', w - 36, 28, DIM, 'right', 9); txt(ctx, 'PHOTO MODE ' + (A.photo ? 'ON' : 'OFF'), w - 36, 41, DIM, 'right', 9); addHit(w - 150, 14, 120, 36, () => A.togglePhoto(), 'photo2', 'Photo mode'); }
     else if (l3) txt(ctx, l3, 30, 70, DIM, 'left', 8.5);
     if (A.mode !== 'film') {
-      const act = [['REROLL', () => A.reroll()], ['OTHERWISE', () => A.cycleVariant()], ['DESIGN', () => A.toggleDrawer()], [A.matchOn ? 'MATCH ●' : 'MATCH FILM', () => A.toggleMatch()]]; let ax = narrow ? 30 : w / 2 - 118; const ay = narrow ? 92 : 74;
+      const act = [['REPLAY', () => A.replay()], ['REROLL', () => A.reroll()], ['GALLERY', () => A.gallery()], ['OTHERWISE', () => A.cycleVariant()], ['DESIGN', () => A.toggleDrawer()], [A.matchOn ? 'MATCH ●' : 'MATCH FILM', () => A.toggleMatch()]]; let ax = narrow ? 30 : w / 2 - 150; const ay = narrow ? 92 : 74;
       if (!narrow) { txt(ctx, 'SEED ' + H.seedName(H.seed), ax, 74, DIM, 'left', 8.5); ax += 92; }
       act.forEach(([l, fn]) => { txt(ctx, l, ax, ay, AMB, 'left', 8.5); const ww = ctx.measureText(l).width; ctx.fillStyle = AMB; ctx.globalAlpha = .5; ctx.fillRect(ax, ay + 3, ww, 1); ctx.globalAlpha = 1; addHit(ax - 4, ay - 12, ww + 8, 20, fn, 'act-' + l, l); ax += ww + 18; });
     }
@@ -270,13 +431,13 @@
   holo.addEventListener('pointerdown', e => {
     A.hudDown = false; if (!window.state || state.engineVersion !== 'v5') return;
     const r = holo.getBoundingClientRect(); const h = hitAt(e.clientX - r.left, e.clientY - r.top);
-    if (h) { A.hudDown = true; e.stopImmediatePropagation(); if (h.slider || h.wipe) { hudDrag = h.wipe ? { wipe: true } : h.slider; setSlider(e.clientY - r.top, e.clientX - r.left); holo.setPointerCapture(e.pointerId); } else h.fn(); }
+    if (h) { A.hudDown = true; e.stopImmediatePropagation(); if (h.slider || h.wipe || h.reticle) { hudDrag = h.wipe ? { wipe: true } : h.reticle ? { reticle: h.reticle } : h.slider; if (h.reticle) A.stopReplay(); setSlider(e.clientY - r.top, e.clientX - r.left); holo.setPointerCapture(e.pointerId); } else h.fn(); }
   }, true);
   holo.addEventListener('pointermove', e => { const r = holo.getBoundingClientRect(); if (hudDrag) { setSlider(e.clientY - r.top, e.clientX - r.left); return; } const h = hitAt(e.clientX - r.left, e.clientY - r.top); holo.style.cursor = h ? 'pointer' : (A.mode === 'film' ? 'crosshair' : 'grab'); });
   holo.addEventListener('pointerup', () => { hudDrag = null; });
-  function setSlider(y, x) { const s = hudDrag; if (s.wipe) { A.wipe = clamp(x / holo.clientWidth, 0.05, 0.95); A.criticT = performance.now() - 1800; return; } const v = clamp((y - s.y0) / (s.y1 - s.y0), 0, 1); if (A.mode === 'film') A.seek(v * D.dur); else H.focusBias = (0.5 - v) * 2 * H.orbit.tDist * 0.8; }
+  function setSlider(y, x) { const s = hudDrag; if (s.reticle) { const q = s.reticle; const ang = Math.atan2(y - q.cy, x - q.cx); let u = ((ang - RET.rot) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2); const val = clamp(u / 5.8, 0, 1); A.setRing(q.ring, dialOfV(val), true); return; } if (s.wipe) { A.wipe = clamp(x / holo.clientWidth, 0.05, 0.95); A.criticT = performance.now() - 1800; return; } const v = clamp((y - s.y0) / (s.y1 - s.y0), 0, 1); if (A.mode === 'film') A.seek(v * D.dur); else H.focusBias = (0.5 - v) * 2 * H.orbit.tDist * 0.8; }
   function refreshSR() {
-    const sr = $('#v5SR'); const items = [['Film mode', () => A.setMode('film')], ['Bug designer', () => A.setMode('bug')], ['Birthday designer', () => A.setMode('cake')], ['Next part', () => A.selectPart(1)], ['New specimen', () => A.reroll()], ['Otherwise variant', () => A.cycleVariant()], ['Open design drawer', () => A.toggleDrawer()], ['Snapshot card', () => A.snapshot()], ['Copy share link', () => A.shareLink()], ['Read the frame aloud', () => A.readFrame && A.readFrame()], ['Toggle sound', () => A.toggleSonic && A.toggleSonic()], ['Toggle narration', () => A.toggleNarrate && A.toggleNarrate()]];
+    const sr = $('#v5SR'); const items = [['Film mode', () => A.setMode('film')], ['Bug designer', () => A.setMode('bug')], ['Birthday designer', () => A.setMode('cake')], ['Next part', () => A.selectPart(1)], ['New specimen', () => A.reroll()], ['Otherwise variant', () => A.cycleVariant()], ['Open design drawer', () => A.toggleDrawer()], ['Snapshot card', () => A.snapshot()], ['Open the gallery of new specimens', () => A.gallery()], ['Render a 4K still', () => A.still()], ['Record a turntable clip', () => A.recordClip()], ['Copy share link', () => A.shareLink()], ['Read the frame aloud', () => A.readFrame && A.readFrame()], ['Toggle sound', () => A.toggleSonic && A.toggleSonic()], ['Toggle narration', () => A.toggleNarrate && A.toggleNarrate()]];
     sr.innerHTML = ''; items.forEach(([l, fn]) => { const b = document.createElement('button'); b.textContent = l; b.onclick = fn; sr.appendChild(b); });
   }
 
@@ -355,7 +516,7 @@
       if (performance.now() - A.criticT > 2600) { A.criticT = performance.now(); A.critic.runHero(); }
     }
     if (!heroOn && !A.photo) filmOverlay(ctx, cw, ch);
-    if (!A.photo) { furniture(ctx, cw, ch, hudTime); bracketStack(ctx, cw, ch); sliderRight(ctx, cw, ch); topBlocks(ctx, cw, ch); bottomBlocks(ctx, cw, ch); ringReadouts(ctx, cw, ch); if (!heroOn) drawTL(); }
+    tickReplay(0.016); if (!A.photo) { furniture(ctx, cw, ch, hudTime); bracketStack(ctx, cw, ch); sliderRight(ctx, cw, ch); topBlocks(ctx, cw, ch); bottomBlocks(ctx, cw, ch); ringReadouts(ctx, cw, ch); if (heroOn) drawReticle(ctx, cw, ch, 0.016); if (!heroOn) drawTL(); }
     else { txt(ctx, 'PHOTO MODE · click or press X to return', cw / 2, ch - 24, 'rgba(247,236,222,.25)', 'center', 8.5); addHit(0, ch - 60, cw, 60, () => A.togglePhoto(), 'photo-off', 'Leave photo mode'); }
     orbCoupling(state);
   };
@@ -366,7 +527,7 @@
     if (A.mode !== 'film' && H.active) {
       const m = { studio: [255, 200, 150], amber: [255, 160, 70], forest: [150, 220, 110], dome: [200, 240, 220] }[H.mood] || [255, 200, 150];
       const flick = A.mode === 'cake' ? 0.85 + 0.12 * Math.sin(H.t * 11) : 0.9; state.sceneLightTint = { r: m[0], g: m[1], b: m[2], intensity: 0.55 * flick };
-      const sp = A.mode === 'cake' ? 8 + (H.genome.tiers - 1) * 14 : 22 + H.genome.gait * 30; if (lastKind !== A.mode + H.sel && window.setAccordionSpread) { lastKind = A.mode + H.sel; setAccordionSpread(sp, false); }
+      const sp = A.mode === 'cake' ? 8 + (H.genome.tiers - 1) * 14 : A.mode === 'child' ? 12 + 8 * (H.genome.count || 1) : 22 + (H.genome.gait || 0.3) * 30; if (lastKind !== A.mode + H.sel && window.setAccordionSpread) { lastKind = A.mode + H.sel; setAccordionSpread(sp, false); }
       document.documentElement.style.setProperty('--page-tint', H.pageTint || '#1a0f08'); return;
     }
     const S = D.sec[Math.max(0, A.sec)]; const g = A.sel ? A.segByTid(A.sel) : null; const big = S.segs.slice().sort((a, b) => b.a - a.a)[0]; const c = A.hexToVec((g || big).rgb);
@@ -377,7 +538,7 @@
   window.drawV5OrbStrip = function (ctx, cx, stripY, rOffs) {
     ctx.save(); ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(235,244,252,.9)'; ctx.font = '600 6.8px "JetBrains Mono",monospace';
     let title, labs, ang, truth; const b = builderOf();
-    if (A.mode !== 'film' && b) { const p = H.parts[H.sel]; title = `${H.kind === 'bug' ? 'BUG.DESIGNER' : 'CAKE.BIRTHDAY'} → ${p ? p.id : 'OVERVIEW'} · ${b.title(H.genome)}`; labs = b.labels.map((l, i) => [l.length > 12 ? l.slice(0, 12) : l, b.readout(H.genome, i)]); ang = b.dials(H.genome); truth = b.filmCanon ? b.dials(b.filmCanon(H.seed)) : ang; }
+    if (A.mode !== 'film' && b) { const p = H.parts[H.sel]; title = `${H.kind === 'bug' ? 'BUG.DESIGNER' : H.kind === 'child' ? 'MEMORY.PORTRAIT' : 'CAKE.BIRTHDAY'} → ${p ? p.id : 'OVERVIEW'} · ${b.title(H.genome)}`; labs = b.labels.map((l, i) => [l.length > 12 ? l.slice(0, 12) : l, b.readout(H.genome, i)]); ang = b.dials(H.genome); truth = b.filmCanon ? b.dials(b.filmCanon(H.seed)) : ang; }
     else { const g = A.sel ? A.segByTid(A.sel) : null; const dv = A.dialValues(g ? A.getParams(g.tid) : A.truth); ang = g ? A.getParams(g.tid) : A.truth; truth = A.truth;
       title = `${A.chapterAt(A.t).name} → ${g ? `[${A.segsRanked().findIndex(s => s.tid === g.tid) + 1}/${D.sec[A.sec].segs.length}] ${g.id} · ${g.cn}` : 'SELECT A PART'}`;
       labs = [['L1:' + A.LEVEL_NAMES[Math.round(dv.lvl)], ''], ['L2:' + (dv.blur > .1 ? 'SOFT ' + dv.blur.toFixed(1) : dv.sharp > .02 ? 'SHARP+' : 'TRUE'), ''], ['L3:×' + dv.morph.toFixed(1), ''], ['R1:' + (Math.log2(dv.gain) >= 0 ? '+' : '') + Math.log2(dv.gain).toFixed(1) + 'EV', ''], ['R2:' + (dv.temp > .05 ? 'WARM' : dv.temp < -.05 ? 'COOL' : 'TRUE'), '']]; }
@@ -435,11 +596,13 @@
       case 'PageUp': handled(); if (!hero) A.nextChapter(-1); break; case 'PageDown': handled(); if (!hero) A.nextChapter(1); break;
       case 'Tab': handled(); A.selectPart(e.shiftKey ? -1 : 1); break;
       case '1': case '2': case '3': case '4': case '5': handled(); ringFocus = +k - 1; state.activeCoupledRing = ringFocus; { const b = builderOf(); say(hero && b ? b.labels[ringFocus].replace(':', ' ') + ' ring. ' + b.readout(H.genome, ringFocus) : ['Solid ladder', 'Focus', 'Morph relief', 'Luma', 'Tint'][ringFocus] + ' ring selected.'); } break;
-      case 'ArrowUp': case 'ArrowDown': { handled(); const d = (k === 'ArrowUp' ? 1 : -1) * (e.shiftKey ? 1.5 : 7); if (hero) { const cur = builderOf().dials(H.genome)[ringFocus]; const v = clamp(cur + d, 20, 200); state._syncingNode = true; setRingAngle(ringFocus, v, true); state._syncingNode = false; builderOf().onDial(ringFocus, v); } else setRingAngle(ringFocus, state.rings[ringFocus].angle + d, true); break; }
+      case 'ArrowUp': case 'ArrowDown': { A.stopReplay(); handled(); const d = (k === 'ArrowUp' ? 1 : -1) * (e.shiftKey ? 1.5 : 7); if (hero) { const cur = builderOf().dials(H.genome)[ringFocus]; const v = clamp(cur + d, 20, 200); state._syncingNode = true; setRingAngle(ringFocus, v, true); state._syncingNode = false; builderOf().onDial(ringFocus, v); } else setRingAngle(ringFocus, state.rings[ringFocus].angle + d, true); break; }
       case 'q': case 'Q': handled(); OPS.imprint(); break; case 'w': case 'W': handled(); nextMode(); break;
       case 'e': case 'E': handled(); if (hero) A.reroll(); else OPS.place(); break; case 'r': case 'R': handled(); OPS.compare(); break;
       case 't': case 'T': handled(); if (hero) A.cycleVariant(); else OPS.bootstrap(); break; case 'y': case 'Y': handled(); OPS.reset(); break;
       case 'l': case 'L': handled(); if (hero) A.shareLink(); break; case 'd': case 'D': handled(); A.toggleDrawer(); break;
+      case 'b': case 'B': handled(); A.replay(); break;
+      case 'g': case 'G': handled(); if (hero) A.gallery(); break; case 'k': case 'K': handled(); A.still(); break; case 'j': case 'J': handled(); A.recordClip(); break;
       case 'x': case 'X': handled(); A.togglePhoto(); break; case 'm': case 'M': handled(); A.toggleMatch(); break;
       case ',': if (A.matchOn) { handled(); A.matchStep(-1); } break; case '.': if (A.matchOn) { handled(); A.matchStep(1); } break; case 'p': case 'P': handled(); OPS.sonic(); break;
       case 'n': case 'N': handled(); A.toggleNarrate && A.toggleNarrate(); break; case 'h': case 'H': handled(); A.readFrame && A.readFrame(); break;

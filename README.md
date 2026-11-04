@@ -25,6 +25,17 @@ Buttons: SELECT = next part (camera racks to it) · ENGRAM = new specimen (film:
 
 Scene makes the interface: ring positions are the specimen's genome, the ◆ on each orb gauge is the film's canon, the orb's casing takes the scene's light (candle flicker included), and the accordion spread follows the shot scale. Interface makes the scene: every ring edit rebuilds or re-lights the specimen.
 
+### Replay the film's beats (key `B`, or REPLAY)
+
+Four moments Stelline lingers on, each choreographed so one event happens in three places at once: the orb ring turns, the screen answers, and a crescent reticle (arc opens with the ring's value, leader line to the exact thing changing, LOCK flash when the ring hits the film's value) follows. Drag the reticle's arc to turn that ring yourself.
+- **THE EYE 0:29** L2 FOCUS racks while the camera dives; L1 resolves the facets.
+- **THE WRITING 2:17** the cake spawns cold and ghostly (L1 solid, R2 warm), candles 3, 5, 7, then L3 pipes the inscription stroke by stroke with a glowing nozzle.
+- **THE CHILDREN 2:32** cake solid; L1 materialises the film's children from ghost.
+- **THE FACE 2:51** child portrait: ghost to solid, candle light up, rack focus flame to face, expression to blowing, then the flame goes out.
+New builder **CHILD**: underlit faces, 6 skins, 6 hair colours, 5 styles, eye colour, expression neutral to blow. Inscription variants: 5 scripts, 4 media (pipe, gel, chocolate, gold leaf), 4 layouts (top, arc, side, topper), plus CJK presets. Candles: striped, taper, tealight, sparkler.
+
+**Honest status:** the child faces are stylised and clearly synthetic; they are a working system with correct lighting behaviour, not film-grade faces. The bug and cake are better. The 'blind critic' trained classifier is not trained yet (features exist in `atlas-builder.js`); the gallery's quality score is a hand-written heuristic.
+
 ### Watch the film: the critic wired to the builders
 
 `MATCH` (key `M`, or the big red thumb button on the orb) locks the camera to the film's own camera, draws the film frame on the left of a draggable wipe and your model on the right, and scores them every couple of seconds (SSIM, colour distance, edges, tone histogram) with plain-language notes ("model is brighter than the frame", "too warm"). `,` `.` step through the film. Reference frames: bug 0:33 (head-on macro), cake 2:34 (children round the cake). The cake canon includes the film's own children as cutouts (`FILM CHILDREN` in the drawer). Current scores for the canonical specimens: cake about 52-63 / 100 across frames 2:30-2:42, bug about 33-36 (the bug is the weaker match). These are honest baselines, not "indistinguishable".

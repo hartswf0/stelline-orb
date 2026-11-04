@@ -56,10 +56,10 @@
   let rt = null, rtW = 0, rtH = 0;
   const postScene = new T.Scene(), postCam = new T.OrthographicCamera(-1, 1, 1, -1, 0, 1);
   const post = new T.ShaderMaterial({
-    uniforms: { tColor: { value: null }, tDepth: { value: null }, near: { value: cam.near }, far: { value: cam.far }, focus: { value: 5 }, aperture: { value: 1 }, texel: { value: new T.Vector2() }, time: { value: 0 }, grain: { value: 0.035 }, vig: { value: 0.55 }, exposure: { value: 1 }, tintA: { value: new T.Vector3(1, 1, 1) } },
+    uniforms: { tColor: { value: null }, tDepth: { value: null }, near: { value: cam.near }, far: { value: cam.far }, focus: { value: 5 }, aperture: { value: 1 }, texel: { value: new T.Vector2() }, time: { value: 0 }, grain: { value: 0.035 }, vig: { value: 0.55 }, exposure: { value: 1 }, bloom: { value: 0.5 }, tintA: { value: new T.Vector3(1, 1, 1) } },
     vertexShader: 'varying vec2 vUv; void main(){ vUv=uv; gl_Position=vec4(position.xy,0.0,1.0); }',
     fragmentShader: `
-      varying vec2 vUv; uniform sampler2D tColor, tDepth; uniform float near, far, focus, aperture, time, grain, vig, exposure; uniform vec2 texel; uniform vec3 tintA;
+      varying vec2 vUv; uniform sampler2D tColor, tDepth; uniform float near, far, focus, aperture, time, grain, vig, exposure, bloom; uniform vec2 texel; uniform vec3 tintA;
       float lin(float z){ float ndc=z*2.0-1.0; return (2.0*near*far)/(far+near-ndc*(far-near)); }
       float hash(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
       vec3 aces(vec3 x){ return clamp((x*(2.51*x+0.03))/(x*(2.43*x+0.59)+0.14),0.0,1.0); }
@@ -78,7 +78,11 @@
           w *= 1.0+lum*lum*1.5;
           acc += s*w; wsum += w;
         }
-        vec3 c = acc/wsum * exposure * tintA;
+        vec3 c = acc/wsum;
+        vec3 bl = vec3(0.0);
+        for(int k=0;k<16;k++){ float a=float(k)*0.3927; float rr=(k%2==0)?7.0:15.0; vec3 sv=texture2D(tColor,vUv+vec2(cos(a),sin(a))*rr*texel).rgb; bl+=max(sv-vec3(1.15),vec3(0.0)); }
+        c += bl*(bloom*0.045);
+        c *= exposure * tintA;
         float v = 1.0 - vig*pow(length((vUv-0.5)*vec2(1.0,0.82))*1.35, 2.2);
         c *= v;
         c = aces(c);
@@ -109,14 +113,17 @@
     const k = 1 - Math.pow(0.0015, dt);
     const L = (a, b) => a + (b - a) * k;
     orbit.tx = L(orbit.tx, orbit.tTx); orbit.ty = L(orbit.ty, orbit.tTy); orbit.tz = L(orbit.tz, orbit.tTz);
-    orbit.dist = L(orbit.dist, orbit.tDist * orbit.userDist); orbit.yaw = L(orbit.yaw, orbit.tYaw + orbit.userYaw + orbit.px * 0.10);
-    orbit.pitch = L(orbit.pitch, clamp(orbit.tPitch + orbit.userPitch - orbit.py * 0.07, -1.3, 1.45)); orbit.focus = L(orbit.focus, orbit.tFocus * orbit.userDist + (H.focusBias || 0));
+    orbit.dist = L(orbit.dist, orbit.tDist * orbit.userDist);
+    if (H.focusRack) { const R = H.focusRack; const da = cam.position.distanceTo(R.a), db = cam.position.distanceTo(R.b); orbit.tFocus = (da + (db - da) * R.t) / Math.max(0.15, orbit.userDist); }
+    else if (H.focusPoint && H.sel < 0 && !H.lockRef) { const fp = H.focusPoint; const dx = cam.position.x - fp.x, dy = cam.position.y - fp.y, dz = cam.position.z - fp.z; orbit.tFocus = Math.hypot(dx, dy, dz) / Math.max(0.15, orbit.userDist); } orbit.yaw = L(orbit.yaw, orbit.tYaw + orbit.userYaw + orbit.px * 0.10);
+    orbit.pitch = L(orbit.pitch, clamp(orbit.tPitch + orbit.userPitch - orbit.py * 0.07, -1.3, 1.45)); orbit.focus = L(orbit.focus, orbit.tFocus * orbit.userDist + (H.focusBias || 0) + (H.lensBias || 0));
     const cp = Math.cos(orbit.pitch);
     cam.position.set(orbit.tx + Math.sin(orbit.yaw) * cp * orbit.dist, orbit.ty + Math.sin(orbit.pitch) * orbit.dist, orbit.tz + Math.cos(orbit.yaw) * cp * orbit.dist);
     cam.lookAt(orbit.tx, orbit.ty, orbit.tz);
     // keep the key light attached to the view so every angle is lit
     key.position.set(orbit.tx + 3.2 + Math.sin(orbit.yaw) * 2, orbit.ty + 5, orbit.tz + 4 + Math.cos(orbit.yaw) * 2); key.target.position.set(orbit.tx, orbit.ty, orbit.tz);
   }
+  H.setCam = function (o) { if (o.pos) { orbit.tTx = o.pos[0]; orbit.tTy = o.pos[1]; orbit.tTz = o.pos[2]; } if (o.dist != null) orbit.tDist = o.dist; if (o.yaw != null) orbit.tYaw = o.yaw; if (o.pitch != null) orbit.tPitch = o.pitch; if (o.snap) { orbit.tx = orbit.tTx; orbit.ty = orbit.tTy; orbit.tz = orbit.tTz; orbit.dist = orbit.tDist; orbit.yaw = orbit.tYaw; orbit.pitch = orbit.tPitch; } };
   H.nudge = (dy, dp, dz) => { orbit.userYaw += dy; orbit.userPitch = clamp(orbit.userPitch + dp, -1.2, 1.2); if (dz) orbit.userDist = clamp(orbit.userDist * (1 + dz), 0.18, 3.5); };
 
   // pointer: drag to orbit, wheel to dolly, hover parallax
@@ -135,7 +142,7 @@
   // ---- specimen lifecycle -------------------------------------------------------
   H.clear = function () {
     while (root.children.length) { const o = root.children[0]; root.remove(o); o.traverse(n => { if (n.geometry) n.geometry.dispose(); if (n.material) { (Array.isArray(n.material) ? n.material : [n.material]).forEach(m => { ['map', 'bumpMap', 'roughnessMap', 'normalMap', 'alphaMap'].forEach(k => m[k] && m[k].dispose && m[k].dispose()); m.dispose(); }); } }); }
-    H.parts = []; H.updaters = []; scene.fog = null;
+    H.parts = []; H.updaters = []; scene.fog = null; H.focusRack = null; H.cutMat = null; H.cutHeads = null; H.lensBias = 0; H.cakeG = null; H.cursorUpdate = null; H.cursorWorld = null;
     const rm = []; scene.traverse(n => { if (n.userData && n.userData.heroLight) rm.push(n); }); rm.forEach(n => scene.remove(n));
   };
   // builders register: { kind, makeGenome(seed), build(genome, ctx), labels, ... }
@@ -168,17 +175,18 @@
 
   // ---- frame --------------------------------------------------------------------
   let lastT = performance.now(), fpsAcc = 0, fpsN = 0;
-  H.renderFrame = function (target, w, h, tms) {
+  H.renderFrame = function (target, w, h, tms, ssOver) {
     const aspect = w / h; if (cam.aspect !== aspect) { cam.aspect = aspect; cam.updateProjectionMatrix(); }
-    const ss = target ? 1 : 1.25; const rw = Math.round(w * ss), rh = Math.round(h * ss);
+    const ss = ssOver || (target ? 1 : 1.25); const rw = Math.round(w * ss), rh = Math.round(h * ss);
     ensureRT(rw, rh);
     renderer.setRenderTarget(rt); renderer.setClearColor(scene.background || 0x000000, 1); renderer.clear(); renderer.render(scene, cam);
     post.uniforms.tColor.value = rt.texture; post.uniforms.tDepth.value = rt.depthTexture;
-    post.uniforms.near.value = cam.near; post.uniforms.far.value = cam.far; post.uniforms.focus.value = Math.max(0.15, orbit.focus); post.uniforms.aperture.value = H.noDOF ? 0 : (H.aperture || 0.6);
+    post.uniforms.near.value = cam.near; post.uniforms.far.value = cam.far; post.uniforms.focus.value = Math.max(0.15, orbit.focus); post.uniforms.aperture.value = H.noDOF ? 0 : (H.aperture || 0.6) * clamp(4.2 / Math.max(1, orbit.dist), 0.18, 1.6);
     post.uniforms.texel.value.set(1 / rw, 1 / rh); post.uniforms.time.value = tms;
     renderer.setRenderTarget(target || null); renderer.render(postScene, postCam);
     renderer.setRenderTarget(null); renderer.setClearColor(0x05070a, 1);
   };
+  H.syncCam = () => placeCam(1);
   H.setLock = function (f) { H.lockRef = f || null; if (f) H.frame(f); else if (H.sel >= 0 && H.parts[H.sel]) H.frame(H.parts[H.sel].focus); else H.overview(); };
   H.tick = function () {
     const now = performance.now(); const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now; H.t += dt;
@@ -186,13 +194,14 @@
     (H.updaters || []).forEach(u => u(dt, H.t));
     if (H.lockRef) { orbit.userYaw = orbit.userPitch = 0; orbit.userDist = 1; orbit.px = orbit.py = 0; H.focusBias = 0; }
     placeCam(dt);
-    const w = A.canvas.clientWidth, h = A.canvas.clientHeight; renderer.setSize(w, h, false);
+    if (H.clip) { const c = H.clip; c.t += dt; const u = Math.min(1, c.t / c.dur); orbit.userYaw = c.y0 + u * Math.PI * 1.25; orbit.userPitch = c.p0 + 0.12 * Math.sin(u * Math.PI * 2); orbit.userDist = c.d0 * (1 - 0.18 * Math.sin(u * Math.PI)); if (c.t >= c.dur && c.done) { const d = c.done; H.clip = null; d(); } }
+    const w = H.recSize ? H.recSize[0] : A.canvas.clientWidth, h = H.recSize ? H.recSize[1] : A.canvas.clientHeight; renderer.setSize(w, h, false);
     H.renderFrame(null, w, h, H.t);
   };
   // offscreen capture (for snapshot cards and the critic)
-  H.capture = function (w, h) {
+  H.capture = function (w, h, ss) {
     const target = new T.WebGLRenderTarget(w, h, { minFilter: T.LinearFilter, magFilter: T.LinearFilter });
-    const prevAspect = cam.aspect; H.renderFrame(target, w, h, H.t);
+    const prevAspect = cam.aspect; H.renderFrame(target, w, h, H.t, ss);
     const buf = new Uint8Array(w * h * 4); renderer.readRenderTargetPixels(target, 0, 0, w, h, buf); target.dispose();
     const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'); const id = x.createImageData(w, h);
     for (let y = 0; y < h; y++) id.data.set(buf.subarray((h - 1 - y) * w * 4, (h - y) * w * 4), y * w * 4);
