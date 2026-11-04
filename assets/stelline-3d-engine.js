@@ -1760,9 +1760,9 @@
       ? window.STELLINE_SAM_DATA[shot]
       : (SCENE_OPERATIVE_GRAPH[shot] || SCENE_OPERATIVE_GRAPH.bugeye);
     const selIdx = (state.selectedNodeIdx || 0) % samList.length;
-    const arcCx = w * 0.165;
-    const arcCy = h * 0.48;
     const arcR  = Math.min(w, h) * 0.34;
+    const arcCx = Math.max(arcR + 18, w * 0.165);
+    const arcCy = h * 0.48;
 
     if (drawVisual) {
       ctx.save();
