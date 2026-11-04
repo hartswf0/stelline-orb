@@ -774,61 +774,61 @@ function cycleOtherwiseVariant(protoKey, explicitVariant = null) {
   // Apply counterfactual ("could be otherwise") dial offsets to the active SAM object so the C-Arc & Orb rings reflect the mutation!
   if (cleanKey === 'bug') {
     if (nextV === 1) {
-      // SCARAB.AURUM: High Hex Density (L1=92), Deep Focus (L2=185), Long Setae (L3=182), Mandible Flare (R1=195), Gold Iridescence (R2=215)
-      setRingAngle(0, 92, false);
+      // SCARAB.AURUM: High Hex Density (L1=136), Deep Focus (L2=185), Long Setae (L3=182), Mandible Flare (R1=195), Warm Specular (R2=178)
+      setRingAngle(0, 136, false);
       setRingAngle(1, 185, false);
       setRingAngle(2, 182, false);
       setRingAngle(3, 195, false);
-      setRingAngle(4, 215, true);
+      setRingAngle(4, 178, true);
     } else if (nextV === 2) {
-      // OBSIDIAN.VOID: Coarse 52_HEX Facets (L1=48), Sharp Cornea (L2=175), Bald Chitin (L3=104), Wide Mandibles (R1=220), Cyan-Obsidian (R2=95)
-      setRingAngle(0, 48, false);
+      // OBSIDIAN.VOID: Crisp Relief (L1=132), Sharp Cornea (L2=175), Retracted Setae (L3=104), Wide Mandibles (R1=220), Cool Specular (R2=142)
+      setRingAngle(0, 132, false);
       setRingAngle(1, 175, false);
       setRingAngle(2, 104, false);
       setRingAngle(3, 220, false);
-      setRingAngle(4, 95, true);
+      setRingAngle(4, 142, true);
     } else if (nextV === 3) {
       // HETEROCERA.SPLIT: Asymmetric Optics
-      setRingAngle(0, 78, false);
+      setRingAngle(0, 135, false);
       setRingAngle(1, 192, false);
       setRingAngle(2, 172, false);
       setRingAngle(3, 185, false);
-      setRingAngle(4, 205, true);
+      setRingAngle(4, 168, true);
     } else {
       const cfg = SHOT_CONFIGS[state.activeShot] || SHOT_CONFIGS.bugeye;
       cfg.rings.forEach((a, i) => setRingAngle(i, a, false));
     }
   } else {
     if (nextV === 1) {
-      // KEPT BUNDT AT PARTY: 3D Sculpted Bundt + Smarties on Hex Table (L1=78, L2=168, L3=148, R1=175, R2=195)
+      // KEPT BUNDT AT PARTY: Sculpted Bundt Relief (L1=134, L2=168, L3=148, R1=168, R2=162)
       state.bundtMorph = 0.96;
-      setRingAngle(0, 78, false);
+      setRingAngle(0, 134, false);
       setRingAngle(1, 168, false);
       setRingAngle(2, 148, false);
-      setRingAngle(3, 175, false);
-      setRingAngle(4, 195, true);
+      setRingAngle(3, 168, false);
+      setRingAngle(4, 162, true);
     } else if (nextV === 2) {
-      // DARK GANACHE & 3 WICKS + SPOTLIGHT: Cylinder Ganache + 3 Wicks + Spotlight on Center Birthday Girl
+      // DARK GANACHE & 3 WICKS + SPOTLIGHT: Cylinder Ganache + Spotlight on Center Birthday Girl
       state.bundtMorph = 0.0;
-      setRingAngle(0, 86, false);
-      setRingAngle(1, 95, false);
+      setRingAngle(0, 134, false);
+      setRingAngle(1, 155, false);
       setRingAngle(2, 146, false);
-      setRingAngle(3, 172, false);
-      setRingAngle(4, 215, true);
+      setRingAngle(3, 168, false);
+      setRingAngle(4, 172, true);
       ensureObjectParams('cutouts');
       if (state.objectParams && state.objectParams.cutouts) {
-        state.objectParams.cutouts[0][3] = 115; // dim left child
-        state.objectParams.cutouts[1][3] = 238; // spotlight center birthday girl (+70% LUMA)
-        state.objectParams.cutouts[2][3] = 115; // dim right child
+        state.objectParams.cutouts[0][3] = 132; // subtle dim left child
+        state.objectParams.cutouts[1][3] = 205; // warm spotlight center birthday girl
+        state.objectParams.cutouts[2][3] = 132; // subtle dim right child
       }
     } else if (nextV === 3) {
-      // ROSE-GLAZE CROWN & 24 SMARTIES: (L1=84, L2=175, L3=128, R1=195, R2=105)
+      // ROSE-GLAZE CROWN: (L1=134, L2=175, L3=128, R1=172, R2=148)
       state.bundtMorph = 0.68;
-      setRingAngle(0, 84, false);
+      setRingAngle(0, 134, false);
       setRingAngle(1, 175, false);
       setRingAngle(2, 128, false);
-      setRingAngle(3, 195, false);
-      setRingAngle(4, 105, true);
+      setRingAngle(3, 172, false);
+      setRingAngle(4, 148, true);
     } else {
       const cfg = SHOT_CONFIGS[state.activeShot] || SHOT_CONFIGS.cutouts;
       state.bundtMorph = cfg.bundt || 0;
