@@ -148,67 +148,15 @@
     display: none;
   }
 
-  /* Bespoke Bug & Birthday Cake Studio Drawer (Right Edge, Non-Occluding) */
-  .bespoke-builder-modal {
-    display: none;
+  /* Hidden 0x0 Keyboard Capture for Diegetic In-Hologram Laser-Cursor Inscription Editing */
+  .holo-direct-text-input {
     position: fixed;
-    top: 34px;
-    right: 12px;
-    width: 364px;
-    max-width: calc(100vw - 24px);
-    max-height: calc(58vh - 38px);
-    overflow-x: hidden;
-    overflow-y: auto;
-    z-index: 28;
-    background: rgba(6, 11, 17, 0.90);
-    border: 1px solid rgba(56, 217, 192, 0.48);
-    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(12px);
-    padding: 10px 12px;
-    font-family: var(--font-mono);
-    color: var(--text-main);
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .bespoke-builder-modal.open {
-    display: flex;
-  }
-
-  .builder-row {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-
-  .builder-label {
-    font-size: 8.5px;
-    letter-spacing: 0.08em;
-    color: var(--text-muted);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .builder-input, .builder-select {
-    width: 100%;
-    background: rgba(12, 20, 30, 0.92);
-    border: 1px solid rgba(110, 128, 148, 0.45);
-    color: #f0f6fa;
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    padding: 5px 7px;
-    outline: none;
-  }
-
-  .builder-input:focus, .builder-select:focus {
-    border-color: var(--accent-teal);
-  }
-
-  .builder-chips {
-    display: flex;
-    gap: 3px;
-    flex-wrap: wrap;
+    left: -9999px;
+    top: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
   }
 
   .pill-btn {
@@ -276,7 +224,7 @@
   .mobile-sam-row {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
+    gap: 3px;
   }
 
   .mobile-dial-row {
@@ -313,13 +261,6 @@
       overflow-x: auto;
       max-width: 100%;
     }
-    .bespoke-builder-modal {
-      top: 34px;
-      left: 8px;
-      right: 8px;
-      width: auto;
-      max-height: 46vh;
-    }
     .pill-btn {
       flex-shrink: 0;
       padding: 5px 8px;
@@ -338,42 +279,17 @@
       display: flex;
     }
   }
-
-  /* MOBILE PORTRAIT HARDWARE CONSOLE OVERRIDES */
-  @media (max-width: 920px), (orientation: portrait) {
-    .app-shell {
-      display: flex !important;
-      flex-direction: column !important;
-      height: 100dvh !important;
-      overflow: hidden !important;
-    }
-    .holo-bay {
-      height: 50dvh !important;
-      min-height: 250px !important;
-      flex: 0 0 50dvh !important;
-    }
-    .orb-console-bay {
-      height: 50dvh !important;
-      flex: 1 1 50dvh !important;
-    }
-    .bespoke-builder-modal {
-      top: 32px !important;
-      right: 6px !important;
-      left: 6px !important;
-      width: auto !important;
-      max-height: 44dvh !important;
-    }
-  }
-
 </style>
 </head>
 <body>
 <div class="studio-viewport">
+  <input id="holoDirectTextInput" class="holo-direct-text-input" type="text" maxlength="32" autocomplete="off" spellcheck="false" />
   <div class="minimal-corner" id="minimalCornerRoot">
     <!-- Whisper-thin diegetic optical latch: keeps the 1280x720 holographic dome 100% unoccluded by default -->
     <div class="diegetic-whisper-bar" id="diegeticWhisperBar">
-      <button class="pill-btn" id="labDrawerToggleBtn" onclick="toggleLabDrawer()" title="Toggle Full Shot, SAM Part &amp; Engine Drawer [Press Tab]">STELLINE.OS // 00:32 BUG EYE [LAB ▾]</button>
-      <button class="pill-btn amber" id="openBuilderBtn" onclick="toggleBespokeBuilder()" title="Design Any Bug Specimen or Any Birthday Cake for Anyone [Press B or Red IMPRINT Button on Orb]">BUILD BUG / CAKE [B]</button>
+      <button class="pill-btn" id="labDrawerToggleBtn" onclick="toggleLabDrawer()" title="Toggle Full Shot, 8-Element Rig &amp; Protocol Drawer [Press Tab]">STELLINE.OS // 00:32 BUG EYE [LAB ▾]</button>
+      <button class="pill-btn" id="whisperSelectNodeBtn" onclick="cycleSelectedHologramNode()" title="Cycle All 8 Critical Anatomical / Scene Elements on the Primary C-Arc [Press S or 1-8]">NODE [1/8]: OCULUS.DX [S]</button>
+      <button class="pill-btn amber" id="openBuilderBtn" onclick="startHoloDirectTextEdit()" title="Inscribe Custom Cake Recipient Name or Bug Binomial Taxon Directly in Hologram [Press I]">INSCRIBE IN-HOLO [I]</button>
       <button class="pill-btn" id="whisperOtherwiseBtn" onclick="cycleOtherwiseVariant()" title="Imagine Each Element Could Be Otherwise [Press O]">OTHERWISE [O]</button>
       <a class="pill-btn" href="process.html" style="text-decoration:none;" title="SCION DIEGETIC Provenance, Method &amp; Copyable Prompts">SCION PROMPTS</a>
     </div>
@@ -394,6 +310,8 @@
         <button class="pill-btn" id="bearingBtn" onclick="setViewMode(state.viewMode === 'bearing' ? 'sculpt' : 'bearing')">READER</button>
         <div class="minimal-sep" style="height:14px;"></div>
         <button class="pill-btn amber" id="engineVerBtn" onclick="cycleEngineVersion()" title="Switch between V4 (SAM+MiDaS Relief), V3 (Hybrid 3D Models), V2 (Pure 3D Sculptor), and V1 (Canvas 3D Lab)">ENGINE: V4 SAM-RELIEF</button>
+        <button class="pill-btn amber" onclick="imprintMemoryCardPNG()" title="Export 1280x880 Memory Bearing PNG">IMPRINT .PNG</button>
+        <button class="pill-btn" onclick="copyShareableBlueprintUrl()" title="Copy Shareable Live URL">COPY LINK</button>
         <a class="pill-btn" href="mobile.html" style="text-decoration:none;">MOBILE EDITION</a>
         <a class="pill-btn" href="versions.html" style="text-decoration:none;">ALL VERSIONS</a>
         <a class="pill-btn" href="process.html" style="text-decoration:none;">PROCESS &amp; PROMPTS</a>
@@ -427,119 +345,6 @@
     </div>
   </div>
 
-  <!-- BESPOKE BUG & BIRTHDAY CAKE STUDIO (Real Practical Utility for Anyone) -->
-  <div class="bespoke-builder-modal" id="bespokeBuilderModal">
-    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(110,128,148,0.3); padding-bottom:6px;">
-      <div style="display:flex; gap:4px;">
-        <button class="pill-btn active" id="tabBuildCakeBtn" onclick="switchBespokeTab('cake')">PATISSERIE.OS [CAKE]</button>
-        <button class="pill-btn" id="tabBuildBugBtn" onclick="switchBespokeTab('bug')">ENTOMOLOGY.OS [BUG]</button>
-      </div>
-      <button class="pill-btn" onclick="toggleBespokeBuilder(false)" title="Close Studio [Esc]">CLOSE [X]</button>
-    </div>
-
-    <!-- TAB 1: BESPOKE BIRTHDAY CAKE BUILDER FOR ANYONE -->
-    <div id="bespokeCakePane" style="display:flex; flex-direction:column; gap:7px;">
-      <div class="builder-row">
-        <div class="builder-label"><span>PIPED ICING INSCRIPTION (ANY NAME / SCRIPT)</span><span style="color:#f0a848;">RING L3</span></div>
-        <input class="builder-input" id="customCakeInscInput" type="text" maxlength="28" value="HAPPY BIRTHDAY MAYA" placeholder="Type recipient name or message..." oninput="applyCustomCakeFromUI()">
-        <div class="builder-chips">
-          <button class="pill-btn" onclick="setCakePresetInsc('HAPPY BIRTHDAY MAYA')">HAPPY BIRTHDAY MAYA</button>
-          <button class="pill-btn" onclick="setCakePresetInsc('生日快樂')">生日快樂</button>
-          <button class="pill-btn" onclick="setCakePresetInsc('ANA // 6·10·21')">ANA // 6·10·21</button>
-          <button class="pill-btn" onclick="setCakePresetInsc('HAPPY BIRTHDAY ALEX')">ALEX</button>
-        </div>
-      </div>
-
-      <div class="builder-row">
-        <div class="builder-label"><span>LIT CANDLE ARRAY (<span id="customCakeCandlesVal">7</span> WICKS · 3200K)</span><span style="color:#38d9c0;">RING L2</span></div>
-        <div style="display:flex; gap:6px; align-items:center;">
-          <input type="range" id="customCakeCandlesInput" min="1" max="12" value="7" style="flex:1; accent-color:#38d9c0;" oninput="applyCustomCakeFromUI()">
-          <button class="pill-btn amber" id="blowCandlesActionBtn" onclick="toggleCustomCakeBlowOut()">BLOW OUT CANDLES</button>
-        </div>
-      </div>
-
-      <div class="builder-row">
-        <div class="builder-label"><span>SPONGE TIER TOPOLOGY (<span id="customCakeBundtVal">0.00</span> CYL &rarr; BUNDT)</span><span style="color:#38d9c0;">RING L3</span></div>
-        <input type="range" id="customCakeBundtInput" min="0" max="100" value="0" style="width:100%; accent-color:#f0a848;" oninput="applyCustomCakeFromUI()">
-        <div class="builder-chips">
-          <button class="pill-btn" onclick="setCakeTopologyPreset(0, 'redicing')">FLAT CYLINDER (PIPABLE)</button>
-          <button class="pill-btn" onclick="setCakeTopologyPreset(68, 'bundtmorph')">ROSE-CROWN TIER</button>
-          <button class="pill-btn" onclick="setCakeTopologyPreset(96, 'bundtmorph')">11-FLUTE BUNDT DOME</button>
-        </div>
-      </div>
-
-      <div class="builder-row">
-        <div class="builder-label"><span>GLAZE &amp; FROSTING FORMULATION</span><span style="color:#38d9c0;">RING R2</span></div>
-        <select class="builder-select" id="customCakeGlazeSelect" onchange="applyCustomCakeFromUI()">
-          <option value="vanilla">VANILLA BUTTERCREAM (3200K CANONICAL)</option>
-          <option value="ganache">DARK CHOCOLATE GANACHE (2400K RICH)</option>
-          <option value="rose">ROSE-BERRY PATISSERIE GLAZE (4600K)</option>
-          <option value="matcha">MATCHA EMERALD GLAZE (520nm)</option>
-          <option value="gold">AUREATE HONEY-GOLD GLAZE</option>
-        </select>
-      </div>
-
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:4px; flex-wrap:wrap;">
-        <label style="font-size:8.5px; color:#d8e2ec; display:flex; align-items:center; gap:4px; cursor:pointer;">
-          <input type="checkbox" id="customCakeSmartiesChk" onchange="applyCustomCakeFromUI()"> 24 SMARTIES CANDY
-        </label>
-        <div style="display:flex; gap:3px;">
-          <button class="pill-btn" onclick="selectFilmShot('redicing'); applyCustomCakeFromUI();">CLOSE-UP</button>
-          <button class="pill-btn" onclick="selectFilmShot('cutouts'); applyCustomCakeFromUI();">PARTY TABLE</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 2: BESPOKE BUG SPECIMEN BUILDER FOR ANYONE -->
-    <div id="bespokeBugPane" style="display:none; flex-direction:column; gap:7px;">
-      <div class="builder-row">
-        <div class="builder-label"><span>BINOMIAL SPECIES TAXON &amp; COMMON NAME</span><span>HOLOTYPE</span></div>
-        <input class="builder-input" id="customBugTaxonInput" type="text" maxlength="32" value="Carabus stellinae" placeholder="Binomial taxon..." oninput="applyCustomBugFromUI()">
-        <input class="builder-input" id="customBugCommonInput" type="text" maxlength="36" value="Wallace Dome Emerald Carabid" placeholder="Common designation..." oninput="applyCustomBugFromUI()" style="margin-top:2px;">
-        <div class="builder-chips">
-          <button class="pill-btn" onclick="setBugArchetype('Carabus stellinae','Wallace Emerald Carabid',165,520,180,1.0,false)">520nm EMERALD</button>
-          <button class="pill-btn" onclick="setBugArchetype('Chrysina aurata','Golden Jewel Scarab',280,585,310,1.45,false)">585nm GOLD SCARAB</button>
-          <button class="pill-btn" onclick="setBugArchetype('Megasoma obsidianus','Obsidian Void Rhino',52,450,0,1.65,false)">450nm OBSIDIAN</button>
-          <button class="pill-btn" onclick="setBugArchetype('Buprestis rubra','Ruby Jewel Beetle',240,630,220,1.3,false)">630nm RUBY</button>
-        </div>
-      </div>
-
-      <div class="builder-row">
-        <div class="builder-label"><span>OMMATIDIA HEX DENSITY (<span id="customBugHexVal">165</span>_HEX)</span><span style="color:#38d9c0;">RING L1</span></div>
-        <input type="range" id="customBugHexInput" min="32" max="320" value="165" style="width:100%; accent-color:#38d9c0;" oninput="applyCustomBugFromUI()">
-      </div>
-
-      <div class="builder-row">
-        <div class="builder-label"><span>CHITIN THIN-FILM WAVELENGTH (<span id="customBugNmVal">520</span>nm)</span><span style="color:#f0a848;">RING R2</span></div>
-        <input type="range" id="customBugNmInput" min="430" max="635" value="520" style="width:100%; accent-color:#f0a848;" oninput="applyCustomBugFromUI()">
-      </div>
-
-      <div class="builder-row">
-        <div class="builder-label"><span>SENSORY SETAE BRISTLES (<span id="customBugSetaeVal">180</span> BRISTLES)</span><span style="color:#38d9c0;">RING L3</span></div>
-        <input type="range" id="customBugSetaeInput" min="0" max="360" value="180" style="width:100%; accent-color:#38d9c0;" oninput="applyCustomBugFromUI()">
-      </div>
-
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:4px; flex-wrap:wrap;">
-        <label style="font-size:8.5px; color:#d8e2ec; display:flex; align-items:center; gap:4px; cursor:pointer;">
-          <input type="checkbox" id="customBugSplitChk" onchange="applyCustomBugFromUI()"> ASYMMETRIC SPLIT OPTICS
-        </label>
-        <div style="display:flex; gap:3px;">
-          <button class="pill-btn" onclick="selectFilmShot('bugeye'); applyCustomBugFromUI();">EYE MACRO</button>
-          <button class="pill-btn" onclick="selectFilmShot('leaf'); applyCustomBugFromUI();">WET LEAF GAIT</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- PRACTICAL EXPORT / IMPRINT FOOTER -->
-    <div style="border-top:1px solid rgba(110,128,148,0.3); padding-top:7px; display:flex; flex-direction:column; gap:5px;">
-      <div style="display:flex; gap:5px;">
-        <button class="pill-btn amber" style="flex:1; padding:6px 8px; font-weight:600; text-align:center;" onclick="imprintMemoryCardPNG()">IMPRINT MEMORY CARD (.PNG)</button>
-        <button class="pill-btn active" id="copyBlueprintLinkBtn" style="padding:6px 8px;" onclick="copyShareableBlueprintUrl()">COPY LIVE LINK</button>
-      </div>
-      <div id="imprintStatusMsg" style="font-size:8px; color:#38d9c0; letter-spacing:0.06em; min-height:11px;">PRESS RED IMPRINT BUTTON ON ORB OR CLICK ABOVE TO EXPORT</div>
-    </div>
-  </div>
-
   <div class="hologram-stage">
     <canvas id="webglCanvas"></canvas>
     <canvas id="hologramCanvas"></canvas>
@@ -549,10 +354,14 @@
     <canvas id="orbCanvas"></canvas>
     <div class="mobile-thumb-dock" id="mobileThumbDock">
       <div class="mobile-sam-row" id="mobileSamRow">
-        <button class="pill-btn active" onclick="selectSceneObject(0)">1:SAM.01</button>
-        <button class="pill-btn" onclick="selectSceneObject(1)">2:SAM.02</button>
-        <button class="pill-btn" onclick="selectSceneObject(2)">3:SAM.03</button>
-        <button class="pill-btn" onclick="selectSceneObject(3)">4:SAM.04</button>
+        <button class="pill-btn active" onclick="selectSceneObject(0)">1:NODE.01</button>
+        <button class="pill-btn" onclick="selectSceneObject(1)">2:NODE.02</button>
+        <button class="pill-btn" onclick="selectSceneObject(2)">3:NODE.03</button>
+        <button class="pill-btn" onclick="selectSceneObject(3)">4:NODE.04</button>
+        <button class="pill-btn" onclick="selectSceneObject(4)">5:NODE.05</button>
+        <button class="pill-btn" onclick="selectSceneObject(5)">6:NODE.06</button>
+        <button class="pill-btn" onclick="selectSceneObject(6)">7:NODE.07</button>
+        <button class="pill-btn" onclick="selectSceneObject(7)">8:NODE.08</button>
       </div>
       <div class="mobile-dial-row" id="mobileDialRow">
         <div class="mobile-dial-slider"><span id="mDialLbl0" style="font-size:7.5px;color:#38d9c0;white-space:nowrap;overflow:hidden;">L1:SOLID</span><input id="mDialIn0" type="range" min="10" max="155" value="135" oninput="setRingAngle(0, this.value, true)"></div>
@@ -914,14 +723,151 @@ function selectFilmShot(shotKey, fromSequencer = false) {
 }
 
 // ============================================================================
-// PER-OBJECT 5-DIAL SAM SEGMENTATION STATE
-// Every SAM-segmented item [0..3] in every shot has its own live 5-dial vector:
-//   Dial 0 (L1): SOLID   (20°..185° -> 0% wireframe/depth-contour .. 100% solid)
-//   Dial 1 (L2): FOCUS   (20°..185° -> 0% optical bokeh blur .. 100% sharp micro-detail)
-//   Dial 2 (L3): MORPH   (20°..185° -> 3D depth relief extrusion & timeline morph)
-//   Dial 3 (R1): LUMA    (20°..200° -> 0.18x darken shadow .. 1.0x neutral (110°) .. 2.15x lighten boost)
-//   Dial 4 (R2): TINT    (20°..200° -> 4800K cool cyan .. 3500K neutral (110°) .. 2600K warm candle gold)
+// PRIMARY DIEGETIC 8-ELEMENT ASSEMBLY GRAPH & PER-OBJECT 5-DIAL STATE
+// Every scene has 8 critical anatomical or spatial sub-assemblies [0..7].
+// Selecting any element [1/8..8/8] (via Hologram click, Left-Arc Stack, Orb
+// 8-pin selector, [SELECT] button, or keys 1-8) binds the 5 physical Orb
+// rings [L1, L2, L3, R1, R2] and the Holographic C-Arc directly to that item!
 // ============================================================================
+const SCENE_ASSEMBLY_NODES = {
+  beetle: [
+    {
+      id: 'OCULUS.DX',
+      name: 'RIGHT COMPOUND EYE [165_HEX]',
+      dials: ['L1:HEX.FACET', 'L2:DIOPTER.DX', 'L3:CORNEA.DOME', 'R1:SPEC.LUMA', 'R2:CHITIN.NM'],
+      defaultRings: [152, 168, 145, 155, 154],
+      uvByShot: { bugeye: [0.71, 0.28], leaf: [0.58, 0.36], canopy: [0.54, 0.42], clearing: [0.56, 0.44] }
+    },
+    {
+      id: 'OCULUS.SN',
+      name: 'LEFT COMPOUND EYE [RACK FOCUS]',
+      dials: ['L1:HEX.FACET', 'L2:DIOPTER.SN', 'L3:CORNEA.DOME', 'R1:HEAD.YAW', 'R2:SPLIT.SPEC'],
+      defaultRings: [152, 165, 145, 155, 154],
+      uvByShot: { bugeye: [0.39, 0.31], leaf: [0.49, 0.38], canopy: [0.46, 0.42], clearing: [0.45, 0.44] }
+    },
+    {
+      id: 'ELYTRA.WINGS',
+      name: 'DORSAL ELYTRA & FLIGHT WINGS',
+      dials: ['L1:CARAPACE.Z', 'L2:VENATION', 'L3:UNFURL.WING', 'R1:SHELL.LUMA', 'R2:IRID.SHIFT'],
+      defaultRings: [158, 160, 128, 155, 154],
+      uvByShot: { bugeye: [0.55, 0.14], leaf: [0.44, 0.27], canopy: [0.50, 0.34], clearing: [0.50, 0.36] }
+    },
+    {
+      id: 'ANTENNA.SCAPE',
+      name: '11-SEG FILIFORM ANTENNAE & SCAPES',
+      dials: ['L1:SCAPE.SOLID', 'L2:TIP.FOCUS', 'L3:SWEEP.ARC', 'R1:TORULI.LUMA', 'R2:FLAGELLUM'],
+      defaultRings: [155, 160, 148, 150, 154],
+      uvByShot: { bugeye: [0.27, 0.08], leaf: [0.68, 0.25], canopy: [0.58, 0.30], clearing: [0.58, 0.32] }
+    },
+    {
+      id: 'SETAE.BRISTLES',
+      name: 'MECHANOSENSORY SETAE [180 BRISTLES]',
+      dials: ['L1:FOLLICLE', 'L2:HAIR.SHARP', 'L3:SETAE.COUNT', 'R1:RIM.GLINT', 'R2:AMBER.TINT'],
+      defaultRings: [155, 162, 146, 160, 154],
+      uvByShot: { bugeye: [0.76, 0.44], leaf: [0.55, 0.43], canopy: [0.52, 0.48], clearing: [0.52, 0.48] }
+    },
+    {
+      id: 'MANDIBLE.PALPS',
+      name: 'MANDIBLE PINCERS & MAXILLARY PALPS',
+      dials: ['L1:CHITIN.MASS', 'L2:PALP.DOF', 'L3:PINCER.OPEN', 'R1:LABRUM.LUMA', 'R2:MAND.SPEC'],
+      defaultRings: [155, 158, 142, 160, 154],
+      uvByShot: { bugeye: [0.54, 0.62], leaf: [0.63, 0.48], canopy: [0.50, 0.56], clearing: [0.50, 0.56] }
+    },
+    {
+      id: 'TARSI.LEGS',
+      name: '6 ARTICULATED LEGS & TARSAL CLAWS',
+      dials: ['L1:FEMUR.SOLID', 'L2:CLAW.DOF', 'L3:TRIPOD.GAIT', 'R1:TIBIA.LUMA', 'R2:SPUR.TINT'],
+      defaultRings: [155, 155, 152, 155, 154],
+      uvByShot: { bugeye: [0.16, 0.42], leaf: [0.50, 0.55], canopy: [0.44, 0.58], clearing: [0.46, 0.58] }
+    },
+    {
+      id: 'SAMBUCUS.BIOME',
+      name: 'ELDERBERRY LEAF, H2O DEW & CANOPY',
+      dials: ['L1:VEIN.RELIEF', 'L2:BOKEH.DOF', 'L3:DEW.MENISCI', 'R1:SUN.SHAFTS', 'R2:CHLOROPHYLL'],
+      defaultRings: [155, 150, 155, 165, 154],
+      uvByShot: { bugeye: [0.14, 0.66], leaf: [0.36, 0.64], canopy: [0.48, 0.38], clearing: [0.68, 0.46] }
+    }
+  ],
+  birthday: [
+    {
+      id: 'CAKE.SPONGE',
+      name: 'SPONGE TIER & SCALLOPED BUNDT MORPH',
+      dials: ['L1:TIER.SOLID', 'L2:CRUMB.DOF', 'L3:BUNDT.MORPH', 'R1:CAKE.LUMA', 'R2:GLAZE.TYPE'],
+      defaultRings: [160, 160, 146, 165, 165],
+      uvByShot: { cakespawn: [0.45, 0.56], bundtmorph: [0.43, 0.56], redicing: [0.48, 0.58], cutouts: [0.48, 0.54], blowcandles: [0.49, 0.72], miniature: [0.50, 0.74] }
+    },
+    {
+      id: 'CANDLE.WICKS',
+      name: 'STRIPED WAX CANDLES & 3200K FLAMES',
+      dials: ['L1:WAX.SOLID', 'L2:FLAME.HALO', 'L3:WICK.COUNT', 'R1:FLAME.KELVIN', 'R2:EXHALE.WIND'],
+      defaultRings: [160, 135, 146, 175, 155],
+      uvByShot: { cakespawn: [0.45, 0.36], bundtmorph: [0.43, 0.31], redicing: [0.48, 0.33], cutouts: [0.48, 0.37], blowcandles: [0.49, 0.58], miniature: [0.50, 0.69] }
+    },
+    {
+      id: 'ICING.SCRIPT',
+      name: 'PIPED BUTTERCREAM INSCRIPTION [生日快樂]',
+      dials: ['L1:PIPE.RELIEF', 'L2:SCRIPT.DOF', 'L3:STROKE.FLOW', 'R1:ICING.GLOSS', 'R2:CARMINE.HUE'],
+      defaultRings: [165, 165, 172, 170, 165],
+      uvByShot: { cakespawn: [0.45, 0.46], bundtmorph: [0.43, 0.45], redicing: [0.48, 0.45], cutouts: [0.48, 0.43], blowcandles: [0.49, 0.65], miniature: [0.50, 0.71] }
+    },
+    {
+      id: 'SMARTIES.RIM',
+      name: '24 CONFECTIONERY DRAGEES & LOWER PIPING',
+      dials: ['L1:CANDY.POP', 'L2:SUGAR.DOF', 'L3:RIM.COUNT', 'R1:SPEC.GLINT', 'R2:PASTEL.SAT'],
+      defaultRings: [155, 158, 148, 165, 165],
+      uvByShot: { cakespawn: [0.53, 0.62], bundtmorph: [0.52, 0.66], redicing: [0.56, 0.64], cutouts: [0.54, 0.57], blowcandles: [0.55, 0.75], miniature: [0.52, 0.75] }
+    },
+    {
+      id: 'HEX.TABLE',
+      name: 'HEXAGONAL PATIO TABLE & FLOOR BOUNCE POOL',
+      dials: ['L1:SLAT.WIRE', 'L2:TABLE.DOF', 'L3:MINI.SCALE', 'R1:BOUNCE.POOL', 'R2:AMBER.2200K'],
+      defaultRings: [160, 160, 160, 170, 168],
+      uvByShot: { cakespawn: [0.22, 0.54], bundtmorph: [0.22, 0.54], redicing: [0.24, 0.68], cutouts: [0.48, 0.69], blowcandles: [0.48, 0.84], miniature: [0.50, 0.78] }
+    },
+    {
+      id: 'BIRTHDAY.GIRL',
+      name: 'CENTER BIRTHDAY GIRL [CHILD.04] & EXHALE',
+      dials: ['L1:CUTOUT.SLAB', 'L2:FACE.FOCUS', 'L3:BREATH.POSE', 'R1:CANDLE.KEY', 'R2:SKIN.WARMTH'],
+      defaultRings: [165, 165, 165, 175, 172],
+      uvByShot: { cakespawn: [0.48, 0.28], bundtmorph: [0.48, 0.26], redicing: [0.48, 0.25], cutouts: [0.43, 0.38], blowcandles: [0.49, 0.34], miniature: [0.49, 0.66] }
+    },
+    {
+      id: 'LEFT.FRIENDS',
+      name: 'LEFT PARTY GIRLS [GHOST, TIARA & BLONDE]',
+      dials: ['L1:GHOST.SOLID', 'L2:CROWN.DOF', 'L3:ARC.PARALLAX', 'R1:LEFT.RELIGHT', 'R2:HALO.TINT'],
+      defaultRings: [160, 158, 160, 162, 165],
+      uvByShot: { cakespawn: [0.28, 0.34], bundtmorph: [0.28, 0.34], redicing: [0.28, 0.34], cutouts: [0.30, 0.30], blowcandles: [0.26, 0.36], miniature: [0.44, 0.67] }
+    },
+    {
+      id: 'RIGHT.PARTY+K',
+      name: 'RIGHT PARTY [BOY CLAPPING] & OFFICER K',
+      dials: ['L1:SILHOUETTE', 'L2:DOORWAY.DOF', 'L3:CLAP.MOTION', 'R1:RIM.RELIGHT', 'R2:DOME.AMBIENT'],
+      defaultRings: [160, 158, 160, 165, 165],
+      uvByShot: { cakespawn: [0.76, 0.38], bundtmorph: [0.82, 0.36], redicing: [0.74, 0.36], cutouts: [0.57, 0.25], blowcandles: [0.72, 0.36], miniature: [0.56, 0.44] }
+    }
+  ],
+  horse: [
+    { id: 'EQUUS.CARVING',  name: 'CARVED WOODEN HORSE BODY & MANE',          dials: ['L1:WOOD.GRAIN', 'L2:GOUGE.DOF', 'L3:CARVE.RELIEF', 'R1:EMBER.RIM', 'R2:PATINA.2100K'], defaultRings: [165, 165, 175, 210, 170], uvByShot: { horsecarve: [0.46, 0.46] } },
+    { id: 'BASE.INSC',      name: 'CARVED HOOF DATE INSCRIPTION [6·10·21]',   dials: ['L1:KERF.DEPTH', 'L2:MACRO.DOF', 'L3:GLYPH.STROKE', 'R1:HOOF.LUMA', 'R2:ASH.CONTRAST'], defaultRings: [165, 175, 175, 220, 170], uvByShot: { horsecarve: [0.48, 0.72] } },
+    { id: 'MEMORY.SCANNER', name: 'OPTICAL BEARING READER & 480nm LENS',      dials: ['L1:LENS.SOLID', 'L2:BEAM.FOCUS', 'L3:TILT.ANGLE', 'R1:LASER.GAIN', 'R2:CYAN.480NM'],   defaultRings: [165, 165, 165, 195, 130], uvByShot: { horsecarve: [0.52, 0.50] } },
+    { id: 'GHOST.OVERLAY',  name: 'SUPERIMPOSED CHILDHOOD MEMORY GHOST',      dials: ['L1:GHOST.ALPHA', 'L2:BOKEH.MIX', 'L3:PARALLAX.Z', 'R1:FACE.KEY', 'R2:MEMORY.TINT'],   defaultRings: [155, 160, 168, 190, 165], uvByShot: { horsecarve: [0.36, 0.38] } },
+    { id: 'FURNACE.EMBERS', name: '2100K ORPHANAGE FURNACE EMBER PIT',        dials: ['L1:GRATE.WIRE', 'L2:HEAT.HAZE', 'L3:SPARK.FLUX', 'R1:FIRE.LUMA', 'R2:KELVIN.2100K'],  defaultRings: [160, 155, 170, 225, 195], uvByShot: { horsecarve: [0.64, 0.58] } },
+    { id: 'SNOW.CRYSTALS',  name: '6-FOLD DENDRITIC ICE LATTICE & PALM MELT', dials: ['L1:HEX.BRANCH', 'L2:CRYSTAL.DOF', 'L3:MELT.PHASE', 'R1:ICE.GLINT', 'R2:CRYO.6500K'],  defaultRings: [165, 165, 170, 195, 125], uvByShot: { horsecarve: [0.50, 0.30] } },
+    { id: 'DOME.PERIMETER', name: 'STERILE DOME HORIZON & ENTRY TUNNEL',      dials: ['L1:WALL.SOLID', 'L2:HORIZON.DOF', 'L3:DISSOLVE', 'R1:BAND.LUMA', 'R2:STERILE.KELV'], defaultRings: [160, 155, 160, 175, 155], uvByShot: { horsecarve: [0.78, 0.42] } },
+    { id: 'STELLINE+K',     name: 'DR. ANA STELLINE & OFFICER K SILHOUETTE',  dials: ['L1:SILHOUETTE', 'L2:GLASS.DOF', 'L3:GAZE.POSE', 'R1:KEY.RELIGHT', 'R2:HALO.WARMTH'],  defaultRings: [165, 165, 165, 190, 170], uvByShot: { horsecarve: [0.26, 0.48] } }
+  ]
+};
+SCENE_ASSEMBLY_NODES.snow = SCENE_ASSEMBLY_NODES.horse;
+window.SCENE_ASSEMBLY_NODES = SCENE_ASSEMBLY_NODES;
+
+function getActiveAssemblyNodes(shotKey) {
+  const s = shotKey || state.activeShot || 'bugeye';
+  const cfg = SHOT_CONFIGS[s] || SHOT_CONFIGS.bugeye;
+  const sc = cfg ? cfg.scene : (state.scene || 'beetle');
+  return SCENE_ASSEMBLY_NODES[sc] || SCENE_ASSEMBLY_NODES.beetle;
+}
+window.getActiveAssemblyNodes = getActiveAssemblyNodes;
+
 state.objectParams = {};
 state.objectTransforms = {};
 state.compositeMode = 'composite'; // 'composite' | 'hybrid3d' | 'segments' | 'isolate'
@@ -930,22 +876,13 @@ function ensureObjectParams(shotKey) {
   const s = shotKey || state.activeShot || 'bugeye';
   const cfg = SHOT_CONFIGS[s] || SHOT_CONFIGS.bugeye;
   const br = cfg.rings || [165, 160, 145, 150, 110];
-  if (!state.objectParams[s]) {
-    state.objectParams[s] = [
-      [...br],
-      [...br],
-      [...br],
-      [...br]
-    ];
+  const nodes = getActiveAssemblyNodes(s);
+  if (!state.objectParams[s] || state.objectParams[s].length < 8) {
+    state.objectParams[s] = nodes.map(n => n.defaultRings ? [...n.defaultRings] : [...br]);
     state.objectParams[s].baseRings = [...br];
   }
-  if (!state.objectTransforms[s]) {
-    state.objectTransforms[s] = [
-      { dx: 0, dy: 0, visible: true },
-      { dx: 0, dy: 0, visible: true },
-      { dx: 0, dy: 0, visible: true },
-      { dx: 0, dy: 0, visible: true }
-    ];
+  if (!state.objectTransforms[s] || state.objectTransforms[s].length < 8) {
+    state.objectTransforms[s] = nodes.map(() => ({ dx: 0, dy: 0, visible: true }));
   }
   return state.objectParams[s];
 }
@@ -972,7 +909,7 @@ function togglePartVisibility(nodeIdx, ev) {
   if (ev) ev.stopPropagation();
   const shot = state.activeShot || 'bugeye';
   ensureObjectParams(shot);
-  const cleanIdx = ((nodeIdx % 4) + 4) % 4;
+  const cleanIdx = ((nodeIdx % 8) + 8) % 8;
   if (state.objectTransforms[shot] && state.objectTransforms[shot][cleanIdx]) {
     state.objectTransforms[shot][cleanIdx].visible = !state.objectTransforms[shot][cleanIdx].visible;
   }
@@ -984,10 +921,10 @@ window.togglePartVisibility = togglePartVisibility;
 function selectSceneObject(nodeIdx, fromSequencer = false) {
   const shot = state.activeShot || 'bugeye';
   const params = ensureObjectParams(shot);
-  const cleanIdx = ((nodeIdx % 4) + 4) % 4;
+  const cleanIdx = ((nodeIdx % 8) + 8) % 8;
   state.selectedNodeIdx = cleanIdx;
   if (!fromSequencer) {
-    state.userHoldTimer = 4.5;
+    state.userHoldTimer = 5.5;
     const p = params[cleanIdx];
     state._syncingNode = true;
     for (let r = 0; r < 5; r++) {
@@ -1002,7 +939,7 @@ window.selectSceneObject = selectSceneObject;
 
 function cycleSelectedHologramNode() {
   ensureAudio();
-  selectSceneObject(((state.selectedNodeIdx || 0) + 1) % 4, false);
+  selectSceneObject(((state.selectedNodeIdx || 0) + 1) % 8, false);
 }
 
 // ============================================================================
@@ -1019,11 +956,11 @@ const OPERATOR_PROTOCOLS = {
     id: 'PROTOCOL.I // BUG.DESIGNER [ENTOMOLOGY.OS]',
     dialLabels: ['L1:HEX.FACET', 'L2:OPTIC.DOME', 'L3:SETAE.YAW', 'R1:MAND.GAIT', 'R2:CHITIN.NM'],
     steps: [
-      { id: 'B1:LAMINA.H2O',    shot: 'leaf',     node: 2, rings: [135, 165, 155, 140, 165], spread: 24, desc: 'EXTRUDE LEAF VEINS & 12 H2O MENISCI' },
-      { id: 'B2:SCARAB.GAIT',   shot: 'leaf',     node: 0, rings: [110, 160, 165, 198, 165], spread: 30, desc: 'ARTICULATE 6-LEG TRIPOD WALK TRAJECTORY' },
-      { id: 'B3:OCULUS.DX',     shot: 'bugeye',   node: 0, rings: [155, 138, 125, 160, 170], spread: 18, desc: 'SCULPT RIGHT EYE 165_HEX OMMATIDIA LENSES' },
-      { id: 'B4:SETAE.SPROUT',  shot: 'bugeye',   node: 2, rings: [165, 162, 162, 160, 170], spread: 22, desc: 'EXTRUDE 180 SUB-OCULAR SENSORY BRISTLES' },
-      { id: 'B5:OCULUS.SN+RIG', shot: 'bugeye',   node: 1, rings: [165, 192, 176, 175, 170], spread: 20, desc: 'RACK LEFT EYE FOCUS & ARTICULATE LABRUM' }
+      { id: 'B1:SAMBUCUS.H2O',  shot: 'leaf',     node: 7, rings: [135, 165, 155, 140, 165], spread: 24, desc: 'EXTRUDE LEAF VEINS & 12 H2O MENISCI' },
+      { id: 'B2:ELYTRA.WINGS',  shot: 'leaf',     node: 2, rings: [160, 165, 182, 198, 165], spread: 30, desc: 'UNFURL DORSAL ELYTRA & TRANSLUCENT FLIGHT WINGS' },
+      { id: 'B3:OCULUS.DX',     shot: 'bugeye',   node: 0, rings: [152, 168, 145, 160, 154], spread: 18, desc: 'SCULPT RIGHT EYE 165_HEX OMMATIDIA LENSES' },
+      { id: 'B4:OCULUS.SN',     shot: 'bugeye',   node: 1, rings: [152, 185, 145, 165, 154], spread: 20, desc: 'RACK LEFT EYE FROM MATTE CHITIN TO 165_HEX CRYSTALLINE' },
+      { id: 'B5:SETAE+MAND',    shot: 'bugeye',   node: 4, rings: [165, 168, 168, 175, 154], spread: 22, desc: 'EXTRUDE 180 SENSORY SETAE, ANTENNAE & MANDIBLE PALPS' }
     ],
     otherwise: [
       {
@@ -1050,9 +987,9 @@ const OPERATOR_PROTOCOLS = {
       },
       {
         idx: 2,
-        code: 'OTHERWISE II: OBSIDIAN.VOID [455nm / 52_HEX MACRO / BALD]',
-        summary: 'COUNTERFACTUAL II: 455nm Obsidian-Cyan Exoskeleton // 52_HEX Coarse Macro-Facets // 0.0x Bald Chitin // Flared Mandibles',
-        hexDensity: 52.0,
+        code: 'OTHERWISE II: OBSIDIAN.VOID [455nm / SMOOTH CHITIN / BALD]',
+        summary: 'COUNTERFACTUAL II: 455nm Obsidian-Cyan Exoskeleton // Smooth Unfaceted Cornea // 0.0x Bald Chitin // Flared Mandibles',
+        hexDensity: 36.0,
         chitinShift: -0.92,
         setaeScale: 0.0,
         eyeDomeBoost: 1.65,
@@ -1061,8 +998,8 @@ const OPERATOR_PROTOCOLS = {
       },
       {
         idx: 3,
-        code: 'OTHERWISE III: HETEROCERA.SPLIT [DX:260_GOLD / SN:58_CYAN]',
-        summary: 'COUNTERFACTUAL III: Asymmetric Compound Optics (DX: 260_HEX Gold vs SN: 58_HEX Cyan) // 1.45x Setae Crown',
+        code: 'OTHERWISE III: HETEROCERA.SPLIT [DX:260_GOLD / SN:SMOOTH_CYAN]',
+        summary: 'COUNTERFACTUAL III: Asymmetric Compound Optics (DX: 260_HEX Gold vs SN: Smooth Cyan Cornea) // 1.45x Setae Crown',
         hexDensity: 220.0,
         chitinShift: 0.45,
         setaeScale: 1.45,
@@ -1076,11 +1013,11 @@ const OPERATOR_PROTOCOLS = {
     id: 'PROTOCOL.II // CAKE.BIRTHDAY [PATISSERIE.OS]',
     dialLabels: ['L1:GEOM.SOLID', 'L2:WICKS.DOF', 'L3:BUNDT.PIPE', 'R1:STAGE.LUMA', 'R2:WIND.GLAZE'],
     steps: [
-      { id: 'C1:SPONGE.SMARTIES', shot: 'cakespawn',   node: 0, rings: [120,  95,  52, 140, 155], spread: 12, desc: 'SPAWN CYLINDER + 24 SMARTIES + 03->07 WICKS' },
-      { id: 'C2:BUNDT.SCALLOP',   shot: 'bundtmorph',  node: 0, rings: [115, 155, 142, 150, 165], spread: 18, desc: 'TEST 11-FLUTE SCALLOPED BUNDT COUNTERFACTUAL' },
-      { id: 'C3:HANZI [生日快樂]', shot: 'redicing',    node: 0, rings: [155, 155, 146, 170, 175], spread: 22, desc: 'REVERT CYLINDER & PIPE 18 RED HANZI STROKES' },
-      { id: 'C4:CUTOUT.STAGE',    shot: 'cutouts',     node: 1, rings: [155, 165, 165, 185, 175], spread: 38, desc: 'ANCHOR HEX TABLE & STAGE CHILD CUTOUTS 1..6' },
-      { id: 'C5:EXHALE.MINI',     shot: 'blowcandles', node: 0, rings: [165, 175, 175, 255, 135], spread: 44, desc: 'EXHALE CANDLE VORTEX & 0.08X FLOOR DIORAMA' }
+      { id: 'C1:SPONGE.SMARTIES', shot: 'cakespawn',   node: 3, rings: [160, 135, 165, 165, 165], spread: 12, desc: 'SPAWN CYLINDER + 24 SMARTIES + 03->07 WICKS' },
+      { id: 'C2:BUNDT.SCALLOP',   shot: 'bundtmorph',  node: 0, rings: [155, 155, 178, 165, 165], spread: 18, desc: 'TEST 11-FLUTE SCALLOPED BUNDT COUNTERFACTUAL' },
+      { id: 'C3:HANZI [生日快樂]', shot: 'redicing',    node: 2, rings: [165, 165, 175, 170, 165], spread: 22, desc: 'REVERT CYLINDER & PIPE 18 RED HANZI STROKES' },
+      { id: 'C4:CUTOUT.STAGE',    shot: 'cutouts',     node: 5, rings: [165, 165, 165, 185, 175], spread: 38, desc: 'ANCHOR HEX TABLE & STAGE CHILD CUTOUTS 1..6' },
+      { id: 'C5:EXHALE.MINI',     shot: 'blowcandles', node: 5, rings: [165, 175, 175, 235, 195], spread: 44, desc: 'EXHALE CANDLE VORTEX & 0.08X FLOOR DIORAMA' }
     ],
     otherwise: [
       {
@@ -1090,7 +1027,7 @@ const OPERATOR_PROTOCOLS = {
         forceBundtInParty: 0.0,
         forceSmartiesInParty: false,
         frostingShift: 0.0,
-        candleMode: 0, // canonical per-shot
+        candleMode: 0,
         tableScaleBoost: 1.0
       },
       {
@@ -1154,21 +1091,23 @@ function renderOperatorProtocolUI() {
 
   const shot = state.activeShot || 'bugeye';
   ensureObjectParams(shot);
-  const samList = (window.STELLINE_SAM_DATA && Array.isArray(window.STELLINE_SAM_DATA[shot]))
-    ? window.STELLINE_SAM_DATA[shot]
-    : null;
+  const nodes = getActiveAssemblyNodes(shot);
+  const selIdx = ((state.selectedNodeIdx || 0) % 8 + 8) % 8;
+  const selNode = nodes[selIdx] || nodes[0];
+
+  const whisperSelBtn = document.getElementById('whisperSelectNodeBtn');
+  if (whisperSelBtn && selNode) {
+    whisperSelBtn.textContent = `NODE [${selIdx + 1}/8]: ${selNode.id} [S]`;
+  }
+
   const partContainer = document.getElementById('samPartButtons');
   if (partContainer) {
-    const selIdx = ((state.selectedNodeIdx || 0) % 4 + 4) % 4;
     const xfs = state.objectTransforms[shot] || [];
-    const objs = samList || [
-      { id: 'PART.01' }, { id: 'PART.02' }, { id: 'PART.03' }, { id: 'PART.04' }
-    ];
-    partContainer.innerHTML = objs.slice(0, 4).map((ob, idx) => {
+    partContainer.innerHTML = nodes.map((ob, idx) => {
       const isSel = (idx === selIdx) ? 'active' : '';
       const isVis = (!xfs[idx] || xfs[idx].visible !== false);
       const visStyle = isVis ? '' : 'opacity:0.42;text-decoration:line-through;';
-      return `<button class="pill-btn ${isSel}" style="${visStyle}" onclick="selectSceneObject(${idx})" ondblclick="togglePartVisibility(${idx}, event)" title="Click to address ${ob.id} with all 5 Orb dials + Left Pod D-Pad | Double-click to toggle part visibility">${idx + 1}:${ob.id}</button>`;
+      return `<button class="pill-btn ${isSel}" style="${visStyle}" onclick="selectSceneObject(${idx})" ondblclick="togglePartVisibility(${idx}, event)" title="${ob.name} — Click to address with all 5 Orb dials [${ob.dials.join(' | ')}] | Double-click to toggle visibility">${idx + 1}:${ob.id}</button>`;
     }).join('');
   }
 
@@ -1201,11 +1140,13 @@ function renderOperatorProtocolUI() {
 window.renderOperatorProtocolUI = renderOperatorProtocolUI;
 
 // ============================================================================
-// CLEAN DIEGETIC DRAWER & BESPOKE BUG / BIRTHDAY CAKE STUDIO FOR ANYONE
+// PRIMARY DIEGETIC IN-HOLOGRAM CUSTOMIZATION (ZERO SECONDARY HTML MODAL)
+// All bug & cake parameters are driven directly by the 5 Physical Orb Rings,
+// the 8-Element Assembly Rig, and In-Hologram Laser-Cursor Inscription Editing!
 // ============================================================================
 state.customCake = {
   active: false,
-  inscription: 'HAPPY BIRTHDAY MAYA',
+  inscription: '生日快樂',
   candles: 7,
   bundt: 0.0,
   glaze: 'vanilla',
@@ -1219,10 +1160,24 @@ state.customBug = {
   taxon: 'Carabus stellinae',
   commonName: 'Wallace Dome Emerald Carabid',
   hexDensity: 165,
+  leftHexDensity: 165,
   wavelengthNm: 520,
   setaeCount: 180,
+  wingUnfurl: 0.0,
+  antennaSweep: 0.5,
+  mandibleOpen: 0.45,
   eyeDome: 1.0,
   splitOptics: false
+};
+
+state.customHorse = {
+  inscription: '6·10·21'
+};
+
+state.holoDirectEdit = {
+  active: false,
+  target: 'inscription', // 'inscription' | 'taxon' | 'horse'
+  cursorBlink: 0
 };
 
 function toggleLabDrawer(forceState = null) {
@@ -1237,189 +1192,112 @@ function toggleLabDrawer(forceState = null) {
 }
 window.toggleLabDrawer = toggleLabDrawer;
 
-function toggleBespokeBuilder(forceState = null) {
-  const modal = document.getElementById('bespokeBuilderModal');
-  if (!modal) return;
-  const next = (forceState !== null && forceState !== undefined)
-    ? Boolean(forceState)
-    : !modal.classList.contains('open');
-  modal.classList.toggle('open', next);
+function startHoloDirectTextEdit(explicitTarget = null) {
+  ensureAudio();
+  const inp = document.getElementById('holoDirectTextInput');
+  if (!inp) return;
+  const target = explicitTarget || (state.scene === 'birthday' ? 'inscription' : (state.scene === 'beetle' ? 'taxon' : 'horse'));
+  state.holoDirectEdit.active = true;
+  state.holoDirectEdit.target = target;
+  state.liveModeling = false;
+  state.userHoldTimer = 20.0;
+
+  if (target === 'inscription') {
+    if (state.scene !== 'birthday') selectFilmShot('redicing', true);
+    selectSceneObject(2, true); // [3/8] ICING.SCRIPT
+    state.customCake.active = true;
+    inp.value = (state.customCake.inscription === '生日快樂') ? '' : (state.customCake.inscription || '');
+  } else if (target === 'taxon') {
+    if (state.scene !== 'beetle') selectFilmShot('bugeye', true);
+    state.customBug.active = true;
+    inp.value = state.customBug.taxon || 'Carabus stellinae';
+  } else {
+    inp.value = state.customHorse.inscription || '6·10·21';
+  }
+
   const openBtn = document.getElementById('openBuilderBtn');
-  if (openBtn) openBtn.classList.toggle('active', next);
-  if (next) {
-    const activeTab = (state.scene === 'birthday') ? 'cake' : 'bug';
-    switchBespokeTab(activeTab, false);
-  }
-  playMicroSwitchClick(true, 190);
+  if (openBtn) openBtn.classList.add('active');
+  inp.focus();
+  playMicroSwitchClick(true, 240);
 }
-window.toggleBespokeBuilder = toggleBespokeBuilder;
+window.startHoloDirectTextEdit = startHoloDirectTextEdit;
+window.toggleBespokeBuilder = () => startHoloDirectTextEdit();
 
-function switchBespokeTab(tabKey, switchScene = true) {
-  const isCake = (tabKey === 'cake');
-  const cPane = document.getElementById('bespokeCakePane');
-  const bPane = document.getElementById('bespokeBugPane');
-  const cBtn  = document.getElementById('tabBuildCakeBtn');
-  const bBtn  = document.getElementById('tabBuildBugBtn');
-  if (cPane) cPane.style.display = isCake ? 'flex' : 'none';
-  if (bPane) bPane.style.display = isCake ? 'none' : 'flex';
-  if (cBtn)  cBtn.classList.toggle('active', isCake);
-  if (bBtn)  bBtn.classList.toggle('active', !isCake);
-
-  if (switchScene) {
-    if (isCake) {
-      if (state.scene !== 'birthday') selectFilmShot('redicing');
-      applyCustomCakeFromUI();
-    } else {
-      if (state.scene !== 'beetle') selectFilmShot('bugeye');
-      applyCustomBugFromUI();
-    }
-  }
-  playMicroSwitchClick(true, 160);
+function stopHoloDirectTextEdit() {
+  state.holoDirectEdit.active = false;
+  const openBtn = document.getElementById('openBuilderBtn');
+  if (openBtn) openBtn.classList.remove('active');
+  const inp = document.getElementById('holoDirectTextInput');
+  if (inp) inp.blur();
 }
-window.switchBespokeTab = switchBespokeTab;
+window.stopHoloDirectTextEdit = stopHoloDirectTextEdit;
 
-function applyCustomCakeFromUI() {
-  state.customCake.active = true;
+function toggleDiegeticSpecialAction() {
+  ensureAudio();
   state.liveModeling = false;
   state.userHoldTimer = 15.0;
-  if (state.scene !== 'birthday') {
-    selectFilmShot('redicing', true);
+  if (state.scene === 'birthday') {
+    state.customCake.active = true;
+    state.customCake.blownOut = !state.customCake.blownOut;
+    state.customCake.exhaleAnim = state.customCake.blownOut ? 1.0 : 0.0;
+    selectSceneObject(1, true); // [2/8] CANDLE.WICKS
+    setRingAngle(4, state.customCake.blownOut ? 215 : 155, true);
+  } else if (state.scene === 'beetle') {
+    state.customBug.active = true;
+    state.customBug.wingUnfurl = (state.customBug.wingUnfurl > 0.45) ? 0.0 : 1.0;
+    selectSceneObject(2, true); // [3/8] ELYTRA.WINGS
+    setRingAngle(2, state.customBug.wingUnfurl > 0.45 ? 185 : 118, true);
+  } else {
+    setViewMode(state.viewMode === 'bearing' ? 'sculpt' : 'bearing');
   }
-  const inscEl = document.getElementById('customCakeInscInput');
-  const candEl = document.getElementById('customCakeCandlesInput');
-  const bundtEl = document.getElementById('customCakeBundtInput');
-  const glazeEl = document.getElementById('customCakeGlazeSelect');
-  const smEl = document.getElementById('customCakeSmartiesChk');
-
-  if (inscEl) state.customCake.inscription = inscEl.value;
-  if (candEl) {
-    state.customCake.candles = parseInt(candEl.value, 10) || 7;
-    const cVal = document.getElementById('customCakeCandlesVal');
-    if (cVal) cVal.textContent = state.customCake.candles;
-    setRingAngle(1, 75 + state.customCake.candles * 8.5, false);
-  }
-  if (bundtEl) {
-    state.customCake.bundt = (parseFloat(bundtEl.value) || 0) / 100.0;
-    state.bundtMorph = state.customCake.bundt;
-    const bVal = document.getElementById('customCakeBundtVal');
-    if (bVal) bVal.textContent = state.customCake.bundt.toFixed(2);
-    setRingAngle(2, 146 + state.customCake.bundt * 32, false);
-  }
-  if (glazeEl) {
-    state.customCake.glaze = glazeEl.value;
-    const glazeAngles = { vanilla: 165, ganache: 198, rose: 122, matcha: 138, gold: 182 };
-    setRingAngle(4, glazeAngles[glazeEl.value] || 165, false);
-  }
-  if (smEl) state.customCake.smarties = Boolean(smEl.checked);
-  renderOperatorProtocolUI();
+  playMicroSwitchClick(true, 200);
 }
-window.applyCustomCakeFromUI = applyCustomCakeFromUI;
+window.toggleDiegeticSpecialAction = toggleDiegeticSpecialAction;
+window.toggleCustomCakeBlowOut = toggleDiegeticSpecialAction;
 
 function setCakePresetInsc(text) {
-  const inscEl = document.getElementById('customCakeInscInput');
-  if (inscEl) inscEl.value = text;
-  applyCustomCakeFromUI();
-  playMicroSwitchClick(true, 210);
+  state.customCake.active = true;
+  state.customCake.inscription = text;
+  state.liveModeling = false;
+  state.userHoldTimer = 15.0;
+  renderOperatorProtocolUI();
 }
 window.setCakePresetInsc = setCakePresetInsc;
 
-function setCakeTopologyPreset(bundtPct, shotKey) {
-  const bundtEl = document.getElementById('customCakeBundtInput');
-  if (bundtEl) bundtEl.value = bundtPct;
-  if (shotKey) selectFilmShot(shotKey, true);
-  applyCustomCakeFromUI();
-  playMicroSwitchClick(true, 180);
-}
-window.setCakeTopologyPreset = setCakeTopologyPreset;
-
-function toggleCustomCakeBlowOut() {
-  state.customCake.active = true;
-  state.customCake.blownOut = !state.customCake.blownOut;
-  const btn = document.getElementById('blowCandlesActionBtn');
-  if (btn) {
-    btn.textContent = state.customCake.blownOut ? 'RELIGHT CANDLES' : 'BLOW OUT CANDLES';
-    btn.classList.toggle('active', state.customCake.blownOut);
-  }
-  setRingAngle(4, state.customCake.blownOut ? 215 : 155, true);
-  playMicroSwitchClick(true, -120);
-}
-window.toggleCustomCakeBlowOut = toggleCustomCakeBlowOut;
-
-function applyCustomBugFromUI() {
+function setBugArchetype(taxon, commonName, hex, nm, setae, domeBoost, split) {
   state.customBug.active = true;
+  state.customBug.taxon = taxon;
+  state.customBug.commonName = commonName;
+  state.customBug.hexDensity = hex;
+  state.customBug.leftHexDensity = split ? 48 : hex;
+  state.customBug.wavelengthNm = nm;
+  state.customBug.setaeCount = setae;
+  state.customBug.eyeDome = domeBoost || 1.0;
+  state.customBug.splitOptics = Boolean(split);
   state.liveModeling = false;
   state.userHoldTimer = 15.0;
-  if (state.scene !== 'beetle') {
-    selectFilmShot('bugeye', true);
-  }
-  const taxEl = document.getElementById('customBugTaxonInput');
-  const comEl = document.getElementById('customBugCommonInput');
-  const hexEl = document.getElementById('customBugHexInput');
-  const nmEl  = document.getElementById('customBugNmInput');
-  const setEl = document.getElementById('customBugSetaeInput');
-  const splEl = document.getElementById('customBugSplitChk');
-
-  if (taxEl) state.customBug.taxon = taxEl.value;
-  if (comEl) state.customBug.commonName = comEl.value;
-  if (hexEl) {
-    state.customBug.hexDensity = parseInt(hexEl.value, 10) || 165;
-    const hVal = document.getElementById('customBugHexVal');
-    if (hVal) hVal.textContent = state.customBug.hexDensity;
-    setRingAngle(0, 80 + (state.customBug.hexDensity / 320) * 85, false);
-  }
-  if (nmEl) {
-    state.customBug.wavelengthNm = parseInt(nmEl.value, 10) || 520;
-    const nVal = document.getElementById('customBugNmVal');
-    if (nVal) nVal.textContent = state.customBug.wavelengthNm;
-    setRingAngle(4, 110 + ((state.customBug.wavelengthNm - 430) / 205) * 95, false);
-  }
-  if (setEl) {
-    state.customBug.setaeCount = parseInt(setEl.value, 10) || 0;
-    const sVal = document.getElementById('customBugSetaeVal');
-    if (sVal) sVal.textContent = state.customBug.setaeCount;
-    setRingAngle(2, 105 + (state.customBug.setaeCount / 360) * 82, false);
-  }
-  if (splEl) state.customBug.splitOptics = Boolean(splEl.checked);
   renderOperatorProtocolUI();
-}
-window.applyCustomBugFromUI = applyCustomBugFromUI;
-
-function setBugArchetype(taxon, commonName, hex, nm, setae, domeBoost, split) {
-  const taxEl = document.getElementById('customBugTaxonInput');
-  const comEl = document.getElementById('customBugCommonInput');
-  const hexEl = document.getElementById('customBugHexInput');
-  const nmEl  = document.getElementById('customBugNmInput');
-  const setEl = document.getElementById('customBugSetaeInput');
-  const splEl = document.getElementById('customBugSplitChk');
-  if (taxEl) taxEl.value = taxon;
-  if (comEl) comEl.value = commonName;
-  if (hexEl) hexEl.value = hex;
-  if (nmEl)  nmEl.value = nm;
-  if (setEl) setEl.value = setae;
-  if (splEl) splEl.checked = Boolean(split);
-  state.customBug.eyeDome = domeBoost || 1.0;
-  applyCustomBugFromUI();
-  playMicroSwitchClick(true, 220);
 }
 window.setBugArchetype = setBugArchetype;
 
 function buildShareableBlueprintUrl() {
   const url = new URL(window.location.href.split('?')[0]);
   url.searchParams.set('shot', state.activeShot || 'bugeye');
+  url.searchParams.set('node', String(state.selectedNodeIdx || 0));
   if (state.scene === 'birthday' || (state.customCake && state.customCake.active)) {
     url.searchParams.set('protocol', 'cake');
     url.searchParams.set('insc', state.customCake.inscription || '生日快樂');
     url.searchParams.set('wicks', String(state.customCake.candles || 7));
-    url.searchParams.set('bundt', String(Math.round((state.customCake.bundt || 0) * 100)));
+    url.searchParams.set('bundt', String(Math.round((state.bundtMorph || 0) * 100)));
     url.searchParams.set('glaze', state.customCake.glaze || 'vanilla');
     if (state.customCake.smarties) url.searchParams.set('smarties', '1');
   } else {
     url.searchParams.set('protocol', 'bug');
     url.searchParams.set('taxon', state.customBug.taxon || 'Carabus stellinae');
     url.searchParams.set('common', state.customBug.commonName || 'Wallace Dome Emerald Carabid');
-    url.searchParams.set('hex', String(state.customBug.hexDensity || 165));
-    url.searchParams.set('nm', String(state.customBug.wavelengthNm || 520));
-    url.searchParams.set('setae', String(state.customBug.setaeCount || 180));
+    url.searchParams.set('hex', String(Math.round(state.customBug.hexDensity || 165)));
+    url.searchParams.set('nm', String(Math.round(state.customBug.wavelengthNm || 520)));
+    url.searchParams.set('setae', String(Math.round(state.customBug.setaeCount || 180)));
     if (state.customBug.splitOptics) url.searchParams.set('split', '1');
   }
   return url.toString();
@@ -1427,16 +1305,10 @@ function buildShareableBlueprintUrl() {
 
 function copyShareableBlueprintUrl() {
   const link = buildShareableBlueprintUrl();
-  const msgEl = document.getElementById('imprintStatusMsg');
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(link).then(() => {
-      if (msgEl) msgEl.textContent = 'LIVE SHAREABLE LINK COPIED TO CLIPBOARD!';
-    }).catch(() => {
-      if (msgEl) msgEl.textContent = link;
-    });
-  } else if (msgEl) {
-    msgEl.textContent = link;
+    navigator.clipboard.writeText(link).catch(() => {});
   }
+  state.imprintFlash = 0.45;
   playMicroSwitchClick(true, 260);
 }
 window.copyShareableBlueprintUrl = copyShareableBlueprintUrl;
@@ -1501,7 +1373,7 @@ function imprintMemoryCardPNG() {
   ctx.fillStyle = '#f0a848';
   const specLine = isCake
     ? `CANDLES: ${String(state.customCake.candles || 7).padStart(2, '0')} WICKS [3200K]  ·  TOPOLOGY: ${(state.bundtMorph > 0.5 ? '11-FLUTE SCALLOPED BUNDT' : 'CLASSIC PATISSERIE CYLINDER')}  ·  GLAZE: ${(state.customCake.glaze || 'vanilla').toUpperCase()}`
-    : `OMMATIDIA: ${state.customBug.hexDensity || 165}_HEX FACETS  ·  SPECTRUM: ${state.customBug.wavelengthNm || 520}nm CHITIN  ·  SETAE: ${state.customBug.setaeCount || 180} BRISTLES`;
+    : `OMMATIDIA: DX:${Math.round(state.customBug.hexDensity || 165)}_HEX / SN:${Math.round(state.customBug.leftHexDensity || 165)}_HEX  ·  SPECTRUM: ${Math.round(state.customBug.wavelengthNm || 520)}nm CHITIN  ·  SETAE: ${Math.round(state.customBug.setaeCount || 180)} BRISTLES`;
   ctx.fillText(specLine, 32, holoH + 104);
 
   ctx.font = '400 11.5px "JetBrains Mono", monospace';
@@ -1526,8 +1398,6 @@ function imprintMemoryCardPNG() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    const msgEl = document.getElementById('imprintStatusMsg');
-    if (msgEl) msgEl.textContent = `IMPRINTED & DOWNLOADED: ${a.download.toUpperCase()}`;
   } catch (e) {}
 }
 window.imprintMemoryCardPNG = imprintMemoryCardPNG;
@@ -1571,65 +1441,80 @@ function cycleOtherwiseVariant(protoKey, explicitVariant = null) {
   state.liveModeling = false;
   state.userHoldTimer = 10.0;
 
-  // Apply counterfactual ("could be otherwise") dial offsets to the active SAM object so the C-Arc & Orb rings reflect the mutation!
   if (cleanKey === 'bug') {
     if (nextV === 1) {
-      // SCARAB.AURUM: High Hex Density (L1=136), Deep Focus (L2=185), Long Setae (L3=182), Mandible Flare (R1=195), Warm Specular (R2=178)
-      setRingAngle(0, 136, false);
+      setBugArchetype('Chrysina aurata', 'Golden Jewel Scarab', 280, 585, 310, 1.45, false);
+      setRingAngle(0, 175, false);
       setRingAngle(1, 185, false);
       setRingAngle(2, 182, false);
       setRingAngle(3, 195, false);
-      setRingAngle(4, 178, true);
+      setRingAngle(4, 182, true);
     } else if (nextV === 2) {
-      // OBSIDIAN.VOID: Crisp Relief (L1=132), Sharp Cornea (L2=175), Retracted Setae (L3=104), Wide Mandibles (R1=220), Cool Specular (R2=142)
-      setRingAngle(0, 132, false);
-      setRingAngle(1, 175, false);
+      setBugArchetype('Megasoma obsidianus', 'Obsidian Void Rhino', 36, 450, 0, 1.65, false);
+      setRingAngle(0, 92, false);
+      setRingAngle(1, 125, false);
       setRingAngle(2, 104, false);
-      setRingAngle(3, 220, false);
-      setRingAngle(4, 142, true);
+      setRingAngle(3, 215, false);
+      setRingAngle(4, 118, true);
     } else if (nextV === 3) {
-      // HETEROCERA.SPLIT: Asymmetric Optics
-      setRingAngle(0, 135, false);
+      setBugArchetype('Heterocera chimaera', 'Split-Optic Chimera', 260, 565, 240, 1.55, true);
+      setRingAngle(0, 168, false);
       setRingAngle(1, 192, false);
       setRingAngle(2, 172, false);
       setRingAngle(3, 185, false);
       setRingAngle(4, 168, true);
     } else {
+      state.customBug.active = false;
+      setBugArchetype('Carabus stellinae', 'Wallace Dome Emerald Carabid', 165, 520, 180, 1.0, false);
+      state.customBug.active = false;
       const cfg = SHOT_CONFIGS[state.activeShot] || SHOT_CONFIGS.bugeye;
       cfg.rings.forEach((a, i) => setRingAngle(i, a, false));
     }
   } else {
     if (nextV === 1) {
-      // KEPT BUNDT AT PARTY: Sculpted Bundt Relief (L1=134, L2=168, L3=148, R1=168, R2=162)
       state.bundtMorph = 0.96;
-      setRingAngle(0, 134, false);
+      state.customCake.active = true;
+      state.customCake.bundt = 0.96;
+      state.customCake.smarties = true;
+      state.customCake.glaze = 'gold';
+      setRingAngle(0, 158, false);
       setRingAngle(1, 168, false);
-      setRingAngle(2, 148, false);
+      setRingAngle(2, 178, false);
       setRingAngle(3, 168, false);
-      setRingAngle(4, 162, true);
+      setRingAngle(4, 182, true);
     } else if (nextV === 2) {
-      // DARK GANACHE & 3 WICKS + SPOTLIGHT: Cylinder Ganache + Spotlight on Center Birthday Girl
       state.bundtMorph = 0.0;
-      setRingAngle(0, 134, false);
-      setRingAngle(1, 155, false);
+      state.customCake.active = true;
+      state.customCake.bundt = 0.0;
+      state.customCake.candles = 3;
+      state.customCake.glaze = 'ganache';
+      state.customCake.smarties = false;
+      setRingAngle(0, 158, false);
+      setRingAngle(1, 105, false);
       setRingAngle(2, 146, false);
       setRingAngle(3, 168, false);
-      setRingAngle(4, 172, true);
+      setRingAngle(4, 198, true);
       ensureObjectParams('cutouts');
       if (state.objectParams && state.objectParams.cutouts) {
-        state.objectParams.cutouts[0][3] = 132; // subtle dim left child
-        state.objectParams.cutouts[1][3] = 205; // warm spotlight center birthday girl
-        state.objectParams.cutouts[2][3] = 132; // subtle dim right child
+        state.objectParams.cutouts[6][3] = 132;
+        state.objectParams.cutouts[5][3] = 205;
+        state.objectParams.cutouts[7][3] = 132;
       }
     } else if (nextV === 3) {
-      // ROSE-GLAZE CROWN: (L1=134, L2=175, L3=128, R1=172, R2=148)
       state.bundtMorph = 0.68;
-      setRingAngle(0, 134, false);
+      state.customCake.active = true;
+      state.customCake.bundt = 0.68;
+      state.customCake.smarties = true;
+      state.customCake.glaze = 'rose';
+      setRingAngle(0, 158, false);
       setRingAngle(1, 175, false);
-      setRingAngle(2, 128, false);
+      setRingAngle(2, 168, false);
       setRingAngle(3, 172, false);
-      setRingAngle(4, 148, true);
+      setRingAngle(4, 122, true);
     } else {
+      state.customCake.active = false;
+      state.customCake.glaze = 'vanilla';
+      state.customCake.smarties = false;
       const cfg = SHOT_CONFIGS[state.activeShot] || SHOT_CONFIGS.cutouts;
       state.bundtMorph = cfg.bundt || 0;
       cfg.rings.forEach((a, i) => setRingAngle(i, a, false));
@@ -1655,24 +1540,63 @@ function selectMemoryScene(sceneKey) {
   }
 }
 
+// Wire hidden in-hologram direct text input to update hologram callouts in real time
+(function bindHoloDirectTextInput() {
+  window.addEventListener('DOMContentLoaded', () => {
+    const inp = document.getElementById('holoDirectTextInput');
+    if (!inp) return;
+    inp.addEventListener('input', () => {
+      const val = inp.value;
+      if (state.holoDirectEdit.target === 'inscription') {
+        state.customCake.active = true;
+        state.customCake.inscription = val || '生日快樂';
+      } else if (state.holoDirectEdit.target === 'taxon') {
+        state.customBug.active = true;
+        state.customBug.taxon = val || 'Carabus stellinae';
+      } else {
+        state.customHorse.inscription = val || '6·10·21';
+      }
+      playMicroSwitchClick(true, 310);
+    });
+    inp.addEventListener('keydown', ev => {
+      if (ev.key === 'Enter' || ev.key === 'Escape') {
+        ev.preventDefault();
+        stopHoloDirectTextEdit();
+        playMicroSwitchClick(false, 220);
+      }
+    });
+    inp.addEventListener('blur', () => {
+      stopHoloDirectTextEdit();
+    });
+  });
+})();
+
 window.addEventListener('keydown', e => {
   const tag = (e.target && e.target.tagName) ? e.target.tagName.toUpperCase() : '';
   if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') {
-    if (e.key === 'Escape') e.target.blur();
+    if (e.key === 'Escape') stopHoloDirectTextEdit();
     return;
   }
   if (e.key === 'Tab') {
     e.preventDefault();
     toggleLabDrawer();
-  } else if (e.key === 'b' || e.key === 'B') {
-    toggleBespokeBuilder();
+  } else if (e.key === 'i' || e.key === 'I' || e.key === 'b' || e.key === 'B') {
+    e.preventDefault();
+    startHoloDirectTextEdit();
   } else if (e.key === 'Escape') {
-    toggleBespokeBuilder(false);
+    stopHoloDirectTextEdit();
     toggleLabDrawer(false);
-  } else if (e.key === 's' || e.key === 'S') cycleSelectedHologramNode();
-  else if (e.key === 'o' || e.key === 'O') cycleOtherwiseVariant();
-  else if (e.key === 'c' || e.key === 'C') cycleCompositeMode();
-  else if (e.key === ' ') {
+  } else if (e.key === 's' || e.key === 'S') {
+    cycleSelectedHologramNode();
+  } else if (e.key >= '1' && e.key <= '8') {
+    selectSceneObject(parseInt(e.key, 10) - 1, false);
+  } else if (e.key === 'w' || e.key === 'W') {
+    toggleDiegeticSpecialAction();
+  } else if (e.key === 'o' || e.key === 'O') {
+    cycleOtherwiseVariant();
+  } else if (e.key === 'c' || e.key === 'C') {
+    cycleCompositeMode();
+  } else if (e.key === ' ') {
     e.preventDefault();
     setAccordionSpread(state.accordionTarget > 0.25 ? 0 : 52, true);
     playLatchClunk();
@@ -1705,13 +1629,52 @@ function setRingAngle(idx, deg, playClick = false) {
   ring.angle = norm;
   state.activeCoupledRing = idx;
 
-  // Store this dial adjustment into the currently selected SAM object's 5-dial parameter state!
+  // Store this dial adjustment into the currently selected 8-element assembly node's 5-dial parameter state
+  // AND synchronize the live anatomical / patisserie state directly from the physical rings!
   if (!state._syncingNode) {
     const shot = state.activeShot || 'bugeye';
     const params = ensureObjectParams(shot);
-    const selIdx = ((state.selectedNodeIdx || 0) % 4 + 4) % 4;
+    const selIdx = ((state.selectedNodeIdx || 0) % 8 + 8) % 8;
     if (params[selIdx]) {
       params[selIdx][idx] = norm;
+    }
+
+    if (playClick) {
+      if (state.scene === 'beetle') {
+        state.customBug.active = true;
+        if (selIdx === 0 && (idx === 0 || idx === 1)) {
+          state.customBug.hexDensity = Math.round(Math.max(0, Math.min(320, ((norm - 55) / 145) * 320)));
+        } else if (selIdx === 1 && (idx === 0 || idx === 1)) {
+          state.customBug.leftHexDensity = Math.round(Math.max(0, Math.min(320, ((norm - 55) / 145) * 320)));
+        } else if (selIdx === 2 && idx === 2) {
+          state.customBug.wingUnfurl = Math.max(0, Math.min(1, (norm - 95) / 95));
+        } else if (selIdx === 3 && idx === 2) {
+          state.customBug.antennaSweep = Math.max(0, Math.min(1.5, (norm - 75) / 95));
+        } else if (selIdx === 4 && idx === 2) {
+          state.customBug.setaeCount = Math.round(Math.max(0, Math.min(360, ((norm - 80) / 110) * 360)));
+        } else if (selIdx === 5 && idx === 2) {
+          state.customBug.mandibleOpen = Math.max(0, Math.min(1.2, (norm - 80) / 100));
+        }
+        if (idx === 4) {
+          state.customBug.wavelengthNm = Math.round(Math.max(430, Math.min(635, 430 + ((norm - 95) / 115) * 205)));
+        }
+      } else if (state.scene === 'birthday') {
+        state.customCake.active = true;
+        if (selIdx === 0 && idx === 2) {
+          state.bundtMorph = Math.max(0, Math.min(1, (norm - 135) / 50));
+          state.customCake.bundt = state.bundtMorph;
+        } else if (selIdx === 0 && idx === 4) {
+          const glazes = ['rose', 'matcha', 'vanilla', 'gold', 'ganache'];
+          const gIdx = Math.max(0, Math.min(4, Math.floor(((norm - 110) / 95) * 5)));
+          state.customCake.glaze = glazes[gIdx] || 'vanilla';
+        } else if (selIdx === 1 && (idx === 1 || idx === 2)) {
+          state.customCake.candles = Math.max(1, Math.min(12, Math.round(1 + ((norm - 75) / 110) * 11)));
+        } else if (selIdx === 1 && idx === 4) {
+          state.customCake.blownOut = (norm > 195);
+        } else if (selIdx === 3 && (idx === 0 || idx === 2)) {
+          state.customCake.smarties = (norm > 135);
+        }
+      }
     }
   }
 
@@ -1778,10 +1741,6 @@ function triggerBearingImprint() {
   state.imprintFlash = 1.0;
   playMicroSwitchClick(true, 300);
   playChordChime();
-  const modal = document.getElementById('bespokeBuilderModal');
-  if (modal && !modal.classList.contains('open')) {
-    toggleBespokeBuilder(true);
-  }
   imprintMemoryCardPNG();
 }
 
@@ -1789,10 +1748,10 @@ function pressDpad(dirName, dx, dy) {
   state.activeDpadDir = dirName;
   state.targetOffset.x = Math.max(-0.45, Math.min(0.45, state.targetOffset.x + dx));
   state.targetOffset.y = Math.max(-0.35, Math.min(0.35, state.targetOffset.y + dy));
-  // Also nudge the currently selected SAM-segmented part in 2D+3D space!
+  // Also nudge the currently selected 8-element assembly part in 2D+3D space!
   const shot = state.activeShot || 'bugeye';
   ensureObjectParams(shot);
-  const selIdx = ((state.selectedNodeIdx || 0) % 4 + 4) % 4;
+  const selIdx = ((state.selectedNodeIdx || 0) % 8 + 8) % 8;
   if (state.objectTransforms && state.objectTransforms[shot] && state.objectTransforms[shot][selIdx]) {
     const xf = state.objectTransforms[shot][selIdx];
     xf.dx = Math.max(-0.18, Math.min(0.18, (xf.dx || 0) + dx * 0.25));
@@ -1909,10 +1868,11 @@ function zeroToPrimitives() {
   const w1 = document.getElementById('weaveSingleBtn');
   if (w1) w1.classList.remove('active');
 
-  // Set all 4 SAM objects in the current shot to 3D Depth-Contour Wireframe mode (L1=12°)
+  // Set all 8 assembly objects in the current shot to 3D Depth-Contour Wireframe mode (L1=12°)
   const shot = state.activeShot || 'bugeye';
   const params = ensureObjectParams(shot);
-  for (let n = 0; n < 4; n++) {
+  for (let n = 0; n < 8; n++) {
+    if (!params[n]) continue;
     params[n][0] = 12;  // L1 SOLID = 0% (pure 3D MiDaS depth wireframe)
     params[n][1] = 85;  // L2 FOCUS = 50%
     params[n][2] = 65;  // L3 MORPH = 40%
@@ -1921,7 +1881,7 @@ function zeroToPrimitives() {
   }
 
   state._syncingNode = true;
-  const selP = params[(state.selectedNodeIdx || 0) % 4];
+  const selP = params[((state.selectedNodeIdx || 0) % 8 + 8) % 8];
   for (let i = 0; i < 5; i++) {
     state.rings[i].vel = 0;
     state.rings[i].motorDir = 0;
@@ -3385,26 +3345,24 @@ window.cycleEngineVersion = cycleEngineVersion;
 
 function syncMobileDockUI() {
   const shot = state.activeShot || 'bugeye';
-  const samList = (window.STELLINE_SAM_DATA && Array.isArray(window.STELLINE_SAM_DATA[shot]))
-    ? window.STELLINE_SAM_DATA[shot]
-    : null;
+  const nodes = getActiveAssemblyNodes(shot);
+  const selIdx = ((state.selectedNodeIdx || 0) % 8 + 8) % 8;
+  const selNode = nodes[selIdx] || nodes[0];
   const samRow = document.getElementById('mobileSamRow');
-  if (samRow && samList) {
+  if (samRow && nodes) {
     const btns = samRow.querySelectorAll('button');
-    const selIdx = ((state.selectedNodeIdx || 0) % 4 + 4) % 4;
     btns.forEach((b, idx) => {
-      const obj = samList[idx];
-      if (obj) b.textContent = `${idx + 1}:${obj.id}`;
+      const obj = nodes[idx];
+      if (obj) b.textContent = `${idx + 1}:${obj.id.split('.')[0]}`;
       b.classList.toggle('active', idx === selIdx);
     });
   }
-  const pKey = (state.scene === 'birthday') ? 'cake' : 'bug';
-  const proto = (typeof OPERATOR_PROTOCOLS !== 'undefined' && OPERATOR_PROTOCOLS[pKey]) ? OPERATOR_PROTOCOLS[pKey] : null;
+  const dialLabels = (selNode && selNode.dials) ? selNode.dials : ['L1:SOLID', 'L2:FOCUS', 'L3:MORPH', 'R1:LUMA', 'R2:TINT'];
   for (let i = 0; i < 5; i++) {
     const lbl = document.getElementById(`mDialLbl${i}`);
     const inp = document.getElementById(`mDialIn${i}`);
-    if (lbl && proto && proto.dialLabels && proto.dialLabels[i]) {
-      lbl.textContent = proto.dialLabels[i];
+    if (lbl && dialLabels[i]) {
+      lbl.textContent = dialLabels[i];
       lbl.style.color = (state.activeCoupledRing === i) ? '#f0a848' : '#38d9c0';
     }
     if (inp && document.activeElement !== inp && state.rings[i]) {
@@ -3882,31 +3840,29 @@ function renderOrbHardware() {
   drawOuterGripPod(ctx, cx, cy,  1, spreadPx, isXray, specShift);
 
   // --------------------------------------------------------------------------
-  // 5A. DIEGETIC 5-RING OPERATIVE COUPLING & SAM ITEM ADDRESSING STRIP
-  // Connects all 5 Physical Rings (L1..R2) + [SELECT] Stencil 1:1 to Selected SAM Item
+  // 5A. DIEGETIC 5-RING OPERATIVE COUPLING & 8-ELEMENT ASSEMBLY ADDRESSING STRIP
+  // Connects all 5 Physical Rings (L1..R2) + [SELECT] Stencil 1:1 to Selected Item [1/8..8/8]
   // --------------------------------------------------------------------------
   if (!isXray && !isSpecs) {
-    const samShot = (window.STELLINE_SAM_DATA && window.STELLINE_SAM_DATA[state.activeShot]) || null;
-    const graph = (window.SCENE_OPERATIVE_GRAPH && (window.SCENE_OPERATIVE_GRAPH[state.activeShot] || window.SCENE_OPERATIVE_GRAPH.bugeye)) || null;
-    const nodes = Array.isArray(samShot) ? samShot : (samShot && samShot.objects ? samShot.objects : (Array.isArray(graph) ? graph : (graph && graph.nodes ? graph.nodes : [])));
-    const selIdx = nodes.length > 0 ? (state.selectedNodeIdx || 0) % nodes.length : 0;
-    const selNode = nodes[selIdx] || null;
+    const nodes = getActiveAssemblyNodes(state.activeShot);
+    const selIdx = ((state.selectedNodeIdx || 0) % 8 + 8) % 8;
+    const selNode = nodes[selIdx] || nodes[0];
     const stripY = cy - 118;
     const rOffs = [-82 - spreadPx * 0.36, -42 - spreadPx * 0.17, 0, 42 + spreadPx * 0.17, 82 + spreadPx * 0.36];
     const protoKey = (state.scene === 'birthday') ? 'cake' : 'bug';
     const protoObj = (window.OPERATOR_PROTOCOLS && window.OPERATOR_PROTOCOLS[protoKey]) || null;
-    const rTags = (protoObj && protoObj.dialLabels) ? protoObj.dialLabels : ['L1:SOLID', 'L2:FOCUS', 'L3:MORPH', 'R1:LUMA', 'R2:TINT'];
+    const rTags = (selNode && selNode.dials) ? selNode.dials : ((protoObj && protoObj.dialLabels) ? protoObj.dialLabels : ['L1:SOLID', 'L2:FOCUS', 'L3:MORPH', 'R1:LUMA', 'R2:TINT']);
     const vIdx = (state.otherwiseVariant && state.otherwiseVariant[protoKey]) || 0;
     const vObj = (protoObj && protoObj.otherwise && protoObj.otherwise[vIdx]) || null;
     ctx.save();
     if (selNode) {
-      const targetName = selNode.name || selNode.label || selNode.id || `ITEM.0${selIdx + 1}`;
-      const protoTitle = protoObj ? protoObj.id.split('//')[1].trim() : 'ORB.OS';
+      const targetName = selNode.name || selNode.id || `ITEM.0${selIdx + 1}`;
+      const protoTitle = (state.scene === 'birthday') ? 'PATISSERIE.OS' : (state.scene === 'beetle' ? 'ENTOMOLOGY.OS' : 'ARCHIVE.OS');
       const otherwiseTag = (vIdx > 0 && vObj) ? ` // ${vObj.code.split('[')[0].trim()}` : '';
-      ctx.fillStyle = vIdx > 0 ? '#ffd080' : 'rgba(235, 244, 252, 0.88)';
+      ctx.fillStyle = vIdx > 0 ? '#ffd080' : 'rgba(235, 244, 252, 0.90)';
       ctx.font = '600 6.8px "JetBrains Mono", monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(`${protoTitle} -> SAM[${selIdx + 1}/4]: ${targetName}${otherwiseTag}`, cx, stripY - 12);
+      ctx.fillText(`${protoTitle} -> NODE [${selIdx + 1}/8]: ${targetName}${otherwiseTag}`, cx, stripY - 12);
     }
     for (let i = 0; i < 5; i++) {
       const tagX = cx + rOffs[i];
@@ -3919,9 +3875,34 @@ function renderOrbHardware() {
       ctx.fillRect(tagX - 20, stripY - 7, 40, 13);
       ctx.strokeRect(tagX - 20, stripY - 7, 40, 13);
       ctx.fillStyle = active ? '#ffd080' : 'rgba(225, 236, 246, 0.88)';
-      ctx.font = '700 5.3px "JetBrains Mono", monospace';
+      ctx.font = '700 5.1px "JetBrains Mono", monospace';
       ctx.textAlign = 'center';
       ctx.fillText(`${rTags[i]}`, tagX, stripY + 1.5);
+    }
+
+    // 8-Pin Machined Sub-Assembly Selector Strip Beneath Rack-and-Pinion (cy + 118)
+    const botY = cy + 116;
+    const pinW = 54;
+    const pinGap = 4;
+    const totalPinSpan = 8 * pinW + 7 * pinGap;
+    const startPinX = cx - totalPinSpan * 0.5;
+    for (let nIdx = 0; nIdx < 8; nIdx++) {
+      const nd = nodes[nIdx];
+      if (!nd) continue;
+      const px = startPinX + nIdx * (pinW + pinGap);
+      const isSel = (nIdx === selIdx);
+      ctx.fillStyle = isSel ? 'rgba(56, 217, 192, 0.22)' : 'rgba(10, 15, 22, 0.78)';
+      ctx.strokeStyle = isSel ? 'rgba(56, 217, 192, 0.92)' : 'rgba(160, 180, 200, 0.30)';
+      ctx.lineWidth = isSel ? 1.1 : 0.75;
+      ctx.fillRect(px, botY, pinW, 13);
+      ctx.strokeRect(px, botY, pinW, 13);
+      ctx.fillStyle = isSel ? '#f4fbff' : 'rgba(185, 202, 218, 0.78)';
+      ctx.font = `${isSel ? '700' : '500'} 5.0px "JetBrains Mono", monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillText(`${nIdx + 1}:${nd.id.slice(0, 9)}`, px + pinW * 0.5, botY + 8.5);
+      registerHitbox(`node_pin_${nIdx}`, `SELECT SUB-ASSEMBLY [${nIdx + 1}/8]: ${nd.name} [${nd.dials.join(' · ')}]`, px, botY - 2, pinW, 17,
+        () => selectSceneObject(nIdx, false)
+      );
     }
     ctx.restore();
   }
@@ -4335,13 +4316,13 @@ function drawOuterGripPod(ctx, cx, cy, side, spreadPx, isXray, specShift) {
     const quadX = x0 + 46, quadY = y0 + 25;
     drawQuadrantDiscButton(ctx, quadX, quadY, 9.2, state.pressedOnPropBtn === 'quad_btn');
     drawRedStencilCallout(ctx, quadX - 10, quadY + 10, -10, 8, 'SELECT');
-    registerHitbox('quad_btn', 'RIGHT POD [SELECT] SUB-OBJECT & CAMERA NODE BUTTON [CLICK TO CYCLE 3D SAM ITEM]', quadX - 12, quadY - 12, 24, 24,
+    registerHitbox('quad_btn', 'RIGHT POD [SELECT] SUB-OBJECT & CAMERA NODE BUTTON [CLICK TO CYCLE ALL 8 ELEMENTS]', quadX - 12, quadY - 12, 24, 24,
       () => {
         state.pressedOnPropBtn = 'quad_btn';
         if (typeof window.selectSceneObject === 'function') {
-          window.selectSceneObject(((state.selectedNodeIdx || 0) + 1) % 4);
+          window.selectSceneObject(((state.selectedNodeIdx || 0) + 1) % 8);
         } else {
-          state.selectedNodeIdx = ((state.selectedNodeIdx || 0) + 1) % 4;
+          state.selectedNodeIdx = ((state.selectedNodeIdx || 0) + 1) % 8;
         }
         setCameraStation((state.cameraStation + 1) % 5);
       },
@@ -4954,7 +4935,7 @@ window.addEventListener('DOMContentLoaded', () => {
   if (dxParam !== null || dyParam !== null) {
     const sKey = state.activeShot || 'bugeye';
     ensureObjectParams(sKey);
-    const sIdx = ((state.selectedNodeIdx || 0) % 4 + 4) % 4;
+    const sIdx = ((state.selectedNodeIdx || 0) % 8 + 8) % 8;
     if (state.objectTransforms[sKey] && state.objectTransforms[sKey][sIdx]) {
       if (dxParam !== null) state.objectTransforms[sKey][sIdx].dx = parseFloat(dxParam) || 0;
       if (dyParam !== null) state.objectTransforms[sKey][sIdx].dy = parseFloat(dyParam) || 0;
@@ -4974,7 +4955,7 @@ window.addEventListener('DOMContentLoaded', () => {
   if (xrayP === '1') state.renderMode = 'xray';
   if (params.get('menu') === '1') toggleLabDrawer(true);
 
-  // Bespoke Bug & Birthday Cake Shareable URL Parameters
+  // Bespoke Bug & Birthday Cake Shareable URL Parameters (Pure Diegetic State)
   const inscP = params.get('insc');
   const wicksP = params.get('wicks');
   const bundtP = params.get('bundt');
@@ -4983,12 +4964,30 @@ window.addEventListener('DOMContentLoaded', () => {
   const blowP = params.get('blow');
   if (inscP !== null || wicksP !== null || bundtP !== null || glazeP !== null || smartiesP !== null || blowP !== null) {
     if (!shotParam) selectFilmShot('redicing');
-    if (inscP !== null && document.getElementById('customCakeInscInput')) document.getElementById('customCakeInscInput').value = inscP;
-    if (wicksP !== null && document.getElementById('customCakeCandlesInput')) document.getElementById('customCakeCandlesInput').value = wicksP;
-    if (bundtP !== null && document.getElementById('customCakeBundtInput')) document.getElementById('customCakeBundtInput').value = bundtP;
-    if (glazeP !== null && document.getElementById('customCakeGlazeSelect')) document.getElementById('customCakeGlazeSelect').value = glazeP;
-    if (smartiesP !== null && document.getElementById('customCakeSmartiesChk')) document.getElementById('customCakeSmartiesChk').checked = (smartiesP === '1');
-    applyCustomCakeFromUI();
+    state.customCake.active = true;
+    state.liveModeling = false;
+    state.userHoldTimer = 15.0;
+    if (inscP !== null) {
+      state.customCake.inscription = inscP;
+      if (nodeParam === null) selectSceneObject(2, true); // [3/8] ICING.SCRIPT
+    }
+    if (wicksP !== null) {
+      state.customCake.candles = Math.max(1, Math.min(12, parseInt(wicksP, 10) || 7));
+      setRingAngle(1, 75 + state.customCake.candles * 8.5, false);
+    }
+    if (bundtP !== null) {
+      state.customCake.bundt = Math.max(0, Math.min(1, (parseFloat(bundtP) || 0) / 100));
+      state.bundtMorph = state.customCake.bundt;
+      setRingAngle(2, 146 + state.customCake.bundt * 32, false);
+    }
+    if (glazeP !== null) {
+      state.customCake.glaze = glazeP;
+      const glazeAngles = { vanilla: 165, ganache: 198, rose: 122, matcha: 138, gold: 182 };
+      setRingAngle(4, glazeAngles[glazeP] || 165, false);
+    }
+    if (smartiesP !== null) {
+      state.customCake.smarties = (smartiesP === '1');
+    }
     if (blowP === '1') {
       state.customCake.blownOut = true;
       state.customCake.exhaleAnim = 1.0;
@@ -4998,22 +4997,44 @@ window.addEventListener('DOMContentLoaded', () => {
   const taxonP = params.get('taxon');
   const commonP = params.get('common');
   const hexP = params.get('hex');
+  const hexSnP = params.get('hexsn');
   const nmP = params.get('nm');
   const setaeP = params.get('setae');
+  const wingsP = params.get('wings');
   const splitP = params.get('split');
-  if (taxonP !== null || commonP !== null || hexP !== null || nmP !== null || setaeP !== null || splitP !== null) {
+  if (taxonP !== null || commonP !== null || hexP !== null || hexSnP !== null || nmP !== null || setaeP !== null || wingsP !== null || splitP !== null) {
     if (!shotParam) selectFilmShot('bugeye');
-    if (taxonP !== null && document.getElementById('customBugTaxonInput')) document.getElementById('customBugTaxonInput').value = taxonP;
-    if (commonP !== null && document.getElementById('customBugCommonInput')) document.getElementById('customBugCommonInput').value = commonP;
-    if (hexP !== null && document.getElementById('customBugHexInput')) document.getElementById('customBugHexInput').value = hexP;
-    if (nmP !== null && document.getElementById('customBugNmInput')) document.getElementById('customBugNmInput').value = nmP;
-    if (setaeP !== null && document.getElementById('customBugSetaeInput')) document.getElementById('customBugSetaeInput').value = setaeP;
-    if (splitP !== null && document.getElementById('customBugSplitChk')) document.getElementById('customBugSplitChk').checked = (splitP === '1');
-    applyCustomBugFromUI();
-  }
-
-  if (params.get('builder') === '1') {
-    toggleBespokeBuilder(true);
+    state.customBug.active = true;
+    state.liveModeling = false;
+    state.userHoldTimer = 15.0;
+    if (taxonP !== null) state.customBug.taxon = taxonP;
+    if (commonP !== null) state.customBug.commonName = commonP;
+    if (hexP !== null) {
+      state.customBug.hexDensity = Math.max(0, Math.min(320, parseInt(hexP, 10) || 165));
+      state.customBug.leftHexDensity = state.customBug.hexDensity;
+      setRingAngle(0, 55 + (state.customBug.hexDensity / 320) * 145, false);
+    }
+    if (hexSnP !== null) {
+      state.customBug.leftHexDensity = Math.max(0, Math.min(320, parseInt(hexSnP, 10) || 0));
+    }
+    if (nmP !== null) {
+      state.customBug.wavelengthNm = Math.max(430, Math.min(635, parseInt(nmP, 10) || 520));
+      setRingAngle(4, 95 + ((state.customBug.wavelengthNm - 430) / 205) * 115, false);
+    }
+    if (setaeP !== null) {
+      state.customBug.setaeCount = Math.max(0, Math.min(360, parseInt(setaeP, 10) || 0));
+      setRingAngle(2, 80 + (state.customBug.setaeCount / 360) * 110, false);
+    }
+    if (wingsP !== null) {
+      state.customBug.wingUnfurl = Math.max(0, Math.min(1, parseFloat(wingsP) || 0));
+      if (nodeParam === null) selectSceneObject(2, true); // [3/8] ELYTRA.WINGS
+    }
+    if (splitP !== null) {
+      state.customBug.splitOptics = (splitP === '1');
+      if (state.customBug.splitOptics && hexSnP === null) {
+        state.customBug.leftHexDensity = 0;
+      }
+    }
   }
 
   renderOperatorProtocolUI();
@@ -5023,7 +5044,6 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 <script src="assets/stelline-sam-data.js"></script>
-<script>window.STELLINE_MOBILE_MODE = true;</script>
 <script src="assets/stelline-3d-engine.js"></script>
 </body>
 </html>

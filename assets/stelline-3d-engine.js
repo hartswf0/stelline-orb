@@ -56,6 +56,7 @@
     bundt142: loadFilmTex('assets/sec_142.jpg'),
     bundt143: loadFilmTex('assets/sec_143.jpg'),
     bundt:    loadFilmTex('assets/stelline_frames/ref_0223_bundt.png'),
+    bundt145: loadFilmTex('assets/sec_145.jpg'),
     icing146: loadFilmTex('assets/sec_146.jpg'),
     icing147: loadFilmTex('assets/sec_147.jpg'),
     icing:    loadFilmTex('assets/stelline_frames/ref_0226_icing.png'),
@@ -64,6 +65,7 @@
     cut155:   loadFilmTex('assets/sec_155.jpg'),
     cut156:   loadFilmTex('assets/sec_156.jpg'),
     party6:   loadFilmTex('assets/stelline_frames/sec_158.jpg'),
+    mini170:  loadFilmTex('assets/stelline_frames/sec_170.jpg'),
     blow173:  loadFilmTex('assets/stelline_frames/sec_173.jpg'),
     blow174:  loadFilmTex('assets/stelline_frames/sec_174.jpg'),
     blow:     loadFilmTex('assets/stelline_frames/sec_177.jpg'),
@@ -372,13 +374,14 @@
     uObjOffsetY:    { value: new THREE.Vector4(0, 0, 0, 0) },
     uObjVis:        { value: new THREE.Vector4(1, 1, 1, 1) },
     uCompMode:      { value: 0.0 },
-    uSelectedIdx:   { value: 0 },
-    uHeadShift:     { value: 0.0 },
-    uHexDensity:    { value: 165.0 },
-    uChitinShift:   { value: 0.0 },
-    uSplitOptics:   { value: 0.0 },
-    uEyeDomeBoost:  { value: 1.0 },
-    uLightDir:      { value: new THREE.Vector3(0.25, 0.78, 0.58).normalize() }
+    uSelectedIdx:    { value: 0 },
+    uHeadShift:      { value: 0.0 },
+    uHexDensity:     { value: 165.0 },
+    uLeftHexDensity: { value: 165.0 },
+    uChitinShift:    { value: 0.0 },
+    uSplitOptics:    { value: 0.0 },
+    uEyeDomeBoost:   { value: 1.0 },
+    uLightDir:       { value: new THREE.Vector3(0.25, 0.78, 0.58).normalize() }
   };
 
   // High-density 3D DPT-MiDaS Displaced Relief Mesh (200x140) spanning the full 13.0 x 4.9 viewport
@@ -446,6 +449,7 @@
       uniform float uSetaeMorph;
       uniform float uWireOverlay;
       uniform float uHexDensity;
+      uniform float uLeftHexDensity;
       uniform float uChitinShift;
       uniform float uSplitOptics;
       uniform sampler2D uTex31;
@@ -502,7 +506,9 @@
         // Apply SAM per-object 5-dial processing (L1:SOLID wireframe, L2:FOCUS, L3:MORPH, R1:LUMA, R2:TINT)
         filmCol = applySamPerObject(filmCol, blurFilmCol, uv);
 
-        // Subtle, photorealistic SAM-masked optical micro-contrast & natural chitin iridescence shift
+        // Authentic Per-Eye Compound Ommatidia Crystallization (ZERO 2D brick-grid artifacts!)
+        // In sec_032 (col32), the left eye (OCULUS.SN) is smooth matte green chitin (0_HEX),
+        // while in sec_034/sec_035 (col34/col35), both eyes have crystalline 165_HEX hexagonal ommatidia.
         vec2 samUv = clamp(uv + vec2(0.068, 0.024) * uHeadShift, 0.001, 0.999);
         vec3 samMasks = texture2D(uSamTex, samUv).rgb;
         float mRightEye = smoothstep(0.18, 0.72, samMasks.x);
@@ -510,19 +516,27 @@
         float inAnyEye  = clamp(mRightEye + mLeftEye, 0.0, 1.0);
         vec3 hiFreq = filmCol - blurFilmCol;
 
-        if (uSplitOptics > 0.5) {
-          // Asymmetric optical focus: hyper-crisp right compound eye, soft bokeh left compound eye
-          filmCol = mix(filmCol, clamp(filmCol + hiFreq * 2.2, 0.0, 1.0), mRightEye * 0.75);
-          filmCol = mix(filmCol, blurFilmCol, mLeftEye * 0.75);
+        // 1. Right Compound Eye (OCULUS.DX): smoothly rack between smooth matte cornea (0_HEX) and crisp film ommatidia (165..320_HEX)
+        float dxCryst = clamp(uHexDensity / 165.0, 0.0, 1.0) * clamp(uRightEyeFocus, 0.0, 1.0);
+        if (mRightEye > 0.01) {
+          vec3 dxSmooth = blurFilmCol * 0.97;
+          vec3 dxCrisp  = mix(filmCol, col34, 0.35);
+          float dxHyper = clamp((uHexDensity - 165.0) / 145.0, 0.0, 1.15);
+          vec3 dxFinal  = mix(dxSmooth, dxCrisp + hiFreq * (0.45 + dxHyper * 1.15), dxCryst);
+          filmCol = mix(filmCol, clamp(dxFinal, 0.0, 1.0), mRightEye);
         }
-        // Procedural hexagonal ommatidia micro-facet shimmer when uHexDensity deviates from canonical 165_HEX
-        float hexDelta = clamp(abs(uHexDensity - 165.0) / 120.0, 0.0, 1.0);
-        if (hexDelta > 0.05 && inAnyEye > 0.05) {
-          float hScale = clamp(uHexDensity, 32.0, 320.0) * 0.38;
-          vec2 hp = samUv * vec2(hScale * 1.6, hScale);
-          vec2 hGrid = abs(fract(hp + vec2(0.0, floor(hp.x) * 0.5)) - 0.5);
-          float hexCell = smoothstep(0.48, 0.22, max(hGrid.x * 1.15, hGrid.y));
-          filmCol += vec3(0.10, 0.16, 0.11) * (hexCell - 0.5) * inAnyEye * hexDelta * 0.42;
+
+        // 2. Left Compound Eye (OCULUS.SN): independent smooth matte green chitin (col32) <-> crystalline 165_HEX ommatidia (col34/col35)
+        float snCryst = (uSplitOptics > 0.5)
+          ? 0.0
+          : clamp(uLeftHexDensity / 165.0, 0.0, 1.0) * clamp(uLeftEyeFocus, 0.0, 1.0);
+        if (mLeftEye > 0.01) {
+          vec3 snSmooth = mix(blurFilmCol * 0.97, col32, 0.65);
+          vec3 snCrisp  = mix(col34, col35, smoothstep(0.55, 0.98, max(uSetaeMorph, uLeftEyeFocus)));
+          vec3 snHiFreq = snCrisp - blurFilmCol;
+          float snHyper = clamp((uLeftHexDensity - 165.0) / 145.0, 0.0, 1.15);
+          vec3 snFinal  = mix(snSmooth, snCrisp + snHiFreq * (0.35 + snHyper * 1.10), snCryst);
+          filmCol = mix(filmCol, clamp(snFinal, 0.0, 1.0), mLeftEye);
         }
         if (abs(uChitinShift) > 0.05) {
           float bugFg = smoothstep(0.22, 0.50, texture2D(uDepthTex, samUv).r);
@@ -636,6 +650,54 @@
     const dir = new THREE.Vector3(t * 0.35, 0.90, 0.25).normalize();
     addBristle(new THREE.Vector3(ox, oy, 0.14), dir, 0.16 + (i % 3) * 0.04);
   }
+
+  // 3D Articulated Antenna Scapes & Mandible Pincers in Macro BugEye Rig ([4/8] & [6/8])
+  const bugChitinMat = new THREE.MeshStandardMaterial({
+    color: 0x24341e,
+    roughness: 0.26,
+    metalness: 0.42
+  });
+  const bugEyeAntennaGroup = new THREE.Group();
+  rootGroups.bugeye.add(bugEyeAntennaGroup);
+  const leftMacroAntennaPivot = new THREE.Group();
+  leftMacroAntennaPivot.position.set(-1.35, 0.28, 0.18);
+  bugEyeAntennaGroup.add(leftMacroAntennaPivot);
+  leftMacroAntennaPivot.add(createSegmentedLimb([
+    new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(-0.95, -0.06, 0.12),
+    new THREE.Vector3(-2.10, -0.18, 0.22),
+    new THREE.Vector3(-3.20, -0.34, 0.28)
+  ], [0.16, 0.13, 0.10, 0.07], bugChitinMat, 0.28));
+
+  const rightMacroAntennaPivot = new THREE.Group();
+  rightMacroAntennaPivot.position.set(2.48, 0.22, 0.18);
+  bugEyeAntennaGroup.add(rightMacroAntennaPivot);
+  rightMacroAntennaPivot.add(createSegmentedLimb([
+    new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(0.95, -0.08, 0.12),
+    new THREE.Vector3(2.10, -0.22, 0.22),
+    new THREE.Vector3(3.15, -0.38, 0.28)
+  ], [0.16, 0.13, 0.10, 0.07], bugChitinMat, 0.28));
+
+  const bugEyeMandibleGroup = new THREE.Group();
+  rootGroups.bugeye.add(bugEyeMandibleGroup);
+  const leftMacroMandiblePivot = new THREE.Group();
+  leftMacroMandiblePivot.position.set(0.05, -0.82, 0.20);
+  bugEyeMandibleGroup.add(leftMacroMandiblePivot);
+  leftMacroMandiblePivot.add(createSegmentedLimb([
+    new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(-0.18, -0.45, 0.12),
+    new THREE.Vector3(0.18, -0.88, 0.16)
+  ], [0.22, 0.15, 0.06], bugChitinMat, 0.35));
+
+  const rightMacroMandiblePivot = new THREE.Group();
+  rightMacroMandiblePivot.position.set(1.25, -0.82, 0.20);
+  bugEyeMandibleGroup.add(rightMacroMandiblePivot);
+  rightMacroMandiblePivot.add(createSegmentedLimb([
+    new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(0.18, -0.45, 0.12),
+    new THREE.Vector3(-0.18, -0.88, 0.16)
+  ], [0.22, 0.15, 0.06], bugChitinMat, 0.35));
 
   // ==========================================================================
   // 2. ACT I: WET SERRATED LEAF & WALKING SCARAB BEETLE (00:25 sec_025 -> 00:28 sec_028)
@@ -823,6 +885,47 @@
   elytraMesh.position.set(0, 0.22, 0.16);
   scarabBeetleGroup.add(elytraMesh);
 
+  // Split Dorsal Elytra & Unfurling Translucent Hindwings ([3/8] ELYTRA.WINGS — sec_028.jpg)
+  const leftElytronPivot = new THREE.Group();
+  leftElytronPivot.position.set(-0.08, -0.22, 0.24);
+  scarabBeetleGroup.add(leftElytronPivot);
+  const halfElytronGeom = new THREE.SphereGeometry(0.24, 28, 22);
+  halfElytronGeom.scale(0.64, 2.25, 0.42);
+  const leftElytronMesh = new THREE.Mesh(halfElytronGeom, elytraMaterial);
+  leftElytronMesh.position.set(-0.08, 0.44, 0.0);
+  leftElytronPivot.add(leftElytronMesh);
+
+  const rightElytronPivot = new THREE.Group();
+  rightElytronPivot.position.set(0.08, -0.22, 0.24);
+  scarabBeetleGroup.add(rightElytronPivot);
+  const rightElytronMesh = new THREE.Mesh(halfElytronGeom, elytraMaterial);
+  rightElytronMesh.position.set(0.08, 0.44, 0.0);
+  rightElytronPivot.add(rightElytronMesh);
+
+  const flightWingMat = new THREE.MeshPhysicalMaterial({
+    color: 0xd8ead0,
+    roughness: 0.18,
+    metalness: 0.12,
+    transmission: 0.72,
+    transparent: true,
+    opacity: 0.56,
+    side: THREE.DoubleSide
+  });
+  const flightWingGeom = new THREE.PlaneGeometry(0.36, 1.05, 8, 12);
+  const leftFlightWingPivot = new THREE.Group();
+  leftFlightWingPivot.position.set(-0.06, -0.18, 0.22);
+  const leftFlightWing = new THREE.Mesh(flightWingGeom, flightWingMat);
+  leftFlightWing.position.set(-0.14, 0.48, 0.02);
+  leftFlightWingPivot.add(leftFlightWing);
+  scarabBeetleGroup.add(leftFlightWingPivot);
+
+  const rightFlightWingPivot = new THREE.Group();
+  rightFlightWingPivot.position.set(0.06, -0.18, 0.22);
+  const rightFlightWing = new THREE.Mesh(flightWingGeom, flightWingMat);
+  rightFlightWing.position.set(0.14, 0.48, 0.02);
+  rightFlightWingPivot.add(rightFlightWing);
+  scarabBeetleGroup.add(rightFlightWingPivot);
+
   const scarabPronotum = new THREE.Mesh(new THREE.SphereGeometry(0.24, 32, 24), elytraMaterial);
   scarabPronotum.scale.set(0.84, 0.72, 0.52);
   scarabPronotum.position.set(0, -0.42, 0.14);
@@ -832,6 +935,27 @@
   scarabHead.scale.set(0.78, 0.80, 0.50);
   scarabHead.position.set(0, -0.70, 0.11);
   scarabBeetleGroup.add(scarabHead);
+
+  // 11-Segment Filiform Antennae & Mandible Pincers on Walking Scarab ([4/8] & [6/8] — sec_027.jpg)
+  const leftScarabAntennaPivot = new THREE.Group();
+  leftScarabAntennaPivot.position.set(-0.10, -0.76, 0.13);
+  leftScarabAntennaPivot.add(createSegmentedLimb([
+    new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(-0.22, -0.26, 0.08),
+    new THREE.Vector3(-0.48, -0.42, 0.14),
+    new THREE.Vector3(-0.74, -0.48, 0.18)
+  ], [0.016, 0.012, 0.009, 0.005], elytraMaterial, 0.08));
+  scarabBeetleGroup.add(leftScarabAntennaPivot);
+
+  const rightScarabAntennaPivot = new THREE.Group();
+  rightScarabAntennaPivot.position.set(0.10, -0.76, 0.13);
+  rightScarabAntennaPivot.add(createSegmentedLimb([
+    new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(0.22, -0.26, 0.08),
+    new THREE.Vector3(0.48, -0.42, 0.14),
+    new THREE.Vector3(0.74, -0.48, 0.18)
+  ], [0.016, 0.012, 0.009, 0.005], elytraMaterial, 0.08));
+  scarabBeetleGroup.add(rightScarabAntennaPivot);
 
   const beetleLegs = [];
   [
@@ -1893,29 +2017,34 @@
     };
   }
 
-  // Draws the Left-Arc SAM Sub-Object Selector ([ □ ]) + Active SAM Polygon Boundary Contour
+  // Draws the Left-Arc 8-Element Diegetic Sub-Assembly Stack ([1/8]..[8/8]) + Active SAM Polygon Boundary Contour
   function drawSubObjectNodeStack(ctx, w, h, shot, state, drawVisual, headShift = 0.0) {
+    const asmNodes = (typeof window.getActiveAssemblyNodes === 'function')
+      ? window.getActiveAssemblyNodes(shot)
+      : (SCENE_OPERATIVE_GRAPH[shot] || SCENE_OPERATIVE_GRAPH.bugeye);
     const samList = (window.STELLINE_SAM_DATA && window.STELLINE_SAM_DATA[shot])
       ? window.STELLINE_SAM_DATA[shot]
-      : (SCENE_OPERATIVE_GRAPH[shot] || SCENE_OPERATIVE_GRAPH.bugeye);
-    const selIdx = (state.selectedNodeIdx || 0) % samList.length;
-    const arcR  = Math.min(w, h) * 0.34;
-    const arcCx = Math.max(arcR + 18, w * 0.165);
-    const arcCy = h * 0.48;
+      : [];
+    const totalNodes = asmNodes.length;
+    const selIdx = (state.selectedNodeIdx || 0) % totalNodes;
+    const arcR  = Math.min(w, h) * 0.36;
+    const arcCx = Math.max(arcR + 16, w * 0.165);
+    const arcCy = h * 0.49;
 
     if (drawVisual) {
       ctx.save();
-      ctx.strokeStyle = 'rgba(210, 228, 224, 0.22)';
+      ctx.strokeStyle = 'rgba(210, 228, 224, 0.24)';
       ctx.lineWidth = 0.85;
       ctx.setLineDash([3, 4]);
       ctx.beginPath();
-      ctx.arc(arcCx, arcCy, arcR, Math.PI * 0.84, Math.PI * 1.16);
+      ctx.arc(arcCx, arcCy, arcR, Math.PI * 0.76, Math.PI * 1.24);
       ctx.stroke();
       ctx.setLineDash([]);
     }
 
-    samList.forEach((node, idx) => {
-      const offset = (idx - (samList.length - 1) * 0.5) * 0.085;
+    asmNodes.forEach((asmNode, idx) => {
+      const samNode = (idx < samList.length) ? samList[idx] : null;
+      const offset = (idx - (totalNodes - 1) * 0.5) * 0.064;
       const ang = Math.PI + offset;
       const bx = arcCx + Math.cos(ang) * arcR;
       const by = arcCy + Math.sin(ang) * arcR;
@@ -1927,21 +2056,23 @@
         : { dx: 0, dy: 0, visible: true };
       const shiftU = ((shot === 'bugeye' && (idx === 0 || idx === 1)) ? (-0.068 * headShift) : 0.0) + (partTf.dx || 0);
       const shiftV = ((shot === 'bugeye' && (idx === 0 || idx === 1)) ? ( 0.024 * headShift) : 0.0) + (partTf.dy || 0);
-      const cxU = (node.cx !== undefined ? node.cx : node.uv[0]) + shiftU;
-      const cyV = (node.cy !== undefined ? node.cy : node.uv[1]) + shiftV;
+      const rawUv = (asmNode.uvByShot && (asmNode.uvByShot[shot] || asmNode.uvByShot.default))
+        || (samNode && samNode.cx !== undefined ? [samNode.cx, samNode.cy] : (asmNode.uv || [0.5, 0.5]));
+      const cxU = rawUv[0] + shiftU;
+      const cyV = rawUv[1] + shiftV;
 
       if (drawVisual) {
         ctx.save();
-        const sz = isSel ? 7 : 5;
-        ctx.strokeStyle = isSel ? 'rgba(56, 217, 192, 0.95)' : (partTf.visible === false ? 'rgba(255, 110, 96, 0.55)' : 'rgba(195, 214, 210, 0.45)');
+        const sz = isSel ? 6.5 : 4.5;
+        ctx.strokeStyle = isSel ? 'rgba(56, 217, 192, 0.96)' : (partTf.visible === false ? 'rgba(255, 110, 96, 0.55)' : 'rgba(195, 214, 210, 0.48)');
         ctx.lineWidth = isSel ? 1.25 : 0.85;
         ctx.strokeRect(bx - sz * 0.5, by - sz * 0.5, sz, sz);
         if (isSel) {
-          ctx.fillStyle = 'rgba(56, 217, 192, 0.32)';
+          ctx.fillStyle = 'rgba(56, 217, 192, 0.34)';
           ctx.fillRect(bx - sz * 0.5, by - sz * 0.5, sz, sz);
-          const br = 8.5;
-          const tk = 3.2;
-          ctx.strokeStyle = 'rgba(245, 252, 250, 0.90)';
+          const br = 8.0;
+          const tk = 3.0;
+          ctx.strokeStyle = 'rgba(245, 252, 250, 0.92)';
           ctx.lineWidth = 1.0;
           ctx.beginPath();
           ctx.moveTo(bx - br, by - br + tk); ctx.lineTo(bx - br, by - br); ctx.lineTo(bx - br + tk, by - br);
@@ -1951,30 +2082,41 @@
           ctx.stroke();
 
           ctx.font = '7.5px "JetBrains Mono", monospace';
-          ctx.fillStyle = 'rgba(240, 252, 250, 0.92)';
+          ctx.fillStyle = 'rgba(240, 252, 250, 0.95)';
           const visTag = (partTf.visible === false) ? ' [HIDDEN]' : '';
-          ctx.fillText(`[${idx + 1}/4] ${node.id || node.label}${visTag}`, bx + 14, by + 2.5);
+          ctx.fillText(`[${idx + 1}/${totalNodes}] ${asmNode.id}${visTag}`, bx + 13, by + 2.5);
 
           const tx = cxU * w;
           const ty = cyV * h;
-          ctx.strokeStyle = 'rgba(56, 217, 192, 0.28)';
+          ctx.strokeStyle = 'rgba(56, 217, 192, 0.30)';
           ctx.lineWidth = 0.8;
           ctx.setLineDash([2, 4]);
           ctx.beginPath();
-          ctx.moveTo(bx + 12, by + 5);
+          ctx.moveTo(bx + 12, by + 4);
           ctx.lineTo(tx, ty);
           ctx.stroke();
           ctx.setLineDash([]);
 
+          // Draw subtle surgical target crosshair at the selected element's 3D locus
+          ctx.strokeStyle = 'rgba(56, 217, 192, 0.62)';
+          ctx.lineWidth = 0.85;
+          ctx.beginPath();
+          ctx.arc(tx, ty, 5.5, 0, Math.PI * 2);
+          ctx.moveTo(tx - 9, ty); ctx.lineTo(tx - 3, ty);
+          ctx.moveTo(tx + 3, ty); ctx.lineTo(tx + 9, ty);
+          ctx.moveTo(tx, ty - 9); ctx.lineTo(tx, ty - 3);
+          ctx.moveTo(tx, ty + 3); ctx.lineTo(tx, ty + 9);
+          ctx.stroke();
+
           // Draw SAM Polygon Boundary Contour in LAYER (xray), SAM SEGMENTS, or SOLO PART mode, or when D-Pad moves a part
           const movedPart = Math.abs(partTf.dx || 0) + Math.abs(partTf.dy || 0) > 0.002;
           const showContour = (state.renderMode === 'xray') || (state.compositeMode === 'segments') || (state.compositeMode === 'isolate') || movedPart;
-          if (showContour && Array.isArray(node.contour) && node.contour.length > 2) {
+          if (showContour && samNode && Array.isArray(samNode.contour) && samNode.contour.length > 2) {
             ctx.strokeStyle = 'rgba(56, 217, 192, 0.65)';
             ctx.lineWidth = 1.05;
             ctx.setLineDash([4, 3]);
             ctx.beginPath();
-            node.contour.forEach(([cu, cv], cIdx) => {
+            samNode.contour.forEach(([cu, cv], cIdx) => {
               const px = (cu + shiftU) * w;
               const py = (cv + shiftV) * h;
               if (cIdx === 0) ctx.moveTo(px, py);
@@ -1986,18 +2128,18 @@
           }
         } else {
           ctx.font = '6.5px "JetBrains Mono", monospace';
-          ctx.fillStyle = (partTf.visible === false) ? 'rgba(255, 110, 96, 0.55)' : 'rgba(185, 208, 204, 0.52)';
-          ctx.fillText(`${idx + 1}:${node.id || ''}`, bx + 11, by + 2);
+          ctx.fillStyle = (partTf.visible === false) ? 'rgba(255, 110, 96, 0.55)' : 'rgba(185, 210, 206, 0.55)';
+          ctx.fillText(`${idx + 1}:${asmNode.id || ''}`, bx + 10, by + 2);
         }
         ctx.restore();
       }
 
       // Click hitbox on the left-arc [ □ ] node button
       activeOverlayHitboxes.push({
-        x: bx - 16,
-        y: by - 13,
+        x: bx - 14,
+        y: by - 10,
         w: 118,
-        h: 26,
+        h: 20,
         onClick: () => {
           if (typeof window.selectSceneObject === 'function') {
             window.selectSceneObject(idx);
@@ -2005,49 +2147,45 @@
         }
       });
 
-      // Click hitbox directly on the SAM object's bounding box in the 3D scene
-      if (Array.isArray(node.box)) {
-        const bx0 = (node.box[0] + shiftU) * w;
-        const by0 = (node.box[1] + shiftV) * h;
-        const bw0 = (node.box[2] - node.box[0]) * w;
-        const bh0 = (node.box[3] - node.box[1]) * h;
-        activeOverlayHitboxes.push({
-          x: bx0,
-          y: by0,
-          w: bw0,
-          h: bh0,
-          isObjectBox: true,
-          onClick: () => {
-            if (typeof window.selectSceneObject === 'function') {
-              window.selectSceneObject(idx);
-            }
+      // Click hitbox directly on the element's locus in the 3D scene
+      const tx = cxU * w;
+      const ty = cyV * h;
+      activeOverlayHitboxes.push({
+        x: tx - 30,
+        y: ty - 26,
+        w: 60,
+        h: 52,
+        isObjectBox: true,
+        onClick: () => {
+          if (typeof window.selectSceneObject === 'function') {
+            window.selectSceneObject(idx);
           }
-        });
-      }
+        }
+      });
     });
 
     if (drawVisual) ctx.restore();
   }
 
   // Draws the Film's Translucent White C-Arc Menu (`arch`) where all 5 Sectors
-  // Graph the 5 Coaxial Orb Dials (Protocol-Specific L1..R2)
-  // for the Currently Selected SAM Object!
+  // Graph the 5 Coaxial Orb Dials (Element-Specific L1..R2)
+  // for the Currently Selected Anatomical / Scene Element ([1/8]..[8/8])!
   function drawFilmRadialArcMenu(ctx, cx, cy, radius, openLeft, showTelemetry, activeSector, opLabel, drawVisual = true, ringNorms = [0.8, 0.8, 0.6, 0.5, 0.3], selNodeInfo = null) {
     const st = window.state;
     const pKey = (st && st.scene === 'birthday') ? 'cake' : 'bug';
     const pDef = (window.OPERATOR_PROTOCOLS && window.OPERATOR_PROTOCOLS[pKey]) ? window.OPERATOR_PROTOCOLS[pKey] : null;
-    const dialNames = (pDef && pDef.dialLabels) ? pDef.dialLabels : ['L1:SOLID', 'L2:FOCUS', 'L3:MORPH', 'R1:LUMA', 'R2:TINT'];
-    const vIdx = (st && st.otherwiseVariant && st.otherwiseVariant[pKey]) ? st.otherwiseVariant[pKey] : 0;
-    const vDef = (pDef && pDef.otherwise && pDef.otherwise[vIdx]) ? pDef.otherwise[vIdx] : null;
+    const dialNames = (selNodeInfo && Array.isArray(selNodeInfo.dials) && selNodeInfo.dials.length === 5)
+      ? selNodeInfo.dials
+      : ((pDef && pDef.dialLabels) ? pDef.dialLabels : ['L1:SOLID', 'L2:FOCUS', 'L3:MORPH', 'R1:LUMA', 'R2:TINT']);
+    const startA = Math.PI * 0.58;
+    const endA   = Math.PI * 1.42;
+    const numSectors = 5;
+    const span = (endA - startA) / numSectors;
+
     if (drawVisual) {
       ctx.save();
       ctx.translate(cx, cy);
       ctx.scale(openLeft ? -0.78 : 0.78, 1.0);
-
-      const startA = Math.PI * 0.58;
-      const endA   = Math.PI * 1.42;
-      const numSectors = 5;
-      const span = (endA - startA) / numSectors;
 
       // Subtle inner optical field wedge
       ctx.fillStyle = 'rgba(210, 226, 224, 0.07)';
@@ -2079,7 +2217,7 @@
         const aFill = a0 + (a1 - a0) * Math.max(0.08, rVal);
         const rOutFill = rIn + (rOut - rIn) * (0.45 + 0.55 * rVal);
         ctx.fillStyle = isAct
-          ? 'rgba(245, 252, 250, 0.90)'
+          ? 'rgba(245, 252, 250, 0.92)'
           : `rgba(215, 234, 230, ${(0.38 + 0.42 * rVal).toFixed(2)})`;
         ctx.beginPath();
         ctx.arc(0, 0, rOutFill, a0, aFill);
@@ -2112,7 +2250,7 @@
         const r1 = radius + 16;
         const x0 = Math.cos(midA) * r0, y0 = Math.sin(midA) * r0;
         const x1 = Math.cos(midA) * r1, y1 = Math.sin(midA) * r1;
-        ctx.strokeStyle = (s === actIdx) ? 'rgba(56, 217, 192, 0.85)' : 'rgba(215, 232, 230, 0.42)';
+        ctx.strokeStyle = (s === actIdx) ? 'rgba(56, 217, 192, 0.88)' : 'rgba(215, 232, 230, 0.42)';
         ctx.lineWidth = (s === actIdx) ? 1.15 : 0.85;
         ctx.beginPath();
         ctx.moveTo(x0, y0);
@@ -2123,35 +2261,104 @@
 
       ctx.restore();
 
-      // Draw clean active-sector dial readout + 3-line telemetry block below C-Arc
+      // Draw all 5 element-specific dial readouts along the C-Arc + 3-line telemetry block below C-Arc
       ctx.save();
       const actS = activeSector % numSectors;
-      const actMidA = startA + (actS + 0.5) * span;
       const dir = openLeft ? -0.78 : 0.78;
-      const lx = cx + Math.cos(actMidA) * (radius + 20) * dir;
-      const ly = cy + Math.sin(actMidA) * (radius + 14) + 2.5;
-      const actPct = Math.round((ringNorms[actS] || 0) * 100);
-      ctx.font = '7px "JetBrains Mono", monospace';
-      ctx.fillStyle = 'rgba(225, 242, 238, 0.86)';
-      ctx.fillText(`${dialNames[actS]} ${actPct}%`, openLeft ? lx + 4 : lx - 68, ly);
+      for (let s = 0; s < numSectors; s++) {
+        const midA = startA + (s + 0.5) * span;
+        const lx = cx + Math.cos(midA) * (radius + 20) * dir;
+        const ly = cy + Math.sin(midA) * (radius + 14) + 2.5;
+        const pct = Math.round((ringNorms[s] || 0) * 100);
+        const isAct = (s === actS);
+        ctx.font = isAct ? '700 7px "JetBrains Mono", monospace' : '6px "JetBrains Mono", monospace';
+        ctx.fillStyle = isAct ? 'rgba(56, 217, 192, 0.96)' : 'rgba(205, 226, 222, 0.52)';
+        const txt = `${dialNames[s]} ${pct}%`;
+        ctx.fillText(txt, openLeft ? lx + 4 : lx - ctx.measureText(txt).width - 4, ly);
+      }
 
       if (showTelemetry && opLabel) {
-        ctx.font = '7.5px "JetBrains Mono", monospace';
-        ctx.fillStyle = 'rgba(215, 234, 232, 0.76)';
         const tx = openLeft ? (cx - radius * 1.85) : (cx - radius * 0.95);
         const ty = cy + radius * 1.36;
+        if (selNodeInfo && selNodeInfo.label) {
+          ctx.font = '700 7px "JetBrains Mono", monospace';
+          ctx.fillStyle = 'rgba(56, 217, 192, 0.88)';
+          ctx.fillText(selNodeInfo.label, tx, ty - 10.5);
+        }
+        ctx.font = '7.5px "JetBrains Mono", monospace';
+        ctx.fillStyle = 'rgba(215, 234, 232, 0.78)';
         ctx.fillText(opLabel[0] || '', tx, ty);
         ctx.fillText(opLabel[1] || '', tx, ty + 9.5);
         ctx.fillText(opLabel[2] || '', tx, ty + 19.0);
+
+        // Diegetic Micro-Action Brackets directly below the C-Arc Telemetry Block
+        const actY = ty + 31.0;
+        const actionDefs = [
+          {
+            label: st && st.scene === 'birthday' ? '[INSCRIBE CAKE]' : '[TAXON INSCRIBE]',
+            w: 78,
+            fn: () => { if (typeof window.startHoloDirectTextEdit === 'function') window.startHoloDirectTextEdit(); }
+          },
+          {
+            label: st && st.scene === 'birthday'
+              ? ((st.customCake && st.customCake.blownOut) ? '[RELIGHT WICKS]' : '[BLOW CANDLES]')
+              : ((st && st.customBug && st.customBug.wingUnfurl > 0.3) ? '[FOLD ELYTRA]' : '[UNFURL WINGS]'),
+            w: 74,
+            fn: () => {
+              if (!st) return;
+              if (st.scene === 'birthday') {
+                st.customCake = st.customCake || { active: true, inscription: '生日快樂', candles: 7, glaze: 'vanilla', bundt: 0, smarties: false, blownOut: false };
+                st.customCake.active = true;
+                st.customCake.blownOut = !st.customCake.blownOut;
+              } else {
+                st.customBug = st.customBug || { active: true, taxon: 'Carabus stellinae', wavelengthNm: 520, hexDensity: 165, leftHexDensity: 165, setaeCount: 180, wingUnfurl: 0 };
+                st.customBug.active = true;
+                st.customBug.wingUnfurl = (st.customBug.wingUnfurl > 0.3) ? 0.0 : 0.92;
+                if (st.activeShot !== 'leaf' && typeof window.selectFilmShot === 'function') {
+                  window.selectFilmShot('leaf');
+                }
+                if (typeof window.selectSceneObject === 'function') window.selectSceneObject(2);
+                if (typeof window.setRingAngle === 'function') {
+                  window.setRingAngle(2, st.customBug.wingUnfurl > 0.3 ? 172 : 128, true);
+                }
+              }
+            }
+          },
+          {
+            label: '[IMPRINT .PNG]',
+            w: 66,
+            fn: () => { if (typeof window.exportMemoryCardPNG === 'function') window.exportMemoryCardPNG(); }
+          }
+        ];
+
+        let ax = tx;
+        actionDefs.forEach(aDef => {
+          ctx.fillStyle = 'rgba(12, 24, 28, 0.65)';
+          ctx.fillRect(ax - 2, actY - 7.5, aDef.w, 11);
+          ctx.strokeStyle = 'rgba(56, 217, 192, 0.38)';
+          ctx.lineWidth = 0.7;
+          ctx.strokeRect(ax - 2, actY - 7.5, aDef.w, 11);
+          ctx.font = '6.5px "JetBrains Mono", monospace';
+          ctx.fillStyle = 'rgba(235, 248, 245, 0.88)';
+          ctx.fillText(aDef.label, ax + 2, actY);
+          activeOverlayHitboxes.push({
+            x: ax - 2,
+            y: actY - 9,
+            w: aDef.w,
+            h: 14,
+            onClick: aDef.fn
+          });
+          ax += aDef.w + 5;
+        });
       }
       ctx.restore();
     }
 
-    // Inverse-Bootstrap: Clicking any of the 5 C-Arc sectors directly adjusts that Coaxial Orb Ring for the selected SAM item!
+    // Inverse-Bootstrap: Clicking any of the 5 C-Arc sectors directly adjusts that Coaxial Orb Ring for the selected element!
     activeOverlayHitboxes.push({
-      x: cx - radius * 1.35,
+      x: cx - radius * 1.45,
       y: cy - radius * 1.25,
-      w: radius * 2.7,
+      w: radius * 2.9,
       h: radius * 2.5,
       onClick: (state, clickY) => {
         const relSector = Math.max(0, Math.min(4, Math.floor(((clickY - (cy - radius)) / (radius * 2)) * 5)));
@@ -2404,7 +2611,7 @@
     });
   }
 
-  // Helper: Pack 4 SAM Objects' 5-Dial Vectors (L1..R2) + Spatial Offsets (dx, dy) + Visibility into Shader Uniforms
+  // Helper: Pack 8 Assembly Elements' 5-Dial Vectors (L1..R2) + Spatial Offsets (dx, dy) + Visibility into Shader Uniforms
   function syncSamObjectUniforms(state, shot, targetUniforms) {
     if (typeof window.ensureObjectParams === 'function') {
       window.ensureObjectParams(shot);
@@ -2423,25 +2630,27 @@
     const normDivs = [140, 145, 150, 210, 170];
     const perObjNorms = [];
 
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 8; i++) {
       const angs = (objMap && objMap[i]) ? objMap[i] : state.rings.map(r => r.angle);
       const n0 = Math.min(1, Math.max(0, angs[0] / normDivs[0]));
       const n1 = Math.min(1, Math.max(0, angs[1] / normDivs[1]));
       const n2 = Math.min(1, Math.max(0, angs[2] / normDivs[2]));
       const n3 = Math.min(1, Math.max(0, angs[3] / normDivs[3]));
       const n4 = Math.min(1, Math.max(0, angs[4] / normDivs[4]));
-      solidArr[i] = n0;
-      focusArr[i] = Math.max(0.0, Math.min(1.0, 0.62 + (angs[1] - baseRings[1]) / 130.0));
-      morphArr[i] = n2;
-      const isActI = (shot === 'bugeye' || shot === 'leaf' || shot === 'canopy' || shot === 'clearing');
-      lumaArr[i]  = isActI
-        ? Math.max(0.84, Math.min(1.45, 1.0 + (angs[3] - baseRings[3]) / 190.0))
-        : Math.max(0.48, Math.min(2.25, 1.0 + (angs[3] - baseRings[3]) / 75.0));
-      tintArr[i]  = Math.max(-1.0, Math.min(1.0, (angs[4] - baseRings[4]) / 85.0));
-      if (tfMap && tfMap[i]) {
-        offXArr[i] = tfMap[i].dx || 0.0;
-        offYArr[i] = tfMap[i].dy || 0.0;
-        visArr[i]  = (tfMap[i].visible === false) ? 0.0 : 1.0;
+      if (i < 4) {
+        solidArr[i] = n0;
+        focusArr[i] = Math.max(0.0, Math.min(1.0, 0.62 + (angs[1] - baseRings[1]) / 130.0));
+        morphArr[i] = n2;
+        const isActI = (shot === 'bugeye' || shot === 'leaf' || shot === 'canopy' || shot === 'clearing');
+        lumaArr[i]  = isActI
+          ? Math.max(0.84, Math.min(1.45, 1.0 + (angs[3] - baseRings[3]) / 190.0))
+          : Math.max(0.48, Math.min(2.25, 1.0 + (angs[3] - baseRings[3]) / 75.0));
+        tintArr[i]  = Math.max(-1.0, Math.min(1.0, (angs[4] - baseRings[4]) / 85.0));
+        if (tfMap && tfMap[i]) {
+          offXArr[i] = tfMap[i].dx || 0.0;
+          offYArr[i] = tfMap[i].dy || 0.0;
+          visArr[i]  = (tfMap[i].visible === false) ? 0.0 : 1.0;
+        }
       }
       perObjNorms.push([n0, n1, n2, n3, n4]);
     }
@@ -2505,11 +2714,26 @@
     const wireOverlay = (state.renderMode === 'xray') ? 1.0 : 0.0;
     const drawVisualOverlay = !state.hideHud;
 
+    const asmNodes = (typeof window.getActiveAssemblyNodes === 'function')
+      ? window.getActiveAssemblyNodes(shot)
+      : [];
     const samList = (window.STELLINE_SAM_DATA && window.STELLINE_SAM_DATA[shot])
       ? window.STELLINE_SAM_DATA[shot]
       : [];
-    const selIdx = (state.selectedNodeIdx || 0) % Math.max(1, samList.length);
-    const selObj = samList[selIdx] || { idx: selIdx, id: 'SCENE.ROOT', cx: 0.72, cy: 0.48 };
+    const totalAsm = Math.max(1, asmNodes.length || samList.length);
+    const selIdx = (state.selectedNodeIdx || 0) % totalAsm;
+    const selAsm = asmNodes[selIdx] || null;
+    const selSam = (selIdx < samList.length) ? samList[selIdx] : null;
+    const rawSelUv = (selAsm && selAsm.uvByShot && (selAsm.uvByShot[shot] || selAsm.uvByShot.default))
+      || (selSam && selSam.cx !== undefined ? [selSam.cx, selSam.cy] : [0.68, 0.48]);
+    const selObj = {
+      idx: selIdx,
+      id: (selAsm && selAsm.id) || (selSam && selSam.id) || 'SCENE.ROOT',
+      label: (selAsm && selAsm.label) || (selSam && selSam.label) || '',
+      dials: (selAsm && selAsm.dials) || null,
+      cx: rawSelUv[0],
+      cy: rawSelUv[1]
+    };
 
     // Compute head-shift for bugeye so SAM contours and reticles track the beetle's head turn
     const setaeMorph = Math.max(0.0, Math.min(1.0, (state.rings[2].angle - 102) / 74));
@@ -2517,7 +2741,7 @@
       ? Math.max(0.0, Math.min(1.0, (setaeMorph - 0.20) / 0.52))
       : 0.0;
 
-    // Draw Left-Arc Sub-Object Selector ([ □ ] + SAM Polygon Contour) on all shots
+    // Draw Left-Arc 8-Element Sub-Assembly Stack ([1/8]..[8/8]) + SAM Polygon Contour on all shots
     drawSubObjectNodeStack(holoCtx, w, h, shot, state, drawVisualOverlay, headShift);
 
     // Expose live Scene Optical Reflection Tint so the physical Orb below reflects the hologram's light!
@@ -2569,7 +2793,10 @@
         const vBug = (window.OPERATOR_PROTOCOLS && window.OPERATOR_PROTOCOLS.bug && state.otherwiseVariant)
           ? window.OPERATOR_PROTOCOLS.bug.otherwise[state.otherwiseVariant.bug || 0]
           : null;
-        bugEyeUniforms.uChitinShift.value = (vBug && vBug.chitinShift !== undefined) ? vBug.chitinShift : 0.0;
+        const cBug = (state.customBug && state.customBug.active) ? state.customBug : null;
+        bugEyeUniforms.uChitinShift.value = cBug
+          ? ((cBug.wavelengthNm - 520) / 75.0)
+          : ((vBug && vBug.chitinShift !== undefined) ? vBug.chitinShift : 0.0);
 
         leafUniforms.uTime.value = t;
         leafUniforms.uVeinDepth.value = Math.min(1.0, L1 * 1.15);
@@ -2577,12 +2804,18 @@
         leafUniforms.uWireOverlay.value = wireOverlay;
         leafUniforms.uLightDir.value.set(-0.22 + Math.sin(t * 1.2) * 0.18, 0.74, 0.64).normalize();
 
-        const walkProg = Math.max(0.0, Math.min(1.0, (state.rings[3].angle - 135) / 75));
+        const wingUnfurl = cBug && cBug.wingUnfurl !== undefined
+          ? cBug.wingUnfurl
+          : (selIdx === 2 ? Math.max(0, (L3 - 0.50) * 1.9) : 0.0);
+        const walkProg = Math.max(
+          wingUnfurl > 0.25 ? 0.92 : 0.0,
+          Math.max(0.0, Math.min(1.0, (state.rings[3].angle - 135) / 75))
+        );
         leafUniforms.uBeetleWalk.value = walkProg;
 
-        // Show standalone 3D primitive beetle/droplet meshes in V2 (Pure 3D), V3 (Hybrid 3D), 2D+3D WEAVE, or ZERO primitive mode
+        // Show standalone 3D primitive beetle/droplet meshes in V2, V3, 2D+3D WEAVE, ZERO mode, or when sculpting ELYTRA.WINGS ([3/8])
         const engVer = state.engineVersion || 'v4';
-        const show3DLeafModels = (state.renderMode === 'zero') || (state.compositeMode === 'hybrid3d') || (engVer === 'v2') || (engVer === 'v3');
+        const show3DLeafModels = (state.renderMode === 'zero') || (state.compositeMode === 'hybrid3d') || (engVer === 'v2') || (engVer === 'v3') || (wingUnfurl > 0.15);
         scarabBeetleGroup.visible = show3DLeafModels;
         dropletsGroup.visible = show3DLeafModels;
         scarabBeetleGroup.position.set(
@@ -2591,6 +2824,26 @@
           0.25
         );
         scarabBeetleGroup.rotation.z = -0.08 + Math.sin(walkProg * 6.0) * 0.05;
+
+        // Articulate Split Dorsal Elytra & Unfurling Translucent Flight Wings ([3/8] ELYTRA.WINGS)
+        elytraMesh.visible = (wingUnfurl < 0.08);
+        leftElytronPivot.visible = (wingUnfurl >= 0.08);
+        rightElytronPivot.visible = (wingUnfurl >= 0.08);
+        leftElytronPivot.rotation.set(wingUnfurl * 0.35, -wingUnfurl * 0.25, -wingUnfurl * 0.58);
+        rightElytronPivot.rotation.set(wingUnfurl * 0.35,  wingUnfurl * 0.25,  wingUnfurl * 0.58);
+        leftFlightWingPivot.visible = (wingUnfurl > 0.06);
+        rightFlightWingPivot.visible = (wingUnfurl > 0.06);
+        const wingBeat = Math.sin(t * 28.0) * 0.08 * wingUnfurl;
+        leftFlightWingPivot.rotation.set(0.18 * wingUnfurl, -0.22 * wingUnfurl + wingBeat, -0.82 * wingUnfurl);
+        rightFlightWingPivot.rotation.set(0.18 * wingUnfurl, 0.22 * wingUnfurl - wingBeat,  0.82 * wingUnfurl);
+        leftFlightWingPivot.scale.set(0.25 + 0.85 * wingUnfurl, 0.25 + 0.95 * wingUnfurl, 1.0);
+        rightFlightWingPivot.scale.set(0.25 + 0.85 * wingUnfurl, 0.25 + 0.95 * wingUnfurl, 1.0);
+
+        // Articulate 11-Segment Filiform Antennae ([4/8] ANTENNA.SCAPE)
+        const antSweep = ((leafObjNorms[3] ? leafObjNorms[3][2] : L3) - 0.5) * 0.55 + Math.sin(t * 3.2) * 0.08;
+        leftScarabAntennaPivot.rotation.z = -antSweep;
+        rightScarabAntennaPivot.rotation.z = antSweep;
+
         beetleLegs.forEach(leg => {
           leg.mesh.rotation.z = Math.sin(walkProg * 12.0 + leg.idx * 1.1) * 0.11 * leg.side;
         });
@@ -2601,13 +2854,16 @@
         if (drawVisualOverlay) {
           const sx = w * (0.495 - walkProg * 0.025 + selDx);
           const sy = h * (0.495 - walkProg * 0.065 + selDy);
-          drawOpticalVernierLocus(holoCtx, sx, sy, 42, walkProg, `GAIT.LOCUS // +${(walkProg * 14.2).toFixed(1)}mm`, true);
+          const locLabel = wingUnfurl > 0.10
+            ? `ELYTRA.SPLIT // ${(wingUnfurl * 62).toFixed(0)}DEG UNFURL`
+            : `GAIT.LOCUS // +${(walkProg * 14.2).toFixed(1)}mm`;
+          drawOpticalVernierLocus(holoCtx, sx, sy, 42, Math.max(walkProg, wingUnfurl), locLabel, true);
         }
         const arcX = w * Math.min(0.84, Math.max(0.24, (selObj.cx || 0.50) + selDx + 0.18));
         const arcY = h * Math.min(0.72, Math.max(0.28, (selObj.cy || 0.48) + selDy));
         drawFilmRadialArcMenu(
           holoCtx, arcX, arcY, 44, true, true, activeRingIdx,
-          [`LAMINA.VEINS // DEPTH ${(selNorms[0] * 100).toFixed(0)}%`, `MENISCUS.H2O // FILM ${(selNorms[1] * 100).toFixed(0)}%`, `SCARAB.GAIT  // 00:25->00:28 [${(walkProg * 100).toFixed(0)}%]`],
+          [`ELYTRA.WINGS // UNFURL ${(wingUnfurl * 100).toFixed(0)}%`, `MENISCUS.H2O // FILM ${(selNorms[1] * 100).toFixed(0)}%`, `SCARAB.GAIT  // 00:25->00:28 [${(walkProg * 100).toFixed(0)}%]`],
           drawVisualOverlay, selNorms, selObj
         );
       } else {
@@ -2627,13 +2883,18 @@
         bugEyeUniforms.uMandibleFlex.value = R1;
         bugEyeUniforms.uHeadShift.value = headShift;
 
-        // Wire PROTOCOL I // BUG DESIGNER Counterfactual & Bespoke Custom Bug Uniforms
+        // Wire PROTOCOL I // BUG DESIGNER Counterfactual & Bespoke Custom Bug Uniforms (Independent Per-Eye Hex Density!)
         const cBug = (state.customBug && state.customBug.active) ? state.customBug : null;
-        const effHex = cBug
+        const dxHexNorm = bugObjNorms[0] ? bugObjNorms[0][0] : L1;
+        const snHexNorm = bugObjNorms[1] ? bugObjNorms[1][0] : L1;
+        const effHex = (cBug && cBug.hexDensity !== undefined)
           ? cBug.hexDensity
-          : ((vBug && vBug.hexDensity) ? vBug.hexDensity : Math.round(52 + (bugObjNorms[0] ? bugObjNorms[0][0] : L1) * 145));
+          : ((vBug && vBug.hexDensity) ? vBug.hexDensity : Math.round(dxHexNorm * 231));
+        const effLeftHex = (cBug && cBug.leftHexDensity !== undefined)
+          ? cBug.leftHexDensity
+          : ((vBug && vBug.splitSpectrum > 0.5) ? 58 : Math.round(snHexNorm * 231));
         const isSplit = cBug
-          ? Boolean(cBug.splitOptics)
+          ? Boolean(cBug.splitOptics || Math.abs(effHex - effLeftHex) > 25)
           : Boolean(vBug && vBug.splitSpectrum > 0.5);
         const effChitinShift = cBug
           ? ((cBug.wavelengthNm - 520) / 75.0)
@@ -2642,6 +2903,7 @@
           ? (cBug.eyeDome || 1.0)
           : ((vBug && vBug.eyeDomeBoost) ? vBug.eyeDomeBoost : 1.0);
         bugEyeUniforms.uHexDensity.value = effHex;
+        bugEyeUniforms.uLeftHexDensity.value = effLeftHex;
         bugEyeUniforms.uChitinShift.value = effChitinShift;
         bugEyeUniforms.uSplitOptics.value = isSplit ? 1.0 : 0.0;
         bugEyeUniforms.uEyeDomeBoost.value = effDomeBoost;
@@ -2667,6 +2929,17 @@
           b.rotation.z = Math.sin(t * 2.2 + idx * 0.35) * 0.035 * bristleScale;
         });
 
+        // Articulate 3D Antenna Scapes ([4/8]) & Mandible Pincers ([6/8]) when in hybrid3d/zero mode or when selected
+        const showMacro3DRig = (state.renderMode === 'zero') || (state.compositeMode === 'hybrid3d') || (selIdx === 3) || (selIdx === 5);
+        bugEyeAntennaGroup.visible = showMacro3DRig;
+        bugEyeMandibleGroup.visible = showMacro3DRig;
+        const antFlex = ((bugObjNorms[3] ? bugObjNorms[3][2] : L3) - 0.5) * 0.45;
+        leftMacroAntennaPivot.rotation.set(0, antFlex * 0.4, -antFlex);
+        rightMacroAntennaPivot.rotation.set(0, -antFlex * 0.4, antFlex);
+        const mandPinch = ((bugObjNorms[5] ? bugObjNorms[5][2] : R1) - 0.5) * 0.48;
+        leftMacroMandiblePivot.rotation.z = mandPinch;
+        rightMacroMandiblePivot.rotation.z = -mandPinch;
+
         camera.position.set(orbitYaw * 0.45, orbitPitch * 0.35, 8.0 * zoomFactor);
         camera.lookAt(0, 0, 0);
 
@@ -2678,8 +2951,8 @@
         const snU = 0.442 - 0.068 * headShift + (tf1.dx || 0);
         const snV = 0.401 + 0.024 * headShift + (tf1.dy || 0);
 
-        const dxHexCount = isSplit ? 260 : Math.round((cBug ? 1.0 : bugObjNorms[0][1]) * effHex);
-        const snHexCount = isSplit ? 58  : Math.round((cBug ? 1.0 : Math.max(leftFocus, bugObjNorms[1][1])) * effHex);
+        const dxHexCount = Math.round(effHex);
+        const snHexCount = Math.round(effLeftHex);
         if (drawVisualOverlay) {
           drawOpticalVernierLocus(holoCtx, w * dxU, h * dxV, 48, bugObjNorms[0][1], `OCULUS.DX // ${dxHexCount}_HEX`, true);
           if (leftFocus > 0.10 || selIdx === 1 || isSplit || cBug) {
@@ -2689,25 +2962,25 @@
             holoCtx.save();
             holoCtx.font = '8.5px "JetBrains Mono", monospace';
             holoCtx.fillStyle = 'rgba(56, 217, 192, 0.90)';
-            holoCtx.fillText(`HOLOTYPE // ${cBug.taxon.toUpperCase()} [${cBug.wavelengthNm}nm · ${dxHexCount}_HEX]`, w * 0.28, h * 0.12);
+            holoCtx.fillText(`HOLOTYPE // ${cBug.taxon.toUpperCase()} [${cBug.wavelengthNm}nm · DX:${dxHexCount}_HEX SN:${snHexCount}_HEX]`, w * 0.28, h * 0.11);
             if (cBug.commonName) {
               holoCtx.font = '7.5px "JetBrains Mono", monospace';
               holoCtx.fillStyle = 'rgba(215, 234, 230, 0.72)';
-              holoCtx.fillText(`DESIGNATION // ${cBug.commonName.toUpperCase()}`, w * 0.28, h * 0.12 + 12);
+              holoCtx.fillText(`DESIGNATION // ${cBug.commonName.toUpperCase()}`, w * 0.28, h * 0.11 + 12);
             }
             holoCtx.restore();
           }
         }
-        const rawCx = (selIdx === 0) ? dxU : (selIdx === 1 ? snU : (selObj.cx || 0.73) + selDx);
-        const rawCy = (selIdx === 0) ? dxV : (selIdx === 1 ? snV : (selObj.cy || 0.44) + selDy);
-        const arcX = w * Math.min(0.86, Math.max(0.24, rawCx + 0.11));
-        const arcY = h * Math.min(0.72, Math.max(0.28, rawCy + 0.04));
+        const rawCx = (selIdx === 0) ? dxU : (selIdx === 1 ? snU : 0.70 + selDx);
+        const rawCy = (selIdx === 0) ? dxV : (selIdx === 1 ? snV : 0.54 + selDy);
+        const arcX = w * Math.min(0.84, Math.max(0.24, rawCx + 0.10));
+        const arcY = h * Math.min(0.68, Math.max(0.26, rawCy + 0.02));
         const chitinTag = cBug
           ? `${cBug.wavelengthNm}nm ${cBug.taxon ? cBug.taxon.slice(0, 14).toUpperCase() : 'CUSTOM'}`
           : ((vBug && vBug.idx === 1) ? '585nm SCARAB.AURUM' : (vBug && vBug.idx === 2) ? '455nm OBSIDIAN.VOID' : (vBug && vBug.idx === 3) ? 'SPLIT [260G / 58C]' : '520nm EMERALD');
         drawFilmRadialArcMenu(
           holoCtx, arcX, arcY, 46, true, true, activeRingIdx,
-          [`OCULUS.FOCUS // DX:${dxHexCount}_HEX SN:${snHexCount}_HEX`, `SETAE.GROWTH // ${Math.round(bristleScale * 180)} BRISTLES`, `CHITIN.SPEC  // ${chitinTag}`],
+          [`OCULUS.OPTIC // DX:${dxHexCount}_HEX SN:${snHexCount}_HEX`, `SETAE.GROWTH // ${Math.round(bristleScale * 180)} BRISTLES`, `CHITIN.SPEC  // ${chitinTag}`],
           drawVisualOverlay, selNorms, selObj
         );
       }
@@ -2750,7 +3023,7 @@
         bdayUniforms.uTexF0.value = filmTextures.bundt142;
         bdayUniforms.uTexF1.value = filmTextures.bundt143;
         bdayUniforms.uTexF2.value = filmTextures.bundt;
-        bdayUniforms.uTexF3.value = filmTextures.bundt;
+        bdayUniforms.uTexF3.value = filmTextures.bundt145;
         bdayUniforms.uTexF4.value = filmTextures.bundt;
       } else if (shot === 'redicing') {
         bdayUniforms.uTexF0.value = filmTextures.icing146;
@@ -2767,11 +3040,11 @@
       } else if (shot === 'blowcandles') {
         bdayUniforms.uTexF0.value = filmTextures.blow174;
         bdayUniforms.uTexF1.value = filmTextures.blow182;
-        bdayUniforms.uTexF2.value = filmTextures.blow173;
+        bdayUniforms.uTexF2.value = filmTextures.blow185;
         bdayUniforms.uTexF3.value = filmTextures.blow;
-        bdayUniforms.uTexF4.value = filmTextures.blow178;
+        bdayUniforms.uTexF4.value = filmTextures.blow189;
       } else {
-        bdayUniforms.uTexF0.value = filmTextures.mini;
+        bdayUniforms.uTexF0.value = filmTextures.mini170;
         bdayUniforms.uTexF1.value = filmTextures.mini;
         bdayUniforms.uTexF2.value = filmTextures.mini;
         bdayUniforms.uTexF3.value = filmTextures.mini;
@@ -2925,6 +3198,25 @@
         // 2. Custom Piped Buttercream Inscription (3D extruded crimson/gold icing bead + specular sugar crest)
         const rawInsc = (cCake.inscription || '').trim();
         if (rawInsc.length > 0) {
+          // Smooth buttercream crown glaze coat over the center when replacing the default Hanzi inscription
+          if (rawInsc !== '生日快樂') {
+            const glazeFill = (cCake.glaze === 'ganache') ? ['rgba(58, 36, 24, 0.92)', 'rgba(42, 24, 15, 0.0)']
+                            : (cCake.glaze === 'rose')    ? ['rgba(224, 172, 168, 0.90)', 'rgba(195, 138, 132, 0.0)']
+                            : (cCake.glaze === 'matcha')  ? ['rgba(168, 188, 132, 0.90)', 'rgba(138, 158, 102, 0.0)']
+                            : ['rgba(218, 186, 124, 0.92)', 'rgba(188, 152, 92, 0.0)'];
+            holoCtx.save();
+            holoCtx.scale(1.0, Math.max(0.54, crownRy / Math.max(1, crownRx)));
+            const cGrad = holoCtx.createRadialGradient(0, 6, crownRx * 0.12, 0, 6, crownRx * 0.78);
+            cGrad.addColorStop(0, glazeFill[0]);
+            cGrad.addColorStop(0.72, glazeFill[0]);
+            cGrad.addColorStop(1, glazeFill[1]);
+            holoCtx.fillStyle = cGrad;
+            holoCtx.beginPath();
+            holoCtx.arc(0, 6, crownRx * 0.78, 0, Math.PI * 2);
+            holoCtx.fill();
+            holoCtx.restore();
+          }
+
           const revealCount = (shot === 'redicing')
             ? Math.max(1, Math.ceil(Math.max(0.25, icingProg) * rawInsc.length))
             : rawInsc.length;
@@ -3150,8 +3442,8 @@
         }
 
         // Also draw the primary 5-Dial White C-Arc Menu anchored beside the selected SAM item (child or table/cake)!
-        const arcX = w * Math.min(0.84, Math.max(0.24, (selObj.cx || 0.50) + selDx + 0.14));
-        const arcY = h * Math.min(0.74, Math.max(0.26, (selObj.cy || 0.50) + selDy));
+        const arcX = w * Math.min(0.84, Math.max(0.74, (selObj.cx || 0.50) + selDx + 0.22));
+        const arcY = h * Math.min(0.72, Math.max(0.54, (selObj.cy || 0.56) + selDy));
         drawFilmRadialArcMenu(
           holoCtx, arcX, arcY, 44, true, true, activeRingIdx,
           [`SAM.TARGET  // ${selObj.id} [L1..R2]`, `LUMA.GAIN   // R1:${(selNorms[3] * 100).toFixed(0)}% TINT:${(selNorms[4] * 100).toFixed(0)}%`, `SOLID.MESH  // L1:${(selNorms[0] * 100).toFixed(0)}% FOCUS:${(selNorms[1] * 100).toFixed(0)}%`],
@@ -3236,8 +3528,43 @@
     }
 
     // ------------------------------------------------------------------------
+    // IN-HOLOGRAM DIEGETIC LASER-CURSOR INSCRIPTION / TAXON PROMPT ([I])
+    // ------------------------------------------------------------------------
+    if (state.holoDirectEdit && state.holoDirectEdit.active && drawVisualOverlay) {
+      const targetMode = state.holoDirectEdit.target;
+      const curText = (targetMode === 'cake')
+        ? ((state.customCake && state.customCake.inscription) || '')
+        : ((state.customBug && state.customBug.taxon) || '');
+      const promptTitle = (targetMode === 'cake')
+        ? 'PATISSERIE.OS // DIRECT BUTTERCREAM INSCRIPTION PIPE'
+        : 'ENTOMOLOGY.OS // DIRECT BINOMIAL TAXON DESIGNATION';
+      const cursorChar = (Math.floor(t * 3.5) % 2 === 0) ? '_' : ' ';
+      const px = w * 0.50;
+      const py = h * 0.16;
+      const pw = Math.min(360, w * 0.65);
+      const ph = 42;
+
+      holoCtx.save();
+      holoCtx.fillStyle = 'rgba(6, 12, 16, 0.86)';
+      holoCtx.fillRect(px - pw * 0.5, py - ph * 0.5, pw, ph);
+      holoCtx.strokeStyle = 'rgba(56, 217, 192, 0.85)';
+      holoCtx.lineWidth = 1.1;
+      holoCtx.strokeRect(px - pw * 0.5, py - ph * 0.5, pw, ph);
+
+      holoCtx.font = '7px "JetBrains Mono", monospace';
+      holoCtx.fillStyle = 'rgba(56, 217, 192, 0.85)';
+      holoCtx.textAlign = 'center';
+      holoCtx.fillText(`${promptTitle} [ENTER TO LOCK]`, px, py - 9);
+
+      holoCtx.font = '700 11px "JetBrains Mono", monospace';
+      holoCtx.fillStyle = 'rgba(245, 252, 250, 0.98)';
+      holoCtx.fillText(`> ${curText}${cursorChar}`, px, py + 8);
+      holoCtx.restore();
+    }
+
+    // ------------------------------------------------------------------------
     // WHISPER-CLEAN IN-WORLD VIEWFINDER HORIZON MICRO-BAR (Bottom-Right)
-    // Allows stepping shots, cycling COMP / OTHERWISE, and opening BUILD / IMPRINT
+    // Allows stepping shots, cycling COMP / OTHERWISE, and triggering INSCRIBE / IMPRINT
     // with zero non-diegetic web-chrome clutter occluding the hologram!
     // ------------------------------------------------------------------------
     if (drawVisualOverlay && w > 420) {
@@ -3254,14 +3581,15 @@
         { label: 'NEXT >', w: 38, act: () => { if (window.selectFilmShot) window.selectFilmShot(shotOrder[(shotIdx + 1) % shotOrder.length]); } },
         { label: `COMP:${(state.compositeMode || 'FULL').slice(0, 6).toUpperCase()}`, w: 66, act: () => { if (window.cycleCompositeMode) window.cycleCompositeMode(); } },
         { label: 'OTHERWISE [O]', w: 68, act: () => { if (window.cycleOtherwiseVariant) window.cycleOtherwiseVariant(); } },
-        { label: 'BUILD BUG/CAKE [B]', w: 94, hi: true, act: () => { if (window.toggleBespokeBuilder) window.toggleBespokeBuilder(); } }
+        { label: 'INSCRIBE [I]', w: 64, hi: true, act: () => { if (window.startHoloDirectTextEdit) window.startHoloDirectTextEdit(); } },
+        { label: 'IMPRINT [.PNG]', w: 74, hi: true, act: () => { if (window.exportMemoryCardPNG) window.exportMemoryCardPNG(); } }
       ];
 
       let curX = w - 14;
       for (let i = items.length - 1; i >= 0; i--) {
         const it = items[i];
         const x0 = curX - it.w;
-        holoCtx.fillStyle = it.hi ? 'rgba(240, 168, 72, 0.68)' : 'rgba(195, 218, 214, 0.42)';
+        holoCtx.fillStyle = it.hi ? 'rgba(240, 168, 72, 0.72)' : 'rgba(195, 218, 214, 0.45)';
         holoCtx.fillText(it.label, x0 + 4, vy);
         activeOverlayHitboxes.push({
           x: x0,
