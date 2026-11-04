@@ -25,6 +25,13 @@ Buttons: SELECT = next part (camera racks to it) · ENGRAM = new specimen (film:
 
 Scene makes the interface: ring positions are the specimen's genome, the ◆ on each orb gauge is the film's canon, the orb's casing takes the scene's light (candle flicker included), and the accordion spread follows the shot scale. Interface makes the scene: every ring edit rebuilds or re-lights the specimen.
 
+### Authoring (key `D` opens the drawer; `C` cycles tools; `Z` undo / `Shift+Z` redo)
+
+- **CANDLES tool:** click the icing to place a candle, click a candle to light or snuff it, shift-click to remove. The ghost candle turns red when too close to another and yellow when it sits on the writing; `KEEP CLEAR` moves candles off the inscription. Snuffed candles stop lighting the icing and leave a smoke wisp; `BURN` shortens candles in real time or ×6 until they gutter; all out = a wish is made.
+- **PIPE tool:** draw freehand piping on the cake top (camera drops top-down); nozzle width slider; strokes are saved in the design and the share link, and undoable.
+- **WRITING:** presets (English, 中文, 日本語, Español, Русский, Français), 5 scripts, 4 media (pipe, gel, chocolate, gold leaf), 4 layouts (top, arc, side, topper), ink colour, L3 ring reveals the piping stroke by stroke.
+- **EYE STUDIO (bug):** 7 eye types, hex / square / round facets, density, size, bulge, colour, banding + band colour, cornea sheen, bioluminescence, symmetric or asymmetric. The key light follows the pointer so facets glint as you sweep, and the dark pseudopupil tracks the camera as in real compound eyes.
+
 ### Replay the film's beats (key `B`, or REPLAY)
 
 Four moments Stelline lingers on, each choreographed so one event happens in three places at once: the orb ring turns, the screen answers, and a crescent reticle (arc opens with the ring's value, leader line to the exact thing changing, LOCK flash when the ring hits the film's value) follows. Drag the reticle's arc to turn that ring yourself.

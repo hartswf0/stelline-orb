@@ -87,7 +87,7 @@
   <input type="file" id="v5File" accept="video/*" style="display:none">
   <div id="v5Help"><b style="color:#f0b050;letter-spacing:.2em;font-weight:500">THE ORB IS THE INTERFACE · THE KEYS MIRROR IT</b>
    <h3>ORB</h3>rings <b>L1–R2</b> edit the specimen's genome (labels and readouts change with what you build) · <b>SELECT</b> next part · <b>ENGRAM</b> new specimen (film: next chapter) · <b>red dot</b> snapshot card (hold: share link) · <b>aux</b> switch FILM / BUG / BIRTHDAY (hold: back to the film's canon) · <b>jog wheel</b> rack focus (film: scrub) · <b>rocker</b> orbit &amp; dolly · <b>X-RAY</b> bug: anatomy / cake: blow the candles · <b>speed dome</b> tap: OTHERWISE (the film's counterfactual variants) · <b>big red thumb</b> MATCH: put the film frame beside your model and let the critic score it · <b>M1–M4, LR1</b> tap: that ring seeks the film's canon, hold: spin · <b>scale window</b> sound
-   <h3>KEYS</h3><kbd>W</kbd> mode · <kbd>Tab</kbd> next part · <kbd>1</kbd>–<kbd>5</kbd> pick a ring, <kbd>↑</kbd><kbd>↓</kbd> turn it (<kbd>Shift</kbd> fine) · <kbd>←</kbd><kbd>→</kbd> orbit (film: step a second) · <kbd>[</kbd><kbd>]</kbd> dolly · <kbd>E</kbd> new specimen · <kbd>T</kbd> OTHERWISE · <kbd>R</kbd> x-ray / blow · <kbd>Y</kbd> canon · <kbd>Q</kbd> snapshot · <kbd>L</kbd> share link · <kbd>D</kbd> design drawer · <kbd>M</kbd> watch the film (wipe + critic; <kbd>,</kbd><kbd>.</kbd> step the film) · <kbd>B</kbd> REPLAY the film's beats (the eye 0:29, the writing 2:17, the children 2:32, the face 2:51): the orb turns itself, the screen answers, the reticle follows · drag the reticle's arc to turn its ring · <kbd>G</kbd> gallery: dream 30, keep the 12 best and most different, breed from any · <kbd>K</kbd> 4K still · <kbd>J</kbd> 8 s turntable clip (webm) · <kbd>X</kbd> photo mode · <kbd>P</kbd> sound · <kbd>N</kbd> narrate · <kbd>H</kbd> describe · <kbd>?</kbd> this page
+   <h3>KEYS</h3><kbd>W</kbd> mode · <kbd>Tab</kbd> next part · <kbd>1</kbd>–<kbd>5</kbd> pick a ring, <kbd>↑</kbd><kbd>↓</kbd> turn it (<kbd>Shift</kbd> fine) · <kbd>←</kbd><kbd>→</kbd> orbit (film: step a second) · <kbd>[</kbd><kbd>]</kbd> dolly · <kbd>E</kbd> new specimen · <kbd>T</kbd> OTHERWISE · <kbd>R</kbd> x-ray / blow · <kbd>Y</kbd> canon · <kbd>Q</kbd> snapshot · <kbd>L</kbd> share link · <kbd>D</kbd> design drawer · <kbd>M</kbd> watch the film (wipe + critic; <kbd>,</kbd><kbd>.</kbd> step the film) · <kbd>B</kbd> REPLAY the film's beats (the eye 0:29, the writing 2:17, the children 2:32, the face 2:51): the orb turns itself, the screen answers, the reticle follows · drag the reticle's arc to turn its ring · <kbd>C</kbd> cycle authoring tool (orbit / candles / pipe) · <kbd>Z</kbd> undo, <kbd>Shift+Z</kbd> redo · <kbd>D</kbd> drawer: EYE STUDIO, WRITING, CANDLES, PIPING · <kbd>G</kbd> gallery: dream 30, keep the 12 best and most different, breed from any · <kbd>K</kbd> 4K still · <kbd>J</kbd> 8 s turntable clip (webm) · <kbd>X</kbd> photo mode · <kbd>P</kbd> sound · <kbd>N</kbd> narrate · <kbd>H</kbd> describe · <kbd>?</kbd> this page
    <h3>FILM MODE</h3>407 seconds, 57 shots, every second segmented and relief-modelled. <kbd>Space</kbd> play · <kbd>Shift</kbd>+arrows shots · <kbd>PgUp</kbd><kbd>PgDn</kbd> chapters · <kbd>V</kbd> film / parts / relief · <kbd>C</kbd> compare with the blind critic · <kbd>Z</kbd> rebuild zero → film
    <h3>THE LOOP</h3>Observe the film's bug and cake → isolate their parts → model them with the rings → compose your own specimen → compare with the critic → the orb remembers what each kind of part needs. The scene makes the interface; the interface makes the scene.
    <div style="margin-top:10px"><button class="dbtn" onclick="document.getElementById('v5Help').classList.remove('on')">CLOSE</button> <button class="dbtn" onclick="document.getElementById('v5Help').classList.remove('on');cycleEngineVersion()">LEGACY ENGINES V4–V1</button> <button class="dbtn" onclick="document.getElementById('v5File').click()">LOAD MY COPY OF THE FILM</button></div></div>`;
@@ -235,7 +235,9 @@
     drawer.querySelectorAll('.sw').forEach(s => s.onclick = () => { patch({ [s.dataset.k]: +s.dataset.i }, true); drawer.querySelectorAll(`.sw[data-k="${s.dataset.k}"]`).forEach(x => x.classList.toggle('on', x === s)); });
     $('#dStill', drawer).onclick = () => A.still(); $('#dClip', drawer).onclick = () => A.recordClip(); $('#dGal', drawer).onclick = () => A.gallery();
     $('#dCard', drawer).onclick = () => A.snapshot(); $('#dLink', drawer).onclick = () => A.shareLink(); $('#dJson', drawer).onclick = () => A.downloadSpec();
+    if (A.extendDrawer) A.extendDrawer(drawer, g);
   }
+  A.patchGenome = patch; A.rebuildDrawer = buildDrawer;
   A.toggleDrawer = () => { if (A.mode === 'film') { toast('OPEN BUG OR BIRTHDAY TO DESIGN'); return; } drawer.classList.toggle('on'); };
 
   // -------------------------------------------------------------------------- SNAPSHOT / CARD / LINK
@@ -413,6 +415,7 @@
       if (!narrow) { txt(ctx, 'SEED ' + H.seedName(H.seed), ax, 74, DIM, 'left', 8.5); ax += 92; }
       act.forEach(([l, fn]) => { txt(ctx, l, ax, ay, AMB, 'left', 8.5); const ww = ctx.measureText(l).width; ctx.fillStyle = AMB; ctx.globalAlpha = .5; ctx.fillRect(ax, ay + 3, ww, 1); ctx.globalAlpha = 1; addHit(ax - 4, ay - 12, ww + 8, 20, fn, 'act-' + l, l); ax += ww + 18; });
     }
+    if (A.drawAuthorHud && A.mode !== 'film') A.drawAuthorHud(ctx, w, h, { txt, addHit, INK, DIM, AMB });
     if (A.critic.last && (A.mode === 'film' || A.matchOn) && !narrow) { const r = A.critic.last; txt(ctx, `CRITIC ${r.fid.toFixed(1)}`, w - 36, 60, AMB, 'right', 9.5); txt(ctx, r.verdict.split('.')[0], w - 36, 73, DIM, 'right', 8); (r.notes || []).slice(0, A.mode === 'film' ? 0 : 3).forEach((n, i) => txt(ctx, '› ' + n.text, w - 36, 86 + i * 12, 'rgba(240,176,80,.8)', 'right', 8)); }
   }
   function bottomBlocks(ctx, w, h) {
@@ -607,9 +610,9 @@
       case ',': if (A.matchOn) { handled(); A.matchStep(-1); } break; case '.': if (A.matchOn) { handled(); A.matchStep(1); } break; case 'p': case 'P': handled(); OPS.sonic(); break;
       case 'n': case 'N': handled(); A.toggleNarrate && A.toggleNarrate(); break; case 'h': case 'H': handled(); A.readFrame && A.readFrame(); break;
       case 'v': case 'V': handled(); if (!hero) { const i = VIEW_ORDER.indexOf(A.view); A.setView(VIEW_ORDER[(i + 1) % 3]); } break;
-      case 'c': case 'C': handled(); if (!hero) OPS.compare(); break; case 'z': case 'Z': handled(); if (!hero) A.weave && A.weave(); break;
+      case 'c': case 'C': handled(); if (hero) A.cycleTool(); else OPS.compare(); break; case 'z': case 'Z': handled(); if (hero) A.undo(e.shiftKey); else A.weave && A.weave(); break;
       case '?': handled(); $('#v5Help').classList.toggle('on'); break;
-      case 'Escape': $('#v5Help').classList.remove('on'); drawer.classList.remove('on'); if (A.photo) A.togglePhoto(); if (!hero) { A.select(null); A.compare = false; } break;
+      case 'Escape': if (A.tool && A.tool !== 'orbit') A.setTool('orbit'); $('#v5Help').classList.remove('on'); drawer.classList.remove('on'); if (A.photo) A.togglePhoto(); if (!hero) { A.select(null); A.compare = false; } break;
       case 's': case 'S': case 'o': case 'O': handled(); break;
     }
   }, true);

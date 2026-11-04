@@ -121,7 +121,8 @@
     cam.position.set(orbit.tx + Math.sin(orbit.yaw) * cp * orbit.dist, orbit.ty + Math.sin(orbit.pitch) * orbit.dist, orbit.tz + Math.cos(orbit.yaw) * cp * orbit.dist);
     cam.lookAt(orbit.tx, orbit.ty, orbit.tz);
     // keep the key light attached to the view so every angle is lit
-    key.position.set(orbit.tx + 3.2 + Math.sin(orbit.yaw) * 2, orbit.ty + 5, orbit.tz + 4 + Math.cos(orbit.yaw) * 2); key.target.position.set(orbit.tx, orbit.ty, orbit.tz);
+    H.lpx = (H.lpx || 0) + (orbit.px - (H.lpx || 0)) * 0.12; H.lpy = (H.lpy || 0) + (orbit.py - (H.lpy || 0)) * 0.12;
+    key.position.set(orbit.tx + 3.2 + Math.sin(orbit.yaw) * 2 + H.lpx * 3.5, orbit.ty + 5 - H.lpy * 2.5, orbit.tz + 4 + Math.cos(orbit.yaw) * 2); key.target.position.set(orbit.tx, orbit.ty, orbit.tz);
   }
   H.setCam = function (o) { if (o.pos) { orbit.tTx = o.pos[0]; orbit.tTy = o.pos[1]; orbit.tTz = o.pos[2]; } if (o.dist != null) orbit.tDist = o.dist; if (o.yaw != null) orbit.tYaw = o.yaw; if (o.pitch != null) orbit.tPitch = o.pitch; if (o.snap) { orbit.tx = orbit.tTx; orbit.ty = orbit.tTy; orbit.tz = orbit.tTz; orbit.dist = orbit.tDist; orbit.yaw = orbit.tYaw; orbit.pitch = orbit.tPitch; } };
   H.nudge = (dy, dp, dz) => { orbit.userYaw += dy; orbit.userPitch = clamp(orbit.userPitch + dp, -1.2, 1.2); if (dz) orbit.userDist = clamp(orbit.userDist * (1 + dz), 0.18, 3.5); };

@@ -45,13 +45,13 @@
       facets: 0.15 + r() * 0.8, focus: 0.5 + r() * 0.4, setae: r() < 0.3 ? 0 : r() * 0.9, gait: 0.2 + r() * 0.6, chitin: r(), split: 0, dull: r() < 0.45 ? 0.5 + r() * 0.45 : r() * 0.25, metal: r() < 0.3 ? 0.5 + 0.4 * r() : 0.1,
       head: j(P.head, 0.3), thorax: P.thorax.map(v => j(v, 0.25)), body: P.body, bodyLen: j(P.bodyLen, 0.3), bodyWid: j(P.bodyWid, 0.25), bodyH: j(P.bodyH, 0.3),
       legs: P.legs, legLen: j(P.legLen, 0.35), legThick: j(P.legThick, 0.35), stance: j(P.stance, 0.25), jaw: P.jaw, jawLen: j(P.jawLen, 0.4), ant: P.ant, antLen: j(P.antLen, 0.4), wings: P.wings,
-      eyeSize: 0.8 + r() * 0.5, eyeHue: r(), pattern: pick(r, PATTERNS), patHue: r(), stage: pick(r, STAGES), view: pick(r, ['front', 'tq', 'tq', 'side', 'high']), mm: Math.round(4 + r() * 40), variant: -1 };
+      eyeSize: 0.8 + r() * 0.5, eyeHue: r(), facetShape: pick(r, ['hex', 'hex', 'square', 'round']), eyeBand: r() < 0.25 ? 0.4 + 0.5 * r() : 0, bandHue: r(), sheen: 0.2 + 0.6 * r(), glow: r() < 0.12 ? 0.3 + 0.5 * r() : 0, bulge: r(), pattern: pick(r, PATTERNS), patHue: r(), stage: pick(r, STAGES), view: pick(r, ['front', 'tq', 'tq', 'side', 'high']), mm: Math.round(4 + r() * 40), variant: -1 };
     g.name = pick(r, LATIN_A) + ' ' + pick(r, LATIN_B);
     return g;
   }
   function filmCanon(seed) {
     const g = makeGenome(seed); const P = PLANS.longhorn;
-    Object.assign(g, FILM_VARIANTS[0].patch, { plan: 'longhorn', eyeType: 'compound', head: 1.15, thorax: P.thorax, body: 'elytra', bodyLen: 1.9, bodyWid: 0.5, bodyH: 0.5, legs: 6, legLen: 1.15, legThick: 0.95, stance: 1.1, jaw: 'pincer', jawLen: 0.75, ant: 'filiform', antLen: 2.0, wings: 'none', dull: 0.85, metal: 0.05, pattern: 'plain', stage: 'bokeh', view: 'front', eyeSize: 1.0, eyeHue: 0.25, name: 'Cerambyx stellinae', mm: 22, variant: 0 });
+    Object.assign(g, FILM_VARIANTS[0].patch, { plan: 'longhorn', eyeType: 'compound', head: 1.15, thorax: P.thorax, body: 'elytra', bodyLen: 1.9, bodyWid: 0.5, bodyH: 0.5, legs: 6, legLen: 1.15, legThick: 0.95, stance: 1.1, jaw: 'pincer', jawLen: 0.75, ant: 'filiform', antLen: 2.0, wings: 'none', dull: 0.85, metal: 0.05, pattern: 'plain', stage: 'bokeh', view: 'front', eyeSize: 1.0, eyeHue: 0.25, facetShape: 'hex', eyeBand: 0, bandHue: 0.1, sheen: 0.3, glow: 0, bulge: 0.56, name: 'Cerambyx stellinae', mm: 22, variant: 0 });
     return g;
   }
 
@@ -61,8 +61,13 @@
   const chitinColor = (g, k) => new T.Color().setHSL((0.55 - 0.9 * g.chitin + 2) % 1, clamp(0.85 * (k || 1) * (1 - 0.82 * g.dull), 0.04, 0.95), 0.06 * (k || 1) + 0.012 + 0.012 * g.dull);
 
   // ---- procedural maps --------------------------------------------------------------------
-  function hexBump(density) {
-    return (() => { const tex = H.noiseTex(512, (u, v) => { const s = 10, yy = v * s * 1.1547, rr = Math.floor(yy / 1.1547), off = rr % 2 ? 0.5 : 0; const fx = ((u * s + off) % 1 + 1) % 1 - 0.5, fy = (yy / 1.1547 % 1 + 1) % 1 - 0.5; const d = Math.hypot(fx, fy * 0.92) / 0.54; const h = d < 1 ? Math.sqrt(1 - d * d) : 0; const c = Math.round(60 + 195 * h); return [c, c, c]; }, false); tex.repeat.set(density, density * 0.8); return tex; })();
+  function hexBump(density, shape) {
+    const tex = H.noiseTex(512, (u, v) => { const S = 10; let h = 0;
+      if (shape === 'square') { const fx = ((u * S) % 1 + 1) % 1 - 0.5, fy = ((v * S) % 1 + 1) % 1 - 0.5; const d = Math.max(Math.abs(fx), Math.abs(fy)) / 0.5; h = d < 1 ? Math.sqrt(Math.max(0, 1 - d * d * d * d)) : 0; }
+      else if (shape === 'round') { const fx = ((u * S) % 1 + 1) % 1 - 0.5, fy = ((v * S) % 1 + 1) % 1 - 0.5; const d = Math.hypot(fx, fy) / 0.42; h = d < 1 ? Math.sqrt(1 - d * d) : 0; }
+      else { const yy = v * S * 1.1547, rr = Math.floor(yy / 1.1547), off = rr % 2 ? 0.5 : 0; const fx = ((u * S + off) % 1 + 1) % 1 - 0.5, fy = (yy / 1.1547 % 1 + 1) % 1 - 0.5; const d = Math.hypot(fx, fy * 0.92) / 0.54; h = d < 1 ? Math.sqrt(1 - d * d) : 0; }
+      const c = Math.round(60 + 195 * h); return [c, c, c]; }, false);
+    tex.repeat.set(density, density * 0.8); return tex;
   }
   const mottle = () => H.noiseTex(512, (u, v) => { const n = H.fbm(u * 14, v * 14, 5), p = H.vnoise(u * 120, v * 120); const m = 0.55 + 0.9 * n - 0.18 * (p > 0.8 ? 1 : 0) + 0.12 * H.vnoise(u * 60, v * 60); const c = Math.round(clamp(m, 0.3, 1.4) * 190); return [c, c, c]; }, true, 2);
   function patternMap(g) {
@@ -96,8 +101,9 @@
   function facetMat(g, side, hueShift) {
     const split = g.split && side < 0; const f = split ? 0.06 : g.facets; const dens = 7 + f * 30;
     const col = split ? new T.Color().setHSL(0.52, 0.5, 0.2) : new T.Color().setHSL((g.eyeHue + (hueShift || 0)) % 1, 0.85 * (1 - 0.97 * g.dull), 0.05 - 0.02 * g.dull);
-    const m = new T.MeshPhysicalMaterial({ color: col, roughness: 0.3 + 0.35 * g.dull, metalness: 0.05, clearcoat: 0.55 - 0.4 * g.dull, clearcoatRoughness: 0.06, bumpMap: hexBump(dens), bumpScale: 1.1 + f * 0.8, envMapIntensity: 0.4 * (1 - 0.8 * g.dull) });
-    m.onBeforeCompile = sh => { sh.fragmentShader = sh.fragmentShader.replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\n float pp = dot(normalize(vViewPosition), normal); diffuseColor.rgb *= mix(1.0, 0.12, smoothstep(0.80, 0.96, pp)); diffuseColor.rgb += vec3(0.05,0.025,0.0) * smoothstep(0.35,0.7,pp) * (1.0 - smoothstep(0.7,0.95,pp));'); };
+    const m = new T.MeshPhysicalMaterial({ color: col, roughness: 0.3 + 0.35 * g.dull, metalness: 0.05, clearcoat: 0.55 - 0.4 * g.dull, clearcoatRoughness: 0.06, bumpMap: hexBump(dens, g.facetShape), bumpScale: 1.1 + f * 0.8, envMapIntensity: 0.4 * (1 - 0.8 * g.dull) });
+    m.userData.band = { value: g.eyeBand || 0 }; m.userData.bandCol = { value: new T.Color().setHSL(g.bandHue || 0.1, 0.6, 0.2) };
+    m.onBeforeCompile = sh => { sh.uniforms.uBand = m.userData.band; sh.uniforms.uBandCol = m.userData.bandCol; sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uBand; uniform vec3 uBandCol;').replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\n diffuseColor.rgb = mix(diffuseColor.rgb, uBandCol, uBand * step(0.5, fract(vUv.y * 5.0)));\n float pp = dot(normalize(vViewPosition), normal); diffuseColor.rgb *= mix(1.0, 0.12, smoothstep(0.80, 0.96, pp)); diffuseColor.rgb += vec3(0.05,0.025,0.0) * smoothstep(0.35,0.7,pp) * (1.0 - smoothstep(0.7,0.95,pp));'); };
     return m;
   }
   function glossBead(g, hue, sat, light) { return new T.MeshPhysicalMaterial({ color: new T.Color().setHSL(hue, sat, light), roughness: 0.04, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.02, envMapIntensity: 1.4 }); }
@@ -134,8 +140,8 @@
     }
     // eyes
     const eyes = []; const eyeHolder = [];
-    const addEye = (mesh, side) => { bug.add(mesh); eyes.push({ mesh, side, facet: true }); return mesh; };
-    const ES = g.eyeSize, bul = 0.8 + 0.5 * g.focus;
+    const addEye = (mesh, side) => { bug.add(mesh); eyes.push({ mesh, side, facet: true, base: mesh.scale.clone(), bul0: bul }); return mesh; };
+    const ES = g.eyeSize, bul = 0.7 + 0.8 * (g.bulge == null ? 0.56 : g.bulge);
     switch (g.eyeType) {
       case 'dome': [1, -1].forEach(s => { const e = new T.Mesh(new T.SphereGeometry(1, 96, 64), facetMat(g, s)); e.scale.set(0.5 * ES * hs * bul, 0.62 * ES * hs, 0.5 * ES * hs); e.position.set(s * 0.46 * hs, headC[1] + 0.12, headC[2] + 0.2); e.castShadow = true; addEye(e, s); }); break;
       case 'stalk': [1, -1].forEach(s => { const stalk = H.sweep(new T.CatmullRomCurve3([V3(s * 0.3 * hs, headC[1] + 0.1, headC[2] + 0.25), V3(s * 0.65 * hs, headC[1] + 0.3, headC[2] + 0.35), V3(s * 1.0 * hs, headC[1] + 0.35, headC[2] + 0.3)]), u => 0.07 - 0.02 * u, 16, 8); const sm = new T.Mesh(stalk, chitin); bug.add(sm); const e = new T.Mesh(new T.SphereGeometry(1, 72, 48), facetMat(g, s)); e.scale.setScalar(0.3 * ES * bul); e.position.set(s * 1.08 * hs, headC[1] + 0.36, headC[2] + 0.3); addEye(e, s); }); break;
@@ -215,7 +221,7 @@
 
     // ---- parts (selection + macro framing) ------------------------------------------------
     const e0 = eyes[0] ? eyes[0].mesh.position : V3(0.5, headC[1], headC[2] + 0.3), e1 = eyes[1] ? eyes[1].mesh.position : V3(-0.5, headC[1], headC[2] + 0.3);
-    const eyeDist = (g.eyeType === 'spider' ? 1.5 : g.eyeType === 'stalk' ? 2.0 : 1.7) * Math.max(0.7, g.eyeSize);
+    const eyeDist = (g.eyeType === 'spider' ? 1.5 : g.eyeType === 'stalk' ? 2.0 : g.eyeType === 'dome' ? 3.1 : 1.7) * Math.max(0.7, g.eyeSize);
     H.parts = [
       { id: 'OCULUS.DX', name: (g.eyeType.toUpperCase() + ' EYE · RIGHT'), obj: eyes[0] && eyes[0].mesh, focus: { pos: g.eyeType === 'spider' ? [0.17 * hs, headC[1] + 0.05, headC[2] + 0.55 * hs] : [e0.x, e0.y, e0.z], dist: eyeDist, yaw: g.eyeType === 'spider' ? 0.1 : 1.0, pitch: 0.1 }, ring: 0 },
       { id: 'OCULUS.SN', name: (g.eyeType.toUpperCase() + ' EYE · LEFT'), obj: eyes[1] && eyes[1].mesh, focus: { pos: g.eyeType === 'spider' ? [-0.17 * hs, headC[1] + 0.05, headC[2] + 0.55 * hs] : [e1.x, e1.y, e1.z], dist: eyeDist, yaw: g.eyeType === 'spider' ? -0.1 : -1.0, pitch: 0.1 }, ring: 0 },
@@ -239,6 +245,7 @@
       wings.forEach(w => { w.w.rotation.z = w.s * (0.35 + 0.04 * Math.sin(t * 1.5)); });
       bug.position.y = 0.012 * Math.sin(t * 1.9); elytra.forEach((e, i) => { e.rotation.x += 0.0002 * Math.sin(t * 1.9 + i); });
       eyes.forEach(e => { if (e.bead) e.mesh.scale.setScalar((e.base || 0.2) * (g.eyeSize) * (1 + 0.01 * Math.sin(t * 2.3))); });
+      eyes.forEach(e => { const m = e.mesh.material; if (e.bead) { m.color.setHSL(g.eyeHue, 0.6, 0.16); if (m.emissive) m.emissive.setHSL(g.eyeHue, 0.8, 0.05 + 0.4 * (g.glow || 0)); return; } if (!e.bul0) return; e.mesh.scale.copy(e.base).multiplyScalar((0.7 + 0.8 * (g.bulge == null ? 0.56 : g.bulge)) / e.bul0); if (!(g.split && e.side < 0)) m.color.setHSL(g.eyeHue % 1, 0.85 * (1 - 0.97 * g.dull), 0.05 - 0.02 * g.dull); m.clearcoat = 0.1 + 0.9 * (g.sheen == null ? 0.3 : g.sheen) * (1 - 0.4 * g.dull); m.envMapIntensity = 0.15 + 1.2 * (g.sheen == null ? 0.3 : g.sheen) * (1 - 0.8 * g.dull); if (m.userData.band) { m.userData.band.value = g.eyeBand || 0; m.userData.bandCol.value.setHSL(g.bandHue || 0.1, 0.6, 0.2); } if (m.emissive) m.emissive.setHSL(g.eyeHue % 1, 0.9, 0.5).multiplyScalar(0.9 * (g.glow || 0)); });
       H.focusBias = H.focusBias || 0; H.lensBias = (1 - g.focus) * (H.orbit.dist * 0.45); H.aperture = 0.5 + 0.9 * (1 - g.focus) + 0.3;
       eyes.forEach(e => { if (!e.bead) { const f = (g.split && e.side < 0) ? 0.06 : g.facets; e.mesh.material.bumpScale = (0.15 + 1.9 * g.focus * g.focus) * (0.55 + f * 0.7); } });
     });
@@ -249,7 +256,7 @@
 
   function onDial(ring, ang) {
     const g = H.genome, v = valOf(ang), R = H.bugRefs; if (!R) return;
-    if (ring === 0) { g.facets = v; clearTimeout(onDial.t); onDial.t = setTimeout(() => R.eyes.forEach(e => { if (e.bead) { g.eyeSize = 0.6 + 0.9 * v; return; } const split = g.split && e.side < 0; const f = split ? 0.06 : g.facets; if (e.mesh.material.bumpMap) e.mesh.material.bumpMap.dispose(); e.mesh.material.bumpMap = hexBump(7 + f * 30); e.mesh.material.bumpScale = 1.1 + f * 0.8; e.mesh.material.needsUpdate = true; }), 90); }
+    if (ring === 0) { g.facets = v; clearTimeout(onDial.t); onDial.t = setTimeout(() => R.eyes.forEach(e => { if (e.bead) { g.eyeSize = 0.6 + 0.9 * v; return; } const split = g.split && e.side < 0; const f = split ? 0.06 : g.facets; if (e.mesh.material.bumpMap) e.mesh.material.bumpMap.dispose(); e.mesh.material.bumpMap = hexBump(7 + f * 30, g.facetShape); e.mesh.material.bumpScale = 1.1 + f * 0.8; e.mesh.material.needsUpdate = true; }), 90); }
     else if (ring === 1) { g.focus = v; const bul = 0.8 + 0.5 * g.focus; /* eyes re-scale on rebuild; aperture is live */ }
     else if (ring === 2) { g.setae = v; R.layoutSetae(); }
     else if (ring === 3) { g.gait = v; }
@@ -261,7 +268,7 @@
     ref: { sec: 33, frame: { pos: [0, 1.9, 1.2], dist: 5.0, yaw: 0.0, pitch: -0.03, focusK: 0.9 } },
     mood: g => ({ bokeh: 'forest', moss: 'forest', dusk: 'amber', studio: 'studio', paper: 'dome', leaf: 'forest' }[g.stage] || 'studio'), makeGenome, build, filmCanon, dials, onDial, variants: FILM_VARIANTS,
     get overview() { return H.overviewFrame || { pos: [0, 1.1, 0.2], dist: 9, yaw: 0.7, pitch: 0.3 }; },
-    mutate(g, r, k) { const c = Object.assign({}, g); const m = (v, s) => clamp(v + (r() - 0.5) * s * k, 0, 1); c.facets = m(c.facets, 0.5); c.focus = m(c.focus, 0.3); c.setae = m(c.setae, 0.5); c.gait = m(c.gait, 0.4); c.chitin = (c.chitin + (r() - 0.5) * 0.4 * k + 1) % 1; c.dull = m(c.dull, 0.5); c.metal = m(c.metal, 0.4); c.eyeHue = (c.eyeHue + (r() - 0.5) * 0.4 * k + 1) % 1; c.eyeSize = clamp(c.eyeSize + (r() - 0.5) * 0.4 * k, 0.6, 1.5);
+    mutate(g, r, k) { const c = Object.assign({}, g); const m = (v, s) => clamp(v + (r() - 0.5) * s * k, 0, 1); c.facets = m(c.facets, 0.5); c.focus = m(c.focus, 0.3); c.setae = m(c.setae, 0.5); c.gait = m(c.gait, 0.4); c.chitin = (c.chitin + (r() - 0.5) * 0.4 * k + 1) % 1; c.dull = m(c.dull, 0.5); c.metal = m(c.metal, 0.4); c.eyeHue = (c.eyeHue + (r() - 0.5) * 0.4 * k + 1) % 1; if (r() < 0.3 * k) c.facetShape = pick(r, ['hex', 'square', 'round']); c.eyeBand = r() < 0.3 ? r() * 0.9 : c.eyeBand; c.bandHue = r(); c.sheen = m(c.sheen == null ? 0.3 : c.sheen, 0.5); c.glow = r() < 0.15 ? 0.3 + 0.5 * r() : 0; c.bulge = m(c.bulge == null ? 0.5 : c.bulge, 0.6); c.eyeSize = clamp(c.eyeSize + (r() - 0.5) * 0.4 * k, 0.6, 1.5);
       ['head', 'bodyLen', 'bodyWid', 'bodyH', 'legLen', 'legThick', 'stance', 'jawLen', 'antLen'].forEach(f => { c[f] = clamp(c[f] * (1 + (r() - 0.5) * 0.5 * k), 0.3, 2.6); }); c.thorax = c.thorax.map(v => clamp(v * (1 + (r() - 0.5) * 0.4 * k), 0.3, 1.8));
       if (r() < 0.3 * k) c.eyeType = pick(r, EYE_TYPES); if (r() < 0.2 * k) c.pattern = pick(r, PATTERNS); if (r() < 0.2 * k) c.stage = pick(r, STAGES); if (r() < 0.12 * k) { const pl = pick(r, Object.keys(PLANS)), P = PLANS[pl]; Object.assign(c, { plan: pl, body: P.body, legs: P.legs, jaw: P.jaw, ant: P.ant, wings: P.wings }); }
       c.variant = -1; c.seed = (r() * 4294967295) >>> 0; return c; },

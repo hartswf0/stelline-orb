@@ -2146,6 +2146,7 @@
 
   if (holoOverlayCanvas) {
     holoOverlayCanvas.addEventListener('pointerdown', e => {
+      if (window.state && window.state.engineVersion === 'v5') return;
       const rect = holoOverlayCanvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
@@ -2232,7 +2233,7 @@
     }, true);
 
     window.addEventListener('pointermove', e => {
-      if (!sceneSculptDrag || !window.state) return;
+      if (!sceneSculptDrag || !window.state || window.state.engineVersion === 'v5') return;
       const dx = e.clientX - sceneSculptDrag.startX;
       const dy = e.clientY - sceneSculptDrag.startY;
       const st = window.state;

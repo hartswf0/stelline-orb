@@ -39,7 +39,7 @@
     const r = H.rng(seed); const shape = pick(r, SHAPES);
     const g = { kind: 'cake', seed, name: '', age: 3 + ((r() * 12) | 0), text: pick(r, ['HAPPY BIRTHDAY', 'HAPPY BIRTHDAY', '生日快樂', 'MAKE A WISH', 'CHEERS']), shape, tiers: 1 + ((r() * 3) | 0), bundt: shape === 'bundt' ? 0.6 + r() * 0.4 : r() * 0.5,
       sponge: (r() * SPONGES.length) | 0, icing: (r() * ICINGS.length) | 0, ink: (r() * INKS.length) | 0, drips: r() < 0.55 ? 0.2 + r() * 0.7 : 0, glaze: r(), room: r() < 0.5 ? 0 : r() * 0.4, focus: 0.45 + r() * 0.4,
-      smarties: r() < 0.35 ? 8 + ((r() * 28) | 0) : 0, balloons: r() < 0.6 ? 1 + ((r() * 4) | 0) : 0, sprinkles: 0, cutouts: 0, solid: 1, pipe: 1, temp: 0.35, font: pick(r, FONTS), medium: pick(r, MEDIA), layout: pick(r, LAYOUTS), topping: pick(r, TOPPINGS), candle: pick(r, CANDLES), table: pick(r, TABLES), scene: pick(r, SCENES), props: r() < 0.6 ? 1 : 0, view: pick(r, ['tq', 'tq', 'front', 'high']), variant: -1 };
+      smarties: r() < 0.35 ? 8 + ((r() * 28) | 0) : 0, balloons: r() < 0.6 ? 1 + ((r() * 4) | 0) : 0, sprinkles: 0, cutouts: 0, solid: 1, pipe: 1, temp: 0.35, font: pick(r, FONTS), medium: pick(r, MEDIA), layout: pick(r, LAYOUTS), topping: pick(r, TOPPINGS), candle: pick(r, CANDLES), cslots: null, strokes: [], nib: 0.45, burn: 0, table: pick(r, TABLES), scene: pick(r, SCENES), props: r() < 0.6 ? 1 : 0, view: pick(r, ['tq', 'tq', 'front', 'high']), variant: -1 };
     if (g.shape === 'cupcakes') g.age = Math.min(g.age, 12); if (g.candle === 'sparkler') g.age = Math.min(g.age, 9);
     return g;
   }
@@ -66,6 +66,8 @@
   function glowTex() { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'); const g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, 'rgba(255,230,170,1)'); g.addColorStop(0.18, 'rgba(255,170,70,0.55)'); g.addColorStop(0.5, 'rgba(255,120,30,0.12)'); g.addColorStop(1, 'rgba(255,100,20,0)'); x.fillStyle = g; x.fillRect(0, 0, 128, 128); return new T.CanvasTexture(c); }
   const woodTex = () => H.noiseTex(256, (u, v) => { const n = H.fbm(u * 2, v * 22, 4); const c = 90 + 90 * n; return [c * 1.1, c * 0.72, c * 0.45]; }, true);
 
+  const medOf = (g, inkCol) => ({ pipe: { color: inkCol, rough: 0.28, cc: 0.9, bump: 4.5, metal: 0 }, gel: { color: inkCol, rough: 0.05, cc: 1, bump: 1.2, metal: 0 }, choc: { color: new T.Color(0x3a2216), rough: 0.25, cc: 1, bump: 6, metal: 0 }, gold: { color: new T.Color(0xd9a62e), rough: 0.22, cc: 0.4, bump: 3, metal: 0.95 } }[g.medium] || { color: inkCol, rough: 0.28, cc: 0.9, bump: 4.5, metal: 0 });
+  const smokeTexMk = () => { const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'); const gr = x.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(200,200,205,0.55)'); gr.addColorStop(1, 'rgba(160,160,165,0)'); x.fillStyle = gr; x.fillRect(0, 0, 64, 64); return new T.CanvasTexture(c); };
   function roundedRect(w, r) { const s = new T.Shape(), h = w / 2; s.moveTo(-h + r, -h); s.lineTo(h - r, -h); s.quadraticCurveTo(h, -h, h, -h + r); s.lineTo(h, h - r); s.quadraticCurveTo(h, h, h - r, h); s.lineTo(-h + r, h); s.quadraticCurveTo(-h, h, -h, h - r); s.lineTo(-h, -h + r); s.quadraticCurveTo(-h, -h, -h + r, -h); return s; }
   function heartShape(sc) { const s = new T.Shape(); s.moveTo(0, -2.4 * sc); s.bezierCurveTo(-0.3 * sc, -1.7 * sc, -2.5 * sc, -0.6 * sc, -2.5 * sc, 0.9 * sc); s.bezierCurveTo(-2.5 * sc, 2.0 * sc, -1.0 * sc, 2.5 * sc, 0, 1.5 * sc); s.bezierCurveTo(1.0 * sc, 2.5 * sc, 2.5 * sc, 2.0 * sc, 2.5 * sc, 0.9 * sc); s.bezierCurveTo(2.5 * sc, -0.6 * sc, 0.3 * sc, -1.7 * sc, 0, -2.4 * sc); return s; }
 
@@ -170,21 +172,29 @@
     }
 
     // ---- inscription: script x medium x layout, revealed by the pipe ring ---------------------------------------
-    let inscr = null; const reveal = { value: g.pipe }; H.cursorWorld = null; let cursor = null;
+    let inscr = null, textRect = null; const reveal = { value: g.pipe }; H.cursorWorld = null; let cursor = null;
     if (g.shape !== 'cupcakes' && g.text) {
       const layout = g.layout === 'side' && !(g.shape === 'round' || g.shape === 'bundt' || g.shape === 'naked') ? 'top' : g.layout; const [tt, tb] = textTexture(g.text, g.font, layout);
-      const med = { pipe: { color: inkCol, rough: 0.28, cc: 0.9, bump: 4.5, metal: 0 }, gel: { color: inkCol, rough: 0.05, cc: 1, bump: 1.2, metal: 0 }, choc: { color: new T.Color(0x3a2216), rough: 0.25, cc: 1, bump: 6, metal: 0 }, gold: { color: new T.Color(0xd9a62e), rough: 0.22, cc: 0.4, bump: 3, metal: 0.95 } }[g.medium] || { color: inkCol, rough: 0.28, cc: 0.9, bump: 4.5, metal: 0 };
+      const med = medOf(g, inkCol);
       const mat = new T.MeshPhysicalMaterial({ color: med.color, alphaMap: tt, transparent: true, alphaTest: 0.35, bumpMap: tb, bumpScale: med.bump, roughness: med.rough, metalness: med.metal, clearcoat: med.cc, clearcoatRoughness: 0.1, envMapIntensity: 0.9, polygonOffset: true, polygonOffsetFactor: -2, side: T.DoubleSide });
       const uMode = { value: layout === 'arc' ? 1 : 0 };
       mat.onBeforeCompile = sh => { sh.uniforms.uReveal = reveal; sh.uniforms.uMode = uMode; sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uReveal; uniform float uMode;').replace('#include <alphamap_fragment>', '#include <alphamap_fragment>\n float rvq = uMode < 0.5 ? vUv.x : fract(atan(vUv.y - 0.5, vUv.x - 0.5) / 6.2832 + 0.75); if (rvq > uReveal) discard;'); };
       if (layout === 'side') { const r0 = (g.shape === 'round' || g.shape === 'bundt' || g.shape === 'naked') ? (g.tiers === 1 ? 2.2 : g.tiers === 2 ? 2.3 : 2.4) : 2.2; const cg = new T.CylinderGeometry(r0 * 1.02, r0 * 1.02, 0.62, 96, 1, true, -0.9, 1.8); inscr = new T.Mesh(cg, mat); inscr.rotation.y = Math.PI / 2; inscr.position.set(0, 0.62, 0); uMode.value = 0; addC(inscr); }
       else if (layout === 'topper') { const sign = new T.Mesh(new T.PlaneGeometry(2.4, 1.2), mat); sign.position.set(0, topY + 1.7, 0); addC(sign); const stick = new T.Mesh(new T.CylinderGeometry(0.025, 0.025, 1.3, 8), new T.MeshStandardMaterial({ color: 0xd8c08a, roughness: 0.5 })); stick.position.set(0, topY + 0.65, 0); addC(stick); inscr = sign; }
-      else { const wdt = layout === 'arc' ? rTop * 1.9 : (g.shape === 'square' ? 3.4 : g.shape === 'heart' ? 2.6 : rTop * 1.62); inscr = new T.Mesh(new T.PlaneGeometry(wdt, layout === 'arc' ? wdt : wdt * 0.5), mat); inscr.rotation.x = -Math.PI / 2; inscr.position.set(0, topY + 0.07, g.shape === 'heart' ? 0.2 : 0); addC(inscr); }
+      else { const wdt = layout === 'arc' ? rTop * 1.9 : (g.shape === 'square' ? 3.4 : g.shape === 'heart' ? 2.6 : rTop * 1.62); inscr = new T.Mesh(new T.PlaneGeometry(wdt, layout === 'arc' ? wdt : wdt * 0.5), mat); inscr.rotation.x = -Math.PI / 2; inscr.position.set(0, topY + 0.07, g.shape === 'heart' ? 0.2 : 0); addC(inscr); textRect = { hx: wdt * 0.43, hz: wdt * 0.23, cz: g.shape === 'heart' ? 0.2 : 0 }; }
       if (layout !== 'side') { cursor = new T.Mesh(new T.SphereGeometry(0.06, 12, 8), new T.MeshBasicMaterial({ color: new T.Color(3, 2.6, 1.8), toneMapped: false })); addC(cursor); }
       partsExtra.push({ id: 'INSCRIPTION', name: 'PIPED INSCRIPTION · ' + g.font.toUpperCase() + ' · ' + g.medium.toUpperCase(), focus: { pos: [0, layout === 'topper' ? topY + 1.7 : layout === 'side' ? 0.62 : topY + 0.06, 0], dist: rTop * 2.4 + 1, yaw: layout === 'side' ? 0.0 : 0.0, pitch: layout === 'side' ? 0.15 : layout === 'topper' ? 0.1 : 1.05 }, ring: 2 });
       const wr = layout === 'side' ? (g.tiers === 1 ? 2.2 : 2.3) : rTop;
       H.cursorUpdate = () => { if (!cursor) return; const u = clamp(reveal.value, 0, 1); cursor.visible = u > 0.01 && u < 0.995; if (layout === 'arc') { const a = (u - 0.25) * Math.PI * 2; cursor.position.set(Math.cos(a) * rTop * 0.68, topY + 0.1, Math.sin(a) * rTop * 0.68); } else if (layout === 'topper') cursor.position.set((u - 0.5) * 2.4 * 0.86, topY + 1.7, 0.02); else cursor.position.set((u - 0.5) * (g.shape === 'square' ? 3.4 : g.shape === 'heart' ? 2.6 : rTop * 1.62) * 0.86, topY + 0.1, 0); cakeG.localToWorld(H.cursorWorld = (H.cursorWorld || new T.Vector3()).copy(cursor.position)); };
     } else H.cursorUpdate = null;
+
+    // ---- freehand piping: strokes drawn by the author, stored in the genome ------------------------------------
+    const SE = g.shape === 'square' ? 2.1 : g.shape === 'heart' ? 2.5 : rTop, SCV = 1024; const strokeCv = document.createElement('canvas'); strokeCv.width = strokeCv.height = SCV; const sctx = strokeCv.getContext('2d');
+    const strokeTex = new T.CanvasTexture(strokeCv); strokeTex.anisotropy = 8; g.strokes = g.strokes || [];
+    function drawStroke(st) { const p = st.p; sctx.lineWidth = 7 + 26 * st.w; sctx.lineCap = sctx.lineJoin = 'round'; sctx.strokeStyle = sctx.fillStyle = '#fff'; if (p.length <= 2) { sctx.beginPath(); sctx.arc((p[0] * 0.5 + 0.5) * SCV, (p[1] * 0.5 + 0.5) * SCV, sctx.lineWidth / 2, 0, 7); sctx.fill(); return; } sctx.beginPath(); for (let k = 0; k < p.length; k += 2) { const x = (p[k] * 0.5 + 0.5) * SCV, y = (p[k + 1] * 0.5 + 0.5) * SCV; k ? sctx.lineTo(x, y) : sctx.moveTo(x, y); } sctx.stroke(); }
+    function redrawStrokes() { sctx.fillStyle = '#000'; sctx.fillRect(0, 0, SCV, SCV); g.strokes.forEach(drawStroke); strokeTex.needsUpdate = true; }
+    redrawStrokes();
+    if (g.shape !== 'cupcakes') { const sm = medOf(g, inkCol); const smat = new T.MeshPhysicalMaterial({ color: sm.color, alphaMap: strokeTex, transparent: true, alphaTest: 0.35, bumpMap: strokeTex, bumpScale: sm.bump, roughness: sm.rough, metalness: sm.metal, clearcoat: sm.cc, clearcoatRoughness: 0.1, envMapIntensity: 0.9, polygonOffset: true, polygonOffsetFactor: -3, side: T.DoubleSide }); const sp = new T.Mesh(new T.PlaneGeometry(SE * 2, SE * 2), smat); sp.rotation.x = -Math.PI / 2; sp.position.y = topY + 0.075; addC(sp); }
 
     // ---- toppings -------------------------------------------------------------------------------------------
     if (g.shape !== 'cupcakes' && g.topping !== 'none') {
@@ -197,27 +207,29 @@
     }
 
     // ============================ CANDLES ============================
+    if (g.cslots && g.shape !== 'cupcakes') { slots.length = 0; g.cslots.forEach(c => slots.push({ x: c.x, y: topY + 0.05, z: c.z, type: c.type, off: !!c.off })); }
     const N = slots.length; const candles = []; const lights = []; const glow = glowTex();
     const flameGeo = (() => { const pts = []; for (let k = 0; k <= 20; k++) { const t = k / 20; pts.push(new T.Vector2(0.05 * Math.sin(Math.PI * Math.pow(t, 0.62)) * (1 - 0.35 * t), t * 0.24)); } return new T.LatheGeometry(pts, 18); })();
     const flameMat = new T.MeshBasicMaterial({ color: new T.Color(4.0, 2.6, 1.0), toneMapped: false }), flameCore = new T.MeshBasicMaterial({ color: new T.Color(3.0, 3.2, 4.0), toneMapped: false });
     const waxTex = H.noiseTex(128, (u, v) => { const s = Math.floor((u * 4 + v * 6) % 1 * 2); return s ? [248, 248, 244] : [200, 60, 80]; }, true);
     const taperCols = [0xf4efe4, 0xd23a4c, 0x3a78d2, 0xe9b13a, 0x44b57a];
-    slots.forEach((s, i) => {
-      const grp = new T.Group(); grp.position.set(s.x, s.y, s.z);
-      if (g.candle === 'sparkler') {
+    function makeCandle(s, i) {
+      const ctype = s.type || g.candle; const grp = new T.Group(); grp.position.set(s.x, s.y, s.z);
+      if (ctype === 'sparkler') {
         const wire = new T.Mesh(new T.CylinderGeometry(0.012, 0.012, 1.0, 6), new T.MeshStandardMaterial({ color: 0x777777, metalness: 0.8, roughness: 0.4 })); wire.position.y = 0.5; grp.add(wire);
         const sprites = []; for (let k = 0; k < 14; k++) { const sp = new T.Sprite(new T.SpriteMaterial({ map: glow, color: k % 3 ? 0xfff0c0 : 0xffd060, blending: T.AdditiveBlending, depthWrite: false, transparent: true, toneMapped: false })); sp.scale.setScalar(0.12 + 0.2 * rr()); sp.position.y = 1.0; grp.add(sp); sprites.push({ sp, ph: rr() * 6.28, v: 0.6 + rr() }); }
         const halo = new T.Sprite(new T.SpriteMaterial({ map: glow, color: 0xffe0a0, blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0.9, toneMapped: false })); halo.scale.set(1.1, 1.1, 1); halo.position.y = 1.0; grp.add(halo);
-        addC(grp); candles.push({ grp, spark: sprites, halo, ph: rr() * 6.28, fl: null }); return;
+        addC(grp); candles.push({ slot: s, off: !!s.off, k: s.off ? 0 : 1, burn: 0, grp, spark: sprites, halo, ph: rr() * 6.28, fl: null }); return;
       }
-      const taper = g.candle === 'taper', teal = g.candle === 'tealight'; const col = taperCols[(i + g.seed) % taperCols.length];
-      if (teal) { const cup = new T.Mesh(new T.CylinderGeometry(0.22, 0.19, 0.12, 28), new T.MeshPhysicalMaterial({ color: 0xc8c8cc, metalness: 0.9, roughness: 0.25, envMapIntensity: 1 })); cup.position.y = 0.06; grp.add(cup); const wax = new T.Mesh(new T.CylinderGeometry(0.2, 0.18, 0.1, 28), new T.MeshStandardMaterial({ color: 0xf6efe0, roughness: 0.5 })); wax.position.y = 0.09; grp.add(wax); const fl2 = new T.Group(); fl2.position.y = 0.17; const g1 = new T.Mesh(flameGeo, flameMat), g2 = new T.Mesh(flameGeo, flameCore); g2.scale.set(0.45, 0.4, 0.45); g2.position.y = 0.012; fl2.add(g1, g2); fl2.scale.setScalar(1.15); const hl = new T.Sprite(new T.SpriteMaterial({ map: glow, color: 0xffb060, blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0.85, toneMapped: false })); hl.scale.set(1.1, 1.1, 1); hl.position.y = 0.12; fl2.add(hl); grp.add(fl2); addC(grp); candles.push({ grp, fl: fl2, halo: hl, ph: rr() * 6.28, base: 1.15 }); return; }
+      const taper = ctype === 'taper', teal = ctype === 'tealight'; const col = taperCols[(i + g.seed) % taperCols.length];
+      if (teal) { const cup = new T.Mesh(new T.CylinderGeometry(0.22, 0.19, 0.12, 28), new T.MeshPhysicalMaterial({ color: 0xc8c8cc, metalness: 0.9, roughness: 0.25, envMapIntensity: 1 })); cup.position.y = 0.06; grp.add(cup); const wax = new T.Mesh(new T.CylinderGeometry(0.2, 0.18, 0.1, 28), new T.MeshStandardMaterial({ color: 0xf6efe0, roughness: 0.5 })); wax.position.y = 0.09; grp.add(wax); const fl2 = new T.Group(); fl2.position.y = 0.17; const g1 = new T.Mesh(flameGeo, flameMat), g2 = new T.Mesh(flameGeo, flameCore); g2.scale.set(0.45, 0.4, 0.45); g2.position.y = 0.012; fl2.add(g1, g2); fl2.scale.setScalar(1.15); const hl = new T.Sprite(new T.SpriteMaterial({ map: glow, color: 0xffb060, blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0.85, toneMapped: false })); hl.scale.set(1.1, 1.1, 1); hl.position.y = 0.12; fl2.add(hl); grp.add(fl2); addC(grp); candles.push({ slot: s, off: !!s.off, k: s.off ? 0 : 1, burn: 0, grp, fl: fl2, halo: hl, ph: rr() * 6.28, base: 1.15 }); return; }
       const body = new T.Mesh(new T.CylinderGeometry(taper ? 0.04 : 0.05, taper ? 0.045 : 0.055, taper ? 1.05 : 0.78, 20), taper ? new T.MeshPhysicalMaterial({ color: col, roughness: 0.4, clearcoat: 0.3, envMapIntensity: 0.5 }) : new T.MeshPhysicalMaterial({ color: 0xffffff, map: waxTex, roughness: 0.42, clearcoat: 0.3, envMapIntensity: 0.5 })); const bh = taper ? 1.05 : 0.78; body.position.y = bh / 2; body.castShadow = true; grp.add(body);
       const wick = new T.Mesh(new T.CylinderGeometry(0.006, 0.006, 0.07, 6), new T.MeshBasicMaterial({ color: 0x120a06 })); wick.position.y = bh + 0.035; grp.add(wick);
       const fl = new T.Group(); fl.position.y = bh + 0.07; const f1 = new T.Mesh(flameGeo, flameMat), f2 = new T.Mesh(flameGeo, flameCore); f2.scale.set(0.45, 0.4, 0.45); f2.position.y = 0.012; fl.add(f1, f2);
       const halo = new T.Sprite(new T.SpriteMaterial({ map: glow, color: 0xffb060, blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0.85, toneMapped: false })); halo.scale.set(0.9, 0.9, 1); halo.position.y = 0.12; fl.add(halo);
-      grp.add(fl); addC(grp); candles.push({ grp, fl, halo, ph: rr() * 6.28 });
-    });
+      grp.add(fl); addC(grp); candles.push({ slot: s, off: !!s.off, k: s.off ? 0 : 1, burn: 0, grp, fl, halo, body, wick, bh, ph: rr() * 6.28 });
+    }
+    slots.forEach((s, i) => makeCandle(s, i));
     const nL = Math.min(4, Math.max(1, Math.ceil(N / 6)));
     for (let i = 0; i < nL; i++) { const L = new T.PointLight(0xff9440, 1, 14, 1.6); const a = slots.length ? slots[Math.floor(i * N / nL) % N] : { x: 0, y: topY, z: 0 }; L.position.set(a.x * 0.6, a.y + 1.3, a.z * 0.6); L.userData.heroLight = true; ctx.scene.add(L); lights.push(L); }
 
@@ -265,15 +277,26 @@
     const dayLit = scn === 'window' ? 1 : 0, neonLit = scn === 'neon' ? 1 : 0;
     const ghostCol = new T.Color(0.2, 0.9, 0.85); const cakeMats = new Set(); cakeG.traverse(o => { if (o.isMesh && o.material && !o.isSprite) cakeMats.add(o.material); });
     function applySolid(v) { cakeMats.forEach(m => { if (m.userData._o === undefined) m.userData._o = m.transparent ? 1 : 0; const gh = clamp(1 - v, 0, 1); if (gh > 0.01) { m.transparent = true; m.opacity = 0.14 + 0.86 * v; m.depthWrite = v > 0.7; if (m.emissive) { m.emissive.copy(ghostCol).multiplyScalar(0.55 * gh); } } else { m.opacity = 1; m.transparent = !!m.alphaMap || m.userData._o === 1; m.depthWrite = true; if (m.emissive) m.emissive.setScalar(0); } }); }
+    const smokeTex = smokeTexMk(); function puff(c) { if (c.smoke) c.grp.remove(c.smoke.sp); const sp = new T.Sprite(new T.SpriteMaterial({ map: smokeTex, transparent: true, depthWrite: false, opacity: 0.55 })); sp.position.y = (c.bh || 1) + 0.25; c.grp.add(sp); c.smoke = { sp, t: 0 }; }
+    H.cakeAPI = { g, topY, E: SE, rTop, shape: g.shape, cakeG, candles, slots, textRect, supported: g.shape !== 'cupcakes', puff, drawStroke, redrawStrokes, strokeTex,
+      inside(x, z) { return g.shape === 'round' || g.shape === 'bundt' || g.shape === 'naked' ? Math.hypot(x, z) <= rTop * 0.96 : Math.abs(x) <= SE * 0.96 && Math.abs(z) <= SE * 0.96; },
+      addCandle(x, z, type) { const s = { x, y: topY + 0.05, z, type, off: false }; slots.push(s); makeCandle(s, candles.length); return candles[candles.length - 1]; },
+      removeCandle(i) { const c = candles[i]; if (!c) return; cakeG.remove(c.grp); candles.splice(i, 1); slots.splice(i, 1); },
+      pick(raycaster) { const objs = candles.map(c => c.grp); const hs = raycaster.intersectObjects(objs, true).filter(h => h.object.isMesh); if (!hs.length) return -1; let o = hs[0].object; while (o && !objs.includes(o)) o = o.parent; return objs.indexOf(o); } };
     H.applySolid = applySolid; H.cakeG = cakeG; H.tumbleAmt = 0;
     H.updaters.push((dt, t) => {
       const stage = g.room, lit = H.blown ? Math.max(0, 1 - H.blowT) : 1; if (H.blown) H.blowT = Math.min(2, H.blowT + dt * 0.9); const wind = H.blown ? Math.min(1, H.blowT * 1.6) : 0;
-      candles.forEach((c, i) => {
-        if (c.spark) { c.spark.forEach(s => { const ph = t * 6 * s.v + s.ph; s.sp.position.set(Math.cos(ph * 2.1) * 0.22 * Math.abs(Math.sin(ph)), 1.0 + Math.sin(ph * 1.7) * 0.2, Math.sin(ph * 1.7) * 0.22 * Math.abs(Math.cos(ph))); s.sp.material.opacity = lit * (0.4 + 0.6 * Math.abs(Math.sin(ph * 3))); s.sp.visible = lit > 0.02; }); c.halo.material.opacity = 0.7 * lit * (0.75 + 0.25 * Math.sin(t * 17 + c.ph)); return; }
-        const fl = 0.85 + 0.18 * Math.sin(t * 11 + c.ph) + 0.1 * Math.sin(t * 23 + c.ph * 2) + 0.06 * Math.sin(t * 47 + i); const k = lit < 0.02 ? 0.0001 : fl * (0.4 + 0.6 * lit);
-        c.fl.scale.set(k, k * (0.9 + 0.25 * Math.sin(t * 8 + c.ph)), k); c.fl.rotation.z = Math.sin(t * 3.3 + c.ph) * 0.12 + wind * 0.9; c.fl.rotation.x = Math.cos(t * 2.7 + c.ph) * 0.1; c.halo.material.opacity = 0.85 * lit * (0.8 + 0.2 * fl); c.fl.visible = lit > 0.02;
+      let litSum = 0; candles.forEach((c, i) => {
+        c.k += ((c.off ? 0 : 1) - c.k) * Math.min(1, dt * 6); const cl = lit * c.k; litSum += cl;
+        if (H.blown && !c.puffed && cl < 0.5) { c.puffed = true; puff(c); } if (!H.blown && c.puffed && !c.off) c.puffed = false;
+        if (c.smoke) { const sm = c.smoke; sm.t += dt; sm.sp.position.y = (c.bh || 1) + 0.25 + sm.t * 0.9; sm.sp.position.x = Math.sin(sm.t * 2.1) * 0.12; sm.sp.scale.setScalar(0.18 + sm.t * 0.6); sm.sp.material.opacity = 0.55 * Math.max(0, 1 - sm.t / 3.2); if (sm.t > 3.2) { c.grp.remove(sm.sp); c.smoke = null; } }
+        if (g.burn && c.body && cl > 0.3) { c.burn += dt * g.burn; const sc = 1 - 0.5 * clamp(c.burn / 60, 0, 1); c.body.scale.y = sc; c.body.position.y = c.bh * sc / 2; c.wick.position.y = c.bh * sc + 0.035; c.fl.position.y = c.bh * sc + 0.07; if (c.burn >= 60 && !c.off) { c.off = true; if (c.slot) c.slot.off = true; puff(c); c.puffed = true; } }
+        if (c.spark) { c.spark.forEach(s => { const ph = t * 6 * s.v + s.ph; s.sp.position.set(Math.cos(ph * 2.1) * 0.22 * Math.abs(Math.sin(ph)), 1.0 + Math.sin(ph * 1.7) * 0.2, Math.sin(ph * 1.7) * 0.22 * Math.abs(Math.cos(ph))); s.sp.material.opacity = cl * (0.4 + 0.6 * Math.abs(Math.sin(ph * 3))); s.sp.visible = cl > 0.02; }); c.halo.material.opacity = 0.7 * cl * (0.75 + 0.25 * Math.sin(t * 17 + c.ph)); return; }
+        const fl = 0.85 + 0.18 * Math.sin(t * 11 + c.ph) + 0.1 * Math.sin(t * 23 + c.ph * 2) + 0.06 * Math.sin(t * 47 + i); const k = cl < 0.02 ? 0.0001 : fl * (0.4 + 0.6 * cl);
+        c.fl.scale.set(k, k * (0.9 + 0.25 * Math.sin(t * 8 + c.ph)), k); c.fl.rotation.z = Math.sin(t * 3.3 + c.ph) * 0.12 + wind * 0.9; c.fl.rotation.x = Math.cos(t * 2.7 + c.ph) * 0.1; c.halo.material.opacity = 0.85 * cl * (0.8 + 0.2 * fl); c.fl.visible = cl > 0.02;
       });
-      const base = (0.5 + 0.9 * (Math.min(N, 12) / 12)) * 1.0 * lit; lights.forEach((L, i) => { L.intensity = base * (0.9 + 0.1 * Math.sin(t * 13 + i * 2) + 0.06 * Math.sin(t * 29 + i)) / nL * 1.4; });
+      const litFrac = litSum / Math.max(1, candles.length); const allOut = candles.length > 0 && litFrac < 0.02; if (allOut && !H._wish) { H._wish = true; A.emit('wish'); } if (!allOut) H._wish = false;
+      const base = (0.5 + 0.9 * (Math.min(N, 12) / 12)) * 1.0 * litFrac; lights.forEach((L, i) => { L.intensity = base * (0.9 + 0.1 * Math.sin(t * 13 + i * 2) + 0.06 * Math.sin(t * 29 + i)) / nL * 1.4; });
       reveal.value = g.pipe; if (H.cursorUpdate) H.cursorUpdate(); applySolid(g.cakeSolid != null ? g.cakeSolid : g.solid); const tmp = g.temp; H.post.uniforms.tintA.value.set(1 - 0.28 * Math.max(0, -tmp) + 0.1 * Math.max(0, tmp), 1 + 0.02 * Math.max(0, -tmp) - 0.06 * Math.max(0, tmp), 1 + 0.14 * Math.max(0, -tmp) - 0.22 * Math.max(0, tmp)); lights.forEach(L => L.color.setRGB(1 - 0.45 * Math.max(0, -tmp), 0.58 + 0.2 * Math.max(0, -tmp) - 0.05 * Math.max(0, tmp), 0.25 + 0.7 * Math.max(0, -tmp)));
       if (H.tumbleAmt > 0.001) { cakeG.rotation.x = 0.5 * H.tumbleAmt * Math.sin(t * 0.9); cakeG.rotation.z = 0.35 * H.tumbleAmt * Math.cos(t * 0.7); cakeG.rotation.y = t * 0.55 * H.tumbleAmt; cakeG.position.y = 2.2 * H.tumbleAmt + 0.15 * H.tumbleAmt * Math.sin(t * 1.3); } else { cakeG.rotation.set(0, 0, 0); cakeG.position.y = 0; }
       const day = dayLit ? 1.0 : 0; H.lights.key.intensity = 0.25 + stage * 3.2 + day * 2.2; H.lights.rim.intensity = 0.15 + stage * 1.2 + day * 0.8; H.lights.fill.intensity = 0.02 + stage * 0.3 + day * 0.25;
@@ -295,7 +318,7 @@
     get overview() { return H.overviewFrame || { pos: [0, 1.6, 0], dist: 12.5, yaw: 0.4, pitch: 0.24 }; },
     mutate(g, r, k) { const c = Object.assign({}, g); const m = (v, s) => clamp(v + (r() - 0.5) * s * k, 0, 1); c.bundt = m(c.bundt, 0.6); c.focus = m(c.focus, 0.3); c.glaze = (c.glaze + (r() - 0.5) * 0.5 * k + 1) % 1; c.drips = m(c.drips, 0.6); c.room = clamp(c.room + (r() - 0.5) * 0.3 * k, 0, 0.5);
       if (r() < 0.5 * k) c.tiers = 1 + ((r() * 3) | 0); if (r() < 0.45 * k) c.shape = pick(r, SHAPES); if (r() < 0.5 * k) c.sponge = (r() * SPONGES.length) | 0; if (r() < 0.5 * k) c.icing = (r() * ICINGS.length) | 0; if (r() < 0.4 * k) c.ink = (r() * INKS.length) | 0; if (r() < 0.45 * k) c.topping = pick(r, TOPPINGS); if (r() < 0.35 * k) c.candle = pick(r, CANDLES); if (r() < 0.35 * k) c.table = pick(r, TABLES); if (r() < 0.4 * k) c.scene = pick(r, SCENES); if (r() < 0.3 * k) c.props = c.props ? 0 : 1; if (r() < 0.4 * k) c.balloons = (r() * 5) | 0; if (r() < 0.3 * k) c.smarties = r() < 0.5 ? 0 : 8 + ((r() * 28) | 0); if (r() < 0.3 * k) c.view = pick(r, ['tq', 'front', 'high']);
-      if (r() < 0.45 * k) c.font = pick(r, FONTS); if (r() < 0.4 * k) c.medium = pick(r, MEDIA); if (r() < 0.4 * k) c.layout = pick(r, LAYOUTS); c.temp = clamp(c.temp + (r() - 0.5) * 0.6 * k, -0.6, 0.9); if (c.shape === 'cupcakes') c.age = Math.min(c.age, 12); if (c.candle === 'sparkler') c.age = Math.min(c.age, 9); c.cutouts = 0; c.solid = 1; c.pipe = 1; c.variant = -1; c.seed = (r() * 4294967295) >>> 0; return c; },
+      if (r() < 0.45 * k) c.font = pick(r, FONTS); if (r() < 0.4 * k) c.medium = pick(r, MEDIA); if (r() < 0.4 * k) c.layout = pick(r, LAYOUTS); c.temp = clamp(c.temp + (r() - 0.5) * 0.6 * k, -0.6, 0.9); if (c.shape === 'cupcakes') c.age = Math.min(c.age, 12); if (c.candle === 'sparkler') c.age = Math.min(c.age, 9); c.cutouts = 0; c.solid = 1; c.pipe = 1; c.cslots = null; c.strokes = []; c.variant = -1; c.seed = (r() * 4294967295) >>> 0; return c; },
     labels: ['L1:GEOM.SOLID', 'L2:WICKS.DOF', 'L3:BUNDT.PIPE', 'R1:STAGE.LUMA', 'R2:TINT.GLAZE'],
     readout: (g, i) => [g.solid > 0.97 ? 'SOLID' : g.solid < 0.05 ? 'GHOST' : `SOLID ${Math.round(g.solid * 100)}%`, `f/${(1.4 + (1 - g.focus) * 14).toFixed(1)}`, g.pipe > 0.97 ? 'PIPED' : `PIPING ${Math.round(g.pipe * 100)}%`, g.room < 0.04 ? 'CANDLELIGHT' : `ROOM ${Math.round(g.room * 100)}%`, `${Math.round(4800 - 3000 * g.temp)}K`][i],
     title: g => (g.name ? `FOR ${g.name.toUpperCase()} · ` : '') + `${g.age} ${g.candle === 'sparkler' ? 'SPARKLER' : 'CANDLE'}${g.age > 1 ? 'S' : ''}`,
