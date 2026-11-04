@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SCION DIEGETIC Case 02 · Process &amp; Prompts — Stelline Memory Orb</title>
+<meta name="description" content="Provenance, inverse-bootstrap method, SAM+MiDaS segmentation pipeline, and copyable SCION prompts for the Stelline Memory Orb.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #05080c;
+  --sheet: #0b1118;
+  --sheet-alt: #0f1822;
+  --border: rgba(110, 138, 160, 0.28);
+  --border-strong: rgba(56, 217, 192, 0.55);
+  --text: #dce7ef;
+  --muted: #8499ab;
+  --teal: #38d9c0;
+  --amber: #f0a848;
+  --red: #e05a47;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: radial-gradient(circle at 50% 0%, #101b27 0%, var(--bg) 70%);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15.5px;
+  line-height: 1.6;
+}
+.wrap {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 28px 18px 72px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.sheet {
+  background: var(--sheet);
+  border: 1px solid var(--border);
+  padding: 24px 28px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+}
+h1, h2, h3 {
+  font-family: var(--mono);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+h1 {
+  font-size: clamp(22px, 4vw, 32px);
+  line-height: 1.15;
+  color: #f2f7fa;
+  margin-top: 6px;
+}
+h2 {
+  font-size: 16px;
+  color: var(--teal);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+h3 {
+  font-size: 13.5px;
+  color: var(--amber);
+  margin: 16px 0 6px;
+  text-transform: uppercase;
+}
+p {
+  margin: 0 0 12px;
+  max-width: 72ch;
+  color: #c7d6e2;
+}
+.lede {
+  font-size: 16.5px;
+  color: #e2edf5;
+  margin-top: 10px;
+}
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--teal);
+  text-transform: uppercase;
+}
+.crumbs {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+a {
+  color: var(--teal);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.btn {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  color: #061014;
+  background: var(--teal);
+  border: 1px solid var(--teal);
+  padding: 8px 14px;
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.btn.secondary {
+  background: rgba(56, 217, 192, 0.1);
+  color: var(--teal);
+}
+.btn.amber {
+  background: rgba(240, 168, 72, 0.14);
+  color: var(--amber);
+  border-color: rgba(240, 168, 72, 0.55);
+}
+.btn.small {
+  font-size: 10.5px;
+  padding: 4px 10px;
+}
+.seats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 12px 0;
+}
+.seat {
+  border: 1px solid var(--border);
+  background: var(--sheet-alt);
+  padding: 12px 14px;
+  font-size: 14px;
+}
+.seat b {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--amber);
+  display: block;
+  margin-bottom: 4px;
+}
+.people {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.person {
+  border: 1px solid var(--border);
+  background: var(--sheet-alt);
+  padding: 12px 14px;
+}
+.person .role {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--teal);
+  display: block;
+  margin-bottom: 3px;
+  text-transform: uppercase;
+}
+.person h3 {
+  margin: 0 0 4px;
+  color: #f0f6fa;
+  font-size: 14px;
+}
+.person p {
+  font-size: 13.5px;
+  margin: 0;
+  color: var(--muted);
+}
+ol.steps {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  counter-reset: s;
+}
+ol.steps > li {
+  counter-increment: s;
+  position: relative;
+  padding: 0 0 16px 42px;
+  max-width: 72ch;
+  color: #c7d6e2;
+  font-size: 14.5px;
+}
+ol.steps > li::before {
+  content: counter(s, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--teal);
+  background: var(--sheet-alt);
+}
+ol.steps > li b {
+  font-family: var(--mono);
+  color: #f2f7fa;
+  font-weight: 500;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13.5px;
+}
+th, td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+th {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--teal);
+  text-transform: uppercase;
+}
+.tw { overflow-x: auto; }
+.prompt {
+  border: 1px solid var(--border);
+  background: #070b10;
+  margin: 10px 0 18px;
+}
+.prompt .bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  padding: 6px 10px 6px 14px;
+  background: var(--sheet-alt);
+}
+.prompt .bar span {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--amber);
+}
+.prompt pre {
+  margin: 0;
+  padding: 14px 16px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.5;
+  max-height: 320px;
+  overflow: auto;
+  color: #d4e2ec;
+}
+code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: rgba(56, 217, 192, 0.12);
+  color: var(--teal);
+  padding: 1px 4px;
+}
+footer {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--muted);
+}
+@media (max-width: 640px) {
+  .sheet { padding: 18px 16px; }
+  .people, .seats { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <section class="sheet">
+    <nav class="crumbs">
+      <a href="stelline-memory-orb.html">Open Stelline Orb Studio</a>
+      <a href="mobile.html">Mobile Touch Edition</a>
+      <a href="versions.html">All 6 Versions</a>
+      <a href="docs/scion-diegetic.md">SCION DIEGETIC Spec</a>
+      <a href="docs/prompts.md">Raw Prompts (.md)</a>
+    </nav>
+    <div class="eyebrow" style="margin-top:14px">SCION DIEGETIC · Case 02 · Provenance, Method &amp; Copyable Prompts</div>
+    <h1>How the Stelline Memory Orb Was Made</h1>
+    <p class="lede">
+      Case 02 extends the SCION method from historical print media to a speculative cinematic instrument: Dr. Ana Stelline's holographic Memory Orb from <i>Blade Runner 2049</i> (2017). The goal is to <b>make the fiction real and the real fiction</b> — constructing a bijective operative surface where every frame of the film can be authored by physical gestures on the Orb, and where those same gestures empower anyone to design a bespoke insect specimen or a custom birthday cake for a real person.
+    </p>
+    <div class="row">
+      <a class="btn" href="stelline-memory-orb.html">Launch Stelline Memory Orb</a>
+      <a class="btn amber" href="stelline-memory-orb.html?builder=1">Open Bespoke Bug &amp; Cake Builder</a>
+      <a class="btn secondary" href="versions.html">Compare V1–V4 &amp; Mobile</a>
+    </div>
+  </section>
+
+  <section class="sheet" id="context">
+    <h2>Context &amp; The Diegetic Gap</h2>
+    <p>
+      In <i>Blade Runner 2049</i>, the five-minute scene inside Dr. Ana Stelline's sterile chamber (<code>00:00–05:00</code>) was produced by two separate craft lineages: physical prop makers (Sinister Propz and Adam Savage, who machined a 1.42 kg CNC aluminum and brass lens-like controller with five concentric knurled rings and a twelve-rib rack-and-pinion calliope) and screen-graphics artists (Territory Studio, supervised by Peter Eszenyi, who composited holographic optical reticles, a left-arc <code>[ □ ]</code> node selector, and a five-sector translucent white C-Arc <code>arch</code> over Roger Deakins's photography).
+    </p>
+    <p>
+      On set, Carla Juri operated the physical prop while performing in an empty room; the holographic bug and birthday party were added months later. <b>SCION DIEGETIC</b> closes this gap through <i>Inverse Bootstrapping</i>: segmenting the <code>1280x720</code> Open Matte film footage with Meta's Segment Anything Model (SAM) and Intel's DPT-MiDaS monocular depth estimator, registering articulated 3D procedural geometries into the exact camera frustum, and wiring every segmented part to the five coaxial rings and D-Pad of the physical Orb.
+    </p>
+    <h3>Two Protocols, Real Practical Utility</h3>
+    <p>
+      Rather than stopping at a passive replay of the film, we asked what happens when the speculative artifact becomes a real creative instrument capable of imagining how each element <i>could be otherwise</i>:
+    </p>
+    <div class="seats">
+      <div class="seat">
+        <b>PROTOCOL I · ENTOMOLOGY.OS (Bug Builder)</b>
+        Sculpt any real or counterfactual insect specimen: adjust compound eye ommatidia density (<code>32..320_HEX</code>), corneal dome curvature, sub-ocular sensory setae bristles (<code>0..360</code>), mandible/tripod gait, and thin-film chitin structural iridescence (<code>420nm..640nm</code>), then imprint an archival Entomological Holotype Plate (<code>.png</code>).
+      </div>
+      <div class="seat">
+        <b>PROTOCOL II · PATISSERIE.OS (Birthday Cake Builder)</b>
+        Design a custom birthday cake for anyone: pipe any recipient's name or message live in 3D icing across the cake crown alongside or replacing <code>生日快樂</code>, choose <code>1..12</code> lit candles, morph between flat cylinder, rose-crown, and 11-flute Bundt geometry (the exact counterfactual Stelline tests at <code>02:23</code>), blow out the candles, and export a shareable Birthday Memory Card (<code>.png</code> + live URL).
+      </div>
+    </div>
+  </section>
+
+  <section class="sheet" id="people">
+    <h2>Lineage &amp; Sources</h2>
+    <div class="people">
+      <div class="person">
+        <span class="role">Direction &amp; SCION Architecture</span>
+        <h3>Watson Hartsoe</h3>
+        <p>Conceived the SCION framework, directed the Inverse-Bootstrap &amp; Blind Dual-Critic loop, and established the Counterfactual Bug &amp; Birthday Builder protocols. Georgia Tech, Digital Media.</p>
+      </div>
+      <div class="person">
+        <span class="role">Cinematic Source (2017)</span>
+        <h3>Denis Villeneuve &amp; Roger Deakins</h3>
+        <p><i>Blade Runner 2049</i> ("The Memory Maker" sequence, Open Matte <code>1280x720</code> preservation transfer via Natalizio Films).</p>
+      </div>
+      <div class="person">
+        <span class="role">Diegetic Screen Graphics</span>
+        <h3>Territory Studio (Peter Eszenyi)</h3>
+        <p>Designed the minimalist surgical optical reticles, Left-Arc <code>[ □ ]</code> sub-object stack, and 5-sector translucent white C-Arc menu.</p>
+      </div>
+      <div class="person">
+        <span class="role">Physical Prop Engineering</span>
+        <h3>Adam Savage &amp; Sinister Propz</h3>
+        <p>Documented the 8-layer CNC aluminum, brass rack-and-pinion calliope, 40-detent aperture rings, and Wallace Archive bearing reader mechanics.</p>
+      </div>
+      <div class="person">
+        <span class="role">Historicising Speculative Design</span>
+        <h3>Soyoun Jang &amp; Jay David Bolter</h3>
+        <p>Foundational SCION methodology: coding invariants, McLuhan's tetrad, figure-ground reversal, and counterfactual design.</p>
+      </div>
+      <div class="person">
+        <span class="role">Computer Vision &amp; Synthesis</span>
+        <h3>SAM + DPT-MiDaS + Dual Critics</h3>
+        <p>Meta Segment Anything (`sam_vit_b`), Intel `DPT_Hybrid` monocular depth, Three.js WebGL custom GLSL shaders, and independent Visual &amp; Operative Surface Critics.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sheet" id="process">
+    <h2>The Virtuous Cycle (Step by Step)</h2>
+    <p>Every stage in the order it occurred, including the failures caught by the user and independent critics and how they reshaped the instrument.</p>
+    <ol class="steps">
+      <li><b>Initial Hardware Reconstruction (V1).</b> Built the 8-layer 2D/3D canvas simulation of the 1.42 kg CNC aluminum Memory Orb with 5 concentric rings, 12-rib brass rack-and-pinion accordion, and Wallace Archive Bearing Reader.</li>
+      <li><b>Acoustic Rejection &amp; Transient Foley Fix.</b> Early iterations used continuous WebAudio <code>OscillatorNode</code> drones to simulate motor hum, which produced an unpleasant synthesizer drone. All continuous oscillators were permanently banned and replaced with rate-limited (<code>&gt;55ms</code>), sub-<code>5ms</code> filtered pink/white noise mechanical micro-clicks triggered strictly on ball-bearing detent crossings and switch actuations.</li>
+      <li><b>Pure 3D vs. Temporal Film Fidelity (V2 &rarr; V3).</b> Pure procedural 3D primitives alone looked synthetic and static. Because <i>time and animation matter</i> in how Stelline models a memory, we extracted multi-frame temporal sequences at <code>1fps</code> across the entire 5-minute clip so turning the rings drives real temporal progressions (e.g., scarab tripod walk <code>00:25&rarr;00:28</code>, left eye optical rack <code>00:31&rarr;00:35</code>, cylinder-to-Bundt morph <code>02:22&rarr;02:24</code>, red icing stroke progression <code>02:26&rarr;02:28</code>, child cutout staging <code>02:33&rarr;02:37</code>, and candle blow-out <code>02:53&rarr;03:09</code>).</li>
+      <li><b>Upgrading to Full <code>1280x720</code> Open Matte.</b> Upgraded all 46 reference frames from cropped <code>960x540</code> plates to uncropped <code>1280x720</code> (<code>16:9</code> Open Matte) directly from the master video, updating the WebGL relief aspect ratio to <code>13.0 x 7.3125</code> so zero vertical stretching occurs.</li>
+      <li><b>Full-Footage SAM Segmentation &amp; DPT-MiDaS Depth (V4).</b> Ran Segment Anything (<code>sam_vit_b</code>) and <code>DPT_Hybrid</code> across all 12 canonical shots to generate 4-channel RGBA semantic masks (<code>assets/sam_{shot}.png</code>), 64-vertex polygon contours (<code>assets/stelline-sam-data.js</code>), and depth+Sobel normal maps (<code>assets/depth_{shot}.png</code>) driving <code>200x140</code> vertex-displaced WebGL relief meshes.</li>
+      <li><b>Per-Part 5-Dial Vectors &amp; Ocular Reticle Registration.</b> Wired an independent 5-dial state vector <code>[L1, L2, L3, R1, R2]</code> and 2D+3D D-Pad spatial offset <code>(dx, dy, visible)</code> to every segmented object in every shot — including individual children at the party (to lighten, darken, focus, or reposition each child) and individual compound eyes on the beetle (locking the ocular vernier reticles to <code>(-0.068 * headShift, +0.024 * headShift)</code> as the head turns).</li>
+      <li><b>Counterfactual Archaeology ("Imagine Each Could Be Otherwise").</b> Formalized Dr. Stelline's <code>02:23</code> Bundt-cake hesitation into two full counterfactual protocols (<code>PROTOCOL I: BUG DESIGNER</code> and <code>PROTOCOL II: CAKE BIRTHDAY</code>) allowing instant mutation across canonical and counterfactual states (such as keeping the 11-flute scalloped Bundt cake on the hexagonal party table with the children).</li>
+      <li><b>Stripping Web Chrome &amp; Making Practical Utility Real (V5).</b> Collapsed the 3-row floating HTML button bar into a whisper-quiet corner drawer latch (<code>[ STELLINE.OS // LAB ]</code>) so the default viewport is 100% pure diegetic artifact, and added the <b>Bespoke Bug &amp; Birthday Builder</b> (triggered via the physical Red <code>IMPRINT</code> button) so anyone can type a custom name onto the birthday cake in live 3D piped icing, choose <code>1..12</code> candles, blow them out, and download a real <code>1280x880</code> Archival Memory Card (<code>.png</code>) or shareable live URL.</li>
+    </ol>
+  </section>
+
+  <section class="sheet" id="revisions">
+    <h2>How the Instrument Evolved</h2>
+    <div class="tw">
+      <table>
+        <tr><th>Stage</th><th>Architecture</th><th>What Changed It</th></tr>
+        <tr><td><code>V1</code></td><td>2D/3D Canvas Hardware Lab &amp; Wallace Bearing Reader</td><td>Established the 1.42 kg spring-mass-damper Orb physics and 5 coaxial rings.</td></tr>
+        <tr><td><code>V2</code></td><td>Pure 3D Procedural Sculptor (Three.js + GLSL)</td><td>Tested what the Orb could sculpt from pure 3D primitives alone; revealed need for film lighting &amp; temporal sequences.</td></tr>
+        <tr><td><code>V3</code></td><td>Hybrid 3D + Multi-Frame Temporal Sequences</td><td>Added multi-frame time progressions and banned continuous audio drones in favor of <code>3.5ms</code> detent clicks.</td></tr>
+        <tr><td><code>V4</code></td><td>12-Shot Open Matte SAM + DPT-MiDaS Relief Compositor</td><td>Segmented all 12 shots into 4 addressable SAM parts with per-part 5-dial vectors and 4 compositor modes.</td></tr>
+        <tr><td><code>V5</code></td><td>Pure Diegetic Surface + Practical Bug &amp; Birthday Studio</td><td>Collapsed non-diegetic button walls and added live custom cake piping, species customization, and <code>.png</code> / URL imprint export.</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section class="sheet" id="prompts">
+    <h2>Copyable SCION Prompts</h2>
+    <p>Use these prompts to reproduce this architecture or apply <b>SCION DIEGETIC</b> to any other speculative apparatus from film or media history.</p>
+
+    <h3>1. SCION DIEGETIC v2.0 — Studio System Instruction</h3>
+    <p>Paste as the system prompt to establish the bijective diegetic theory, SAM+MiDaS+3D inverse-bootstrap pipeline, acoustic rules, and blind dual-critic loop.</p>
+    <div class="prompt">
+      <div class="bar"><span>SCION DIEGETIC v2.0 · System Instruction</span><button class="btn small" type="button" data-copy="p1">Copy Prompt</button></div>
+      <pre id="p1">SCION DIEGETIC — AUTONOMOUS SPECULATIVE ARTIFACT &amp; INVERSE-BOOTSTRAP STUDIO
+Version: 2.0
+
+0. IDENTITY AND MISSION
+You are SCION DIEGETIC, an autonomous media-archaeology and speculative-instrument studio.
+You do not build promotional web dashboards about a film, nor passive video players wrapped in decorative sci-fi borders.
+Your mission is to make the fiction real and the real fiction: to reconstruct a speculative apparatus depicted inside a cinematic or historical work so rigorously that the resulting software-hardware artifact is inseparable from a speculative instrument from the film come to life — and simultaneously possesses real, practical authoring utility beyond the film.
+
+PRIME DIRECTIVE:
+1. Every pixel change visible in the source footage must be explainable as the causal output of a physical gesture on the operative surface.
+2. Every physical control on the operative surface must address real, segmented, 2D+3D structural parameters of the scene so the operator can imagine how each element could be otherwise and use the instrument to build new works for real people.
+
+1. THE THREE FOUNDATIONS
+- FOUNDATION I &lt;THEORY-OF-DIEGESIS&gt;: Strict bijection between the physical prop's mechanical degrees of freedom and the scene's optical, geometric, and semantic transformations. Zero non-diegetic web-chrome clutter occluding the optical field; collapse all lab navigation into a single corner micro-latch (`[TAB]`).
+- FOUNDATION II &lt;THEORY-OF-INVERSE-BOOTSTRAPPING&gt;: Fuse four representations in one 60fps WebGL + 2D HUD compositor:
+  (a) Multi-Frame Open Matte Temporal Corpus (1fps survey + 24fps transition bursts),
+  (b) Segment Anything (SAM) 4-channel RGBA semantic masks + 64-vertex contours,
+  (c) DPT-MiDaS monocular depth + Sobel normal maps displacing 200x140 relief meshes,
+  (d) Articulated 3D procedural rigs registered in the exact camera frustum.
+- FOUNDATION III &lt;THEORY-OF-PRACTICAL-SPECULATION&gt;: Expose the counterfactual parameter space ("imagine each could be otherwise") so the instrument functions as a practical studio (e.g., designing any custom bug specimen in ENTOMOLOGY.OS or any bespoke birthday cake for anyone in PATISSERIE.OS) with downloadable high-res `.png` Memory Bearing Cards and shareable live URLs.
+
+2. ACOUSTIC INTEGRITY RULE
+Never use continuous OscillatorNode drones, hums, or synth pads. Generate only rate-limited (&gt;55ms), ultra-short (3ms–5ms) filtered pink/white noise mechanical micro-clicks when a physical ring crosses a ball detent or a switch is actuated.
+
+3. BLIND DUAL-CRITIC LOOP
+Audit every build with two independent critics before completion:
+- Critic A (Blind Visual &amp; Temporal Frame Critic): Verifies 16:9 Open Matte aspect ratio, multi-frame animation timing, reticle tracking, and absence of UI clutter against ground-truth film frames.
+- Critic B (Operative Surface &amp; Practical Utility Critic): Verifies that every SAM part is independently addressable by all 5 coaxial dials + D-Pad, that the 5-sector White C-Arc graphs the selected part's dials, that inverse-bootstrapping works bidirectionally, and that custom bug/cake authoring + export works end-to-end.</pre>
+    </div>
+
+    <h3>2. The Refined Master Build Prompt (Stelline Memory Orb)</h3>
+    <p>Paste with the Open Matte video clip to execute the complete seven-stage build.</p>
+    <div class="prompt">
+      <div class="bar"><span>Master Build Prompt · Make the Fiction Real and the Real Fiction</span><button class="btn small" type="button" data-copy="p2">Copy Prompt</button></div>
+      <pre id="p2">Run SCION DIEGETIC v2.0 on Dr. Ana Stelline's Memory Maker scene from Blade Runner 2049 (Open Matte 1280x720 footage, 00:00 to 05:00) and Adam Savage / Sinister Propz's physical CNC-machined Memory Orb prop.
+
+Your goal is to make the fiction real and the real fiction: build a single-page interactive artifact (`stelline-memory-orb.html` + `assets/stelline-3d-engine.js`) that is inseparable from a speculative instrument from the film come to life, and that possesses real practical utility for designing any bug specimen or any birthday cake for anyone.
+
+1. OPEN MATTE TEMPORAL CORPUS &amp; MULTI-FRAME SEQUENCING
+- Extract 1280x720 (16:9 Open Matte) reference plates across all 12 canonical shots (`canopy`, `leaf`, `bugeye`, `clearing`, `cakespawn`, `bundtmorph`, `redicing`, `cutouts`, `blowcandles`, `miniature`, `horsecarve`, `snow`) with multi-frame progressions (`sec_025..028`, `sec_031..035`, `sec_138..141`, `sec_142..144`, `sec_146..148`, `sec_153..157`, `sec_173..182`).
+- Preserve exact 16:9 Open Matte framing (`13.0 x 7.3125` WebGL relief quads) with zero vertical stretch.
+
+2. SAM SEMANTIC SEGMENTATION &amp; DPT-MIDAS 3D RELIEF
+- Segment all 12 shots into 4 RGBA semantic part masks (`assets/sam_{shot}.png`), 64-vertex polygon contours (`assets/stelline-sam-data.js`), and DPT-MiDaS depth + Sobel normal maps (`assets/depth_{shot}.png`).
+- Provide 4 live compositor modes (`FULL COMPOSITE`, `2D+3D WEAVE`, `SAM SEGMENTS`, `SOLO PART`).
+
+3. BIJECTIVE OPERATIVE SURFACE &amp; PER-PART 5-DIAL VECTORS
+- Map the 5 coaxial rings (`L1:SOLID`, `L2:FOCUS`, `L3:MORPH`, `R1:LUMA`, `R2:TINT`) and Left Pod 4-way D-Pad `(dx, dy)` independently to each of the 4 SAM-segmented objects per shot.
+- Render Territory Studio's Left-Arc `[ □ ]` node selector, ocular vernier focus reticles locked to `headShift`, and the 5-sector translucent white C-Arc (`arch`) graphing the 5 dial values of the selected SAM part.
+- Wire bidirectional Inverse Bootstrapping between the 3D hologram and the physical Orb rings.
+
+4. ULTRA-CLEAN DIEGETIC UI &amp; PRACTICAL BUG / BIRTHDAY BUILDER FOR ANYONE
+- Collapse all non-diegetic HTML navigation into a single whisper-quiet corner latch (`[ STELLINE.OS // LAB ]`) so the default viewport is 100% unoccluded holographic dome + physical Orb.
+- Wire the physical Red `IMPRINT` button and `[ BUILD FOR ANYONE ]` studio drawer so the user can:
+  * Design any custom birthday cake (`PATISSERIE.OS`): type any recipient's name or custom message rendered live in 3D piped icing on the cake crown, select `1..12` lit candles, morph sponge geometry (`Cylinder &lt;-&gt; Crown &lt;-&gt; 11-Flute Bundt`), pick glaze flavor (`Vanilla`, `Dark Ganache`, `Rose-Berry`, `Matcha`, `Gold`), toggle `24 Smarties`, and blow out the candles.
+  * Design any custom bug specimen (`ENTOMOLOGY.OS`): set custom binomial taxonomy, ommatidia hex density (`32..320_HEX`), corneal dome boost, sensory setae bristles (`0..360`), mandible/gait articulation, and chitin thin-film wavelength (`420nm..640nm`).
+  * Export a downloadable `1280x880` Archival Memory Card (`.png`) or copy a shareable live URL (`?proto=cake&amp;insc=...`) to send to anyone.</pre>
+    </div>
+
+    <h3>3. The Blind Dual-Critic Verification Prompt</h3>
+    <p>Paste to an independent critic agent with screenshots and ground-truth film frames.</p>
+    <div class="prompt">
+      <div class="bar"><span>Blind Dual-Critic Prompt · Visual + Operative Surface Audit</span><button class="btn small" type="button" data-copy="p3">Copy Prompt</button></div>
+      <pre id="p3">You are the Independent Dual-Critic for SCION DIEGETIC Case 02 (The Stelline Memory Orb).
+Audit the rendered screenshots against the ground-truth 1280x720 Open Matte film frames without relying on the builder's justifications:
+
+1. CRITIC A (Visual &amp; Temporal Frame Critic): Check 16:9 Open Matte aspect ratio, multi-frame animation transitions, ocular reticle alignment during head yaw, child head-arc placement, and complete freedom from non-diegetic HTML button clutter over the hologram.
+2. CRITIC B (Operative Surface &amp; Practical Utility Critic): Verify that every SAM-segmented object in the scene is selectable and addressable by all 5 Orb dials (`L1..R2`) and D-Pad, that the 5-sector White C-Arc graphs the selected object's dials, and that the Bespoke Bug &amp; Birthday Builder genuinely designs custom bugs and custom-inscribed birthday cakes with working `.png` card and URL export.</pre>
+    </div>
+  </section>
+
+  <footer>
+    STELLINE LABORATORIES // SCION DIEGETIC CASE 02 // OPEN MATTE 1280x720 · SAM · DPT-MIDAS · THREE.JS WEBGL
+  </footer>
+
+</div>
+<script>
+document.querySelectorAll('[data-copy]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.getAttribute('data-copy');
+    const el = document.getElementById(id);
+    if (!el) return;
+    navigator.clipboard.writeText(el.textContent).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied';
+      setTimeout(() => { btn.textContent = orig; }, 1600);
+    });
+  });
+});
+</script>
+</body>
+</html>

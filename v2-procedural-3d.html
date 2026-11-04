@@ -89,30 +89,138 @@
     cursor: grabbing;
   }
 
-  /* Minimal floating corner controls — zero clutter */
+  /* Ultra-clean diegetic whisper bar — collapsed by default so the 16:9 holographic dome is 100% unoccluded */
   .minimal-corner {
     position: fixed;
-    top: 14px;
-    left: 16px;
+    top: 8px;
+    left: 12px;
+    right: 12px;
     display: flex;
-    gap: 6px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
     z-index: 20;
-    opacity: 0.45;
+    pointer-events: none;
+  }
+
+  .diegetic-whisper-bar {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    pointer-events: auto;
+    opacity: 0.34;
     transition: opacity 0.2s ease;
   }
 
-  .minimal-corner:hover {
-    opacity: 1;
+  .minimal-corner:hover .diegetic-whisper-bar,
+  .minimal-corner.drawer-open .diegetic-whisper-bar {
+    opacity: 0.96;
+  }
+
+  .lab-drawer-panel {
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    max-width: calc(100vw - 24px);
+    background: rgba(5, 9, 14, 0.88);
+    border: 1px solid rgba(56, 217, 192, 0.32);
+    padding: 7px 9px;
+    backdrop-filter: blur(10px);
+    pointer-events: auto;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65);
+  }
+
+  .minimal-corner.drawer-open .lab-drawer-panel {
+    display: flex;
+  }
+
+  .lab-drawer-panel > div,
+  .lab-drawer-panel div {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    max-width: 100%;
+    scrollbar-width: none;
+  }
+
+  .lab-drawer-panel > div::-webkit-scrollbar,
+  .lab-drawer-panel div::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Bespoke Bug & Birthday Cake Studio Drawer (Right Edge, Non-Occluding) */
+  .bespoke-builder-modal {
+    display: none;
+    position: fixed;
+    top: 34px;
+    right: 12px;
+    width: 364px;
+    max-width: calc(100vw - 24px);
+    max-height: calc(58vh - 38px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    z-index: 28;
+    background: rgba(6, 11, 17, 0.90);
+    border: 1px solid rgba(56, 217, 192, 0.48);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(12px);
+    padding: 10px 12px;
+    font-family: var(--font-mono);
+    color: var(--text-main);
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .bespoke-builder-modal.open {
+    display: flex;
+  }
+
+  .builder-row {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .builder-label {
+    font-size: 8.5px;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .builder-input, .builder-select {
+    width: 100%;
+    background: rgba(12, 20, 30, 0.92);
+    border: 1px solid rgba(110, 128, 148, 0.45);
+    color: #f0f6fa;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    padding: 5px 7px;
+    outline: none;
+  }
+
+  .builder-input:focus, .builder-select:focus {
+    border-color: var(--accent-teal);
+  }
+
+  .builder-chips {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
   }
 
   .pill-btn {
     background: rgba(10, 15, 22, 0.75);
     border: 1px solid rgba(110, 128, 148, 0.35);
     color: var(--text-muted);
-    padding: 4px 9px;
+    padding: 3px 8px;
     font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.08em;
+    font-size: 9.5px;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    flex-shrink: 0;
     cursor: pointer;
     backdrop-filter: blur(4px);
     transition: all 0.15s ease;
@@ -199,17 +307,18 @@
       left: 6px;
       right: 6px;
       max-width: calc(100vw - 12px) !important;
-      opacity: 0.94;
     }
-    .minimal-corner > div {
-      flex-wrap: nowrap !important;
+    .diegetic-whisper-bar {
+      opacity: 0.88;
       overflow-x: auto;
       max-width: 100%;
-      padding-bottom: 2px;
-      scrollbar-width: none;
     }
-    .minimal-corner > div::-webkit-scrollbar {
-      display: none;
+    .bespoke-builder-modal {
+      top: 34px;
+      left: 8px;
+      right: 8px;
+      width: auto;
+      max-height: 46vh;
     }
     .pill-btn {
       flex-shrink: 0;
@@ -233,46 +342,174 @@
 </head>
 <body>
 <div class="studio-viewport">
-  <div class="minimal-corner" style="flex-direction:column; align-items:flex-start; gap:5px; max-width:calc(100vw - 32px);">
-    <div style="display:flex; gap:5px; flex-wrap:wrap; align-items:center;">
-      <button class="pill-btn active" data-scene="beetle" onclick="selectMemoryScene('beetle')">ACT I: FOREST &amp; BEETLE</button>
-      <button class="pill-btn" data-scene="birthday" onclick="selectMemoryScene('birthday')">ACT II: BIRTHDAY PARTY</button>
-      <button class="pill-btn" data-scene="horse" onclick="selectMemoryScene('horse')">ACT III: HORSE [6·10·21]</button>
-      <button class="pill-btn" data-scene="snow" onclick="selectMemoryScene('snow')">ACT IV: SNOW DOME</button>
-      <div class="minimal-sep" style="height:14px;"></div>
-      <button class="pill-btn" onclick="zeroToPrimitives()" title="Wipe to blank seed">ZERO</button>
-      <button class="pill-btn amber" id="weaveSingleBtn" onclick="startInverseWeave(false)" title="Play through the granular film construction sequence">WEAVE SEQUENCE</button>
-      <button class="pill-btn" id="selectNodeBtn" onclick="cycleSelectedHologramNode()" title="Press SELECT button on Orb to target next 3D element with Radial C-Arc Menu">SELECT NODE [S]</button>
-      <button class="pill-btn" id="renderModeBtn" onclick="cycle3DRenderMode()">3D: HYBRID</button>
-      <button class="pill-btn" id="xrayBtn" onclick="setViewMode(state.viewMode === 'xray' ? 'sculpt' : 'xray')">X-RAY</button>
-      <button class="pill-btn" id="bearingBtn" onclick="setViewMode(state.viewMode === 'bearing' ? 'sculpt' : 'bearing')">READER</button>
-      <div class="minimal-sep" style="height:14px;"></div>
-      <button class="pill-btn amber" id="engineVerBtn" onclick="cycleEngineVersion()" title="Switch between V4 (SAM+MiDaS Relief), V3 (Hybrid 3D Models), V2 (Pure 3D Sculptor), and V1 (Canvas 3D Lab)">ENGINE: V2 PURE-3D</button>
-      <a class="pill-btn" href="mobile.html" style="text-decoration:none;">MOBILE EDITION</a>
-      <a class="pill-btn" href="versions.html" style="text-decoration:none;">ALL VERSIONS</a>
+  <div class="minimal-corner" id="minimalCornerRoot">
+    <!-- Whisper-thin diegetic optical latch: keeps the 1280x720 holographic dome 100% unoccluded by default -->
+    <div class="diegetic-whisper-bar" id="diegeticWhisperBar">
+      <button class="pill-btn" id="labDrawerToggleBtn" onclick="toggleLabDrawer()" title="Toggle Full Shot, SAM Part &amp; Engine Drawer [Press Tab]">STELLINE.OS // 00:32 BUG EYE [LAB ▾]</button>
+      <button class="pill-btn amber" id="openBuilderBtn" onclick="toggleBespokeBuilder()" title="Design Any Bug Specimen or Any Birthday Cake for Anyone [Press B or Red IMPRINT Button on Orb]">BUILD BUG / CAKE [B]</button>
+      <button class="pill-btn" id="whisperOtherwiseBtn" onclick="cycleOtherwiseVariant()" title="Imagine Each Element Could Be Otherwise [Press O]">OTHERWISE [O]</button>
+      <a class="pill-btn" href="process.html" style="text-decoration:none;" title="SCION DIEGETIC Provenance, Method &amp; Copyable Prompts">SCION PROMPTS</a>
     </div>
-    <div id="shotTimelineBar" style="display:flex; gap:4px; flex-wrap:wrap; align-items:center;">
-      <button class="pill-btn" data-shot="canopy" onclick="selectFilmShot('canopy')">00:15 CANOPY</button>
-      <button class="pill-btn" data-shot="leaf" onclick="selectFilmShot('leaf')">00:25 WET LEAF</button>
-      <button class="pill-btn active" data-shot="bugeye" onclick="selectFilmShot('bugeye')">00:32 BUG EYE MACRO</button>
-      <button class="pill-btn" data-shot="clearing" onclick="selectFilmShot('clearing')">00:50 FOREST DISSOLVE</button>
-      <div class="minimal-sep" style="height:12px;"></div>
-      <button class="pill-btn" data-shot="cakespawn" onclick="selectFilmShot('cakespawn')">02:17 CAKE SPAWN</button>
-      <button class="pill-btn" data-shot="bundtmorph" onclick="selectFilmShot('bundtmorph')">02:23 BUNDT MORPH</button>
-      <button class="pill-btn" data-shot="redicing" onclick="selectFilmShot('redicing')">02:26 RED ICING [生日]</button>
-      <button class="pill-btn" data-shot="cutouts" onclick="selectFilmShot('cutouts')">02:33 CHILD CUTOUTS</button>
-      <button class="pill-btn" data-shot="blowcandles" onclick="selectFilmShot('blowcandles')">02:56 BLOW CANDLES</button>
-      <button class="pill-btn" data-shot="miniature" onclick="selectFilmShot('miniature')">03:16 FLOOR MINIATURE</button>
-      <div class="minimal-sep" style="height:12px;"></div>
-      <button class="pill-btn" data-shot="horsecarve" onclick="selectFilmShot('horsecarve')">04:42 HORSE [6·10·21]</button>
+
+    <!-- Expandable Lab & Protocol Drawer (Hidden by default; opened via [LAB ▾], Tab, or ?menu=1) -->
+    <div class="lab-drawer-panel" id="labDrawerPanel">
+      <div style="display:flex; gap:5px; flex-wrap:wrap; align-items:center;">
+        <button class="pill-btn active" data-scene="beetle" onclick="selectMemoryScene('beetle')">ACT I: FOREST &amp; BEETLE</button>
+        <button class="pill-btn" data-scene="birthday" onclick="selectMemoryScene('birthday')">ACT II: BIRTHDAY PARTY</button>
+        <button class="pill-btn" data-scene="horse" onclick="selectMemoryScene('horse')">ACT III: HORSE [6·10·21]</button>
+        <button class="pill-btn" data-scene="snow" onclick="selectMemoryScene('snow')">ACT IV: SNOW DOME</button>
+        <div class="minimal-sep" style="height:14px;"></div>
+        <button class="pill-btn" onclick="zeroToPrimitives()" title="Wipe to blank seed">ZERO</button>
+        <button class="pill-btn amber" id="weaveSingleBtn" onclick="startInverseWeave(false)" title="Play through the granular film construction sequence">WEAVE SEQUENCE</button>
+        <button class="pill-btn" id="selectNodeBtn" onclick="cycleSelectedHologramNode()" title="Press SELECT button on Orb to target next 3D element with Radial C-Arc Menu">SELECT NODE [S]</button>
+        <button class="pill-btn" id="renderModeBtn" onclick="cycle3DRenderMode()">3D: HYBRID</button>
+        <button class="pill-btn" id="xrayBtn" onclick="setViewMode(state.viewMode === 'xray' ? 'sculpt' : 'xray')">X-RAY</button>
+        <button class="pill-btn" id="bearingBtn" onclick="setViewMode(state.viewMode === 'bearing' ? 'sculpt' : 'bearing')">READER</button>
+        <div class="minimal-sep" style="height:14px;"></div>
+        <button class="pill-btn amber" id="engineVerBtn" onclick="cycleEngineVersion()" title="Switch between V4 (SAM+MiDaS Relief), V3 (Hybrid 3D Models), V2 (Pure 3D Sculptor), and V1 (Canvas 3D Lab)">ENGINE: V4 SAM-RELIEF</button>
+        <a class="pill-btn" href="mobile.html" style="text-decoration:none;">MOBILE EDITION</a>
+        <a class="pill-btn" href="versions.html" style="text-decoration:none;">ALL VERSIONS</a>
+        <a class="pill-btn" href="process.html" style="text-decoration:none;">PROCESS &amp; PROMPTS</a>
+      </div>
+      <div id="shotTimelineBar" style="display:flex; gap:4px; flex-wrap:wrap; align-items:center;">
+        <button class="pill-btn" data-shot="canopy" onclick="selectFilmShot('canopy')">00:15 CANOPY</button>
+        <button class="pill-btn" data-shot="leaf" onclick="selectFilmShot('leaf')">00:25 WET LEAF</button>
+        <button class="pill-btn active" data-shot="bugeye" onclick="selectFilmShot('bugeye')">00:32 BUG EYE MACRO</button>
+        <button class="pill-btn" data-shot="clearing" onclick="selectFilmShot('clearing')">00:50 FOREST DISSOLVE</button>
+        <div class="minimal-sep" style="height:12px;"></div>
+        <button class="pill-btn" data-shot="cakespawn" onclick="selectFilmShot('cakespawn')">02:17 CAKE SPAWN</button>
+        <button class="pill-btn" data-shot="bundtmorph" onclick="selectFilmShot('bundtmorph')">02:23 BUNDT MORPH</button>
+        <button class="pill-btn" data-shot="redicing" onclick="selectFilmShot('redicing')">02:26 RED ICING [生日]</button>
+        <button class="pill-btn" data-shot="cutouts" onclick="selectFilmShot('cutouts')">02:33 CHILD CUTOUTS</button>
+        <button class="pill-btn" data-shot="blowcandles" onclick="selectFilmShot('blowcandles')">02:56 BLOW CANDLES</button>
+        <button class="pill-btn" data-shot="miniature" onclick="selectFilmShot('miniature')">03:16 FLOOR MINIATURE</button>
+        <div class="minimal-sep" style="height:12px;"></div>
+        <button class="pill-btn" data-shot="horsecarve" onclick="selectFilmShot('horsecarve')">04:42 HORSE [6·10·21]</button>
+      </div>
+      <div id="operatorProtocolBar" style="display:flex; gap:4px; flex-wrap:wrap; align-items:center;">
+        <button class="pill-btn active" id="protoBugBtn" onclick="activateOperatorProtocol('bug')">PROTOCOL I: BUG DESIGNER</button>
+        <button class="pill-btn" id="protoCakeBtn" onclick="activateOperatorProtocol('cake')">PROTOCOL II: CAKE BIRTHDAY</button>
+        <div class="minimal-sep" style="height:12px;"></div>
+        <div id="protoStepButtons" style="display:flex; gap:3px; flex-wrap:wrap; align-items:center;"></div>
+        <div class="minimal-sep" style="height:12px;"></div>
+        <button class="pill-btn amber" id="otherwiseMutateBtn" onclick="cycleOtherwiseVariant()" title="Counterfactual Design: Imagine each element could be otherwise [Press O]">OTHERWISE [O]: CANONICAL FILM</button>
+        <div class="minimal-sep" style="height:12px;"></div>
+        <div id="samPartButtons" style="display:flex; gap:3px; flex-wrap:wrap; align-items:center;"></div>
+        <button class="pill-btn" id="compModeBtn" onclick="cycleCompositeMode()" title="Cycle 2D + 3D + SAM Part Compositor Mode [Press C]">COMP [C]: FULL COMPOSITE</button>
+      </div>
     </div>
-    <div id="operatorProtocolBar" style="display:flex; gap:4px; flex-wrap:wrap; align-items:center;">
-      <button class="pill-btn active" id="protoBugBtn" onclick="activateOperatorProtocol('bug')">PROTOCOL I: BUG DESIGNER</button>
-      <button class="pill-btn" id="protoCakeBtn" onclick="activateOperatorProtocol('cake')">PROTOCOL II: CAKE BIRTHDAY</button>
-      <div class="minimal-sep" style="height:12px;"></div>
-      <div id="protoStepButtons" style="display:flex; gap:3px; flex-wrap:wrap; align-items:center;"></div>
-      <div class="minimal-sep" style="height:12px;"></div>
-      <button class="pill-btn amber" id="otherwiseMutateBtn" onclick="cycleOtherwiseVariant()" title="Counterfactual Design: Imagine each element could be otherwise [Press O]">OTHERWISE [O]: CANONICAL FILM</button>
+  </div>
+
+  <!-- BESPOKE BUG & BIRTHDAY CAKE STUDIO (Real Practical Utility for Anyone) -->
+  <div class="bespoke-builder-modal" id="bespokeBuilderModal">
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(110,128,148,0.3); padding-bottom:6px;">
+      <div style="display:flex; gap:4px;">
+        <button class="pill-btn active" id="tabBuildCakeBtn" onclick="switchBespokeTab('cake')">PATISSERIE.OS [CAKE]</button>
+        <button class="pill-btn" id="tabBuildBugBtn" onclick="switchBespokeTab('bug')">ENTOMOLOGY.OS [BUG]</button>
+      </div>
+      <button class="pill-btn" onclick="toggleBespokeBuilder(false)" title="Close Studio [Esc]">CLOSE [X]</button>
+    </div>
+
+    <!-- TAB 1: BESPOKE BIRTHDAY CAKE BUILDER FOR ANYONE -->
+    <div id="bespokeCakePane" style="display:flex; flex-direction:column; gap:7px;">
+      <div class="builder-row">
+        <div class="builder-label"><span>PIPED ICING INSCRIPTION (ANY NAME / SCRIPT)</span><span style="color:#f0a848;">RING L3</span></div>
+        <input class="builder-input" id="customCakeInscInput" type="text" maxlength="28" value="HAPPY BIRTHDAY MAYA" placeholder="Type recipient name or message..." oninput="applyCustomCakeFromUI()">
+        <div class="builder-chips">
+          <button class="pill-btn" onclick="setCakePresetInsc('HAPPY BIRTHDAY MAYA')">HAPPY BIRTHDAY MAYA</button>
+          <button class="pill-btn" onclick="setCakePresetInsc('生日快樂')">生日快樂</button>
+          <button class="pill-btn" onclick="setCakePresetInsc('ANA // 6·10·21')">ANA // 6·10·21</button>
+          <button class="pill-btn" onclick="setCakePresetInsc('HAPPY BIRTHDAY ALEX')">ALEX</button>
+        </div>
+      </div>
+
+      <div class="builder-row">
+        <div class="builder-label"><span>LIT CANDLE ARRAY (<span id="customCakeCandlesVal">7</span> WICKS · 3200K)</span><span style="color:#38d9c0;">RING L2</span></div>
+        <div style="display:flex; gap:6px; align-items:center;">
+          <input type="range" id="customCakeCandlesInput" min="1" max="12" value="7" style="flex:1; accent-color:#38d9c0;" oninput="applyCustomCakeFromUI()">
+          <button class="pill-btn amber" id="blowCandlesActionBtn" onclick="toggleCustomCakeBlowOut()">BLOW OUT CANDLES</button>
+        </div>
+      </div>
+
+      <div class="builder-row">
+        <div class="builder-label"><span>SPONGE TIER TOPOLOGY (<span id="customCakeBundtVal">0.00</span> CYL &rarr; BUNDT)</span><span style="color:#38d9c0;">RING L3</span></div>
+        <input type="range" id="customCakeBundtInput" min="0" max="100" value="0" style="width:100%; accent-color:#f0a848;" oninput="applyCustomCakeFromUI()">
+        <div class="builder-chips">
+          <button class="pill-btn" onclick="setCakeTopologyPreset(0, 'redicing')">FLAT CYLINDER (PIPABLE)</button>
+          <button class="pill-btn" onclick="setCakeTopologyPreset(68, 'bundtmorph')">ROSE-CROWN TIER</button>
+          <button class="pill-btn" onclick="setCakeTopologyPreset(96, 'bundtmorph')">11-FLUTE BUNDT DOME</button>
+        </div>
+      </div>
+
+      <div class="builder-row">
+        <div class="builder-label"><span>GLAZE &amp; FROSTING FORMULATION</span><span style="color:#38d9c0;">RING R2</span></div>
+        <select class="builder-select" id="customCakeGlazeSelect" onchange="applyCustomCakeFromUI()">
+          <option value="vanilla">VANILLA BUTTERCREAM (3200K CANONICAL)</option>
+          <option value="ganache">DARK CHOCOLATE GANACHE (2400K RICH)</option>
+          <option value="rose">ROSE-BERRY PATISSERIE GLAZE (4600K)</option>
+          <option value="matcha">MATCHA EMERALD GLAZE (520nm)</option>
+          <option value="gold">AUREATE HONEY-GOLD GLAZE</option>
+        </select>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:4px; flex-wrap:wrap;">
+        <label style="font-size:8.5px; color:#d8e2ec; display:flex; align-items:center; gap:4px; cursor:pointer;">
+          <input type="checkbox" id="customCakeSmartiesChk" onchange="applyCustomCakeFromUI()"> 24 SMARTIES CANDY
+        </label>
+        <div style="display:flex; gap:3px;">
+          <button class="pill-btn" onclick="selectFilmShot('redicing'); applyCustomCakeFromUI();">CLOSE-UP</button>
+          <button class="pill-btn" onclick="selectFilmShot('cutouts'); applyCustomCakeFromUI();">PARTY TABLE</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: BESPOKE BUG SPECIMEN BUILDER FOR ANYONE -->
+    <div id="bespokeBugPane" style="display:none; flex-direction:column; gap:7px;">
+      <div class="builder-row">
+        <div class="builder-label"><span>BINOMIAL SPECIES TAXON &amp; COMMON NAME</span><span>HOLOTYPE</span></div>
+        <input class="builder-input" id="customBugTaxonInput" type="text" maxlength="32" value="Carabus stellinae" placeholder="Binomial taxon..." oninput="applyCustomBugFromUI()">
+        <input class="builder-input" id="customBugCommonInput" type="text" maxlength="36" value="Wallace Dome Emerald Carabid" placeholder="Common designation..." oninput="applyCustomBugFromUI()" style="margin-top:2px;">
+        <div class="builder-chips">
+          <button class="pill-btn" onclick="setBugArchetype('Carabus stellinae','Wallace Emerald Carabid',165,520,180,1.0,false)">520nm EMERALD</button>
+          <button class="pill-btn" onclick="setBugArchetype('Chrysina aurata','Golden Jewel Scarab',280,585,310,1.45,false)">585nm GOLD SCARAB</button>
+          <button class="pill-btn" onclick="setBugArchetype('Megasoma obsidianus','Obsidian Void Rhino',52,450,0,1.65,false)">450nm OBSIDIAN</button>
+          <button class="pill-btn" onclick="setBugArchetype('Buprestis rubra','Ruby Jewel Beetle',240,630,220,1.3,false)">630nm RUBY</button>
+        </div>
+      </div>
+
+      <div class="builder-row">
+        <div class="builder-label"><span>OMMATIDIA HEX DENSITY (<span id="customBugHexVal">165</span>_HEX)</span><span style="color:#38d9c0;">RING L1</span></div>
+        <input type="range" id="customBugHexInput" min="32" max="320" value="165" style="width:100%; accent-color:#38d9c0;" oninput="applyCustomBugFromUI()">
+      </div>
+
+      <div class="builder-row">
+        <div class="builder-label"><span>CHITIN THIN-FILM WAVELENGTH (<span id="customBugNmVal">520</span>nm)</span><span style="color:#f0a848;">RING R2</span></div>
+        <input type="range" id="customBugNmInput" min="430" max="635" value="520" style="width:100%; accent-color:#f0a848;" oninput="applyCustomBugFromUI()">
+      </div>
+
+      <div class="builder-row">
+        <div class="builder-label"><span>SENSORY SETAE BRISTLES (<span id="customBugSetaeVal">180</span> BRISTLES)</span><span style="color:#38d9c0;">RING L3</span></div>
+        <input type="range" id="customBugSetaeInput" min="0" max="360" value="180" style="width:100%; accent-color:#38d9c0;" oninput="applyCustomBugFromUI()">
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:4px; flex-wrap:wrap;">
+        <label style="font-size:8.5px; color:#d8e2ec; display:flex; align-items:center; gap:4px; cursor:pointer;">
+          <input type="checkbox" id="customBugSplitChk" onchange="applyCustomBugFromUI()"> ASYMMETRIC SPLIT OPTICS
+        </label>
+        <div style="display:flex; gap:3px;">
+          <button class="pill-btn" onclick="selectFilmShot('bugeye'); applyCustomBugFromUI();">EYE MACRO</button>
+          <button class="pill-btn" onclick="selectFilmShot('leaf'); applyCustomBugFromUI();">WET LEAF GAIT</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRACTICAL EXPORT / IMPRINT FOOTER -->
+    <div style="border-top:1px solid rgba(110,128,148,0.3); padding-top:7px; display:flex; flex-direction:column; gap:5px;">
+      <div style="display:flex; gap:5px;">
+        <button class="pill-btn amber" style="flex:1; padding:6px 8px; font-weight:600; text-align:center;" onclick="imprintMemoryCardPNG()">IMPRINT MEMORY CARD (.PNG)</button>
+        <button class="pill-btn active" id="copyBlueprintLinkBtn" style="padding:6px 8px;" onclick="copyShareableBlueprintUrl()">COPY LIVE LINK</button>
+      </div>
+      <div id="imprintStatusMsg" style="font-size:8px; color:#38d9c0; letter-spacing:0.06em; min-height:11px;">PRESS RED IMPRINT BUTTON ON ORB OR CLICK ABOVE TO EXPORT</div>
     </div>
   </div>
 
@@ -300,9 +537,10 @@
       <div style="display:flex;gap:4px;align-items:center;justify-content:space-between;">
         <button class="pill-btn" onclick="cycleSelectedHologramNode()">SELECT [S]</button>
         <button class="pill-btn amber" onclick="cycleOtherwiseVariant()">OTHERWISE [O]</button>
+        <button class="pill-btn" id="mobileCompBtn" onclick="cycleCompositeMode()">COMP [C]</button>
         <button class="pill-btn" onclick="startInverseWeave(false)">WEAVE</button>
         <button class="pill-btn" onclick="zeroToPrimitives()">ZERO</button>
-        <div style="display:flex;align-items:center;gap:4px;flex:1;min-width:95px;background:rgba(16,24,34,0.85);border:1px solid rgba(110,128,148,0.35);padding:2px 6px;">
+        <div style="display:flex;align-items:center;gap:4px;flex:1;min-width:85px;background:rgba(16,24,34,0.85);border:1px solid rgba(110,128,148,0.35);padding:2px 6px;">
           <span style="font-size:7.5px;color:#7b8e9f;">SPREAD</span>
           <input id="mSpreadIn" type="range" min="0" max="100" value="25" style="width:100%;height:14px;accent-color:#f0a848;" oninput="setAccordionSpread(this.value, true)">
         </div>
@@ -328,7 +566,7 @@ const SCENE_QUOTES = {
 };
 
 const state = {
-  engineVersion: 'v2',
+  engineVersion: 'v4',
   viewMode: 'sculpt',
   scene: 'beetle',
   powerOn: true,
@@ -608,7 +846,7 @@ const SHOT_CONFIGS = {
   clearing:    { scene: 'beetle',   rings: [165, 165, 175, 220, 175], spread: 62, yaw:  0.00, pitch:  0.00, dist: 380, bundt: 0 },
   // ACT II: BIRTHDAY PARTY (02:17 - 03:16)
   cakespawn:   { scene: 'birthday', rings: [150, 145,  50, 140, 155], spread: 12, yaw:  0.00, pitch:  0.00, dist: 285, bundt: 0.0 },
-  bundtmorph:  { scene: 'birthday', rings: [165, 150,  55, 150, 165], spread: 18, yaw:  0.00, pitch:  0.00, dist: 250, bundt: 0.86 },
+  bundtmorph:  { scene: 'birthday', rings: [165, 150, 142, 150, 165], spread: 18, yaw:  0.00, pitch:  0.00, dist: 250, bundt: 0.92 },
   redicing:    { scene: 'birthday', rings: [165, 155, 175, 170, 175], spread: 22, yaw:  0.00, pitch:  0.00, dist: 235, bundt: 0.0 },
   cutouts:     { scene: 'birthday', rings: [165, 160, 175, 165, 175], spread: 38, yaw:  0.00, pitch:  0.00, dist: 310, bundt: 0.0 },
   blowcandles: { scene: 'birthday', rings: [165, 175, 175, 255, 175], spread: 44, yaw:  0.00, pitch:  0.00, dist: 265, bundt: 0.0 },
@@ -658,6 +896,9 @@ function selectFilmShot(shotKey, fromSequencer = false) {
 //   Dial 4 (R2): TINT    (20°..200° -> 4800K cool cyan .. 3500K neutral (110°) .. 2600K warm candle gold)
 // ============================================================================
 state.objectParams = {};
+state.objectTransforms = {};
+state.compositeMode = 'composite'; // 'composite' | 'hybrid3d' | 'segments' | 'isolate'
+
 function ensureObjectParams(shotKey) {
   const s = shotKey || state.activeShot || 'bugeye';
   const cfg = SHOT_CONFIGS[s] || SHOT_CONFIGS.bugeye;
@@ -671,9 +912,47 @@ function ensureObjectParams(shotKey) {
     ];
     state.objectParams[s].baseRings = [...br];
   }
+  if (!state.objectTransforms[s]) {
+    state.objectTransforms[s] = [
+      { dx: 0, dy: 0, visible: true },
+      { dx: 0, dy: 0, visible: true },
+      { dx: 0, dy: 0, visible: true },
+      { dx: 0, dy: 0, visible: true }
+    ];
+  }
   return state.objectParams[s];
 }
 window.ensureObjectParams = ensureObjectParams;
+
+function setCompositeMode(mode) {
+  const valid = ['composite', 'hybrid3d', 'segments', 'isolate'];
+  state.compositeMode = valid.includes(mode) ? mode : 'composite';
+  if (typeof renderOperatorProtocolUI === 'function') renderOperatorProtocolUI();
+  playMicroSwitchClick(true, 175);
+}
+window.setCompositeMode = setCompositeMode;
+
+function cycleCompositeMode(explicitMode = null) {
+  const order = ['composite', 'hybrid3d', 'segments', 'isolate'];
+  const next = (explicitMode && order.includes(explicitMode))
+    ? explicitMode
+    : order[(order.indexOf(state.compositeMode || 'composite') + 1) % order.length];
+  setCompositeMode(next);
+}
+window.cycleCompositeMode = cycleCompositeMode;
+
+function togglePartVisibility(nodeIdx, ev) {
+  if (ev) ev.stopPropagation();
+  const shot = state.activeShot || 'bugeye';
+  ensureObjectParams(shot);
+  const cleanIdx = ((nodeIdx % 4) + 4) % 4;
+  if (state.objectTransforms[shot] && state.objectTransforms[shot][cleanIdx]) {
+    state.objectTransforms[shot][cleanIdx].visible = !state.objectTransforms[shot][cleanIdx].visible;
+  }
+  if (typeof renderOperatorProtocolUI === 'function') renderOperatorProtocolUI();
+  playMicroSwitchClick(true, 210);
+}
+window.togglePartVisibility = togglePartVisibility;
 
 function selectSceneObject(nodeIdx, fromSequencer = false) {
   const shot = state.activeShot || 'bugeye';
@@ -688,6 +967,7 @@ function selectSceneObject(nodeIdx, fromSequencer = false) {
       setRingAngle(r, p[r], false);
     }
     state._syncingNode = false;
+    if (typeof renderOperatorProtocolUI === 'function') renderOperatorProtocolUI();
     playMicroSwitchClick(true, 220);
   }
 }
@@ -844,8 +1124,386 @@ function renderOperatorProtocolUI() {
     mutBtn.textContent = `OTHERWISE [O]: ${vObj.code}`;
     mutBtn.classList.toggle('active', vIdx > 0);
   }
+
+  const shot = state.activeShot || 'bugeye';
+  ensureObjectParams(shot);
+  const samList = (window.STELLINE_SAM_DATA && Array.isArray(window.STELLINE_SAM_DATA[shot]))
+    ? window.STELLINE_SAM_DATA[shot]
+    : null;
+  const partContainer = document.getElementById('samPartButtons');
+  if (partContainer) {
+    const selIdx = ((state.selectedNodeIdx || 0) % 4 + 4) % 4;
+    const xfs = state.objectTransforms[shot] || [];
+    const objs = samList || [
+      { id: 'PART.01' }, { id: 'PART.02' }, { id: 'PART.03' }, { id: 'PART.04' }
+    ];
+    partContainer.innerHTML = objs.slice(0, 4).map((ob, idx) => {
+      const isSel = (idx === selIdx) ? 'active' : '';
+      const isVis = (!xfs[idx] || xfs[idx].visible !== false);
+      const visStyle = isVis ? '' : 'opacity:0.42;text-decoration:line-through;';
+      return `<button class="pill-btn ${isSel}" style="${visStyle}" onclick="selectSceneObject(${idx})" ondblclick="togglePartVisibility(${idx}, event)" title="Click to address ${ob.id} with all 5 Orb dials + Left Pod D-Pad | Double-click to toggle part visibility">${idx + 1}:${ob.id}</button>`;
+    }).join('');
+  }
+
+  const compBtn = document.getElementById('compModeBtn');
+  if (compBtn) {
+    const compLabels = {
+      composite: 'COMP [C]: FULL COMPOSITE',
+      hybrid3d:  'COMP [C]: 2D+3D WEAVE',
+      segments:  'COMP [C]: SAM SEGMENTS',
+      isolate:   'COMP [C]: SOLO PART'
+    };
+    const cm = state.compositeMode || 'composite';
+    compBtn.textContent = compLabels[cm] || compLabels.composite;
+    compBtn.classList.toggle('active', cm !== 'composite');
+  }
+
+  const toggleBtn = document.getElementById('labDrawerToggleBtn');
+  if (toggleBtn) {
+    const shotNames = {
+      canopy: '00:15 CANOPY', leaf: '00:25 WET LEAF', bugeye: '00:32 BUG EYE', clearing: '00:50 DISSOLVE',
+      cakespawn: '02:17 CAKE SPAWN', bundtmorph: '02:23 BUNDT MORPH', redicing: '02:26 RED ICING',
+      cutouts: '02:33 CUTOUTS', blowcandles: '02:56 CANDLES', miniature: '03:16 MINIATURE',
+      horsecarve: '04:42 HORSE [6·10·21]', snow: '04:55 SNOW DOME'
+    };
+    const rootEl = document.getElementById('minimalCornerRoot');
+    const isOpen = rootEl && rootEl.classList.contains('drawer-open');
+    toggleBtn.textContent = `STELLINE.OS // ${shotNames[shot] || shot.toUpperCase()} [LAB ${isOpen ? '▴' : '▾'}]`;
+  }
 }
 window.renderOperatorProtocolUI = renderOperatorProtocolUI;
+
+// ============================================================================
+// CLEAN DIEGETIC DRAWER & BESPOKE BUG / BIRTHDAY CAKE STUDIO FOR ANYONE
+// ============================================================================
+state.customCake = {
+  active: false,
+  inscription: 'HAPPY BIRTHDAY MAYA',
+  candles: 7,
+  bundt: 0.0,
+  glaze: 'vanilla',
+  smarties: false,
+  blownOut: false,
+  exhaleAnim: 0.0
+};
+
+state.customBug = {
+  active: false,
+  taxon: 'Carabus stellinae',
+  commonName: 'Wallace Dome Emerald Carabid',
+  hexDensity: 165,
+  wavelengthNm: 520,
+  setaeCount: 180,
+  eyeDome: 1.0,
+  splitOptics: false
+};
+
+function toggleLabDrawer(forceState = null) {
+  const rootEl = document.getElementById('minimalCornerRoot');
+  if (!rootEl) return;
+  const next = (forceState !== null && forceState !== undefined)
+    ? Boolean(forceState)
+    : !rootEl.classList.contains('drawer-open');
+  rootEl.classList.toggle('drawer-open', next);
+  renderOperatorProtocolUI();
+  playMicroSwitchClick(true, 140);
+}
+window.toggleLabDrawer = toggleLabDrawer;
+
+function toggleBespokeBuilder(forceState = null) {
+  const modal = document.getElementById('bespokeBuilderModal');
+  if (!modal) return;
+  const next = (forceState !== null && forceState !== undefined)
+    ? Boolean(forceState)
+    : !modal.classList.contains('open');
+  modal.classList.toggle('open', next);
+  const openBtn = document.getElementById('openBuilderBtn');
+  if (openBtn) openBtn.classList.toggle('active', next);
+  if (next) {
+    const activeTab = (state.scene === 'birthday') ? 'cake' : 'bug';
+    switchBespokeTab(activeTab, false);
+  }
+  playMicroSwitchClick(true, 190);
+}
+window.toggleBespokeBuilder = toggleBespokeBuilder;
+
+function switchBespokeTab(tabKey, switchScene = true) {
+  const isCake = (tabKey === 'cake');
+  const cPane = document.getElementById('bespokeCakePane');
+  const bPane = document.getElementById('bespokeBugPane');
+  const cBtn  = document.getElementById('tabBuildCakeBtn');
+  const bBtn  = document.getElementById('tabBuildBugBtn');
+  if (cPane) cPane.style.display = isCake ? 'flex' : 'none';
+  if (bPane) bPane.style.display = isCake ? 'none' : 'flex';
+  if (cBtn)  cBtn.classList.toggle('active', isCake);
+  if (bBtn)  bBtn.classList.toggle('active', !isCake);
+
+  if (switchScene) {
+    if (isCake) {
+      if (state.scene !== 'birthday') selectFilmShot('redicing');
+      applyCustomCakeFromUI();
+    } else {
+      if (state.scene !== 'beetle') selectFilmShot('bugeye');
+      applyCustomBugFromUI();
+    }
+  }
+  playMicroSwitchClick(true, 160);
+}
+window.switchBespokeTab = switchBespokeTab;
+
+function applyCustomCakeFromUI() {
+  state.customCake.active = true;
+  state.liveModeling = false;
+  state.userHoldTimer = 15.0;
+  if (state.scene !== 'birthday') {
+    selectFilmShot('redicing', true);
+  }
+  const inscEl = document.getElementById('customCakeInscInput');
+  const candEl = document.getElementById('customCakeCandlesInput');
+  const bundtEl = document.getElementById('customCakeBundtInput');
+  const glazeEl = document.getElementById('customCakeGlazeSelect');
+  const smEl = document.getElementById('customCakeSmartiesChk');
+
+  if (inscEl) state.customCake.inscription = inscEl.value;
+  if (candEl) {
+    state.customCake.candles = parseInt(candEl.value, 10) || 7;
+    const cVal = document.getElementById('customCakeCandlesVal');
+    if (cVal) cVal.textContent = state.customCake.candles;
+    setRingAngle(1, 75 + state.customCake.candles * 8.5, false);
+  }
+  if (bundtEl) {
+    state.customCake.bundt = (parseFloat(bundtEl.value) || 0) / 100.0;
+    state.bundtMorph = state.customCake.bundt;
+    const bVal = document.getElementById('customCakeBundtVal');
+    if (bVal) bVal.textContent = state.customCake.bundt.toFixed(2);
+    setRingAngle(2, 146 + state.customCake.bundt * 32, false);
+  }
+  if (glazeEl) {
+    state.customCake.glaze = glazeEl.value;
+    const glazeAngles = { vanilla: 165, ganache: 198, rose: 122, matcha: 138, gold: 182 };
+    setRingAngle(4, glazeAngles[glazeEl.value] || 165, false);
+  }
+  if (smEl) state.customCake.smarties = Boolean(smEl.checked);
+  renderOperatorProtocolUI();
+}
+window.applyCustomCakeFromUI = applyCustomCakeFromUI;
+
+function setCakePresetInsc(text) {
+  const inscEl = document.getElementById('customCakeInscInput');
+  if (inscEl) inscEl.value = text;
+  applyCustomCakeFromUI();
+  playMicroSwitchClick(true, 210);
+}
+window.setCakePresetInsc = setCakePresetInsc;
+
+function setCakeTopologyPreset(bundtPct, shotKey) {
+  const bundtEl = document.getElementById('customCakeBundtInput');
+  if (bundtEl) bundtEl.value = bundtPct;
+  if (shotKey) selectFilmShot(shotKey, true);
+  applyCustomCakeFromUI();
+  playMicroSwitchClick(true, 180);
+}
+window.setCakeTopologyPreset = setCakeTopologyPreset;
+
+function toggleCustomCakeBlowOut() {
+  state.customCake.active = true;
+  state.customCake.blownOut = !state.customCake.blownOut;
+  const btn = document.getElementById('blowCandlesActionBtn');
+  if (btn) {
+    btn.textContent = state.customCake.blownOut ? 'RELIGHT CANDLES' : 'BLOW OUT CANDLES';
+    btn.classList.toggle('active', state.customCake.blownOut);
+  }
+  setRingAngle(4, state.customCake.blownOut ? 215 : 155, true);
+  playMicroSwitchClick(true, -120);
+}
+window.toggleCustomCakeBlowOut = toggleCustomCakeBlowOut;
+
+function applyCustomBugFromUI() {
+  state.customBug.active = true;
+  state.liveModeling = false;
+  state.userHoldTimer = 15.0;
+  if (state.scene !== 'beetle') {
+    selectFilmShot('bugeye', true);
+  }
+  const taxEl = document.getElementById('customBugTaxonInput');
+  const comEl = document.getElementById('customBugCommonInput');
+  const hexEl = document.getElementById('customBugHexInput');
+  const nmEl  = document.getElementById('customBugNmInput');
+  const setEl = document.getElementById('customBugSetaeInput');
+  const splEl = document.getElementById('customBugSplitChk');
+
+  if (taxEl) state.customBug.taxon = taxEl.value;
+  if (comEl) state.customBug.commonName = comEl.value;
+  if (hexEl) {
+    state.customBug.hexDensity = parseInt(hexEl.value, 10) || 165;
+    const hVal = document.getElementById('customBugHexVal');
+    if (hVal) hVal.textContent = state.customBug.hexDensity;
+    setRingAngle(0, 80 + (state.customBug.hexDensity / 320) * 85, false);
+  }
+  if (nmEl) {
+    state.customBug.wavelengthNm = parseInt(nmEl.value, 10) || 520;
+    const nVal = document.getElementById('customBugNmVal');
+    if (nVal) nVal.textContent = state.customBug.wavelengthNm;
+    setRingAngle(4, 110 + ((state.customBug.wavelengthNm - 430) / 205) * 95, false);
+  }
+  if (setEl) {
+    state.customBug.setaeCount = parseInt(setEl.value, 10) || 0;
+    const sVal = document.getElementById('customBugSetaeVal');
+    if (sVal) sVal.textContent = state.customBug.setaeCount;
+    setRingAngle(2, 105 + (state.customBug.setaeCount / 360) * 82, false);
+  }
+  if (splEl) state.customBug.splitOptics = Boolean(splEl.checked);
+  renderOperatorProtocolUI();
+}
+window.applyCustomBugFromUI = applyCustomBugFromUI;
+
+function setBugArchetype(taxon, commonName, hex, nm, setae, domeBoost, split) {
+  const taxEl = document.getElementById('customBugTaxonInput');
+  const comEl = document.getElementById('customBugCommonInput');
+  const hexEl = document.getElementById('customBugHexInput');
+  const nmEl  = document.getElementById('customBugNmInput');
+  const setEl = document.getElementById('customBugSetaeInput');
+  const splEl = document.getElementById('customBugSplitChk');
+  if (taxEl) taxEl.value = taxon;
+  if (comEl) comEl.value = commonName;
+  if (hexEl) hexEl.value = hex;
+  if (nmEl)  nmEl.value = nm;
+  if (setEl) setEl.value = setae;
+  if (splEl) splEl.checked = Boolean(split);
+  state.customBug.eyeDome = domeBoost || 1.0;
+  applyCustomBugFromUI();
+  playMicroSwitchClick(true, 220);
+}
+window.setBugArchetype = setBugArchetype;
+
+function buildShareableBlueprintUrl() {
+  const url = new URL(window.location.href.split('?')[0]);
+  url.searchParams.set('shot', state.activeShot || 'bugeye');
+  if (state.scene === 'birthday' || (state.customCake && state.customCake.active)) {
+    url.searchParams.set('protocol', 'cake');
+    url.searchParams.set('insc', state.customCake.inscription || '生日快樂');
+    url.searchParams.set('wicks', String(state.customCake.candles || 7));
+    url.searchParams.set('bundt', String(Math.round((state.customCake.bundt || 0) * 100)));
+    url.searchParams.set('glaze', state.customCake.glaze || 'vanilla');
+    if (state.customCake.smarties) url.searchParams.set('smarties', '1');
+  } else {
+    url.searchParams.set('protocol', 'bug');
+    url.searchParams.set('taxon', state.customBug.taxon || 'Carabus stellinae');
+    url.searchParams.set('common', state.customBug.commonName || 'Wallace Dome Emerald Carabid');
+    url.searchParams.set('hex', String(state.customBug.hexDensity || 165));
+    url.searchParams.set('nm', String(state.customBug.wavelengthNm || 520));
+    url.searchParams.set('setae', String(state.customBug.setaeCount || 180));
+    if (state.customBug.splitOptics) url.searchParams.set('split', '1');
+  }
+  return url.toString();
+}
+
+function copyShareableBlueprintUrl() {
+  const link = buildShareableBlueprintUrl();
+  const msgEl = document.getElementById('imprintStatusMsg');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(link).then(() => {
+      if (msgEl) msgEl.textContent = 'LIVE SHAREABLE LINK COPIED TO CLIPBOARD!';
+    }).catch(() => {
+      if (msgEl) msgEl.textContent = link;
+    });
+  } else if (msgEl) {
+    msgEl.textContent = link;
+  }
+  playMicroSwitchClick(true, 260);
+}
+window.copyShareableBlueprintUrl = copyShareableBlueprintUrl;
+
+function imprintMemoryCardPNG() {
+  state.imprintFlash = 1.0;
+  playMicroSwitchClick(true, 300);
+
+  const wglCanvas = document.getElementById('webglCanvas');
+  const hudCanvas = document.getElementById('hologramCanvas');
+  const cardW = 1280;
+  const holoH = 720;
+  const footH = 160;
+  const cardCanvas = document.createElement('canvas');
+  cardCanvas.width = cardW;
+  cardCanvas.height = holoH + footH;
+  const ctx = cardCanvas.getContext('2d');
+
+  // 1. Composite Live 3D WebGL Scene + 2D Diegetic Optical HUD
+  ctx.fillStyle = '#04070b';
+  ctx.fillRect(0, 0, cardW, holoH + footH);
+  try {
+    if (wglCanvas) ctx.drawImage(wglCanvas, 0, 0, cardW, holoH);
+    if (hudCanvas) ctx.drawImage(hudCanvas, 0, 0, cardW, holoH);
+  } catch (e) {}
+
+  // 2. Render Brushed-Obsidian Wallace Corporation / Stelline Laboratories Spec Footer
+  const grad = ctx.createLinearGradient(0, holoH, 0, holoH + footH);
+  grad.addColorStop(0, '#091119');
+  grad.addColorStop(1, '#04080d');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, holoH, cardW, footH);
+
+  ctx.strokeStyle = 'rgba(56, 217, 192, 0.55)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(0, holoH + 0.5);
+  ctx.lineTo(cardW, holoH + 0.5);
+  ctx.stroke();
+
+  const isCake = (state.scene === 'birthday');
+  const ringVec = state.rings.map(r => Math.round(r.angle) + '°').join(' · ');
+  const stampDate = new Date().toISOString().slice(0, 10);
+
+  ctx.font = '600 12px "JetBrains Mono", monospace';
+  ctx.fillStyle = '#38d9c0';
+  ctx.fillText(
+    isCake
+      ? 'STELLINE LABORATORIES // PATISSERIE.OS BESPOKE BIRTHDAY MEMORY BEARING'
+      : 'STELLINE LABORATORIES // ENTOMOLOGY.OS SPECIMEN HOLOTYPE PLATE',
+    32, holoH + 34
+  );
+
+  ctx.font = '700 24px "Inter", "JetBrains Mono", sans-serif';
+  ctx.fillStyle = '#f2f7fa';
+  const mainTitle = isCake
+    ? (state.customCake.inscription || '生日快樂 // HAPPY BIRTHDAY')
+    : `${state.customBug.taxon || 'Carabus stellinae'} — ${state.customBug.commonName || 'Wallace Dome Carabid'}`;
+  ctx.fillText(mainTitle, 32, holoH + 72);
+
+  ctx.font = '400 13px "JetBrains Mono", monospace';
+  ctx.fillStyle = '#f0a848';
+  const specLine = isCake
+    ? `CANDLES: ${String(state.customCake.candles || 7).padStart(2, '0')} WICKS [3200K]  ·  TOPOLOGY: ${(state.bundtMorph > 0.5 ? '11-FLUTE SCALLOPED BUNDT' : 'CLASSIC PATISSERIE CYLINDER')}  ·  GLAZE: ${(state.customCake.glaze || 'vanilla').toUpperCase()}`
+    : `OMMATIDIA: ${state.customBug.hexDensity || 165}_HEX FACETS  ·  SPECTRUM: ${state.customBug.wavelengthNm || 520}nm CHITIN  ·  SETAE: ${state.customBug.setaeCount || 180} BRISTLES`;
+  ctx.fillText(specLine, 32, holoH + 104);
+
+  ctx.font = '400 11.5px "JetBrains Mono", monospace';
+  ctx.fillStyle = '#8aa0b4';
+  ctx.fillText(`COAXIAL RING VECTOR [L1..R2]: [ ${ringVec} ]  ·  CALLIOPE SPREAD: ${Math.round(state.accordionSpread * 100)}%  ·  IMPRINTED: ${stampDate}`, 32, holoH + 134);
+
+  ctx.textAlign = 'right';
+  ctx.font = '500 11.5px "JetBrains Mono", monospace';
+  ctx.fillStyle = '#d4e2ec';
+  ctx.fillText('DR. ANA STELLINE // SUB-LEVEL 04 STERILE DOME', cardW - 32, holoH + 36);
+  ctx.fillStyle = '#8aa0b4';
+  ctx.fillText('"WE RECALL WITH OUR FEELINGS. ANYTHING REAL SHOULD BE A MESS."', cardW - 32, holoH + 134);
+  ctx.textAlign = 'left';
+
+  try {
+    const dataUrl = cardCanvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    const slug = (isCake ? (state.customCake.inscription || 'birthday') : (state.customBug.taxon || 'beetle'))
+      .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'memory';
+    a.download = `stelline-${isCake ? 'birthday-cake' : 'bug-holotype'}-${slug}.png`;
+    a.href = dataUrl;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    const msgEl = document.getElementById('imprintStatusMsg');
+    if (msgEl) msgEl.textContent = `IMPRINTED & DOWNLOADED: ${a.download.toUpperCase()}`;
+  } catch (e) {}
+}
+window.imprintMemoryCardPNG = imprintMemoryCardPNG;
 
 function activateOperatorProtocol(protoKey, stepIdx = 0, fromUrl = false) {
   const cleanKey = (protoKey === 'cake') ? 'cake' : 'bug';
@@ -971,8 +1629,22 @@ function selectMemoryScene(sceneKey) {
 }
 
 window.addEventListener('keydown', e => {
-  if (e.key === 's' || e.key === 'S') cycleSelectedHologramNode();
+  const tag = (e.target && e.target.tagName) ? e.target.tagName.toUpperCase() : '';
+  if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') {
+    if (e.key === 'Escape') e.target.blur();
+    return;
+  }
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    toggleLabDrawer();
+  } else if (e.key === 'b' || e.key === 'B') {
+    toggleBespokeBuilder();
+  } else if (e.key === 'Escape') {
+    toggleBespokeBuilder(false);
+    toggleLabDrawer(false);
+  } else if (e.key === 's' || e.key === 'S') cycleSelectedHologramNode();
   else if (e.key === 'o' || e.key === 'O') cycleOtherwiseVariant();
+  else if (e.key === 'c' || e.key === 'C') cycleCompositeMode();
   else if (e.key === ' ') {
     e.preventDefault();
     setAccordionSpread(state.accordionTarget > 0.25 ? 0 : 52, true);
@@ -1079,12 +1751,27 @@ function triggerBearingImprint() {
   state.imprintFlash = 1.0;
   playMicroSwitchClick(true, 300);
   playChordChime();
+  const modal = document.getElementById('bespokeBuilderModal');
+  if (modal && !modal.classList.contains('open')) {
+    toggleBespokeBuilder(true);
+  }
+  imprintMemoryCardPNG();
 }
 
 function pressDpad(dirName, dx, dy) {
   state.activeDpadDir = dirName;
   state.targetOffset.x = Math.max(-0.45, Math.min(0.45, state.targetOffset.x + dx));
   state.targetOffset.y = Math.max(-0.35, Math.min(0.35, state.targetOffset.y + dy));
+  // Also nudge the currently selected SAM-segmented part in 2D+3D space!
+  const shot = state.activeShot || 'bugeye';
+  ensureObjectParams(shot);
+  const selIdx = ((state.selectedNodeIdx || 0) % 4 + 4) % 4;
+  if (state.objectTransforms && state.objectTransforms[shot] && state.objectTransforms[shot][selIdx]) {
+    const xf = state.objectTransforms[shot][selIdx];
+    xf.dx = Math.max(-0.18, Math.min(0.18, (xf.dx || 0) + dx * 0.25));
+    xf.dy = Math.max(-0.18, Math.min(0.18, (xf.dy || 0) + dy * 0.25));
+  }
+  state.userHoldTimer = 5.0;
   playMicroSwitchClick(true, -80);
 }
 
@@ -2671,15 +3358,15 @@ window.cycleEngineVersion = cycleEngineVersion;
 
 function syncMobileDockUI() {
   const shot = state.activeShot || 'bugeye';
-  const samShot = (window.STELLINE_SAM_DB && window.STELLINE_SAM_DB.shots && window.STELLINE_SAM_DB.shots[shot])
-    ? window.STELLINE_SAM_DB.shots[shot]
+  const samList = (window.STELLINE_SAM_DATA && Array.isArray(window.STELLINE_SAM_DATA[shot]))
+    ? window.STELLINE_SAM_DATA[shot]
     : null;
   const samRow = document.getElementById('mobileSamRow');
-  if (samRow && samShot && Array.isArray(samShot.objects)) {
+  if (samRow && samList) {
     const btns = samRow.querySelectorAll('button');
     const selIdx = ((state.selectedNodeIdx || 0) % 4 + 4) % 4;
     btns.forEach((b, idx) => {
-      const obj = samShot.objects[idx];
+      const obj = samList[idx];
       if (obj) b.textContent = `${idx + 1}:${obj.id}`;
       b.classList.toggle('active', idx === selIdx);
     });
@@ -4199,6 +4886,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const r4 = params.get('r4') ?? params.get('a5');
   const spreadP = params.get('spread');
   const xrayP = params.get('xray');
+  if (params.get('hud') === '0') state.hideHud = true;
   if (params.get('static') === '1') {
     state.staticMode = true;
     state.liveModeling = false;
@@ -4230,6 +4918,21 @@ window.addEventListener('DOMContentLoaded', () => {
   if (nodeParam !== null && typeof window.selectSceneObject === 'function') {
     window.selectSceneObject(parseInt(nodeParam, 10) || 0);
   }
+  const compParam = params.get('comp');
+  if (compParam && typeof window.setCompositeMode === 'function') {
+    window.setCompositeMode(compParam.toLowerCase());
+  }
+  const dxParam = params.get('dx');
+  const dyParam = params.get('dy');
+  if (dxParam !== null || dyParam !== null) {
+    const sKey = state.activeShot || 'bugeye';
+    ensureObjectParams(sKey);
+    const sIdx = ((state.selectedNodeIdx || 0) % 4 + 4) % 4;
+    if (state.objectTransforms[sKey] && state.objectTransforms[sKey][sIdx]) {
+      if (dxParam !== null) state.objectTransforms[sKey][sIdx].dx = parseFloat(dxParam) || 0;
+      if (dyParam !== null) state.objectTransforms[sKey][sIdx].dy = parseFloat(dyParam) || 0;
+    }
+  }
   const tParam = params.get('t');
   if (tParam !== null) {
     state.shotTime = parseFloat(tParam);
@@ -4242,6 +4945,50 @@ window.addEventListener('DOMContentLoaded', () => {
   if (r4 !== null) setRingAngle(4, parseFloat(r4), false);
   if (spreadP !== null) setAccordionSpread(parseFloat(spreadP), false);
   if (xrayP === '1') state.renderMode = 'xray';
+  if (params.get('menu') === '1') toggleLabDrawer(true);
+
+  // Bespoke Bug & Birthday Cake Shareable URL Parameters
+  const inscP = params.get('insc');
+  const wicksP = params.get('wicks');
+  const bundtP = params.get('bundt');
+  const glazeP = params.get('glaze');
+  const smartiesP = params.get('smarties');
+  const blowP = params.get('blow');
+  if (inscP !== null || wicksP !== null || bundtP !== null || glazeP !== null || smartiesP !== null || blowP !== null) {
+    if (!shotParam) selectFilmShot('redicing');
+    if (inscP !== null && document.getElementById('customCakeInscInput')) document.getElementById('customCakeInscInput').value = inscP;
+    if (wicksP !== null && document.getElementById('customCakeCandlesInput')) document.getElementById('customCakeCandlesInput').value = wicksP;
+    if (bundtP !== null && document.getElementById('customCakeBundtInput')) document.getElementById('customCakeBundtInput').value = bundtP;
+    if (glazeP !== null && document.getElementById('customCakeGlazeSelect')) document.getElementById('customCakeGlazeSelect').value = glazeP;
+    if (smartiesP !== null && document.getElementById('customCakeSmartiesChk')) document.getElementById('customCakeSmartiesChk').checked = (smartiesP === '1');
+    applyCustomCakeFromUI();
+    if (blowP === '1') {
+      state.customCake.blownOut = true;
+      state.customCake.exhaleAnim = 1.0;
+    }
+  }
+
+  const taxonP = params.get('taxon');
+  const commonP = params.get('common');
+  const hexP = params.get('hex');
+  const nmP = params.get('nm');
+  const setaeP = params.get('setae');
+  const splitP = params.get('split');
+  if (taxonP !== null || commonP !== null || hexP !== null || nmP !== null || setaeP !== null || splitP !== null) {
+    if (!shotParam) selectFilmShot('bugeye');
+    if (taxonP !== null && document.getElementById('customBugTaxonInput')) document.getElementById('customBugTaxonInput').value = taxonP;
+    if (commonP !== null && document.getElementById('customBugCommonInput')) document.getElementById('customBugCommonInput').value = commonP;
+    if (hexP !== null && document.getElementById('customBugHexInput')) document.getElementById('customBugHexInput').value = hexP;
+    if (nmP !== null && document.getElementById('customBugNmInput')) document.getElementById('customBugNmInput').value = nmP;
+    if (setaeP !== null && document.getElementById('customBugSetaeInput')) document.getElementById('customBugSetaeInput').value = setaeP;
+    if (splitP !== null && document.getElementById('customBugSplitChk')) document.getElementById('customBugSplitChk').checked = (splitP === '1');
+    applyCustomBugFromUI();
+  }
+
+  if (params.get('builder') === '1') {
+    toggleBespokeBuilder(true);
+  }
+
   renderOperatorProtocolUI();
   updateTelemetryUI();
   updateBatteryUI();
@@ -4249,6 +4996,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 <script src="assets/stelline-sam-data.js"></script>
+<script>window.STELLINE_FORCE_VERSION = 'v2-procedural-3d'; window.STELLINE_INITIAL_VIEW_MODE = '3d';</script>
 <script src="assets/stelline-3d-engine.js"></script>
 </body>
 </html>

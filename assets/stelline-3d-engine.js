@@ -514,16 +514,30 @@
           // Asymmetric optical focus: hyper-crisp right compound eye, soft bokeh left compound eye
           filmCol = mix(filmCol, clamp(filmCol + hiFreq * 2.2, 0.0, 1.0), mRightEye * 0.75);
           filmCol = mix(filmCol, blurFilmCol, mLeftEye * 0.75);
-        } else if (abs(uChitinShift) > 0.05) {
+        }
+        // Procedural hexagonal ommatidia micro-facet shimmer when uHexDensity deviates from canonical 165_HEX
+        float hexDelta = clamp(abs(uHexDensity - 165.0) / 120.0, 0.0, 1.0);
+        if (hexDelta > 0.05 && inAnyEye > 0.05) {
+          float hScale = clamp(uHexDensity, 32.0, 320.0) * 0.38;
+          vec2 hp = samUv * vec2(hScale * 1.6, hScale);
+          vec2 hGrid = abs(fract(hp + vec2(0.0, floor(hp.x) * 0.5)) - 0.5);
+          float hexCell = smoothstep(0.48, 0.22, max(hGrid.x * 1.15, hGrid.y));
+          filmCol += vec3(0.10, 0.16, 0.11) * (hexCell - 0.5) * inAnyEye * hexDelta * 0.42;
+        }
+        if (abs(uChitinShift) > 0.05) {
           float bugFg = smoothstep(0.22, 0.50, texture2D(uDepthTex, samUv).r);
-          if (uChitinShift > 0.0) {
-            // Subtle warm golden-hour forest specular highlight on compound eye facets
-            vec3 warmSpec = filmCol * vec3(1.12, 1.06, 0.88) + max(vec3(0.0), hiFreq) * vec3(1.25, 1.10, 0.65);
-            filmCol = mix(filmCol, clamp(warmSpec, 0.0, 1.0), clamp(uChitinShift, 0.0, 1.0) * bugFg * 0.45);
+          if (uChitinShift > 1.05) {
+            // 630nm Crimson-Ruby Jewel Scarab thin-film interference
+            vec3 rubySpec = filmCol * vec3(1.22, 0.86, 0.90) + max(vec3(0.0), hiFreq) * vec3(1.45, 0.55, 0.65);
+            filmCol = mix(filmCol, clamp(rubySpec, 0.0, 1.0), clamp((uChitinShift - 0.9) * 1.4, 0.0, 1.0) * bugFg * 0.52);
+          } else if (uChitinShift > 0.0) {
+            // 585nm Aureate Gold Scarab specular highlight on compound eye facets & carapace
+            vec3 warmSpec = filmCol * vec3(1.16, 1.08, 0.84) + max(vec3(0.0), hiFreq) * vec3(1.35, 1.15, 0.58);
+            filmCol = mix(filmCol, clamp(warmSpec, 0.0, 1.0), clamp(uChitinShift, 0.0, 1.0) * bugFg * 0.50);
           } else {
-            // Subtle cool emerald-jade shadow grade & deep corneal contrast
-            vec3 jadeSpec = filmCol * vec3(0.88, 1.04, 1.08) + hiFreq * (1.2 * inAnyEye);
-            filmCol = mix(filmCol, clamp(jadeSpec, 0.0, 1.0), clamp(-uChitinShift, 0.0, 1.0) * bugFg * 0.45);
+            // 445nm Obsidian-Cyan / Sapphire-Violet structural interference
+            vec3 jadeSpec = filmCol * vec3(0.84, 1.04, 1.16) + hiFreq * (1.25 * inAnyEye);
+            filmCol = mix(filmCol, clamp(jadeSpec, 0.0, 1.0), clamp(-uChitinShift, 0.0, 1.0) * bugFg * 0.50);
           }
         }
 
@@ -1435,7 +1449,7 @@
   // Underline zig-zag flourish (sec_148 / ref_0226_icing)
   addIcingStroke([[-0.42, 0.24], [0.48, 0.21], [-0.18, 0.30], [0.56, 0.28]]);
 
-  // 7 Striped Birthday Candles + Dynamic Flickering Flames
+  // 12 Striped Birthday Candles + Dynamic Flickering Flames (0..6 canonical 7 wicks, 7..11 extended crown for 1..12 custom birthday cakes)
   const candlesGroup = new THREE.Group();
   cakeGroup.add(candlesGroup);
   const candleObjs = [];
@@ -1446,7 +1460,12 @@
     { x: -0.06, z: -0.52, h: 0.47, tiltX: -0.04, tiltZ:  0.02, stripeCol: new THREE.Color(0x2858b8) },
     { x:  0.06, z: -0.18, h: 0.44, tiltX:  0.06, tiltZ: -0.04, stripeCol: new THREE.Color(0xe8c848) },
     { x:  0.34, z: -0.42, h: 0.48, tiltX: -0.06, tiltZ: -0.10, stripeCol: new THREE.Color(0xd83224) },
-    { x:  0.66, z: -0.16, h: 0.46, tiltX:  0.08, tiltZ: -0.14, stripeCol: new THREE.Color(0xe8c848) }
+    { x:  0.66, z: -0.16, h: 0.46, tiltX:  0.08, tiltZ: -0.14, stripeCol: new THREE.Color(0xe8c848) },
+    { x: -0.64, z:  0.22, h: 0.45, tiltX:  0.05, tiltZ:  0.10, stripeCol: new THREE.Color(0x2858b8) },
+    { x: -0.32, z:  0.36, h: 0.47, tiltX:  0.07, tiltZ:  0.04, stripeCol: new THREE.Color(0xd83224) },
+    { x:  0.02, z:  0.40, h: 0.46, tiltX:  0.08, tiltZ: -0.02, stripeCol: new THREE.Color(0xe8c848) },
+    { x:  0.36, z:  0.34, h: 0.47, tiltX:  0.06, tiltZ: -0.07, stripeCol: new THREE.Color(0x2858b8) },
+    { x:  0.62, z:  0.18, h: 0.45, tiltX:  0.04, tiltZ: -0.11, stripeCol: new THREE.Color(0xd83224) }
   ];
 
   candleSpecs.forEach((spec, idx) => {
@@ -2608,13 +2627,24 @@
         bugEyeUniforms.uMandibleFlex.value = R1;
         bugEyeUniforms.uHeadShift.value = headShift;
 
-        // Wire PROTOCOL I // BUG DESIGNER Counterfactual Uniforms
-        const effHex = (vBug && vBug.hexDensity) ? vBug.hexDensity : Math.round(52 + (bugObjNorms[0] ? bugObjNorms[0][0] : L1) * 145);
-        const isSplit = Boolean(vBug && vBug.splitSpectrum > 0.5);
+        // Wire PROTOCOL I // BUG DESIGNER Counterfactual & Bespoke Custom Bug Uniforms
+        const cBug = (state.customBug && state.customBug.active) ? state.customBug : null;
+        const effHex = cBug
+          ? cBug.hexDensity
+          : ((vBug && vBug.hexDensity) ? vBug.hexDensity : Math.round(52 + (bugObjNorms[0] ? bugObjNorms[0][0] : L1) * 145));
+        const isSplit = cBug
+          ? Boolean(cBug.splitOptics)
+          : Boolean(vBug && vBug.splitSpectrum > 0.5);
+        const effChitinShift = cBug
+          ? ((cBug.wavelengthNm - 520) / 75.0)
+          : ((vBug && vBug.chitinShift !== undefined) ? vBug.chitinShift : 0.0);
+        const effDomeBoost = cBug
+          ? (cBug.eyeDome || 1.0)
+          : ((vBug && vBug.eyeDomeBoost) ? vBug.eyeDomeBoost : 1.0);
         bugEyeUniforms.uHexDensity.value = effHex;
-        bugEyeUniforms.uChitinShift.value = (vBug && vBug.chitinShift !== undefined) ? vBug.chitinShift : 0.0;
+        bugEyeUniforms.uChitinShift.value = effChitinShift;
         bugEyeUniforms.uSplitOptics.value = isSplit ? 1.0 : 0.0;
-        bugEyeUniforms.uEyeDomeBoost.value = (vBug && vBug.eyeDomeBoost) ? vBug.eyeDomeBoost : 1.0;
+        bugEyeUniforms.uEyeDomeBoost.value = effDomeBoost;
 
         bugEyeUniforms.uLightDir.value.set(
           0.25 + Math.sin(t * 1.35 + R2 * 3.0) * 0.24,
@@ -2625,8 +2655,12 @@
         bugEyeUniforms.uSetaeMorph.value = setaeMorph;
         bugEyeUniforms.uWireOverlay.value = wireOverlay;
 
-        const setaeMult = (vBug && vBug.setaeScale !== undefined) ? vBug.setaeScale : 1.0;
-        const bristleScale = Math.max(0.0, Math.min(1.9, ((setaeMorph - 0.18) / 0.65) * setaeMult));
+        const setaeMult = cBug
+          ? (cBug.setaeCount / 180.0)
+          : ((vBug && vBug.setaeScale !== undefined) ? vBug.setaeScale : 1.0);
+        const bristleScale = cBug
+          ? Math.max(0.0, Math.min(2.0, setaeMult))
+          : Math.max(0.0, Math.min(1.9, ((setaeMorph - 0.18) / 0.65) * setaeMult));
         setaeGroup.visible = bristleScale > 0.02;
         setaeList.forEach((b, idx) => {
           b.scale.setScalar(bristleScale);
@@ -2644,19 +2678,33 @@
         const snU = 0.442 - 0.068 * headShift + (tf1.dx || 0);
         const snV = 0.401 + 0.024 * headShift + (tf1.dy || 0);
 
-        const dxHexCount = isSplit ? 260 : Math.round(bugObjNorms[0][1] * effHex);
-        const snHexCount = isSplit ? 58  : Math.round(Math.max(leftFocus, bugObjNorms[1][1]) * effHex);
+        const dxHexCount = isSplit ? 260 : Math.round((cBug ? 1.0 : bugObjNorms[0][1]) * effHex);
+        const snHexCount = isSplit ? 58  : Math.round((cBug ? 1.0 : Math.max(leftFocus, bugObjNorms[1][1])) * effHex);
         if (drawVisualOverlay) {
           drawOpticalVernierLocus(holoCtx, w * dxU, h * dxV, 48, bugObjNorms[0][1], `OCULUS.DX // ${dxHexCount}_HEX`, true);
-          if (leftFocus > 0.10 || selIdx === 1 || isSplit) {
+          if (leftFocus > 0.10 || selIdx === 1 || isSplit || cBug) {
             drawOpticalVernierLocus(holoCtx, w * snU, h * snV, 46, Math.max(leftFocus, bugObjNorms[1][1]), `OCULUS.SN // ${snHexCount}_HEX`, true);
+          }
+          if (cBug && cBug.taxon) {
+            holoCtx.save();
+            holoCtx.font = '8.5px "JetBrains Mono", monospace';
+            holoCtx.fillStyle = 'rgba(56, 217, 192, 0.90)';
+            holoCtx.fillText(`HOLOTYPE // ${cBug.taxon.toUpperCase()} [${cBug.wavelengthNm}nm · ${dxHexCount}_HEX]`, w * 0.28, h * 0.12);
+            if (cBug.commonName) {
+              holoCtx.font = '7.5px "JetBrains Mono", monospace';
+              holoCtx.fillStyle = 'rgba(215, 234, 230, 0.72)';
+              holoCtx.fillText(`DESIGNATION // ${cBug.commonName.toUpperCase()}`, w * 0.28, h * 0.12 + 12);
+            }
+            holoCtx.restore();
           }
         }
         const rawCx = (selIdx === 0) ? dxU : (selIdx === 1 ? snU : (selObj.cx || 0.73) + selDx);
         const rawCy = (selIdx === 0) ? dxV : (selIdx === 1 ? snV : (selObj.cy || 0.44) + selDy);
         const arcX = w * Math.min(0.86, Math.max(0.24, rawCx + 0.11));
         const arcY = h * Math.min(0.72, Math.max(0.28, rawCy + 0.04));
-        const chitinTag = (vBug && vBug.idx === 1) ? '585nm SCARAB.AURUM' : (vBug && vBug.idx === 2) ? '455nm OBSIDIAN.VOID' : (vBug && vBug.idx === 3) ? 'SPLIT [260G / 58C]' : '520nm EMERALD';
+        const chitinTag = cBug
+          ? `${cBug.wavelengthNm}nm ${cBug.taxon ? cBug.taxon.slice(0, 14).toUpperCase() : 'CUSTOM'}`
+          : ((vBug && vBug.idx === 1) ? '585nm SCARAB.AURUM' : (vBug && vBug.idx === 2) ? '455nm OBSIDIAN.VOID' : (vBug && vBug.idx === 3) ? 'SPLIT [260G / 58C]' : '520nm EMERALD');
         drawFilmRadialArcMenu(
           holoCtx, arcX, arcY, 46, true, true, activeRingIdx,
           [`OCULUS.FOCUS // DX:${dxHexCount}_HEX SN:${snHexCount}_HEX`, `SETAE.GROWTH // ${Math.round(bristleScale * 180)} BRISTLES`, `CHITIN.SPEC  // ${chitinTag}`],
@@ -2735,8 +2783,12 @@
       const vCake = (window.OPERATOR_PROTOCOLS && window.OPERATOR_PROTOCOLS.cake && state.otherwiseVariant)
         ? window.OPERATOR_PROTOCOLS.cake.otherwise[state.otherwiseVariant.cake || 0]
         : null;
-      const isCakeOtherwise = Boolean(vCake && vCake.idx > 0);
-      bdayUniforms.uFrostingShift.value = (vCake && vCake.frostingShift !== undefined) ? vCake.frostingShift : 0.0;
+      const cCake = (state.customCake && state.customCake.active) ? state.customCake : null;
+      const isCakeOtherwise = Boolean((vCake && vCake.idx > 0) || cCake);
+      const glazeMap = { vanilla: 0.0, ganache: 0.92, rose: -0.85, matcha: -0.45, gold: 0.45 };
+      bdayUniforms.uFrostingShift.value = cCake
+        ? (glazeMap[cCake.glaze] !== undefined ? glazeMap[cCake.glaze] : 0.0)
+        : ((vCake && vCake.frostingShift !== undefined) ? vCake.frostingShift : 0.0);
 
       bdayUniforms.uTime.value = t;
       const orbitMag = Math.abs(orbitYaw) + Math.abs(orbitPitch);
@@ -2755,7 +2807,9 @@
       bdayUniforms.uStageProgress.value = stageProg;
 
       let bundtVal = state.bundtMorph || 0;
-      if (vCake && vCake.forceBundtInParty > 0.05) {
+      if (cCake && cCake.bundt !== undefined) {
+        bundtVal = cCake.bundt;
+      } else if (vCake && vCake.forceBundtInParty > 0.05) {
         bundtVal = vCake.forceBundtInParty;
       } else if (shot === 'bundtmorph') {
         bundtVal = Math.max(0.0, Math.min(0.96, (state.rings[2].angle - 48) / 96));
@@ -2782,35 +2836,50 @@
 
       const isBundt = bundtVal > 0.30;
       const topY = 0.55 * (1.0 + 0.36 * bundtVal);
-      const wind = shot === 'blowcandles' ? Math.max(0.05, R2) : 0.02 * Math.sin(t * 2.3);
+      if (cCake && cCake.blownOut) {
+        cCake.exhaleAnim = Math.min(1.0, (cCake.exhaleAnim || 0) + 0.025);
+      } else if (cCake) {
+        cCake.exhaleAnim = Math.max(0.0, (cCake.exhaleAnim || 0) - 0.04);
+      }
+      const wind = (cCake && cCake.exhaleAnim > 0.01)
+        ? cCake.exhaleAnim
+        : (shot === 'blowcandles' ? Math.max(0.05, R2) : 0.02 * Math.sin(t * 2.3));
       bdayUniforms.uCandleWind.value = Math.max(0, wind);
 
       // Show 3D primitive cake & table meshes in V2 (Pure 3D), V3 (Hybrid 3D), 2D+3D WEAVE, or ZERO primitive mode; in V4 (default), bgBirthdayQuad renders the 200x140 DPT-MiDaS 3D displaced film plates cleanly
       const engVer = state.engineVersion || 'v4';
       bgBirthdayQuad.visible = (engVer !== 'v2');
       const show3DExtras = (state.renderMode === 'zero') || (engVer === 'v2') || (engVer === 'v3' && shot !== 'cutouts');
+      const targetCandles = cCake ? Math.max(1, Math.min(12, parseInt(cCake.candles, 10) || 7)) : 7;
 
       candleObjs.forEach((c, idx) => {
-        let showThisCandle = true;
-        if (vCake && vCake.candleMode === 3) {
-          showThisCandle = (idx === 0 || idx === 2 || idx === 5);
-        } else if (shot === 'bundtmorph' && !(vCake && vCake.forceBundtInParty)) {
-          if (bundtVal < 0.28) showThisCandle = true;
-          else if (bundtVal < 0.65) showThisCandle = (idx === 3);
-          else showThisCandle = (idx === 1 || idx === 5);
-        } else if (shot === 'cakespawn' && stageProg < 0.35 && !isCakeOtherwise) {
-          showThisCandle = (idx === 0 || idx === 2 || idx === 5);
+        let showThisCandle = idx < targetCandles;
+        if (!cCake) {
+          if (vCake && vCake.candleMode === 3) {
+            showThisCandle = (idx === 0 || idx === 2 || idx === 5);
+          } else if (shot === 'bundtmorph' && !(vCake && vCake.forceBundtInParty)) {
+            if (bundtVal < 0.28) showThisCandle = idx < 7;
+            else if (bundtVal < 0.65) showThisCandle = (idx === 3);
+            else showThisCandle = (idx === 1 || idx === 5);
+          } else if (shot === 'cakespawn' && stageProg < 0.35 && !isCakeOtherwise) {
+            showThisCandle = (idx === 0 || idx === 2 || idx === 5);
+          } else {
+            showThisCandle = idx < 7;
+          }
         }
         c.holder.visible = show3DExtras && showThisCandle;
         const rScale = isBundt ? 0.50 : 1.0;
         c.holder.position.set(c.spec.x * rScale, topY, c.spec.z * rScale);
         c.holder.rotation.set(c.spec.tiltX, 0, c.spec.tiltZ);
         const flicker = 0.86 + 0.20 * Math.sin(t * 15.0 + idx * 2.1);
-        c.flame.scale.set(0.68, Math.max(0.01, 2.35 * flicker * (1.0 - Math.max(0, wind) * 0.45)), 0.68);
+        const flameAlive = Math.max(0.0, 1.0 - Math.max(0, wind - 0.15) * 1.15);
+        c.flame.visible = flameAlive > 0.04;
+        c.halo.visible = flameAlive > 0.08;
+        c.flame.scale.set(0.68, Math.max(0.01, 2.35 * flicker * flameAlive), 0.68);
         c.flame.rotation.z = -wind * 0.65;
       });
 
-      const forceSmarties = Boolean(vCake && vCake.forceSmartiesInParty);
+      const forceSmarties = cCake ? Boolean(cCake.smarties) : Boolean(vCake && vCake.forceSmartiesInParty);
       studsGroup.visible = show3DExtras && (shot !== 'cakespawn' || isBundt);
       topSmartiesGroup.visible = show3DExtras && (forceSmarties || (shot === 'cakespawn' && stageProg < 0.72));
       topSmartiesGroup.scale.set(isBundt ? 0.58 : 1.0, 1.0, isBundt ? 0.58 : 1.0);
@@ -2830,6 +2899,148 @@
       camera.position.set(orbitYaw * 0.4, orbitPitch * 0.3, 8.0 * zoomFactor);
       camera.lookAt(0, 0, 0);
 
+      // Helper: Draw Bespoke Custom Birthday Cake Piped Calligraphy, Custom Candles (1..12) & Exhale Smoke directly on the Cake Crown!
+      function drawBespokeCakeOverlay(crownX, crownY, crownRx, crownRy, tiltRad) {
+        if (!cCake || !drawVisualOverlay) return;
+        holoCtx.save();
+        holoCtx.translate(crownX, crownY);
+        holoCtx.rotate(tiltRad);
+
+        // 1. Optional 24 Smarties confectionery ring on the cake crown
+        if (cCake.smarties) {
+          const smCols = ['#d43824', '#2c68c8', '#e6a428', '#389642', '#783218'];
+          for (let s = 0; s < 16; s++) {
+            const sa = (s / 16) * Math.PI * 2;
+            const sx = Math.cos(sa) * crownRx * 0.88;
+            const sy = Math.sin(sa) * crownRy * 0.88;
+            holoCtx.fillStyle = smCols[s % smCols.length];
+            holoCtx.beginPath();
+            holoCtx.ellipse(sx, sy, 4.2, 2.4, sa * 0.3, 0, Math.PI * 2);
+            holoCtx.fill();
+            holoCtx.fillStyle = 'rgba(255,255,255,0.45)';
+            holoCtx.fillRect(sx - 1.5, sy - 1, 2, 1);
+          }
+        }
+
+        // 2. Custom Piped Buttercream Inscription (3D extruded crimson/gold icing bead + specular sugar crest)
+        const rawInsc = (cCake.inscription || '').trim();
+        if (rawInsc.length > 0) {
+          const revealCount = (shot === 'redicing')
+            ? Math.max(1, Math.ceil(Math.max(0.25, icingProg) * rawInsc.length))
+            : rawInsc.length;
+          const visibleText = rawInsc.slice(0, revealCount);
+          const lines = visibleText.length > 14 && visibleText.includes(' ')
+            ? (() => {
+                const words = visibleText.split(' ');
+                const mid = Math.ceil(words.length / 2);
+                return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
+              })()
+            : [visibleText];
+
+          holoCtx.save();
+          holoCtx.scale(1.0, Math.max(0.54, crownRy / Math.max(1, crownRx)));
+          const fontSize = Math.max(11, Math.min(20, Math.round((crownRx * 1.45) / Math.max(5, lines[0].length * 0.65))));
+          holoCtx.font = `700 ${fontSize}px "Inter", "PingFang SC", "Hiragino Sans", sans-serif`;
+          holoCtx.textAlign = 'center';
+          holoCtx.textBaseline = 'middle';
+
+          const isDarkGlaze = (cCake.glaze === 'ganache');
+          const pipeShadow = isDarkGlaze ? 'rgba(28, 8, 4, 0.92)' : 'rgba(62, 6, 4, 0.90)';
+          const pipeMid    = isDarkGlaze ? 'rgba(232, 68, 52, 0.96)' : 'rgba(186, 24, 18, 0.96)';
+          const pipeHi     = isDarkGlaze ? 'rgba(255, 198, 168, 0.85)' : 'rgba(255, 142, 128, 0.82)';
+
+          lines.forEach((ln, lIdx) => {
+            const ly = (lIdx - (lines.length - 1) * 0.5) * (fontSize * 1.18) + 6;
+            // 3D Extruded Buttercream Shadow Bead
+            holoCtx.lineJoin = 'round';
+            holoCtx.lineCap = 'round';
+            holoCtx.lineWidth = 4.2;
+            holoCtx.strokeStyle = pipeShadow;
+            holoCtx.strokeText(ln, 1.5, ly + 2.2);
+            holoCtx.fillStyle = pipeShadow;
+            holoCtx.fillText(ln, 1.5, ly + 2.2);
+
+            // Primary Piped Buttercream Body
+            holoCtx.lineWidth = 2.4;
+            holoCtx.strokeStyle = pipeMid;
+            holoCtx.strokeText(ln, 0, ly);
+            holoCtx.fillStyle = pipeMid;
+            holoCtx.fillText(ln, 0, ly);
+
+            // Specular Sugar Highlight Crest
+            holoCtx.fillStyle = pipeHi;
+            holoCtx.fillText(ln, -0.6, ly - 0.9);
+          });
+
+          // Piped crimson zig-zag flourish underneath inscription
+          const flY = (lines.length * 0.5) * (fontSize * 1.1) + 12;
+          const flW = Math.min(crownRx * 0.72, 74);
+          holoCtx.strokeStyle = pipeMid;
+          holoCtx.lineWidth = 2.2;
+          holoCtx.beginPath();
+          holoCtx.moveTo(-flW * 0.65, flY);
+          holoCtx.lineTo(flW * 0.65, flY - 2);
+          holoCtx.lineTo(-flW * 0.35, flY + 5);
+          holoCtx.lineTo(flW * 0.75, flY + 4);
+          holoCtx.stroke();
+          holoCtx.restore();
+        }
+
+        // 3. Custom Lit Birthday Candles (when candle count != 7 or when exhaling/blowing out candles)
+        if (targetCandles !== 7 || wind > 0.12) {
+          const nC = targetCandles;
+          const cH = Math.max(22, crownRx * 0.36);
+          for (let c = 0; c < nC; c++) {
+            const ca = -Math.PI * 0.88 + (nC === 1 ? Math.PI * 0.38 : (c / (nC - 1)) * Math.PI * 0.82);
+            const cx = Math.cos(ca) * crownRx * 0.72;
+            const cy = Math.sin(ca) * crownRy * 0.62 - 6;
+
+            // Striped wax candle shaft
+            holoCtx.fillStyle = (c % 2 === 0) ? 'rgba(238, 224, 198, 0.92)' : 'rgba(224, 72, 56, 0.90)';
+            holoCtx.fillRect(cx - 2.2, cy - cH, 4.4, cH);
+            holoCtx.fillStyle = 'rgba(30, 20, 12, 0.9)';
+            holoCtx.fillRect(cx - 0.6, cy - cH - 4, 1.2, 4);
+
+            const flameAlive = Math.max(0.0, 1.0 - Math.max(0, wind - 0.12) * 1.18);
+            if (flameAlive > 0.05) {
+              const flk = 0.85 + 0.22 * Math.sin(t * 16.0 + c * 1.9);
+              const bendX = -wind * 14.0;
+              const fx = cx + bendX * 0.4;
+              const fy = cy - cH - 9 * flameAlive * flk;
+              const grad = holoCtx.createRadialGradient(fx, fy, 1, fx, fy, 14 * flameAlive);
+              grad.addColorStop(0, 'rgba(255, 252, 230, 0.98)');
+              grad.addColorStop(0.35, 'rgba(255, 168, 48, 0.82)');
+              grad.addColorStop(1, 'rgba(255, 90, 12, 0.0)');
+              holoCtx.fillStyle = grad;
+              holoCtx.beginPath();
+              holoCtx.arc(fx, fy, 14 * flameAlive, 0, Math.PI * 2);
+              holoCtx.fill();
+            } else {
+              // Rising warm ember & candle smoke curl after blowing out candles!
+              const smokeY = cy - cH - 8 - ((t * 18 + c * 7) % 28);
+              const smokeX = cx - 6 - Math.sin(t * 3.2 + c) * 5;
+              holoCtx.strokeStyle = 'rgba(215, 228, 235, 0.42)';
+              holoCtx.lineWidth = 1.2;
+              holoCtx.beginPath();
+              holoCtx.moveTo(cx, cy - cH - 4);
+              holoCtx.quadraticCurveTo(cx - 8, (cy - cH + smokeY) * 0.5, smokeX, smokeY);
+              holoCtx.stroke();
+            }
+          }
+        }
+        holoCtx.restore();
+
+        // Top-center diegetic recipient banner when custom cake is active
+        if (cCake.inscription) {
+          holoCtx.save();
+          holoCtx.font = '8.5px "JetBrains Mono", monospace';
+          holoCtx.fillStyle = 'rgba(240, 168, 72, 0.92)';
+          const statusStr = cCake.blownOut ? 'WISH MADE [CANDLES EXTINGUISHED]' : `${String(targetCandles).padStart(2, '0')} WICKS LIT [3200K]`;
+          holoCtx.fillText(`PATISSERIE.OS // "${cCake.inscription.toUpperCase()}" · ${statusStr}`, w * 0.24, h * 0.11);
+          holoCtx.restore();
+        }
+      }
+
       if (shot === 'cakespawn') {
         bdayUniforms.uShotMode.value = 0.0;
         hexTableGroup.visible = false;
@@ -2838,7 +3049,9 @@
         cakeGroup.position.set(-2.05 + selDx * 4.5, -0.18 - selDy * 2.8, 0.45);
         cakeGroup.rotation.set(0.30 + orbitPitch, 0.22 + orbitYaw, -0.10);
 
-        const candleCount = (vCake && vCake.candleMode === 3) || (stageProg < 0.35 && !isCakeOtherwise) ? '03_WICKS' : '07_WICKS';
+        drawBespokeCakeOverlay(w * (0.335 + selDx), h * (0.505 + selDy), w * 0.085, h * 0.055, -0.06);
+
+        const candleCount = cCake ? `${String(targetCandles).padStart(2, '0')}_WICKS` : ((vCake && vCake.candleMode === 3) || (stageProg < 0.35 && !isCakeOtherwise) ? '03_WICKS' : '07_WICKS');
         const smartieState = (forceSmarties || stageProg < 0.70) ? '24_SMARTIES_ON' : 'TOP_CLEARED';
         const arcX = w * Math.min(0.82, Math.max(0.32, (selObj.cx || 0.32) + selDx + 0.14));
         const arcY = h * Math.min(0.72, Math.max(0.28, (selObj.cy || 0.45) + selDy));
@@ -2860,6 +3073,8 @@
           -0.08 - bundtVal * 0.20
         );
 
+        drawBespokeCakeOverlay(w * (0.255 + selDx), h * (0.495 + selDy), w * 0.082, h * 0.052, -0.14 * bundtVal);
+
         const bundtStage = bundtVal < 0.30 ? 'CYL_07_WICKS' : (bundtVal < 0.68 ? 'EXTRUDE_01_WICK' : 'BUNDT_02_WICKS');
         const arcX = w * Math.min(0.82, Math.max(0.28, (selObj.cx || 0.22) + selDx + 0.10));
         const arcY = h * Math.min(0.72, Math.max(0.28, (selObj.cy || 0.42) + selDy));
@@ -2877,6 +3092,8 @@
         cakeGroup.position.set(-1.95 + selDx * 4.5, -0.22 - selDy * 2.8, 0.75);
         cakeGroup.rotation.set(0.56 + orbitPitch, -0.18 + orbitYaw, 0.24);
 
+        drawBespokeCakeOverlay(w * (0.338 + selDx), h * (0.555 + selDy), w * 0.115, h * 0.078, 0.14);
+
         if (drawVisualOverlay) {
           const tipX = w * (0.295 + icingProg * 0.095 + selDx);
           const tipY = h * (0.565 - Math.sin(icingProg * Math.PI) * 0.025 + selDy);
@@ -2891,12 +3108,14 @@
           holoCtx.restore();
         }
 
-        const hanziStage = icingProg < 0.45 ? '[生日]' : (icingProg < 0.82 ? '[生日快樂]' : '[生日快樂 + FLOURISH]');
+        const hanziStage = (cCake && cCake.inscription)
+          ? `[${cCake.inscription.slice(0, 14).toUpperCase()}]`
+          : (icingProg < 0.45 ? '[生日]' : (icingProg < 0.82 ? '[生日快樂]' : '[生日快樂 + FLOURISH]'));
         const arcX = w * Math.min(0.82, Math.max(0.32, (selObj.cx || 0.34) + selDx + 0.18));
         const arcY = h * Math.min(0.72, Math.max(0.28, (selObj.cy || 0.50) + selDy));
         drawFilmRadialArcMenu(
           holoCtx, arcX, arcY, 54, true, true, activeRingIdx,
-          [`SURF.PIPE   // HANZI_ICING ${hanziStage}`, `NOZZLE.LOCUS// STROKE ${(icingProg * 18).toFixed(0)}/18`, `WICK.RIG    // 07_CANDLE_EMISSIVE_3200K`],
+          [`SURF.PIPE   // ICING ${hanziStage}`, `NOZZLE.LOCUS// STROKE ${(icingProg * 18).toFixed(0)}/18`, `WICK.RIG    // ${String(targetCandles).padStart(2, '0')}_CANDLE_EMISSIVE_3200K`],
           drawVisualOverlay, selNorms, selObj
         );
       }
@@ -2912,6 +3131,9 @@
         cakeGroup.scale.set(isBundt ? 0.66 : 0.56, 0.56, isBundt ? 0.66 : 0.56);
         cakeGroup.position.set(0.01, -0.46, 0.35);
         cakeGroup.rotation.set(0.18 + orbitPitch * 0.4, orbitYaw * 0.35, 0);
+
+        const cTf3 = (state.objectTransforms && state.objectTransforms.cutouts && state.objectTransforms.cutouts[3]) || { dx: 0, dy: 0 };
+        drawBespokeCakeOverlay(w * (0.495 + (cTf3.dx || 0)), h * (0.555 + (cTf3.dy || 0)), w * 0.068, h * 0.036, 0.0);
 
         const cTf0 = (state.objectTransforms && state.objectTransforms.cutouts && state.objectTransforms.cutouts[0]) || { dx: 0, dy: 0 };
         const cTf1 = (state.objectTransforms && state.objectTransforms.cutouts && state.objectTransforms.cutouts[1]) || { dx: 0, dy: 0 };
@@ -2944,11 +3166,13 @@
         cakeGroup.position.set(0.0, -1.65, 1.8);
         cakeGroup.rotation.set(0.05, Math.sin(t * 0.7) * 0.08, 0);
 
+        drawBespokeCakeOverlay(w * (0.495 + selDx), h * (0.765 + selDy), w * 0.095, h * 0.048, 0.0);
+
         const arcX = w * Math.min(0.84, Math.max(0.24, (selObj.cx || 0.49) + selDx + 0.16));
         const arcY = h * Math.min(0.74, Math.max(0.26, (selObj.cy || 0.48) + selDy));
         drawFilmRadialArcMenu(
           holoCtx, arcX, arcY, 44, true, true, activeRingIdx,
-          [`EXHALE.SEQ  // 02:53->03:09 [${(wind * 100).toFixed(0)}%]`, `PLUME.WIND  // 7_WICKS_EXTINGUISH`, `SAM.TARGET  // ${selObj.id}`],
+          [`EXHALE.SEQ  // 02:53->03:09 [${(wind * 100).toFixed(0)}%]`, `PLUME.WIND  // ${targetCandles}_WICKS_EXTINGUISH`, `SAM.TARGET  // ${selObj.id}`],
           drawVisualOverlay, selNorms, selObj
         );
       }
@@ -3009,6 +3233,46 @@
         [`EQUUS.HULL  // WHITTLE ${(selNorms[0] * 100).toFixed(0)}%`, `BASE.INSC   // [6 · 10 · 21]`, `FURNACE.RIM // 3200K RADIANCE`],
         drawVisualOverlay, selNorms, selObj
       );
+    }
+
+    // ------------------------------------------------------------------------
+    // WHISPER-CLEAN IN-WORLD VIEWFINDER HORIZON MICRO-BAR (Bottom-Right)
+    // Allows stepping shots, cycling COMP / OTHERWISE, and opening BUILD / IMPRINT
+    // with zero non-diegetic web-chrome clutter occluding the hologram!
+    // ------------------------------------------------------------------------
+    if (drawVisualOverlay && w > 420) {
+      const shotOrder = ['canopy', 'leaf', 'bugeye', 'clearing', 'cakespawn', 'bundtmorph', 'redicing', 'cutouts', 'blowcandles', 'miniature', 'horsecarve'];
+      const shotIdx = Math.max(0, shotOrder.indexOf(shot));
+      const vy = h - 9;
+      holoCtx.save();
+      holoCtx.font = '7px "JetBrains Mono", monospace';
+      holoCtx.textBaseline = 'middle';
+
+      const items = [
+        { label: '< PREV', w: 38, act: () => { if (window.selectFilmShot) window.selectFilmShot(shotOrder[(shotIdx - 1 + shotOrder.length) % shotOrder.length]); } },
+        { label: `${String(shotIdx + 1).padStart(2, '0')}/11 ${shot.toUpperCase()}`, w: 78, act: () => { if (window.toggleLabDrawer) window.toggleLabDrawer(); } },
+        { label: 'NEXT >', w: 38, act: () => { if (window.selectFilmShot) window.selectFilmShot(shotOrder[(shotIdx + 1) % shotOrder.length]); } },
+        { label: `COMP:${(state.compositeMode || 'FULL').slice(0, 6).toUpperCase()}`, w: 66, act: () => { if (window.cycleCompositeMode) window.cycleCompositeMode(); } },
+        { label: 'OTHERWISE [O]', w: 68, act: () => { if (window.cycleOtherwiseVariant) window.cycleOtherwiseVariant(); } },
+        { label: 'BUILD BUG/CAKE [B]', w: 94, hi: true, act: () => { if (window.toggleBespokeBuilder) window.toggleBespokeBuilder(); } }
+      ];
+
+      let curX = w - 14;
+      for (let i = items.length - 1; i >= 0; i--) {
+        const it = items[i];
+        const x0 = curX - it.w;
+        holoCtx.fillStyle = it.hi ? 'rgba(240, 168, 72, 0.68)' : 'rgba(195, 218, 214, 0.42)';
+        holoCtx.fillText(it.label, x0 + 4, vy);
+        activeOverlayHitboxes.push({
+          x: x0,
+          y: vy - 10,
+          w: it.w,
+          h: 18,
+          onClick: it.act
+        });
+        curX = x0 - 8;
+      }
+      holoCtx.restore();
     }
 
     renderer.render(scene, camera);
