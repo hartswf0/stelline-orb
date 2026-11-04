@@ -23,16 +23,16 @@
     const r = H.rng(seed);
     const g = { kind: 'bug', seed, facets: 0.2 + r() * 0.75, focus: 0.5 + r() * 0.4, setae: r() * 0.9, gait: 0.2 + r() * 0.6, chitin: r(), split: 0,
       thorax: [0.85 + r() * 0.3, 0.55 + r() * 0.2, 0.75 + r() * 0.3], head: 0.9 + r() * 0.25, elytra: 0.85 + r() * 0.5, leg: 0.85 + r() * 0.5, ant: 0.8 + r() * 0.7, jaw: 0.5 + r() * 0.8,
-      stripes: r() < 0.5 ? Math.floor(r() * 3) + 1 : 0, habitat: r() < 0.7 ? 'leaf' : 'bark', mm: Math.round(8 + r() * 28), variant: -1 };
+      stripes: r() < 0.5 ? Math.floor(r() * 3) + 1 : 0, form: r() < 0.5 ? 'longhorn' : 'carabid', dull: r() < 0.5 ? 0.6 * r() : 0, habitat: r() < 0.5 ? 'bokeh' : (r() < 0.6 ? 'leaf' : 'bark'), mm: Math.round(8 + r() * 28), variant: -1 };
     g.name = NAMES_A[(r() * NAMES_A.length) | 0] + ' ' + NAMES_B[(r() * NAMES_B.length) | 0];
     return g;
   }
-  function filmCanon(seed) { const g = makeGenome(seed); Object.assign(g, FILM_VARIANTS[0].patch, { thorax: [0.95, 0.62, 0.85], head: 1, elytra: 1, leg: 1, ant: 1, jaw: 0.9, stripes: 0, habitat: 'leaf', name: 'Carabus stellinae', mm: 14, variant: 0 }); return g; }
+  function filmCanon(seed) { const g = makeGenome(seed); Object.assign(g, FILM_VARIANTS[0].patch, { form: 'longhorn', dull: 0.85, thorax: [0.9, 0.9, 1.0], head: 1.15, elytra: 1.1, leg: 1.1, ant: 1.9, jaw: 0.75, stripes: 0, habitat: 'bokeh', name: 'Cerambyx stellinae', mm: 22, variant: 0, focus: 0.82 }); return g; }
 
   const dialOf = v => 20 + 180 * clamp(v, 0, 1);
   const valOf = a => clamp((((a % 360) + 360) % 360 - 20) / 180, 0, 1);
   function dials(g) { return [dialOf(g.facets), dialOf(g.focus), dialOf(g.setae), dialOf(g.gait), dialOf(g.chitin)]; }
-  const chitinColor = (g, k) => new T.Color().setHSL((0.55 - 0.9 * g.chitin + 2) % 1, 0.62 * (k || 1), 0.05 * (k || 1) + 0.012);
+  const chitinColor = (g, k) => new T.Color().setHSL((0.55 - 0.9 * g.chitin + 2) % 1, 0.62 * (k || 1) * (1 - 0.82 * (g.dull || 0)), 0.05 * (k || 1) + 0.012 + 0.008 * (g.dull || 0));
 
   function hexBump(density) {
     const S = 512;
@@ -55,13 +55,13 @@
     const root = ctx.root, S = g;
     const mats = {}; H.updaters = []; H.parts = [];
     const color = chitinColor(g);
-    const chitin = H.iridescent(new T.MeshPhysicalMaterial({ color, map: mottle(g), roughness: 0.34, metalness: 0.2, clearcoat: 1, clearcoatRoughness: 0.1 }), 0.22);
+    const LH = g.form === 'longhorn'; const dullK = g.dull || 0; const chitin = H.iridescent(new T.MeshPhysicalMaterial({ color, map: mottle(g), roughness: 0.34 + 0.4 * (g.dull || 0), metalness: 0.2, clearcoat: 1, clearcoatRoughness: 0.1 + 0.3 * (g.dull || 0), clearcoat: 1 - 0.85 * (g.dull || 0) }), 0.22 * (1 - (g.dull || 0))); chitin.envMapIntensity *= (1 - 0.65 * dullK);
     const elyMat = H.iridescent(new T.MeshPhysicalMaterial({ color: 0xffffff, map: stripeMap(g), roughness: 0.26, metalness: 0.18, clearcoat: 1, clearcoatRoughness: 0.06 }), 0.25);
     const dark = new T.MeshPhysicalMaterial({ color: new T.Color(0.03, 0.02, 0.014), roughness: 0.32, metalness: 0.1, clearcoat: 0.8, clearcoatRoughness: 0.2, envMapIntensity: 0.6 });
     function eyeMat(side) {
-      const split = g.split && side < 0; const f = split ? 0.06 : g.facets; const dens = 14 + f * 70;
-      const col = split ? new T.Color().setHSL(0.52, 0.5, 0.2) : new T.Color().setHSL((0.10 + 0.05 * g.chitin) % 1, 0.85, 0.05);
-      const m = new T.MeshPhysicalMaterial({ color: col, roughness: 0.3, metalness: 0.05, clearcoat: 0.55, clearcoatRoughness: 0.06, bumpMap: hexBump(dens), bumpScale: 1.1 + f * 0.8, envMapIntensity: 0.4 });
+      const split = g.split && side < 0; const f = split ? 0.06 : g.facets; const dens = 7 + f * 30;
+      const col = split ? new T.Color().setHSL(0.52, 0.5, 0.2) : new T.Color().setHSL(0.25, 0.85 * (1 - 0.97 * (g.dull || 0)), 0.05 - 0.02 * (g.dull || 0));
+      const m = new T.MeshPhysicalMaterial({ color: col, roughness: 0.3 + 0.35 * (g.dull || 0), metalness: 0.05, clearcoat: 0.55 - 0.4 * (g.dull || 0), clearcoatRoughness: 0.06, bumpMap: hexBump(dens), bumpScale: 1.1 + f * 0.8, envMapIntensity: 0.4 * (1 - 0.8 * (g.dull || 0)) });
       m.onBeforeCompile = sh => { sh.fragmentShader = sh.fragmentShader.replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\n float pp = dot(normalize(vViewPosition), normal); diffuseColor.rgb *= mix(1.0, 0.12, smoothstep(0.80, 0.96, pp)); diffuseColor.rgb += vec3(0.05,0.025,0.0) * smoothstep(0.35,0.7,pp) * (1.0 - smoothstep(0.7,0.95,pp));'); };
       return m;
     }
@@ -80,11 +80,12 @@
       const m = new T.MeshStandardMaterial({ color: lc, roughness: g.habitat === 'leaf' ? 0.68 : 0.9, metalness: 0, bumpMap: H.noiseTex(512, (u, v) => { const c = Math.round(110 + 70 * H.fbm(u * 8, v * 8, 3)); return [c, c, c]; }, false, 2), bumpScale: 0.25, envMapIntensity: 0.28 });
       const mesh = new T.Mesh(geo, m); mesh.receiveShadow = true; return mesh;
     })();
-    root.add(ground);
+    if (g.habitat !== 'bokeh') root.add(ground);
+    else { const bt = H.noiseTex(256, (u, v) => { const n = H.fbm(u * 3, v * 3, 3); return [100 + 50 * (1 - v) + 30 * n, 135 + 50 * (1 - v) + 25 * n, 70 + 30 * n]; }, true); const bm = new T.MeshBasicMaterial({ map: bt, toneMapped: false }); bm.color.setScalar(0.36); const bp = new T.Mesh(new T.PlaneGeometry(60, 34), bm); bp.position.set(0, 6, -9); root.add(bp); const fl = new T.Mesh(new T.CircleGeometry(30, 32), new T.MeshStandardMaterial({ color: 0x0d1a08, roughness: 0.9 })); fl.rotation.x = -Math.PI / 2; fl.position.y = -0.02; fl.receiveShadow = true; root.add(fl); }
     // dew
     const dewMat = new T.MeshPhysicalMaterial({ color: 0x18262c, roughness: 0.02, metalness: 0, clearcoat: 1, clearcoatRoughness: 0, envMapIntensity: 1.1, reflectivity: 0.9 });
     const dr = H.rng(g.seed ^ 77);
-    for (let i = 0; i < 16; i++) { const r = 0.07 + dr() * 0.22; const d = new T.Mesh(new T.SphereGeometry(r, 24, 16), dewMat); const a = dr() * 6.28, rad = 1.6 + dr() * 5; d.position.set(Math.cos(a) * rad, r * 0.45, Math.sin(a) * rad); d.scale.y = 0.55; d.castShadow = true; root.add(d); }
+    for (let i = 0; i < (g.habitat === 'bokeh' ? 0 : 16); i++) { const r = 0.07 + dr() * 0.22; const d = new T.Mesh(new T.SphereGeometry(r, 24, 16), dewMat); const a = dr() * 6.28, rad = 1.6 + dr() * 5; d.position.set(Math.cos(a) * rad, r * 0.45, Math.sin(a) * rad); d.scale.y = 0.55; d.castShadow = true; root.add(d); }
 
     // ---- body ------------------------------------------------------------------
     const bug = new T.Group(); root.add(bug); bug.position.y = 0.0;
@@ -92,7 +93,7 @@
     // thorax (pronotum) with a groove
     const thorax = ell(chitin, [0.95 * S.thorax[0], 0.62 * S.thorax[1], 0.85 * S.thorax[2]], [0, 1.35, -0.15]); bug.add(thorax);
     { const gp = thorax.geometry.attributes.position; for (let i = 0; i < gp.count; i++) { const x = gp.getX(i), y = gp.getY(i), z = gp.getZ(i); const k = 1 - 0.06 * Math.exp(-x * x * 40) * (y > 0 ? 1 : 0) + 0.025 * Math.sin(z * 9) * (y > 0 ? 1 : 0); gp.setXYZ(i, x * k, y * (1 - 0.0), z); } thorax.geometry.computeVertexNormals(); }
-    const head = ell(chitin, [0.62 * S.head, 0.5 * S.head, 0.6 * S.head], [0, 1.22, 1.15]); bug.add(head);
+    const head = LH ? ell(chitin, [0.72 * S.head, 0.7 * S.head, 0.6 * S.head], [0, 1.3, 1.1]) : ell(chitin, [0.62 * S.head, 0.5 * S.head, 0.6 * S.head], [0, 1.22, 1.15]); bug.add(head);
     // elytra (two wing cases)
     const elyGeo = new T.SphereGeometry(1, 64, 40);
     { const p = elyGeo.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i), z = p.getZ(i); const ridge = 0.025 * Math.sin(x * 22) * Math.max(0, y); p.setXYZ(i, x, y + ridge, z); } elyGeo.computeVertexNormals(); }
@@ -100,7 +101,7 @@
     [-1, 1].forEach(s => { const e = new T.Mesh(elyGeo, elyMat); e.scale.set(0.5, 0.58, 1.75 * S.elytra); e.position.set(s * 0.47, 1.42, -1.65 * S.elytra + 0.15); e.rotation.z = s * -0.05; e.castShadow = true; e.receiveShadow = true; bug.add(e); elytra.push(e); });
     // eyes
     const eyes = [];
-    [1, -1].forEach(side => { const m = eyeMat(side); const e = new T.Mesh(new T.SphereGeometry(1, 96, 64), m); const bulge = 0.8 + 0.5 * g.focus; e.scale.set(0.25 * bulge, 0.31 * bulge, 0.28 * bulge); e.position.set(side * 0.47 * S.head, 1.33, 1.3); e.castShadow = true; bug.add(e); eyes.push({ mesh: e, side }); });
+    [1, -1].forEach(side => { const m = eyeMat(side); const e = new T.Mesh(new T.SphereGeometry(1, 96, 64), m); const bulge = 0.8 + 0.5 * g.focus; if (LH) { e.scale.set(0.27 * bulge, 0.4 * bulge, 0.15 * bulge); e.position.set(side * 0.5 * S.head, 1.4, 1.5); e.rotation.y = side * 0.5; } else { e.scale.set(0.25 * bulge, 0.31 * bulge, 0.28 * bulge); e.position.set(side * 0.47 * S.head, 1.33, 1.3); } e.castShadow = true; bug.add(e); eyes.push({ mesh: e, side }); });
     // mandibles
     const mand = [];
     [1, -1].forEach(side => { const curve = new T.CatmullRomCurve3([V3(side * 0.24, 1.1, 1.58), V3(side * 0.34, 1.02, 1.95), V3(side * 0.2, 0.98, 2.3 * S.jaw), V3(side * 0.02, 1.02, 2.46 * S.jaw)]);
@@ -109,8 +110,8 @@
     { const l = ell(dark, [0.2, 0.08, 0.16], [0, 1.06, 1.68], 24); bug.add(l); }
     // antennae: beaded
     const ants = [];
-    [1, -1].forEach(side => { const pts = [V3(side * 0.2, 1.55, 1.45), V3(side * 0.55, 2.0, 1.9), V3(side * 1.0, 2.15, 2.5 * S.ant), V3(side * 1.5, 1.95, 3.1 * S.ant)]; const curve = new T.CatmullRomCurve3(pts);
-      const geo = H.sweep(curve, u => 0.045 * (1 - u * 0.5) * (0.82 + 0.28 * Math.pow(Math.abs(Math.sin(u * Math.PI * 11)), 0.5)), 96, 10); const m = new T.Mesh(geo, chitin); m.castShadow = true; const pv = new T.Group(); pv.add(m); pv.position.set(side * 0.2, 1.55, 1.45); m.position.set(-side * 0.2, -1.55, -1.45); bug.add(pv); ants.push({ pv, side }); });
+    [1, -1].forEach(side => { const pts = LH ? [V3(side * 0.3, 1.85, 1.3), V3(side * 0.75, 2.55, 1.5), V3(side * 1.45 * S.ant * 0.7, 3.0, 1.75), V3(side * 2.4 * S.ant * 0.7, 3.1, 2.0)] : [V3(side * 0.2, 1.55, 1.45), V3(side * 0.55, 2.0, 1.9), V3(side * 1.0, 2.15, 2.5 * S.ant), V3(side * 1.5, 1.95, 3.1 * S.ant)]; const curve = new T.CatmullRomCurve3(pts);
+      const geo = H.sweep(curve, u => 0.045 * (1 - u * 0.5) * (0.82 + 0.28 * Math.pow(Math.abs(Math.sin(u * Math.PI * 11)), 0.5)), 96, 10); const m = new T.Mesh(geo, chitin); m.castShadow = true; const pv = new T.Group(); pv.add(m); pv.position.set(0, 0, 0); bug.add(pv); ants.push({ pv, side }); });
     // legs (3 per side)
     const legs = [];
     const legDef = [[0.55, 0.38, 0.9], [0.9, -0.35, 0.3], [0.85, -1.15, -0.5]];
@@ -183,15 +184,16 @@
   // dial edits that don't need a full rebuild
   function onDial(ring, ang) {
     const g = H.genome, v = valOf(ang), R = H.bugRefs; if (!R) return;
-    if (ring === 0) { g.facets = v; clearTimeout(onDial.t); onDial.t = setTimeout(() => R.eyes.forEach(e => { const split = g.split && e.side < 0; const f = split ? 0.06 : g.facets; if (e.mesh.material.bumpMap) e.mesh.material.bumpMap.dispose(); e.mesh.material.bumpMap = hexBump(14 + f * 70); e.mesh.material.bumpScale = 1.1 + f * 0.8; e.mesh.material.needsUpdate = true; }), 90); }
+    if (ring === 0) { g.facets = v; clearTimeout(onDial.t); onDial.t = setTimeout(() => R.eyes.forEach(e => { const split = g.split && e.side < 0; const f = split ? 0.06 : g.facets; if (e.mesh.material.bumpMap) e.mesh.material.bumpMap.dispose(); e.mesh.material.bumpMap = hexBump(7 + f * 30); e.mesh.material.bumpScale = 1.1 + f * 0.8; e.mesh.material.needsUpdate = true; }), 90); }
     else if (ring === 1) { g.focus = v; const bulge = 0.8 + 0.5 * g.focus; R.eyes.forEach(e => { e.mesh.scale.set(0.25 * bulge, 0.31 * bulge, 0.28 * bulge); }); }
     else if (ring === 2) { g.setae = v; R.layoutSetae(); }
     else if (ring === 3) { g.gait = v; }
-    else if (ring === 4) { g.chitin = v; R.chitin.color.copy(chitinColor(g)); if (R.chitin.userData.hue) R.chitin.userData.hue.value = v; if (R.elyMat.map) R.elyMat.map.dispose(); R.elyMat.map = stripeMap(g); R.elyMat.needsUpdate = true; R.eyes.forEach(e => { if (!(g.split && e.side < 0)) e.mesh.material.color.setHSL((0.10 + 0.05 * g.chitin) % 1, 0.8, 0.075); }); }
+    else if (ring === 4) { g.chitin = v; R.chitin.color.copy(chitinColor(g)); if (R.chitin.userData.hue) R.chitin.userData.hue.value = v; if (R.elyMat.map) R.elyMat.map.dispose(); R.elyMat.map = stripeMap(g); R.elyMat.needsUpdate = true; R.eyes.forEach(e => { if (!(g.split && e.side < 0)) e.mesh.material.color.setHSL((0.10 + 0.05 * g.chitin) % 1, 0.85 * (1 - 0.9 * (g.dull || 0)), 0.05 - 0.018 * (g.dull || 0)); }); }
     g.variant = -1;
   }
 
   H.register('bug', {
+    ref: { sec: 33, frame: { pos: [0, 1.7, 1.2], dist: 5.0, yaw: 0.0, pitch: -0.03, focusK: 0.9 } },
     mood: g => (g.habitat === 'leaf' ? 'forest' : 'studio'), makeGenome, build, filmCanon, dials, onDial, variants: FILM_VARIANTS,
     overview: { pos: [0, 1.15, 0.5], dist: 8.2, yaw: 0.72, pitch: 0.3 },
     labels: ['L1:HEX.FACET', 'L2:OPTIC.DOME', 'L3:SETAE', 'R1:MAND.GAIT', 'R2:CHITIN.NM'],

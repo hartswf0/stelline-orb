@@ -11,13 +11,14 @@
   const V3 = (x, y, z) => new T.Vector3(x, y, z);
 
   const SPONGES = [['vanilla', '#e3c68e'], ['chocolate', '#4a2c1c'], ['red velvet', '#8b2230'], ['lemon', '#efd878'], ['matcha', '#9bb56b'], ['strawberry', '#f0a3a6']];
-  const ICINGS = [['buttercream', '#f6ecd8'], ['rose', '#f1b9c4'], ['mint', '#bfe6d2'], ['sky', '#bcd7f0'], ['ganache', '#3b2217'], ['lilac', '#cdb8ea']];
+  const ICINGS = [['buttercream', '#f6ecd8'], ['rose', '#f1b9c4'], ['mint', '#bfe6d2'], ['sky', '#bcd7f0'], ['ganache', '#3b2217'], ['lilac', '#cdb8ea'], ['film cream', '#e6c98e']];
   const INKS = [['red', '#c8162c'], ['gold', '#d9a62e'], ['navy', '#1e3a8a'], ['green', '#1f7a43'], ['white', '#fbfbf5'], ['chocolate', '#3a2216']];
   const BALLOONS = ['#d23a4c', '#e9b13a', '#3a78d2', '#44b57a', '#a35bd0'];
   A.cakeOptions = { SPONGES, ICINGS, INKS };
 
+  const D2 = A.data;
   const FILM_VARIANTS = [
-    { code: 'CANONICAL [VANILLA CYLINDER + 生日快樂 + 7 WICKS]', patch: { tiers: 1, bundt: 0.0, age: 7, text: '生日快樂', sponge: 0, icing: 0, ink: 0, drips: 0.0, glaze: 0.5, room: 0.0, focus: 0.55, balloons: 0, smarties: 0 } },
+    { code: 'CANONICAL [VANILLA CYLINDER + 生日快樂 + 7 WICKS]', patch: { tiers: 1, bundt: 0.0, age: 7, text: '生日快樂', sponge: 0, icing: 6, ink: 0, drips: 0.0, glaze: 0.5, room: 0.0, focus: 0.55, balloons: 0, smarties: 0, cutouts: 1 } },
     { code: 'OTHERWISE I: KEPT BUNDT AT PARTY! [11-FLUTE DOME + SMARTIES]', patch: { tiers: 1, bundt: 0.96, age: 7, sponge: 0, icing: 0, ink: 1, drips: 0.25, glaze: 0.58, room: 0.0, focus: 0.62, smarties: 24 } },
     { code: 'OTHERWISE II: DARK GANACHE & 3 WICKS [SPOTLIGHT]', patch: { tiers: 1, bundt: 0.0, age: 3, sponge: 1, icing: 4, ink: 1, drips: 0.8, glaze: 0.1, room: 0.0, focus: 0.7, smarties: 0 } },
     { code: 'OTHERWISE III: ROSE-GLAZE CROWN & 24 SMARTIES [FULL PARTY]', patch: { tiers: 2, bundt: 0.68, age: 7, sponge: 5, icing: 1, ink: 4, drips: 0.5, glaze: 0.9, room: 0.25, focus: 0.5, smarties: 24, balloons: 3 } },
@@ -26,7 +27,7 @@
   function makeGenome(seed) {
     const r = H.rng(seed);
     return { kind: 'cake', seed, name: '', age: 4 + ((r() * 14) | 0), text: 'HAPPY BIRTHDAY', tiers: 1 + ((r() * 3) | 0), bundt: r() < 0.25 ? 0.5 + r() * 0.5 : r() * 0.15, sponge: (r() * SPONGES.length) | 0, icing: (r() * ICINGS.length) | 0, ink: (r() * INKS.length) | 0,
-      drips: r() < 0.6 ? 0.2 + r() * 0.7 : 0, glaze: r(), room: r() * 0.35, focus: 0.45 + r() * 0.4, smarties: r() < 0.5 ? 6 + ((r() * 30) | 0) : 0, balloons: (r() * 4) | 0, sprinkles: r() < 0.5 ? 1 : 0, variant: -1 };
+      drips: r() < 0.6 ? 0.2 + r() * 0.7 : 0, glaze: r(), room: r() * 0.35, focus: 0.45 + r() * 0.4, smarties: r() < 0.5 ? 6 + ((r() * 30) | 0) : 0, balloons: (r() * 4) | 0, sprinkles: r() < 0.5 ? 1 : 0, cutouts: 0, variant: -1 };
   }
   function filmCanon(seed) { const g = makeGenome(seed); Object.assign(g, FILM_VARIANTS[0].patch, { name: '', sprinkles: 0, variant: 0 }); return g; }
   const dialOf = v => 20 + 180 * clamp(v, 0, 1);
@@ -57,9 +58,10 @@
     const inkMat = new T.MeshPhysicalMaterial({ color: inkCol, roughness: 0.28, clearcoat: 0.9, clearcoatRoughness: 0.12, envMapIntensity: 0.8 });
 
     // ---- room & table -----------------------------------------------------------
-    const floor = new T.Mesh(new T.CircleGeometry(40, 64), new T.MeshStandardMaterial({ color: 0x0b0907, roughness: 0.9 })); floor.rotation.x = -Math.PI / 2; floor.position.y = -0.62; floor.receiveShadow = true; root.add(floor);
-    const table = new T.Mesh(new T.CylinderGeometry(5.6, 5.6, 0.22, 6), new T.MeshPhysicalMaterial({ color: 0xc9902f, roughness: 0.32, metalness: 0.75, clearcoat: 0.6, clearcoatRoughness: 0.2, envMapIntensity: 0.8 })); table.position.y = -0.11; table.rotation.y = Math.PI / 6; table.castShadow = true; table.receiveShadow = true; root.add(table);
+    const floor = new T.Mesh(new T.CircleGeometry(40, 64), new T.MeshStandardMaterial({ color: 0x030202, roughness: 0.95 })); floor.rotation.x = -Math.PI / 2; floor.position.y = -0.62; floor.receiveShadow = true; root.add(floor);
+    const table = new T.Mesh(new T.CylinderGeometry(5.6, 5.6, 0.22, 6), new T.MeshStandardMaterial({ color: 0xcdb27a, roughness: 0.72, metalness: 0.05, envMapIntensity: 0.35 })); table.position.y = -0.11; table.rotation.y = Math.PI / 6; table.castShadow = true; table.receiveShadow = true; root.add(table);
     const leg = new T.Mesh(new T.CylinderGeometry(0.55, 0.9, 0.55, 24), table.material); leg.position.y = -0.5; root.add(leg);
+    { const arc = new T.Mesh(new T.TorusGeometry(30, 0.07, 8, 160, Math.PI * 1.1), new T.MeshBasicMaterial({ color: new T.Color(1.3, 1.35, 1.3), toneMapped: false })); arc.rotation.x = Math.PI / 2; arc.rotation.z = Math.PI * 0.95; arc.position.y = 1.5; arc.material.color.setScalar(0.55); root.add(arc); }
     const T_N = g.tiers; const radii = T_N === 1 ? [2.2] : T_N === 2 ? [2.3, 1.55] : [2.4, 1.75, 1.15];
     const TH = 1.12; const board = new T.Mesh(new T.CylinderGeometry(radii[0] + 0.55, radii[0] + 0.55, 0.09, 96), new T.MeshPhysicalMaterial({ color: 0xe9e6de, roughness: 0.25, metalness: 0.6, clearcoat: 1, envMapIntensity: 0.9 })); board.position.y = 0.045; board.castShadow = board.receiveShadow = true; root.add(board);
 
@@ -132,6 +134,24 @@
     const balloons = [];
     for (let i = 0; i < g.balloons; i++) { const col = new T.Color(BALLOONS[(i + g.seed) % BALLOONS.length]); const b = new T.Mesh(new T.SphereGeometry(1, 48, 32), new T.MeshPhysicalMaterial({ color: col, roughness: 0.12, clearcoat: 1, clearcoatRoughness: 0.05, envMapIntensity: 1.1 })); b.scale.set(1.05, 1.3, 1.05); const a = -0.6 - i * 0.55 + (i % 2) * 0.4; b.position.set(Math.cos(a * 2 + 2.6) * (6 + i), 4.2 + (i % 3) * 0.8, -5 - i * 0.9); b.castShadow = false; root.add(b); balloons.push({ b, ph: rr() * 6 }); const s = new T.Mesh(new T.CylinderGeometry(0.01, 0.01, 8, 4), new T.MeshBasicMaterial({ color: 0xd8d0c0 })); s.position.set(b.position.x, b.position.y - 4.6, b.position.z); root.add(s); }
 
+    // ---- the film's children, as cutouts (Act II) ---------------------------------------
+    if (g.cutouts) {
+      const CS = 154, cr = A.getRes(CS), myId = ctx.id;
+      const addCut = () => {
+        if (!cr.ready) { if (!cr.failed) setTimeout(addCut, 200); return; } if (H.buildId !== myId) return;
+        const FW = 768, FH = 432, c = document.createElement('canvas'); c.width = FW; c.height = FH; const x = c.getContext('2d'); x.drawImage(cr.frameImg, 0, 0, FW, FH);
+        const pset = {}; D2.sec[CS].segs.forEach(sg => { pset[sg.i] = sg.p > 0.5 ? 1 : 0; });
+        const m = document.createElement('canvas'); m.width = FW; m.height = FH; const mx = m.getContext('2d'); const md = mx.createImageData(FW, FH);
+        for (let yy = 0; yy < FH; yy++) for (let xx = 0; xx < FW; xx++) { const l = cr.labels[Math.floor(yy * 270 / FH) * 480 + Math.floor(xx * 480 / FW)]; md.data[(yy * FW + xx) * 4 + 3] = pset[l] ? 255 : 0; }
+        mx.putImageData(md, 0, 0); const mb = document.createElement('canvas'); mb.width = FW; mb.height = FH; const bx = mb.getContext('2d'); bx.filter = 'blur(2px)'; bx.drawImage(m, 0, 0);
+        x.globalCompositeOperation = 'destination-in'; x.drawImage(mb, 0, 0);
+        const tex = new T.CanvasTexture(c); tex.encoding = T.sRGBEncoding; tex.anisotropy = 8;
+        const mat = new T.MeshBasicMaterial({ map: tex, transparent: true, alphaTest: 0.04, toneMapped: false, depthWrite: true }); mat.color.setScalar(1.15);
+        const pl = new T.Mesh(new T.PlaneGeometry(26.0 * 1.0, 26.0 * 9 / 16 * 1.0), mat); const sc = 1.0; pl.scale.set(sc, sc, 1); pl.position.set(0.4, 2.9, -3.6); root.add(pl);
+      };
+      addCut();
+    }
+
     // ---- selection parts ---------------------------------------------------------
     const cTop = [0, topY + 0.7, 0];
     H.parts = [
@@ -151,10 +171,10 @@
       const stage = g.room, lit = H.blown ? Math.max(0, 1 - H.blowT) : 1; if (H.blown) H.blowT = Math.min(2, H.blowT + dt * 0.9);
       const wind = H.blown ? Math.min(1, H.blowT * 1.6) : 0.0;
       candles.forEach((c, i) => { const fl = 0.85 + 0.18 * Math.sin(t * 11 + c.ph) + 0.1 * Math.sin(t * 23 + c.ph * 2) + 0.06 * Math.sin(t * 47 + i); const k = lit < 0.02 ? 0.0001 : fl * (0.4 + 0.6 * lit); c.fl.scale.set(k, k * (0.9 + 0.25 * Math.sin(t * 8 + c.ph)), k); c.fl.rotation.z = Math.sin(t * 3.3 + c.ph) * 0.12 + wind * 0.9; c.fl.rotation.x = Math.cos(t * 2.7 + c.ph) * 0.1; c.halo.material.opacity = 0.85 * lit * (0.8 + 0.2 * fl); c.fl.visible = lit > 0.02; });
-      const base = (0.5 + 0.9 * (Math.min(N, 12) / 12)) * 1.5 * lit; lights.forEach((L, i) => { L.intensity = base * (0.9 + 0.1 * Math.sin(t * 13 + i * 2) + 0.06 * Math.sin(t * 29 + i)) / nL * 1.4; });
+      const base = (0.5 + 0.9 * (Math.min(N, 12) / 12)) * 1.0 * lit; lights.forEach((L, i) => { L.intensity = base * (0.9 + 0.1 * Math.sin(t * 13 + i * 2) + 0.06 * Math.sin(t * 29 + i)) / nL * 1.4; });
       H.lights.key.intensity = 0.25 + stage * 3.2; H.lights.rim.intensity = 0.15 + stage * 1.2; H.lights.fill.intensity = 0.02 + stage * 0.3;
       balloons.forEach(bb => { bb.b.position.y += Math.sin(t * 0.8 + bb.ph) * 0.0015; bb.b.rotation.y = t * 0.1 + bb.ph; });
-      H.post.uniforms.exposure.value = 0.78 + stage * 0.5; H.aperture = 0.22 + 0.95 * (1 - g.focus) + 0.25;
+      H.post.uniforms.exposure.value = 0.5 + stage * 0.5; H.aperture = 0.22 + 0.95 * (1 - g.focus) + 0.25;
       glazeMat.color.copy(glazeColor(g));
     });
   }
@@ -172,6 +192,7 @@
   }
 
   H.register('cake', {
+    ref: { sec: 154, frame: { pos: [0.4, 3.3, 0], dist: 25, yaw: 0.0, pitch: 0.12 } },
     mood: g => 'amber', makeGenome, build, filmCanon, dials, onDial, variants: FILM_VARIANTS,
     overview: { pos: [0, 1.6, 0], dist: 12.5, yaw: 0.4, pitch: 0.24 },
     labels: ['L1:GEOM.SOLID', 'L2:WICKS.DOF', 'L3:BUNDT.PIPE', 'R1:STAGE.LUMA', 'R2:WIND.GLAZE'],

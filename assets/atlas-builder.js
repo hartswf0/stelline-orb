@@ -619,6 +619,34 @@
     A.emit('weave', A.curve);
   };
 
+
+  // --------------------------------------------------------------------------
+  // HERO CRITIC: the procedural bug / cake at the film's camera vs the film's own frame
+  // --------------------------------------------------------------------------
+  function frameStats(d) {
+    let m = 0, m2 = 0, rb = 0, sat = 0, n = CW * CH, dark = 0;
+    for (let i = 0; i < n; i++) { const o = i * 4, r = d[o], g = d[o + 1], b = d[o + 2], L = 0.299 * r + 0.587 * g + 0.114 * b; m += L; m2 += L * L; rb += r - b; sat += Math.max(r, g, b) - Math.min(r, g, b); if (L < 24) dark++; }
+    m /= n; return { L: m, sd: Math.sqrt(Math.max(0, m2 / n - m * m)), warm: rb / n, sat: sat / n, dark: dark / n };
+  }
+  A.critic.runHero = function () {
+    const H = A.hero; if (!H || !H.active) return null;
+    const sec = A.matchSec != null ? A.matchSec : 33; const tgt = targetPixels(sec); if (!tgt) return null;
+    const cv = H.capture(CW, CH); const a = cv.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, CW, CH).data; const b = tgt._t192;
+    let dE = 0; for (let i = 0; i < CW * CH; i++) { const o = i * 4; dE += (Math.abs(a[o] - b[o]) + Math.abs(a[o + 1] - b[o + 1]) + Math.abs(a[o + 2] - b[o + 2])) / 765; } dE /= CW * CH;
+    const ss = ssimBlocks(a, b), ec = clamp(pearson(edgeMap(a), edgeMap(b)), 0, 1), hi = histInter(a, b);
+    const sa = frameStats(a), sb = frameStats(b);
+    const fid = 100 * clamp(0.30 * clamp(ss * 1.4, 0, 1) + 0.30 * clamp(1 - dE * 2.6, 0, 1) + 0.15 * ec + 0.25 * hi, 0, 1);
+    const notes = [];
+    const dl = sa.L - sb.L; if (Math.abs(dl) > 14) notes.push(dl > 0 ? 'model is brighter than the frame' : 'model is darker than the frame');
+    const dw = sa.warm - sb.warm; if (Math.abs(dw) > 12) notes.push(dw > 0 ? 'too warm / red against the frame' : 'too cool / green against the frame');
+    const ds = sa.sat - sb.sat; if (Math.abs(ds) > 18) notes.push(ds > 0 ? 'more saturated than the frame' : 'flatter / greyer than the frame');
+    const dc = sa.sd - sb.sd; if (Math.abs(dc) > 12) notes.push(dc > 0 ? 'more contrast than the frame' : 'less contrast than the frame');
+    if (sb.dark - sa.dark > 0.2) notes.push('the frame is much darker around the subject'); if (sa.dark - sb.dark > 0.2) notes.push('the frame has more light in the surround');
+    if (ec < 0.35) notes.push('edges and silhouette differ');
+    const res = { mode: 'hero', sec, fid, ssim: ss, dE, edge: ec, hist: hi, notes: notes.map(t => ({ text: t })), verdict: verdicts.find(v => fid >= v[0])[1], stats: { model: sa, film: sb }, t: performance.now() };
+    A.critic.last = res; A.emit('critic', res); return res;
+  };
+
   // initial kit / hand
   A.activeKit = null;
   setTimeout(() => A.restoreBin && A.restoreBin(), 400);

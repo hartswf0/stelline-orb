@@ -74,8 +74,8 @@
   <div id="v5Toast"></div><div id="v5Flash"></div>
   <input type="file" id="v5File" accept="video/*" style="display:none">
   <div id="v5Help"><b style="color:#f0b050;letter-spacing:.2em;font-weight:500">THE ORB IS THE INTERFACE · THE KEYS MIRROR IT</b>
-   <h3>ORB</h3>rings <b>L1–R2</b> edit the specimen's genome (labels and readouts change with what you build) · <b>SELECT</b> next part · <b>ENGRAM</b> new specimen (film: next chapter) · <b>red dot</b> snapshot card (hold: share link) · <b>aux</b> switch FILM / BUG / BIRTHDAY (hold: back to the film's canon) · <b>jog wheel</b> rack focus (film: scrub) · <b>rocker</b> orbit &amp; dolly · <b>X-RAY</b> bug: anatomy / cake: blow the candles · <b>speed dome</b> tap: OTHERWISE (the film's counterfactual variants) · <b>big red thumb</b> photo mode · <b>M1–M4, LR1</b> tap: that ring seeks the film's canon, hold: spin · <b>scale window</b> sound
-   <h3>KEYS</h3><kbd>W</kbd> mode · <kbd>Tab</kbd> next part · <kbd>1</kbd>–<kbd>5</kbd> pick a ring, <kbd>↑</kbd><kbd>↓</kbd> turn it (<kbd>Shift</kbd> fine) · <kbd>←</kbd><kbd>→</kbd> orbit (film: step a second) · <kbd>[</kbd><kbd>]</kbd> dolly · <kbd>E</kbd> new specimen · <kbd>T</kbd> OTHERWISE · <kbd>R</kbd> x-ray / blow · <kbd>Y</kbd> canon · <kbd>Q</kbd> snapshot · <kbd>L</kbd> share link · <kbd>D</kbd> design drawer · <kbd>X</kbd> photo mode · <kbd>P</kbd> sound · <kbd>N</kbd> narrate · <kbd>H</kbd> describe · <kbd>?</kbd> this page
+   <h3>ORB</h3>rings <b>L1–R2</b> edit the specimen's genome (labels and readouts change with what you build) · <b>SELECT</b> next part · <b>ENGRAM</b> new specimen (film: next chapter) · <b>red dot</b> snapshot card (hold: share link) · <b>aux</b> switch FILM / BUG / BIRTHDAY (hold: back to the film's canon) · <b>jog wheel</b> rack focus (film: scrub) · <b>rocker</b> orbit &amp; dolly · <b>X-RAY</b> bug: anatomy / cake: blow the candles · <b>speed dome</b> tap: OTHERWISE (the film's counterfactual variants) · <b>big red thumb</b> MATCH: put the film frame beside your model and let the critic score it · <b>M1–M4, LR1</b> tap: that ring seeks the film's canon, hold: spin · <b>scale window</b> sound
+   <h3>KEYS</h3><kbd>W</kbd> mode · <kbd>Tab</kbd> next part · <kbd>1</kbd>–<kbd>5</kbd> pick a ring, <kbd>↑</kbd><kbd>↓</kbd> turn it (<kbd>Shift</kbd> fine) · <kbd>←</kbd><kbd>→</kbd> orbit (film: step a second) · <kbd>[</kbd><kbd>]</kbd> dolly · <kbd>E</kbd> new specimen · <kbd>T</kbd> OTHERWISE · <kbd>R</kbd> x-ray / blow · <kbd>Y</kbd> canon · <kbd>Q</kbd> snapshot · <kbd>L</kbd> share link · <kbd>D</kbd> design drawer · <kbd>M</kbd> watch the film (wipe + critic; <kbd>,</kbd><kbd>.</kbd> step the film) · <kbd>X</kbd> photo mode · <kbd>P</kbd> sound · <kbd>N</kbd> narrate · <kbd>H</kbd> describe · <kbd>?</kbd> this page
    <h3>FILM MODE</h3>407 seconds, 57 shots, every second segmented and relief-modelled. <kbd>Space</kbd> play · <kbd>Shift</kbd>+arrows shots · <kbd>PgUp</kbd><kbd>PgDn</kbd> chapters · <kbd>V</kbd> film / parts / relief · <kbd>C</kbd> compare with the blind critic · <kbd>Z</kbd> rebuild zero → film
    <h3>THE LOOP</h3>Observe the film's bug and cake → isolate their parts → model them with the rings → compose your own specimen → compare with the critic → the orb remembers what each kind of part needs. The scene makes the interface; the interface makes the scene.
    <div style="margin-top:10px"><button class="dbtn" onclick="document.getElementById('v5Help').classList.remove('on')">CLOSE</button> <button class="dbtn" onclick="document.getElementById('v5Help').classList.remove('on');cycleEngineVersion()">LEGACY ENGINES V4–V1</button> <button class="dbtn" onclick="document.getElementById('v5File').click()">LOAD MY COPY OF THE FILM</button></div></div>`;
@@ -114,6 +114,16 @@
   A.reroll = function () { if (A.mode === 'film') return; const keep = A.mode === 'cake' ? { name: H.genome.name, age: H.genome.age, text: H.genome.text } : {}; const seed = (Math.random() * 4294967295) >>> 0; H.start(A.mode, seed, null, { keepSel: true }); Object.assign(H.genome, keep); if (keep.text !== undefined) H.rebuild(false); syncRingsToGenome(); buildDrawer(); toast('NEW SPECIMEN · ' + H.seedName(seed)); say('New specimen. ' + builderOf().title(H.genome)); if (A.chime) A.chime(); };
   A.selectPart = function (d) { if (A.mode === 'film') { A.cycleSel(d || 1); return; } H.cyclePart(d || 1); const p = H.parts[H.sel]; if (p) say(`${p.id}. ${p.name}.`); if (A.tick1) A.tick1(); };
 
+  // -------------------------------------------------------------------------- WATCH THE FILM (critic <-> builders)
+  A.matchOn = false; A.wipe = 0.5; A.matchSec = null; A.criticT = 0;
+  A.toggleMatch = function (on) {
+    if (A.mode === 'film') { OPS.compare(); return; }
+    const b = builderOf(); A.matchOn = on === undefined ? !A.matchOn : on;
+    if (A.matchOn) { A.matchSec = b.ref.sec; A.getRes(A.matchSec); H.setLock(b.ref.frame); A.criticT = performance.now() - 2000; toast('WATCHING THE FILM · ' + fmtT(A.matchSec) + ' · DRAG THE WIPE'); say('Matching the film at ' + fmtT(A.matchSec) + '. The critic is scoring your model against the frame.'); }
+    else { H.setLock(null); toast('MATCH OFF'); }
+  };
+  A.matchStep = function (d) { if (!A.matchOn) return; A.matchSec = clamp(A.matchSec + d, 0, D.n - 1); A.getRes(A.matchSec); A.criticT = performance.now() - 2000; };
+
   // -------------------------------------------------------------------------- DESIGN DRAWER
   let dTimer = 0; const patch = (o, rebuild) => { Object.assign(H.genome, o, { variant: -1 }); clearTimeout(dTimer); dTimer = setTimeout(() => { if (rebuild) { H.rebuild(false); H.select(H.sel, false); } syncRingsToGenome(); }, 220); };
   function swatches(list, cur, key) { return `<div class="sw-row">${list.map((c, i) => `<div class="sw hit${i === cur ? ' on' : ''}" data-k="${key}" data-i="${i}" title="${c[0]}" style="background:${c[1]}"></div>`).join('')}</div>`; }
@@ -128,12 +138,13 @@
       <h5>MATERIALS</h5><label>SPONGE</label>${swatches(O.SPONGES, g.sponge, 'sponge')}<label>ICING</label>${swatches(O.ICINGS, g.icing, 'icing')}<label>PIPING INK</label>${swatches(O.INKS, g.ink, 'ink')}
       <label>DRIPS</label><input type="range" id="dDrips" min="0" max="100" value="${Math.round(g.drips * 100)}">
       <h5>THE PARTY</h5><label>BALLOONS</label><input type="range" id="dBal" min="0" max="5" value="${g.balloons}"><label>SMARTIES</label><input type="range" id="dSma" min="0" max="36" value="${g.smarties}">
-      <div class="drow"><button class="dbtn" id="dSpr">SPRINKLES ${g.sprinkles ? 'ON' : 'OFF'}</button></div>
+      <div class="drow"><button class="dbtn" id="dSpr">SPRINKLES ${g.sprinkles ? 'ON' : 'OFF'}</button><button class="dbtn" id="dCut">FILM CHILDREN ${g.cutouts ? 'ON' : 'OFF'}</button></div>
       <div class="drow"><button class="dbtn amber" id="dCard">CARD ↓</button><button class="dbtn" id="dLink">LINK</button><button class="dbtn" id="dJson">SPEC</button></div>`;
       $('#dName', drawer).oninput = e => { const t = e.target.value.trim(); g.name = e.target.value; if (t && (/HAPPY BIRTHDAY/.test(g.text) || g.text === '生日快樂')) { g.text = 'HAPPY BIRTHDAY\n' + t.toUpperCase(); $('#dText', drawer).value = g.text; patch({}, true); } else if (!t && /^HAPPY BIRTHDAY\n/.test(g.text)) { g.text = 'HAPPY BIRTHDAY'; $('#dText', drawer).value = g.text; patch({}, true); } };
       $('#dText', drawer).oninput = e => patch({ text: e.target.value }, true);
       drawer.querySelectorAll('[data-act]').forEach(b => b.onclick = () => { const d = b.dataset.act === 'age+' ? 1 : -1; const age = clamp(g.age + d, 1, 30); patch({ age }, true); $('#dAge', drawer).textContent = age; });
       $('#dDrips', drawer).oninput = e => patch({ drips: e.target.value / 100 }, true); $('#dBal', drawer).oninput = e => patch({ balloons: +e.target.value }, true); $('#dSma', drawer).oninput = e => patch({ smarties: +e.target.value }, true);
+      $('#dCut', drawer).onclick = e => { const v = g.cutouts ? 0 : 1; patch({ cutouts: v }, true); e.target.textContent = 'FILM CHILDREN ' + (v ? 'ON' : 'OFF'); };
       $('#dSpr', drawer).onclick = e => { const v = g.sprinkles ? 0 : 1; patch({ sprinkles: v }, true); e.target.textContent = 'SPRINKLES ' + (v ? 'ON' : 'OFF'); };
     } else {
       drawer.innerHTML = `<h5>BUG DESIGNER</h5><label>SPECIES</label><input type="text" id="dSp" value="${g.name}" maxlength="30"><label>LENGTH · ${g.mm} MM</label><input type="range" id="dMm" min="4" max="60" value="${g.mm}">
@@ -237,10 +248,11 @@
     if (!narrow) { txt(ctx, l1, 36, 38, INK, 'left', 9); txt(ctx, l2, 36, 51, INK, 'left', 9); const aw = ctx.measureText(l2).width; txt(ctx, A.mode === 'film' ? 'THE FILM, AS DATA.' : (A.mode === 'cake' ? 'CANDLES SOLD SEPARATELY.' : 'LEGS SOLD SEPARATELY.'), 36 + aw, 51, AMB, 'left', 9); if (l3) txt(ctx, l3, 36, 68, DIM, 'left', 8.5); txt(ctx, (A.mode === 'film' ? 60 : (H.fps || 60)) + ' FPS', w - 36, 28, DIM, 'right', 9); txt(ctx, 'PHOTO MODE ' + (A.photo ? 'ON' : 'OFF'), w - 36, 41, DIM, 'right', 9); addHit(w - 150, 14, 120, 36, () => A.togglePhoto(), 'photo2', 'Photo mode'); }
     else if (l3) txt(ctx, l3, 30, 70, DIM, 'left', 8.5);
     if (A.mode !== 'film') {
-      const act = [['REROLL', () => A.reroll()], ['OTHERWISE', () => A.cycleVariant()], ['DESIGN', () => A.toggleDrawer()]]; let ax = narrow ? 30 : w / 2 - 118; const ay = narrow ? 92 : 74;
+      const act = [['REROLL', () => A.reroll()], ['OTHERWISE', () => A.cycleVariant()], ['DESIGN', () => A.toggleDrawer()], [A.matchOn ? 'MATCH ●' : 'MATCH FILM', () => A.toggleMatch()]]; let ax = narrow ? 30 : w / 2 - 118; const ay = narrow ? 92 : 74;
       if (!narrow) { txt(ctx, 'SEED ' + H.seedName(H.seed), ax, 74, DIM, 'left', 8.5); ax += 92; }
       act.forEach(([l, fn]) => { txt(ctx, l, ax, ay, AMB, 'left', 8.5); const ww = ctx.measureText(l).width; ctx.fillStyle = AMB; ctx.globalAlpha = .5; ctx.fillRect(ax, ay + 3, ww, 1); ctx.globalAlpha = 1; addHit(ax - 4, ay - 12, ww + 8, 20, fn, 'act-' + l, l); ax += ww + 18; });
-    } else if (A.critic.last) { const r = A.critic.last; txt(ctx, `CRITIC ${r.fid.toFixed(1)}`, w - 36, 60, AMB, 'right', 9.5); txt(ctx, r.verdict.split('.')[0], w - 36, 73, DIM, 'right', 8); }
+    }
+    if (A.critic.last && (A.mode === 'film' || A.matchOn) && !narrow) { const r = A.critic.last; txt(ctx, `CRITIC ${r.fid.toFixed(1)}`, w - 36, 60, AMB, 'right', 9.5); txt(ctx, r.verdict.split('.')[0], w - 36, 73, DIM, 'right', 8); (r.notes || []).slice(0, A.mode === 'film' ? 0 : 3).forEach((n, i) => txt(ctx, '› ' + n.text, w - 36, 86 + i * 12, 'rgba(240,176,80,.8)', 'right', 8)); }
   }
   function bottomBlocks(ctx, w, h) {
     const sound = A.sonic; const pre = w < 720 ? '' : 'STELLINE MEMORY ORB · MADE WITH THREE.JS · ';
@@ -258,11 +270,11 @@
   holo.addEventListener('pointerdown', e => {
     A.hudDown = false; if (!window.state || state.engineVersion !== 'v5') return;
     const r = holo.getBoundingClientRect(); const h = hitAt(e.clientX - r.left, e.clientY - r.top);
-    if (h) { A.hudDown = true; e.stopImmediatePropagation(); if (h.slider) { hudDrag = h.slider; setSlider(e.clientY - r.top); holo.setPointerCapture(e.pointerId); } else h.fn(); }
+    if (h) { A.hudDown = true; e.stopImmediatePropagation(); if (h.slider || h.wipe) { hudDrag = h.wipe ? { wipe: true } : h.slider; setSlider(e.clientY - r.top, e.clientX - r.left); holo.setPointerCapture(e.pointerId); } else h.fn(); }
   }, true);
-  holo.addEventListener('pointermove', e => { const r = holo.getBoundingClientRect(); if (hudDrag) { setSlider(e.clientY - r.top); return; } const h = hitAt(e.clientX - r.left, e.clientY - r.top); holo.style.cursor = h ? 'pointer' : (A.mode === 'film' ? 'crosshair' : 'grab'); });
+  holo.addEventListener('pointermove', e => { const r = holo.getBoundingClientRect(); if (hudDrag) { setSlider(e.clientY - r.top, e.clientX - r.left); return; } const h = hitAt(e.clientX - r.left, e.clientY - r.top); holo.style.cursor = h ? 'pointer' : (A.mode === 'film' ? 'crosshair' : 'grab'); });
   holo.addEventListener('pointerup', () => { hudDrag = null; });
-  function setSlider(y) { const s = hudDrag; const v = clamp((y - s.y0) / (s.y1 - s.y0), 0, 1); if (A.mode === 'film') A.seek(v * D.dur); else H.focusBias = (0.5 - v) * 2 * H.orbit.tDist * 0.8; }
+  function setSlider(y, x) { const s = hudDrag; if (s.wipe) { A.wipe = clamp(x / holo.clientWidth, 0.05, 0.95); A.criticT = performance.now() - 1800; return; } const v = clamp((y - s.y0) / (s.y1 - s.y0), 0, 1); if (A.mode === 'film') A.seek(v * D.dur); else H.focusBias = (0.5 - v) * 2 * H.orbit.tDist * 0.8; }
   function refreshSR() {
     const sr = $('#v5SR'); const items = [['Film mode', () => A.setMode('film')], ['Bug designer', () => A.setMode('bug')], ['Birthday designer', () => A.setMode('cake')], ['Next part', () => A.selectPart(1)], ['New specimen', () => A.reroll()], ['Otherwise variant', () => A.cycleVariant()], ['Open design drawer', () => A.toggleDrawer()], ['Snapshot card', () => A.snapshot()], ['Copy share link', () => A.shareLink()], ['Read the frame aloud', () => A.readFrame && A.readFrame()], ['Toggle sound', () => A.toggleSonic && A.toggleSonic()], ['Toggle narration', () => A.toggleNarrate && A.toggleNarrate()]];
     sr.innerHTML = ''; items.forEach(([l, fn]) => { const b = document.createElement('button'); b.textContent = l; b.onclick = fn; sr.appendChild(b); });
@@ -334,6 +346,14 @@
     if (heroOn) H.tick(); else { A.advance(); A.render(false); }
     const ctx = holoCtx, cw = holoCanvas.clientWidth, ch = holoCanvas.clientHeight, k = holoCanvas.width / Math.max(1, cw);
     ctx.setTransform(k, 0, 0, k, 0, 0); ctx.clearRect(0, 0, cw, ch); hudTime += 0.016; hits.length = 0;
+    if (heroOn && A.matchOn) {
+      const r = A.getRes(A.matchSec); const wx = clamp(A.wipe, 0.05, 0.95) * cw;
+      if (r.ready && r.frameImg) { const fw = ch * 16 / 9, fx = cw / 2 - fw / 2; ctx.save(); ctx.beginPath(); ctx.rect(0, 0, wx, ch); ctx.clip(); ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cw, ch); ctx.drawImage(r.frameImg, fx, 0, fw, ch); ctx.restore(); }
+      ctx.strokeStyle = AMB; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(wx, 70); ctx.lineTo(wx, ch - 90); ctx.stroke(); ctx.fillStyle = AMB; ctx.beginPath(); ctx.arc(wx, ch / 2, 7, 0, 7); ctx.fill(); ctx.fillStyle = '#120a05'; ctx.fillRect(wx - 1.5, ch / 2 - 3, 1, 6); ctx.fillRect(wx + 0.5, ch / 2 - 3, 1, 6);
+      txt(ctx, `THE FILM ${fmtT(A.matchSec)}`, wx - 12, 116, AMB, 'right', 9); txt(ctx, 'YOUR MODEL', wx + 12, 116, AMB, 'left', 9);
+      hits.push({ x: wx - 16, y: 90, w: 32, h: ch - 190, wipe: true, id: 'wipe', label: 'Film versus model wipe' });
+      if (performance.now() - A.criticT > 2600) { A.criticT = performance.now(); A.critic.runHero(); }
+    }
     if (!heroOn && !A.photo) filmOverlay(ctx, cw, ch);
     if (!A.photo) { furniture(ctx, cw, ch, hudTime); bracketStack(ctx, cw, ch); sliderRight(ctx, cw, ch); topBlocks(ctx, cw, ch); bottomBlocks(ctx, cw, ch); ringReadouts(ctx, cw, ch); if (!heroOn) drawTL(); }
     else { txt(ctx, 'PHOTO MODE · click or press X to return', cw / 2, ch - 24, 'rgba(247,236,222,.25)', 'center', 8.5); addHit(0, ch - 60, cw, 60, () => A.togglePhoto(), 'photo-off', 'Leave photo mode'); }
@@ -380,7 +400,7 @@
   const OPS = window.V5OPS = {
     imprint() { if (A.mode !== 'film') { A.snapshot(); return; } if (!A.sel) A.cycleSel(1); const it = A.imprint && A.imprint(); if (it) say(`Imprinted ${it.name} to the bearing bin.`); },
     cycleView() { nextMode(); },
-    place() { A.togglePhoto(); },
+    place() { if (A.mode !== 'film') A.toggleMatch(); else A.togglePhoto(); },
     compare() {
       if (A.mode === 'cake') { H.blow(); say(H.blown ? 'Blowing out the candles.' : 'Relit.'); return; }
       if (A.mode === 'bug') { A.xray = !A.xray; H.scene.traverse(n => { if (n.isMesh && n.geometry && n.geometry.type !== 'PlaneGeometry' && n.geometry.type !== 'CircleGeometry') (Array.isArray(n.material) ? n.material : [n.material]).forEach(m => { m.wireframe = A.xray; }); }); say(A.xray ? 'Anatomy view.' : 'Surface view.'); return; }
@@ -420,7 +440,8 @@
       case 'e': case 'E': handled(); if (hero) A.reroll(); else OPS.place(); break; case 'r': case 'R': handled(); OPS.compare(); break;
       case 't': case 'T': handled(); if (hero) A.cycleVariant(); else OPS.bootstrap(); break; case 'y': case 'Y': handled(); OPS.reset(); break;
       case 'l': case 'L': handled(); if (hero) A.shareLink(); break; case 'd': case 'D': handled(); A.toggleDrawer(); break;
-      case 'x': case 'X': handled(); A.togglePhoto(); break; case 'p': case 'P': handled(); OPS.sonic(); break;
+      case 'x': case 'X': handled(); A.togglePhoto(); break; case 'm': case 'M': handled(); A.toggleMatch(); break;
+      case ',': if (A.matchOn) { handled(); A.matchStep(-1); } break; case '.': if (A.matchOn) { handled(); A.matchStep(1); } break; case 'p': case 'P': handled(); OPS.sonic(); break;
       case 'n': case 'N': handled(); A.toggleNarrate && A.toggleNarrate(); break; case 'h': case 'H': handled(); A.readFrame && A.readFrame(); break;
       case 'v': case 'V': handled(); if (!hero) { const i = VIEW_ORDER.indexOf(A.view); A.setView(VIEW_ORDER[(i + 1) % 3]); } break;
       case 'c': case 'C': handled(); if (!hero) OPS.compare(); break; case 'z': case 'Z': handled(); if (!hero) A.weave && A.weave(); break;
@@ -432,7 +453,8 @@
 
   A.onEngine = v => { document.body.classList.toggle('v5', v === 'v5'); if (window.state) { state.staticMode = v === 'v5'; if (v !== 'v5') state.liveModeling = true; } const c = document.getElementById('atlasCanvas'); if (c) c.style.display = v === 'v5' ? 'block' : 'none'; if (v !== 'v5' && window.resizeCanvases) resizeCanvases(); };
   A.on('select', (seg, quiet) => { if (seg && !quiet && A.mode === 'film') say(describeSeg(seg)); });
-  A.on('critic', r => { say(`Critic: ${r.fid.toFixed(0)} out of 100. ${r.verdict}`); });
+  let lastSay = 0; A.on('critic', r => { if (performance.now() - lastSay > 14000) { lastSay = performance.now(); say(`Critic: ${r.fid.toFixed(0)} out of 100. ${r.verdict}` + (r.mode === 'hero' && r.notes.length ? ' ' + r.notes[0].text + '.' : '')); } });
+  A.on('dial', () => { if (A.matchOn) A.criticT = performance.now() - 1600; });
   function describeSeg(g) { const depth = g.rel > .66 ? 'near' : g.rel > .4 ? 'mid-distance' : 'far'; const pos = (g.cx < .34 ? 'left' : g.cx > .66 ? 'right' : 'centre') + (g.cy < .34 ? ' top' : g.cy > .66 ? ' bottom' : ''); return `${g.id.replace('.', ' ')}: ${g.cn}, ${depth}, ${pos}, ${(g.a * 100).toFixed(0)} percent of frame.`; }
   A.describeSeg = describeSeg;
   A.on('hero-select', p => { if (p && window.state) state.activeCoupledRing = p.ring; });

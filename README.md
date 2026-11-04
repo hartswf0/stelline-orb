@@ -25,6 +25,10 @@ Buttons: SELECT = next part (camera racks to it) · ENGRAM = new specimen (film:
 
 Scene makes the interface: ring positions are the specimen's genome, the ◆ on each orb gauge is the film's canon, the orb's casing takes the scene's light (candle flicker included), and the accordion spread follows the shot scale. Interface makes the scene: every ring edit rebuilds or re-lights the specimen.
 
+### Watch the film: the critic wired to the builders
+
+`MATCH` (key `M`, or the big red thumb button on the orb) locks the camera to the film's own camera, draws the film frame on the left of a draggable wipe and your model on the right, and scores them every couple of seconds (SSIM, colour distance, edges, tone histogram) with plain-language notes ("model is brighter than the frame", "too warm"). `,` `.` step through the film. Reference frames: bug 0:33 (head-on macro), cake 2:34 (children round the cake). The cake canon includes the film's own children as cutouts (`FILM CHILDREN` in the drawer). Current scores for the canonical specimens: cake about 52-63 / 100 across frames 2:30-2:42, bug about 33-36 (the bug is the weaker match). These are honest baselines, not "indistinguishable".
+
 ### Blind-critic accessibility
 
 `SOUND` sonifies the frame (pan = x, pitch = height, level = area, timbre = class) and gives each builder its own room tone, candle crackle, shutter and breath. `NARRATE` / `H` describe the frame, part or specimen aloud (aria-live + speech synthesis). Full keyboard control.

@@ -152,8 +152,8 @@
   };
   H.rebuild = function (snap) {
     const b = H.builders[H.kind]; if (!b) return;
-    H.clear(); H.setMood(b.mood(H.genome));
-    b.build(H.genome, { root, scene, H, rng: H.rng(H.seed ^ 0x9e3779b9) });
+    H.clear(); H.setMood(b.mood(H.genome)); H.buildId = (H.buildId || 0) + 1;
+    b.build(H.genome, { root, scene, H, rng: H.rng(H.seed ^ 0x9e3779b9), id: H.buildId });
     if (snap) { const f = (H.parts[H.sel] && H.parts[H.sel].focus) || b.overview; H.frame(f, true); }
   };
   let rbT = 0; H.rebuildSoon = function (ms) { clearTimeout(rbT); rbT = setTimeout(() => { H.rebuild(false); if (H.sel >= 0) H.frame(H.parts[H.sel].focus, false); }, ms || 180); };
@@ -179,10 +179,12 @@
     renderer.setRenderTarget(target || null); renderer.render(postScene, postCam);
     renderer.setRenderTarget(null); renderer.setClearColor(0x05070a, 1);
   };
+  H.setLock = function (f) { H.lockRef = f || null; if (f) H.frame(f); else if (H.sel >= 0 && H.parts[H.sel]) H.frame(H.parts[H.sel].focus); else H.overview(); };
   H.tick = function () {
     const now = performance.now(); const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now; H.t += dt;
     fpsAcc += dt; fpsN++; if (fpsAcc > 0.5) { H.fps = Math.round(fpsN / fpsAcc); fpsAcc = 0; fpsN = 0; }
     (H.updaters || []).forEach(u => u(dt, H.t));
+    if (H.lockRef) { orbit.userYaw = orbit.userPitch = 0; orbit.userDist = 1; orbit.px = orbit.py = 0; H.focusBias = 0; }
     placeCam(dt);
     const w = A.canvas.clientWidth, h = A.canvas.clientHeight; renderer.setSize(w, h, false);
     H.renderFrame(null, w, h, H.t);
@@ -222,7 +224,7 @@
   // thin-film iridescence injected into a standard material
   H.iridescent = function (mat, amount) {
     mat.userData.film = { value: amount };
-    mat.envMapIntensity = 0.9; mat.onBeforeCompile = sh => {
+    mat.envMapIntensity = 0.9 * (1 - 0.65 * (mat.userData.dullK || 0)); mat.onBeforeCompile = sh => {
       sh.uniforms.uFilm = mat.userData.film; sh.uniforms.uFilmHue = mat.userData.hue = mat.userData.hue || { value: 0 };
       sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uFilm; uniform float uFilmHue;\nvec3 filmCol(float t,float h){ return 0.5+0.5*cos(6.2831*(vec3(0.0,0.33,0.67)+t*1.4+h)); }')
         .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\n float fr = 1.0 - abs(dot(normalize(vViewPosition), normal)); diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * (0.2 + 1.0 * filmCol(fr, uFilmHue)), uFilm * smoothstep(0.1, 0.95, fr));');
