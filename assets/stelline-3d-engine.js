@@ -74,18 +74,30 @@
     mini:     loadFilmTex('assets/stelline_frames/sec_196.jpg'),
     reader:   loadFilmTex('assets/stelline_frames/sec_283.jpg'),
     snow:     loadFilmTex('assets/stelline_frames/sec_288.jpg'),
-    sam_bugeye:      loadFilmTex('assets/sam_bugeye.png'),
-    depth_bugeye:    loadFilmTex('assets/depth_bugeye.png'),
-    sam_leaf:        loadFilmTex('assets/sam_leaf.png'),
-    depth_leaf:      loadFilmTex('assets/depth_leaf.png'),
-    sam_cakespawn:   loadFilmTex('assets/sam_cakespawn.png'),
-    depth_cakespawn: loadFilmTex('assets/depth_cakespawn.png'),
-    sam_bundtmorph:  loadFilmTex('assets/sam_bundtmorph.png'),
-    depth_bundtmorph:loadFilmTex('assets/depth_bundtmorph.png'),
-    sam_redicing:    loadFilmTex('assets/sam_redicing.png'),
-    depth_redicing:  loadFilmTex('assets/depth_redicing.png'),
-    sam_cutouts:     loadFilmTex('assets/sam_cutouts.png'),
-    depth_cutouts:   loadFilmTex('assets/depth_cutouts.png')
+    sam_canopy:       loadFilmTex('assets/sam_canopy.png'),
+    depth_canopy:     loadFilmTex('assets/depth_canopy.png'),
+    sam_bugeye:       loadFilmTex('assets/sam_bugeye.png'),
+    depth_bugeye:     loadFilmTex('assets/depth_bugeye.png'),
+    sam_leaf:         loadFilmTex('assets/sam_leaf.png'),
+    depth_leaf:       loadFilmTex('assets/depth_leaf.png'),
+    sam_clearing:     loadFilmTex('assets/sam_clearing.png'),
+    depth_clearing:   loadFilmTex('assets/depth_clearing.png'),
+    sam_cakespawn:    loadFilmTex('assets/sam_cakespawn.png'),
+    depth_cakespawn:  loadFilmTex('assets/depth_cakespawn.png'),
+    sam_bundtmorph:   loadFilmTex('assets/sam_bundtmorph.png'),
+    depth_bundtmorph: loadFilmTex('assets/depth_bundtmorph.png'),
+    sam_redicing:     loadFilmTex('assets/sam_redicing.png'),
+    depth_redicing:   loadFilmTex('assets/depth_redicing.png'),
+    sam_cutouts:      loadFilmTex('assets/sam_cutouts.png'),
+    depth_cutouts:    loadFilmTex('assets/depth_cutouts.png'),
+    sam_blowcandles:  loadFilmTex('assets/sam_blowcandles.png'),
+    depth_blowcandles:loadFilmTex('assets/depth_blowcandles.png'),
+    sam_miniature:    loadFilmTex('assets/sam_miniature.png'),
+    depth_miniature:  loadFilmTex('assets/depth_miniature.png'),
+    sam_horsecarve:   loadFilmTex('assets/sam_horsecarve.png'),
+    depth_horsecarve: loadFilmTex('assets/depth_horsecarve.png'),
+    sam_snow:         loadFilmTex('assets/sam_snow.png'),
+    depth_snow:       loadFilmTex('assets/depth_snow.png')
   };
 
   function syncRendererSize() {
@@ -146,9 +158,10 @@
     }
   `;
 
-  // Shared GLSL Per-Object SAM Segmentation + DPT-Hybrid-MiDaS 3D Depth & 5-Dial Processor
-  // Maps all 5 Coaxial Orb Rings (L1:SOLID, L2:FOCUS, L3:MORPH, R1:LUMA, R2:TINT) independently
-  // to each of the 4 SAM-segmented objects/people in the active scene.
+  // Shared GLSL Per-Object SAM Segmentation + DPT-Hybrid-MiDaS 3D Depth & 5-Dial + Spatial Transform Processor
+  // Maps all 5 Coaxial Orb Rings (L1:SOLID, L2:FOCUS, L3:MORPH, R1:LUMA, R2:TINT) AND Left-Pod D-Pad Spatial
+  // Translation (uObjOffsetX, uObjOffsetY), Visibility (uObjVis), and Compositor Modes (uCompMode) independently
+  // to each of the 4 SAM-segmented objects/people across all 12 Open Matte shots.
   const GLSL_SAM_PER_OBJECT = `
     uniform sampler2D uSamTex;
     uniform sampler2D uDepthTex;
@@ -157,6 +170,10 @@
     uniform vec4 uObjMorph;
     uniform vec4 uObjLuma;
     uniform vec4 uObjTint;
+    uniform vec4 uObjOffsetX;
+    uniform vec4 uObjOffsetY;
+    uniform vec4 uObjVis;
+    uniform float uCompMode;
     uniform float uSelectedIdx;
     uniform float uHeadShift;
 
@@ -164,68 +181,128 @@
       vec2 samUv = clamp(uv + vec2(0.068, 0.024) * uHeadShift, 0.001, 0.999);
       vec3 samRGB = texture2D(uSamTex, samUv).rgb;
       vec3 depthB = texture2D(uDepthTex, samUv).rgb;
-      vec4 masks = vec4(samRGB, depthB.b);
+      vec4 origMasks = vec4(samRGB, depthB.b);
       float dVal = depthB.r;
       float edgeVal = depthB.g;
 
       vec3 outCol = baseCol;
+
+      // First pass: if any SAM part is hidden (uObjVis < 0.5) or moved away via D-Pad, fill its vacated footprint with clean ambient background
       for (int i = 0; i < 4; i++) {
-        float m = (i == 0) ? masks.x : (i == 1) ? masks.y : (i == 2) ? masks.z : masks.w;
-        if (m > 0.02) {
-          float solidV = (i == 0) ? uObjSolid.x : (i == 1) ? uObjSolid.y : (i == 2) ? uObjSolid.z : uObjSolid.w;
-          float focusV = (i == 0) ? uObjFocus.x : (i == 1) ? uObjFocus.y : (i == 2) ? uObjFocus.z : uObjFocus.w;
-          float morphV = (i == 0) ? uObjMorph.x : (i == 1) ? uObjMorph.y : (i == 2) ? uObjMorph.z : uObjMorph.w;
-          float lumaV  = (i == 0) ? uObjLuma.x  : (i == 1) ? uObjLuma.y  : (i == 2) ? uObjLuma.z  : uObjLuma.w;
-          float tintV  = (i == 0) ? uObjTint.x  : (i == 1) ? uObjTint.y  : (i == 2) ? uObjTint.z  : uObjTint.w;
-
-          float wMask = smoothstep(0.02, 0.78, m);
-          vec3 objCol = outCol;
-
-          // 1. L2 FOCUS: 0.0 = optical bokeh defocus -> 0.62 = neutral -> 1.0 = unsharp optical crystallization
-          if (focusV < 0.60) {
-            objCol = mix(blurCol, objCol, clamp(focusV / 0.60, 0.0, 1.0));
-          } else if (focusV > 0.64) {
-            vec3 detail = objCol - blurCol;
-            objCol = clamp(objCol + detail * ((focusV - 0.64) * 3.8), 0.0, 1.0);
-          }
-
-          // 2. R1 LUMA: Lighten / Darken individual SAM person or object (0.48x shadow .. 1.0x neutral .. 2.20x key-light)
-          if (abs(lumaV - 1.0) > 0.02) {
-            if (lumaV > 1.0) {
-              float boost = lumaV - 1.0;
-              float fgLuma = dot(objCol, vec3(0.299, 0.587, 0.114));
-              float fgMask = smoothstep(0.11, 0.25, fgLuma);
-              objCol = mix(
-                objCol,
-                pow(max(objCol, vec3(0.001)), vec3(0.72)) * (1.0 + boost * 1.05) + vec3(0.10, 0.08, 0.05) * boost * fgMask,
-                clamp(boost, 0.0, 1.0) * fgMask
-              );
-            } else {
-              objCol *= max(0.48, lumaV);
-            }
-          }
-
-          // 3. R2 TINT: Chromatic Kelvin Warmth / Coolness per SAM item (-1.0 cool 4800K .. +1.0 warm 2600K)
-          if (abs(tintV) > 0.02) {
-            vec3 kMult = (tintV > 0.0)
-              ? mix(vec3(1.0), vec3(1.28, 1.04, 0.70), clamp(tintV, 0.0, 1.0))
-              : mix(vec3(1.0), vec3(0.76, 0.96, 1.26), clamp(-tintV, 0.0, 1.0));
-            objCol *= kMult;
-          }
-
-          // 4. L1 SOLID: < 0.32 transitions this specific SAM object into a 3D DPT-MiDaS Topographic Depth-Contour Lattice
-          if (solidV < 0.32) {
-            vec2 warpedUv = uv + vec2(dVal - 0.5) * 0.022 * (0.5 + 0.5 * morphV);
-            float isoLines = pow(0.5 + 0.5 * sin(dVal * 40.0 * 3.14159), 10.0);
-            vec3 wireTint = vec3(0.82, 0.94, 0.90);
-            vec3 holoMesh = objCol * (0.76 + 0.20 * dVal) +
-                            wireTint * (edgeVal * 0.55 + isoLines * 0.28);
-            objCol = mix(holoMesh, objCol, smoothstep(0.0, 0.32, solidV));
-          }
-
-          outCol = mix(outCol, clamp(objCol, 0.0, 1.0), wMask);
+        float mOrig = (i == 0) ? origMasks.x : (i == 1) ? origMasks.y : (i == 2) ? origMasks.z : origMasks.w;
+        float ox = (i == 0) ? uObjOffsetX.x : (i == 1) ? uObjOffsetX.y : (i == 2) ? uObjOffsetX.z : uObjOffsetX.w;
+        float oy = (i == 0) ? uObjOffsetY.x : (i == 1) ? uObjOffsetY.y : (i == 2) ? uObjOffsetY.z : uObjOffsetY.w;
+        float visV = (i == 0) ? uObjVis.x : (i == 1) ? uObjVis.y : (i == 2) ? uObjVis.z : uObjVis.w;
+        float movedDist = abs(ox) + abs(oy);
+        if (mOrig > 0.05 && (visV < 0.5 || movedDist > 0.003)) {
+          float vacateMask = smoothstep(0.05, 0.65, mOrig);
+          outCol = mix(outCol, blurCol * 0.28, vacateMask);
         }
       }
+
+      // Second pass: composite each visible SAM part at its translated D-Pad coordinates (uv - offset) with its 5-dial parameters
+      for (int i = 0; i < 4; i++) {
+        float visV = (i == 0) ? uObjVis.x : (i == 1) ? uObjVis.y : (i == 2) ? uObjVis.z : uObjVis.w;
+        if (visV >= 0.5) {
+          float ox = (i == 0) ? uObjOffsetX.x : (i == 1) ? uObjOffsetX.y : (i == 2) ? uObjOffsetX.z : uObjOffsetX.w;
+          float oy = (i == 0) ? uObjOffsetY.x : (i == 1) ? uObjOffsetY.y : (i == 2) ? uObjOffsetY.z : uObjOffsetY.w;
+          vec2 partSamUv = clamp(samUv - vec2(ox, -oy), 0.001, 0.999);
+          vec3 sRGB = texture2D(uSamTex, partSamUv).rgb;
+          vec3 dB   = texture2D(uDepthTex, partSamUv).rgb;
+          float m = (i == 0) ? sRGB.x : (i == 1) ? sRGB.y : (i == 2) ? sRGB.z : dB.b;
+
+          if (m > 0.02) {
+            float solidV = (i == 0) ? uObjSolid.x : (i == 1) ? uObjSolid.y : (i == 2) ? uObjSolid.z : uObjSolid.w;
+            float focusV = (i == 0) ? uObjFocus.x : (i == 1) ? uObjFocus.y : (i == 2) ? uObjFocus.z : uObjFocus.w;
+            float morphV = (i == 0) ? uObjMorph.x : (i == 1) ? uObjMorph.y : (i == 2) ? uObjMorph.z : uObjMorph.w;
+            float lumaV  = (i == 0) ? uObjLuma.x  : (i == 1) ? uObjLuma.y  : (i == 2) ? uObjLuma.z  : uObjLuma.w;
+            float tintV  = (i == 0) ? uObjTint.x  : (i == 1) ? uObjTint.y  : (i == 2) ? uObjTint.z  : uObjTint.w;
+
+            float wMask = smoothstep(0.02, 0.78, m);
+            vec3 objCol = baseCol;
+
+            // 1. L2 FOCUS: 0.0 = optical bokeh defocus -> 0.62 = neutral -> 1.0 = unsharp optical crystallization
+            if (focusV < 0.60) {
+              objCol = mix(blurCol, objCol, clamp(focusV / 0.60, 0.0, 1.0));
+            } else if (focusV > 0.64) {
+              vec3 detail = objCol - blurCol;
+              objCol = clamp(objCol + detail * ((focusV - 0.64) * 3.8), 0.0, 1.0);
+            }
+
+            // 2. R1 LUMA: Lighten / Darken individual SAM person or object
+            if (abs(lumaV - 1.0) > 0.02) {
+              if (lumaV > 1.0) {
+                float boost = lumaV - 1.0;
+                float fgLuma = dot(objCol, vec3(0.299, 0.587, 0.114));
+                float fgMask = smoothstep(0.11, 0.25, fgLuma);
+                objCol = mix(
+                  objCol,
+                  pow(max(objCol, vec3(0.001)), vec3(0.72)) * (1.0 + boost * 1.05) + vec3(0.10, 0.08, 0.05) * boost * fgMask,
+                  clamp(boost, 0.0, 1.0) * fgMask
+                );
+              } else {
+                objCol *= max(0.48, lumaV);
+              }
+            }
+
+            // 3. R2 TINT: Chromatic Kelvin Warmth / Coolness per SAM item (-1.0 cool 4800K .. +1.0 warm 2600K)
+            if (abs(tintV) > 0.02) {
+              vec3 kMult = (tintV > 0.0)
+                ? mix(vec3(1.0), vec3(1.28, 1.04, 0.70), clamp(tintV, 0.0, 1.0))
+                : mix(vec3(1.0), vec3(0.76, 0.96, 1.26), clamp(-tintV, 0.0, 1.0));
+              objCol *= kMult;
+            }
+
+            // 4. L1 SOLID: < 0.32 transitions this specific SAM object into a 3D DPT-MiDaS Topographic Depth-Contour Lattice
+            if (solidV < 0.32) {
+              float isoLines = pow(0.5 + 0.5 * sin(dB.r * 40.0 * 3.14159), 10.0);
+              vec3 wireTint = vec3(0.82, 0.94, 0.90);
+              vec3 holoMesh = objCol * (0.76 + 0.20 * dB.r) +
+                              wireTint * (dB.g * 0.55 + isoLines * 0.28);
+              objCol = mix(holoMesh, objCol, smoothstep(0.0, 0.32, solidV));
+            }
+
+            // 4b. 2D+3D WEAVE MODE (uCompMode == 1.0): Weave 3D DPT-MiDaS Topographic Lattice + UV Structural Mesh with 2D Film Plate
+            if (uCompMode > 0.5 && uCompMode < 1.5) {
+              float isSel = (abs(float(i) - uSelectedIdx) < 0.25) ? 1.0 : 0.0;
+              float isoLines = pow(0.5 + 0.5 * sin(dB.r * 46.0 * 3.14159), 8.0);
+              float uvGrid = step(0.94, fract((partSamUv.x + dB.r * 0.018) * 64.0)) + step(0.94, fract((partSamUv.y + dB.r * 0.018) * 36.0));
+              vec3 weaveTint = (isSel > 0.5) ? vec3(0.22, 0.94, 0.78) : vec3(0.68, 0.88, 0.82);
+              objCol = objCol * (0.80 + 0.20 * dB.r) +
+                       weaveTint * (dB.g * (0.38 + 0.32 * isSel) + isoLines * (0.22 + 0.20 * isSel) + clamp(uvGrid, 0.0, 1.0) * (0.08 + 0.14 * isSel));
+            }
+
+            // 5. SAM SEGMENTS MODE (uCompMode == 2.0): Semantic Part Overlay + Topographic Contour Lines
+            if (uCompMode > 1.5 && uCompMode < 2.5) {
+              vec3 segTint = (i == 0) ? vec3(0.22, 0.92, 0.68)
+                           : (i == 1) ? vec3(0.28, 0.76, 0.98)
+                           : (i == 2) ? vec3(0.98, 0.72, 0.24)
+                           :            vec3(0.94, 0.38, 0.78);
+              float isSel = (abs(float(i) - uSelectedIdx) < 0.25) ? 1.0 : 0.0;
+              float iso = pow(0.5 + 0.5 * sin(dB.r * 48.0 * 3.14159), 8.0);
+              objCol = mix(objCol * 0.72, segTint, 0.32 + 0.22 * isSel) + segTint * (dB.g * 0.45 + iso * 0.28);
+            }
+
+            outCol = mix(outCol, clamp(objCol, 0.0, 1.0), wMask);
+          }
+        }
+      }
+
+      // 6. SOLO PART MODE (uCompMode == 3.0): Isolate selected SAM part against a clean 3D studio grid
+      if (uCompMode > 2.5) {
+        int selI = int(floor(uSelectedIdx + 0.5));
+        float ox = (selI == 0) ? uObjOffsetX.x : (selI == 1) ? uObjOffsetX.y : (selI == 2) ? uObjOffsetX.z : uObjOffsetX.w;
+        float oy = (selI == 0) ? uObjOffsetY.x : (selI == 1) ? uObjOffsetY.y : (selI == 2) ? uObjOffsetY.z : uObjOffsetY.w;
+        vec2 selUv = clamp(samUv - vec2(ox, -oy), 0.001, 0.999);
+        vec3 sRGB = texture2D(uSamTex, selUv).rgb;
+        vec3 dB   = texture2D(uDepthTex, selUv).rgb;
+        float selM = (selI == 0) ? sRGB.x : (selI == 1) ? sRGB.y : (selI == 2) ? sRGB.z : dB.b;
+        float wSel = smoothstep(0.05, 0.65, selM);
+        float gLine = step(0.96, fract(uv.x * 48.0)) + step(0.96, fract(uv.y * 27.0));
+        vec3 studioBg = outCol * 0.14 + vec3(0.04, 0.12, 0.11) * clamp(gLine, 0.0, 1.0) * 0.35;
+        outCol = mix(studioBg, outCol + vec3(0.18, 0.75, 0.65) * dB.g * 0.25, wSel);
+      }
+
       return outCol;
     }
   `;
@@ -291,6 +368,10 @@
     uObjMorph:      { value: new THREE.Vector4(0.8, 0.8, 0.8, 0.8) },
     uObjLuma:       { value: new THREE.Vector4(1, 1, 1, 1) },
     uObjTint:       { value: new THREE.Vector4(0, 0, 0, 0) },
+    uObjOffsetX:    { value: new THREE.Vector4(0, 0, 0, 0) },
+    uObjOffsetY:    { value: new THREE.Vector4(0, 0, 0, 0) },
+    uObjVis:        { value: new THREE.Vector4(1, 1, 1, 1) },
+    uCompMode:      { value: 0.0 },
     uSelectedIdx:   { value: 0 },
     uHeadShift:     { value: 0.0 },
     uHexDensity:    { value: 165.0 },
@@ -564,6 +645,10 @@
     uObjMorph:   { value: new THREE.Vector4(0.8, 0.8, 0.8, 0.8) },
     uObjLuma:    { value: new THREE.Vector4(1, 1, 1, 1) },
     uObjTint:    { value: new THREE.Vector4(0, 0, 0, 0) },
+    uObjOffsetX: { value: new THREE.Vector4(0, 0, 0, 0) },
+    uObjOffsetY: { value: new THREE.Vector4(0, 0, 0, 0) },
+    uObjVis:     { value: new THREE.Vector4(1, 1, 1, 1) },
+    uCompMode:   { value: 0.0 },
     uSelectedIdx:{ value: 0 },
     uHeadShift:  { value: 0.0 },
     uLightDir:   { value: new THREE.Vector3(-0.22, 0.74, 0.64).normalize() }
@@ -816,7 +901,20 @@
     uClear39:     { value: filmTextures.clear39 },
     uClear43:     { value: filmTextures.clear43 },
     uClear50:     { value: filmTextures.clear50 },
-    uDissolveTex: { value: filmTextures.dissolve }
+    uDissolveTex: { value: filmTextures.dissolve },
+    uSamTex:      { value: filmTextures.sam_canopy },
+    uDepthTex:    { value: filmTextures.depth_canopy },
+    uObjSolid:    { value: new THREE.Vector4(1, 1, 1, 1) },
+    uObjFocus:    { value: new THREE.Vector4(0.85, 0.85, 0.85, 0.85) },
+    uObjMorph:    { value: new THREE.Vector4(0.8, 0.8, 0.8, 0.8) },
+    uObjLuma:     { value: new THREE.Vector4(1, 1, 1, 1) },
+    uObjTint:     { value: new THREE.Vector4(0, 0, 0, 0) },
+    uObjOffsetX:  { value: new THREE.Vector4(0, 0, 0, 0) },
+    uObjOffsetY:  { value: new THREE.Vector4(0, 0, 0, 0) },
+    uObjVis:      { value: new THREE.Vector4(1, 1, 1, 1) },
+    uCompMode:    { value: 0.0 },
+    uSelectedIdx: { value: 0 },
+    uHeadShift:   { value: 0.0 }
   };
 
   const canopyGeom = new THREE.PlaneGeometry(13.0, 4.90, 120, 80);
@@ -824,22 +922,20 @@
     uniforms: canopyUniforms,
     vertexShader: `
       varying vec2 vUv;
-      uniform sampler2D uCanopyTex;
-      uniform sampler2D uDissolveTex;
+      uniform sampler2D uDepthTex;
       uniform float uTime;
       uniform float uDissolve;
       uniform float uSculptRelief;
       void main() {
         vUv = uv;
-        vec3 c0 = texture2D(uCanopyTex, uv).rgb;
-        vec3 c1 = texture2D(uDissolveTex, uv).rgb;
-        vec3 c = mix(c0, c1, step(0.15, uDissolve));
-        float luma = dot(c, vec3(0.299, 0.587, 0.114));
+        float d = texture2D(uDepthTex, uv).r;
         float edgePin = smoothstep(0.0, 0.05, uv.x) * (1.0 - smoothstep(0.95, 1.0, uv.x)) *
                         smoothstep(0.0, 0.05, uv.y) * (1.0 - smoothstep(0.95, 1.0, uv.y));
         vec3 pos = position;
-        pos.x += sin(uTime * 1.1 + uv.y * 5.0) * 0.045 * edgePin * (1.0 - uDissolve * 0.7);
-        pos.z += ((0.5 - luma) * 0.65 * uSculptRelief + cos(uTime * 1.3 + uv.x * 4.0) * 0.04) * edgePin;
+        pos.x += sin(uTime * 1.1 + uv.y * 5.0) * 0.035 * edgePin * (1.0 - uDissolve * 0.7);
+        float dz = ((d - 0.42) * 0.65 * uSculptRelief + cos(uTime * 1.3 + uv.x * 4.0) * 0.025) * edgePin;
+        pos.z += dz;
+        pos.xy *= (8.0 - dz) / 8.0;
         gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
       }
     `,
@@ -858,6 +954,7 @@
       uniform float uSculptRelief;
       uniform float uBranchZoom;
       ${GLSL_NOISE}
+      ${GLSL_SAM_PER_OBJECT}
       void main() {
         vec2 uv = vUv;
         vec3 colCanopy = mix(texture2D(uCanopyTex, uv).rgb, texture2D(uBranchTex, uv).rgb, smoothstep(0.15, 0.85, uBranchZoom));
@@ -887,6 +984,8 @@
         }
 
         vec3 col = (uDissolve > 0.01) ? colClear : colCanopy;
+        vec3 blurCol = col * 0.82;
+        col = applySamPerObject(col, blurCol, uv);
         if (uSculptRelief < 0.85) {
           float grid = step(0.93, fract(uv.x * 48.0)) + step(0.93, fract(uv.y * 32.0));
           col = mix(col * 0.55 + vec3(0.28, 0.78, 0.64) * clamp(grid, 0.0, 1.0) * 0.55, col, uSculptRelief / 0.85);
@@ -923,6 +1022,10 @@
     uObjMorph:       { value: new THREE.Vector4(0.80, 0.80, 0.80, 0.80) },
     uObjLuma:        { value: new THREE.Vector4(1.00, 1.00, 1.00, 1.00) },
     uObjTint:        { value: new THREE.Vector4(0.00, 0.00, 0.00, 0.00) },
+    uObjOffsetX:     { value: new THREE.Vector4(0.00, 0.00, 0.00, 0.00) },
+    uObjOffsetY:     { value: new THREE.Vector4(0.00, 0.00, 0.00, 0.00) },
+    uObjVis:         { value: new THREE.Vector4(1.00, 1.00, 1.00, 1.00) },
+    uCompMode:       { value: 0.0 },
     uSelectedIdx:    { value: 0.0 },
     uHeadShift:      { value: 0.0 },
     uFrostingShift:  { value: 0.0 },
@@ -965,16 +1068,16 @@
           return mix(c1, c2, smoothstep(0.52, 0.92, uIcingDetail));
         }
       }
-      // SHOT 3 (02:33 - 02:38): 1st Child Cutout (c0) -> 2 Cutouts (c1) -> 3rd Cutout (c2) -> 4th Cutout (c3) -> Wide 6-Child Circle (c4)
+      // SHOT 3 (02:33 - 02:38): 1st Child Cutout (c0) -> 2 Cutouts (c1) -> 3rd Cutout (c2=sec_155 clean wall!) -> 4th Cutout (c3) -> Wide 6-Child Circle (c4)
       else if (uShotMode < 3.5) {
-        if (uCutoutProgress < 0.30) {
-          return mix(c0, c1, smoothstep(0.04, 0.28, uCutoutProgress));
-        } else if (uCutoutProgress < 0.62) {
-          return mix(c1, c2, smoothstep(0.30, 0.60, uCutoutProgress));
-        } else if (uCutoutProgress < 0.90) {
-          return mix(c2, c3, smoothstep(0.62, 0.88, uCutoutProgress));
+        if (uCutoutProgress < 0.28) {
+          return mix(c0, c1, smoothstep(0.04, 0.26, uCutoutProgress));
+        } else if (uCutoutProgress < 0.82) {
+          return mix(c1, c2, smoothstep(0.28, 0.50, uCutoutProgress));
+        } else if (uCutoutProgress < 0.92) {
+          return mix(c2, c3, smoothstep(0.82, 0.91, uCutoutProgress));
         } else {
-          return mix(c3, c4, smoothstep(0.90, 0.99, uCutoutProgress));
+          return mix(c3, c4, smoothstep(0.92, 0.99, uCutoutProgress));
         }
       }
       // SHOT 4 (02:53 - 03:09): Multi-frame candle-blowing sequence (c0=174 -> c1=182 -> c2=173 -> c3=177 -> c4=178)
@@ -1526,7 +1629,20 @@
       uReaderTex:   { value: filmTextures.reader },
       uSnowTex:     { value: filmTextures.snow },
       uShowSnow:    { value: 0.0 },
-      uDimBackdrop: { value: 0.0 }
+      uDimBackdrop: { value: 0.0 },
+      uSamTex:      { value: filmTextures.sam_horsecarve },
+      uDepthTex:    { value: filmTextures.depth_horsecarve },
+      uObjSolid:    { value: new THREE.Vector4(1, 1, 1, 1) },
+      uObjFocus:    { value: new THREE.Vector4(0.85, 0.85, 0.85, 0.85) },
+      uObjMorph:    { value: new THREE.Vector4(0.8, 0.8, 0.8, 0.8) },
+      uObjLuma:     { value: new THREE.Vector4(1, 1, 1, 1) },
+      uObjTint:     { value: new THREE.Vector4(0, 0, 0, 0) },
+      uObjOffsetX:  { value: new THREE.Vector4(0, 0, 0, 0) },
+      uObjOffsetY:  { value: new THREE.Vector4(0, 0, 0, 0) },
+      uObjVis:      { value: new THREE.Vector4(1, 1, 1, 1) },
+      uCompMode:    { value: 0.0 },
+      uSelectedIdx: { value: 0 },
+      uHeadShift:   { value: 0.0 }
     },
     vertexShader: `
       varying vec2 vUv;
@@ -1538,13 +1654,17 @@
       uniform sampler2D uSnowTex;
       uniform float uShowSnow;
       uniform float uDimBackdrop;
+      ${GLSL_NOISE}
+      ${GLSL_SAM_PER_OBJECT}
       void main() {
         vec2 uv = vUv;
         vec3 readerCol = texture2D(uReaderTex, uv).rgb * mix(1.0, 0.62, uDimBackdrop);
         float furnaceGlow = exp(-length((uv - vec2(0.50, 0.24)) * vec2(1.4, 2.0)) * 3.2);
         readerCol += vec3(0.45, 0.22, 0.05) * furnaceGlow * 0.85 * uDimBackdrop;
         vec3 snowCol = texture2D(uSnowTex, uv).rgb;
-        gl_FragColor = vec4(mix(readerCol, snowCol, uShowSnow), 1.0);
+        vec3 baseCol = mix(readerCol, snowCol, uShowSnow);
+        vec3 col = applySamPerObject(baseCol, baseCol * 0.82, uv);
+        gl_FragColor = vec4(col, 1.0);
       }
     `
   });
@@ -1782,16 +1902,19 @@
       const by = arcCy + Math.sin(ang) * arcR;
       const isSel = (idx === selIdx);
 
-      // Compute head-shift-compensated centroid for bugeye eyes (idx 0 & 1)
-      const shiftU = (shot === 'bugeye' && (idx === 0 || idx === 1)) ? (-0.068 * headShift) : 0.0;
-      const shiftV = (shot === 'bugeye' && (idx === 0 || idx === 1)) ? ( 0.024 * headShift) : 0.0;
+      // Compute head-shift-compensated centroid + live D-Pad part offset (dx, dy)
+      const partTf = (state.objectTransforms && state.objectTransforms[shot] && state.objectTransforms[shot][idx])
+        ? state.objectTransforms[shot][idx]
+        : { dx: 0, dy: 0, visible: true };
+      const shiftU = ((shot === 'bugeye' && (idx === 0 || idx === 1)) ? (-0.068 * headShift) : 0.0) + (partTf.dx || 0);
+      const shiftV = ((shot === 'bugeye' && (idx === 0 || idx === 1)) ? ( 0.024 * headShift) : 0.0) + (partTf.dy || 0);
       const cxU = (node.cx !== undefined ? node.cx : node.uv[0]) + shiftU;
       const cyV = (node.cy !== undefined ? node.cy : node.uv[1]) + shiftV;
 
       if (drawVisual) {
         ctx.save();
         const sz = isSel ? 7 : 5;
-        ctx.strokeStyle = isSel ? 'rgba(56, 217, 192, 0.95)' : 'rgba(195, 214, 210, 0.45)';
+        ctx.strokeStyle = isSel ? 'rgba(56, 217, 192, 0.95)' : (partTf.visible === false ? 'rgba(255, 110, 96, 0.55)' : 'rgba(195, 214, 210, 0.45)');
         ctx.lineWidth = isSel ? 1.25 : 0.85;
         ctx.strokeRect(bx - sz * 0.5, by - sz * 0.5, sz, sz);
         if (isSel) {
@@ -1810,7 +1933,8 @@
 
           ctx.font = '7.5px "JetBrains Mono", monospace';
           ctx.fillStyle = 'rgba(240, 252, 250, 0.92)';
-          ctx.fillText(`[${idx + 1}/4] ${node.id || node.label}`, bx + 14, by + 2.5);
+          const visTag = (partTf.visible === false) ? ' [HIDDEN]' : '';
+          ctx.fillText(`[${idx + 1}/4] ${node.id || node.label}${visTag}`, bx + 14, by + 2.5);
 
           const tx = cxU * w;
           const ty = cyV * h;
@@ -1823,11 +1947,12 @@
           ctx.stroke();
           ctx.setLineDash([]);
 
-          // Draw SAM Polygon Boundary Contour only in explicit LAYER (xray) diagnostic mode
-          const showContour = (state.renderMode === 'xray');
+          // Draw SAM Polygon Boundary Contour in LAYER (xray), SAM SEGMENTS, or SOLO PART mode, or when D-Pad moves a part
+          const movedPart = Math.abs(partTf.dx || 0) + Math.abs(partTf.dy || 0) > 0.002;
+          const showContour = (state.renderMode === 'xray') || (state.compositeMode === 'segments') || (state.compositeMode === 'isolate') || movedPart;
           if (showContour && Array.isArray(node.contour) && node.contour.length > 2) {
-            ctx.strokeStyle = 'rgba(56, 217, 192, 0.55)';
-            ctx.lineWidth = 1.0;
+            ctx.strokeStyle = 'rgba(56, 217, 192, 0.65)';
+            ctx.lineWidth = 1.05;
             ctx.setLineDash([4, 3]);
             ctx.beginPath();
             node.contour.forEach(([cu, cv], cIdx) => {
@@ -1842,7 +1967,7 @@
           }
         } else {
           ctx.font = '6.5px "JetBrains Mono", monospace';
-          ctx.fillStyle = 'rgba(185, 208, 204, 0.52)';
+          ctx.fillStyle = (partTf.visible === false) ? 'rgba(255, 110, 96, 0.55)' : 'rgba(185, 208, 204, 0.52)';
           ctx.fillText(`${idx + 1}:${node.id || ''}`, bx + 11, by + 2);
         }
         ctx.restore();
@@ -2260,18 +2385,22 @@
     });
   }
 
-  // Helper: Pack 4 SAM Objects' 5-Dial Vectors (L1..R2) into Shader Vector4 Uniforms
+  // Helper: Pack 4 SAM Objects' 5-Dial Vectors (L1..R2) + Spatial Offsets (dx, dy) + Visibility into Shader Uniforms
   function syncSamObjectUniforms(state, shot, targetUniforms) {
     if (typeof window.ensureObjectParams === 'function') {
       window.ensureObjectParams(shot);
     }
     const objMap = (state.objectParams && state.objectParams[shot]) ? state.objectParams[shot] : null;
+    const tfMap  = (state.objectTransforms && state.objectTransforms[shot]) ? state.objectTransforms[shot] : null;
     const baseRings = (objMap && objMap.baseRings) ? objMap.baseRings : [165, 160, 145, 150, 110];
     const solidArr = [0.95, 0.95, 0.95, 0.95];
     const focusArr = [0.62, 0.62, 0.62, 0.62];
     const morphArr = [0.80, 0.80, 0.80, 0.80];
     const lumaArr  = [1.00, 1.00, 1.00, 1.00];
     const tintArr  = [0.00, 0.00, 0.00, 0.00];
+    const offXArr  = [0.00, 0.00, 0.00, 0.00];
+    const offYArr  = [0.00, 0.00, 0.00, 0.00];
+    const visArr   = [1.00, 1.00, 1.00, 1.00];
     const normDivs = [140, 145, 150, 210, 170];
     const perObjNorms = [];
 
@@ -2283,7 +2412,6 @@
       const n3 = Math.min(1, Math.max(0, angs[3] / normDivs[3]));
       const n4 = Math.min(1, Math.max(0, angs[4] / normDivs[4]));
       solidArr[i] = n0;
-      // Relative to shot's baseline so default preset is 100% true photographic plate, and turning dials modifies that SAM object!
       focusArr[i] = Math.max(0.0, Math.min(1.0, 0.62 + (angs[1] - baseRings[1]) / 130.0));
       morphArr[i] = n2;
       const isActI = (shot === 'bugeye' || shot === 'leaf' || shot === 'canopy' || shot === 'clearing');
@@ -2291,8 +2419,18 @@
         ? Math.max(0.84, Math.min(1.45, 1.0 + (angs[3] - baseRings[3]) / 190.0))
         : Math.max(0.48, Math.min(2.25, 1.0 + (angs[3] - baseRings[3]) / 75.0));
       tintArr[i]  = Math.max(-1.0, Math.min(1.0, (angs[4] - baseRings[4]) / 85.0));
+      if (tfMap && tfMap[i]) {
+        offXArr[i] = tfMap[i].dx || 0.0;
+        offYArr[i] = tfMap[i].dy || 0.0;
+        visArr[i]  = (tfMap[i].visible === false) ? 0.0 : 1.0;
+      }
       perObjNorms.push([n0, n1, n2, n3, n4]);
     }
+
+    const compModeVal = (state.compositeMode === 'hybrid3d') ? 1.0
+                      : (state.compositeMode === 'segments') ? 2.0
+                      : (state.compositeMode === 'isolate')  ? 3.0
+                      : 0.0;
 
     if (targetUniforms && targetUniforms.uObjSolid) {
       targetUniforms.uObjSolid.value.fromArray(solidArr);
@@ -2300,6 +2438,10 @@
       targetUniforms.uObjMorph.value.fromArray(morphArr);
       targetUniforms.uObjLuma.value.fromArray(lumaArr);
       targetUniforms.uObjTint.value.fromArray(tintArr);
+      if (targetUniforms.uObjOffsetX) targetUniforms.uObjOffsetX.value.fromArray(offXArr);
+      if (targetUniforms.uObjOffsetY) targetUniforms.uObjOffsetY.value.fromArray(offYArr);
+      if (targetUniforms.uObjVis)     targetUniforms.uObjVis.value.fromArray(visArr);
+      if (targetUniforms.uCompMode)   targetUniforms.uCompMode.value = compModeVal;
       targetUniforms.uSelectedIdx.value = (state.selectedNodeIdx || 0) % 4;
     }
     return perObjNorms;
@@ -2342,7 +2484,7 @@
     const orbitPitch = (state.cam3D ? state.cam3D.pitch : 0) * 0.18;
     const zoomFactor = state.cam3D ? (1.0 / Math.max(0.65, Math.min(1.65, state.cam3D.zoom || 1.0))) : 1.0;
     const wireOverlay = (state.renderMode === 'xray') ? 1.0 : 0.0;
-    const drawVisualOverlay = !state.staticMode || (wireOverlay > 0.01);
+    const drawVisualOverlay = !state.hideHud;
 
     const samList = (window.STELLINE_SAM_DATA && window.STELLINE_SAM_DATA[shot])
       ? window.STELLINE_SAM_DATA[shot]
@@ -2372,9 +2514,20 @@
     // ------------------------------------------------------------------------
     // ACT I: FOREST & BEETLE (00:15 canopy, 00:25 leaf, 00:31-00:35 bugeye, 00:50 clearing)
     // ------------------------------------------------------------------------
+    const selTf = (state.objectTransforms && state.objectTransforms[shot] && state.objectTransforms[shot][selIdx])
+      ? state.objectTransforms[shot][selIdx]
+      : { dx: 0, dy: 0, visible: true };
+    const selDx = selTf.dx || 0;
+    const selDy = selTf.dy || 0;
+
     if (state.scene === 'beetle') {
       if (shot === 'canopy' || shot === 'clearing') {
         rootGroups.canopy.visible = true;
+        canopyUniforms.uSamTex.value = (shot === 'clearing') ? filmTextures.sam_clearing : filmTextures.sam_canopy;
+        canopyUniforms.uDepthTex.value = (shot === 'clearing') ? filmTextures.depth_clearing : filmTextures.depth_canopy;
+        const canNorms = syncSamObjectUniforms(state, shot, canopyUniforms);
+        const selNorms = canNorms[selIdx] || ringNorms;
+
         canopyUniforms.uTime.value = t;
         canopyUniforms.uSculptRelief.value = Math.min(1.0, L1 * 1.15);
         canopyUniforms.uBranchZoom.value = (shot === 'canopy') ? Math.max(0.0, (L3 - 0.55) * 2.2) : 0.0;
@@ -2383,12 +2536,12 @@
         camera.position.set(orbitYaw * 0.4, orbitPitch * 0.3, 8.0 * zoomFactor);
         camera.lookAt(0, 0, 0);
 
-        const arcX = w * Math.min(0.84, Math.max(0.24, (selObj.cx || 0.50) + 0.16));
-        const arcY = h * Math.min(0.72, Math.max(0.28, selObj.cy || 0.46));
+        const arcX = w * Math.min(0.84, Math.max(0.24, (selObj.cx || 0.50) + selDx + 0.16));
+        const arcY = h * Math.min(0.72, Math.max(0.28, (selObj.cy || 0.46) + selDy));
         drawFilmRadialArcMenu(
           holoCtx, arcX, arcY, 44, true, true, activeRingIdx,
-          [`VOXEL.CANOPY // RELIEF ${(L1 * 100).toFixed(0)}%`, `GODRAYS.VOL  // SCATTER ${(L2 * 100).toFixed(0)}%`, `DOME.UNWEAVE // SPREAD ${(R3 * 100).toFixed(0)}%`],
-          drawVisualOverlay, ringNorms, selObj
+          [`VOXEL.CANOPY // RELIEF ${(selNorms[0] * 100).toFixed(0)}%`, `GODRAYS.VOL  // SCATTER ${(selNorms[1] * 100).toFixed(0)}%`, `DOME.UNWEAVE // SPREAD ${(R3 * 100).toFixed(0)}%`],
+          drawVisualOverlay, selNorms, selObj
         );
       } else if (shot === 'leaf') {
         rootGroups.leaf.visible = true;
@@ -2397,7 +2550,6 @@
         const vBug = (window.OPERATOR_PROTOCOLS && window.OPERATOR_PROTOCOLS.bug && state.otherwiseVariant)
           ? window.OPERATOR_PROTOCOLS.bug.otherwise[state.otherwiseVariant.bug || 0]
           : null;
-        const isBugOtherwise = Boolean(vBug && vBug.idx > 0);
         bugEyeUniforms.uChitinShift.value = (vBug && vBug.chitinShift !== undefined) ? vBug.chitinShift : 0.0;
 
         leafUniforms.uTime.value = t;
@@ -2409,14 +2561,14 @@
         const walkProg = Math.max(0.0, Math.min(1.0, (state.rings[3].angle - 135) / 75));
         leafUniforms.uBeetleWalk.value = walkProg;
 
-        // Show standalone 3D primitive beetle/droplet meshes in V2 (Pure 3D), V3 (Hybrid 3D), or ZERO primitive mode
+        // Show standalone 3D primitive beetle/droplet meshes in V2 (Pure 3D), V3 (Hybrid 3D), 2D+3D WEAVE, or ZERO primitive mode
         const engVer = state.engineVersion || 'v4';
-        const show3DLeafModels = (state.renderMode === 'zero') || (engVer === 'v2') || (engVer === 'v3');
+        const show3DLeafModels = (state.renderMode === 'zero') || (state.compositeMode === 'hybrid3d') || (engVer === 'v2') || (engVer === 'v3');
         scarabBeetleGroup.visible = show3DLeafModels;
         dropletsGroup.visible = show3DLeafModels;
         scarabBeetleGroup.position.set(
-          0.02 - walkProg * 0.18,
-          -0.12 + walkProg * 0.38,
+          0.02 - walkProg * 0.18 + selDx * 4.5,
+          -0.12 + walkProg * 0.38 - selDy * 2.8,
           0.25
         );
         scarabBeetleGroup.rotation.z = -0.08 + Math.sin(walkProg * 6.0) * 0.05;
@@ -2428,12 +2580,12 @@
         camera.lookAt(0, 0, 0);
 
         if (drawVisualOverlay) {
-          const sx = w * (0.495 - walkProg * 0.025);
-          const sy = h * (0.495 - walkProg * 0.065);
+          const sx = w * (0.495 - walkProg * 0.025 + selDx);
+          const sy = h * (0.495 - walkProg * 0.065 + selDy);
           drawOpticalVernierLocus(holoCtx, sx, sy, 42, walkProg, `GAIT.LOCUS // +${(walkProg * 14.2).toFixed(1)}mm`, true);
         }
-        const arcX = w * Math.min(0.84, Math.max(0.24, (selObj.cx || 0.50) + 0.18));
-        const arcY = h * Math.min(0.72, Math.max(0.28, selObj.cy || 0.48));
+        const arcX = w * Math.min(0.84, Math.max(0.24, (selObj.cx || 0.50) + selDx + 0.18));
+        const arcY = h * Math.min(0.72, Math.max(0.28, (selObj.cy || 0.48) + selDy));
         drawFilmRadialArcMenu(
           holoCtx, arcX, arcY, 44, true, true, activeRingIdx,
           [`LAMINA.VEINS // DEPTH ${(selNorms[0] * 100).toFixed(0)}%`, `MENISCUS.H2O // FILM ${(selNorms[1] * 100).toFixed(0)}%`, `SCARAB.GAIT  // 00:25->00:28 [${(walkProg * 100).toFixed(0)}%]`],
@@ -2484,11 +2636,13 @@
         camera.position.set(orbitYaw * 0.45, orbitPitch * 0.35, 8.0 * zoomFactor);
         camera.lookAt(0, 0, 0);
 
-        // Shift both eye reticles & C-Arc by (-0.068 * headShift, +0.024 * headShift) so they stay locked onto the beetle's eyes!
-        const dxU = 0.732 - 0.068 * headShift;
-        const dxV = 0.380 + 0.024 * headShift;
-        const snU = 0.442 - 0.068 * headShift;
-        const snV = 0.401 + 0.024 * headShift;
+        // Shift both eye reticles & C-Arc by (-0.068 * headShift, +0.024 * headShift) + D-Pad offset so they stay locked onto the beetle's eyes!
+        const tf0 = (state.objectTransforms && state.objectTransforms.bugeye && state.objectTransforms.bugeye[0]) || { dx: 0, dy: 0 };
+        const tf1 = (state.objectTransforms && state.objectTransforms.bugeye && state.objectTransforms.bugeye[1]) || { dx: 0, dy: 0 };
+        const dxU = 0.732 - 0.068 * headShift + (tf0.dx || 0);
+        const dxV = 0.380 + 0.024 * headShift + (tf0.dy || 0);
+        const snU = 0.442 - 0.068 * headShift + (tf1.dx || 0);
+        const snV = 0.401 + 0.024 * headShift + (tf1.dy || 0);
 
         const dxHexCount = isSplit ? 260 : Math.round(bugObjNorms[0][1] * effHex);
         const snHexCount = isSplit ? 58  : Math.round(Math.max(leftFocus, bugObjNorms[1][1]) * effHex);
@@ -2498,8 +2652,8 @@
             drawOpticalVernierLocus(holoCtx, w * snU, h * snV, 46, Math.max(leftFocus, bugObjNorms[1][1]), `OCULUS.SN // ${snHexCount}_HEX`, true);
           }
         }
-        const rawCx = (selIdx === 0) ? dxU : (selIdx === 1 ? snU : (selObj.cx || 0.73));
-        const rawCy = (selIdx === 0) ? dxV : (selIdx === 1 ? snV : (selObj.cy || 0.44));
+        const rawCx = (selIdx === 0) ? dxU : (selIdx === 1 ? snU : (selObj.cx || 0.73) + selDx);
+        const rawCy = (selIdx === 0) ? dxV : (selIdx === 1 ? snV : (selObj.cy || 0.44) + selDy);
         const arcX = w * Math.min(0.86, Math.max(0.24, rawCx + 0.11));
         const arcY = h * Math.min(0.72, Math.max(0.28, rawCy + 0.04));
         const chitinTag = (vBug && vBug.idx === 1) ? '585nm SCARAB.AURUM' : (vBug && vBug.idx === 2) ? '455nm OBSIDIAN.VOID' : (vBug && vBug.idx === 3) ? 'SPLIT [260G / 58C]' : '520nm EMERALD';
@@ -2517,18 +2671,22 @@
     else if (state.scene === 'birthday') {
       rootGroups.birthday.visible = true;
 
-      // Bind shot-specific SAM & DPT-MiDaS textures
+      // Bind shot-specific SAM & DPT-MiDaS textures across all 6 Act II shots
       const samTexMap = {
-        cakespawn:  filmTextures.sam_cakespawn,
-        bundtmorph: filmTextures.sam_bundtmorph,
-        redicing:   filmTextures.sam_redicing,
-        cutouts:    filmTextures.sam_cutouts
+        cakespawn:   filmTextures.sam_cakespawn,
+        bundtmorph:  filmTextures.sam_bundtmorph,
+        redicing:    filmTextures.sam_redicing,
+        cutouts:     filmTextures.sam_cutouts,
+        blowcandles: filmTextures.sam_blowcandles,
+        miniature:   filmTextures.sam_miniature
       };
       const depthTexMap = {
-        cakespawn:  filmTextures.depth_cakespawn,
-        bundtmorph: filmTextures.depth_bundtmorph,
-        redicing:   filmTextures.depth_redicing,
-        cutouts:    filmTextures.depth_cutouts
+        cakespawn:   filmTextures.depth_cakespawn,
+        bundtmorph:  filmTextures.depth_bundtmorph,
+        redicing:    filmTextures.depth_redicing,
+        cutouts:     filmTextures.depth_cutouts,
+        blowcandles: filmTextures.depth_blowcandles,
+        miniature:   filmTextures.depth_miniature
       };
       bdayUniforms.uSamTex.value   = samTexMap[shot]   || filmTextures.sam_cutouts;
       bdayUniforms.uDepthTex.value = depthTexMap[shot] || filmTextures.depth_cutouts;
@@ -2627,7 +2785,7 @@
       const wind = shot === 'blowcandles' ? Math.max(0.05, R2) : 0.02 * Math.sin(t * 2.3);
       bdayUniforms.uCandleWind.value = Math.max(0, wind);
 
-      // Show 3D primitive cake & table meshes in V2 (Pure 3D), V3 (Hybrid 3D), or ZERO primitive mode; in V4 (default), bgBirthdayQuad renders the 200x140 DPT-MiDaS 3D displaced film plates cleanly
+      // Show 3D primitive cake & table meshes in V2 (Pure 3D), V3 (Hybrid 3D), 2D+3D WEAVE, or ZERO primitive mode; in V4 (default), bgBirthdayQuad renders the 200x140 DPT-MiDaS 3D displaced film plates cleanly
       const engVer = state.engineVersion || 'v4';
       bgBirthdayQuad.visible = (engVer !== 'v2');
       const show3DExtras = (state.renderMode === 'zero') || (engVer === 'v2') || (engVer === 'v3' && shot !== 'cutouts');
@@ -2677,13 +2835,13 @@
         hexTableGroup.visible = false;
         cakeGroup.visible = show3DExtras;
         cakeGroup.scale.set(0.56, 0.38, 0.56);
-        cakeGroup.position.set(-2.05, -0.18, 0.45);
+        cakeGroup.position.set(-2.05 + selDx * 4.5, -0.18 - selDy * 2.8, 0.45);
         cakeGroup.rotation.set(0.30 + orbitPitch, 0.22 + orbitYaw, -0.10);
 
         const candleCount = (vCake && vCake.candleMode === 3) || (stageProg < 0.35 && !isCakeOtherwise) ? '03_WICKS' : '07_WICKS';
         const smartieState = (forceSmarties || stageProg < 0.70) ? '24_SMARTIES_ON' : 'TOP_CLEARED';
-        const arcX = w * Math.min(0.82, Math.max(0.32, (selObj.cx || 0.32) + 0.14));
-        const arcY = h * Math.min(0.72, Math.max(0.28, selObj.cy || 0.45));
+        const arcX = w * Math.min(0.82, Math.max(0.32, (selObj.cx || 0.32) + selDx + 0.14));
+        const arcY = h * Math.min(0.72, Math.max(0.28, (selObj.cy || 0.45) + selDy));
         drawFilmRadialArcMenu(
           holoCtx, arcX, arcY, 44, true, true, activeRingIdx,
           [`SPONGE.CYL  // EXTRUDE ${(selNorms[0] * 100).toFixed(0)}%`, `WICK.ARRAY  // ${candleCount} [3200K]`, `CONFECT.TOP // ${smartieState}`],
@@ -2695,7 +2853,7 @@
         hexTableGroup.visible = false;
         cakeGroup.visible = show3DExtras;
         cakeGroup.scale.setScalar(0.80);
-        cakeGroup.position.set(-2.35, -0.32, 0.55);
+        cakeGroup.position.set(-2.35 + selDx * 4.5, -0.32 - selDy * 2.8, 0.55);
         cakeGroup.rotation.set(
           0.18 - bundtVal * 0.56 + orbitPitch,
           0.12 + bundtVal * 0.24 + orbitYaw,
@@ -2703,8 +2861,8 @@
         );
 
         const bundtStage = bundtVal < 0.30 ? 'CYL_07_WICKS' : (bundtVal < 0.68 ? 'EXTRUDE_01_WICK' : 'BUNDT_02_WICKS');
-        const arcX = w * Math.min(0.82, Math.max(0.28, (selObj.cx || 0.22) + 0.10));
-        const arcY = h * Math.min(0.72, Math.max(0.28, selObj.cy || 0.42));
+        const arcX = w * Math.min(0.82, Math.max(0.28, (selObj.cx || 0.22) + selDx + 0.10));
+        const arcY = h * Math.min(0.72, Math.max(0.28, (selObj.cy || 0.42) + selDy));
         drawFilmRadialArcMenu(
           holoCtx, arcX, arcY, 42, false, true, activeRingIdx,
           [`TOPOLOGY.L3 // ${(1.0 - bundtVal).toFixed(2)} CYL -> ${bundtVal.toFixed(2)} DOME`, `FLUTE.ARRAY // 11_SCALLOP_RIBS`, `STAGE.STATE // ${bundtStage}`],
@@ -2716,12 +2874,12 @@
         hexTableGroup.visible = false;
         cakeGroup.visible = show3DExtras;
         cakeGroup.scale.setScalar(1.02);
-        cakeGroup.position.set(-1.95, -0.22, 0.75);
+        cakeGroup.position.set(-1.95 + selDx * 4.5, -0.22 - selDy * 2.8, 0.75);
         cakeGroup.rotation.set(0.56 + orbitPitch, -0.18 + orbitYaw, 0.24);
 
         if (drawVisualOverlay) {
-          const tipX = w * (0.295 + icingProg * 0.095);
-          const tipY = h * (0.565 - Math.sin(icingProg * Math.PI) * 0.025);
+          const tipX = w * (0.295 + icingProg * 0.095 + selDx);
+          const tipY = h * (0.565 - Math.sin(icingProg * Math.PI) * 0.025 + selDy);
           holoCtx.save();
           holoCtx.strokeStyle = 'rgba(245, 252, 250, 0.78)';
           holoCtx.lineWidth = 0.9;
@@ -2734,8 +2892,8 @@
         }
 
         const hanziStage = icingProg < 0.45 ? '[生日]' : (icingProg < 0.82 ? '[生日快樂]' : '[生日快樂 + FLOURISH]');
-        const arcX = w * Math.min(0.82, Math.max(0.32, (selObj.cx || 0.34) + 0.18));
-        const arcY = h * Math.min(0.72, Math.max(0.28, selObj.cy || 0.50));
+        const arcX = w * Math.min(0.82, Math.max(0.32, (selObj.cx || 0.34) + selDx + 0.18));
+        const arcY = h * Math.min(0.72, Math.max(0.28, (selObj.cy || 0.50) + selDy));
         drawFilmRadialArcMenu(
           holoCtx, arcX, arcY, 54, true, true, activeRingIdx,
           [`SURF.PIPE   // HANZI_ICING ${hanziStage}`, `NOZZLE.LOCUS// STROKE ${(icingProg * 18).toFixed(0)}/18`, `WICK.RIG    // 07_CANDLE_EMISSIVE_3200K`],
@@ -2755,19 +2913,23 @@
         cakeGroup.position.set(0.01, -0.46, 0.35);
         cakeGroup.rotation.set(0.18 + orbitPitch * 0.4, orbitYaw * 0.35, 0);
 
-        if (cutoutProg > 0.05) {
-          drawChildNodeOverlay(holoCtx, w * 0.182, h * 0.248, w * 0.235, h * 0.305, selIdx === 0, 0, drawVisualOverlay, bdayObjNorms[0]);
+        const cTf0 = (state.objectTransforms && state.objectTransforms.cutouts && state.objectTransforms.cutouts[0]) || { dx: 0, dy: 0 };
+        const cTf1 = (state.objectTransforms && state.objectTransforms.cutouts && state.objectTransforms.cutouts[1]) || { dx: 0, dy: 0 };
+        const cTf2 = (state.objectTransforms && state.objectTransforms.cutouts && state.objectTransforms.cutouts[2]) || { dx: 0, dy: 0 };
+
+        if (cutoutProg > 0.05 && cTf0.visible !== false) {
+          drawChildNodeOverlay(holoCtx, w * (0.205 + (cTf0.dx || 0)), h * (0.315 + (cTf0.dy || 0)), w * (0.275 + (cTf0.dx || 0)), h * (0.345 + (cTf0.dy || 0)), selIdx === 0, 0, drawVisualOverlay, bdayObjNorms[0]);
         }
-        if (cutoutProg > 0.22) {
-          drawChildNodeOverlay(holoCtx, w * 0.662, h * 0.222, w * 0.595, h * 0.285, selIdx === 2, 2, drawVisualOverlay, bdayObjNorms[2]);
+        if (cutoutProg > 0.22 && cTf2.visible !== false) {
+          drawChildNodeOverlay(holoCtx, w * (0.645 + (cTf2.dx || 0)), h * (0.285 + (cTf2.dy || 0)), w * (0.575 + (cTf2.dx || 0)), h * (0.315 + (cTf2.dy || 0)), selIdx === 2, 2, drawVisualOverlay, bdayObjNorms[2]);
         }
-        if (cutoutProg > 0.52) {
-          drawChildNodeOverlay(holoCtx, w * 0.395, h * 0.235, w * 0.415, h * 0.295, selIdx === 1, 1, drawVisualOverlay, bdayObjNorms[1]);
+        if (cutoutProg > 0.45 && cTf1.visible !== false) {
+          drawChildNodeOverlay(holoCtx, w * (0.385 + (cTf1.dx || 0)), h * (0.355 + (cTf1.dy || 0)), w * (0.415 + (cTf1.dx || 0)), h * (0.395 + (cTf1.dy || 0)), selIdx === 1, 1, drawVisualOverlay, bdayObjNorms[1]);
         }
 
         // Also draw the primary 5-Dial White C-Arc Menu anchored beside the selected SAM item (child or table/cake)!
-        const arcX = w * Math.min(0.84, Math.max(0.24, (selObj.cx || 0.50) + 0.14));
-        const arcY = h * Math.min(0.74, Math.max(0.26, selObj.cy || 0.50));
+        const arcX = w * Math.min(0.84, Math.max(0.24, (selObj.cx || 0.50) + selDx + 0.14));
+        const arcY = h * Math.min(0.74, Math.max(0.26, (selObj.cy || 0.50) + selDy));
         drawFilmRadialArcMenu(
           holoCtx, arcX, arcY, 44, true, true, activeRingIdx,
           [`SAM.TARGET  // ${selObj.id} [L1..R2]`, `LUMA.GAIN   // R1:${(selNorms[3] * 100).toFixed(0)}% TINT:${(selNorms[4] * 100).toFixed(0)}%`, `SOLID.MESH  // L1:${(selNorms[0] * 100).toFixed(0)}% FOCUS:${(selNorms[1] * 100).toFixed(0)}%`],
@@ -2782,8 +2944,8 @@
         cakeGroup.position.set(0.0, -1.65, 1.8);
         cakeGroup.rotation.set(0.05, Math.sin(t * 0.7) * 0.08, 0);
 
-        const arcX = w * Math.min(0.84, Math.max(0.24, (selObj.cx || 0.49) + 0.16));
-        const arcY = h * Math.min(0.74, Math.max(0.26, selObj.cy || 0.48));
+        const arcX = w * Math.min(0.84, Math.max(0.24, (selObj.cx || 0.49) + selDx + 0.16));
+        const arcY = h * Math.min(0.74, Math.max(0.26, (selObj.cy || 0.48) + selDy));
         drawFilmRadialArcMenu(
           holoCtx, arcX, arcY, 44, true, true, activeRingIdx,
           [`EXHALE.SEQ  // 02:53->03:09 [${(wind * 100).toFixed(0)}%]`, `PLUME.WIND  // 7_WICKS_EXTINGUISH`, `SAM.TARGET  // ${selObj.id}`],
@@ -2795,8 +2957,8 @@
         hexTableGroup.visible = false;
         cakeGroup.visible = false;
 
-        const arcX = w * Math.min(0.84, Math.max(0.24, (selObj.cx || 0.52) + 0.14));
-        const arcY = h * Math.min(0.74, Math.max(0.26, selObj.cy || 0.64));
+        const arcX = w * Math.min(0.84, Math.max(0.24, (selObj.cx || 0.52) + selDx + 0.14));
+        const arcY = h * Math.min(0.74, Math.max(0.26, (selObj.cy || 0.64) + selDy));
         drawFilmRadialArcMenu(
           holoCtx, arcX, arcY, 44, true, true, activeRingIdx,
           [`MINI.SCALE  // 0.08X FLOOR DIORAMA`, `DOME.LIGHT  // PERIMETER COVE`, `SAM.TARGET  // ${selObj.id}`],
@@ -2810,19 +2972,26 @@
     // ------------------------------------------------------------------------
     else {
       rootGroups.horse.visible = true;
-      bgHorseMat.uniforms.uShowSnow.value = (state.scene === 'snow') ? 1.0 : 0.0;
-      const showHorse3D = (state.scene !== 'snow');
+      const isSnow = (state.scene === 'snow');
+      bgHorseMat.uniforms.uShowSnow.value = isSnow ? 1.0 : 0.0;
+      bgHorseMat.uniforms.uSamTex.value = isSnow ? filmTextures.sam_snow : filmTextures.sam_horsecarve;
+      bgHorseMat.uniforms.uDepthTex.value = isSnow ? filmTextures.depth_snow : filmTextures.depth_horsecarve;
+      const horseNorms = syncSamObjectUniforms(state, isSnow ? 'snow' : 'horsecarve', bgHorseMat.uniforms);
+      const selNorms = horseNorms[selIdx] || ringNorms;
+
+      const showHorse3D = !isSnow;
       bgHorseMat.uniforms.uDimBackdrop.value = showHorse3D ? 1.0 : 0.0;
       woodHorseGroup.visible = showHorse3D;
       woodGrainMat.uniforms.uSculptRelief.value = Math.min(1.0, L1 * 1.15);
       woodGrainMat.uniforms.uWireOverlay.value = wireOverlay;
       woodHorseGroup.rotation.y = -0.45 + orbitYaw + Math.sin(t * 0.85) * 0.32 + (R2 - 0.5) * 0.8;
       woodHorseGroup.rotation.x = 0.12 + orbitPitch + Math.cos(t * 0.7) * 0.06;
+      woodHorseGroup.position.set(selDx * 3.5, -0.10 - selDy * 2.2, 0.0);
       camera.position.set(0, 0.25, 5.6 * zoomFactor);
       camera.lookAt(0, 0, 0);
 
       if (woodHorseGroup.visible) {
-        const base2D = projectTo2D(new THREE.Vector3(0, -1.08, 0.45), w, h);
+        const base2D = projectTo2D(new THREE.Vector3(selDx * 3.5, -1.08 - selDy * 2.2, 0.45), w, h);
         if (base2D && L3 > 0.20) {
           const inscChars = '6 · 10 · 21';
           const nChars = Math.max(1, Math.min(inscChars.length, Math.floor(((L3 - 0.20) / 0.55) * inscChars.length)));
@@ -2833,12 +3002,12 @@
           holoCtx.restore();
         }
       }
-      const arcX = w * Math.min(0.84, Math.max(0.24, (selObj.cx || 0.50) + 0.16));
-      const arcY = h * Math.min(0.72, Math.max(0.28, selObj.cy || 0.50));
+      const arcX = w * Math.min(0.84, Math.max(0.24, (selObj.cx || 0.50) + selDx + 0.16));
+      const arcY = h * Math.min(0.72, Math.max(0.28, (selObj.cy || 0.50) + selDy));
       drawFilmRadialArcMenu(
         holoCtx, arcX, arcY, 46, true, true, activeRingIdx,
-        [`EQUUS.HULL  // WHITTLE ${(L1 * 100).toFixed(0)}%`, `BASE.INSC   // [6 · 10 · 21]`, `FURNACE.RIM // 3200K RADIANCE`],
-        drawVisualOverlay, ringNorms, selObj
+        [`EQUUS.HULL  // WHITTLE ${(selNorms[0] * 100).toFixed(0)}%`, `BASE.INSC   // [6 · 10 · 21]`, `FURNACE.RIM // 3200K RADIANCE`],
+        drawVisualOverlay, selNorms, selObj
       );
     }
 

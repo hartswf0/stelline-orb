@@ -89,15 +89,16 @@
     cursor: grabbing;
   }
 
-  /* Minimal floating corner controls — zero clutter */
+  /* Minimal floating corner controls — sleek 3-row single-line ribbons, zero vertical bloat */
   .minimal-corner {
     position: fixed;
-    top: 14px;
-    left: 16px;
+    top: 8px;
+    left: 12px;
+    right: 12px;
     display: flex;
-    gap: 6px;
+    gap: 3px;
     z-index: 20;
-    opacity: 0.45;
+    opacity: 0.42;
     transition: opacity 0.2s ease;
   }
 
@@ -105,14 +106,29 @@
     opacity: 1;
   }
 
+  .minimal-corner > div,
+  .minimal-corner div {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    max-width: 100%;
+    scrollbar-width: none;
+  }
+
+  .minimal-corner > div::-webkit-scrollbar,
+  .minimal-corner div::-webkit-scrollbar {
+    display: none;
+  }
+
   .pill-btn {
     background: rgba(10, 15, 22, 0.75);
     border: 1px solid rgba(110, 128, 148, 0.35);
     color: var(--text-muted);
-    padding: 4px 9px;
+    padding: 3px 8px;
     font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.08em;
+    font-size: 9.5px;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    flex-shrink: 0;
     cursor: pointer;
     backdrop-filter: blur(4px);
     transition: all 0.15s ease;
@@ -201,7 +217,8 @@
       max-width: calc(100vw - 12px) !important;
       opacity: 0.94;
     }
-    .minimal-corner > div {
+    .minimal-corner > div,
+    .minimal-corner div {
       flex-wrap: nowrap !important;
       overflow-x: auto;
       max-width: 100%;
@@ -247,7 +264,7 @@
       <button class="pill-btn" id="xrayBtn" onclick="setViewMode(state.viewMode === 'xray' ? 'sculpt' : 'xray')">X-RAY</button>
       <button class="pill-btn" id="bearingBtn" onclick="setViewMode(state.viewMode === 'bearing' ? 'sculpt' : 'bearing')">READER</button>
       <div class="minimal-sep" style="height:14px;"></div>
-      <button class="pill-btn amber" id="engineVerBtn" onclick="cycleEngineVersion()" title="Switch between V4 (SAM+MiDaS Relief), V3 (Hybrid 3D Models), V2 (Pure 3D Sculptor), and V1 (Canvas 3D Lab)">ENGINE: V3 HYBRID-3D</button>
+      <button class="pill-btn amber" id="engineVerBtn" onclick="cycleEngineVersion()" title="Switch between V4 (SAM+MiDaS Relief), V3 (Hybrid 3D Models), V2 (Pure 3D Sculptor), and V1 (Canvas 3D Lab)">ENGINE: V3 HYBRID 3D MODELS</button>
       <a class="pill-btn" href="mobile.html" style="text-decoration:none;">MOBILE EDITION</a>
       <a class="pill-btn" href="versions.html" style="text-decoration:none;">ALL VERSIONS</a>
     </div>
@@ -273,6 +290,9 @@
       <div id="protoStepButtons" style="display:flex; gap:3px; flex-wrap:wrap; align-items:center;"></div>
       <div class="minimal-sep" style="height:12px;"></div>
       <button class="pill-btn amber" id="otherwiseMutateBtn" onclick="cycleOtherwiseVariant()" title="Counterfactual Design: Imagine each element could be otherwise [Press O]">OTHERWISE [O]: CANONICAL FILM</button>
+      <div class="minimal-sep" style="height:12px;"></div>
+      <div id="samPartButtons" style="display:flex; gap:3px; flex-wrap:wrap; align-items:center;"></div>
+      <button class="pill-btn" id="compModeBtn" onclick="cycleCompositeMode()" title="Cycle 2D + 3D + SAM Part Compositor Mode [Press C]">COMP [C]: FULL COMPOSITE</button>
     </div>
   </div>
 
@@ -300,9 +320,10 @@
       <div style="display:flex;gap:4px;align-items:center;justify-content:space-between;">
         <button class="pill-btn" onclick="cycleSelectedHologramNode()">SELECT [S]</button>
         <button class="pill-btn amber" onclick="cycleOtherwiseVariant()">OTHERWISE [O]</button>
+        <button class="pill-btn" id="mobileCompBtn" onclick="cycleCompositeMode()">COMP [C]</button>
         <button class="pill-btn" onclick="startInverseWeave(false)">WEAVE</button>
         <button class="pill-btn" onclick="zeroToPrimitives()">ZERO</button>
-        <div style="display:flex;align-items:center;gap:4px;flex:1;min-width:95px;background:rgba(16,24,34,0.85);border:1px solid rgba(110,128,148,0.35);padding:2px 6px;">
+        <div style="display:flex;align-items:center;gap:4px;flex:1;min-width:85px;background:rgba(16,24,34,0.85);border:1px solid rgba(110,128,148,0.35);padding:2px 6px;">
           <span style="font-size:7.5px;color:#7b8e9f;">SPREAD</span>
           <input id="mSpreadIn" type="range" min="0" max="100" value="25" style="width:100%;height:14px;accent-color:#f0a848;" oninput="setAccordionSpread(this.value, true)">
         </div>
@@ -608,7 +629,7 @@ const SHOT_CONFIGS = {
   clearing:    { scene: 'beetle',   rings: [165, 165, 175, 220, 175], spread: 62, yaw:  0.00, pitch:  0.00, dist: 380, bundt: 0 },
   // ACT II: BIRTHDAY PARTY (02:17 - 03:16)
   cakespawn:   { scene: 'birthday', rings: [150, 145,  50, 140, 155], spread: 12, yaw:  0.00, pitch:  0.00, dist: 285, bundt: 0.0 },
-  bundtmorph:  { scene: 'birthday', rings: [165, 150,  55, 150, 165], spread: 18, yaw:  0.00, pitch:  0.00, dist: 250, bundt: 0.86 },
+  bundtmorph:  { scene: 'birthday', rings: [165, 150, 142, 150, 165], spread: 18, yaw:  0.00, pitch:  0.00, dist: 250, bundt: 0.92 },
   redicing:    { scene: 'birthday', rings: [165, 155, 175, 170, 175], spread: 22, yaw:  0.00, pitch:  0.00, dist: 235, bundt: 0.0 },
   cutouts:     { scene: 'birthday', rings: [165, 160, 175, 165, 175], spread: 38, yaw:  0.00, pitch:  0.00, dist: 310, bundt: 0.0 },
   blowcandles: { scene: 'birthday', rings: [165, 175, 175, 255, 175], spread: 44, yaw:  0.00, pitch:  0.00, dist: 265, bundt: 0.0 },
@@ -658,6 +679,9 @@ function selectFilmShot(shotKey, fromSequencer = false) {
 //   Dial 4 (R2): TINT    (20°..200° -> 4800K cool cyan .. 3500K neutral (110°) .. 2600K warm candle gold)
 // ============================================================================
 state.objectParams = {};
+state.objectTransforms = {};
+state.compositeMode = 'composite'; // 'composite' | 'hybrid3d' | 'segments' | 'isolate'
+
 function ensureObjectParams(shotKey) {
   const s = shotKey || state.activeShot || 'bugeye';
   const cfg = SHOT_CONFIGS[s] || SHOT_CONFIGS.bugeye;
@@ -671,9 +695,47 @@ function ensureObjectParams(shotKey) {
     ];
     state.objectParams[s].baseRings = [...br];
   }
+  if (!state.objectTransforms[s]) {
+    state.objectTransforms[s] = [
+      { dx: 0, dy: 0, visible: true },
+      { dx: 0, dy: 0, visible: true },
+      { dx: 0, dy: 0, visible: true },
+      { dx: 0, dy: 0, visible: true }
+    ];
+  }
   return state.objectParams[s];
 }
 window.ensureObjectParams = ensureObjectParams;
+
+function setCompositeMode(mode) {
+  const valid = ['composite', 'hybrid3d', 'segments', 'isolate'];
+  state.compositeMode = valid.includes(mode) ? mode : 'composite';
+  if (typeof renderOperatorProtocolUI === 'function') renderOperatorProtocolUI();
+  playMicroSwitchClick(true, 175);
+}
+window.setCompositeMode = setCompositeMode;
+
+function cycleCompositeMode(explicitMode = null) {
+  const order = ['composite', 'hybrid3d', 'segments', 'isolate'];
+  const next = (explicitMode && order.includes(explicitMode))
+    ? explicitMode
+    : order[(order.indexOf(state.compositeMode || 'composite') + 1) % order.length];
+  setCompositeMode(next);
+}
+window.cycleCompositeMode = cycleCompositeMode;
+
+function togglePartVisibility(nodeIdx, ev) {
+  if (ev) ev.stopPropagation();
+  const shot = state.activeShot || 'bugeye';
+  ensureObjectParams(shot);
+  const cleanIdx = ((nodeIdx % 4) + 4) % 4;
+  if (state.objectTransforms[shot] && state.objectTransforms[shot][cleanIdx]) {
+    state.objectTransforms[shot][cleanIdx].visible = !state.objectTransforms[shot][cleanIdx].visible;
+  }
+  if (typeof renderOperatorProtocolUI === 'function') renderOperatorProtocolUI();
+  playMicroSwitchClick(true, 210);
+}
+window.togglePartVisibility = togglePartVisibility;
 
 function selectSceneObject(nodeIdx, fromSequencer = false) {
   const shot = state.activeShot || 'bugeye';
@@ -688,6 +750,7 @@ function selectSceneObject(nodeIdx, fromSequencer = false) {
       setRingAngle(r, p[r], false);
     }
     state._syncingNode = false;
+    if (typeof renderOperatorProtocolUI === 'function') renderOperatorProtocolUI();
     playMicroSwitchClick(true, 220);
   }
 }
@@ -844,6 +907,39 @@ function renderOperatorProtocolUI() {
     mutBtn.textContent = `OTHERWISE [O]: ${vObj.code}`;
     mutBtn.classList.toggle('active', vIdx > 0);
   }
+
+  const shot = state.activeShot || 'bugeye';
+  ensureObjectParams(shot);
+  const samList = (window.STELLINE_SAM_DATA && Array.isArray(window.STELLINE_SAM_DATA[shot]))
+    ? window.STELLINE_SAM_DATA[shot]
+    : null;
+  const partContainer = document.getElementById('samPartButtons');
+  if (partContainer) {
+    const selIdx = ((state.selectedNodeIdx || 0) % 4 + 4) % 4;
+    const xfs = state.objectTransforms[shot] || [];
+    const objs = samList || [
+      { id: 'PART.01' }, { id: 'PART.02' }, { id: 'PART.03' }, { id: 'PART.04' }
+    ];
+    partContainer.innerHTML = objs.slice(0, 4).map((ob, idx) => {
+      const isSel = (idx === selIdx) ? 'active' : '';
+      const isVis = (!xfs[idx] || xfs[idx].visible !== false);
+      const visStyle = isVis ? '' : 'opacity:0.42;text-decoration:line-through;';
+      return `<button class="pill-btn ${isSel}" style="${visStyle}" onclick="selectSceneObject(${idx})" ondblclick="togglePartVisibility(${idx}, event)" title="Click to address ${ob.id} with all 5 Orb dials + Left Pod D-Pad | Double-click to toggle part visibility">${idx + 1}:${ob.id}</button>`;
+    }).join('');
+  }
+
+  const compBtn = document.getElementById('compModeBtn');
+  if (compBtn) {
+    const compLabels = {
+      composite: 'COMP [C]: FULL COMPOSITE',
+      hybrid3d:  'COMP [C]: 2D+3D WEAVE',
+      segments:  'COMP [C]: SAM SEGMENTS',
+      isolate:   'COMP [C]: SOLO PART'
+    };
+    const cm = state.compositeMode || 'composite';
+    compBtn.textContent = compLabels[cm] || compLabels.composite;
+    compBtn.classList.toggle('active', cm !== 'composite');
+  }
 }
 window.renderOperatorProtocolUI = renderOperatorProtocolUI;
 
@@ -973,6 +1069,7 @@ function selectMemoryScene(sceneKey) {
 window.addEventListener('keydown', e => {
   if (e.key === 's' || e.key === 'S') cycleSelectedHologramNode();
   else if (e.key === 'o' || e.key === 'O') cycleOtherwiseVariant();
+  else if (e.key === 'c' || e.key === 'C') cycleCompositeMode();
   else if (e.key === ' ') {
     e.preventDefault();
     setAccordionSpread(state.accordionTarget > 0.25 ? 0 : 52, true);
@@ -1085,6 +1182,16 @@ function pressDpad(dirName, dx, dy) {
   state.activeDpadDir = dirName;
   state.targetOffset.x = Math.max(-0.45, Math.min(0.45, state.targetOffset.x + dx));
   state.targetOffset.y = Math.max(-0.35, Math.min(0.35, state.targetOffset.y + dy));
+  // Also nudge the currently selected SAM-segmented part in 2D+3D space!
+  const shot = state.activeShot || 'bugeye';
+  ensureObjectParams(shot);
+  const selIdx = ((state.selectedNodeIdx || 0) % 4 + 4) % 4;
+  if (state.objectTransforms && state.objectTransforms[shot] && state.objectTransforms[shot][selIdx]) {
+    const xf = state.objectTransforms[shot][selIdx];
+    xf.dx = Math.max(-0.18, Math.min(0.18, (xf.dx || 0) + dx * 0.25));
+    xf.dy = Math.max(-0.18, Math.min(0.18, (xf.dy || 0) + dy * 0.25));
+  }
+  state.userHoldTimer = 5.0;
   playMicroSwitchClick(true, -80);
 }
 
@@ -2671,15 +2778,15 @@ window.cycleEngineVersion = cycleEngineVersion;
 
 function syncMobileDockUI() {
   const shot = state.activeShot || 'bugeye';
-  const samShot = (window.STELLINE_SAM_DB && window.STELLINE_SAM_DB.shots && window.STELLINE_SAM_DB.shots[shot])
-    ? window.STELLINE_SAM_DB.shots[shot]
+  const samList = (window.STELLINE_SAM_DATA && Array.isArray(window.STELLINE_SAM_DATA[shot]))
+    ? window.STELLINE_SAM_DATA[shot]
     : null;
   const samRow = document.getElementById('mobileSamRow');
-  if (samRow && samShot && Array.isArray(samShot.objects)) {
+  if (samRow && samList) {
     const btns = samRow.querySelectorAll('button');
     const selIdx = ((state.selectedNodeIdx || 0) % 4 + 4) % 4;
     btns.forEach((b, idx) => {
-      const obj = samShot.objects[idx];
+      const obj = samList[idx];
       if (obj) b.textContent = `${idx + 1}:${obj.id}`;
       b.classList.toggle('active', idx === selIdx);
     });
@@ -4199,6 +4306,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const r4 = params.get('r4') ?? params.get('a5');
   const spreadP = params.get('spread');
   const xrayP = params.get('xray');
+  if (params.get('hud') === '0') state.hideHud = true;
   if (params.get('static') === '1') {
     state.staticMode = true;
     state.liveModeling = false;
@@ -4229,6 +4337,21 @@ window.addEventListener('DOMContentLoaded', () => {
   const nodeParam = params.get('node');
   if (nodeParam !== null && typeof window.selectSceneObject === 'function') {
     window.selectSceneObject(parseInt(nodeParam, 10) || 0);
+  }
+  const compParam = params.get('comp');
+  if (compParam && typeof window.setCompositeMode === 'function') {
+    window.setCompositeMode(compParam.toLowerCase());
+  }
+  const dxParam = params.get('dx');
+  const dyParam = params.get('dy');
+  if (dxParam !== null || dyParam !== null) {
+    const sKey = state.activeShot || 'bugeye';
+    ensureObjectParams(sKey);
+    const sIdx = ((state.selectedNodeIdx || 0) % 4 + 4) % 4;
+    if (state.objectTransforms[sKey] && state.objectTransforms[sKey][sIdx]) {
+      if (dxParam !== null) state.objectTransforms[sKey][sIdx].dx = parseFloat(dxParam) || 0;
+      if (dyParam !== null) state.objectTransforms[sKey][sIdx].dy = parseFloat(dyParam) || 0;
+    }
   }
   const tParam = params.get('t');
   if (tParam !== null) {
