@@ -4884,7 +4884,7 @@ window.setAccordionSpread = setAccordionSpread;
 window.addEventListener('DOMContentLoaded', () => {
   resizeCanvases();
   const params = new URLSearchParams(window.location.search);
-  const engParam = params.get('engine');
+  const engParam = params.get('engine') || (params.get('vmode') ? 'v' + params.get('vmode') : null);
   if (engParam) cycleEngineVersion(engParam.toLowerCase());
   if (params.get('mobile') === '1') document.body.classList.add('force-mobile');
   const r0 = params.get('r0') ?? params.get('a1');
@@ -4910,7 +4910,7 @@ window.addEventListener('DOMContentLoaded', () => {
     state.liveModeling = false;
     state.userHoldTimer = 12.0;
   }
-  const shotParam = params.get('shot');
+  const shotParam = params.get('shot') || params.get('scene');
   if (shotParam && SHOT_CONFIGS[shotParam]) {
     selectFilmShot(shotParam);
     if (r0 !== null || r1 !== null || r2 !== null || r3 !== null || r4 !== null || spreadP !== null || otherwiseParam !== null) {

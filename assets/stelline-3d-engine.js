@@ -652,10 +652,64 @@
   }
 
   // 3D Articulated Antenna Scapes & Mandible Pincers in Macro BugEye Rig ([4/8] & [6/8])
-  const bugChitinMat = new THREE.MeshStandardMaterial({
-    color: 0x24341e,
-    roughness: 0.26,
-    metalness: 0.42
+  const bugeyeAmbient = new THREE.AmbientLight(0x88b070, 1.35);
+  const bugeyeKeyLight = new THREE.DirectionalLight(0xe4f5c8, 1.95);
+  bugeyeKeyLight.position.set(1.8, 3.2, 2.8);
+  const bugeyeRimLight = new THREE.DirectionalLight(0x68a878, 1.15);
+  bugeyeRimLight.position.set(-2.5, 1.4, -1.5);
+  rootGroups.bugeye.add(bugeyeAmbient, bugeyeKeyLight, bugeyeRimLight);
+  rootGroups.leaf.add(bugeyeAmbient.clone(), bugeyeKeyLight.clone(), bugeyeRimLight.clone());
+
+  const bugChitinMat = new THREE.ShaderMaterial({
+    uniforms: {
+      uLightDir: bugEyeUniforms.uLightDir,
+      uChitinShift: bugEyeUniforms.uChitinShift
+    },
+    vertexShader: `
+      varying vec3 vNormal;
+      varying vec3 vLocalPos;
+      varying vec3 vViewPos;
+      void main() {
+        vLocalPos = position;
+        vNormal = normalize(normalMatrix * normal);
+        vec4 vp = modelViewMatrix * vec4(position, 1.0);
+        vViewPos = -vp.xyz;
+        gl_Position = projectionMatrix * vp;
+      }
+    `,
+    fragmentShader: `
+      varying vec3 vNormal;
+      varying vec3 vLocalPos;
+      varying vec3 vViewPos;
+      uniform vec3 uLightDir;
+      uniform float uChitinShift;
+      ${GLSL_NOISE}
+      void main() {
+        float microPit = fbm(vLocalPos.xy * 18.0 + vLocalPos.z * 12.0);
+        vec3 N = normalize(vNormal + vec3(microPit - 0.5) * 0.22);
+        vec3 V = normalize(vViewPos);
+        vec3 L = normalize(uLightDir);
+        vec3 H = normalize(L + V);
+        float diff = max(0.0, dot(N, L) * 0.65 + 0.35);
+        float fresnel = pow(1.0 - max(0.0, dot(N, V)), 2.4);
+        float spec = pow(max(0.0, dot(N, H)), 24.0) * (0.5 + 0.5 * microPit);
+        vec3 darkChitin = vec3(0.06, 0.09, 0.04);
+        vec3 midChitin  = vec3(0.18, 0.26, 0.12);
+        vec3 rimChitin  = vec3(0.32, 0.44, 0.20);
+        if (uChitinShift > 0.15) {
+          darkChitin = vec3(0.12, 0.09, 0.02);
+          midChitin  = vec3(0.42, 0.32, 0.08);
+          rimChitin  = vec3(0.76, 0.58, 0.16);
+        } else if (uChitinShift < -0.15) {
+          darkChitin = vec3(0.02, 0.06, 0.12);
+          midChitin  = vec3(0.08, 0.24, 0.38);
+          rimChitin  = vec3(0.18, 0.52, 0.72);
+        }
+        vec3 col = mix(darkChitin, midChitin, diff * (0.82 + 0.24 * microPit));
+        col += rimChitin * fresnel * 0.48 + rimChitin * spec * 0.45;
+        gl_FragColor = vec4(col, 1.0);
+      }
+    `
   });
   const bugEyeAntennaGroup = new THREE.Group();
   rootGroups.bugeye.add(bugEyeAntennaGroup);
@@ -698,6 +752,126 @@
     new THREE.Vector3(0.18, -0.45, 0.12),
     new THREE.Vector3(-0.18, -0.88, 0.16)
   ], [0.22, 0.15, 0.06], bugChitinMat, 0.35));
+
+  // Complete 3D Anatomical Macro Beetle Head Capsule + Dual Compound Eye Domes (for V2 Pure 3D, ZERO mode & .OBJ 3D Export)
+  const macroBeetleHeadGroup = new THREE.Group();
+  macroBeetleHeadGroup.visible = false;
+  rootGroups.bugeye.add(macroBeetleHeadGroup);
+  {
+    const headCapG = new THREE.SphereGeometry(1.42, 64, 48);
+    const hPos = headCapG.attributes.position;
+    for (let i = 0; i < hPos.count; i++) {
+      let x = hPos.getX(i) * 1.28;
+      let y = hPos.getY(i) * 0.86;
+      let z = hPos.getZ(i) * 0.68;
+      // Sculpt ocular sockets at (-0.95, 0.05) and (+0.95, 0.05) in local space, plus dorsal supraorbital brow ridges
+      const dL = Math.hypot(x + 0.92, y - 0.04);
+      const dR = Math.hypot(x - 0.92, y - 0.04);
+      const sock = (Math.exp(-dL * dL * 2.8) + Math.exp(-dR * dR * 2.8)) * Math.max(0, z);
+      z -= sock * 0.42;
+      const browL = Math.exp(-Math.pow(x + 0.82, 2) * 3.5 - Math.pow(y - 0.48, 2) * 12.0) * Math.max(0, z);
+      const browR = Math.exp(-Math.pow(x - 0.82, 2) * 3.5 - Math.pow(y - 0.48, 2) * 12.0) * Math.max(0, z);
+      z += (browL + browR) * 0.28;
+      y += (browL + browR) * 0.14;
+      // Median frontal furrow & flared genae cheek flanges
+      const furrow = Math.exp(-x * x * 8.0) * Math.max(0, y + 0.2) * Math.max(0, z);
+      z -= furrow * 0.12;
+      const gena = Math.exp(-Math.pow(y + 0.38, 2) * 8.0) * Math.min(1.0, Math.abs(x) / 1.2);
+      x *= 1.0 + gena * 0.18;
+      hPos.setXYZ(i, x, y, z);
+    }
+    headCapG.computeVertexNormals();
+    const headCapM = new THREE.Mesh(headCapG, bugChitinMat);
+    headCapM.position.set(0.62, 0.12, -0.18);
+    headCapM.name = 'MacroBeetle_HeadCapsule';
+    macroBeetleHeadGroup.add(headCapM);
+
+    const pronotumG = new THREE.SphereGeometry(1.95, 48, 32);
+    pronotumG.scale(1.42, 0.86, 0.85);
+    const pronotumM = new THREE.Mesh(pronotumG, bugChitinMat);
+    pronotumM.position.set(0.58, 0.34, -1.25);
+    pronotumM.name = 'MacroBeetle_Pronotum';
+    macroBeetleHeadGroup.add(pronotumM);
+
+    const clypeusG = new THREE.CylinderGeometry(0.76, 0.56, 0.52, 32);
+    clypeusG.scale(1.25, 1.0, 0.72);
+    const clypeusM = new THREE.Mesh(clypeusG, bugChitinMat);
+    clypeusM.position.set(0.64, -0.66, 0.18);
+    clypeusM.name = 'MacroBeetle_ClypeusLabrum';
+    macroBeetleHeadGroup.add(clypeusM);
+
+    const macroEyeMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uHexDensity: bugEyeUniforms.uHexDensity,
+        uChitinShift: bugEyeUniforms.uChitinShift,
+        uLightDir: bugEyeUniforms.uLightDir
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        varying vec3 vViewPos;
+        void main() {
+          vUv = uv;
+          vNormal = normalize(normalMatrix * normal);
+          vec4 vp = modelViewMatrix * vec4(position, 1.0);
+          vViewPos = -vp.xyz;
+          gl_Position = projectionMatrix * vp;
+        }
+      `,
+      fragmentShader: `
+        varying vec2 vUv;
+        varying vec3 vNormal;
+        varying vec3 vViewPos;
+        uniform float uHexDensity;
+        uniform float uChitinShift;
+        uniform vec3 uLightDir;
+        void main() {
+          vec3 N = normalize(vNormal);
+          vec3 V = normalize(vViewPos);
+          vec3 L = normalize(uLightDir);
+          float scale = max(28.0, uHexDensity * 0.42);
+          vec2 p = vUv * vec2(scale, scale * 0.866);
+          vec2 r = vec2(1.0, 1.7320508);
+          vec2 h = r * 0.5;
+          vec2 a = mod(p, r) - h;
+          vec2 b = mod(p - h, r) - h;
+          vec2 gv = dot(a, a) < dot(b, b) ? a : b;
+          float d = length(gv);
+          float cell = smoothstep(0.52, 0.14, d);
+          float groove = smoothstep(0.36, 0.48, d);
+          vec3 cN = normalize(N + vec3(gv.x, gv.y, 0.18) * 0.55);
+          float diff = max(0.0, dot(cN, L) * 0.7 + 0.3);
+          float spec = pow(max(0.0, dot(reflect(-L, cN), V)), 22.0) * cell;
+          float fres = pow(1.0 - max(0.0, dot(N, V)), 2.2);
+          float pseudo = smoothstep(0.93, 0.995, dot(N, V));
+          vec3 baseCol = vec3(0.22, 0.30, 0.14);
+          if (uChitinShift > 0.15) baseCol = mix(baseCol, vec3(0.46, 0.34, 0.08), clamp(uChitinShift, 0.0, 1.0));
+          else if (uChitinShift < -0.15) baseCol = mix(baseCol, vec3(0.08, 0.26, 0.38), clamp(-uChitinShift, 0.0, 1.0));
+          vec3 col = baseCol * (0.42 + 0.88 * diff) * cell * (1.0 - groove * 0.72) + vec3(0.75, 0.86, 0.56) * spec * 0.85 + baseCol * fres * 0.35;
+          col *= mix(1.0, 0.25, pseudo);
+          gl_FragColor = vec4(col, 1.0);
+        }
+      `
+    });
+
+    const eyeLG = new THREE.SphereGeometry(0.68, 48, 36);
+    eyeLG.scale(0.96, 1.08, 0.86);
+    const eyeLM = new THREE.Mesh(eyeLG, macroEyeMat);
+    eyeLM.position.set(-0.32, 0.14, 0.44);
+    eyeLM.rotation.y = -0.28;
+    eyeLM.rotation.z = 0.08;
+    eyeLM.name = 'MacroBeetle_CompoundEye_SN';
+    macroBeetleHeadGroup.add(eyeLM);
+
+    const eyeRG = new THREE.SphereGeometry(0.72, 48, 36);
+    eyeRG.scale(0.98, 1.10, 0.88);
+    const eyeRM = new THREE.Mesh(eyeRG, macroEyeMat);
+    eyeRM.position.set(1.56, 0.16, 0.46);
+    eyeRM.rotation.y = 0.28;
+    eyeRM.rotation.z = -0.08;
+    eyeRM.name = 'MacroBeetle_CompoundEye_DX';
+    macroBeetleHeadGroup.add(eyeRM);
+  }
 
   // ==========================================================================
   // 2. ACT I: WET SERRATED LEAF & WALKING SCARAB BEETLE (00:25 sec_025 -> 00:28 sec_028)
@@ -1308,6 +1482,13 @@
           float glowMod = 1.0 - max(0.0, uCandleWind - 0.65) * 0.45;
           col *= (0.82 + 0.25 * glowMod);
         }
+        if (uCandleWind > 0.52) {
+          float extK = clamp((uCandleWind - 0.52) / 0.45, 0.0, 1.0);
+          float bLum = dot(col, vec3(0.299, 0.587, 0.114));
+          float isHorizon = smoothstep(0.44, 0.49, uv.y) * (1.0 - smoothstep(0.53, 0.60, uv.y)) * (1.0 - clamp(samMask.r + samMask.g + samMask.b, 0.0, 1.0));
+          vec3 coolTwilight = mix(vec3(0.07, 0.09, 0.13) * pow(bLum, 0.88) + col * 0.12, col * 0.82, isHorizon);
+          col = mix(col, coolTwilight, extK * 0.86);
+        }
 
         // Apply SAM per-object L1:SOLID (3D DPT-MiDaS depth contour mesh), L2:FOCUS, R1:LUMA (lighten/darken people!), R2:TINT!
         col = applySamPerObject(col, blurCol, uv);
@@ -1483,8 +1664,16 @@
           col = mix(col, photoRad, photoTransfer);
         }
 
-        // Delicate holographic contour wireframe overlay on top of the shaded 3D model when L1 < 0.85 or in LAYER mode
-        float wireMix = max(uWireOverlay, 1.0 - smoothstep(0.18, 0.85, uSculptRelief));
+        // Physical candle-extinguish relighting when candles are blown out
+        if (uCandleWind > 0.52) {
+          float extK = clamp((uCandleWind - 0.52) / 0.45, 0.0, 1.0);
+          float cLum = dot(col, vec3(0.299, 0.587, 0.114));
+          vec3 coolCake = vec3(0.075, 0.095, 0.135) * pow(cLum, 0.88) + col * 0.11;
+          col = mix(col, coolCake, extK * 0.88);
+        }
+
+        // Delicate holographic contour wireframe overlay only when LAYER mode (uWireOverlay) is active
+        float wireMix = uWireOverlay;
         if (wireMix > 0.01) {
           float wGrid = step(0.91, fract(vUv.x * 32.0)) + step(0.91, fract(vUv.y * 16.0));
           col += vec3(0.45, 0.92, 0.82) * clamp(wGrid, 0.0, 1.0) * wireMix * 0.36;
@@ -1734,7 +1923,14 @@
         float photoTransfer = uRadianceCalib * smoothstep(0.68, 0.94, uSculptRelief) * clamp(1.0 - uCameraOrbit * 2.5, 0.0, 1.0);
         col = mix(col, photoTable, photoTransfer);
 
-        float wireMix = max(uWireOverlay, 1.0 - smoothstep(0.18, 0.85, uSculptRelief));
+        if (uCandleWind > 0.52) {
+          float extK = clamp((uCandleWind - 0.52) / 0.45, 0.0, 1.0);
+          float tLum = dot(col, vec3(0.299, 0.587, 0.114));
+          vec3 coolTable = vec3(0.07, 0.09, 0.13) * pow(tLum, 0.88) + col * 0.10;
+          col = mix(col, coolTable, extK * 0.88);
+        }
+
+        float wireMix = uWireOverlay;
         if (wireMix > 0.01) {
           float wGrid = step(0.92, fract(vLocalPos.x * 6.5)) + step(0.92, fract(vLocalPos.z * 6.5));
           col += vec3(0.45, 0.92, 0.82) * clamp(wGrid, 0.0, 1.0) * wireMix * 0.34;
@@ -2929,8 +3125,12 @@
           b.rotation.z = Math.sin(t * 2.2 + idx * 0.35) * 0.035 * bristleScale;
         });
 
-        // Articulate 3D Antenna Scapes ([4/8]) & Mandible Pincers ([6/8]) when in hybrid3d/zero mode or when selected
-        const showMacro3DRig = (state.renderMode === 'zero') || (state.compositeMode === 'hybrid3d') || (selIdx === 3) || (selIdx === 5);
+        // Articulate 3D Antenna Scapes ([4/8]), Mandible Pincers ([6/8]), and 3D Macro Head Capsule in V2 / ZERO / hybrid3d mode
+        const engVerBug = state.engineVersion || 'v4';
+        const isPure3DBug = (engVerBug === 'v2') || (state.renderMode === 'zero');
+        bugReliefMesh.visible = (engVerBug !== 'v2');
+        macroBeetleHeadGroup.visible = isPure3DBug;
+        const showMacro3DRig = isPure3DBug || (state.compositeMode === 'hybrid3d');
         bugEyeAntennaGroup.visible = showMacro3DRig;
         bugEyeMandibleGroup.visible = showMacro3DRig;
         const antFlex = ((bugObjNorms[3] ? bugObjNorms[3][2] : L3) - 0.5) * 0.45;
@@ -3197,7 +3397,7 @@
 
         // 2. Custom Piped Buttercream Inscription (3D extruded crimson/gold icing bead + specular sugar crest)
         const rawInsc = (cCake.inscription || '').trim();
-        if (rawInsc.length > 0) {
+        if (rawInsc.length > 0 && rawInsc !== '生日快樂') {
           // Smooth buttercream crown glaze coat over the center when replacing the default Hanzi inscription
           if (rawInsc !== '生日快樂') {
             const glazeFill = (cCake.glaze === 'ganache') ? ['rgba(58, 36, 24, 0.92)', 'rgba(42, 24, 15, 0.0)']
@@ -3582,6 +3782,7 @@
         { label: `COMP:${(state.compositeMode || 'FULL').slice(0, 6).toUpperCase()}`, w: 66, act: () => { if (window.cycleCompositeMode) window.cycleCompositeMode(); } },
         { label: 'OTHERWISE [O]', w: 68, act: () => { if (window.cycleOtherwiseVariant) window.cycleOtherwiseVariant(); } },
         { label: 'INSCRIBE [I]', w: 64, hi: true, act: () => { if (window.startHoloDirectTextEdit) window.startHoloDirectTextEdit(); } },
+        { label: 'EXPORT [.OBJ]', w: 68, hi: true, act: () => { if (window.exportScene3DOBJ) window.exportScene3DOBJ(); } },
         { label: 'IMPRINT [.PNG]', w: 74, hi: true, act: () => { if (window.exportMemoryCardPNG) window.exportMemoryCardPNG(); } }
       ];
 
@@ -3604,5 +3805,88 @@
     }
 
     renderer.render(scene, camera);
+  };
+
+  // ==========================================================================
+  // WATERTIGHT 3D WAVEFRONT .OBJ MESH EXPORTER (Exports active 3D Beetle, Cake, or Wooden Horse)
+  // ==========================================================================
+  window.exportScene3DOBJ = function () {
+    const st = window.stellineState || { scene: 'forest', activeShot: 'bugeye' };
+    const shot = st.activeShot || 'bugeye';
+    let targetGroups = [];
+    if (st.scene === 'forest') {
+      if (shot === 'leaf') targetGroups = [scarabGroup];
+      else targetGroups = [macroBeetleHeadGroup, bugEyeAntennaGroup, bugEyeMandibleGroup, setaeGroup];
+    } else if (st.scene === 'birthday') {
+      targetGroups = [cakeGroup, hexTableMesh];
+    } else {
+      targetGroups = [woodHorseGroup];
+    }
+
+    const lines = [
+      '# STELLINE MEMORY LABORATORY // 3D ENGRAM GEOMETRY EXPORT (.OBJ)',
+      `# SHOT: ${shot.toUpperCase()} | SCENE: ${(st.scene || 'forest').toUpperCase()}`,
+      `# GENERATED: ${new Date().toISOString()}`
+    ];
+    let vOffset = 1;
+    const v3 = new THREE.Vector3();
+    const n3 = new THREE.Vector3();
+    const normalMat = new THREE.Matrix3();
+
+    targetGroups.forEach((grp, gIdx) => {
+      if (!grp) return;
+      grp.updateMatrixWorld(true);
+      grp.traverse(obj => {
+        if (!obj.isMesh || !obj.geometry) return;
+        const geom = obj.geometry;
+        const pos = geom.attributes.position;
+        if (!pos) return;
+        const norm = geom.attributes.normal;
+        const uv = geom.attributes.uv;
+        const idx = geom.index;
+        lines.push(`o ${obj.name || ('Part_' + gIdx + '_' + obj.id)}`);
+        normalMat.getNormalMatrix(obj.matrixWorld);
+        for (let i = 0; i < pos.count; i++) {
+          v3.fromBufferAttribute(pos, i).applyMatrix4(obj.matrixWorld);
+          lines.push(`v ${v3.x.toFixed(5)} ${v3.y.toFixed(5)} ${v3.z.toFixed(5)}`);
+        }
+        if (uv) {
+          for (let i = 0; i < uv.count; i++) {
+            lines.push(`vt ${uv.getX(i).toFixed(5)} ${uv.getY(i).toFixed(5)}`);
+          }
+        }
+        if (norm) {
+          for (let i = 0; i < norm.count; i++) {
+            n3.fromBufferAttribute(norm, i).applyMatrix3(normalMat).normalize();
+            lines.push(`vn ${n3.x.toFixed(5)} ${n3.y.toFixed(5)} ${n3.z.toFixed(5)}`);
+          }
+        }
+        const fmt = (k) => {
+          const vi = vOffset + k;
+          if (uv && norm) return `${vi}/${vi}/${vi}`;
+          if (norm) return `${vi}//${vi}`;
+          return `${vi}`;
+        };
+        if (idx) {
+          for (let i = 0; i < idx.count; i += 3) {
+            lines.push(`f ${fmt(idx.getX(i))} ${fmt(idx.getX(i + 1))} ${fmt(idx.getX(i + 2))}`);
+          }
+        } else {
+          for (let i = 0; i < pos.count; i += 3) {
+            lines.push(`f ${fmt(i)} ${fmt(i + 1)} ${fmt(i + 2)}`);
+          }
+        }
+        vOffset += pos.count;
+      });
+    });
+
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `stelline-3d-${shot}.obj`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 250);
+    return lines.length;
   };
 })();

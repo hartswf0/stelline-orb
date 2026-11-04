@@ -40,7 +40,7 @@
     bug: { ref: 6, grade: 'forest', items: () => [item('beetle', { name: 'beetle', src: { n: 6, ks: ks(6, ['beetle head', 'compound eye', 'antenna', 'foreleg']) }, canon: { focus: 1, setae: 0, gait: 0, sheen: .5 }, skin: 1, focus: .15, setae: 0, gait: 0, sheen: .5, tilt0: 0, anchor: { mesh: 'head', frac: .36, dy: .02 } })] },
     birthday: { ref: 24, grade: 'birthday', items: () => [item('table', { name: 'table', src: { n: 24, ks: ks(24, ['table']) }, canon: { glow: .8 }, skin: 1, glow: .8, tilt0: .55 }),
       item('cake', { name: 'cake', src: { n: 24, ks: ks(24, ['cake']) }, canon: { candles: 4, bundt: 0, icing: 0, flames: 1 }, skin: 1, candles: 4, bundt: 0, icing: 0, flames: 1, tilt0: .45 }),
-      ...cardsFrom(24, ['child']).map(c => Object.assign(c, { appear: .3 }))] },
+      ...cardsFrom(24, ['child']).map(c => Object.assign(c, { appear: 1 }))] },
     anything: { ref: null, grade: 'dome', items: () => [item('prim', { name: 'form', shape: 0, size: 1, place: { x: 0, y: -2.6, z: 2, s: 1.6, rx: .2, ry: 0 } })] }
   };
   function cardsFrom(n, names) { const sh = ST.atlas.shots[n]; return sh.parts.filter(p => names.includes(p.name)).map(p => item('card', { name: partName(sh, p), src: { n, k: p.k }, appear: 1, push: 0 })); }
@@ -160,5 +160,5 @@
   // the clock: in WATCH each shot holds for its length in the clip, then the next comes
   function tick(dt) { if (ST.mode === 'watch' && ST.playing && ST.atlas) { ST.shotClock += dt; const e = cur(), len = e.kind === 'film' ? ST.atlas.shots[e.n].end - ST.atlas.shots[e.n].start : 6;
       if (ST.shotClock > len) { setT(ST.t + 1 >= ST.TL.length ? 0 : ST.t + 1); touch('play'); } } }
-  window.CORE = { ST, edit, on, emit, touch, ringDefs, turn, setRing, press, BUTTONS, FACETS, SHAPES, startProto, take, addMemory, load, tick, cur, curShot, partsOf, partName, figures, fmt, actOf, gradeOf, facetsOfBuild, check, log, PROTO_STEPS, item };
+  window.CORE = { ST, edit, on, emit, touch, ringDefs, turn, setRing, press, BUTTONS, FACETS, SHAPES, startProto, take, addMemory, load, tick, cur, curShot, partsOf, partName, figures, fmt, actOf, gradeOf, facetsOfBuild, check, log, PROTO_STEPS, item, it };
 })();

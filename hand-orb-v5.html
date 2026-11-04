@@ -93,6 +93,33 @@
     try { ORB.draw(now); } catch (e) { if (!loop.e2) { loop.e2 = 1; console.error(e); CORE.log('error', 'orb: ' + e.message); } } requestAnimationFrame(loop); }
   requestAnimationFrame(loop);
   if (Q.get('sim') && ROLE === 'scene') setTimeout(() => HAND.SIM.run(Q.get('sim'), +(Q.get('speed') || 1)), 800);
+  if (Q.get('proof') && ROLE === 'scene') {
+    window.FAST_FIT = true;
+    const pf = Q.get('proof');
+    setTimeout(() => {
+      if (pf === 'bday7') {
+        CORE.startProto('birthday'); CORE.ST.spread = 1; SCENE.sp = 1;
+        const ck = CORE.it('cake'); if (ck) { ck.candles = 7; ck.bundt = 0.85; ck.icing = 1; ck.flames = 1; }
+        CORE.ST.build.items.filter(i => i.type === 'card').forEach(c => { c.appear = 1; });
+      } else if (pf === 'blown') {
+        CORE.startProto('birthday'); CORE.ST.spread = 1; SCENE.sp = 1;
+        const ck = CORE.it('cake'); if (ck) { ck.candles = 4; ck.bundt = 0; ck.icing = 1; ck.flames = 0; }
+        CORE.ST.build.items.filter(i => i.type === 'card').forEach(c => { c.appear = 1; });
+      } else if (pf === 'setae') {
+        CORE.startProto('bug'); CORE.ST.spread = 1; SCENE.sp = 1;
+        const bt = CORE.it('beetle'); if (bt) { bt.setae = 0.85; bt.focus = 0.92; }
+      } else if (pf === 'f22') {
+        CORE.ST.mode = 'watch'; CORE.ST.playing = false; CORE.ST.t = 22;
+        CORE.ST.spread = 0.25; SCENE.sp = 0.25; CORE.ST.view = 0.14;
+        CORE.emit('shot', CORE.cur());
+      }
+      let ticks = 0;
+      const keepAlive = setInterval(() => {
+        SCENE.frame(performance.now(), 0.016);
+        if (++ticks > 18) clearInterval(keepAlive);
+      }, 60);
+    }, 250);
+  }
   window.APP = { ROLE, room, orbURL };
 })();
 </script>
