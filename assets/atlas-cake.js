@@ -27,7 +27,7 @@
   A.writingPresets = [['HAPPY BIRTHDAY', 'script'], ['生日快樂', 'brush'], ['誕生日おめでとう', 'brush'], ['FELIZ CUMPLEAÑOS', 'sans'], ['С ДНЁМ РОЖДЕНИЯ', 'serif'], ['MAKE A WISH', 'round'], ['JOYEUX ANNIVERSAIRE', 'script']];
   const TABLES = ['none', 'hex', 'cloth', 'wood', 'marble'];
   const SCENES = ['void', 'dark', 'bokeh', 'window', 'neon'];
-  A.cakeOptions = { SPONGES, ICINGS, INKS, SHAPES: ['round', 'drum', 'poly', 'opera', 'square', 'heart', 'bundt', 'naked', 'cupcakes'], FINISHES, BORDERS, SIDEDECS: ['none', 'orange', 'gold'], ARRS, CANDLES, FONTS };
+  A.cakeOptions = { SPONGES, ICINGS, INKS, SHAPES: ['round', 'drum', 'poly', 'opera', 'square', 'heart', 'bundt', 'naked', 'cupcakes'], FINISHES, BORDERS, SIDEDECS: ['none', 'orange', 'gold'], ARRS, CANDLES, FONTS, TOPPINGS, MEDIA, LAYOUTS };
 
   const FILM_VARIANTS = [
     { code: 'CANONICAL [VANILLA CYLINDER + 生日快樂 + 7 WICKS]', patch: { shape: 'round', tiers: 1, bundt: 0.0, age: 7, text: '生日快樂', sponge: 0, icing: 6, ink: 0, drips: 0.0, glaze: 0.5, room: 0.0, focus: 0.55, balloons: 0, smarties: 0, cutouts: 0, solid: 1, pipe: 1, temp: 0.5, font: 'brush', medium: 'pipe', layout: 'top', topping: 'none', candle: 'striped', table: 'hex', scene: 'dark', props: 0 } },

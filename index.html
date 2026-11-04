@@ -3682,7 +3682,7 @@ function drawOuterGripPod(ctx, cx, cy, side, spreadPx, isXray, specShift) {
     drawSpunMetalButton(ctx, lr1X, lr1Y, 7.5, false, state.rings[4].motorDir !== 0 || state.pressedOnPropBtn === 'lr1_btn');
     registerHitbox('lr1_btn', 'LOWER RIGHT MOTOR BUTTON 05 [HOLD TO SPIN RIGHT COLLAR RING 05: KELVIN / CAKE]', lr1X - 9, lr1Y - 9, 18, 18,
       () => { state.pressedOnPropBtn = 'lr1_btn'; state._btnT = performance.now(); startMotorSpin(4, 1); },
-      () => { state.pressedOnPropBtn = null; stopMotorSpin(4); if (state.engineVersion === 'v5' && window.V5OPS && performance.now() - state._btnT < 240) V5OPS.fitRing(4); }
+      () => { state.pressedOnPropBtn = null; stopMotorSpin(4); if (state.engineVersion === 'v5' && window.V5OPS) { const dt = performance.now() - state._btnT; if (dt < 240) V5OPS.fitRing(4); else if (dt > 900 && V5OPS.inverseFit) V5OPS.inverseFit(); } }
     );
 
     const lr2X = x0 + 22, lr2Y = y0 + 176;
@@ -4278,6 +4278,7 @@ window.addEventListener('DOMContentLoaded', () => {
 <script src="assets/atlas-face.js"></script>
 <script src="assets/atlas-ui.js"></script>
 <script src="assets/atlas-author.js"></script>
+<script src="assets/atlas-orbdesign.js"></script>
 <script src="assets/atlas-sense.js"></script>
 </body>
 </html>

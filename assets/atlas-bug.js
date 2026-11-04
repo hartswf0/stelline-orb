@@ -264,7 +264,9 @@
     g.variant = -1;
   }
 
+  const applyPlan = (g, pl) => { const P = PLANS[pl]; Object.assign(g, { plan: pl, body: P.body, legs: P.legs, jaw: P.jaw, ant: P.ant, wings: P.wings, head: P.head, thorax: P.thorax.slice(), bodyLen: P.bodyLen, bodyWid: P.bodyWid, bodyH: P.bodyH, legLen: P.legLen, legThick: P.legThick, stance: P.stance, jawLen: P.jawLen, antLen: P.antLen }); if (!P.eyes.includes(g.eyeType) && g.eyeType !== 'spider' && pl === 'jumper') g.eyeType = 'spider'; };
   H.register('bug', {
+    applyPlan, opts: { PLANS: Object.keys(PLANS), EYE_TYPES, PATTERNS, STAGES },
     ref: { sec: 33, frame: { pos: [0, 1.9, 1.2], dist: 5.0, yaw: 0.0, pitch: -0.03, focusK: 0.9 } },
     mood: g => ({ bokeh: 'forest', moss: 'forest', dusk: 'amber', studio: 'studio', paper: 'dome', leaf: 'forest' }[g.stage] || 'studio'), makeGenome, build, filmCanon, dials, onDial, variants: FILM_VARIANTS,
     get overview() { return H.overviewFrame || { pos: [0, 1.1, 0.2], dist: 9, yaw: 0.7, pitch: 0.3 }; },
