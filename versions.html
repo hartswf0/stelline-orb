@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STELLINE MEMORY ORB // ALL VERSIONS &amp; MOBILE ARCHIVE</title>
+<style>
+  :root {
+    --bg-void: #05070a;
+    --bg-card: #0b1017;
+    --border-dim: rgba(110, 128, 148, 0.28);
+    --accent-teal: #38d9c0;
+    --accent-amber: #f0a848;
+    --text-main: #d8e2ec;
+    --text-muted: #7b8e9f;
+    --font-mono: 'JetBrains Mono', 'SF Mono', 'Menlo', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: radial-gradient(circle at 50% 0%, #121c27 0%, #05070a 75%);
+    color: var(--text-main);
+    font-family: var(--font-mono);
+    min-height: 100vh;
+    padding: 28px 20px 64px;
+    line-height: 1.5;
+  }
+  .container {
+    max-width: 1240px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-dim);
+    padding-bottom: 18px;
+    margin-bottom: 26px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 14px;
+  }
+  .eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    color: var(--accent-teal);
+    margin-bottom: 6px;
+  }
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: #f0f6fc;
+  }
+  .subtitle {
+    font-size: 11px;
+    color: var(--text-muted);
+    max-width: 720px;
+    margin-top: 6px;
+  }
+  .top-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-block;
+    background: rgba(14, 22, 32, 0.9);
+    border: 1px solid rgba(110, 128, 148, 0.45);
+    color: var(--text-main);
+    padding: 7px 13px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+  .btn:hover {
+    border-color: var(--accent-teal);
+    color: #fff;
+  }
+  .btn.teal {
+    border-color: var(--accent-teal);
+    color: var(--accent-teal);
+    background: rgba(56, 217, 192, 0.12);
+  }
+  .btn.amber {
+    border-color: var(--accent-amber);
+    color: var(--accent-amber);
+    background: rgba(240, 168, 72, 0.12);
+  }
+  .section-title {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: var(--accent-amber);
+    margin: 28px 0 14px;
+    border-left: 3px solid var(--accent-amber);
+    padding-left: 10px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-dim);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: border-color 0.15s ease;
+  }
+  .card:hover {
+    border-color: rgba(56, 217, 192, 0.65);
+  }
+  .card-preview {
+    width: 100%;
+    height: 195px;
+    object-fit: cover;
+    background: #040608;
+    border-bottom: 1px solid var(--border-dim);
+  }
+  .card-body {
+    padding: 14px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+  }
+  .card-tag {
+    font-size: 9.5px;
+    color: var(--accent-teal);
+    letter-spacing: 0.12em;
+  }
+  .card-title {
+    font-size: 14px;
+    color: #f0f6fc;
+    font-weight: 600;
+  }
+  .card-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+    flex: 1;
+  }
+  .card-links {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .preset-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-dim);
+    padding: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div>
+      <div class="eyebrow">STELLINE LABORATORIES // LOT #131 ARCHIVE</div>
+      <h1>ALL ENGINE VERSIONS &amp; MOBILE TOUCH EDITION</h1>
+      <p class="subtitle">
+        Complete collection of every rendering architecture built for the Stelline Memory Orb (`V1` Software 3D + Bearing Lab, `V2` Pure 3D Procedural Sculptor, `V3` Hybrid 3D Models + Film Plates, `V4` DPT-MiDaS 3D Relief + SAM 5-Dial Protocol Engine, and the dedicated `MOBILE` Touch Edition).
+      </p>
+    </div>
+    <div class="top-actions">
+      <a class="btn teal" href="index.html">LAUNCH V4 MASTER</a>
+      <a class="btn amber" href="mobile.html">LAUNCH MOBILE EDITION</a>
+    </div>
+  </header>
+
+  <div class="section-title">PRIMARY INTERACTIVE EDITIONS</div>
+  <div class="grid">
+    <!-- MOBILE EDITION -->
+    <div class="card">
+      <img class="card-preview" src="assets/gallery/v14_bugeye_clean.png" alt="Mobile Touch Edition">
+      <div class="card-body">
+        <div class="card-tag">EDITION 00 // HANDHELD SMARTPHONE &amp; TABLET UI</div>
+        <div class="card-title">MOBILE TOUCH EDITION (`mobile.html`)</div>
+        <p class="card-desc">
+          Purpose-built for portrait and landscape mobile screens. Combines the auto-scaled Lot #131 CNC Aluminum Memory Orb with 4 thumb-tappable SAM Target pills, 5 knurled thumb-wheel dial sliders (`L1..R2`), Calliope spread slider, and 1-finger 3D orbit / pinch-to-zoom.
+        </p>
+        <div class="card-links">
+          <a class="btn amber" href="mobile.html">OPEN MOBILE EDITION</a>
+          <a class="btn" href="mobile.html?shot=cutouts">MOBILE: BIRTHDAY CUTOUTS</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- V4: DPT-MiDaS + SAM -->
+    <div class="card">
+      <img class="card-preview" src="assets/gallery/v14_cutouts_clean.png" alt="V4 SAM + MiDaS 3D Relief">
+      <div class="card-body">
+        <div class="card-tag">VERSION 04 // CANONICAL FILM-READY ENGINE</div>
+        <div class="card-title">V4: DPT-MiDaS 3D RELIEF + SAM 5-DIAL GRAPH</div>
+        <p class="card-desc">
+          `200x140` DPT-MiDaS 3D depth-displaced multi-frame film relief (`sec_025..sec_288`) with SAM 4-object segmentation, 5-sector translucent white C-Arc (`arch`) dial graphing, per-person relighting (`R1:LUMA`), and Bug/Cake Operator Protocols (`OTHERWISE`).
+        </p>
+        <div class="card-links">
+          <a class="btn teal" href="v4-sam-relief.html">LAUNCH V4 (DEFAULT)</a>
+          <a class="btn" href="v4-sam-relief.html?shot=bundtmorph">02:23 BUNDT MORPH</a>
+          <a class="btn" href="v4-sam-relief.html?shot=redicing">02:26 RED ICING</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- V3: HYBRID 3D MODELS -->
+    <div class="card">
+      <img class="card-preview" src="assets/gallery/render_0223_bundtmorph.png" alt="V3 Hybrid 3D Models">
+      <div class="card-body">
+        <div class="card-tag">VERSION 03 // SESSION 5-7 HYBRID COMPOSITOR</div>
+        <div class="card-title">V3: HYBRID 3D PROCEDURAL MODELS + FILM PLATES</div>
+        <p class="card-desc">
+          Composites the standalone Three.js 3D procedural models (3D morphing cylinder-to-scalloped-bundt cake, 24 Smarties, 18-stroke 3D piped `生日快樂`, 7 flickering 3D candles, 3D walking scarab, 3D water droplets, and 3D carved wooden horse) directly over the film plates.
+        </p>
+        <div class="card-links">
+          <a class="btn teal" href="v3-hybrid-3d.html">LAUNCH V3 HYBRID</a>
+          <a class="btn" href="v3-hybrid-3d.html?shot=leaf">V3: 3D SCARAB + LEAF</a>
+          <a class="btn" href="v3-hybrid-3d.html?shot=bundtmorph">V3: 3D BUNDT CAKE</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- V2: PURE 3D PROCEDURAL SCULPTOR -->
+    <div class="card">
+      <img class="card-preview" src="assets/gallery/s1_cutouts.png" alt="V2 Pure 3D Procedural Sculptor">
+      <div class="card-body">
+        <div class="card-tag">VERSION 02 // SESSION 1 PROCEDURAL WEBGL STUDIO</div>
+        <div class="card-title">V2: PURE 3D PROCEDURAL SCULPTOR (`random-eyes` mode)</div>
+        <p class="card-desc">
+          Pure Three.js 3D procedural geometry and custom GLSL shaders in a dark studio void without 2D film plates. Inspect the 3D hexagonal table, 3D morphing cake, 3D articulated scarab beetle, 3D refractive droplets, and 3D knife-whittled horse in 360-degree orbit.
+        </p>
+        <div class="card-links">
+          <a class="btn teal" href="v2-procedural-3d.html">LAUNCH V2 PURE 3D</a>
+          <a class="btn" href="v2-procedural-3d.html?shot=cutouts">V2: 3D TABLE &amp; CAKE</a>
+          <a class="btn" href="v2-procedural-3d.html?shot=horsecarve">V2: 3D WOOD HORSE</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- V1: LOT #131 SOFTWARE 3D + BEARING READER -->
+    <div class="card">
+      <img class="card-preview" src="assets/gallery/render_0442_horsecarve.png" alt="V1 Canvas 3D &amp; Lot #131 Lab">
+      <div class="card-body">
+        <div class="card-tag">VERSION 01 // ORIGINAL SOFTWARE 3D &amp; HARDWARE LAB</div>
+        <div class="card-title">V1: CANVAS 3D POLYGON/VOXEL + BEARING READER LAB</div>
+        <p class="card-desc">
+          The original custom software 3D polygon/voxel/normal-vector engine (`renderHologramChamber`) with `3D: WIRE+NORMALS`, `3D: VOXEL CLOUD`, Moxie Tools 5-motor X-Ray CAD cutaway, and the Wallace Archive Optical Glass Bearing Reader (`READER`).
+        </p>
+        <div class="card-links">
+          <a class="btn teal" href="v1-canvas-3d.html">LAUNCH V1 CANVAS 3D</a>
+          <a class="btn" href="v1-canvas-3d.html?xray=1">V1: X-RAY CAD CUTAWAY</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- COUNTERFACTUAL OTHERWISE PROTOCOLS -->
+    <div class="card">
+      <img class="card-preview" src="assets/gallery/v14_bundt_clean.png" alt="Operator Protocols &amp; Counterfactuals">
+      <div class="card-body">
+        <div class="card-tag">OPERATOR PROTOCOLS // IMAGINE EACH COULD BE OTHERWISE</div>
+        <div class="card-title">BUG DESIGNER &amp; CAKE BIRTHDAY PROTOCOLS</div>
+        <p class="card-desc">
+          Direct deep-links into the 5-step Bug Designer Protocol (`ENTOMOLOGY.OS`) and 5-step Cake Birthday Protocol (`PATISSERIE.OS`), including counterfactual mutations (`SCARAB.AURUM`, `OBSIDIAN.VOID`, `BUNDT AT PARTY`, `DARK GANACHE`).
+        </p>
+        <div class="card-links">
+          <a class="btn amber" href="index.html?protocol=bug&amp;otherwise=1">BUG: SCARAB.AURUM</a>
+          <a class="btn amber" href="index.html?protocol=cake&amp;shot=cutouts&amp;otherwise=1">CAKE: BUNDT AT PARTY</a>
+          <a class="btn amber" href="index.html?protocol=cake&amp;shot=cutouts&amp;otherwise=2">CAKE: DARK GANACHE</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">DIRECT FILM SHOT DEEP-LINKS</div>
+  <div class="preset-strip">
+    <a class="btn" href="index.html?shot=canopy">00:15 FOREST CANOPY</a>
+    <a class="btn" href="index.html?shot=leaf">00:25 WET LEAF &amp; SCARAB</a>
+    <a class="btn" href="index.html?shot=bugeye">00:32 BUG EYE MACRO</a>
+    <a class="btn" href="index.html?shot=clearing">00:50 FOREST DISSOLVE</a>
+    <a class="btn" href="index.html?shot=cakespawn">02:17 CAKE SPAWN [3-&gt;7 WICKS]</a>
+    <a class="btn" href="index.html?shot=bundtmorph">02:23 BUNDT MORPH</a>
+    <a class="btn" href="index.html?shot=redicing">02:26 RED ICING [生日快樂]</a>
+    <a class="btn" href="index.html?shot=cutouts">02:33 CHILD CUTOUTS</a>
+    <a class="btn" href="index.html?shot=blowcandles">02:56 BLOW CANDLES</a>
+    <a class="btn" href="index.html?shot=miniature">03:16 FLOOR MINIATURE</a>
+    <a class="btn" href="index.html?shot=horsecarve">04:42 HORSE [6·10·21]</a>
+  </div>
+</div>
+</body>
+</html>

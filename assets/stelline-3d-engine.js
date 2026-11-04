@@ -2409,8 +2409,9 @@
         const walkProg = Math.max(0.0, Math.min(1.0, (state.rings[3].angle - 135) / 75));
         leafUniforms.uBeetleWalk.value = walkProg;
 
-        // Only show standalone 3D primitive beetle/droplet meshes in ZERO primitive mode
-        const show3DLeafModels = (state.renderMode === 'zero');
+        // Show standalone 3D primitive beetle/droplet meshes in V2 (Pure 3D), V3 (Hybrid 3D), or ZERO primitive mode
+        const engVer = state.engineVersion || 'v4';
+        const show3DLeafModels = (state.renderMode === 'zero') || (engVer === 'v2') || (engVer === 'v3');
         scarabBeetleGroup.visible = show3DLeafModels;
         dropletsGroup.visible = show3DLeafModels;
         scarabBeetleGroup.position.set(
@@ -2626,8 +2627,10 @@
       const wind = shot === 'blowcandles' ? Math.max(0.05, R2) : 0.02 * Math.sin(t * 2.3);
       bdayUniforms.uCandleWind.value = Math.max(0, wind);
 
-      // Only show standalone 3D primitive cake & table meshes in ZERO primitive mode; in 3D:HYBRID mode, bgBirthdayQuad renders the 200x140 DPT-MiDaS 3D displaced film plates cleanly
-      const show3DExtras = (state.renderMode === 'zero');
+      // Show 3D primitive cake & table meshes in V2 (Pure 3D), V3 (Hybrid 3D), or ZERO primitive mode; in V4 (default), bgBirthdayQuad renders the 200x140 DPT-MiDaS 3D displaced film plates cleanly
+      const engVer = state.engineVersion || 'v4';
+      bgBirthdayQuad.visible = (engVer !== 'v2');
+      const show3DExtras = (state.renderMode === 'zero') || (engVer === 'v2') || (engVer === 'v3' && shot !== 'cutouts');
 
       candleObjs.forEach((c, idx) => {
         let showThisCandle = true;

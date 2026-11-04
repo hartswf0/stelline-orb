@@ -1,0 +1,4254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>STELLINE LABORATORIES // ANIMATRONIC MEMORY ORB [LOT #131 / BLADE RUNNER 2049]</title>
+<style>
+  :root {
+    --bg-void: #05070a;
+    --accent-teal: #38d9c0;
+    --accent-amber: #f0a848;
+    --text-main: #d8e2ec;
+    --text-muted: #6e8094;
+    --font-mono: 'JetBrains Mono', 'SF Mono', 'Menlo', monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  html, body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--bg-void);
+    color: var(--text-main);
+    font-family: var(--font-mono);
+  }
+
+  .studio-viewport {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: radial-gradient(circle at 50% 52%, #131d27 0%, #05070a 80%);
+  }
+
+  .hologram-stage {
+    position: relative;
+    width: 100%;
+    height: 58vh;
+    overflow: hidden;
+    background: #040608;
+  }
+
+  #webglCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 1;
+  }
+
+  #hologramCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: crosshair;
+    z-index: 2;
+  }
+
+  .orb-stage {
+    position: relative;
+    width: 100%;
+    height: 42vh;
+    min-height: 230px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at 50% 35%, rgba(28, 38, 50, 0.55) 0%, rgba(5, 7, 10, 0.95) 80%);
+  }
+
+  #orbCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+  }
+
+  #orbCanvas:active {
+    cursor: grabbing;
+  }
+
+  /* Minimal floating corner controls — zero clutter */
+  .minimal-corner {
+    position: fixed;
+    top: 14px;
+    left: 16px;
+    display: flex;
+    gap: 6px;
+    z-index: 20;
+    opacity: 0.45;
+    transition: opacity 0.2s ease;
+  }
+
+  .minimal-corner:hover {
+    opacity: 1;
+  }
+
+  .pill-btn {
+    background: rgba(10, 15, 22, 0.75);
+    border: 1px solid rgba(110, 128, 148, 0.35);
+    color: var(--text-muted);
+    padding: 4px 9px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    transition: all 0.15s ease;
+  }
+
+  .pill-btn:hover {
+    color: var(--text-main);
+    border-color: rgba(216, 226, 236, 0.65);
+  }
+
+  .pill-btn.active {
+    color: var(--accent-teal);
+    border-color: var(--accent-teal);
+    background: rgba(56, 217, 192, 0.12);
+  }
+
+  .pill-btn.amber {
+    color: var(--accent-amber);
+    border-color: rgba(240, 168, 72, 0.5);
+  }
+
+  .pill-btn.amber.active {
+    background: rgba(240, 168, 72, 0.2);
+    color: #fff;
+  }
+
+  .minimal-sep {
+    width: 1px;
+    background: rgba(110, 128, 148, 0.25);
+    margin: 0 2px;
+    flex-shrink: 0;
+  }
+
+  .mobile-thumb-dock {
+    display: none;
+    position: absolute;
+    bottom: 6px;
+    left: 8px;
+    right: 8px;
+    z-index: 18;
+    background: rgba(6, 10, 15, 0.86);
+    border: 1px solid rgba(56, 217, 192, 0.32);
+    padding: 6px 8px;
+    backdrop-filter: blur(8px);
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  body.force-mobile .mobile-thumb-dock {
+    display: flex;
+  }
+
+  .mobile-sam-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+
+  .mobile-dial-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+  }
+
+  .mobile-dial-slider {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: rgba(16, 24, 34, 0.85);
+    border: 1px solid rgba(110, 128, 148, 0.35);
+    padding: 3px 5px;
+  }
+
+  .mobile-dial-slider input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent-teal);
+    height: 16px;
+    margin: 0;
+  }
+
+  @media (max-width: 820px) {
+    .minimal-corner {
+      top: 6px;
+      left: 6px;
+      right: 6px;
+      max-width: calc(100vw - 12px) !important;
+      opacity: 0.94;
+    }
+    .minimal-corner > div {
+      flex-wrap: nowrap !important;
+      overflow-x: auto;
+      max-width: 100%;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+    }
+    .minimal-corner > div::-webkit-scrollbar {
+      display: none;
+    }
+    .pill-btn {
+      flex-shrink: 0;
+      padding: 5px 8px;
+      font-size: 9.5px;
+    }
+    .hologram-stage {
+      height: 54vh;
+    }
+    .orb-stage {
+      height: 46vh;
+      min-height: 210px;
+      align-items: flex-start;
+      padding-top: 4px;
+    }
+    .mobile-thumb-dock {
+      display: flex;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="studio-viewport">
+  <div class="minimal-corner" style="flex-direction:column; align-items:flex-start; gap:5px; max-width:calc(100vw - 32px);">
+    <div style="display:flex; gap:5px; flex-wrap:wrap; align-items:center;">
+      <button class="pill-btn active" data-scene="beetle" onclick="selectMemoryScene('beetle')">ACT I: FOREST &amp; BEETLE</button>
+      <button class="pill-btn" data-scene="birthday" onclick="selectMemoryScene('birthday')">ACT II: BIRTHDAY PARTY</button>
+      <button class="pill-btn" data-scene="horse" onclick="selectMemoryScene('horse')">ACT III: HORSE [6·10·21]</button>
+      <button class="pill-btn" data-scene="snow" onclick="selectMemoryScene('snow')">ACT IV: SNOW DOME</button>
+      <div class="minimal-sep" style="height:14px;"></div>
+      <button class="pill-btn" onclick="zeroToPrimitives()" title="Wipe to blank seed">ZERO</button>
+      <button class="pill-btn amber" id="weaveSingleBtn" onclick="startInverseWeave(false)" title="Play through the granular film construction sequence">WEAVE SEQUENCE</button>
+      <button class="pill-btn" id="selectNodeBtn" onclick="cycleSelectedHologramNode()" title="Press SELECT button on Orb to target next 3D element with Radial C-Arc Menu">SELECT NODE [S]</button>
+      <button class="pill-btn" id="renderModeBtn" onclick="cycle3DRenderMode()">3D: HYBRID</button>
+      <button class="pill-btn" id="xrayBtn" onclick="setViewMode(state.viewMode === 'xray' ? 'sculpt' : 'xray')">X-RAY</button>
+      <button class="pill-btn" id="bearingBtn" onclick="setViewMode(state.viewMode === 'bearing' ? 'sculpt' : 'bearing')">READER</button>
+      <div class="minimal-sep" style="height:14px;"></div>
+      <button class="pill-btn amber" id="engineVerBtn" onclick="cycleEngineVersion()" title="Switch between V4 (SAM+MiDaS Relief), V3 (Hybrid 3D Models), V2 (Pure 3D Sculptor), and V1 (Canvas 3D Lab)">ENGINE: V4 SAM-RELIEF</button>
+      <a class="pill-btn" href="mobile.html" style="text-decoration:none;">MOBILE EDITION</a>
+      <a class="pill-btn" href="versions.html" style="text-decoration:none;">ALL VERSIONS</a>
+    </div>
+    <div id="shotTimelineBar" style="display:flex; gap:4px; flex-wrap:wrap; align-items:center;">
+      <button class="pill-btn" data-shot="canopy" onclick="selectFilmShot('canopy')">00:15 CANOPY</button>
+      <button class="pill-btn" data-shot="leaf" onclick="selectFilmShot('leaf')">00:25 WET LEAF</button>
+      <button class="pill-btn active" data-shot="bugeye" onclick="selectFilmShot('bugeye')">00:32 BUG EYE MACRO</button>
+      <button class="pill-btn" data-shot="clearing" onclick="selectFilmShot('clearing')">00:50 FOREST DISSOLVE</button>
+      <div class="minimal-sep" style="height:12px;"></div>
+      <button class="pill-btn" data-shot="cakespawn" onclick="selectFilmShot('cakespawn')">02:17 CAKE SPAWN</button>
+      <button class="pill-btn" data-shot="bundtmorph" onclick="selectFilmShot('bundtmorph')">02:23 BUNDT MORPH</button>
+      <button class="pill-btn" data-shot="redicing" onclick="selectFilmShot('redicing')">02:26 RED ICING [生日]</button>
+      <button class="pill-btn" data-shot="cutouts" onclick="selectFilmShot('cutouts')">02:33 CHILD CUTOUTS</button>
+      <button class="pill-btn" data-shot="blowcandles" onclick="selectFilmShot('blowcandles')">02:56 BLOW CANDLES</button>
+      <button class="pill-btn" data-shot="miniature" onclick="selectFilmShot('miniature')">03:16 FLOOR MINIATURE</button>
+      <div class="minimal-sep" style="height:12px;"></div>
+      <button class="pill-btn" data-shot="horsecarve" onclick="selectFilmShot('horsecarve')">04:42 HORSE [6·10·21]</button>
+    </div>
+    <div id="operatorProtocolBar" style="display:flex; gap:4px; flex-wrap:wrap; align-items:center;">
+      <button class="pill-btn active" id="protoBugBtn" onclick="activateOperatorProtocol('bug')">PROTOCOL I: BUG DESIGNER</button>
+      <button class="pill-btn" id="protoCakeBtn" onclick="activateOperatorProtocol('cake')">PROTOCOL II: CAKE BIRTHDAY</button>
+      <div class="minimal-sep" style="height:12px;"></div>
+      <div id="protoStepButtons" style="display:flex; gap:3px; flex-wrap:wrap; align-items:center;"></div>
+      <div class="minimal-sep" style="height:12px;"></div>
+      <button class="pill-btn amber" id="otherwiseMutateBtn" onclick="cycleOtherwiseVariant()" title="Counterfactual Design: Imagine each element could be otherwise [Press O]">OTHERWISE [O]: CANONICAL FILM</button>
+    </div>
+  </div>
+
+  <div class="hologram-stage">
+    <canvas id="webglCanvas"></canvas>
+    <canvas id="hologramCanvas"></canvas>
+  </div>
+
+  <div class="orb-stage">
+    <canvas id="orbCanvas"></canvas>
+    <div class="mobile-thumb-dock" id="mobileThumbDock">
+      <div class="mobile-sam-row" id="mobileSamRow">
+        <button class="pill-btn active" onclick="selectSceneObject(0)">1:SAM.01</button>
+        <button class="pill-btn" onclick="selectSceneObject(1)">2:SAM.02</button>
+        <button class="pill-btn" onclick="selectSceneObject(2)">3:SAM.03</button>
+        <button class="pill-btn" onclick="selectSceneObject(3)">4:SAM.04</button>
+      </div>
+      <div class="mobile-dial-row" id="mobileDialRow">
+        <div class="mobile-dial-slider"><span id="mDialLbl0" style="font-size:7.5px;color:#38d9c0;white-space:nowrap;overflow:hidden;">L1:SOLID</span><input id="mDialIn0" type="range" min="10" max="155" value="135" oninput="setRingAngle(0, this.value, true)"></div>
+        <div class="mobile-dial-slider"><span id="mDialLbl1" style="font-size:7.5px;color:#d8e2ec;white-space:nowrap;overflow:hidden;">L2:FOCUS</span><input id="mDialIn1" type="range" min="15" max="195" value="145" oninput="setRingAngle(1, this.value, true)"></div>
+        <div class="mobile-dial-slider"><span id="mDialLbl2" style="font-size:7.5px;color:#d8e2ec;white-space:nowrap;overflow:hidden;">L3:MORPH</span><input id="mDialIn2" type="range" min="15" max="195" value="140" oninput="setRingAngle(2, this.value, true)"></div>
+        <div class="mobile-dial-slider"><span id="mDialLbl3" style="font-size:7.5px;color:#d8e2ec;white-space:nowrap;overflow:hidden;">R1:LUMA</span><input id="mDialIn3" type="range" min="35" max="240" value="135" oninput="setRingAngle(3, this.value, true)"></div>
+        <div class="mobile-dial-slider"><span id="mDialLbl4" style="font-size:7.5px;color:#d8e2ec;white-space:nowrap;overflow:hidden;">R2:TINT</span><input id="mDialIn4" type="range" min="35" max="225" value="130" oninput="setRingAngle(4, this.value, true)"></div>
+      </div>
+      <div style="display:flex;gap:4px;align-items:center;justify-content:space-between;">
+        <button class="pill-btn" onclick="cycleSelectedHologramNode()">SELECT [S]</button>
+        <button class="pill-btn amber" onclick="cycleOtherwiseVariant()">OTHERWISE [O]</button>
+        <button class="pill-btn" onclick="startInverseWeave(false)">WEAVE</button>
+        <button class="pill-btn" onclick="zeroToPrimitives()">ZERO</button>
+        <div style="display:flex;align-items:center;gap:4px;flex:1;min-width:95px;background:rgba(16,24,34,0.85);border:1px solid rgba(110,128,148,0.35);padding:2px 6px;">
+          <span style="font-size:7.5px;color:#7b8e9f;">SPREAD</span>
+          <input id="mSpreadIn" type="range" min="0" max="100" value="25" style="width:100%;height:14px;accent-color:#f0a848;" oninput="setAccordionSpread(this.value, true)">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="assets/three.min.js"></script>
+<script>
+// ============================================================================
+// STELLINE LABORATORIES // ANIMATRONIC MEMORY ORB & HOLOGRAPHIC DOME ENGINE
+// Complete physical mass, micro-finish, exact button topology & 8-layer sound
+// ============================================================================
+
+const FOCAL_STOPS = [10, 18, 28, 35, 50, 70, 100, 135, 200, 220, 255, 300];
+const CAM_NAMES = ['CAM-L2 [-70°]', 'CAM-L1 [-35°]', 'CAM-MASTER [0° DEAKINS]', 'CAM-R1 [+35°]', 'CAM-R2 [+70°]'];
+
+const SCENE_QUOTES = {
+  beetle: '"Do you mind if I work while you talk? I promise I hear every word." — Dr. Ana Stelline',
+  birthday: '"They say you\'re the best memory maker there is." / "Well, they\'re kind. I love birthday parties."',
+  horse: '"They all think it\'s about more detail. That\'s not how memory works. We recall with our feelings. Anything real should be a mess."',
+  snow: '"I was locked in a sterile chamber all day, so if I wanted to see the world I had to imagine it. I got very good at imagining."'
+};
+
+const state = {
+  engineVersion: 'v4',
+  viewMode: 'sculpt',
+  scene: 'beetle',
+  powerOn: true,
+  batteryVolts: 9.04,
+  audioEnabled: true,
+  autoDance: false,
+  neckClaspOpen: true,
+  savageWindowLight: false,
+
+  // Spring-mass-damper physical state for the 1.42 kg CNC aluminum assembly
+  accordionTarget: 0.32,
+  accordionSpread: 0.32,
+  accordionVel: 0,
+  lastRackTooth: 32,
+
+  // Bimanual hand weight & gyroscopic wrist tilt
+  tiltX: 0,
+  tiltY: 0,
+  targetTiltX: 0,
+  targetTiltY: 0,
+
+  speedDome: 1.0,
+  jogWheelPhase: 0,
+  cameraStation: 2,
+  targetOffset: { x: 0, y: 0 },
+  imprintFlash: 0,
+  activeDpadDir: null,
+  pressedOnPropBtn: null,
+  hoveredHitbox: null,
+
+  // 5 Concentric Motorized Rings with authentic rotor inertia & detent tracking
+  rings: [
+    { angle: 72,  vel: 0, motorDir: 0, lastDetent: 7,  baseFreq: 285, ratio: 1.00 },
+    { angle: 140, vel: 0, motorDir: 0, lastDetent: 14, baseFreq: 332, ratio: 1.18 },
+    { angle: 180, vel: 0, motorDir: 0, lastDetent: 18, baseFreq: 418, ratio: 1.42 },
+    { angle: 230, vel: 0, motorDir: 0, lastDetent: 23, baseFreq: 364, ratio: 1.25 },
+    { angle: 110, vel: 0, motorDir: 0, lastDetent: 11, baseFreq: 308, ratio: 1.08 }
+  ],
+
+  // Wallace Archive Memory Bearing Reader state
+  bearingReader: {
+    spindleUp: false,
+    spindlePos: 0.0,
+    platterSpin: true,
+    platterAngle: 0,
+    beamColor: 'teal',
+    ledChasePhase: 0
+  },
+
+  drag: {
+    active: false,
+    mode: null, // 'ring' | 'accordion' | 'dome' | 'jog' | 'button'
+    ringIndex: -1,
+    startX: 0,
+    startY: 0,
+    startVal: 0
+  },
+
+  time: 0
+};
+
+// Pre-generate bead-blasted micro-grain points for the outer aluminum grip shells
+const BEAD_GRAIN_POINTS = Array.from({ length: 420 }, () => ({
+  rx: Math.random(),
+  ry: Math.random(),
+  alpha: 0.04 + Math.random() * 0.14,
+  bright: Math.random() > 0.5
+}));
+
+// ============================================================================
+// PHYSICAL MODELING & DIEGETIC BLADE RUNNER 2049 SOUND ENGINE
+// Inspired by Mark Mangini, Theo Green & Ron Bartlett's Stelline Dome Mix
+// Uses short noise-burst impulse responses, damped modal resonators,
+// lubricated helicoid friction, and whisper-quiet coreless DC motor purr.
+// ============================================================================
+let audioCtx = null;
+let noiseBuffer = null;
+let motorAudioNodes = [null, null, null, null, null];
+let ambientNode = null;
+
+function ensureAudio() {
+  if (!state.audioEnabled) return null;
+  if (!audioCtx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) {
+      audioCtx = new AC();
+      // Create reusable 2-second pink/white noise buffer for physical impulse modeling
+      const sr = audioCtx.sampleRate;
+      noiseBuffer = audioCtx.createBuffer(1, sr * 2, sr);
+      const data = noiseBuffer.getChannelData(0);
+      let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+      for (let i = 0; i < data.length; i++) {
+        const white = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        b3 = 0.86650 * b3 + white * 0.3104856;
+        b4 = 0.55000 * b4 + white * 0.5329522;
+        b5 = -0.7616 * b5 - white * 0.0168980;
+        data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.04;
+        b6 = white * 0.115926;
+      }
+    }
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
+function setAcousticReadout(msg) {
+  const el = document.getElementById('activeSoundReadout');
+  if (el) el.textContent = `ACOUSTIC BUS: ${msg}`;
+}
+
+// ============================================================================
+// TRANSIENT-ONLY MECHANICAL FOLEY ENGINE (ZERO OSCILLATOR DRONES / ZERO SYNTH PADS)
+// Only crisp, quiet, ultra-short (3ms-5ms) filtered noise micro-clicks when a
+// physical ring crosses a detent or a switch is pressed — never a continuous drone.
+// ============================================================================
+let lastDetentClickTime = 0;
+
+function stopAllLegacyOscillators() {
+  for (let i = 0; i < motorAudioNodes.length; i++) {
+    const node = motorAudioNodes[i];
+    if (node) {
+      try { node.subOsc && node.subOsc.stop(); } catch (e) {}
+      try { node.harmonicOsc && node.harmonicOsc.stop(); } catch (e) {}
+      try { node.noiseSrc && node.noiseSrc.stop(); } catch (e) {}
+      try { node.masterGain && node.masterGain.disconnect(); } catch (e) {}
+      motorAudioNodes[i] = null;
+    }
+  }
+}
+
+// 1. Silent motor state tracker (zero continuous oscillator drone)
+function updateContinuousMotorAudio() {
+  stopAllLegacyOscillators();
+}
+
+// 2. Precision Machined Micro-Switch Click (Sub-4ms filtered noise transient only, zero oscillators)
+function playMicroSwitchClick(isDown = true, pitchOffset = 0) {
+  const ctx = ensureAudio();
+  if (!ctx || !noiseBuffer) return;
+  try {
+    const now = ctx.currentTime;
+    const noise = ctx.createBufferSource();
+    noise.buffer = noiseBuffer;
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = (isDown ? 2600 : 1950) + pitchOffset;
+    bp.Q.value = 4.5;
+
+    const clickGain = ctx.createGain();
+    clickGain.gain.setValueAtTime(isDown ? 0.045 : 0.025, now);
+    clickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.005);
+
+    noise.connect(bp);
+    bp.connect(clickGain);
+    clickGain.connect(ctx.destination);
+
+    noise.start(now, Math.random() * 0.5, 0.006);
+    setAcousticReadout(isDown ? 'TACTILE MICRO-SWITCH ACTUATION' : 'MICRO-SWITCH RELEASE');
+  } catch (e) {}
+}
+
+// 3. Cinema Lens Ball-Bearing Aperture Detent Tick (Rate-limited 3.5ms noise impulse, zero oscillators)
+function playDetentTick(ringIdx = 0, vel = 1.0) {
+  const perfNow = performance.now();
+  if (perfNow - lastDetentClickTime < 55) return; // Rate-limit so auto-animation never buzzes
+  lastDetentClickTime = perfNow;
+
+  const ctx = ensureAudio();
+  if (!ctx || !noiseBuffer) return;
+  try {
+    const now = ctx.currentTime;
+    const noise = ctx.createBufferSource();
+    noise.buffer = noiseBuffer;
+
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = 1850 + ringIdx * 160;
+    bp.Q.value = 5.5;
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.032, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.0045);
+
+    noise.connect(bp);
+    bp.connect(gain);
+    gain.connect(ctx.destination);
+
+    noise.start(now, Math.random() * 0.8, 0.005);
+    setAcousticReadout(`LENS BALL-DETENT CLICK [RING 0${ringIdx + 1}]`);
+  } catch (e) {}
+}
+
+// 4. Dual Rack-and-Pinion Lubricated Brass Tooth Slide (Ultra-quiet transient only)
+function playRackPinionTooth(isEndStop = false) {
+  const perfNow = performance.now();
+  if (perfNow - lastDetentClickTime < 65) return;
+  lastDetentClickTime = perfNow;
+
+  const ctx = ensureAudio();
+  if (!ctx || !noiseBuffer) return;
+  try {
+    const now = ctx.currentTime;
+    const noise = ctx.createBufferSource();
+    noise.buffer = noiseBuffer;
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'bandpass';
+    lp.frequency.value = isEndStop ? 620 : (1100 + state.accordionSpread * 320);
+    lp.Q.value = 4.2;
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(isEndStop ? 0.04 : 0.022, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.005);
+
+    noise.connect(lp);
+    lp.connect(gain);
+    gain.connect(ctx.destination);
+    noise.start(now, Math.random() * 0.7, 0.006);
+  } catch (e) {}
+}
+
+function playLatchClunk() {
+  playMicroSwitchClick(true, -350);
+}
+
+// 5. Top Butterfly Neck-Strap Clasp Precision Spring-Latch
+function playButterflyClaspClack(deploying = true) {
+  playMicroSwitchClick(deploying, -120);
+}
+
+// 6. Wallace Archive Spindle Elevator (Discrete switch click, zero motor hum drone)
+function playCarAntennaActuator(raising = true) {
+  playMicroSwitchClick(raising, -180);
+}
+
+// 7. Silent Harmonic Marker (No synth chord drone)
+function playChordChime() {
+  stopAllLegacyOscillators();
+}
+
+// ============================================================================
+// UI & HARDWARE CONTROL HANDLERS
+// ============================================================================
+function setViewMode(mode) {
+  state.viewMode = mode;
+  const xBtn = document.getElementById('xrayBtn');
+  const bBtn = document.getElementById('bearingBtn');
+  if (xBtn) xBtn.classList.toggle('active', mode === 'xray');
+  if (bBtn) bBtn.classList.toggle('active', mode === 'bearing');
+  playMicroSwitchClick(true, 120);
+}
+
+state.activeShot = 'bugeye';
+state.selectedNodeIdx = 0;
+state.bundtMorph = 0.0; // 0 = classic cylinder cake, 1 = tall scalloped bundt dome with 2 candles (Screenshot 3)
+state.domeDissolve = 0.0;
+state.miniatureScale = 1.0;
+state.shotTime = 0.0;
+state.liveModeling = true;
+state.userHoldTimer = 0.0;
+
+const FILM_SHOT_SEQUENCE = [
+  'canopy', 'leaf', 'bugeye', 'clearing',
+  'cakespawn', 'bundtmorph', 'redicing', 'cutouts', 'blowcandles',
+  'horsecarve'
+];
+
+const SHOT_CONFIGS = {
+  // ACT I: FOREST & BEETLE (00:15 - 00:50)
+  canopy:      { scene: 'beetle',   rings: [155, 110, 140, 190, 150], spread: 24, yaw:  0.00, pitch:  0.00, dist: 310, bundt: 0 },
+  leaf:        { scene: 'beetle',   rings: [165, 155, 165, 185, 165], spread: 30, yaw:  0.00, pitch:  0.00, dist: 290, bundt: 0 },
+  bugeye:      { scene: 'beetle',   rings: [165, 145, 130, 160, 170], spread: 20, yaw:  0.00, pitch:  0.00, dist: 195, bundt: 0 },
+  clearing:    { scene: 'beetle',   rings: [165, 165, 175, 220, 175], spread: 62, yaw:  0.00, pitch:  0.00, dist: 380, bundt: 0 },
+  // ACT II: BIRTHDAY PARTY (02:17 - 03:16)
+  cakespawn:   { scene: 'birthday', rings: [150, 145,  50, 140, 155], spread: 12, yaw:  0.00, pitch:  0.00, dist: 285, bundt: 0.0 },
+  bundtmorph:  { scene: 'birthday', rings: [165, 150,  55, 150, 165], spread: 18, yaw:  0.00, pitch:  0.00, dist: 250, bundt: 0.86 },
+  redicing:    { scene: 'birthday', rings: [165, 155, 175, 170, 175], spread: 22, yaw:  0.00, pitch:  0.00, dist: 235, bundt: 0.0 },
+  cutouts:     { scene: 'birthday', rings: [165, 160, 175, 165, 175], spread: 38, yaw:  0.00, pitch:  0.00, dist: 310, bundt: 0.0 },
+  blowcandles: { scene: 'birthday', rings: [165, 175, 175, 255, 175], spread: 44, yaw:  0.00, pitch:  0.00, dist: 265, bundt: 0.0 },
+  miniature:   { scene: 'birthday', rings: [165, 175, 175, 195, 175], spread: 15, yaw:  0.00, pitch:  0.00, dist: 520, bundt: 0.0 },
+  // ACT III: ORPHANAGE HORSE (04:42)
+  horsecarve:  { scene: 'horse',    rings: [165, 165, 175, 235, 170], spread: 54, yaw:  0.00, pitch:  0.00, dist: 295, bundt: 0.0 }
+};
+
+function selectFilmShot(shotKey, fromSequencer = false) {
+  ensureAudio();
+  const cfg = SHOT_CONFIGS[shotKey];
+  if (!cfg) return;
+  state.activeShot = shotKey;
+  state.scene = cfg.scene;
+  state.bundtMorph = cfg.bundt || 0;
+  state.cam3D.yaw = cfg.yaw;
+  state.cam3D.pitch = cfg.pitch;
+  state.cam3D.dist = cfg.dist;
+  state.shotTime = 0.0;
+  ensureObjectParams(shotKey);
+  if (!fromSequencer && !state.staticMode) {
+    state.liveModeling = true;
+    state.userHoldTimer = 0.0;
+  }
+
+  document.querySelectorAll('[data-scene]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.scene === cfg.scene);
+  });
+  document.querySelectorAll('[data-shot]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.shot === shotKey);
+  });
+
+  cfg.rings.forEach((ang, idx) => setRingAngle(idx, ang, false));
+  setAccordionSpread(cfg.spread, false);
+  state.activeProtocol = (cfg.scene === 'birthday') ? 'cake' : 'bug';
+  if (typeof renderOperatorProtocolUI === 'function') renderOperatorProtocolUI();
+  playMicroSwitchClick(true, 150);
+}
+
+// ============================================================================
+// PER-OBJECT 5-DIAL SAM SEGMENTATION STATE
+// Every SAM-segmented item [0..3] in every shot has its own live 5-dial vector:
+//   Dial 0 (L1): SOLID   (20°..185° -> 0% wireframe/depth-contour .. 100% solid)
+//   Dial 1 (L2): FOCUS   (20°..185° -> 0% optical bokeh blur .. 100% sharp micro-detail)
+//   Dial 2 (L3): MORPH   (20°..185° -> 3D depth relief extrusion & timeline morph)
+//   Dial 3 (R1): LUMA    (20°..200° -> 0.18x darken shadow .. 1.0x neutral (110°) .. 2.15x lighten boost)
+//   Dial 4 (R2): TINT    (20°..200° -> 4800K cool cyan .. 3500K neutral (110°) .. 2600K warm candle gold)
+// ============================================================================
+state.objectParams = {};
+function ensureObjectParams(shotKey) {
+  const s = shotKey || state.activeShot || 'bugeye';
+  const cfg = SHOT_CONFIGS[s] || SHOT_CONFIGS.bugeye;
+  const br = cfg.rings || [165, 160, 145, 150, 110];
+  if (!state.objectParams[s]) {
+    state.objectParams[s] = [
+      [...br],
+      [...br],
+      [...br],
+      [...br]
+    ];
+    state.objectParams[s].baseRings = [...br];
+  }
+  return state.objectParams[s];
+}
+window.ensureObjectParams = ensureObjectParams;
+
+function selectSceneObject(nodeIdx, fromSequencer = false) {
+  const shot = state.activeShot || 'bugeye';
+  const params = ensureObjectParams(shot);
+  const cleanIdx = ((nodeIdx % 4) + 4) % 4;
+  state.selectedNodeIdx = cleanIdx;
+  if (!fromSequencer) {
+    state.userHoldTimer = 4.5;
+    const p = params[cleanIdx];
+    state._syncingNode = true;
+    for (let r = 0; r < 5; r++) {
+      setRingAngle(r, p[r], false);
+    }
+    state._syncingNode = false;
+    playMicroSwitchClick(true, 220);
+  }
+}
+window.selectSceneObject = selectSceneObject;
+
+function cycleSelectedHologramNode() {
+  ensureAudio();
+  selectSceneObject(((state.selectedNodeIdx || 0) + 1) % 4, false);
+}
+
+// ============================================================================
+// OPERATOR PROTOCOLS & COUNTERFACTUAL ("IMAGINE EACH COULD BE OTHERWISE") ENGINE
+// Protocol I:  BUG DESIGNER OPERATOR PROTOCOL (ENTOMOLOGY.OS // 00:15 - 00:50)
+// Protocol II: CAKE BIRTHDAY OPERATOR PROTOCOL (PATISSERIE.OS // 02:17 - 03:16)
+// ============================================================================
+state.activeProtocol = 'bug';
+state.protocolStepIdx = 2;
+state.otherwiseVariant = { bug: 0, cake: 0 };
+
+const OPERATOR_PROTOCOLS = {
+  bug: {
+    id: 'PROTOCOL.I // BUG.DESIGNER [ENTOMOLOGY.OS]',
+    dialLabels: ['L1:HEX.FACET', 'L2:OPTIC.DOME', 'L3:SETAE.YAW', 'R1:MAND.GAIT', 'R2:CHITIN.NM'],
+    steps: [
+      { id: 'B1:LAMINA.H2O',    shot: 'leaf',     node: 2, rings: [135, 165, 155, 140, 165], spread: 24, desc: 'EXTRUDE LEAF VEINS & 12 H2O MENISCI' },
+      { id: 'B2:SCARAB.GAIT',   shot: 'leaf',     node: 0, rings: [110, 160, 165, 198, 165], spread: 30, desc: 'ARTICULATE 6-LEG TRIPOD WALK TRAJECTORY' },
+      { id: 'B3:OCULUS.DX',     shot: 'bugeye',   node: 0, rings: [155, 138, 125, 160, 170], spread: 18, desc: 'SCULPT RIGHT EYE 165_HEX OMMATIDIA LENSES' },
+      { id: 'B4:SETAE.SPROUT',  shot: 'bugeye',   node: 2, rings: [165, 162, 162, 160, 170], spread: 22, desc: 'EXTRUDE 180 SUB-OCULAR SENSORY BRISTLES' },
+      { id: 'B5:OCULUS.SN+RIG', shot: 'bugeye',   node: 1, rings: [165, 192, 176, 175, 170], spread: 20, desc: 'RACK LEFT EYE FOCUS & ARTICULATE LABRUM' }
+    ],
+    otherwise: [
+      {
+        idx: 0,
+        code: 'CANONICAL [520nm EMERALD / 165_HEX]',
+        summary: 'FILM CANONICAL: 520nm Emerald Carabid Chitin // 165_HEX Compound Facets // 180 Setae Bristles',
+        hexDensity: 165.0,
+        chitinShift: 0.0,
+        setaeScale: 1.0,
+        eyeDomeBoost: 1.0,
+        mandibleBias: 0.0,
+        splitSpectrum: 0.0
+      },
+      {
+        idx: 1,
+        code: 'OTHERWISE I: SCARAB.AURUM [585nm / 280_HEX / LONG SETAE]',
+        summary: 'COUNTERFACTUAL I: 585nm Golden Scarab Iridescence // 280_HEX Hyper-Dense Ommatidia // 1.85x Long Sensory Bristles',
+        hexDensity: 280.0,
+        chitinShift: 0.88,
+        setaeScale: 1.85,
+        eyeDomeBoost: 1.45,
+        mandibleBias: 0.35,
+        splitSpectrum: 0.0
+      },
+      {
+        idx: 2,
+        code: 'OTHERWISE II: OBSIDIAN.VOID [455nm / 52_HEX MACRO / BALD]',
+        summary: 'COUNTERFACTUAL II: 455nm Obsidian-Cyan Exoskeleton // 52_HEX Coarse Macro-Facets // 0.0x Bald Chitin // Flared Mandibles',
+        hexDensity: 52.0,
+        chitinShift: -0.92,
+        setaeScale: 0.0,
+        eyeDomeBoost: 1.65,
+        mandibleBias: 0.85,
+        splitSpectrum: 0.0
+      },
+      {
+        idx: 3,
+        code: 'OTHERWISE III: HETEROCERA.SPLIT [DX:260_GOLD / SN:58_CYAN]',
+        summary: 'COUNTERFACTUAL III: Asymmetric Compound Optics (DX: 260_HEX Gold vs SN: 58_HEX Cyan) // 1.45x Setae Crown',
+        hexDensity: 220.0,
+        chitinShift: 0.45,
+        setaeScale: 1.45,
+        eyeDomeBoost: 1.55,
+        mandibleBias: 0.55,
+        splitSpectrum: 1.0
+      }
+    ]
+  },
+  cake: {
+    id: 'PROTOCOL.II // CAKE.BIRTHDAY [PATISSERIE.OS]',
+    dialLabels: ['L1:GEOM.SOLID', 'L2:WICKS.DOF', 'L3:BUNDT.PIPE', 'R1:STAGE.LUMA', 'R2:WIND.GLAZE'],
+    steps: [
+      { id: 'C1:SPONGE.SMARTIES', shot: 'cakespawn',   node: 0, rings: [120,  95,  52, 140, 155], spread: 12, desc: 'SPAWN CYLINDER + 24 SMARTIES + 03->07 WICKS' },
+      { id: 'C2:BUNDT.SCALLOP',   shot: 'bundtmorph',  node: 0, rings: [115, 155, 142, 150, 165], spread: 18, desc: 'TEST 11-FLUTE SCALLOPED BUNDT COUNTERFACTUAL' },
+      { id: 'C3:HANZI [生日快樂]', shot: 'redicing',    node: 0, rings: [155, 155, 146, 170, 175], spread: 22, desc: 'REVERT CYLINDER & PIPE 18 RED HANZI STROKES' },
+      { id: 'C4:CUTOUT.STAGE',    shot: 'cutouts',     node: 1, rings: [155, 165, 165, 185, 175], spread: 38, desc: 'ANCHOR HEX TABLE & STAGE CHILD CUTOUTS 1..6' },
+      { id: 'C5:EXHALE.MINI',     shot: 'blowcandles', node: 0, rings: [165, 175, 175, 255, 135], spread: 44, desc: 'EXHALE CANDLE VORTEX & 0.08X FLOOR DIORAMA' }
+    ],
+    otherwise: [
+      {
+        idx: 0,
+        code: 'CANONICAL [VANILLA CYLINDER + 生日快樂 + 7 WICKS]',
+        summary: 'FILM CANONICAL: Flat Vanilla Buttercream Cylinder // Piped Red 生日快樂 // 07 Striped Candles // Golden Hex Table',
+        forceBundtInParty: 0.0,
+        forceSmartiesInParty: false,
+        frostingShift: 0.0,
+        candleMode: 0, // canonical per-shot
+        tableScaleBoost: 1.0
+      },
+      {
+        idx: 1,
+        code: 'OTHERWISE I: KEPT BUNDT AT PARTY! [11-FLUTE DOME + SMARTIES]',
+        summary: 'COUNTERFACTUAL I: Stelline Keeps the 11-Flute Scalloped Bundt Dome & 24 Smarties on the Hex Table with the Children!',
+        forceBundtInParty: 0.96,
+        forceSmartiesInParty: true,
+        frostingShift: 0.18,
+        candleMode: 7,
+        tableScaleBoost: 1.06
+      },
+      {
+        idx: 2,
+        code: 'OTHERWISE II: DARK GANACHE & 3 WICKS [SPOTLIGHT CUTOUT]',
+        summary: 'COUNTERFACTUAL II: 2400K Dark Chocolate Ganache Cylinder // 03 Minimalist Wicks // High-Contrast Birthday Girl Key-Light',
+        forceBundtInParty: 0.0,
+        forceSmartiesInParty: false,
+        frostingShift: 0.92,
+        candleMode: 3,
+        tableScaleBoost: 1.0
+      },
+      {
+        idx: 3,
+        code: 'OTHERWISE III: ROSE-GLAZE CROWN & 24 SMARTIES [FULL PARTY]',
+        summary: 'COUNTERFACTUAL III: 4600K Rose-Berry Crown Tier // 24 Confectionery Smarties + 生日快樂 // 07 Wicks in 45° Breeze',
+        forceBundtInParty: 0.68,
+        forceSmartiesInParty: true,
+        frostingShift: -0.85,
+        candleMode: 7,
+        tableScaleBoost: 1.08
+      }
+    ]
+  }
+};
+window.OPERATOR_PROTOCOLS = OPERATOR_PROTOCOLS;
+
+function renderOperatorProtocolUI() {
+  const protoKey = state.activeProtocol || (state.scene === 'birthday' ? 'cake' : 'bug');
+  const proto = OPERATOR_PROTOCOLS[protoKey] || OPERATOR_PROTOCOLS.bug;
+  const bBtn = document.getElementById('protoBugBtn');
+  const cBtn = document.getElementById('protoCakeBtn');
+  if (bBtn) bBtn.classList.toggle('active', protoKey === 'bug');
+  if (cBtn) cBtn.classList.toggle('active', protoKey === 'cake');
+
+  const stepContainer = document.getElementById('protoStepButtons');
+  if (stepContainer) {
+    stepContainer.innerHTML = proto.steps.map((st, idx) => {
+      const act = (idx === state.protocolStepIdx) ? 'active' : '';
+      return `<button class="pill-btn ${act}" onclick="runProtocolStep('${protoKey}', ${idx})" title="${st.desc}">${st.id}</button>`;
+    }).join('');
+  }
+
+  const mutBtn = document.getElementById('otherwiseMutateBtn');
+  if (mutBtn) {
+    const vIdx = (state.otherwiseVariant[protoKey] || 0) % proto.otherwise.length;
+    const vObj = proto.otherwise[vIdx];
+    mutBtn.textContent = `OTHERWISE [O]: ${vObj.code}`;
+    mutBtn.classList.toggle('active', vIdx > 0);
+  }
+}
+window.renderOperatorProtocolUI = renderOperatorProtocolUI;
+
+function activateOperatorProtocol(protoKey, stepIdx = 0, fromUrl = false) {
+  const cleanKey = (protoKey === 'cake') ? 'cake' : 'bug';
+  state.activeProtocol = cleanKey;
+  runProtocolStep(cleanKey, stepIdx, fromUrl);
+}
+window.activateOperatorProtocol = activateOperatorProtocol;
+
+function runProtocolStep(protoKey, stepIdx, fromUrl = false) {
+  const cleanKey = (protoKey === 'cake') ? 'cake' : 'bug';
+  state.activeProtocol = cleanKey;
+  const proto = OPERATOR_PROTOCOLS[cleanKey];
+  const sIdx = Math.max(0, Math.min(proto.steps.length - 1, parseInt(stepIdx, 10) || 0));
+  state.protocolStepIdx = sIdx;
+  const st = proto.steps[sIdx];
+
+  selectFilmShot(st.shot, true);
+  if (!fromUrl) {
+    state.liveModeling = false;
+    state.userHoldTimer = 8.0;
+  }
+  selectSceneObject(st.node, true);
+  st.rings.forEach((ang, rIdx) => setRingAngle(rIdx, ang, false));
+  setAccordionSpread(st.spread, false);
+  renderOperatorProtocolUI();
+}
+window.runProtocolStep = runProtocolStep;
+
+function cycleOtherwiseVariant(protoKey, explicitVariant = null) {
+  ensureAudio();
+  const cleanKey = protoKey || (state.scene === 'birthday' ? 'cake' : 'bug');
+  state.activeProtocol = cleanKey;
+  const proto = OPERATOR_PROTOCOLS[cleanKey];
+  const nextV = (explicitVariant !== null && explicitVariant !== undefined)
+    ? (parseInt(explicitVariant, 10) % proto.otherwise.length)
+    : (((state.otherwiseVariant[cleanKey] || 0) + 1) % proto.otherwise.length);
+  state.otherwiseVariant[cleanKey] = nextV;
+  state.liveModeling = false;
+  state.userHoldTimer = 10.0;
+
+  // Apply counterfactual ("could be otherwise") dial offsets to the active SAM object so the C-Arc & Orb rings reflect the mutation!
+  if (cleanKey === 'bug') {
+    if (nextV === 1) {
+      // SCARAB.AURUM: High Hex Density (L1=136), Deep Focus (L2=185), Long Setae (L3=182), Mandible Flare (R1=195), Warm Specular (R2=178)
+      setRingAngle(0, 136, false);
+      setRingAngle(1, 185, false);
+      setRingAngle(2, 182, false);
+      setRingAngle(3, 195, false);
+      setRingAngle(4, 178, true);
+    } else if (nextV === 2) {
+      // OBSIDIAN.VOID: Crisp Relief (L1=132), Sharp Cornea (L2=175), Retracted Setae (L3=104), Wide Mandibles (R1=220), Cool Specular (R2=142)
+      setRingAngle(0, 132, false);
+      setRingAngle(1, 175, false);
+      setRingAngle(2, 104, false);
+      setRingAngle(3, 220, false);
+      setRingAngle(4, 142, true);
+    } else if (nextV === 3) {
+      // HETEROCERA.SPLIT: Asymmetric Optics
+      setRingAngle(0, 135, false);
+      setRingAngle(1, 192, false);
+      setRingAngle(2, 172, false);
+      setRingAngle(3, 185, false);
+      setRingAngle(4, 168, true);
+    } else {
+      const cfg = SHOT_CONFIGS[state.activeShot] || SHOT_CONFIGS.bugeye;
+      cfg.rings.forEach((a, i) => setRingAngle(i, a, false));
+    }
+  } else {
+    if (nextV === 1) {
+      // KEPT BUNDT AT PARTY: Sculpted Bundt Relief (L1=134, L2=168, L3=148, R1=168, R2=162)
+      state.bundtMorph = 0.96;
+      setRingAngle(0, 134, false);
+      setRingAngle(1, 168, false);
+      setRingAngle(2, 148, false);
+      setRingAngle(3, 168, false);
+      setRingAngle(4, 162, true);
+    } else if (nextV === 2) {
+      // DARK GANACHE & 3 WICKS + SPOTLIGHT: Cylinder Ganache + Spotlight on Center Birthday Girl
+      state.bundtMorph = 0.0;
+      setRingAngle(0, 134, false);
+      setRingAngle(1, 155, false);
+      setRingAngle(2, 146, false);
+      setRingAngle(3, 168, false);
+      setRingAngle(4, 172, true);
+      ensureObjectParams('cutouts');
+      if (state.objectParams && state.objectParams.cutouts) {
+        state.objectParams.cutouts[0][3] = 132; // subtle dim left child
+        state.objectParams.cutouts[1][3] = 205; // warm spotlight center birthday girl
+        state.objectParams.cutouts[2][3] = 132; // subtle dim right child
+      }
+    } else if (nextV === 3) {
+      // ROSE-GLAZE CROWN: (L1=134, L2=175, L3=128, R1=172, R2=148)
+      state.bundtMorph = 0.68;
+      setRingAngle(0, 134, false);
+      setRingAngle(1, 175, false);
+      setRingAngle(2, 128, false);
+      setRingAngle(3, 172, false);
+      setRingAngle(4, 148, true);
+    } else {
+      const cfg = SHOT_CONFIGS[state.activeShot] || SHOT_CONFIGS.cutouts;
+      state.bundtMorph = cfg.bundt || 0;
+      cfg.rings.forEach((a, i) => setRingAngle(i, a, false));
+    }
+  }
+  renderOperatorProtocolUI();
+}
+window.cycleOtherwiseVariant = cycleOtherwiseVariant;
+
+function selectMemoryScene(sceneKey) {
+  state.scene = sceneKey;
+  document.querySelectorAll('[data-scene]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.scene === sceneKey);
+  });
+  if (sceneKey === 'beetle') selectFilmShot('bugeye');
+  else if (sceneKey === 'birthday') selectFilmShot('cutouts');
+  else if (sceneKey === 'horse') selectFilmShot('horsecarve');
+  else {
+    state.activeShot = 'snow';
+    setRingAngle(0, 165); setRingAngle(1, 160); setRingAngle(2, 175); setRingAngle(3, 215); setRingAngle(4, 175);
+    setAccordionSpread(48);
+    playChordChime();
+  }
+}
+
+window.addEventListener('keydown', e => {
+  if (e.key === 's' || e.key === 'S') cycleSelectedHologramNode();
+  else if (e.key === 'o' || e.key === 'O') cycleOtherwiseVariant();
+  else if (e.key === ' ') {
+    e.preventDefault();
+    setAccordionSpread(state.accordionTarget > 0.25 ? 0 : 52, true);
+    playLatchClunk();
+  }
+});
+
+function setCameraStation(idx) {
+  state.cameraStation = idx;
+  const mappedAngle = 40 + idx * 65;
+  setRingAngle(1, mappedAngle, true);
+  playMicroSwitchClick(true, idx * 80);
+}
+
+function setAccordionSpread(val, fromUser = false) {
+  const pct = Math.max(0, Math.min(100, parseFloat(val)));
+  state.accordionTarget = pct / 100;
+  if (!fromUser) {
+    state.accordionSpread = state.accordionTarget;
+  }
+}
+
+function setSpeedDome(val) {
+  state.speedDome = Math.max(0.2, Math.min(2.8, parseFloat(val)));
+  playDetentTick(4, state.speedDome);
+}
+
+function setRingAngle(idx, deg, playClick = false) {
+  const norm = ((parseFloat(deg) % 360) + 360) % 360;
+  const ring = state.rings[idx];
+  ring.angle = norm;
+  state.activeCoupledRing = idx;
+
+  // Store this dial adjustment into the currently selected SAM object's 5-dial parameter state!
+  if (!state._syncingNode) {
+    const shot = state.activeShot || 'bugeye';
+    const params = ensureObjectParams(shot);
+    const selIdx = ((state.selectedNodeIdx || 0) % 4 + 4) % 4;
+    if (params[selIdx]) {
+      params[selIdx][idx] = norm;
+    }
+  }
+
+  const detentBucket = Math.floor(norm / 9);
+  if (detentBucket !== ring.lastDetent) {
+    ring.lastDetent = detentBucket;
+    if (playClick) playDetentTick(idx, ring.vel || 1.2);
+  }
+}
+
+function startMotorSpin(idx, dir) {
+  playMicroSwitchClick(true, idx * 90);
+  if (!state.powerOn) return;
+  state.rings[idx].motorDir = dir;
+}
+
+function stopMotorSpin(idx) {
+  if (state.rings[idx].motorDir !== 0) {
+    playMicroSwitchClick(false, idx * 90);
+  }
+  state.rings[idx].motorDir = 0;
+}
+
+function pulseAllMotors() {
+  playMicroSwitchClick(true, 200);
+  if (!state.powerOn) return;
+  state.rings.forEach((r, idx) => {
+    r.vel = (idx % 2 === 0 ? 1 : -1) * (3.6 + idx * 0.45) * state.speedDome;
+  });
+}
+
+function toggleAutoDance() {
+  state.autoDance = !state.autoDance;
+  playMicroSwitchClick(true, 160);
+}
+
+function toggleNeckClasp() {
+  state.neckClaspOpen = !state.neckClaspOpen;
+  playButterflyClaspClack(state.neckClaspOpen);
+}
+
+function toggleMagneticReed() {
+  state.powerOn = !state.powerOn;
+  playMicroSwitchClick(state.powerOn, -220);
+}
+
+function replaceBattery() {
+  state.batteryVolts = 9.12;
+  state.powerOn = true;
+  playChordChime();
+}
+
+function toggleAudio() {
+  state.audioEnabled = !state.audioEnabled;
+  if (state.audioEnabled) playMicroSwitchClick(true, 100);
+}
+
+function toggleSavageWindowLight() {
+  state.savageWindowLight = !state.savageWindowLight;
+  playMicroSwitchClick(true, 260);
+}
+
+function triggerBearingImprint() {
+  state.imprintFlash = 1.0;
+  playMicroSwitchClick(true, 300);
+  playChordChime();
+}
+
+function pressDpad(dirName, dx, dy) {
+  state.activeDpadDir = dirName;
+  state.targetOffset.x = Math.max(-0.45, Math.min(0.45, state.targetOffset.x + dx));
+  state.targetOffset.y = Math.max(-0.35, Math.min(0.35, state.targetOffset.y + dy));
+  playMicroSwitchClick(true, -80);
+}
+
+function releaseDpad() {
+  if (state.activeDpadDir) {
+    state.activeDpadDir = null;
+    playMicroSwitchClick(false, -80);
+  }
+}
+
+function toggleBearingElevator() {
+  state.bearingReader.spindleUp = !state.bearingReader.spindleUp;
+  if (state.viewMode !== 'bearing') setViewMode('bearing');
+  playCarAntennaActuator(state.bearingReader.spindleUp);
+}
+
+function toggleBearingPlatter() {
+  state.bearingReader.platterSpin = !state.bearingReader.platterSpin;
+  if (state.viewMode !== 'bearing') setViewMode('bearing');
+  playMicroSwitchClick(true, 60);
+}
+
+function setBearingBeamColor(col) {
+  state.bearingReader.beamColor = col;
+  if (state.viewMode !== 'bearing') setViewMode('bearing');
+  playMicroSwitchClick(true, 180);
+}
+
+function updateBatteryUI() {}
+function updateTelemetryUI() {}
+
+// ============================================================================
+// CANVAS 1: GRANULAR 3D REALITY-MODELING ENGINE + DIEGETIC RADIAL C-ARC MENUS
+// Authentic to AS_QN4IrWcU ("The Memory Maker | Blade Runner 2049")
+// ============================================================================
+const holoCanvas = document.getElementById('hologramCanvas');
+const holoCtx = holoCanvas.getContext('2d');
+
+state.cam3D = {
+  yaw: 0.0,
+  pitch: 0.08,
+  dist: 195,
+  panX: 0,
+  panY: 0,
+  renderMode: 'hybrid',
+  dragging: false,
+  lastX: 0,
+  lastY: 0
+};
+
+function cycle3DRenderMode() {
+  const modes = ['hybrid', 'wire', 'voxel', 'shaded'];
+  const labels = { hybrid: '3D: HYBRID', wire: '3D: WIRE+NORMALS', voxel: '3D: VOXEL CLOUD', shaded: '3D: SHADED' };
+  const idx = (modes.indexOf(state.cam3D.renderMode) + 1) % modes.length;
+  state.cam3D.renderMode = modes[idx];
+  const btn = document.getElementById('renderModeBtn');
+  if (btn) btn.textContent = labels[state.cam3D.renderMode];
+  playMicroSwitchClick(true, 180);
+}
+
+const holoParticles3D = Array.from({ length: 190 }, (_, i) => ({
+  x: (Math.random() - 0.5) * 280,
+  y: (Math.random() - 0.5) * 170,
+  z: (Math.random() - 0.5) * 280,
+  size: 1.1 + Math.random() * 2.4,
+  phase: Math.random() * Math.PI * 2,
+  layer: i % 4
+}));
+
+function resizeCanvases() {
+  const dpr = window.devicePixelRatio || 1;
+  const hRect = holoCanvas.getBoundingClientRect();
+  holoCanvas.width = hRect.width * dpr;
+  holoCanvas.height = hRect.height * dpr;
+  holoCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const oCanvas = document.getElementById('orbCanvas');
+  const oRect = oCanvas.getBoundingClientRect();
+  oCanvas.width = oRect.width * dpr;
+  oCanvas.height = oRect.height * dpr;
+  oCanvas.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resizeCanvases);
+
+state.inverseWeave = {
+  active: false,
+  allFour: false,
+  stage: 5,
+  stageProgress: 0,
+  activeRingIdx: -1
+};
+
+function getPrimitiveLayers() {
+  const L1 = Math.min(1, Math.max(0, state.rings[0].angle / 150));
+  const L2 = Math.min(1, Math.max(0, state.rings[1].angle / 150));
+  const L3 = Math.min(1, Math.max(0, state.rings[2].angle / 150));
+  const L4 = Math.min(1, Math.max(0, (state.rings[4].angle / 150) * 0.65 + (state.accordionSpread / 0.35) * 0.35));
+  const L5 = Math.min(1, Math.max(0, state.rings[3].angle / 170));
+  return { L1, L2, L3, L4, L5 };
+}
+
+function zeroToPrimitives() {
+  ensureAudio();
+  state.autoDance = false;
+  state.liveModeling = false;
+  state.inverseWeave.active = false;
+  state.inverseWeave.activeRingIdx = -1;
+  const w1 = document.getElementById('weaveSingleBtn');
+  if (w1) w1.classList.remove('active');
+
+  // Set all 4 SAM objects in the current shot to 3D Depth-Contour Wireframe mode (L1=12°)
+  const shot = state.activeShot || 'bugeye';
+  const params = ensureObjectParams(shot);
+  for (let n = 0; n < 4; n++) {
+    params[n][0] = 12;  // L1 SOLID = 0% (pure 3D MiDaS depth wireframe)
+    params[n][1] = 85;  // L2 FOCUS = 50%
+    params[n][2] = 65;  // L3 MORPH = 40%
+    params[n][3] = 110; // R1 LUMA  = 1.0x
+    params[n][4] = 110; // R2 TINT  = neutral
+  }
+
+  state._syncingNode = true;
+  const selP = params[(state.selectedNodeIdx || 0) % 4];
+  for (let i = 0; i < 5; i++) {
+    state.rings[i].vel = 0;
+    state.rings[i].motorDir = 0;
+    setRingAngle(i, selP[i], false);
+  }
+  state._syncingNode = false;
+  setAccordionSpread(0, true);
+  playLatchClunk();
+}
+
+function startInverseWeave(allFour) {
+  ensureAudio();
+  state.autoDance = false;
+  state.liveModeling = true;
+  state.userHoldTimer = 0.0;
+  state.shotTime = 0.0;
+
+  state.inverseWeave.active = !state.inverseWeave.active;
+  state.inverseWeave.allFour = !!allFour;
+  state.inverseWeave.stage = 0;
+  state.inverseWeave.stageProgress = 0;
+
+  const w1 = document.getElementById('weaveSingleBtn');
+  if (w1) w1.classList.toggle('active', state.inverseWeave.active);
+  playMicroSwitchClick(true, 140);
+}
+
+function smoothEase(x) {
+  const c = Math.max(0, Math.min(1, x));
+  return c * c * (3 - 2 * c);
+}
+
+function lerpNum(a, b, t) {
+  return a + (b - a) * smoothEase(t);
+}
+
+// ============================================================================
+// REAL-TIME FILM MODELING CHOREOGRAPHY SEQUENCER (TIME-DRIVEN 3D CONSTRUCTION)
+// Animates the physical Orb rings AND the 3D scene modeling operations over time
+// for every shot, matching Stelline's hand-sculpting gestures in the film.
+// ============================================================================
+function updateInverseWeaveSequencer() {
+  if (state.staticMode) return;
+  if (state.drag.active) {
+    state.userHoldTimer = 3.5;
+    return;
+  }
+  if (state.userHoldTimer > 0) {
+    state.userHoldTimer = Math.max(0, state.userHoldTimer - 0.016);
+    return;
+  }
+  if (!state.liveModeling) {
+    state.inverseWeave.activeRingIdx = -1;
+    return;
+  }
+
+  const dt = 0.016 * state.speedDome;
+  state.shotTime += dt;
+  const cycleDur = 6.5;
+
+  // If WEAVE SEQUENCE is active, automatically step through all film shots chronologically!
+  if (state.inverseWeave.active && state.shotTime >= cycleDur) {
+    const curIdx = FILM_SHOT_SEQUENCE.indexOf(state.activeShot);
+    const nextKey = FILM_SHOT_SEQUENCE[(curIdx + 1) % FILM_SHOT_SEQUENCE.length];
+    selectFilmShot(nextKey, true);
+    return;
+  }
+
+  const p = (state.shotTime % cycleDur) / cycleDur;
+  const shot = state.activeShot || 'bugeye';
+  const iw = state.inverseWeave;
+
+  if (shot === 'bugeye') {
+    // 00:31 -> 00:35 BUG EYE MACRO (5 Consecutive Film Keyframes: sec_031..sec_035):
+    // Phase 0 (0..0.05): Lock 3D Chitin Subsurface Relief (L1: 85 -> 165)
+    // Phase 1 (0.05..0.72): Sweep Right Compound Eye Focus -> Sprout Setae -> Rack Focus to Left Eye (sec_031 -> sec_035)
+    // Phase 2 (0.72..1.00): Hold Left-Eye Macro Focus Climax (sec_035)
+    if (p < 0.05) {
+      iw.activeRingIdx = 0;
+      setRingAngle(0, lerpNum(85, 165, p / 0.05), true);
+      setRingAngle(1, 75, false);
+      setRingAngle(2, 102, false);
+      state.selectedNodeIdx = 0;
+    } else if (p < 0.72) {
+      const u = (p - 0.05) / 0.67;
+      iw.activeRingIdx = u < 0.35 ? 1 : (u < 0.72 ? 2 : 1);
+      setRingAngle(0, 165, false);
+      setRingAngle(1, lerpNum(75, 192, u), true);
+      setRingAngle(2, lerpNum(102, 176, u), true);
+      state.selectedNodeIdx = u < 0.34 ? 1 : (u < 0.70 ? 2 : 3);
+    } else {
+      iw.activeRingIdx = 1;
+      setRingAngle(0, 165, false);
+      setRingAngle(1, 192, false);
+      setRingAngle(2, 176, false);
+      state.selectedNodeIdx = 3;
+    }
+  }
+  else if (shot === 'leaf') {
+    // 00:25 -> 00:28 WET LEAF & SCARAB WALK (sec_025 -> sec_028):
+    if (p < 0.05) {
+      iw.activeRingIdx = 0;
+      setRingAngle(0, lerpNum(85, 165, p / 0.05), true);
+      setRingAngle(1, 142, false);
+      setRingAngle(3, 135, false);
+      state.selectedNodeIdx = 0;
+    } else if (p < 0.72) {
+      iw.activeRingIdx = 3;
+      const u = (p - 0.05) / 0.67;
+      setRingAngle(0, 165, false);
+      setRingAngle(1, lerpNum(142, 168, u), false);
+      setRingAngle(3, lerpNum(135, 210, u), true);
+      state.selectedNodeIdx = u < 0.25 ? 1 : 2;
+    } else {
+      iw.activeRingIdx = 3;
+      setRingAngle(0, 165, false);
+      setRingAngle(1, 168, false);
+      setRingAngle(3, 210, false);
+      state.selectedNodeIdx = 2;
+    }
+  }
+  else if (shot === 'canopy') {
+    iw.activeRingIdx = 1;
+    setRingAngle(0, lerpNum(45, 160, Math.min(1, p * 2.5)), false);
+    setRingAngle(1, 70 + 85 * Math.sin(p * Math.PI), true);
+  }
+  else if (shot === 'clearing') {
+    iw.activeRingIdx = 3;
+    setRingAngle(0, 165, false);
+    setAccordionSpread(lerpNum(5, 78, Math.sin(p * Math.PI * 0.85)), true);
+  }
+  else if (shot === 'cakespawn') {
+    // 02:17 -> 02:21 CAKE SPAWN (sec_138 [3 Candles + Smarties] -> ref_0217 [7 Candles + Smarties] -> sec_141 [7 Candles, Smarties Cleared]):
+    state.bundtMorph = 0.0;
+    if (p < 0.05) {
+      iw.activeRingIdx = 0;
+      setRingAngle(0, lerpNum(85, 165, p / 0.05), true);
+      setRingAngle(1, 45, false);
+      setRingAngle(2, 48, false);
+      state.selectedNodeIdx = 0;
+    } else if (p < 0.72) {
+      iw.activeRingIdx = 1;
+      const u = (p - 0.05) / 0.67;
+      setRingAngle(0, 165, false);
+      setRingAngle(1, lerpNum(45, 150, u), true);
+      setRingAngle(2, lerpNum(48, 68, u), false);
+      state.selectedNodeIdx = u < 0.48 ? 2 : 1;
+    } else {
+      iw.activeRingIdx = 1;
+      setRingAngle(0, 165, false);
+      setRingAngle(1, 150, false);
+      setRingAngle(2, 68, false);
+      state.selectedNodeIdx = 1;
+    }
+  }
+  else if (shot === 'bundtmorph') {
+    // 02:22 -> 02:25 BUNDT MORPH (sec_142 [Flat Cylinder, 7 Candles] -> sec_143 [Rising Bundt, 1 Candle] -> ref_0223 [Tilted Scalloped Bundt, 2 Candles]):
+    if (p < 0.05) {
+      iw.activeRingIdx = 0;
+      setRingAngle(0, lerpNum(85, 165, p / 0.05), true);
+      setRingAngle(1, 150, false);
+      setRingAngle(2, 48, false);
+      state.bundtMorph = 0.0;
+      state.selectedNodeIdx = 0;
+    } else if (p < 0.72) {
+      iw.activeRingIdx = 2;
+      const u = smoothEase((p - 0.05) / 0.67);
+      setRingAngle(0, 165, false);
+      setRingAngle(1, 150, false);
+      setRingAngle(2, lerpNum(48, 144, u), true);
+      state.bundtMorph = u * 0.96;
+      state.selectedNodeIdx = u < 0.38 ? 0 : (u < 0.74 ? 1 : 2);
+    } else {
+      iw.activeRingIdx = 2;
+      setRingAngle(0, 165, false);
+      setRingAngle(1, 150, false);
+      setRingAngle(2, 144, false);
+      state.bundtMorph = 0.96;
+      state.selectedNodeIdx = 2;
+    }
+  }
+  else if (shot === 'redicing') {
+    // 02:26 -> 02:28 RED ICING [生日快樂] (sec_146 [生日] -> sec_147 [生日快樂] -> ref_0226 [生日快樂 + Underline]):
+    state.bundtMorph = 0.0;
+    if (p < 0.05) {
+      iw.activeRingIdx = 0;
+      setRingAngle(0, lerpNum(85, 165, p / 0.05), true);
+      setRingAngle(1, 155, false);
+      setRingAngle(2, 48, false);
+      state.selectedNodeIdx = 0;
+    } else if (p < 0.72) {
+      iw.activeRingIdx = 2;
+      const u = (p - 0.05) / 0.67;
+      setRingAngle(0, 165, false);
+      setRingAngle(1, 155, false);
+      setRingAngle(2, lerpNum(48, 146, u), true);
+      state.selectedNodeIdx = u < 0.45 ? 0 : (u < 0.82 ? 1 : 2);
+    } else {
+      iw.activeRingIdx = 2;
+      setRingAngle(0, 165, false);
+      setRingAngle(1, 155, false);
+      setRingAngle(2, 146, false);
+      state.selectedNodeIdx = 2;
+    }
+  }
+  else if (shot === 'cutouts') {
+    // 02:33 -> 02:38 CHILD CUTOUTS (sec_153 [1st Child] -> ref_0233 [2 Children + C-Arcs] -> sec_155 [3rd Child] -> sec_156 [4th Child + Party]):
+    state.bundtMorph = 0.0;
+    if (p < 0.05) {
+      iw.activeRingIdx = 0;
+      setRingAngle(0, lerpNum(85, 165, p / 0.05), true);
+      setRingAngle(1, 160, false);
+      setRingAngle(3, 35, false);
+      state.selectedNodeIdx = 0;
+    } else if (p < 0.42) {
+      iw.activeRingIdx = 3;
+      const u1 = (p - 0.05) / 0.37;
+      setRingAngle(0, 165, false);
+      setRingAngle(1, 160, false);
+      setRingAngle(3, lerpNum(35, 92, u1), true);
+      state.selectedNodeIdx = u1 < 0.45 ? 0 : 1;
+    } else if (p < 0.72) {
+      iw.activeRingIdx = 3;
+      const u2 = (p - 0.42) / 0.30;
+      setRingAngle(0, 165, false);
+      setRingAngle(1, 160, false);
+      setRingAngle(3, lerpNum(92, 200, u2), true);
+      state.selectedNodeIdx = u2 < 0.5 ? 2 : 3;
+    } else {
+      iw.activeRingIdx = 3;
+      setRingAngle(0, 165, false);
+      setRingAngle(1, 160, false);
+      setRingAngle(3, 200, false);
+      state.selectedNodeIdx = 3;
+    }
+  }
+  else if (shot === 'blowcandles') {
+    // 02:56 BLOW CANDLES: Breath wind bends, flutters & dims the 7 3D candle flames!
+    iw.activeRingIdx = 4;
+    setRingAngle(0, 165, false);
+    setRingAngle(1, 165, false);
+    const windWave = p < 0.72 ? smoothEase(Math.max(0, (p - 0.05) / 0.67)) : 1.0;
+    setRingAngle(4, lerpNum(15, 170, windWave), true);
+    state.selectedNodeIdx = windWave < 0.5 ? 0 : 1;
+  }
+  else if (shot === 'horsecarve') {
+    // 04:42 HORSE [6·10·21]: Whittle rough wood block into faceted horse & carve 6·10·21 into base!
+    if (p < 0.35) {
+      iw.activeRingIdx = 0;
+      setRingAngle(0, lerpNum(35, 165, p / 0.35), true);
+      setRingAngle(1, 60, false);
+      setRingAngle(2, 20, false);
+      state.selectedNodeIdx = 0;
+    } else if (p < 0.75) {
+      iw.activeRingIdx = 2;
+      const u = (p - 0.35) / 0.40;
+      setRingAngle(0, 165, false);
+      setRingAngle(2, lerpNum(20, 175, u), true);
+      state.selectedNodeIdx = u < 0.5 ? 1 : 2;
+    } else {
+      iw.activeRingIdx = 2;
+      setRingAngle(0, 165, false);
+      setRingAngle(2, 175, false);
+      state.selectedNodeIdx = 2;
+    }
+  }
+}
+
+// ============================================================================
+// DIEGETIC TRANSLUCENT RADIAL C-ARC MENU OVERLAYS (Screenshots 2, 3, 4, 5)
+// ============================================================================
+function drawDiegeticRadialArcMenu(ctx, x, y, radius, rotRad, activeSector, numSectors, scale, flipLeft, showTelemetry) {
+  ctx.save();
+  ctx.translate(x, y);
+  const r = radius * scale;
+  const innerR = r * 0.68;
+  const midR = r * 0.88;
+  const outerR = r * 1.02;
+
+  // Base C-arc span (approx 210 deg open on one side, matching Screenshots 2, 3, 4)
+  const startBase = flipLeft ? Math.PI * 0.42 : -Math.PI * 0.58;
+  const totalSpan = Math.PI * 1.16;
+  const gap = 0.04;
+  const segSpan = (totalSpan - gap * (numSectors - 1)) / numSectors;
+
+  // 1. Segmented translucent white-cyan radial C-sectors
+  for (let s = 0; s < numSectors; s++) {
+    const a0 = startBase + s * (segSpan + gap) + rotRad * 0.25;
+    const a1 = a0 + segSpan;
+    const isAct = (s === (activeSector % numSectors));
+    const fillAlpha = isAct ? 0.46 : (0.11 + (s % 2) * 0.06);
+
+    ctx.fillStyle = `rgba(210, 238, 245, ${fillAlpha})`;
+    ctx.beginPath();
+    ctx.arc(0, 0, midR, a0, a1);
+    ctx.arc(0, 0, innerR, a1, a0, true);
+    ctx.closePath();
+    ctx.fill();
+
+    // Bright highlight sub-wedge inside active sector (Screenshot 4)
+    if (isAct) {
+      const midA = (a0 + a1) * 0.5;
+      ctx.fillStyle = 'rgba(240, 252, 255, 0.78)';
+      ctx.beginPath();
+      ctx.arc(0, 0, midR * 0.98, midA - segSpan * 0.18, midA + segSpan * 0.18);
+      ctx.arc(0, 0, innerR * 1.04, midA + segSpan * 0.18, midA - segSpan * 0.18, true);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  // 2. Crisp thin inner & outer concentric C-ring hairlines
+  ctx.strokeStyle = 'rgba(215, 242, 248, 0.52)';
+  ctx.lineWidth = 1.0;
+  ctx.beginPath();
+  ctx.arc(0, 0, innerR * 0.94, startBase + 0.08, startBase + totalSpan - 0.08);
+  ctx.stroke();
+
+  ctx.strokeStyle = 'rgba(215, 242, 248, 0.38)';
+  ctx.beginPath();
+  ctx.arc(0, 0, outerR, startBase - 0.05, startBase + totalSpan + 0.05);
+  ctx.stroke();
+
+  // 3. Radial callout whiskers with angled elbows (──╲) as seen in Screenshots 3, 4, 5
+  const whiskerAngles = [startBase + totalSpan * 0.12, startBase + totalSpan * 0.52, startBase + totalSpan * 0.88];
+  ctx.strokeStyle = 'rgba(220, 245, 250, 0.55)';
+  ctx.lineWidth = 0.85;
+  whiskerAngles.forEach((wa, idx) => {
+    const x0 = Math.cos(wa) * innerR * 0.82;
+    const y0 = Math.sin(wa) * innerR * 0.82;
+    const x1 = Math.cos(wa) * (outerR + 10 * scale);
+    const y1 = Math.sin(wa) * (outerR + 10 * scale);
+    const x2 = x1 + (Math.cos(wa) >= 0 ? 12 : -12) * scale;
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.lineTo(x2, y1);
+    ctx.stroke();
+  });
+
+  // 4. Fine horizontal micro-telemetry lines extending toward the sculpted subject (Screenshot 4)
+  if (showTelemetry) {
+    const dir = flipLeft ? 1 : -1;
+    const tx0 = dir * (innerR * 0.35);
+    const ty0 = r * 0.36;
+    ctx.strokeStyle = 'rgba(205, 235, 242, 0.42)';
+    ctx.lineWidth = 0.85;
+    for (let line = 0; line < 3; line++) {
+      const ly = ty0 + line * 4.2 * scale;
+      const len = (78 - line * 16 + Math.sin(state.time * 3 + line) * 6) * scale;
+      ctx.beginPath();
+      ctx.moveTo(tx0, ly);
+      ctx.lineTo(tx0 + dir * len, ly);
+      ctx.stroke();
+      // Tiny micro-dots simulating fine diegetic glyph clusters
+      for (let d = 0; d < 8; d++) {
+        ctx.fillStyle = 'rgba(220, 248, 255, 0.48)';
+        ctx.fillRect(tx0 + dir * (d * 8 * scale), ly - 2 * scale, 3.5 * scale, 1.2 * scale);
+      }
+    }
+  }
+  ctx.restore();
+}
+
+// Per-Subject Cutout / Readymade Head-Tracked Radial Node Overlay (Exact match to Screenshot 5)
+function drawSubjectNodeOverlay(ctx, nodeX, nodeY, headX, headY, scale, isSelected, phase) {
+  ctx.save();
+  const r = 18 * scale;
+  const alphaBoost = isSelected ? 1.35 : 0.92;
+
+  // 1. 12-bar vertical micro-scan column on the left side of the C-arc (Screenshot 5)
+  const colX = nodeX - r * 1.45;
+  const colY = nodeY - r * 0.85;
+  for (let b = 0; b < 11; b++) {
+    const bw = (6 + ((b * 7) % 9)) * scale;
+    const by = colY + b * 3.0 * scale;
+    ctx.fillStyle = `rgba(205, 235, 242, ${(0.22 + (b % 3) * 0.1) * alphaBoost})`;
+    ctx.fillRect(colX, by, bw, 1.4 * scale);
+  }
+
+  // 2. Compact right-side C-arc with 5 segments & 3 radial whiskers
+  drawDiegeticRadialArcMenu(ctx, nodeX, nodeY, 18, phase, isSelected ? 2 : 1, 5, scale * alphaBoost, false, false);
+
+  // 3. 45-degree diagonal leader line pointing toward the child cutout's temple/head (Screenshot 5)
+  const dirX = headX >= nodeX ? 1 : -1;
+  const pStartX = nodeX + dirX * (r * 0.9);
+  const pStartY = nodeY + r * 0.65;
+  const pEndX = pStartX + dirX * (16 * scale);
+  const pEndY = pStartY + 14 * scale;
+
+  ctx.strokeStyle = `rgba(220, 245, 252, ${0.62 * alphaBoost})`;
+  ctx.lineWidth = 1.05;
+  ctx.beginPath();
+  ctx.moveTo(pStartX - dirX * 5 * scale, pStartY);
+  ctx.lineTo(pStartX, pStartY);
+  ctx.lineTo(pEndX, pEndY);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+// ============================================================================
+// 3D MATH & MESH PRIMITIVE BUILDERS
+// ============================================================================
+function create3DSceneCollector() {
+  return {
+    faces: [],
+    lines: [],
+    points: [],
+    overlays: [] // { p3d, head3d, type: 'main'|'node', radius, flipLeft, isSelected, phase }
+  };
+}
+
+function vec3Sub(a, b) { return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]; }
+function vec3Cross(a, b) {
+  return [
+    a[1] * b[2] - a[2] * b[1],
+    a[2] * b[0] - a[0] * b[2],
+    a[0] * b[1] - a[1] * b[0]
+  ];
+}
+function vec3Normalize(v) {
+  const len = Math.hypot(v[0], v[1], v[2]) || 1;
+  return [v[0] / len, v[1] / len, v[2] / len];
+}
+function vec3Dot(a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
+
+function rotY3D(p, ang) {
+  const c = Math.cos(ang), s = Math.sin(ang);
+  return [p[0] * c + p[2] * s, p[1], -p[0] * s + p[2] * c];
+}
+function rotX3D(p, ang) {
+  const c = Math.cos(ang), s = Math.sin(ang);
+  return [p[0], p[1] * c - p[2] * s, p[1] * s + p[2] * c];
+}
+function rotZ3D(p, ang) {
+  const c = Math.cos(ang), s = Math.sin(ang);
+  return [p[0] * c - p[1] * s, p[0] * s + p[1] * c, p[2]];
+}
+function add3D(a, b) { return [a[0] + b[0], a[1] + b[1], a[2] + b[2]]; }
+
+function addQuad3D(sc, v0, v1, v2, v3, hue, sat, lum, alpha, emission = 0) {
+  const e1 = vec3Sub(v1, v0);
+  const e2 = vec3Sub(v3, v0);
+  const norm = vec3Normalize(vec3Cross(e1, e2));
+  const cx = (v0[0] + v1[0] + v2[0] + v3[0]) * 0.25;
+  const cy = (v0[1] + v1[1] + v2[1] + v3[1]) * 0.25;
+  const cz = (v0[2] + v1[2] + v2[2] + v3[2]) * 0.25;
+  sc.faces.push({
+    verts: [v0, v1, v2, v3],
+    center: [cx, cy, cz],
+    normal: norm,
+    hue, sat, lum, alpha, emission
+  });
+}
+
+function addTri3D(sc, v0, v1, v2, hue, sat, lum, alpha, emission = 0) {
+  const e1 = vec3Sub(v1, v0);
+  const e2 = vec3Sub(v2, v0);
+  const norm = vec3Normalize(vec3Cross(e1, e2));
+  const cx = (v0[0] + v1[0] + v2[0]) / 3;
+  const cy = (v0[1] + v1[1] + v2[1]) / 3;
+  const cz = (v0[2] + v1[2] + v2[2]) / 3;
+  sc.faces.push({
+    verts: [v0, v1, v2],
+    center: [cx, cy, cz],
+    normal: norm,
+    hue, sat, lum, alpha, emission
+  });
+}
+
+function add3DTubeChain(sc, joints, radii, sides, hue, sat, lum, alpha) {
+  if (joints.length < 2) return;
+  const rings = [];
+  for (let i = 0; i < joints.length; i++) {
+    const p = joints[i];
+    const dir = i < joints.length - 1
+      ? vec3Normalize(vec3Sub(joints[i + 1], p))
+      : vec3Normalize(vec3Sub(p, joints[i - 1]));
+    const up = Math.abs(dir[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0];
+    const right = vec3Normalize(vec3Cross(dir, up));
+    const fwd = vec3Normalize(vec3Cross(right, dir));
+    const r = radii[i];
+    const ring = [];
+    for (let s = 0; s < sides; s++) {
+      const a = (s / sides) * Math.PI * 2;
+      const ca = Math.cos(a) * r, sa = Math.sin(a) * r;
+      ring.push([
+        p[0] + right[0] * ca + fwd[0] * sa,
+        p[1] + right[1] * ca + fwd[1] * sa,
+        p[2] + right[2] * ca + fwd[2] * sa
+      ]);
+    }
+    rings.push(ring);
+  }
+  for (let i = 0; i < rings.length - 1; i++) {
+    for (let s = 0; s < sides; s++) {
+      const ns = (s + 1) % sides;
+      addQuad3D(sc, rings[i][s], rings[i][ns], rings[i + 1][ns], rings[i + 1][s], hue, sat, lum, alpha);
+    }
+  }
+}
+
+function add3DBox(sc, cx, cy, cz, wx, wy, wz, hue, sat, lum, alpha) {
+  const x0 = cx - wx / 2, x1 = cx + wx / 2;
+  const y0 = cy - wy / 2, y1 = cy + wy / 2;
+  const z0 = cz - wz / 2, z1 = cz + wz / 2;
+  const p = [
+    [x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0],
+    [x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]
+  ];
+  addQuad3D(sc, p[0], p[1], p[2], p[3], hue, sat, lum, alpha);
+  addQuad3D(sc, p[5], p[4], p[7], p[6], hue, sat, lum, alpha);
+  addQuad3D(sc, p[4], p[0], p[3], p[7], hue, sat, lum, alpha);
+  addQuad3D(sc, p[1], p[5], p[6], p[2], hue, sat, lum, alpha);
+  addQuad3D(sc, p[3], p[2], p[6], p[7], hue, sat, lum, alpha);
+  addQuad3D(sc, p[4], p[5], p[1], p[0], hue, sat, lum, alpha);
+}
+
+// ============================================================================
+// ACT I: FOREST, WET LEAF & BEETLE COMPOUND EYE MACRO (00:15 - 00:50)
+// Includes Shot 03 (00:32 sec_032-035): Extreme Macro Compound Eye Ommatidia!
+// ============================================================================
+function build3DBeetleScene(sc, L1, L2, L3, L4, L5, spread, t, hue) {
+  if (L1 < 0.01) return;
+
+  // SHOT 03 (00:32 BUG EYE MACRO - sec_032.jpg & sec_034.jpg):
+  // Head-on 3D Macro of Beetle Head, Left & Right Compound Eyes (Ommatidia Hex Lattice),
+  // Sensory Brow Bristles (Setae), Antenna Sockets & Flexing Wet Mandibles/Labrum!
+  if (state.activeShot === 'bugeye' || state.cam3D.dist < 225) {
+    const headR = 32 * L1;
+    // 1. 3D Sculpted Chitin Head Capsule (Frons, Vertex & Clypeus)
+    const uH = 10, vH = 10;
+    for (let iu = 0; iu < Math.ceil(L1 * uH); iu++) {
+      const u0 = iu / uH, u1 = (iu + 1) / uH;
+      const y0 = -24 + u0 * 44, y1 = -24 + u1 * 44;
+      const w0 = Math.sin(u0 * Math.PI * 0.85 + 0.2) * headR;
+      const w1 = Math.sin(u1 * Math.PI * 0.85 + 0.2) * headR;
+      for (let iv = 0; iv < vH; iv++) {
+        const a0 = (iv / vH) * Math.PI - Math.PI * 0.5;
+        const a1 = ((iv + 1) / vH) * Math.PI - Math.PI * 0.5;
+        const p00 = [Math.sin(a0) * w0, y0, Math.cos(a0) * w0 * 0.75];
+        const p10 = [Math.sin(a1) * w0, y0, Math.cos(a1) * w0 * 0.75];
+        const p11 = [Math.sin(a1) * w1, y1, Math.cos(a1) * w1 * 0.75];
+        const p01 = [Math.sin(a0) * w1, y1, Math.cos(a0) * w1 * 0.75];
+        addQuad3D(sc, p00, p10, p11, p01, hue - 12, 58, 22, 0.4 + L4 * 0.55);
+      }
+    }
+
+    // 2. Left & Right 3D Kidney-Shaped Compound Eyes with Ommatidia Micro-Lens Lattice!
+    // In sec_032.jpg -> sec_034.jpg, she focuses/crystallizes the hexagonal ommatidia facets on the right eye first, then both!
+    const ommatidiaRows = Math.max(4, Math.round(4 + L2 * 10));
+    const ommatidiaCols = Math.max(4, Math.round(4 + L2 * 8));
+
+    for (let side of [-1, 1]) {
+      const eyeCenter = [side * (24 + spread * 14), -4, 16];
+      // Right eye (side === 1) crystallizes earlier (with L2), left eye crystallizes as L3 completes (matching sec_032 -> sec_034!)
+      const facetSharpness = side === 1
+        ? Math.min(1, L2 * 1.35)
+        : Math.max(0, Math.min(1, (L2 * 0.5 + L3 * 0.8) - 0.25));
+
+      for (let r = 0; r < ommatidiaRows; r++) {
+        const u0 = r / ommatidiaRows, u1 = (r + 1) / ommatidiaRows;
+        const theta0 = (u0 - 0.5) * Math.PI * 0.85;
+        const theta1 = (u1 - 0.5) * Math.PI * 0.85;
+        for (let c = 0; c < ommatidiaCols; c++) {
+          const v0 = c / ommatidiaCols, v1 = (c + 1) / ommatidiaCols;
+          const phi0 = (v0 - 0.35) * Math.PI * 0.78;
+          const phi1 = (v1 - 0.35) * Math.PI * 0.78;
+
+          const rx = 13.5, ry = 17.5, rz = 12.5;
+          // Facet relief pop-out when ommatidia crystallize
+          const bulge = 1 + facetSharpness * 0.08 * ((r + c) % 2);
+          const ep = (th, ph) => [
+            eyeCenter[0] + side * Math.cos(th) * Math.cos(ph) * rx * bulge,
+            eyeCenter[1] + Math.sin(th) * ry * bulge,
+            eyeCenter[2] + Math.cos(th) * Math.sin(ph) * rz * bulge
+          ];
+          const p00 = ep(theta0, phi0), p10 = ep(theta0, phi1), p11 = ep(theta1, phi1), p01 = ep(theta1, phi0);
+          const facetLum = 26 + facetSharpness * 26 + ((r + c) % 2) * (facetSharpness * 14);
+          addQuad3D(sc, p00, p10, p11, p01, hue - 8, 45 + facetSharpness * 35, facetLum, 0.55 + L4 * 0.42, facetSharpness * 0.25);
+        }
+      }
+
+      // Sensory Bristles (Setae) around the compound eye socket & brow (sprouting with L3 as in sec_034.jpg)
+      if (L3 > 0.15) {
+        const numSetae = Math.ceil(L3 * 14);
+        for (let h = 0; h < numSetae; h++) {
+          const ha = (h / 14) * Math.PI * 1.4 - Math.PI * 0.7;
+          const root = [eyeCenter[0] + side * Math.cos(ha) * 14, eyeCenter[1] + Math.sin(ha) * 18, eyeCenter[2] - 2];
+          const tip = [
+            root[0] + side * Math.cos(ha) * (7 * L3),
+            root[1] + Math.sin(ha) * (6 * L3),
+            root[2] + 4 * L3
+          ];
+          sc.lines.push({ a: root, b: tip, color: `hsla(${hue + 25}, 60%, 68%, ${0.65 * L3})`, width: 0.9 });
+        }
+      }
+    }
+
+    // 3. Wet Articulated Labrum, Mandibles & Maxillary Palps at bottom of head (sec_032 - sec_035)
+    const jawFlex = Math.sin(t * 3.8) * (2.5 + L5 * 4.5);
+    add3DBox(sc, 0, 22, 18, 22 * L1, 12 * L1, 14 * L1, 28, 55, 24, 0.5 + L4 * 0.45);
+    for (let side of [-1, 1]) {
+      const mChain = [
+        [side * (11 + jawFlex * 0.4), 20, 18],
+        [side * (14 + jawFlex), 30, 22],
+        [side * (5 + jawFlex * 0.5), 35, 25]
+      ];
+      add3DTubeChain(sc, mChain, [4.2, 3.0, 1.2], 5, 25, 65, 28, 0.65 + L4 * 0.3);
+      // Fine maxillary palp feelers
+      if (L3 > 0.2) {
+        const pChain = [
+          [side * 8, 28, 22],
+          [side * (12 + jawFlex * 0.8), 34, 26],
+          [side * (7 + jawFlex * 0.4), 38, 28]
+        ];
+        add3DTubeChain(sc, pChain, [1.5, 1.1, 0.6], 4, 32, 70, 38, 0.75);
+      }
+    }
+
+    // 4. Sweeping Segmented Antennae Sockets & Forelegs framing the head (sec_032.jpg)
+    for (let side of [-1, 1]) {
+      const antRoot = [side * 12, -18, 18];
+      const antMid = [side * 38, -36, 12];
+      const antTip = [side * 72, -52 + Math.sin(t * 3 + side) * 6 * L5, 4];
+      add3DTubeChain(sc, [antRoot, antMid, antTip], [4.8, 3.6, 2.4], 6, hue - 5, 65, 28, 0.7 + L4 * 0.28);
+
+      const legShoulder = [side * 26, 10, -8];
+      const legKnee = [side * 64, 2, 8];
+      const legTibia = [side * 82, 42, 16];
+      add3DTubeChain(sc, [legShoulder, legKnee, legTibia], [5.5, 4.5, 3.2], 6, hue - 10, 70, 20, 0.75 + L4 * 0.22);
+    }
+
+    // Attach Diegetic Radial C-Arc Menu Overlay onto the Right Compound Eye (or selected part)
+    const eyeTargets = [
+      [28 + spread * 14, -4, 18],
+      [-28 - spread * 14, -4, 18],
+      [0, 28, 24]
+    ];
+    const tgt = eyeTargets[state.selectedNodeIdx % eyeTargets.length];
+    sc.overlays.push({
+      p3d: [tgt[0] + (tgt[0] >= 0 ? 22 : -22), tgt[1] - 6, tgt[2]],
+      type: 'main',
+      radius: 44,
+      flipLeft: tgt[0] < 0,
+      showTelemetry: true
+    });
+    return;
+  }
+
+  // FULL 3D FOREST / WET LEAF / SCARAB BEETLE SCENES (Shots 01, 02, 04)
+  const uSteps = Math.max(4, Math.round(5 + L2 * 10));
+  const vSteps = Math.max(4, Math.round(4 + L2 * 8));
+  const explodeY = spread * 26;
+
+  // Shot 02 (00:25 WET LEAF): 3D Serrated Green Leaf with Refractive Water Droplets!
+  if (state.activeShot === 'leaf') {
+    const leafW = 95 * L1, leafL = 155 * L1;
+    for (let iu = 0; iu < 8; iu++) {
+      const u0 = (iu / 8) - 0.5, u1 = ((iu + 1) / 8) - 0.5;
+      const z0 = u0 * leafL, z1 = u1 * leafL;
+      const w0 = Math.cos(u0 * Math.PI * 0.9) * leafW;
+      const w1 = Math.cos(u1 * Math.PI * 0.9) * leafW;
+      const droop0 = u0 * u0 * 28 + 24 + explodeY * 0.5;
+      const droop1 = u1 * u1 * 28 + 24 + explodeY * 0.5;
+      for (let side of [-1, 1]) {
+        addQuad3D(
+          sc,
+          [0, droop0, z0],
+          [side * w0, droop0 + 6, z0],
+          [side * w1, droop1 + 6, z1],
+          [0, droop1, z1],
+          98, 62, 34, 0.35 + L4 * 0.45
+        );
+      }
+    }
+    // Glistening 3D Water Droplets on the leaf surface (sec_025 - sec_029)
+    if (L2 > 0.15) {
+      const drops = [
+        [-28, 26, -35, 4.5], [34, 28, -18, 5.2], [-42, 29, 12, 3.8],
+        [26, 27, 32, 4.8], [-18, 26, 48, 3.5], [44, 30, 8, 4.0], [-32, 28, -8, 5.0]
+      ];
+      drops.slice(0, Math.ceil(L2 * drops.length)).forEach(d => {
+        sc.points.push({
+          p: [d[0], d[1] + explodeY * 0.45, d[2]],
+          radius: d[3],
+          color: 'rgba(215, 250, 235, 0.85)',
+          glow: true
+        });
+      });
+    }
+  } else if (L2 > 0.05) {
+    // 3D Forest Branch & Canopy Boughs (Shots 01 & 04)
+    const branchJoints = [];
+    const branchRadii = [];
+    for (let i = 0; i <= 8; i++) {
+      const u = (i / 8) - 0.5;
+      branchJoints.push([u * 210, 36 + Math.sin(u * 4) * 8 + explodeY * 0.6, u * 45]);
+      branchRadii.push(9 - u * 3);
+    }
+    add3DTubeChain(sc, branchJoints, branchRadii, 6, (hue - 35 + 360) % 360, 48, 32, 0.28 + L4 * 0.38);
+  }
+
+  // Internal 3D Micro-CT Rib Cage (L1)
+  const ribCount = Math.ceil(L1 * 11);
+  for (let r = 0; r < ribCount; r++) {
+    const u = r / 10;
+    const z = -48 + u * 80;
+    const profile = Math.sin(u * Math.PI);
+    const rx = (8 + profile * 26) * L1;
+    const ry = (5 + profile * 15) * L1;
+    for (let s = 0; s < 10; s++) {
+      const a0 = (s / 10) * Math.PI * 2, a1 = ((s + 1) / 10) * Math.PI * 2;
+      sc.lines.push({
+        a: [Math.cos(a0) * rx, 8 - Math.sin(a0) * ry, z],
+        b: [Math.cos(a1) * rx, 8 - Math.sin(a1) * ry, z],
+        color: `hsla(${hue + 38}, 100%, 78%, ${0.5 - L4 * 0.25})`,
+        width: 0.95
+      });
+    }
+  }
+
+  // 3D Pronotum Thorax & Left/Right Curved Elytra Shells
+  const wingOpenPitch = L5 * 0.45 + spread * 0.35;
+  const wingOpenYaw = L5 * 0.35 + spread * 0.25;
+  const halfV = Math.max(3, Math.floor(vSteps / 2));
+
+  for (let side of [-1, 1]) {
+    const pivot = [side * 4, -8 - explodeY * 0.5, 14];
+    const xfE = (pt) => {
+      let rel = vec3Sub(pt, pivot);
+      rel = rotX3D(rel, wingOpenPitch);
+      rel = rotY3D(rel, -side * wingOpenYaw);
+      return add3D(rel, pivot);
+    };
+    for (let iu = 0; iu < Math.ceil(L1 * (uSteps - 1)); iu++) {
+      const u0 = iu / (uSteps - 1), u1 = (iu + 1) / (uSteps - 1);
+      const z0 = 14 - u0 * 66, z1 = 14 - u1 * 66;
+      const arch0 = Math.sin(u0 * Math.PI * 0.92 + 0.15), arch1 = Math.sin(u1 * Math.PI * 0.92 + 0.15);
+      for (let iv = 0; iv < halfV; iv++) {
+        const v0 = (iv / halfV) * (Math.PI * 0.5), v1 = ((iv + 1) / halfV) * (Math.PI * 0.5);
+        const p00 = xfE([side * Math.sin(v0) * arch0 * 30, 8 - Math.cos(v0) * arch0 * 20, z0]);
+        const p10 = xfE([side * Math.sin(v1) * arch0 * 30, 8 - Math.cos(v1) * arch0 * 20, z0]);
+        const p11 = xfE([side * Math.sin(v1) * arch1 * 30, 8 - Math.cos(v1) * arch1 * 20, z1]);
+        const p01 = xfE([side * Math.sin(v0) * arch1 * 30, 8 - Math.cos(v0) * arch1 * 20, z1]);
+        addQuad3D(sc, p00, p10, p11, p01, (hue + iv * 8) % 360, 92, 46, 0.2 + L4 * 0.74);
+      }
+    }
+  }
+
+  // 6 3D IK Legs & Antennae
+  if (L3 > 0.05) {
+    const vernierPhase = (state.rings[2].angle / 180) * Math.PI;
+    const walkAmp = L5 * 8;
+    const legZ = [20, 0, -22];
+    for (let side of [-1, 1]) {
+      for (let l = 0; l < 3; l++) {
+        const stride = Math.sin(t * 3.4 + vernierPhase + l * 1.5 + (side > 0 ? 0 : Math.PI)) * walkAmp;
+        const zBase = legZ[l];
+        const pts = [
+          [side * 15, 12, zBase],
+          [side * 36 * L3, 2, zBase + stride * 0.5],
+          [side * 52 * L3, 22, zBase + stride],
+          [side * 64 * L3, 32, zBase + stride * 1.2 - 5]
+        ];
+        add3DTubeChain(sc, pts, [3.0, 2.3, 1.7, 1.0], 5, hue + 20, 90, 56, 0.4 + L4 * 0.55);
+      }
+    }
+  }
+
+  sc.overlays.push({
+    p3d: [48, -12, 0],
+    type: 'main',
+    radius: 38,
+    flipLeft: false,
+    showTelemetry: true
+  });
+}
+
+// ============================================================================
+// ACT II: BIRTHDAY PARTY — CAKE MORPH, RED ICING [生日快樂], HEX TABLE & CUTOUTS
+// Exact fidelity to Screenshots 2, 3, 4, 5 and sec_138 - sec_203
+// ============================================================================
+function build3DBirthdayScene(sc, L1, L2, L3, L4, L5, spread, t, hue) {
+  if (L1 < 0.01) return;
+
+  // 1. Far-Left Horizon Silhouette of the 4-Legged Rectangular Prop Table (Screenshot 2 / sec_138)
+  if (state.activeShot === 'cakespawn' || state.activeShot === 'bundtmorph') {
+    const tx = -145, ty = -12, tz = -155;
+    add3DBox(sc, tx, ty, tz, 54, 3, 28, 200, 15, 12, 0.75);
+    [[-22, -10], [22, -10], [-22, 10], [22, 10]].forEach(([dx, dz]) => {
+      sc.lines.push({ a: [tx + dx, ty, tz + dz], b: [tx + dx, ty + 28, tz + dz], color: 'rgba(15, 22, 28, 0.85)', width: 2.2 });
+    });
+  }
+
+  // 2. Warm Golden-Lit 3D HEXAGONAL Tabletop (Exact 6-sided polygon from Screenshot 5 / sec_153-186!)
+  const showHexTable = (state.activeShot === 'cutouts' || state.activeShot === 'blowcandles' || state.activeShot === 'miniature' || L2 > 0.45);
+  const tableY = 22 + spread * 10;
+  if (showHexTable) {
+    const hexR = 96 + spread * 16;
+    const hexVerts = [];
+    for (let h = 0; h < 6; h++) {
+      const a = (h / 6) * Math.PI * 2 + Math.PI / 6;
+      hexVerts.push([Math.cos(a) * hexR, tableY, Math.sin(a) * hexR]);
+    }
+    for (let h = 0; h < 6; h++) {
+      const nh = (h + 1) % 6;
+      // Warm candle-lit golden tabletop sectors (matching Screenshot 5)
+      addTri3D(sc, [0, tableY, 0], hexVerts[h], hexVerts[nh], 39, 88, 56, 0.45 + L4 * 0.48, 0.25);
+      // Table bevel edge
+      const b0 = [hexVerts[h][0], tableY + 5, hexVerts[h][2]];
+      const b1 = [hexVerts[nh][0], tableY + 5, hexVerts[nh][2]];
+      addQuad3D(sc, hexVerts[h], hexVerts[nh], b1, b0, 32, 75, 26, 0.7);
+    }
+  }
+
+  // 3. 3D Morphing Birthday Cake (Morphs between Tall Scalloped Bundt Dome in Screenshot 3 & Broad Frosted Cylinder in Screenshot 4!)
+  // Ring 02 in bundtmorph shot or state.bundtMorph controls the bundt-to-cylinder shape morph
+  const bundt = state.activeShot === 'bundtmorph'
+    ? Math.max(0.25, Math.sin((state.rings[1].angle / 180) * Math.PI))
+    : state.bundtMorph;
+
+  const cakeSegs = Math.max(10, Math.round(10 + L2 * 10));
+  const baseR = (38 * (1 - bundt * 0.22)) * L1;
+  const topR = (36 * (1 - bundt * 0.48)) * L1;
+  const cakeH = (24 + bundt * 18) * L1;
+  const cakeBaseY = tableY - 1;
+  const cakeTopY = cakeBaseY - cakeH;
+
+  // Cake tilt when floating in mid-air during shaping (Screenshots 2, 3, 4)
+  const cakeTiltZ = (!showHexTable) ? 0.18 : 0;
+  const cakeTiltX = (state.activeShot === 'bundtmorph') ? -0.28 : 0;
+  const xfCake = (pt) => {
+    let q = vec3Sub(pt, [0, cakeBaseY - cakeH * 0.5, 0]);
+    if (cakeTiltZ) q = rotZ3D(q, cakeTiltZ);
+    if (cakeTiltX) q = rotX3D(q, cakeTiltX);
+    return add3D(q, [0, cakeBaseY - cakeH * 0.5, 0]);
+  };
+
+  for (let i = 0; i < cakeSegs; i++) {
+    const a0 = (i / cakeSegs) * Math.PI * 2;
+    const a1 = ((i + 1) / cakeSegs) * Math.PI * 2;
+    // Fluted scallop ribbing when morphed toward the bundt pudding dome (Screenshot 3)
+    const flute0 = 1 + bundt * 0.08 * Math.sin(a0 * 8);
+    const flute1 = 1 + bundt * 0.08 * Math.sin(a1 * 8);
+
+    const b0 = xfCake([Math.cos(a0) * baseR * flute0, cakeBaseY, Math.sin(a0) * baseR * flute0]);
+    const b1 = xfCake([Math.cos(a1) * baseR * flute1, cakeBaseY, Math.sin(a1) * baseR * flute1]);
+    const t1 = xfCake([Math.cos(a1) * topR * flute1, cakeTopY, Math.sin(a1) * topR * flute1]);
+    const t0 = xfCake([Math.cos(a0) * topR * flute0, cakeTopY, Math.sin(a0) * topR * flute0]);
+
+    addQuad3D(sc, b0, b1, t1, t0, 40, 82, 48, 0.45 + L4 * 0.52);
+    addTri3D(sc, xfCake([0, cakeTopY - bundt * 6, 0]), t0, t1, 45, 92, 68, 0.5 + L4 * 0.48, 0.18);
+
+    // Colorful Smarties / chocolate candy studs on the sides & top of the cake (Screenshots 2, 3, 4)
+    if (i % 2 === 0 && L3 > 0.15) {
+      const candyColors = ['#d83838', '#3888e0', '#48b858', '#583018', '#e89028'];
+      const midA = (a0 + a1) * 0.5;
+      const sidePt = xfCake([Math.cos(midA) * (baseR * 0.98), cakeBaseY - cakeH * (0.35 + (i % 3) * 0.22), Math.sin(midA) * (baseR * 0.98)]);
+      sc.points.push({ p: sidePt, radius: 2.2, color: candyColors[i % candyColors.length], glow: false });
+    }
+  }
+
+  // 4. Piped Red Icing Inscription [生日快樂] on top of the yellow frosting (Screenshot 4 / sec_146-148)
+  if (L3 > 0.25 && bundt < 0.5) {
+    const yIcing = cakeTopY - 0.6;
+    const redStrokes = [
+      // '生'
+      [[-14, yIcing, 6], [-8, yIcing, 6]], [[-11, yIcing, 3], [-11, yIcing, 12]], [[-14, yIcing, 9], [-8, yIcing, 9]], [[-15, yIcing, 12], [-7, yIcing, 12]],
+      // '日'
+      [[-4, yIcing, 4], [1, yIcing, 4], [1, yIcing, 12], [-4, yIcing, 12], [-4, yIcing, 4]], [[-4, yIcing, 8], [1, yIcing, 8]],
+      // '快'
+      [[5, yIcing, 4], [5, yIcing, 12]], [[7, yIcing, 6], [13, yIcing, 6], [13, yIcing, 9], [7, yIcing, 9]], [[10, yIcing, 4], [9, yIcing, 12]],
+      // '樂'
+      [[16, yIcing, 5], [21, yIcing, 5], [21, yIcing, 9], [16, yIcing, 9]], [[18.5, yIcing, 4], [18.5, yIcing, 12]]
+    ];
+    const numStrokes = Math.ceil(L3 * redStrokes.length);
+    for (let s = 0; s < numStrokes; s++) {
+      const poly = redStrokes[s];
+      for (let p = 0; p < poly.length - 1; p++) {
+        sc.lines.push({
+          a: xfCake(poly[p]),
+          b: xfCake(poly[p + 1]),
+          color: 'rgba(215, 38, 28, 0.92)',
+          width: 2.1
+        });
+      }
+    }
+  }
+
+  // 5. Lit Birthday Candles (2 candles in Bundt Morph Screenshot 3; 7 striped candles in Screenshot 4 & 5!)
+  if (L3 > 0.05) {
+    const targetCandles = bundt > 0.6 ? 2 : 7;
+    const numCandles = Math.min(targetCandles, Math.ceil(L3 * 7));
+    const candlePositions = bundt > 0.6
+      ? [[-7, -2], [6, 2]]
+      : [[-20, -4], [-13, 3], [-9, -12], [-2, -6], [6, -11], [13, -3], [21, 2]];
+    const candleHues = [0, 48, 210, 45, 355, 48, 42]; // Red-striped, yellow, blue-striped candles (Screenshot 4)
+
+    // Breath wind when blowing out candles in Shot 09 (02:56 blowcandles or high L5)
+    const blowWind = (state.activeShot === 'blowcandles') ? (0.8 + Math.sin(t * 5) * 0.35) : Math.max(0, (L5 - 0.78) * 2.5);
+
+    for (let c = 0; c < numCandles; c++) {
+      const [cx, cz] = candlePositions[c];
+      const cHeight = (15 + (c % 2) * 2.5) * L3;
+      const pBot = xfCake([cx, cakeTopY, cz]);
+      const pTop = xfCake([cx, cakeTopY - cHeight, cz]);
+      add3DTubeChain(sc, [pBot, pTop], [1.4, 1.25], 5, candleHues[c], 85, 78, 0.92);
+
+      if (L5 > 0.04) {
+        const flickerX = Math.sin(t * 8 + c * 1.9) * (1.8 + L5 * 2.5) - blowWind * 5.5;
+        const flickerZ = Math.cos(t * 7 + c * 2.3) * (1.8 + L5 * 2.5) + blowWind * 6.5;
+        const flameTip = add3D(pTop, [flickerX, -(6 + Math.cos(t * 10 + c) * 2) * L5 + blowWind * 2.2, flickerZ]);
+        sc.lines.push({ a: pTop, b: flameTip, color: 'rgba(255, 245, 190, 0.95)', width: 2.2 });
+        sc.points.push({
+          p: flameTip,
+          radius: (5.2 + L5 * 4.5),
+          color: `rgba(255, 195, 75, ${0.9 * L5})`,
+          glow: true
+        });
+      }
+    }
+  }
+
+  // Attach Primary Radial C-Arc Menu Overlay beside the floating cake (Screenshots 2, 3, 4)
+  if (!showHexTable || state.selectedNodeIdx === 0) {
+    sc.overlays.push({
+      p3d: xfCake([baseR + 28, cakeTopY - 6, 0]),
+      type: 'main',
+      radius: 42,
+      flipLeft: false,
+      showTelemetry: state.activeShot === 'redicing' || state.selectedNodeIdx === 0
+    });
+  }
+
+  // 6. Volumetric Children Cutouts / Readymades + Per-Child Head-Tracked Radial Node Overlays (Screenshot 5 & sec_153-186)
+  if (showHexTable && L2 > 0.15) {
+    // Up to 6 children around the hexagonal table:
+    // 0: Dark-haired girl on left leaning chin on hands (Screenshot 5 left)
+    // 1: Blonde birthday girl in white cardigan on right (Screenshot 5 right, blows candles in sec_178)
+    // 2: Small toddler peeking in center (sec_155)
+    // 3: Girl in yellow dress far-left (sec_182)
+    // 4: Asian girl on right (sec_173 / sec_182)
+    // 5: Young boy on far-right foreground looking at candle (sec_174 / sec_182)
+    const cutouts = [
+      { x: -46, z: -48, h: 52, w: 26, hairHue: 22, hairLum: 18, shirtHue: 35, shirtLum: 38, pose: 'lean_hands', hasOverlay: true },
+      { x:  24, z: -52, h: 58, w: 28, hairHue: 44, hairLum: 68, shirtHue: 42, shirtLum: 82, pose: 'birthday_girl', hasOverlay: true },
+      { x: -10, z: -56, h: 38, w: 20, hairHue: 38, hairLum: 52, shirtHue: 36, shirtLum: 48, pose: 'toddler', hasOverlay: false },
+      { x: -78, z: -18, h: 50, w: 24, hairHue: 20, hairLum: 14, shirtHue: 42, shirtLum: 62, pose: 'side_left', hasOverlay: false },
+      { x:  62, z: -26, h: 52, w: 25, hairHue: 18, hairLum: 12, shirtHue: 215, shirtLum: 28, pose: 'side_right', hasOverlay: false },
+      { x:  74, z:  24, h: 46, w: 24, hairHue: 24, hairLum: 16, shirtHue: 38, shirtLum: 65, pose: 'boy_fg', hasOverlay: false }
+    ];
+
+    const maxVisibleCutouts = state.activeShot === 'cutouts'
+      ? Math.max(2, Math.min(3, Math.ceil((state.rings[1].angle / 180) * 3)))
+      : Math.min(6, Math.ceil(L2 * 6));
+
+    for (let k = 0; k < maxVisibleCutouts; k++) {
+      const c = cutouts[k];
+      const sway = Math.sin(t * 2.2 + k * 1.4) * (L5 * 2.5);
+      const cx = c.x + sway;
+      const cz = c.z - spread * 18;
+      const shoulderY = tableY - c.h * 0.52;
+      const headY = tableY - c.h * 0.84;
+
+      // Volumetric Cutout Torso / Cardigan Silhouette
+      add3DTubeChain(
+        sc,
+        [[cx, tableY + 4, cz], [cx, shoulderY, cz]],
+        [c.w * 0.48, c.w * 0.42],
+        6, c.shirtHue, 45, c.shirtLum, 0.42 + L4 * 0.48
+      );
+
+      // Volumetric Cutout Head & Warm Candle-Lit Face
+      const headR = c.w * 0.36;
+      add3DBox(sc, cx, headY, cz, headR * 1.7, headR * 2.0, headR * 1.6, 34, 68, 58, 0.5 + L4 * 0.45, 0.15);
+      // Hair framing crown
+      add3DBox(sc, cx, headY - headR * 0.45, cz - 2, headR * 1.85, headR * 1.4, headR * 1.7, c.hairHue, 55, c.hairLum, 0.55 + L4 * 0.4);
+
+      // Arms leaning on the hexagonal tabletop (Screenshot 5)
+      for (let side of [-1, 1]) {
+        const sh = [cx + side * c.w * 0.42, shoulderY + 2, cz];
+        const elbow = [cx + side * c.w * 0.32, tableY - 2, cz + 12];
+        const hand = c.pose === 'lean_hands'
+          ? [cx + side * 4, headY + headR * 0.9, cz + 10]
+          : [cx + side * 8, tableY - 1, cz + 18];
+        add3DTubeChain(sc, [sh, elbow, hand], [3.2, 2.6, 2.0], 4, c.shirtHue, 40, c.shirtLum * 0.9, 0.45 + L4 * 0.45);
+      }
+
+      // Facial Expression & Pursed "O" Mouth when blowing out candles (sec_178)
+      const fZ = cz + headR * 0.85;
+      if (c.pose === 'birthday_girl' && (state.activeShot === 'blowcandles' || L5 > 0.72)) {
+        // Pursed "O" lips blowing air stream toward the candles
+        sc.points.push({ p: [cx, headY + 3.5, fZ], radius: 2.2, color: 'rgba(65, 25, 20, 0.95)', glow: false });
+      }
+
+      // Attach Head-Tracked Diegetic Radial C-Arc Node Overlay (Exact match to Screenshot 5!)
+      const isNodeSelected = (state.selectedNodeIdx - 1) === k;
+      if (c.hasOverlay || isNodeSelected) {
+        const dir = cx <= 0 ? -1 : 1;
+        sc.overlays.push({
+          p3d: [cx + dir * 28, headY - 16, cz],
+          head3d: [cx + dir * 10, headY - 4, cz],
+          type: 'node',
+          isSelected: isNodeSelected,
+          phase: (state.rings[2].angle / 180) * Math.PI + k
+        });
+      }
+    }
+  }
+}
+
+// ============================================================================
+// ACT III: 3D ORPHANAGE BOILER & CSG CARVED WOODEN HORSE [6·10·21]
+// ============================================================================
+function build3DHorseScene(sc, L1, L2, L3, L4, L5, spread, t, hue) {
+  if (L1 < 0.01) return;
+  const carve = L2;
+  const sides = Math.max(4, Math.round(4 + L2 * 6));
+  const lerpPt = (a, b, m) => [
+    (a[0] * (1 - m) + b[0] * m) * L1,
+    (a[1] * (1 - m) + b[1] * m) * L1,
+    (a[2] * (1 - m) + b[2] * m) * L1
+  ];
+
+  const furnaceZ = -78 - spread * 38;
+  add3DBox(sc, 0, -6, furnaceZ - 14, 145 * L1, 95 * L1, 22 * L1, 18, 75, 26, 0.16 + L4 * 0.35);
+  const numBars = Math.ceil(L1 * 7);
+  for (let b = 0; b < numBars; b++) {
+    const bx = (b - 3) * 18 * L1;
+    add3DTubeChain(sc, [[bx, -52 * L1, furnaceZ], [bx, 40 * L1, furnaceZ]], [2.2, 2.2], 4, 22, 85, 42, 0.45 + L4 * 0.45);
+  }
+  if (L4 > 0.05) {
+    for (let f = -2; f <= 2; f++) {
+      sc.points.push({
+        p: [f * 20, 12 + Math.sin(t * 5 + f) * 8, furnaceZ - 6],
+        radius: 14 * L4,
+        color: `rgba(255, 110, 30, ${0.45 * L4})`,
+        glow: true
+      });
+    }
+  }
+
+  if (carve < 0.92) {
+    const cageAlpha = (1 - carve * 0.85) * 0.55;
+    const bx = 48 * L1, by0 = -48 * L1, by1 = 30 * L1, bz = 20 * L1;
+    const corners = [
+      [-bx, by0, -bz], [bx, by0, -bz], [bx, by1, -bz], [-bx, by1, -bz],
+      [-bx, by0,  bz], [bx, by0,  bz], [bx, by1,  bz], [-bx, by1,  bz]
+    ];
+    [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]].forEach(([i, j]) => {
+      sc.lines.push({ a: corners[i], b: corners[j], color: `rgba(245, 175, 85, ${cageAlpha})`, width: 1.0 });
+    });
+  }
+
+  const sepY = spread * 16;
+  const spineBlock = [[-38, -12, 0], [-12, -12, 0], [16, -12, 0], [28, -28, 0], [36, -42, 0], [48, -38, 0]];
+  const spineCarved = [
+    [-34, -4 - sepY * 0.3, 0], [-8, -8 - sepY * 0.3, 0], [18, -10 - sepY * 0.3, 0],
+    [28, -30 - sepY * 0.6, 0], [35, -46 - sepY * 0.8, 0], [52, -36 - sepY * 0.8, 0]
+  ];
+  const radiiBlock = [20, 20, 20, 18, 16, 14];
+  const radiiCarved = [13, 14.5, 15, 10.5, 8.5, 5.5];
+
+  const horseSpine = spineCarved.map((pt, i) => lerpPt(spineBlock[i], pt, carve));
+  const horseRadii = radiiCarved.map((r, i) => (radiiBlock[i] * (1 - carve) + r * carve) * L1);
+  add3DTubeChain(sc, horseSpine, horseRadii, sides, hue + 6, 76, 42, 0.25 + L4 * 0.68);
+
+  const legDefs = [
+    { raw: [[-30, -2, -10], [-30, 14, -10], [-30, 28, -10]], carved: [[-28, -2, -9], [-32, 14, -10], [-36, 28, -10]] },
+    { raw: [[-30, -2,  10], [-30, 14,  10], [-30, 28,  10]], carved: [[-26, -2,  9], [-24, 14,  10], [-22, 28,  10]] },
+    { raw: [[ 16, -2, -10], [ 16, 14, -10], [ 16, 28, -10]], carved: [[ 16, -4, -9], [ 18, 13, -10], [ 15, 28, -10]] },
+    { raw: [[ 16, -2,  10], [ 16, 14,  10], [ 16, 28,  10]], carved: [[ 18, -4,  9], [ 24, 12,  10], [ 26, 28,  10]] }
+  ];
+  legDefs.forEach(ld => {
+    const chain = ld.carved.map((pt, idx) => lerpPt(ld.raw[idx], pt, carve));
+    add3DTubeChain(sc, chain, [6.5 * L1, 4.2 * L1, 3.0 * L1], Math.max(4, sides - 2), hue + 4, 72, 38, 0.25 + L4 * 0.68);
+  });
+
+  if (L3 > 0.03) {
+    const baseY = 35 + sepY * 0.7;
+    add3DBox(sc, -4, baseY, 0, 96 * L3, 14 * L3, 32 * L3, hue - 4, 65, 24, 0.35 + L4 * 0.6);
+    const zFace = 16.5 * L3 + 0.5;
+    const yMid = baseY;
+    const glyphs = [
+      [[-32, yMid - 4], [-37, yMid - 4], [-37, yMid + 4], [-32, yMid + 4], [-32, yMid], [-37, yMid]],
+      [[-24, yMid], [-23, yMid]],
+      [[-14, yMid - 4], [-14, yMid + 4]],
+      [[-9, yMid - 4], [-4, yMid - 4], [-4, yMid + 4], [-9, yMid + 4], [-9, yMid - 4]],
+      [[4, yMid], [5, yMid]],
+      [[13, yMid - 4], [18, yMid - 4], [18, yMid], [13, yMid], [13, yMid + 4], [18, yMid + 4]],
+      [[24, yMid - 4], [24, yMid + 4]]
+    ];
+    const visGlyphs = Math.ceil(L3 * glyphs.length);
+    for (let g = 0; g < visGlyphs; g++) {
+      const pts = glyphs[g];
+      for (let p = 0; p < pts.length - 1; p++) {
+        sc.lines.push({
+          a: [pts[p][0], pts[p][1], zFace],
+          b: [pts[p + 1][0], pts[p + 1][1], zFace],
+          color: '#ffd28a',
+          width: 2.0
+        });
+      }
+    }
+  }
+
+  sc.overlays.push({
+    p3d: [58, -14, 10],
+    type: 'main',
+    radius: 40,
+    flipLeft: false,
+    showTelemetry: true
+  });
+}
+
+// ============================================================================
+// ACT IV: 3D STELLINE GEODESIC BIODOME & VOLUMETRIC HEXAGONAL CRYSTALS
+// ============================================================================
+function build3DSnowScene(sc, L1, L2, L3, L4, L5, spread, t, hue) {
+  if (L1 < 0.01) return;
+  const maxCrystals = L2 > 0.05 ? 1 + Math.ceil(L2 * 6) : 1;
+  const crystalSeeds = [
+    { pos: [0, 0, 0], scale: 1.15, rot: [0.3, 0.2, 0] },
+    { pos: [-78, -22, -45], scale: 0.65, rot: [0.8, -0.4, 0.2] },
+    { pos: [82, -16, -38], scale: 0.68, rot: [-0.5, 0.7, -0.3] },
+    { pos: [-64, 34, 48], scale: 0.58, rot: [0.4, 0.9, 0.5] },
+    { pos: [72, 28, 52], scale: 0.62, rot: [-0.7, -0.5, 0.4] },
+    { pos: [0, -52, -62], scale: 0.52, rot: [1.1, 0.2, -0.4] },
+    { pos: [0, 48, 64], scale: 0.54, rot: [-0.9, 0.4, 0.2] }
+  ].slice(0, maxCrystals);
+
+  crystalSeeds.forEach((cs, idx) => {
+    const sp = idx === 0 ? 0 : (0.4 + spread * 0.9) * L2;
+    const cx = cs.pos[0] * sp;
+    const cy = cs.pos[1] * sp + Math.sin(t * 1.4 + idx) * (L5 * 12);
+    const cz = cs.pos[2] * sp;
+    const rad = 52 * cs.scale * L1;
+    const rx = cs.rot[0] + t * 0.35 * L5 * (idx % 2 === 0 ? 1 : -1);
+    const ry = cs.rot[1] + t * 0.45 * L5;
+    const rz = cs.rot[2] + t * 0.25 * L5;
+
+    const xf = (p) => {
+      let q = rotX3D(p, rx);
+      q = rotY3D(q, ry);
+      q = rotZ3D(q, rz);
+      return [q[0] + cx, q[1] + cy, q[2] + cz];
+    };
+
+    const coreR = rad * 0.34;
+    const apexF = xf([0, 0, 8 * cs.scale]);
+    const apexB = xf([0, 0, -8 * cs.scale]);
+    const hexPts = [];
+    for (let a = 0; a < 6; a++) {
+      const ang = (a / 6) * Math.PI * 2;
+      hexPts.push(xf([Math.cos(ang) * coreR, Math.sin(ang) * coreR, 0]));
+    }
+    for (let a = 0; a < 6; a++) {
+      const na = (a + 1) % 6;
+      addTri3D(sc, apexF, hexPts[a], hexPts[na], hue + 8, 88, 72, 0.2 + L4 * 0.55);
+      addTri3D(sc, apexB, hexPts[na], hexPts[a], hue - 8, 88, 62, 0.2 + L4 * 0.55);
+    }
+
+    const numArms = Math.ceil(L1 * 6);
+    for (let a = 0; a < numArms; a++) {
+      const ang = (a / 6) * Math.PI * 2;
+      const ca = Math.cos(ang), sa = Math.sin(ang);
+      const tip = xf([ca * rad, sa * rad, 0]);
+      const leftRim = xf([ca * rad * 0.55 - sa * 4.5, sa * rad * 0.55 + ca * 4.5, 3]);
+      const rightRim = xf([ca * rad * 0.55 + sa * 4.5, sa * rad * 0.55 - ca * 4.5, -3]);
+      addTri3D(sc, hexPts[a], leftRim, tip, hue + 15, 92, 78, 0.28 + L4 * 0.6);
+      addTri3D(sc, hexPts[a], tip, rightRim, hue, 85, 65, 0.28 + L4 * 0.6);
+
+      if (L3 > 0.05) {
+        [0.48, 0.74].forEach((frac, bIdx) => {
+          if (bIdx === 1 && L3 < 0.45) return;
+          const bLen = rad * (bIdx === 0 ? 0.34 : 0.22) * L3;
+          const root = [ca * rad * frac, sa * rad * frac, 0];
+          for (let side of [-1, 1]) {
+            const bAng = ang + side * (Math.PI / 3);
+            const bTip = [root[0] + Math.cos(bAng) * bLen, root[1] + Math.sin(bAng) * bLen, side * 2.5];
+            const bMid = [root[0] + Math.cos(bAng) * bLen * 0.5, root[1] + Math.sin(bAng) * bLen * 0.5, side * 4];
+            addTri3D(sc, xf(root), xf(bMid), xf(bTip), hue + 25, 95, 82, 0.32 + L4 * 0.58);
+          }
+        });
+      }
+    }
+  });
+}
+
+// ============================================================================
+// MAIN 3D PERSPECTIVE PROJECTION & DIEGETIC RADIAL OVERLAY RENDERER
+// ============================================================================
+function renderHologramChamber() {
+  const w = holoCanvas.clientWidth;
+  const h = holoCanvas.clientHeight;
+  const ctx = holoCtx;
+  ctx.clearRect(0, 0, w, h);
+
+  // Authentic Stelline Dome Background + Glowing White Horizon Strip (Screenshots 2, 3, 4, 5)
+  const isForestBg = state.scene === 'beetle' && (state.activeShot === 'bugeye' || state.activeShot === 'leaf');
+  const wallGrad = ctx.createLinearGradient(0, 0, 0, h);
+  if (isForestBg) {
+    wallGrad.addColorStop(0, '#2a3d1c');
+    wallGrad.addColorStop(0.55, '#3b5424');
+    wallGrad.addColorStop(1, '#121d0c');
+  } else {
+    wallGrad.addColorStop(0, '#040608');
+    wallGrad.addColorStop(0.49, '#080c10');
+    wallGrad.addColorStop(0.52, '#d8e4ec'); // Glowing white clean-room horizon strip!
+    wallGrad.addColorStop(0.54, '#0c1015');
+    wallGrad.addColorStop(1, '#040608');
+  }
+  ctx.fillStyle = wallGrad;
+  ctx.fillRect(0, 0, w, h);
+
+  // Diagonal architectural dome ribs above the horizon strip (Screenshots 2 & 3)
+  if (!isForestBg) {
+    ctx.strokeStyle = 'rgba(10, 14, 18, 0.65)';
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(w * 0.38, 0); ctx.lineTo(w * 0.31, h * 0.52);
+    ctx.moveTo(w * 0.88, 0); ctx.lineTo(w * 0.78, h * 0.52);
+    ctx.stroke();
+  }
+
+  if (!state.powerOn) return;
+
+  const { L1, L2, L3, L4, L5 } = getPrimitiveLayers();
+  const colorShift = state.rings[4].angle / 360;
+  const spread = state.accordionSpread;
+  const scrubTime = state.time * 0.85 + (state.rings[2].angle / 360) * Math.PI * 2;
+
+  const camYaw = state.cam3D.yaw + state.tiltX * 0.22;
+  const camPitch = Math.max(-1.1, Math.min(1.1, state.cam3D.pitch + state.tiltY * 0.18 + state.targetOffset.y * 0.6));
+  const fovScale = 440;
+  const camDist = state.cam3D.dist;
+
+  const cx = w * (0.5 + state.targetOffset.x * 0.45);
+  const cy = h * 0.54;
+
+  const baseHue = state.scene === 'beetle' ? 115 : state.scene === 'birthday' ? 38 : state.scene === 'horse' ? 24 : 196;
+  const tunedHue = (baseHue + (colorShift - 0.5) * 42 + 360) % 360;
+
+  // Warm floor reflection under the birthday party / miniature hologram (sec_196 & Screenshot 3)
+  if (state.scene === 'birthday') {
+    const floorGlow = ctx.createRadialGradient(cx, h * 0.82, 10, cx, h * 0.82, w * 0.35);
+    floorGlow.addColorStop(0, `rgba(235, 165, 55, ${0.22 * L4})`);
+    floorGlow.addColorStop(1, 'transparent');
+    ctx.fillStyle = floorGlow;
+    ctx.fillRect(0, h * 0.52, w, h * 0.48);
+  }
+
+  const cyaw = Math.cos(camYaw), syaw = Math.sin(camYaw);
+  const cpitch = Math.cos(camPitch), spitch = Math.sin(camPitch);
+
+  function project3D(p) {
+    const x1 = p[0] * cyaw + p[2] * syaw;
+    const z1 = -p[0] * syaw + p[2] * cyaw;
+    const y2 = p[1] * cpitch - z1 * spitch;
+    const z2 = p[1] * spitch + z1 * cpitch;
+    const depth = camDist + z2;
+    if (depth < 20) return null;
+    const scale = fovScale / depth;
+    return { x: cx + x1 * scale, y: cy + y2 * scale, z: z2, scale };
+  }
+
+  // Build 3D Scene
+  const sc = create3DSceneCollector();
+  if (state.scene === 'beetle') {
+    build3DBeetleScene(sc, L1, L2, L3, L4, L5, spread, scrubTime, tunedHue);
+  } else if (state.scene === 'birthday') {
+    build3DBirthdayScene(sc, L1, L2, L3, L4, L5, spread, scrubTime, tunedHue);
+  } else if (state.scene === 'horse') {
+    build3DHorseScene(sc, L1, L2, L3, L4, L5, spread, scrubTime, tunedHue);
+  } else {
+    build3DSnowScene(sc, L1, L2, L3, L4, L5, spread, scrubTime, tunedHue);
+  }
+
+  // Project & Depth-Sort 3D Faces
+  const lightDir = vec3Normalize([0.35, -0.78, -0.50]);
+  const viewDir = vec3Normalize([-Math.sin(camYaw) * Math.cos(camPitch), -Math.sin(camPitch), -Math.cos(camYaw) * Math.cos(camPitch)]);
+  const rMode = state.cam3D.renderMode;
+
+  const projectedFaces = [];
+  for (let i = 0; i < sc.faces.length; i++) {
+    const f = sc.faces[i];
+    const pts2d = [];
+    let zSum = 0, valid = true;
+    for (let v = 0; v < f.verts.length; v++) {
+      const pr = project3D(f.verts[v]);
+      if (!pr) { valid = false; break; }
+      pts2d.push(pr);
+      zSum += pr.z;
+    }
+    if (!valid) continue;
+    projectedFaces.push({ f, pts2d, zAvg: zSum / f.verts.length });
+  }
+  projectedFaces.sort((a, b) => b.zAvg - a.zAvg);
+
+  const showShaded = rMode === 'hybrid' || rMode === 'shaded';
+  const showWire = rMode === 'hybrid' || rMode === 'wire' || L4 < 0.75;
+  const showNormals = rMode === 'wire';
+  const showVoxels = rMode === 'voxel';
+
+  for (let i = 0; i < projectedFaces.length; i++) {
+    const { f, pts2d } = projectedFaces[i];
+    const ndotl = Math.abs(vec3Dot(f.normal, lightDir));
+    const fresnel = Math.pow(1 - Math.abs(vec3Dot(f.normal, viewDir)), 1.6);
+    const litLum = Math.min(88, f.lum * (0.55 + ndotl * 0.65) + fresnel * 22 + (f.emission || 0) * 28);
+
+    if (showVoxels) {
+      const c2d = project3D(f.center);
+      if (c2d) {
+        ctx.fillStyle = `hsla(${f.hue}, ${f.sat}%, ${litLum + 10}%, 0.88)`;
+        ctx.beginPath();
+        ctx.arc(c2d.x, c2d.y, Math.max(1.3, 2.2 * c2d.scale), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      continue;
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(pts2d[0].x, pts2d[0].y);
+    for (let v = 1; v < pts2d.length; v++) ctx.lineTo(pts2d[v].x, pts2d[v].y);
+    ctx.closePath();
+
+    if (showShaded && L4 > 0.04) {
+      ctx.fillStyle = `hsla(${f.hue}, ${f.sat}%, ${litLum}%, ${f.alpha})`;
+      ctx.fill();
+    }
+    if (showWire) {
+      const wireAlpha = rMode === 'shaded' ? 0.12 : Math.max(0.18, 0.72 - L4 * 0.42);
+      ctx.strokeStyle = `hsla(${f.hue + 14}, 88%, ${Math.min(92, litLum + 16)}%, ${wireAlpha})`;
+      ctx.lineWidth = rMode === 'wire' ? 1.0 : 0.65;
+      ctx.stroke();
+    }
+    if (showNormals && i % 2 === 0) {
+      const c0 = project3D(f.center);
+      const c1 = project3D(add3D(f.center, [f.normal[0] * 8, f.normal[1] * 8, f.normal[2] * 8]));
+      if (c0 && c1) {
+        ctx.strokeStyle = 'rgba(255, 185, 85, 0.68)';
+        ctx.lineWidth = 0.8;
+        ctx.beginPath(); ctx.moveTo(c0.x, c0.y); ctx.lineTo(c1.x, c1.y); ctx.stroke();
+      }
+    }
+  }
+
+  // Render 3D Lines (Icing strokes, Bristles, Rib contours, Carvings)
+  for (let i = 0; i < sc.lines.length; i++) {
+    const ln = sc.lines[i];
+    const pA = project3D(ln.a), pB = project3D(ln.b);
+    if (!pA || !pB) continue;
+    ctx.strokeStyle = ln.color;
+    ctx.lineWidth = ln.width || 1.0;
+    ctx.beginPath(); ctx.moveTo(pA.x, pA.y); ctx.lineTo(pB.x, pB.y); ctx.stroke();
+  }
+
+  // Render 3D Points (Candle Flames, Water Droplets, Smarties Candies, Furnace Core)
+  for (let i = 0; i < sc.points.length; i++) {
+    const pt = sc.points[i];
+    const pr = project3D(pt.p);
+    if (!pr) continue;
+    const rad = Math.max(1.4, pt.radius * pr.scale);
+    if (pt.glow) {
+      const g = ctx.createRadialGradient(pr.x, pr.y, 0.5, pr.x, pr.y, rad * 2.4);
+      g.addColorStop(0, '#ffffff');
+      g.addColorStop(0.35, pt.color);
+      g.addColorStop(1, 'transparent');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(pr.x, pr.y, rad * 2.4, 0, Math.PI * 2); ctx.fill();
+    } else {
+      ctx.fillStyle = pt.color;
+      ctx.beginPath(); ctx.arc(pr.x, pr.y, rad, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
+  // Render Diegetic 3D-Anchored Radial C-Arc Menu Overlays (Screenshots 2, 3, 4, 5!)
+  const ringRotSum = (state.rings[0].angle + state.rings[1].angle + state.rings[2].angle) * (Math.PI / 180);
+  const activeSec = Math.floor(((state.rings[0].angle + state.rings[2].angle) / 30)) % 7;
+
+  sc.overlays.forEach(ov => {
+    const pr = project3D(ov.p3d);
+    if (!pr) return;
+    const uiScale = Math.max(0.65, Math.min(1.45, pr.scale * 0.72));
+    if (ov.type === 'main') {
+      drawDiegeticRadialArcMenu(ctx, pr.x, pr.y, ov.radius, ringRotSum, activeSec, 7, uiScale, ov.flipLeft, ov.showTelemetry);
+    } else if (ov.type === 'node') {
+      const hPr = ov.head3d ? project3D(ov.head3d) : { x: pr.x - 18, y: pr.y + 18 };
+      if (hPr) {
+        drawSubjectNodeOverlay(ctx, pr.x, pr.y, hPr.x, hPr.y, uiScale, ov.isSelected, ov.phase);
+      }
+    }
+  });
+
+  // Render 3D Atmospheric Bokeh
+  holoParticles3D.forEach(p => {
+    const pr = project3D([
+      p.x + Math.sin(scrubTime + p.phase) * (4 + L5 * 14),
+      p.y + Math.cos(scrubTime * 0.8 + p.phase) * (4 + L5 * 10),
+      p.z
+    ]);
+    if (!pr) return;
+    const coc = Math.abs(pr.z) / 95;
+    const bokehR = Math.max(0.8, p.size * pr.scale * (1 + L5 * coc * 2.4));
+    const alpha = Math.max(0.03, (0.22 - L5 * coc * 0.08) * (0.5 + 0.5 * Math.sin(scrubTime * 1.5 + p.phase)));
+    ctx.fillStyle = `hsla(${tunedHue + p.layer * 14}, 85%, 74%, ${alpha})`;
+    ctx.beginPath(); ctx.arc(pr.x, pr.y, bokehR, 0, Math.PI * 2); ctx.fill();
+  });
+
+  if (state.imprintFlash > 0.01) {
+    ctx.fillStyle = `rgba(56, 217, 192, ${state.imprintFlash * 0.35})`;
+    ctx.fillRect(0, 0, w, h);
+    state.imprintFlash *= 0.9;
+  }
+}
+
+// ============================================================================
+// CANVAS 2: PROPSTORE LOT #131 ANIMATRONIC MEMORY ORB HARDWARE RENDERER
+// Exact microscopic surface finishes, dual/triple sub-bands, red stencils,
+// concave coated outer lenses, and interactive hitboxes for every component
+// ============================================================================
+const orbCanvas = document.getElementById('orbCanvas');
+const orbCtx = orbCanvas.getContext('2d');
+let currentHitboxes = [];
+
+function registerHitbox(id, label, x, y, w, h, onDown, onUp) {
+  currentHitboxes.push({ id, label, x, y, w, h, onDown, onUp });
+}
+
+function getOrbLayoutScale(w, h) {
+  const naturalW = 550 + state.accordionSpread * 168;
+  const naturalH = (window.innerWidth <= 820 || document.body.classList.contains('force-mobile')) ? 320 : 255;
+  return Math.min(1.0, Math.min((w - 12) / naturalW, (h - 10) / naturalH));
+}
+
+function getOrbLayoutCenterY(h) {
+  return (window.innerWidth <= 820 || document.body.classList.contains('force-mobile')) ? h * 0.34 : h * 0.47;
+}
+
+function cycleEngineVersion(explicitVer = null) {
+  const order = ['v4', 'v3', 'v2', 'v1'];
+  const labels = {
+    v4: 'ENGINE: V4 SAM-RELIEF',
+    v3: 'ENGINE: V3 HYBRID-3D',
+    v2: 'ENGINE: V2 PURE-3D',
+    v1: 'ENGINE: V1 CANVAS-LAB'
+  };
+  const nextVer = (explicitVer && order.includes(explicitVer))
+    ? explicitVer
+    : order[(order.indexOf(state.engineVersion || 'v4') + 1) % order.length];
+  state.engineVersion = nextVer;
+  const btn = document.getElementById('engineVerBtn');
+  if (btn) btn.textContent = labels[nextVer] || labels.v4;
+  const wgl = document.getElementById('webglCanvas');
+  if (wgl) wgl.style.display = (nextVer === 'v1') ? 'none' : 'block';
+  playMicroSwitchClick(true, 180);
+}
+window.cycleEngineVersion = cycleEngineVersion;
+
+function syncMobileDockUI() {
+  const shot = state.activeShot || 'bugeye';
+  const samShot = (window.STELLINE_SAM_DB && window.STELLINE_SAM_DB.shots && window.STELLINE_SAM_DB.shots[shot])
+    ? window.STELLINE_SAM_DB.shots[shot]
+    : null;
+  const samRow = document.getElementById('mobileSamRow');
+  if (samRow && samShot && Array.isArray(samShot.objects)) {
+    const btns = samRow.querySelectorAll('button');
+    const selIdx = ((state.selectedNodeIdx || 0) % 4 + 4) % 4;
+    btns.forEach((b, idx) => {
+      const obj = samShot.objects[idx];
+      if (obj) b.textContent = `${idx + 1}:${obj.id}`;
+      b.classList.toggle('active', idx === selIdx);
+    });
+  }
+  const pKey = (state.scene === 'birthday') ? 'cake' : 'bug';
+  const proto = (typeof OPERATOR_PROTOCOLS !== 'undefined' && OPERATOR_PROTOCOLS[pKey]) ? OPERATOR_PROTOCOLS[pKey] : null;
+  for (let i = 0; i < 5; i++) {
+    const lbl = document.getElementById(`mDialLbl${i}`);
+    const inp = document.getElementById(`mDialIn${i}`);
+    if (lbl && proto && proto.dialLabels && proto.dialLabels[i]) {
+      lbl.textContent = proto.dialLabels[i];
+      lbl.style.color = (state.activeCoupledRing === i) ? '#f0a848' : '#38d9c0';
+    }
+    if (inp && document.activeElement !== inp && state.rings[i]) {
+      inp.value = Math.round(state.rings[i].angle);
+    }
+  }
+  const spIn = document.getElementById('mSpreadIn');
+  if (spIn && document.activeElement !== spIn) {
+    spIn.value = Math.round(state.accordionSpread * 100);
+  }
+}
+
+function renderOrbHardware() {
+  const w = orbCanvas.clientWidth;
+  const h = orbCanvas.clientHeight;
+  const ctx = orbCtx;
+  ctx.clearRect(0, 0, w, h);
+  currentHitboxes = [];
+
+  if (state.viewMode === 'bearing') {
+    renderWallaceBearingReader(ctx, w, h);
+    return;
+  }
+
+  const orbScale = getOrbLayoutScale(w, h);
+  const baseCy = getOrbLayoutCenterY(h);
+  ctx.save();
+  if (orbScale < 0.999) {
+    ctx.translate(w * 0.5, baseCy);
+    ctx.scale(orbScale, orbScale);
+    ctx.translate(-w * 0.5, -baseCy);
+  }
+
+  // Apply subtle bimanual wrist mass inertia offset
+  const cx = w * 0.5 + state.tiltX * 9;
+  const cy = baseCy + state.tiltY * 7;
+  const spreadPx = state.accordionSpread * 84;
+  const isXray = state.viewMode === 'xray';
+  const isSpecs = state.viewMode === 'specs';
+  const specShift = state.tiltY * 18; // Dynamic specular highlight shift with wrist tilt
+
+  // Ambient shadow beneath the 1.42 kg prop
+  const shadowGrad = ctx.createRadialGradient(cx, cy + 132, 16, cx, cy + 132, 290 + spreadPx);
+  shadowGrad.addColorStop(0, 'rgba(0, 0, 0, 0.82)');
+  shadowGrad.addColorStop(1, 'transparent');
+  ctx.fillStyle = shadowGrad;
+  ctx.fillRect(0, cy + 75, w, h - (cy + 75));
+
+  // --------------------------------------------------------------------------
+  // 1. UNDERSIDE DUAL RACK-AND-PINION SYNCHRONIZER (Kyle Martin / Adam Savage)
+  // --------------------------------------------------------------------------
+  const rackY = cy + 98;
+  const rackSpan = 114 + spreadPx;
+  ctx.save();
+  ctx.fillStyle = isXray ? 'rgba(240, 168, 72, 0.22)' : '#545d66';
+  ctx.strokeStyle = isXray ? '#f0a848' : '#8b95a0';
+  ctx.lineWidth = 1.4;
+  ctx.fillRect(cx - rackSpan, rackY - 8, rackSpan * 2, 16);
+  ctx.strokeRect(cx - rackSpan, rackY - 8, rackSpan * 2, 16);
+
+  for (let tx = -rackSpan + 8; tx < rackSpan - 8; tx += 6.5) {
+    ctx.fillStyle = isXray ? '#f0a848' : '#232930';
+    ctx.fillRect(cx + tx, rackY - 6, 3, 3.5);
+    ctx.fillRect(cx - tx, rackY + 2.5, 3, 3.5);
+  }
+
+  ctx.save();
+  ctx.translate(cx, rackY);
+  ctx.rotate(state.accordionSpread * Math.PI * 5);
+  ctx.fillStyle = isXray ? '#f0a848' : '#d0dae4';
+  ctx.beginPath();
+  ctx.arc(0, 0, 11, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  for (let g = 0; g < 10; g++) {
+    ctx.rotate(Math.PI / 5);
+    ctx.fillRect(-1.5, -13, 3, 26);
+  }
+  ctx.restore();
+  ctx.restore();
+
+  registerHitbox(
+    'rack_pinion',
+    'UNDERSIDE DUAL RACK & PINION SYNCHRONIZER [BALANCES ACCORDION CALLIOPE SPREAD]',
+    cx - rackSpan, rackY - 10, rackSpan * 2, 22,
+    () => setAccordionSpread(state.accordionTarget > 0.5 ? 18 : 82, true)
+  );
+
+  // --------------------------------------------------------------------------
+  // 2. TOP BRIDGE BAR & BUTTERFLY NECK-STRAP CLASP (crop_center_rings.jpg)
+  // --------------------------------------------------------------------------
+  const bridgeY = cy - 102;
+  ctx.save();
+  ctx.fillStyle = '#7c858f';
+  ctx.strokeStyle = '#b8c2cc';
+  ctx.lineWidth = 1.3;
+  ctx.fillRect(cx - (104 + spreadPx), bridgeY, (104 + spreadPx) * 2, 9);
+  ctx.strokeRect(cx - (104 + spreadPx), bridgeY, (104 + spreadPx) * 2, 9);
+
+  ctx.translate(cx, bridgeY);
+  ctx.fillStyle = '#525a63';
+  ctx.fillRect(-28, -15, 56, 17);
+  ctx.strokeRect(-28, -15, 56, 17);
+  // Hinge pin & machined slots on clasp base
+  ctx.fillStyle = '#252b32';
+  ctx.fillRect(-18, -11, 8, 9);
+  ctx.fillRect(10, -11, 8, 9);
+
+  if (state.neckClaspOpen) {
+    for (let side of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(side * 8, -15);
+      ctx.lineTo(side * 52, -26);
+      ctx.lineTo(side * 47, -17);
+      ctx.lineTo(side * 10, -9);
+      ctx.closePath();
+      ctx.fillStyle = '#2c333b';
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#1b2026';
+    ctx.fillRect(-11, -54, 22, 39);
+    ctx.strokeRect(-11, -54, 22, 39);
+    ctx.strokeStyle = '#454e58';
+    ctx.strokeRect(-6, -48, 12, 26);
+  }
+  ctx.restore();
+
+  registerHitbox(
+    'neck_clasp',
+    'TOP BUTTERFLY NECK-STRAP CLASP [CLICK TO DEPLOY / FOLD LATCH]',
+    cx - 54, bridgeY - 56, 108, 58,
+    () => toggleNeckClasp()
+  );
+
+  // --------------------------------------------------------------------------
+  // 3. TELESCOPIC ACCORDION SLEEVE SEGMENTS
+  // --------------------------------------------------------------------------
+  if (spreadPx > 2) {
+    for (let side of [-1, 1]) {
+      const baseEdge = cx + side * 90;
+      const outerEdge = cx + side * (90 + spreadPx);
+      const segs = 3;
+      for (let s = 0; s < segs; s++) {
+        const t0 = s / segs;
+        const t1 = (s + 1) / segs;
+        const x0 = baseEdge + (outerEdge - baseEdge) * t0;
+        const x1 = baseEdge + (outerEdge - baseEdge) * t1;
+        const hSeg = 84 - s * 5;
+        const leftX = Math.min(x0, x1);
+        const widthX = Math.abs(x1 - x0);
+
+        const grad = ctx.createLinearGradient(0, cy - hSeg, 0, cy + hSeg);
+        grad.addColorStop(0, '#4f5862');
+        grad.addColorStop(0.28, '#b6c0ca');
+        grad.addColorStop(0.68, '#626d79');
+        grad.addColorStop(1, '#262c33');
+        ctx.fillStyle = isXray ? 'rgba(88, 166, 255, 0.14)' : grad;
+        ctx.strokeStyle = isXray ? '#58a6ff' : '#2a3139';
+        ctx.fillRect(leftX, cy - hSeg, widthX, hSeg * 2);
+        ctx.strokeRect(leftX, cy - hSeg, widthX, hSeg * 2);
+      }
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // 4. THE 5 CONCENTRIC MOTORIZED CENTER RINGS
+  // Rendered with true 3D cylindrical cosine perspective wrapping (sin/cos)
+  // and flush coaxial lens-barrel geometry (sec_030.jpg).
+  // --------------------------------------------------------------------------
+  const ringConfigs = [
+    { idx: 0, xOff: -82 - spreadPx * 0.36, width: 34, radius: 95, type: 'collarL', title: 'RING 01 [CHROME COLLAR: 10-30 VR / MICRO-CT X-RAY TO CHITIN & APERTURE]' },
+    { idx: 1, xOff: -42 - spreadPx * 0.17, width: 46, radius: 91, type: 'focal',   title: 'RING 02 [DUAL-BAND: BLUE-SLATE FOCAL 10-300 + RED VERNIER / 5-CAM PARALLAX]' },
+    { idx: 2, xOff:   0,                   width: 34, radius: 89, type: 'knurl',   title: 'RING 03 [DUAL-BAND: RED VERNIER + 120-TOOTH KNURL / TIME-SLICE SCRUBBING]' },
+    { idx: 3, xOff:  42 + spreadPx * 0.17, width: 46, radius: 91, type: 'moire',   title: 'RING 04 [3-BAND PEWTER MOIRE: BLACK TRIANGLES & SLOTS / AFFECTIVE MESS & ELYTRA]' },
+    { idx: 4, xOff:  82 + spreadPx * 0.36, width: 34, radius: 95, type: 'collarR', title: 'RING 05 [CHROME COLLAR: W-T VR / HERO CAKE VARIATION & KELVIN WARMTH]' }
+  ];
+
+  ringConfigs.forEach(rc => {
+    const ring = state.rings[rc.idx];
+    const rx = cx + rc.xOff - rc.width / 2;
+    const ry = cy - rc.radius;
+    const rw = rc.width;
+    const rh = rc.radius * 2;
+    const R = rc.radius;
+    const rotRad = (ring.angle * Math.PI) / 180;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(rx, ry, rw, rh);
+    ctx.clip();
+
+    if (isXray) {
+      ctx.fillStyle = 'rgba(18, 30, 44, 0.68)';
+      ctx.fillRect(rx, ry, rw, rh);
+      for (let i = 0; i < 36; i++) {
+        const theta = (i / 36) * Math.PI * 2 + rotRad;
+        const sinT = Math.sin(theta);
+        const cosT = Math.cos(theta);
+        if (cosT <= 0) continue;
+        const yPos = cy + sinT * R;
+        ctx.strokeStyle = `rgba(56, 217, 192, ${0.15 + cosT * 0.45})`;
+        ctx.lineWidth = Math.max(0.6, cosT * 1.4);
+        ctx.beginPath();
+        ctx.moveTo(rx + 2, yPos);
+        ctx.lineTo(rx + rw - 2, yPos);
+        ctx.stroke();
+      }
+      const motorY = cy + (rc.idx - 2) * 28;
+      ctx.fillStyle = '#1b2c3e';
+      ctx.strokeStyle = '#f0a848';
+      ctx.fillRect(rx + 3, motorY - 10, rw - 6, 20);
+      ctx.strokeRect(rx + 3, motorY - 10, rw - 6, 20);
+      ctx.fillStyle = '#f0a848';
+      ctx.beginPath();
+      ctx.arc(rx + rw / 2, motorY, 5.5, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (rc.type === 'focal') {
+      // RING 2: Sub-Band 2A (Blue-Slate Anodized) & Sub-Band 2B (Brushed Steel with Red Triangular Verniers)
+      const splitW = rw * 0.60;
+      const g2A = ctx.createLinearGradient(0, ry + specShift, 0, ry + rh + specShift);
+      g2A.addColorStop(0, '#161e27');
+      g2A.addColorStop(0.22, '#8b9fb8');
+      g2A.addColorStop(0.48, '#46576b');
+      g2A.addColorStop(0.78, '#7589a1');
+      g2A.addColorStop(1, '#121820');
+      ctx.fillStyle = g2A;
+      ctx.fillRect(rx, ry, splitW, rh);
+
+      const g2B = ctx.createLinearGradient(0, ry + specShift, 0, ry + rh + specShift);
+      g2B.addColorStop(0, '#222830');
+      g2B.addColorStop(0.22, '#d0d8e0');
+      g2B.addColorStop(0.48, '#7a848f');
+      g2B.addColorStop(0.78, '#b4bec8');
+      g2B.addColorStop(1, '#1a1f25');
+      ctx.fillStyle = g2B;
+      ctx.fillRect(rx + splitW, ry, rw - splitW, rh);
+
+      // Machined groove & white index baseline between 2A and 2B
+      ctx.strokeStyle = 'rgba(235, 245, 255, 0.72)';
+      ctx.lineWidth = 0.9;
+      ctx.beginPath();
+      ctx.moveTo(rx + splitW - 0.5, ry);
+      ctx.lineTo(rx + splitW - 0.5, ry + rh);
+      ctx.stroke();
+
+      // Cylindrical perspective focal numbers (10..300, ∞) + elongated crimson vernier pointers
+      const stopsWithInf = [...FOCAL_STOPS, '∞'];
+      stopsWithInf.forEach((num, i) => {
+        const theta = (i / stopsWithInf.length) * Math.PI * 2 + rotRad;
+        const sinT = Math.sin(theta);
+        const cosT = Math.cos(theta);
+        if (cosT <= 0.04) return;
+        const yPos = cy + sinT * R;
+        const alpha = Math.pow(cosT, 0.55);
+
+        ctx.save();
+        ctx.translate(rx, yPos);
+        ctx.scale(1, cosT); // True cylindrical vertical foreshortening!
+
+        // White engraved focal number
+        ctx.fillStyle = `rgba(244, 249, 255, ${alpha * 0.95})`;
+        ctx.font = '600 8.5px -apple-system, BlinkMacSystemFont, "Inter", monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText(String(num), 3.5, 3);
+
+        // White perpendicular index tick touching baseline
+        ctx.strokeStyle = `rgba(244, 249, 255, ${alpha * 0.9})`;
+        ctx.lineWidth = 1.0;
+        ctx.beginPath();
+        ctx.moveTo(splitW - 5.5, 0);
+        ctx.lineTo(splitW - 0.5, 0);
+        ctx.stroke();
+
+        // Sharp elongated crimson-red vernier pointer on Sub-Band 2B (matching decal_rings_zoom.jpg)
+        ctx.fillStyle = `rgba(218, 38, 42, ${alpha * 0.95})`;
+        ctx.beginPath();
+        ctx.moveTo(splitW + 1.5, 0);
+        ctx.lineTo(rw - 2, -1.2);
+        ctx.lineTo(rw - 2, 1.2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      });
+    } else if (rc.type === 'knurl') {
+      // RING 3: Sub-Band 3A (Satin Silver with Crimson Hairlines) + Sub-Band 3B (120-Flute Gear Knurl)
+      const splitW = rw * 0.44;
+      const g3 = ctx.createLinearGradient(0, ry + specShift, 0, ry + rh + specShift);
+      g3.addColorStop(0, '#252b32');
+      g3.addColorStop(0.22, '#e4ebf2');
+      g3.addColorStop(0.5, '#8c96a0');
+      g3.addColorStop(0.78, '#d4dce4');
+      g3.addColorStop(1, '#1e2329');
+      ctx.fillStyle = g3;
+      ctx.fillRect(rx, ry, rw, rh);
+
+      // Subtle machined seam between 3A and 3B
+      ctx.strokeStyle = 'rgba(30, 36, 42, 0.55)';
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(rx + splitW, ry);
+      ctx.lineTo(rx + splitW, ry + rh);
+      ctx.stroke();
+
+      // Cylindrical 120-flute precision gear knurling on 3B
+      for (let k = 0; k < 72; k++) {
+        const theta = (k / 72) * Math.PI * 2 + rotRad;
+        const sinT = Math.sin(theta);
+        const cosT = Math.cos(theta);
+        if (cosT <= 0.02) continue;
+        const yPos = cy + sinT * R;
+        ctx.strokeStyle = `rgba(24, 30, 36, ${0.25 + cosT * 0.52})`;
+        ctx.lineWidth = Math.max(0.5, cosT * 1.15);
+        ctx.beginPath();
+        ctx.moveTo(rx + splitW + 1, yPos);
+        ctx.lineTo(rx + rw - 1, yPos);
+        ctx.stroke();
+      }
+
+      // Crimson vernier alignment hairlines on 3A
+      for (let rt = 0; rt < 16; rt++) {
+        const theta = (rt / 16) * Math.PI * 2 + rotRad;
+        const sinT = Math.sin(theta);
+        const cosT = Math.cos(theta);
+        if (cosT <= 0.05) continue;
+        const yPos = cy + sinT * R;
+        ctx.strokeStyle = `rgba(215, 38, 42, ${Math.pow(cosT, 0.6) * 0.9})`;
+        ctx.lineWidth = Math.max(0.6, cosT * 1.2);
+        ctx.beginPath();
+        ctx.moveTo(rx + 1, yPos);
+        ctx.lineTo(rx + splitW - 2, yPos);
+        ctx.stroke();
+      }
+    } else if (rc.type === 'moire') {
+      // RING 4: 3 Brushed Pewter Sub-Bands (◄ Equilateral Triangles | Recessed Dash Slots | ◄ Equilateral Triangles)
+      const g4 = ctx.createLinearGradient(0, ry + specShift, 0, ry + rh + specShift);
+      g4.addColorStop(0, '#22272d');
+      g4.addColorStop(0.22, '#d2d9e0');
+      g4.addColorStop(0.5, '#76808a');
+      g4.addColorStop(0.78, '#c0c8d0');
+      g4.addColorStop(1, '#1a1f24');
+      ctx.fillStyle = g4;
+      ctx.fillRect(rx, ry, rw, rh);
+
+      const b1 = rw * 0.33;
+      const b2 = rw * 0.66;
+      ctx.strokeStyle = 'rgba(28, 34, 40, 0.78)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(rx + b1, ry);
+      ctx.lineTo(rx + b1, ry + rh);
+      ctx.moveTo(rx + b2, ry);
+      ctx.lineTo(rx + b2, ry + rh);
+      ctx.stroke();
+
+      for (let ti = 0; ti < 18; ti++) {
+        const theta = (ti / 18) * Math.PI * 2 + rotRad;
+        const sinT = Math.sin(theta);
+        const cosT = Math.cos(theta);
+        if (cosT <= 0.04) continue;
+        const yPos = cy + sinT * R;
+        const alpha = Math.pow(cosT, 0.55);
+
+        ctx.save();
+        ctx.translate(0, yPos);
+        ctx.scale(1, cosT);
+
+        // Band A & Band C: Pad-printed matte black equilateral triangles pointing left (◄)
+        ctx.fillStyle = `rgba(18, 22, 27, ${alpha * 0.92})`;
+        for (let bx of [rx + 3.5, rx + b2 + 3.5]) {
+          ctx.beginPath();
+          ctx.moveTo(bx, 0);
+          ctx.lineTo(bx + 6.2, -2.5);
+          ctx.lineTo(bx + 6.2, 2.5);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        // Band B (Middle): Recessed machined axial slot with bottom specular edge
+        ctx.fillStyle = `rgba(22, 27, 33, ${alpha * 0.88})`;
+        ctx.fillRect(rx + b1 + 3, -1.1, (b2 - b1) - 6, 2.2);
+        ctx.fillStyle = `rgba(240, 248, 255, ${alpha * 0.45})`;
+        ctx.fillRect(rx + b1 + 3, 1.1, (b2 - b1) - 6, 0.7);
+        ctx.restore();
+      }
+    } else {
+      // RINGS 1 & 5: Mirror-Polished Chrome Collars with Cylindrical "10-30 VR", "◄ W — T ►", "05-01" & Dog-Clutch Slots
+      const gChrome = ctx.createLinearGradient(0, ry + specShift, 0, ry + rh + specShift);
+      gChrome.addColorStop(0, '#262c34');
+      gChrome.addColorStop(0.18, '#f7fbff');
+      gChrome.addColorStop(0.45, '#828d98');
+      gChrome.addColorStop(0.76, '#eef4fa');
+      gChrome.addColorStop(1, '#1e232a');
+      ctx.fillStyle = gChrome;
+      ctx.fillRect(rx, ry, rw, rh);
+
+      const collarDecals = [
+        { type: 'text', text: '10-30' },
+        { type: 'text', text: 'VR' },
+        { type: 'slot' },
+        { type: 'arrows', text: 'W   T' },
+        { type: 'text', text: '05-01' },
+        { type: 'slot' },
+        { type: 'text', text: '10-30' },
+        { type: 'arrows', text: 'T   W' }
+      ];
+      collarDecals.forEach((item, i) => {
+        const theta = (i / collarDecals.length) * Math.PI * 2 + rotRad;
+        const sinT = Math.sin(theta);
+        const cosT = Math.cos(theta);
+        if (cosT <= 0.05) return;
+        const yPos = cy + sinT * R;
+        const alpha = Math.pow(cosT, 0.6);
+
+        ctx.save();
+        ctx.translate(rx, yPos);
+        ctx.scale(1, cosT);
+        if (item.type === 'slot') {
+          // Machined rectangular dog-clutch index notch (visible in decal_rings_zoom.jpg)
+          ctx.fillStyle = `rgba(28, 34, 42, ${alpha * 0.75})`;
+          ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.5})`;
+          ctx.lineWidth = 0.8;
+          ctx.fillRect(6, -2.5, rw - 12, 5);
+          ctx.strokeRect(6, -2.5, rw - 12, 5);
+        } else {
+          ctx.fillStyle = `rgba(24, 30, 38, ${alpha * 0.9})`;
+          ctx.font = '700 7.2px -apple-system, BlinkMacSystemFont, "Inter", monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(item.text, rw / 2, 2.5);
+          if (item.type === 'arrows') {
+            // Tiny crisp arrowheads above/below W and T
+            ctx.beginPath();
+            ctx.moveTo(4, 0); ctx.lineTo(7, -2); ctx.lineTo(7, 2); ctx.closePath();
+            ctx.moveTo(rw - 4, 0); ctx.lineTo(rw - 7, -2); ctx.lineTo(rw - 7, 2); ctx.closePath();
+            ctx.fill();
+          }
+        }
+        ctx.restore();
+      });
+    }
+
+    // Subtle cylindrical top/bottom edge shadow & specular highlight
+    const rimShadow = ctx.createLinearGradient(0, ry, 0, ry + rh);
+    rimShadow.addColorStop(0, 'rgba(0,0,0,0.52)');
+    rimShadow.addColorStop(0.08, 'rgba(0,0,0,0)');
+    rimShadow.addColorStop(0.92, 'rgba(0,0,0,0)');
+    rimShadow.addColorStop(1, 'rgba(0,0,0,0.58)');
+    ctx.fillStyle = rimShadow;
+    ctx.fillRect(rx, ry, rw, rh);
+
+    ctx.restore();
+
+    ctx.strokeStyle = isXray ? '#38d9c0' : '#181d23';
+    ctx.lineWidth = 1.3;
+    ctx.strokeRect(rx, ry, rw, rh);
+
+    // Subtle 3D elliptical seam highlight along the vertical ring boundary
+    if (!isXray) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(240, 248, 255, 0.22)';
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.ellipse(rx + rw, cy, 2.2, rh * 0.49, 0, -Math.PI * 0.48, Math.PI * 0.48);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    registerHitbox(rc.type + '_' + rc.idx, rc.title + ' [DRAG VERTICALLY TO ROTATE]', rx, ry, rw, rh);
+  });
+
+  // --------------------------------------------------------------------------
+  // 5. LEFT & RIGHT OUTER HAND-GRIP PODS (Flush Coaxial Barrel Proportions)
+  // --------------------------------------------------------------------------
+  drawOuterGripPod(ctx, cx, cy, -1, spreadPx, isXray, specShift);
+  drawOuterGripPod(ctx, cx, cy,  1, spreadPx, isXray, specShift);
+
+  // --------------------------------------------------------------------------
+  // 5A. DIEGETIC 5-RING OPERATIVE COUPLING & SAM ITEM ADDRESSING STRIP
+  // Connects all 5 Physical Rings (L1..R2) + [SELECT] Stencil 1:1 to Selected SAM Item
+  // --------------------------------------------------------------------------
+  if (!isXray && !isSpecs) {
+    const samShot = (window.STELLINE_SAM_DATA && window.STELLINE_SAM_DATA[state.activeShot]) || null;
+    const graph = (window.SCENE_OPERATIVE_GRAPH && (window.SCENE_OPERATIVE_GRAPH[state.activeShot] || window.SCENE_OPERATIVE_GRAPH.bugeye)) || null;
+    const nodes = Array.isArray(samShot) ? samShot : (samShot && samShot.objects ? samShot.objects : (Array.isArray(graph) ? graph : (graph && graph.nodes ? graph.nodes : [])));
+    const selIdx = nodes.length > 0 ? (state.selectedNodeIdx || 0) % nodes.length : 0;
+    const selNode = nodes[selIdx] || null;
+    const stripY = cy - 118;
+    const rOffs = [-82 - spreadPx * 0.36, -42 - spreadPx * 0.17, 0, 42 + spreadPx * 0.17, 82 + spreadPx * 0.36];
+    const protoKey = (state.scene === 'birthday') ? 'cake' : 'bug';
+    const protoObj = (window.OPERATOR_PROTOCOLS && window.OPERATOR_PROTOCOLS[protoKey]) || null;
+    const rTags = (protoObj && protoObj.dialLabels) ? protoObj.dialLabels : ['L1:SOLID', 'L2:FOCUS', 'L3:MORPH', 'R1:LUMA', 'R2:TINT'];
+    const vIdx = (state.otherwiseVariant && state.otherwiseVariant[protoKey]) || 0;
+    const vObj = (protoObj && protoObj.otherwise && protoObj.otherwise[vIdx]) || null;
+    ctx.save();
+    if (selNode) {
+      const targetName = selNode.name || selNode.label || selNode.id || `ITEM.0${selIdx + 1}`;
+      const protoTitle = protoObj ? protoObj.id.split('//')[1].trim() : 'ORB.OS';
+      const otherwiseTag = (vIdx > 0 && vObj) ? ` // ${vObj.code.split('[')[0].trim()}` : '';
+      ctx.fillStyle = vIdx > 0 ? '#ffd080' : 'rgba(235, 244, 252, 0.88)';
+      ctx.font = '600 6.8px "JetBrains Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${protoTitle} -> SAM[${selIdx + 1}/4]: ${targetName}${otherwiseTag}`, cx, stripY - 12);
+    }
+    for (let i = 0; i < 5; i++) {
+      const tagX = cx + rOffs[i];
+      const isMovingRing = (state.activeCoupledRing === i);
+      const isWeaveRing = state.inverseWeave && state.inverseWeave.active && state.inverseWeave.activeRingIdx === i;
+      const active = isMovingRing || isWeaveRing;
+      ctx.fillStyle = active ? 'rgba(240, 168, 72, 0.25)' : 'rgba(12, 16, 22, 0.78)';
+      ctx.strokeStyle = active ? 'rgba(240, 168, 72, 0.95)' : 'rgba(210, 224, 238, 0.38)';
+      ctx.lineWidth = active ? 1.15 : 0.8;
+      ctx.fillRect(tagX - 20, stripY - 7, 40, 13);
+      ctx.strokeRect(tagX - 20, stripY - 7, 40, 13);
+      ctx.fillStyle = active ? '#ffd080' : 'rgba(225, 236, 246, 0.88)';
+      ctx.font = '700 5.3px "JetBrains Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${rTags[i]}`, tagX, stripY + 1.5);
+    }
+    ctx.restore();
+  }
+
+  // --------------------------------------------------------------------------
+  // 5B. SCENE -> INTERFACE OPTICAL REFLECTION COUPLING
+  // The active 3D hologram casts its live chromatic light field onto the
+  // brushed aluminum barrel flutes, chrome collars, and outer glass lenses!
+  // --------------------------------------------------------------------------
+  if (state.sceneLightTint && !isXray) {
+    const lt = state.sceneLightTint;
+    const reflGrad = ctx.createRadialGradient(cx, cy - 88, 12, cx, cy - 42, 220 + spreadPx);
+    reflGrad.addColorStop(0, `rgba(${lt.r}, ${lt.g}, ${lt.b}, ${(lt.intensity * 0.24).toFixed(3)})`);
+    reflGrad.addColorStop(0.55, `rgba(${lt.r}, ${lt.g}, ${lt.b}, ${(lt.intensity * 0.08).toFixed(3)})`);
+    reflGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    ctx.fillStyle = reflGrad;
+    ctx.fillRect(cx - 210 - spreadPx, cy - 108, (210 + spreadPx) * 2, 165);
+    ctx.restore();
+  }
+
+  // --------------------------------------------------------------------------
+  // 6. HIGHLIGHT HOVERED COMPONENT & X-RAY / BLUEPRINT CALLOUTS
+  // --------------------------------------------------------------------------
+  // Highlight active ring & banner during Inverse-Design Auto-Weave
+  if (state.inverseWeave && state.inverseWeave.active) {
+    const aIdx = state.inverseWeave.activeRingIdx;
+    if (aIdx >= 0 && aIdx < 5) {
+      const rOffs = [-82 - spreadPx * 0.36, -42 - spreadPx * 0.17, 0, 42 + spreadPx * 0.17, 82 + spreadPx * 0.36];
+      const rx = cx + rOffs[aIdx] - 18;
+      const ry = cy - 95;
+      ctx.save();
+      ctx.strokeStyle = '#f0a848';
+      ctx.lineWidth = 2.0;
+      ctx.shadowColor = '#f0a848';
+      ctx.shadowBlur = 10;
+      ctx.strokeRect(rx - 3, ry - 3, 36, 190);
+      ctx.restore();
+    }
+  }
+
+  if (state.hoveredHitbox) {
+    const hb = state.hoveredHitbox;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(56, 217, 192, 0.85)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 3]);
+    ctx.strokeRect(hb.x - 2, hb.y - 2, hb.w + 4, hb.h + 4);
+    ctx.restore();
+  }
+
+  if (isXray) {
+    ctx.save();
+    ctx.strokeStyle = '#38d9c0';
+    ctx.fillStyle = 'rgba(10, 18, 26, 0.88)';
+    ctx.fillRect(cx - 64, cy - 24, 128, 48);
+    ctx.strokeRect(cx - 64, cy - 24, 128, 48);
+    ctx.fillStyle = '#38d9c0';
+    ctx.font = 'bold 9px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('INTERNAL 9V CELL + REED SW', cx, cy - 6);
+    ctx.fillStyle = '#f0a848';
+    ctx.fillText(`5x SPUR MOTORS [${state.batteryVolts.toFixed(2)}V]`, cx, cy + 11);
+    ctx.restore();
+  }
+
+  if (isSpecs) {
+    ctx.save();
+    ctx.strokeStyle = '#f0a848';
+    ctx.fillStyle = '#f0a848';
+    ctx.font = '10px monospace';
+    ctx.textAlign = 'center';
+    const totalW = 208 + spreadPx;
+    ctx.beginPath();
+    ctx.moveTo(cx - totalW, cy - 135);
+    ctx.lineTo(cx + totalW, cy - 135);
+    ctx.stroke();
+    ctx.fillText(
+      `OVERALL WIDTH: ${(6.3 + state.accordionSpread * 2.05).toFixed(2)}" (${(160 + state.accordionSpread * 52).toFixed(1)} MM) · HEIGHT: 5.0" · DEPTH: 4.4" · MASS: 1.42 KG`,
+      cx, cy - 141
+    );
+    ctx.restore();
+  }
+}
+
+function drawOuterGripPod(ctx, cx, cy, side, spreadPx, isXray, specShift) {
+  const podCenter = cx + side * (135 + spreadPx * 0.56);
+  const podW = 74;
+  const podH = 194;
+  const x0 = podCenter - podW / 2;
+  const y0 = cy - podH / 2;
+
+  ctx.save();
+
+  // 1. OUTER CONCAVE OPTICAL GLASS ELEMENT + BLACK FLUTED ELASTOMER LENS RING
+  const lensX = podCenter + side * 30;
+  const glassGrad = ctx.createRadialGradient(lensX + side * 6, cy - 14, 4, lensX, cy, 74);
+  glassGrad.addColorStop(0, 'rgba(88, 210, 235, 0.42)');
+  glassGrad.addColorStop(0.45, 'rgba(42, 68, 110, 0.55)');
+  glassGrad.addColorStop(1, '#090d12');
+  ctx.fillStyle = glassGrad;
+  ctx.strokeStyle = '#7c8794';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.ellipse(lensX + side * 8, cy, 16, 74, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#14171b';
+  ctx.strokeStyle = '#323942';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(lensX - 18, cy - 84, 36, 168, 9);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.strokeStyle = '#272d35';
+  for (let ry = cy - 76; ry <= cy + 76; ry += 4.5) {
+    ctx.beginPath();
+    ctx.moveTo(lensX - 16, ry);
+    ctx.lineTo(lensX + 16, ry);
+    ctx.stroke();
+  }
+
+  // 2. MAIN BEAD-BLASTED MATTE GREY ANODIZED ALUMINUM SHELL
+  const bodyGrad = ctx.createLinearGradient(0, y0 + specShift, 0, y0 + podH + specShift);
+  bodyGrad.addColorStop(0, '#555d66');
+  bodyGrad.addColorStop(0.2, '#c5cdd5');
+  bodyGrad.addColorStop(0.5, '#919aa4');
+  bodyGrad.addColorStop(0.84, '#69717a');
+  bodyGrad.addColorStop(1, '#2d333a');
+
+  ctx.fillStyle = isXray ? 'rgba(42, 54, 68, 0.5)' : bodyGrad;
+  ctx.strokeStyle = isXray ? '#58a6ff' : '#22272d';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(x0, y0, podW, podH, 11);
+  ctx.fill();
+  ctx.stroke();
+
+  if (!isXray) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(x0, y0, podW, podH, 11);
+    ctx.clip();
+    BEAD_GRAIN_POINTS.forEach(pt => {
+      const gx = x0 + pt.rx * podW;
+      const gy = y0 + pt.ry * podH;
+      ctx.fillStyle = pt.bright ? `rgba(255,255,255,${pt.alpha})` : `rgba(20,25,30,${pt.alpha})`;
+      ctx.fillRect(gx, gy, 1.2, 1.2);
+    });
+    ctx.restore();
+  }
+
+  // Stepped mid-body grip plate with recessed chamfer & silk-screened ◄|► slide pills
+  const plateX = side === -1 ? x0 + 8 : x0 + 12;
+  const plateY = y0 + 80;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+  ctx.fillRect(plateX, plateY, 54, 56);
+  ctx.strokeStyle = '#363e47';
+  ctx.lineWidth = 1.1;
+  ctx.strokeRect(plateX, plateY, 54, 56);
+  drawPillArrowIcon(ctx, plateX + 27, plateY - 6);
+  drawPillArrowIcon(ctx, plateX + 27, plateY + 63);
+
+  if (side === -1) {
+    // ========================================================================
+    // LEFT HAND POD SILK-SCREENED DECALS & CONTROLS (decal_left_top.jpg)
+    // ========================================================================
+    // Inner bezel ZOOM slot engraving
+    ctx.strokeStyle = '#2d343d';
+    ctx.lineWidth = 1.2;
+    ctx.strokeRect(x0 + 56, y0 + 10, 6, 22);
+    ctx.fillStyle = '#252b33';
+    ctx.font = '600 5px sans-serif';
+    ctx.fillText('ZOOM', x0 + 40, y0 + 14);
+
+    // 1. Top Red-Dot Spun Button + Precision Crimson Silk-Screen Callout Lines
+    const bLockX = x0 + 34, bLockY = y0 + 20;
+    drawSpunMetalButton(ctx, bLockX, bLockY, 8.5, true, state.pressedOnPropBtn === 'lock_btn');
+    drawRedStencilCallout(ctx, bLockX - 6, bLockY + 9, -8, 7, 'AF');
+    registerHitbox('lock_btn', 'LEFT POD RED-DOT LOCK / IMPRINT BUTTON [IMPRINTS MEMORY TO WALLACE GLASS BEARING]', bLockX - 10, bLockY - 10, 20, 20,
+      () => { state.pressedOnPropBtn = 'lock_btn'; triggerBearingImprint(); },
+      () => { state.pressedOnPropBtn = null; playMicroSwitchClick(false, 300); }
+    );
+
+    // 2. Adjacent Aux Spun Button + Pad-Printed "ON •" Label & Crimson Brackets
+    const bAuxX = x0 + 15, bAuxY = y0 + 29;
+    drawSpunMetalButton(ctx, bAuxX, bAuxY, 6.2, false, state.pressedOnPropBtn === 'aux_btn');
+    ctx.fillStyle = '#1b2026';
+    ctx.font = '700 5.5px -apple-system, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('ON', x0 + 5, y0 + 43);
+    ctx.fillStyle = '#14181d';
+    ctx.beginPath();
+    ctx.arc(x0 + 17, y0 + 41, 1.4, 0, Math.PI * 2);
+    ctx.fill();
+    drawRedStencilCallout(ctx, x0 + 11, y0 + 46, -4, 12, 'M');
+
+    registerHitbox('aux_btn', 'LEFT POD AUX POWER / MAGNETIC REED TOGGLE BUTTON', bAuxX - 8, bAuxY - 8, 16, 16,
+      () => { state.pressedOnPropBtn = 'aux_btn'; toggleMagneticReed(); },
+      () => { state.pressedOnPropBtn = null; }
+    );
+
+    // 3. Black Concave 4-Way Rocker with Pad-Printed Camera Glyphs (+/-, Flower, ∞)
+    const dpadX = x0 + 26, dpadY = y0 + 50;
+    const dpadGrad = ctx.createRadialGradient(dpadX - 3, dpadY - 3, 1, dpadX, dpadY, 12);
+    dpadGrad.addColorStop(0, '#2a3038');
+    dpadGrad.addColorStop(0.75, '#12161b');
+    dpadGrad.addColorStop(1, '#090c0f');
+    ctx.fillStyle = dpadGrad;
+    ctx.strokeStyle = '#3c4550';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(dpadX, dpadY, 12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Crisp vector pad-printed icons on the black 4-way rocker (matching decal_left_top.jpg)
+    ctx.fillStyle = 'rgba(230, 238, 246, 0.88)';
+    ctx.font = '600 5px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('+/-', dpadX, dpadY - 5.5);
+    ctx.fillText('∞', dpadX, dpadY + 8.5);
+    ctx.fillText('◄', dpadX - 7.5, dpadY + 1.8);
+    ctx.fillText('►', dpadX + 7.5, dpadY + 1.8);
+    // Center macro reticle dot
+    ctx.strokeStyle = 'rgba(230, 238, 246, 0.75)';
+    ctx.lineWidth = 0.75;
+    ctx.strokeRect(dpadX - 2.5, dpadY - 2.5, 5, 5);
+
+    registerHitbox('dpad_rocker', 'BLACK CONCAVE 4-WAY ROCKER [STEERS HOLOGRAM FOCUS RETICLE X/Y]', dpadX - 13, dpadY - 13, 26, 26,
+      (mx, my) => {
+        const dx = (mx - dpadX) * 0.012;
+        const dy = (my - dpadY) * 0.012;
+        pressDpad('orb', dx, dy);
+      },
+      () => releaseDpad()
+    );
+
+    // 4. Deep-Chamfered Rectangular Distance Scale Window (decal_left_top.jpg + Adam Savage LED Mod)
+    const winX = x0 + 44, winY = y0 + 35, winW = 20, winH = 34;
+    // Outer chamfer bevel
+    ctx.fillStyle = '#222830';
+    ctx.fillRect(winX - 2, winY - 2, winW + 4, winH + 4);
+    // Inner dark recessed well
+    ctx.fillStyle = state.savageWindowLight ? '#102e26' : '#0b0e12';
+    ctx.strokeStyle = state.savageWindowLight ? '#38d9c0' : '#404954';
+    ctx.lineWidth = 1.1;
+    ctx.fillRect(winX, winY, winW, winH);
+    ctx.strokeRect(winX, winY, winW, winH);
+
+    if (state.savageWindowLight) {
+      ctx.save();
+      ctx.shadowColor = '#38d9c0';
+      ctx.shadowBlur = 12;
+      ctx.fillStyle = 'rgba(56, 217, 192, 0.35)';
+      ctx.fillRect(winX + 1, winY + 1, winW - 2, winH - 2);
+      ctx.restore();
+    }
+
+    // Authentic lens distance scale inside window: green 'm', white L-scale, '20', '∞' & moving index
+    ctx.fillStyle = '#58d678';
+    ctx.font = 'bold 5px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('m', winX + 12, winY + 6);
+    ctx.fillStyle = '#dce6f0';
+    ctx.fillText('∞', winX + 11, winY + 13);
+    ctx.fillText('20', winX + 4, winY + 25);
+
+    ctx.strokeStyle = 'rgba(230, 240, 250, 0.85)';
+    ctx.lineWidth = 0.9;
+    ctx.beginPath();
+    ctx.moveTo(winX + 13, winY + 15);
+    ctx.lineTo(winX + 13, winY + 28);
+    ctx.lineTo(winX + 9, winY + 28);
+    ctx.stroke();
+
+    // Left & right white center reference ticks on bezel
+    ctx.beginPath();
+    ctx.moveTo(winX, winY + 17);
+    ctx.lineTo(winX + 4, winY + 17);
+    ctx.moveTo(winX + winW - 4, winY + 17);
+    ctx.lineTo(winX + winW, winY + 17);
+    ctx.stroke();
+
+    // Dynamic aperture/focus index bar inside window
+    const retY = winY + 7 + (state.rings[0].angle / 360) * (winH - 14);
+    ctx.strokeStyle = state.savageWindowLight ? '#38d9c0' : '#d84040';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(winX + 4, retY);
+    ctx.lineTo(winX + winW - 4, retY);
+    ctx.stroke();
+
+    registerHitbox('savage_window', 'RECESSED DISTANCE SCALE WINDOW [CLICK TO TOGGLE ADAM SAVAGE / MIKE HILL LICENSED LED]', winX - 2, winY - 2, winW + 4, winH + 4,
+      () => toggleSavageWindowLight()
+    );
+
+    // 5. Lower Left 4-Button Animatronic Motor Actuator Cluster (Drives M1–M4!)
+    const lowerBtns = [
+      { id: 'm1_btn', ring: 0, dir: 1,  x: x0 + 18, y: y0 + 150, r: 6.5, red: false, label: 'LOWER LEFT MOTOR BUTTON 01 [HOLD TO SPIN RING 01: MICRO-CT / APERTURE]' },
+      { id: 'm2_btn', ring: 1, dir: -1, x: x0 + 34, y: y0 + 158, r: 6.5, red: false, label: 'LOWER LEFT MOTOR BUTTON 02 [HOLD TO SPIN RING 02: FOCAL / 5-CAM PARALLAX]' },
+      { id: 'm3_btn', ring: 2, dir: 1,  x: x0 + 24, y: y0 + 174, r: 7.5, red: true,  label: 'LOWER LEFT RED-DOT MOTOR BUTTON 03 [HOLD TO SPIN RING 03: TIME-SLICE SCRUB]' },
+      { id: 'm4_btn', ring: 3, dir: -1, x: x0 + 40, y: y0 + 186, r: 6.0, red: false, label: 'LOWER LEFT MOTOR BUTTON 04 [HOLD TO SPIN RING 04: AFFECTIVE MESS / ELYTRA]' }
+    ];
+    lowerBtns.forEach(b => {
+      const active = state.rings[b.ring].motorDir !== 0 || state.pressedOnPropBtn === b.id;
+      drawSpunMetalButton(ctx, b.x, b.y, b.r, b.red, active);
+      registerHitbox(b.id, b.label, b.x - 9, b.y - 9, 18, 18,
+        () => { state.pressedOnPropBtn = b.id; startMotorSpin(b.ring, b.dir); },
+        () => { state.pressedOnPropBtn = null; stopMotorSpin(b.ring); }
+      );
+    });
+  } else {
+    // ========================================================================
+    // RIGHT HAND POD SILK-SCREENED DECALS & CONTROLS (decal_right_top.jpg)
+    // ========================================================================
+    // 1. Upper Spun-Metal Speed Dome with Knurled Skirt & Engraved C-Groove
+    const domeX = x0 + 20, domeY = y0 + 22;
+    ctx.save();
+    ctx.translate(domeX, domeY);
+    // Outer knurled collar skirt
+    ctx.fillStyle = '#5c6570';
+    ctx.beginPath();
+    ctx.arc(0, 0, 12.8, 0, Math.PI * 2);
+    ctx.fill();
+    for (let k = 0; k < 24; k++) {
+      const a = (k / 24) * Math.PI * 2 + state.speedDome;
+      ctx.strokeStyle = k % 2 === 0 ? '#d8e2ec' : '#252b33';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * 10.5, Math.sin(a) * 10.5);
+      ctx.lineTo(Math.cos(a) * 12.8, Math.sin(a) * 12.8);
+      ctx.stroke();
+    }
+    ctx.rotate(state.speedDome * 2.4);
+    const domeGrad = ctx.createLinearGradient(-10, -10, 10, 10);
+    domeGrad.addColorStop(0, '#eef4fa');
+    domeGrad.addColorStop(0.5, '#b8c2cc');
+    domeGrad.addColorStop(1, '#68727c');
+    ctx.fillStyle = domeGrad;
+    ctx.strokeStyle = '#2b323a';
+    ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    ctx.arc(0, 0, 10.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    // Exact crescent C-groove & index dot from decal_right_top.jpg
+    ctx.strokeStyle = '#363f48';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(0, 0, 6.8, -0.9, 1.5);
+    ctx.stroke();
+    ctx.fillStyle = '#252b33';
+    ctx.beginPath();
+    ctx.arc(-4.5, 4.5, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    registerHitbox('speed_dome', 'RIGHT POD SPUN-METAL SPEED DOME [DRAG VERTICALLY TO VARY 5-MOTOR RPM 0.2x–2.8x]', domeX - 13, domeY - 13, 26, 26,
+      (mx, my) => {
+        state.drag.active = true;
+        state.drag.mode = 'dome';
+        state.drag.startY = my;
+        state.drag.startVal = state.speedDome;
+        playMicroSwitchClick(true, 140);
+      }
+    );
+
+    // 2. Recessed Knurled Jog Thumbwheel (decal_right_top.jpg)
+    const jogX = x0 + 12, jogY = y0 + 42, jogW = 13, jogH = 26;
+    ctx.fillStyle = '#181d23';
+    ctx.strokeStyle = '#434c56';
+    ctx.lineWidth = 1.1;
+    ctx.fillRect(jogX, jogY, jogW, jogH);
+    ctx.strokeRect(jogX, jogY, jogW, jogH);
+
+    // Cylindrical 3D shading on exposed thumbwheel drum
+    const drumGrad = ctx.createLinearGradient(0, jogY, 0, jogY + jogH);
+    drumGrad.addColorStop(0, '#384048');
+    drumGrad.addColorStop(0.5, '#c4cdd6');
+    drumGrad.addColorStop(1, '#30373e');
+    ctx.fillStyle = drumGrad;
+    ctx.fillRect(jogX + 2, jogY + 2, jogW - 4, jogH - 4);
+
+    for (let jy = jogY + 3; jy < jogY + jogH - 3; jy += 3.2) {
+      const shift = (jy + state.jogWheelPhase) % 3.2;
+      ctx.strokeStyle = '#252c34';
+      ctx.lineWidth = 1.1;
+      ctx.beginPath();
+      ctx.moveTo(jogX + 2, jy + shift * 0.3);
+      ctx.lineTo(jogX + jogW - 2, jy + shift * 0.3);
+      ctx.stroke();
+    }
+    drawPillArrowIcon(ctx, jogX + jogW + 7, jogY + jogH / 2);
+
+    registerHitbox('jog_wheel', 'RECESSED KNURLED JOG THUMBWHEEL [DRAG VERTICALLY TO STEP TIME-SLICE FRAMES]', jogX - 3, jogY - 3, jogW + 14, jogH + 6,
+      (mx, my) => {
+        state.drag.active = true;
+        state.drag.mode = 'jog';
+        state.drag.startY = my;
+        state.drag.startVal = state.rings[2].angle;
+        playDetentTick(2, 1.0);
+      }
+    );
+
+    // 3. Top Right 4-Quadrant Segmented Disc Button + Authentic [SELECT] Stencil Pill (sec_030.jpg)
+    const quadX = x0 + 46, quadY = y0 + 25;
+    drawQuadrantDiscButton(ctx, quadX, quadY, 9.2, state.pressedOnPropBtn === 'quad_btn');
+    drawRedStencilCallout(ctx, quadX - 10, quadY + 10, -10, 8, 'SELECT');
+    registerHitbox('quad_btn', 'RIGHT POD [SELECT] SUB-OBJECT & CAMERA NODE BUTTON [CLICK TO CYCLE 3D SAM ITEM]', quadX - 12, quadY - 12, 24, 24,
+      () => {
+        state.pressedOnPropBtn = 'quad_btn';
+        if (typeof window.selectSceneObject === 'function') {
+          window.selectSceneObject(((state.selectedNodeIdx || 0) + 1) % 4);
+        } else {
+          state.selectedNodeIdx = ((state.selectedNodeIdx || 0) + 1) % 4;
+        }
+        setCameraStation((state.cameraStation + 1) % 5);
+      },
+      () => { state.pressedOnPropBtn = null; playMicroSwitchClick(false, 120); }
+    );
+
+    // 4. Middle Right Black-Collar Spun Button
+    const midBtnX = x0 + 56, midBtnY = y0 + 42;
+    drawSpunMetalButton(ctx, midBtnX, midBtnY, 7.5, false, state.pressedOnPropBtn === 'mid_r_btn');
+    registerHitbox('mid_r_btn', 'RIGHT POD ENGRAM SELECTOR BUTTON [CLICK TO CYCLE MEMORY CARTRIDGE]', midBtnX - 9, midBtnY - 9, 18, 18,
+      () => {
+        state.pressedOnPropBtn = 'mid_r_btn';
+        const order = ['beetle', 'birthday', 'horse', 'snow'];
+        const next = order[(order.indexOf(state.scene) + 1) % order.length];
+        selectMemoryScene(next);
+      },
+      () => { state.pressedOnPropBtn = null; }
+    );
+
+    // 5. Large Primary Thumb Button with Red Anodized Inner Ring + "ON• / OFF•" Pad Print (decal_right_top.jpg)
+    const thumbX = x0 + 41, thumbY = y0 + 57;
+    drawRedRingThumbButton(ctx, thumbX, thumbY, 9.8, state.rings[2].motorDir !== 0 || state.pressedOnPropBtn === 'thumb_m5');
+    ctx.fillStyle = '#181d23';
+    ctx.font = '700 5px -apple-system, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('ON•', thumbX + 12, thumbY - 1);
+    ctx.fillText('OFF•', thumbX + 12, thumbY + 4.5);
+    drawRedStencilCallout(ctx, thumbX + 6, thumbY + 11, 7, 8, 'VR');
+    drawPillArrowIcon(ctx, thumbX + 9, thumbY + 23);
+
+    registerHitbox('thumb_m5', 'PRIMARY RED-RING THUMB BUTTON [HOLD TO ACTUATE CENTER KNURLED RING 03 MOTOR]', thumbX - 11, thumbY - 11, 22, 22,
+      () => { state.pressedOnPropBtn = 'thumb_m5'; startMotorSpin(2, 1); },
+      () => { state.pressedOnPropBtn = null; stopMotorSpin(2); }
+    );
+
+    // 6. Lower Right Motor 5 & X-Ray Toggle Buttons
+    const lr1X = x0 + 28, lr1Y = y0 + 158;
+    drawSpunMetalButton(ctx, lr1X, lr1Y, 7.5, false, state.rings[4].motorDir !== 0 || state.pressedOnPropBtn === 'lr1_btn');
+    registerHitbox('lr1_btn', 'LOWER RIGHT MOTOR BUTTON 05 [HOLD TO SPIN RIGHT COLLAR RING 05: KELVIN / CAKE]', lr1X - 9, lr1Y - 9, 18, 18,
+      () => { state.pressedOnPropBtn = 'lr1_btn'; startMotorSpin(4, 1); },
+      () => { state.pressedOnPropBtn = null; stopMotorSpin(4); }
+    );
+
+    const lr2X = x0 + 22, lr2Y = y0 + 176;
+    drawSpunMetalButton(ctx, lr2X, lr2Y, 7.0, true, state.pressedOnPropBtn === 'lr2_btn');
+    registerHitbox('lr2_btn', 'LOWER RIGHT AUX BUTTON [CLICK TO TOGGLE MOXIE TOOLS 5-MOTOR CAD X-RAY CUTAWAY]', lr2X - 9, lr2Y - 9, 18, 18,
+      () => {
+        state.pressedOnPropBtn = 'lr2_btn';
+        setViewMode(state.viewMode === 'xray' ? 'sculpt' : 'xray');
+      },
+      () => { state.pressedOnPropBtn = null; }
+    );
+  }
+
+  ctx.restore();
+  ctx.restore();
+}
+
+function drawSpunMetalButton(ctx, x, y, r, hasRedDot, isPressed) {
+  ctx.save();
+  const offset = isPressed ? 1.2 : 0;
+  // Dark machined recess collar
+  ctx.fillStyle = '#161b20';
+  ctx.beginPath();
+  ctx.arc(x, y, r + 1.8, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Base metallic disc
+  const grad = ctx.createLinearGradient(x - r, y - r + offset, x + r, y + r + offset);
+  grad.addColorStop(0, isPressed ? '#98a2ac' : '#f4f8fc');
+  grad.addColorStop(0.5, isPressed ? '#7a848e' : '#b8c2cc');
+  grad.addColorStop(1, '#48505a');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(x, y + offset, r, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Anisotropic radial diamond-turned lathe highlight lobes + concentric micro-rings
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(x, y + offset, r - 0.5, 0, Math.PI * 2);
+  ctx.clip();
+  for (let lobe = 0; lobe < 2; lobe++) {
+    const a = lobe * Math.PI + 0.45 + state.tiltX * 0.4;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.32)';
+    ctx.beginPath();
+    ctx.moveTo(x, y + offset);
+    ctx.arc(x, y + offset, r, a - 0.28, a + 0.28);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.strokeStyle = 'rgba(40, 48, 56, 0.18)';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.arc(x, y + offset, r * 0.65, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.strokeStyle = isPressed ? '#38d9c0' : '#2a3138';
+  ctx.lineWidth = 1.1;
+  ctx.beginPath();
+  ctx.arc(x, y + offset, r, 0, Math.PI * 2);
+  ctx.stroke();
+
+  if (hasRedDot) {
+    ctx.fillStyle = '#d82e32';
+    ctx.beginPath();
+    ctx.arc(x, y + offset, r * 0.28, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawQuadrantDiscButton(ctx, x, y, r, isPressed) {
+  drawSpunMetalButton(ctx, x, y, r, true, isPressed);
+  ctx.save();
+  const offset = isPressed ? 1.2 : 0;
+  ctx.strokeStyle = '#323942';
+  ctx.lineWidth = 0.9;
+  ctx.beginPath();
+  ctx.moveTo(x - r + 1.5, y + offset);
+  ctx.lineTo(x - r * 0.38, y + offset);
+  ctx.moveTo(x + r * 0.38, y + offset);
+  ctx.lineTo(x + r - 1.5, y + offset);
+  ctx.moveTo(x, y + offset - r + 1.5);
+  ctx.lineTo(x, y + offset - r * 0.38);
+  ctx.moveTo(x, y + offset + r * 0.38);
+  ctx.lineTo(x, y + offset + r - 1.5);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawRedRingThumbButton(ctx, x, y, r, isPressed) {
+  drawSpunMetalButton(ctx, x, y, r, false, isPressed);
+  ctx.save();
+  const offset = isPressed ? 1.2 : 0;
+  ctx.strokeStyle = '#d42c30';
+  ctx.lineWidth = 1.7;
+  ctx.beginPath();
+  ctx.arc(x, y + offset, r * 0.42, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawRedStencilCallout(ctx, x, y, dx, dy, tagText) {
+  ctx.save();
+  ctx.strokeStyle = 'rgba(212, 46, 50, 0.88)';
+  ctx.fillStyle = 'rgba(212, 46, 50, 0.92)';
+  ctx.lineWidth = 0.85;
+  if (tagText === 'SELECT') {
+    // Authentic rounded crimson-bordered [SELECT] stencil pill from sec_030.jpg
+    const px = x - 1, py = y - 28, pw = 22, ph = 7.2;
+    ctx.fillStyle = 'rgba(155, 28, 32, 0.85)';
+    ctx.strokeStyle = 'rgba(235, 62, 66, 0.95)';
+    ctx.lineWidth = 0.9;
+    ctx.beginPath();
+    ctx.roundRect(px, py, pw, ph, 3.2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(248, 244, 242, 0.96)';
+    ctx.font = '700 4.5px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('SELECT', px + pw * 0.5, py + 5.2);
+    ctx.restore();
+    return;
+  }
+  ctx.beginPath();
+  ctx.arc(x, y, 1.1, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x + dx, y);
+  ctx.lineTo(x + dx, y + dy);
+  ctx.stroke();
+  if (tagText) {
+    ctx.font = '600 4.5px sans-serif';
+    ctx.textAlign = dx < 0 ? 'right' : 'left';
+    ctx.fillText(tagText, x + dx + (dx < 0 ? -1.5 : 1.5), y + dy + 2);
+  }
+  ctx.restore();
+}
+
+function drawPillArrowIcon(ctx, x, y) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(22, 27, 33, 0.25)';
+  ctx.strokeStyle = '#363e48';
+  ctx.lineWidth = 0.85;
+  ctx.beginPath();
+  ctx.roundRect(x - 6.5, y - 3, 13, 6, 3);
+  ctx.fill();
+  ctx.stroke();
+  // Left & right micro triangles + center divider line
+  ctx.fillStyle = '#222830';
+  ctx.beginPath();
+  ctx.moveTo(x - 4.5, y); ctx.lineTo(x - 2, y - 1.7); ctx.lineTo(x - 2, y + 1.7); ctx.closePath();
+  ctx.moveTo(x + 4.5, y); ctx.lineTo(x + 2, y - 1.7); ctx.lineTo(x + 2, y + 1.7); ctx.closePath();
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(x, y - 2);
+  ctx.lineTo(x, y + 2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+// ============================================================================
+// WALLACE ARCHIVE MEMORY BEARING READER VIEW (TESTED VIDEO PART 1)
+// ============================================================================
+function renderWallaceBearingReader(ctx, w, h) {
+  const cx = w * 0.5;
+  const cy = h * 0.54;
+  const br = state.bearingReader;
+
+  ctx.fillStyle = '#151a21';
+  ctx.strokeStyle = '#3a4654';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(cx - 270, cy - 122, 540, 244, 8);
+  ctx.fill();
+  ctx.stroke();
+
+  const platX = cx - 102;
+  const platY = cy;
+  ctx.fillStyle = '#0b0e12';
+  ctx.beginPath();
+  ctx.arc(platX, platY, 86, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  const beamCols = { teal: '#38d9c0', amber: '#f0a848', white: '#e8f2ff' };
+  const activeCol = beamCols[br.beamColor] || '#38d9c0';
+
+  const missedIndices = new Set([3, 4, 11, 17, 18, 22]);
+  for (let i = 0; i < 24; i++) {
+    const rotIdx = (i + Math.floor(br.ledChasePhase)) % 24;
+    const ang = (i / 24) * Math.PI * 2 + br.platterAngle * 0.3;
+    const lx = platX + Math.cos(ang) * 72;
+    const ly = platY + Math.sin(ang) * 72;
+    const isMissed = missedIndices.has(rotIdx);
+
+    ctx.fillStyle = isMissed ? '#1a2028' : activeCol;
+    ctx.beginPath();
+    ctx.arc(lx, ly, 3.4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const liftOffset = br.spindlePos * 38;
+  ctx.strokeStyle = '#8fa0b2';
+  ctx.lineWidth = 6;
+  ctx.beginPath();
+  ctx.moveTo(platX, platY + 30);
+  ctx.lineTo(platX, platY - liftOffset);
+  ctx.stroke();
+
+  const sphereY = platY - 12 - liftOffset;
+  const sphereGrad = ctx.createRadialGradient(platX - 8, sphereY - 8, 3, platX, sphereY, 28);
+  sphereGrad.addColorStop(0, '#ffffff');
+  sphereGrad.addColorStop(0.35, activeCol);
+  sphereGrad.addColorStop(1, 'rgba(10, 20, 30, 0.9)');
+  ctx.fillStyle = sphereGrad;
+  ctx.beginPath();
+  ctx.arc(platX, sphereY, 27, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = activeCol;
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+
+  registerHitbox('bearing_sphere', 'GLASS MEMORY BEARING SPHERE [CLICK TO ACTUATE 12V CAR-ANTENNA SPINDLE]', platX - 32, sphereY - 32, 64, 64,
+    () => toggleBearingElevator()
+  );
+
+  const monX = cx + 18;
+  const monY = cy - 82;
+  ctx.fillStyle = '#091017';
+  ctx.strokeStyle = activeCol;
+  ctx.lineWidth = 1.4;
+  ctx.fillRect(monX, monY, 224, 164);
+  ctx.strokeRect(monX, monY, 224, 164);
+
+  ctx.fillStyle = activeCol;
+  ctx.font = 'bold 10px monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('WALLACE BEARING READER // ARCHIVE', monX + 12, monY + 22);
+  ctx.fillStyle = '#8fa0b2';
+  ctx.font = '9px monospace';
+  ctx.fillText(`SPINDLE ACTUATOR: ${br.spindleUp ? 'RAISED' : 'SEATED'}`, monX + 12, monY + 42);
+  ctx.fillText(`OPTICAL FILTER: ${br.beamColor.toUpperCase()}`, monX + 12, monY + 58);
+  ctx.fillText('LED RING: 24x RGB [MISSED-LIGHT CADENCE]', monX + 12, monY + 74);
+  ctx.fillText(`ENGRAM ID: ${state.scene.toUpperCase()}-2049`, monX + 12, monY + 90);
+  ctx.fillText('ACTUATOR: 12V CAR-ANTENNA WORM GEAR', monX + 12, monY + 106);
+  ctx.fillStyle = '#f0a848';
+  ctx.fillText('CLICK GLASS BEARING TO EJECT / INSERT', monX + 12, monY + 138);
+}
+
+// ============================================================================
+// DIRECT POINTER / TOUCH INTERACTION & HOVER INSPECTION ON ORB CANVAS
+// ============================================================================
+orbCanvas.addEventListener('pointerdown', e => {
+  ensureAudio();
+  const rect = orbCanvas.getBoundingClientRect();
+  const orbScale = getOrbLayoutScale(rect.width, rect.height);
+  const baseCy = getOrbLayoutCenterY(rect.height);
+  const rawX = e.clientX - rect.left;
+  const rawY = e.clientY - rect.top;
+  const x = (rawX - rect.width * 0.5) / orbScale + rect.width * 0.5;
+  const y = (rawY - baseCy) / orbScale + baseCy;
+
+  // 1. Check specific machined button / control hitboxes first (reverse order for top-most)
+  for (let i = currentHitboxes.length - 1; i >= 0; i--) {
+    const hb = currentHitboxes[i];
+    if (x >= hb.x && x <= hb.x + hb.w && y >= hb.y && y <= hb.y + hb.h) {
+      if (hb.onDown) {
+        hb.onDown(x, y, e);
+        state.drag.activeHitbox = hb;
+        orbCanvas.setPointerCapture(e.pointerId);
+        return;
+      }
+    }
+  }
+
+  // 2. Check if user grabbed one of the 5 center rings (drag vertically to spin ring)
+  const cx = rect.width * 0.5 + state.tiltX * 9;
+  const spreadPx = state.accordionSpread * 84;
+  const ringOffsets = [
+    -74 - spreadPx * 0.36,
+    -38 - spreadPx * 0.17,
+      0,
+     37 + spreadPx * 0.17,
+     74 + spreadPx * 0.36
+  ];
+  for (let i = 0; i < 5; i++) {
+    const rx = cx + ringOffsets[i];
+    if (Math.abs(x - rx) < 21) {
+      state.drag.active = true;
+      state.drag.mode = 'ring';
+      state.drag.ringIndex = i;
+      state.drag.startY = y;
+      state.drag.startVal = state.rings[i].angle;
+      orbCanvas.setPointerCapture(e.pointerId);
+      playDetentTick(i, 1.0);
+      return;
+    }
+  }
+
+  // 3. Otherwise dragging outer left/right hand pods expands/contracts the accordion!
+  state.drag.active = true;
+  state.drag.mode = 'accordion';
+  state.drag.startX = x;
+  state.drag.startVal = state.accordionTarget * 100;
+  orbCanvas.setPointerCapture(e.pointerId);
+});
+
+orbCanvas.addEventListener('pointermove', e => {
+  const rect = orbCanvas.getBoundingClientRect();
+  const orbScale = getOrbLayoutScale(rect.width, rect.height);
+  const baseCy = getOrbLayoutCenterY(rect.height);
+  const rawX = e.clientX - rect.left;
+  const rawY = e.clientY - rect.top;
+  const x = (rawX - rect.width * 0.5) / orbScale + rect.width * 0.5;
+  const y = (rawY - baseCy) / orbScale + baseCy;
+
+  // Update bimanual wrist tilt target from cursor position
+  state.targetTiltX = ((x / rect.width) - 0.5) * 1.4;
+  state.targetTiltY = ((y / rect.height) - 0.5) * 1.4;
+
+  // Hover part inspection
+  let foundHover = null;
+  for (let i = currentHitboxes.length - 1; i >= 0; i--) {
+    const hb = currentHitboxes[i];
+    if (x >= hb.x && x <= hb.x + hb.w && y >= hb.y && y <= hb.y + hb.h) {
+      foundHover = hb;
+      break;
+    }
+  }
+  state.hoveredHitbox = foundHover;
+  const hoverEl = document.getElementById('hoverPartReadout');
+  if (hoverEl) {
+    hoverEl.textContent = foundHover
+      ? foundHover.label
+      : 'OUTER BEAD-BLASTED 6061 ALUMINUM PODS [DRAG HORIZONTALLY TO SPREAD CALLIOPE]';
+  }
+
+  if (!state.drag.active) return;
+
+  if (state.drag.mode === 'ring') {
+    const dy = y - state.drag.startY;
+    state.rings[state.drag.ringIndex].vel = (dy * 0.12);
+    setRingAngle(state.drag.ringIndex, state.drag.startVal + dy * 1.35, true);
+  } else if (state.drag.mode === 'accordion') {
+    const cx = rect.width * 0.5;
+    const dir = x >= cx ? 1 : -1;
+    const dx = (x - state.drag.startX) * dir;
+    setAccordionSpread(state.drag.startVal + dx * 0.62, true);
+  } else if (state.drag.mode === 'dome') {
+    const dy = state.drag.startY - y;
+    setSpeedDome(state.drag.startVal + dy * 0.018);
+  } else if (state.drag.mode === 'jog') {
+    const dy = y - state.drag.startY;
+    state.jogWheelPhase = Math.abs(dy);
+    setRingAngle(2, state.drag.startVal + dy * 0.9, true);
+  }
+});
+
+function handleOrbPointerUp() {
+  if (state.drag.activeHitbox && state.drag.activeHitbox.onUp) {
+    state.drag.activeHitbox.onUp();
+  }
+  state.drag.activeHitbox = null;
+  state.drag.active = false;
+}
+
+orbCanvas.addEventListener('pointerup', handleOrbPointerUp);
+orbCanvas.addEventListener('pointercancel', handleOrbPointerUp);
+
+holoCanvas.addEventListener('pointerdown', e => {
+  ensureAudio();
+  state.cam3D.dragging = true;
+  state.cam3D.lastX = e.clientX;
+  state.cam3D.lastY = e.clientY;
+  holoCanvas.setPointerCapture(e.pointerId);
+});
+
+holoCanvas.addEventListener('pointermove', e => {
+  if (!state.cam3D.dragging) return;
+  const dx = e.clientX - state.cam3D.lastX;
+  const dy = e.clientY - state.cam3D.lastY;
+  state.cam3D.lastX = e.clientX;
+  state.cam3D.lastY = e.clientY;
+  state.cam3D.yaw += dx * 0.0085;
+  state.cam3D.pitch = Math.max(-1.15, Math.min(1.15, state.cam3D.pitch + dy * 0.0075));
+});
+
+holoCanvas.addEventListener('pointerup', () => { state.cam3D.dragging = false; });
+holoCanvas.addEventListener('pointercancel', () => { state.cam3D.dragging = false; });
+
+holoCanvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  state.cam3D.dist = Math.max(175, Math.min(580, state.cam3D.dist + e.deltaY * 0.35));
+}, { passive: false });
+
+// Also allow mouse wheel directly on the 5 Orb rings to rotate them smoothly!
+orbCanvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  ensureAudio();
+  const rect = orbCanvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const cx = rect.width * 0.5 + state.tiltX * 9;
+  const spreadPx = state.accordionSpread * 84;
+  const ringOffsets = [-74 - spreadPx * 0.36, -38 - spreadPx * 0.17, 0, 37 + spreadPx * 0.17, 74 + spreadPx * 0.36];
+  for (let i = 0; i < 5; i++) {
+    if (Math.abs(x - (cx + ringOffsets[i])) < 22) {
+      state.userHoldTimer = 3.5;
+      setRingAngle(i, state.rings[i].angle + e.deltaY * 0.25, true);
+      return;
+    }
+  }
+  state.userHoldTimer = 3.5;
+  setAccordionSpread(state.accordionTarget * 100 + e.deltaY * 0.12, true);
+}, { passive: false });
+
+// ============================================================================
+// MAIN 60FPS ANIMATRONIC, SPRING-MASS-DAMPER & VOLUMETRIC SIMULATION LOOP
+// ============================================================================
+function tick() {
+  state.time += 0.016;
+
+  // 1. Bimanual 1.42 kg Wrist Tilt Inertia (heavy damped low-pass filter)
+  state.tiltX += (state.targetTiltX - state.tiltX) * 0.08;
+  state.tiltY += (state.targetTiltY - state.tiltY) * 0.08;
+
+  // 2. Dual Rack-and-Pinion Calliope Spring-Mass-Damper Physics
+  const spreadForce = (state.accordionTarget - state.accordionSpread) * 0.18;
+  state.accordionVel = (state.accordionVel + spreadForce) * 0.76;
+  state.accordionSpread += state.accordionVel;
+
+  // Trigger brass rack-and-pinion tooth clicks as the calliope slides
+  const currentTooth = Math.floor(state.accordionSpread * 65);
+  if (currentTooth !== state.lastRackTooth) {
+    const atEnd = (currentTooth <= 0 || currentTooth >= 65);
+    playRackPinionTooth(atEnd);
+    state.lastRackTooth = currentTooth;
+  }
+
+  let totalTorque = 0;
+
+  if (state.powerOn) {
+    let activeMotors = 0;
+
+    if (state.autoDance) {
+      const t = state.time;
+      setAccordionSpread(46 + Math.sin(t * 0.85) * 34, true);
+      state.rings.forEach((r, idx) => {
+        const dir = idx % 2 === 0 ? 1 : -1;
+        r.vel = dir * (0.65 + idx * 0.22) * state.speedDome;
+      });
+      activeMotors = 5;
+    }
+
+    // 3. Process 5 Concentric Ring Rotor Inertia & Spur-Gear Momentum
+    state.rings.forEach((r, idx) => {
+      if (r.motorDir !== 0) {
+        const targetVel = r.motorDir * (2.6 * state.speedDome) * (state.batteryVolts / 9.0);
+        r.vel += (targetVel - r.vel) * 0.16; // Rotor spin-up inertia
+        activeMotors++;
+      } else {
+        r.vel *= 0.91; // Gear-train coast-down friction
+      }
+      if (Math.abs(r.vel) > 0.015) {
+        setRingAngle(idx, r.angle + r.vel, r.motorDir === 0 && Math.abs(r.vel) > 0.35);
+        totalTorque += Math.abs(r.vel) * 1.8;
+      }
+    });
+
+    // Update continuous 5-motor Web Audio synthesizer
+    updateContinuousMotorAudio();
+
+    if (activeMotors > 0) {
+      state.batteryVolts = Math.max(7.1, state.batteryVolts - activeMotors * 0.00018);
+      if (Math.floor(state.time * 30) % 15 === 0) updateBatteryUI();
+    }
+
+    // Update Wallace Archive Bearing Reader animation
+    const targetSpindle = state.bearingReader.spindleUp ? 1.0 : 0.0;
+    state.bearingReader.spindlePos += (targetSpindle - state.bearingReader.spindlePos) * 0.12;
+    if (state.bearingReader.platterSpin) {
+      state.bearingReader.platterAngle += 0.04;
+      state.bearingReader.ledChasePhase = (state.bearingReader.ledChasePhase + 0.22) % 24;
+    }
+  } else {
+    updateContinuousMotorAudio();
+  }
+
+  // Update live kinetic / inertial gauge in Left Column
+  const kinEl = document.getElementById('kineticReadout');
+  if (kinEl) {
+    const rackForceN = (Math.abs(state.accordionVel) * 420).toFixed(1);
+    const tiltDeg = (Math.hypot(state.tiltX, state.tiltY) * 6.5).toFixed(1);
+    kinEl.innerHTML = `TORQUE: ${totalTorque.toFixed(1)} N·cm · RACK: ${rackForceN} N<br>DETENT: ${totalTorque > 0.2 ? 'ROTATING' : 'LOCKED'} · TILT: ${tiltDeg}°`;
+  }
+
+  updateInverseWeaveSequencer();
+  if (state.engineVersion === 'v1') {
+    const wgl = document.getElementById('webglCanvas');
+    if (wgl && wgl.style.display !== 'none') wgl.style.display = 'none';
+    renderHologramChamber();
+  } else if (typeof window.renderStellineWebGLScene === 'function') {
+    const wgl = document.getElementById('webglCanvas');
+    if (wgl && wgl.style.display === 'none') wgl.style.display = 'block';
+    window.renderStellineWebGLScene(state, holoCanvas, holoCtx);
+  } else {
+    renderHologramChamber();
+  }
+  renderOrbHardware();
+  if (Math.floor(state.time * 60) % 6 === 0) syncMobileDockUI();
+  requestAnimationFrame(tick);
+}
+
+window.state = state;
+window.setRingAngle = setRingAngle;
+window.setAccordionSpread = setAccordionSpread;
+window.addEventListener('DOMContentLoaded', () => {
+  resizeCanvases();
+  const params = new URLSearchParams(window.location.search);
+  const engParam = params.get('engine');
+  if (engParam) cycleEngineVersion(engParam.toLowerCase());
+  if (params.get('mobile') === '1') document.body.classList.add('force-mobile');
+  const r0 = params.get('r0') ?? params.get('a1');
+  const r1 = params.get('r1') ?? params.get('a2');
+  const r2 = params.get('r2') ?? params.get('a3');
+  const r3 = params.get('r3') ?? params.get('a4');
+  const r4 = params.get('r4') ?? params.get('a5');
+  const spreadP = params.get('spread');
+  const xrayP = params.get('xray');
+  if (params.get('static') === '1') {
+    state.staticMode = true;
+    state.liveModeling = false;
+  } else if (r0 !== null || r1 !== null || r2 !== null || r3 !== null || r4 !== null || spreadP !== null) {
+    state.liveModeling = false;
+    state.userHoldTimer = 12.0;
+  }
+  const protoParam = params.get('protocol');
+  const stepParam = params.get('step');
+  const otherwiseParam = params.get('otherwise');
+  if (protoParam) {
+    activateOperatorProtocol(protoParam, stepParam !== null ? parseInt(stepParam, 10) : 0, true);
+    state.liveModeling = false;
+    state.userHoldTimer = 12.0;
+  }
+  const shotParam = params.get('shot');
+  if (shotParam && SHOT_CONFIGS[shotParam]) {
+    selectFilmShot(shotParam);
+    if (r0 !== null || r1 !== null || r2 !== null || r3 !== null || r4 !== null || spreadP !== null || otherwiseParam !== null) {
+      state.liveModeling = false;
+      state.userHoldTimer = 12.0;
+    }
+  }
+  if (otherwiseParam !== null) {
+    const pKey = protoParam || (state.scene === 'birthday' ? 'cake' : 'bug');
+    cycleOtherwiseVariant(pKey, parseInt(otherwiseParam, 10));
+  }
+  const nodeParam = params.get('node');
+  if (nodeParam !== null && typeof window.selectSceneObject === 'function') {
+    window.selectSceneObject(parseInt(nodeParam, 10) || 0);
+  }
+  const tParam = params.get('t');
+  if (tParam !== null) {
+    state.shotTime = parseFloat(tParam);
+    state.time = parseFloat(tParam);
+  }
+  if (r0 !== null) setRingAngle(0, parseFloat(r0), false);
+  if (r1 !== null) setRingAngle(1, parseFloat(r1), false);
+  if (r2 !== null) setRingAngle(2, parseFloat(r2), false);
+  if (r3 !== null) setRingAngle(3, parseFloat(r3), false);
+  if (r4 !== null) setRingAngle(4, parseFloat(r4), false);
+  if (spreadP !== null) setAccordionSpread(parseFloat(spreadP), false);
+  if (xrayP === '1') state.renderMode = 'xray';
+  renderOperatorProtocolUI();
+  updateTelemetryUI();
+  updateBatteryUI();
+  requestAnimationFrame(tick);
+});
+</script>
+<script src="assets/stelline-sam-data.js"></script>
+<script src="assets/stelline-3d-engine.js"></script>
+</body>
+</html>
