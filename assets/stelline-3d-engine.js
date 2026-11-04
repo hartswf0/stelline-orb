@@ -340,6 +340,7 @@
         pos.x += sin(uTime * 1.15) * 0.015 * headMask + (uv.x - 0.52) * 0.085 * max(0.0, uMandibleFlex - 0.45) * labrumMask;
         pos.y += (cos(uTime * 0.95) * 0.012 * headMask) - (0.042 * uMandibleFlex * labrumMask);
         pos.z = zSculpt * clamp(uSculptRelief, 0.25, 1.0);
+        pos.xy *= (8.0 - pos.z) / 8.0;
         vReliefZ = pos.z;
 
         vNormal = normalize(normalMatrix * normalize(vec3(
@@ -1006,7 +1007,9 @@
         float edgePin = smoothstep(0.0, 0.04, uv.x) * (1.0 - smoothstep(0.96, 1.0, uv.x)) *
                         smoothstep(0.0, 0.04, uv.y) * (1.0 - smoothstep(0.96, 1.0, uv.y));
         vec3 pos = position;
-        pos.z += (d - 0.38) * 1.15 * objSolid * edgePin;
+        float dz = (d - 0.38) * 1.15 * objSolid * edgePin;
+        pos.z += dz;
+        pos.xy *= (8.15 - dz) / 8.15;
         vDepth = d;
         gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
       }
