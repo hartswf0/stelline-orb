@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VESPER // STELLINE ORB DIRECTOR FILM (FLM-0021)</title>
+<style>
+  :root {
+    --bg: #030508;
+    --panel: #090d13;
+    --border: rgba(95, 240, 220, 0.22);
+    --cyan: #5ff0dc;
+    --gold: #ffcc66;
+    --orange: #ff9f43;
+    --red: #ff5a3c;
+    --green: #98f5b0;
+    --ink: #ecf3f8;
+    --muted: #8fa3b5;
+    --mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: radial-gradient(circle at 50% 0%, #0d1620 0%, #030508 65%);
+    color: var(--ink);
+    font-family: var(--sans);
+    min-height: 100vh;
+    padding: 20px 24px 48px;
+  }
+  header {
+    max-width: 1320px;
+    margin: 0 auto 18px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 14px;
+  }
+  .brand {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: var(--cyan);
+    font-weight: 700;
+  }
+  .brand span { color: var(--gold); }
+  .nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink);
+    text-decoration: none;
+    padding: 6px 11px;
+    border-radius: 4px;
+    border: 1px solid rgba(140, 170, 195, 0.3);
+    background: rgba(12, 18, 26, 0.85);
+    transition: all 0.15s ease;
+  }
+  .nav-links a:hover, .nav-links a.primary {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    background: rgba(20, 44, 54, 0.9);
+  }
+  .nav-links a.gold {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(48, 36, 14, 0.88);
+  }
+  main {
+    max-width: 1320px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 18px;
+    align-items: start;
+  }
+  @media (max-width: 1024px) {
+    main { grid-template-columns: 1fr; }
+  }
+  .player-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
+  }
+  .video-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #020304;
+  }
+  video {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+    background: #020304;
+  }
+  .player-bar {
+    padding: 12px 16px;
+    border-top: 1px solid rgba(95, 240, 220, 0.16);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  button {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink);
+    background: #121c26;
+    border: 1px solid rgba(95, 240, 220, 0.35);
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  button:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+  }
+  button.active-act {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(52, 38, 14, 0.92);
+  }
+  .chapters-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .chapters-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    font-weight: 700;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 204, 102, 0.22);
+  }
+  .act-btn {
+    text-align: left;
+    padding: 8px 10px;
+    background: rgba(14, 20, 28, 0.9);
+    border: 1px solid rgba(130, 155, 175, 0.22);
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    transition: all 0.14s ease;
+  }
+  .act-btn .t-range {
+    font-size: 10px;
+    color: var(--cyan);
+  }
+  .act-btn .act-name {
+    font-size: 11px;
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .act-btn .act-desc {
+    font-family: var(--sans);
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 400;
+    line-height: 1.35;
+  }
+  .live-section {
+    max-width: 1320px;
+    margin: 22px auto 0;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .live-header {
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(95, 240, 220, 0.18);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--cyan);
+  }
+  iframe {
+    width: 100%;
+    height: 760px;
+    border: 0;
+    display: block;
+    background: #020304;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">VESPER // <span>FLM-0021</span> · STELLINE MEMORY ORB 05 DIRECTOR FILM (1280x720 H.264 + FOLEY AUDIO)</div>
+    <nav class="nav-links">
+      <a href="field-orb-05.html?reel=1" class="gold">OPEN LIVE FIELD ORB 05 (AUTO-FILM)</a>
+      <a href="field-orb-05.html" class="primary">INTERACTIVE FIELD ORB 05</a>
+      <a href="stage.html">STAGE-0019</a>
+      <a href="weaver.html">WEAVER-0018</a>
+      <a href="index.html">INDEX</a>
+      <a href="versions.html">VERSIONS</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="player-card">
+      <div class="video-wrap">
+        <video id="orbFilm" src="assets/stelline-orb-film.mp4" controls autoplay loop playsinline preload="auto"></video>
+      </div>
+      <div class="player-bar">
+        <div class="btn-group">
+          <button id="playPauseBtn">PAUSE / PLAY</button>
+          <button id="restartBtn">RESTART 00:00</button>
+          <button id="unmuteBtn">UNMUTE MECHANICAL FOLEY + PAD</button>
+        </div>
+        <div id="timecodeReadout" style="color:var(--gold)">TIMECODE // 00:00.00 / 00:45.00</div>
+        <a href="assets/stelline-orb-film.mp4" download="stelline_orb_05_director_film.mp4" style="color:var(--cyan);text-decoration:none;font-weight:700;">DOWNLOAD .MP4 (H.264 + AAC)</a>
+      </div>
+    </section>
+
+    <aside class="chapters-card">
+      <div class="chapters-title">8-ACT CHOREOGRAPHED BUILD SEQUENCE</div>
+
+      <button class="act-btn" data-seek="0.0">
+        <span class="t-range">[00:00.0 - 00:03.5] ACT I · CAST SPONGE</span>
+        <span class="act-name">Click CAST (SEED -> ROOM)</span>
+        <span class="act-desc">Operator moves to the CAST actuator button and projects the hexagonal amber table and cylindrical crumb-textured sponge drum into the dark glass chamber.</span>
+      </button>
+
+      <button class="act-btn" data-seek="3.5">
+        <span class="t-range">[00:03.5 - 00:10.0] ACT II · 12-FLUTE BUNDT</span>
+        <span class="act-name">Drag Ring R2 (BUNDT MORPH 0% -> 92%)</span>
+        <span class="act-desc">Rotating the machined R2 barrel ring with tactile detents morphs the flat cylinder into the 12-flute scalloped Bundt cake torus with inner center chimney.</span>
+      </button>
+
+      <button class="act-btn" data-seek="10.0">
+        <span class="t-range">[00:10.0 - 00:16.5] ACT III · GLAZE & 44 SHELLS</span>
+        <span class="act-name">Drag Ring R3 (ICING & ROSETTES)</span>
+        <span class="act-desc">Pours the 144x24 scalloped white buttercream drip glaze and pipes 44 instanced shell rosettes around the upper and lower rims.</span>
+      </button>
+
+      <button class="act-btn" data-seek="16.5">
+        <span class="t-range">[00:16.5 - 00:23.0] ACT IV · ETCH-A-SKETCH PIPING</span>
+        <span class="act-name">Dual-Ring R2+R3 Pipe "生日快樂"</span>
+        <span class="act-desc">Animated metallic piping nozzle traces all 18 red beaded icing strokes (生日快樂 + Z underline flourish) across the cake crown.</span>
+      </button>
+
+      <button class="act-btn" data-seek="23.0">
+        <span class="t-range">[00:23.0 - 00:29.5] ACT V · 7 CANDLES & CHILDREN</span>
+        <span class="act-name">Drag Ring R4 (3200K IGNITION & KIDS)</span>
+        <span class="act-desc">Places 7 red-and-white striped candles, ignites 3200K teardrop flames, and illuminates the feathered birthday party children and Dr. Ana Stelline holding the silver Orb.</span>
+      </button>
+
+      <button class="act-btn" data-seek="29.5">
+        <span class="t-range">[00:29.5 - 00:37.5] ACT VI · THE HERO MULTI-CLOCK PROOF</span>
+        <span class="act-name">Click THUMB HOLD (r=0) + Jog R5 TIME (r=1)</span>
+        <span class="act-desc">Locks the birthday party children at t_H = 2.00s (r=0) while jogging Ring R5 rotates the 3D cake 360° and sweeps live 3200K candlelight across their frozen faces.</span>
+      </button>
+
+      <button class="act-btn" data-seek="37.5">
+        <span class="t-range">[00:37.5 - 00:42.0] ACT VII · SCANLINE WEAVE & BEETLE</span>
+        <span class="act-name">Capacitive Squeeze (22%) & Forest Reveal</span>
+        <span class="act-desc">Modulates the Capacitive Squeeze Bar into volumetric hologram scanlines, then reveals the anchored Carabus stellinae beetle in the forest clearing.</span>
+      </button>
+
+      <button class="act-btn" data-seek="42.0">
+        <span class="t-range">[00:42.0 - 00:45.0] ACT VIII · BAKE & COMMIT MEMORY</span>
+        <span class="act-name">Optimize & Bake (<100MB, FixFlip=ON)</span>
+        <span class="act-desc">Bakes the 15s multi-pass loop into a 19.4MB static paint sequence with normal-flip prevention and ready .USDA / .OBJ / .IMM / .PNG exports.</span>
+      </button>
+    </aside>
+  </main>
+
+  <section class="live-section">
+    <div class="live-header">
+      <span>LIVE INTERACTIVE INSTRUMENT DECK // FIELD ORB 05 (DRAG RINGS R1..R5, CLICK THUMB HOLD, OR PRESS [F] TO RUN DIRECTOR FILM)</span>
+      <a href="field-orb-05.html" style="color:var(--gold);text-decoration:none;">OPEN FULLSCREEN -></a>
+    </div>
+    <iframe src="field-orb-05.html" title="Live Interactive Field Orb 05"></iframe>
+  </section>
+
+  <script>
+    const vid = document.getElementById('orbFilm');
+    const tc = document.getElementById('timecodeReadout');
+    const actBtns = Array.from(document.querySelectorAll('.act-btn'));
+    const ranges = [0, 3.5, 10.0, 16.5, 23.0, 29.5, 37.5, 42.0, 45.1];
+
+    document.getElementById('playPauseBtn').addEventListener('click', () => {
+      if (vid.paused) vid.play();
+      else vid.pause();
+    });
+    document.getElementById('restartBtn').addEventListener('click', () => {
+      vid.currentTime = 0;
+      vid.play();
+    });
+    document.getElementById('unmuteBtn').addEventListener('click', () => {
+      vid.muted = false;
+      vid.volume = 0.9;
+      vid.play();
+    });
+    actBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        vid.currentTime = Number(btn.dataset.seek);
+        vid.play();
+      });
+    });
+    vid.addEventListener('timeupdate', () => {
+      const t = vid.currentTime || 0;
+      tc.textContent = `TIMECODE // 00:${t.toFixed(2).padStart(5, '0')} / 00:45.00`;
+      actBtns.forEach((b, i) => {
+        b.classList.toggle('active-act', t >= ranges[i] && t < ranges[i + 1]);
+      });
+    });
+  </script>
+</body>
+</html>

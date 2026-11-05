@@ -1,84 +1,104 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Vesper Instruments · Field Orb 05 — Stelline-Orb-Pro Live Virtual Production Studio</title>
-<meta name="description" content="VOIDBASTARD-TAO ONLINE. SHOW ONLY WHAT IS TRUE NOW. Stelline-Orb-Pro replaces Blender and floating VR menus with 3 concentric optical rings, in-orb holographic seed preview, capacitive squeeze solidification, and multi-pass embodied performance layering.">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>VESPER INSTRUMENTS · FIELD ORB 05 // STELLINE-ORB-PRO</title>
+<meta name="description" content="Vesper Instruments Field Orb 05 (Stelline-Orb-Pro): Build the birthday cake and the Blade Runner 2049 birthday memory scene from nothing by turning the rings and pressing the keys on the Orb.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #04070a;
-    --deck-bg: #080c12;
-    --line: #1c2632;
-    --ink: #e8f0f6;
-    --muted: #8a9bb0;
-    --cyan: #5ff0dc;
-    --amber: #ffcc66;
-    --orange: #ff9f43;
-    --green: #98f5b0;
-    --red: #ff5a3c;
-    --mono: "JetBrains Mono", "SF Mono", "Menlo", monospace;
-    --deck-h: 276px;
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
   html, body {
-    width: 100%; height: 100%; overflow: hidden;
-    background: var(--bg); color: var(--ink);
-    font-family: var(--mono); font-size: 11px;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #020304;
+    color: #e8f0f6;
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   }
-
-  /* Pure 2-row architecture: Screen carries ONLY the 3D scene; all controls live on the Orb Deck */
-  .app-shell {
+  #orb05App {
+    width: 100vw;
+    height: 100dvh;
     display: grid;
-    grid-template-rows: minmax(0, 1fr) var(--deck-h);
-    width: 100vw; height: 100vh; height: 100dvh;
+    grid-template-rows: minmax(0, 62fr) minmax(260px, 38fr);
+    background: #020304;
   }
-
-  .chamber-stage {
-    position: relative; width: 100%; height: 100%;
-    background: #030508; overflow: hidden;
+  #chamberStageWrap {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #020304;
+    border-bottom: 1px solid rgba(95, 240, 220, 0.24);
   }
   #chamberStageCanvas {
-    width: 100%; height: 100%; display: block;
-    cursor: crosshair; touch-action: none;
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+    touch-action: none;
   }
-
-  .orb-pro-deck {
-    position: relative; width: 100%; height: 100%;
-    background: radial-gradient(circle at 50% 50%, #121c28 0%, #05080c 78%);
-    border-top: 1px solid var(--line);
+  #chamberStageCanvas:active {
+    cursor: grabbing;
+  }
+  #reticleOverlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 4;
+  }
+  #orbDeckWrap {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 0%, #141c24 0%, #06090d 68%, #020304 100%);
+    overflow: hidden;
   }
   #orbProCanvas {
-    width: 100%; height: 100%; display: block;
-    cursor: grab; touch-action: none;
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: pointer;
+    touch-action: none;
   }
-  #orbProCanvas:active { cursor: grabbing; }
-
-  @media (max-width: 820px) {
-    :root { --deck-h: clamp(290px, 42vh, 360px); }
+  @media (max-width: 760px) {
+    #orb05App {
+      grid-template-rows: minmax(0, 54fr) minmax(270px, 46fr);
+    }
   }
 </style>
 </head>
 <body>
-<div class="app-shell">
-  <!-- 1. Live 90Hz Spatial Chamber Stage (01_PHYSICAL_LAB + 02_HOLOGRAM_MEMORY + In-World Faded Mirror Ghost) -->
-  <main class="chamber-stage">
-    <canvas id="chamberStageCanvas" aria-label="Stelline Memory Chamber: 01_PHYSICAL_LAB Glass Dome & 02_HOLOGRAM_MEMORY Volumetric Stage"></canvas>
+  <main id="orb05App">
+    <section id="chamberStageWrap" aria-label="Stelline Cylindrical Glass Containment Chamber">
+      <canvas id="chamberStageCanvas"></canvas>
+      <svg id="reticleOverlay" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice"></svg>
+    </section>
+    <section id="orbDeckWrap" aria-label="Stelline-Orb-Pro Machined 5-Ring & Concentric Seed Controller">
+      <canvas id="orbProCanvas"></canvas>
+    </section>
   </main>
 
-  <!-- 2. Operable Stelline-Orb-Pro Hardware Deck (3 Concentric Rings + In-Orb Seed Core + Capacitive Squeeze + Multi-Pass Sequencer) -->
-  <footer class="orb-pro-deck">
-    <canvas id="orbProCanvas" aria-label="Field Orb 05 Stelline-Orb-Pro Controller"></canvas>
-  </footer>
-</div>
-
-<script src="assets/three.min.js"></script>
-<script src="assets/v6/anatomy.js"></script>
-<script src="assets/field-orb-05-engine.js"></script>
-<script>
-  window.addEventListener('DOMContentLoaded', () => {
-    window.FIELD_ORB_05.init();
-  });
-</script>
+  <script src="assets/three.min.js"></script>
+  <script src="assets/v6/anatomy.js"></script>
+  <script src="assets/field-orb-05-engine.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function () {
+      if (window.FIELD_ORB_05) {
+        window.FIELD_ORB_05.init();
+      }
+    });
+  </script>
 </body>
 </html>

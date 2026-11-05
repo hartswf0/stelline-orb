@@ -2,7 +2,17 @@
 
 > **Tagline:** *Tools for thinking about media, narrative, belief, and culture — and the spatial-temporal Memory Maker instrument from Blade Runner 2049*
 
-## Featured Instrument: Vesper Instruments · Field Orb 05 (`field-orb-05.html` · `Stelline-Orb-Pro`)
+## Featured Film & Instrument: Stelline Orb Director Film (`film.html` · `FLM-0021`) & Field Orb 05 (`field-orb-05.html` · `Stelline-Orb-Pro`)
+
+* **[`film.html`](film.html) (`assets/stelline-orb-film.mp4` — `45.0s`, `1280x720`, H.264 + Synchronized Mechanical Foley & Chamber Audio)**: Complete 8-Act cinema film of the operator using the machined 5-ring Canon/ARRI barrel (`R1:FIELD`..`R5:TIME`), concentric Seed Core, and `HOLD ON (KIDS r=0)` thumb latch to build the birthday cake and scene from an empty table:
+  1. **Act I (`00:00.0–00:03.5`) · Cast Sponge Drum**: Clicks `CAST (SEED->ROOM)` to project the hexagonal amber table and cylindrical crumb-textured sponge drum into the dark glass containment chamber.
+  2. **Act II (`00:03.5–00:10.0`) · Sculpt 12-Flute Bundt Torus**: Drags `R2:BUNDT` with tactile detents (`1780 Hz`) to morph the flat sponge cylinder into the 12-flute scalloped Bundt cake torus (`0% -> 92%`).
+  3. **Act III (`00:10.0–00:16.5`) · Pour Drip Glaze & 44 Shell Rosettes**: Drags `R3:ICING` (`2020 Hz`) to pour the `144x24` glossy white buttercream drip glaze and pipe `44` instanced shell rosettes around the crown.
+  4. **Act IV (`00:16.5–00:23.0`) · Etch-a-Sketch Piping (`生日快樂`)**: Dual-ring `R2+R3` drives the animated metallic piping nozzle across all 18 red beaded calligraphy strokes (`生日快樂` + `Z` underline flourish).
+  5. **Act V (`00:23.0–00:29.5`) · 7 Striped Candles & `3200K` Children Bounce**: Drags `R4:CANDLE` to place 7 striped wax candles, ignite `3200K` teardrop flames, and illuminate the feathered birthday party children and Dr. Ana Stelline holding the silver Memory Orb.
+  6. **Act VI (`00:29.5–00:37.5`) · The Hero Multi-Clock Proof**: Clicks `HOLD ON (KIDS r=0)` to freeze the birthday party children at $t_H = 2.00\text{ s}$ while dragging `R5:TIME` rotates the 3D cake $360^\circ$ and sweeps live `3200K` candlelight across their frozen faces.
+  7. **Act VII (`00:37.5–00:42.0`) · Volumetric Scanline Squeeze & Forest Beetle**: Modulates the Capacitive Squeeze Sensor (`22%` holographic scanline wave) and switches to the forest clearing (`Carabus stellinae` iridescent beetle).
+  8. **Act VIII (`00:42.0–00:45.0`) · Bake & Commit Memory (`<100MB`, `FixFlip=ON`)**: Bakes the 15-second multi-pass loop into a `19.4MB` static paint layer with `.USDA` / `.OBJ` / `.IMM` / `4K .PNG` production export.
 
 **Field Orb 05 (`Stelline-Orb-Pro`)** unifies the six VR spatial authoring paradigms (`Quill`, `Shapelab`, `AnimVR`, `Clayground`, `Tvori / ShapesXR`, `Animotive`) into a single handheld instrument inside Dr. Ana Stelline's cylindrical glass containment chamber — eliminating floating 2D UI menus, 3D RGB gizmo clutter, and desktop DCC round-trips:
 - **Pure Two-Zone Surface & Two-Collection Scene Graph (`01_PHYSICAL_LAB` + `02_HOLOGRAM_MEMORY`):** Cylindrical glass partition (`IOR 1.45, Roughness 0.03, Is Shadow Ray` transparent-shadow bypass), recessed concrete pit, bounded `Volume_Cube` (`Density 0.03, Anisotropy 0.6`), and procedural scanline/PBR hologram shaders driven by a single `Weaver_Control_Empty`.
