@@ -1,6 +1,6 @@
 # Builds maker.html: the lean memory maker. Reuses the weaver's orb model, dial labels, icons and pairing; everything else is new.
 import re
-W=open('/home/claude/stelline-orb/weaver.html').read().split('\n')
+W=open(__import__('os').path.join(__import__('os').path.dirname(__file__), 'orb-source.html')).read().split('\n')
 def lines(a,b): return '\n'.join(W[a-1:b])
 def find(prefix, start=0):
     for i,l in enumerate(W):
@@ -20,7 +20,7 @@ assert "userData.grip = true" in orb_block
 # the dial label: inert rings say nothing
 orb_block=orb_block.replace("if (!r) { x.fillStyle = '#2e4a45'; x.font = '600 34px ui-monospace, Menlo, monospace'; x.fillText('—', W / 2, 84); }","if (!r) { R0.lp.visible = false; R0.lt.needsUpdate = true; return; } else if (!(R0.lp.visible = true)) { }")
 assert "R0.lp.visible = false" in orb_block
-icons=icons.replace("const WORD = { MODE: 'MODE', UNDO: 'UNDO', CAPTURE: 'DO', PLAY: 'PLAY', KEEP: 'KEEP' };","const WORD = { MODE: 'MODE', UNDO: 'UNDO', ADD: 'ADD', DEL: 'DEL', KEEP: 'KEEP' };")
+icons=icons.replace("const WORD = { MODE: 'MODE', UNDO: 'UNDO', CAPTURE: 'DO', PLAY: 'PLAY', KEEP: 'KEEP' };","const WORD = { MODE: 'MODE', UNDO: 'UNDO', ADD: 'ADD', DEL: 'DEL', KEEP: 'KEEP', PAIR: 'PHONE' };")
 icons=icons.replace("  else if (n === 'PAIR') {","  else if (n === 'ADD') { x.moveTo(cx - R * .55, cy); x.lineTo(cx + R * .55, cy); x.moveTo(cx, cy - R * .55); x.lineTo(cx, cy + R * .55); x.stroke(); }\n  else if (n === 'DEL') { x.moveTo(cx - R * .55, cy); x.lineTo(cx + R * .55, cy); x.stroke(); }\n  else if (n === 'PAIR') {")
 assert "n === 'ADD'" in icons
 pair=pair.replace("step: GSTEPS[GUIDE.i] ? GSTEPS[GUIDE.i].t : ''","step: (picked() || {}).name || ''").replace("'stelline-weaver/v1/'","'stelline-maker/v1/'").replace("new BroadcastChannel('stelline-weaver')","new BroadcastChannel('stelline-maker')")
