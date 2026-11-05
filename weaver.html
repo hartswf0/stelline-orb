@@ -28,6 +28,7 @@
   .qr-url { display: block; font-size: 11px; color: #5ff0dc; background: #040807; border: 1px solid #193b36; padding: 7px 10px; border-radius: 6px; word-break: break-all; text-decoration: none; margin-bottom: 8px; }
   .qr-peer { font-size: 11px; letter-spacing: .08em; color: #f0b040; }
   body.phone .app { grid-template-rows: 1fr; } body.phone #room { display: none; }
+  body.paired .app { grid-template-rows: 1fr 0px !important; } body.paired #orb { height: 0 !important; border: 0 !important; overflow: hidden !important; }
   body.cine .app { grid-template-rows: 1fr; } body.cine #orb { position: fixed; right: 1.5vw; bottom: 1.5vw; width: 25vw; height: 13vw; background: none; border: 0; opacity: .92; } body.cine #cap { display: none; } #labBtn { display: none; } body.cine #labBtn { display: block; position: fixed; left: 12px; top: 12px; font: 600 10px ui-monospace, Menlo, monospace; letter-spacing: .1em; color: #8fb8b0; background: rgba(0,0,0,.4); border: 1px solid #2e4a45; padding: 5px 8px; opacity: .45; cursor: pointer; } body.cine #labBtn:hover { opacity: 1; }
 </style>
 </head>
@@ -445,7 +446,6 @@ function xfRing(ax) { const nd = curNode(), m = S.mode, kind = m === 'MOVE' ? 'p
     f: v => kind === 'p' ? (v >= 0 ? '+' : '') + Math.round(v * 1000) + ' MM' : kind === 'r' ? (v > 0 ? '+' : '') + Math.round(v) + '°' : '×' + v.toFixed(2), lo: kind === 'p' ? -R0 : kind === 'r' ? -180 : .2, hi: kind === 'p' ? R0 : kind === 'r' ? 180 : 3, wrap: kind === 'r' }; }
 const deg = v => ((Math.round(v * 57.2958) % 360) + 360) % 360 + '°';
 function rings() {
-  if (window.REMOTE_RINGS) return window.REMOTE_RINGS();
   const o = S.orbit, NL = nodes();
   const R1 = { n: 'MODE', v: () => MODES.indexOf(S.mode), set: v => { S.exporting = false; setMode(MODES[clamp(Math.round(v), 0, MODES.length - 1)]); }, st: 1, f: v => MODES[v], lo: 0, hi: MODES.length - 1 };
   const R2 = S.exporting
@@ -480,15 +480,15 @@ function setMode(m) { if (typeof m === 'number') m = MODES[clamp(Math.round(m), 
 function v01(r) { if (r && r.u != null) return r.u; if (!r || r.lo == null) return .5; let v = r.v(); if (r.wrap) { const span = r.hi - r.lo; v = ((v - r.lo) % span + span) % span + r.lo; } return clamp((v - r.lo) / Math.max(1e-6, r.hi - r.lo), 0, 1); }
 let gestureT = 0, scrubAcc = [0, 0, 0, 0, 0];
 // scrubbing: a sideways drag moves a ring smoothly between its detents; it still ticks at each one it passes
-function scrub(i, frac) { if (window.REMOTE) { ORB.spin(i, frac); S.lastRing = i; return window.REMOTE({ k: 'scrub', i, frac }); } const r = rings()[i]; if (!r) return; if (r.act) { scrubAcc[i] += frac; while (Math.abs(scrubAcc[i]) >= 1) { turn(i, Math.sign(scrubAcc[i])); scrubAcc[i] -= Math.sign(scrubAcc[i]); } return; }
+function scrub(i, frac, fromRemote) { const r = rings()[i]; if (!r) return; if (r.act) { scrubAcc[i] += frac; while (Math.abs(scrubAcc[i]) >= 1) { turn(i, Math.sign(scrubAcc[i]), fromRemote); scrubAcc[i] -= Math.sign(scrubAcc[i]); } return; }
   if (r.undoable && NOW - gestureT > 1.2) snapshot(); gestureT = NOW; S.inScrub = true; const before = Math.floor(r.v() / r.st); r.set(r.v() + r.st * frac); S.inScrub = false; const after = Math.floor(r.v() / r.st); if (after !== before) tick('ring', i);
-  S.lastRing = i; S.spinAcc = (S.spinAcc || 0) + frac * .17; ORB.spin(i, frac); oledDirty = true; }
-function turn(i, steps) { if (window.REMOTE) { tick('ring', i); ORB.spin(i, steps); S.lastRing = i; return window.REMOTE({ k: 'turn', i, steps }); } const r = rings()[i]; if (!r) { tick('dead'); return; } tick('ring', i); if (r.undoable && NOW - gestureT > 1.2) snapshot(); gestureT = NOW; if (r.act) r.act(steps); else r.set(r.v() + r.st * steps); S.spinAcc = (S.spinAcc || 0) + steps * .17; S.lastRing = i; ORB.spin(i, steps); oledDirty = true; cursorDirty = true; }
+  S.lastRing = i; S.spinAcc = (S.spinAcc || 0) + frac * .17; ORB.spin(i, frac); oledDirty = true; if (window.REMOTE && !fromRemote) window.REMOTE({ k: 'scrub', i, frac }); }
+function turn(i, steps, fromRemote) { const r = rings()[i]; if (!r) { tick('dead'); return; } tick('ring', i); if (r.undoable && NOW - gestureT > 1.2) snapshot(); gestureT = NOW; if (r.act) r.act(steps); else r.set(r.v() + r.st * steps); S.spinAcc = (S.spinAcc || 0) + steps * .17; S.lastRing = i; ORB.spin(i, steps); oledDirty = true; cursorDirty = true; if (window.REMOTE && !fromRemote) window.REMOTE({ k: 'turn', i, steps }); }
 
 /* =============================================================== buttons */
-function press(b, long) { if (window.REMOTE) { tick('press'); ORB.push(b); return window.REMOTE({ k: 'press', b, long }); } tick('press'); ORB.push(b);
+function press(b, long, fromRemote) { tick('press'); ORB.push(b); if (window.REMOTE && !fromRemote) window.REMOTE({ k: 'press', b, long });
   if (S.exporting) { if (b === 'KEEP' || b === 'CAPTURE') doExport(); else { S.exporting = false; say('EXPORT CLOSED'); } oledDirty = true; return; }
-  if (b === 'MODE') { if (long) setMode(S.mode === 'LOOK' ? (S.prevMode || 'MAKE') : (S.prevMode = S.mode, 'LOOK')); else PAIR.open(); }
+  if (b === 'MODE') { if (long) setMode(S.mode === 'LOOK' ? (S.prevMode || 'MAKE') : (S.prevMode = S.mode, 'LOOK')); else if (PHONE) setMode(MODES[(MODES.indexOf(S.mode) + 1) % MODES.length]); else PAIR.open(); }
   else if (b === 'UNDO') undo(long);
   else if (b === 'PLAY' && long) GUIDE.show();
   else if (b === 'PLAY' && S.mode === 'LOOK') { S.turntable = !S.turntable; say(S.turntable ? 'THE VIEW CIRCLES THE MEMORY' : 'THE VIEW HOLDS'); }
@@ -682,9 +682,16 @@ function updReticle() {
 
 
 /* =============================================================== THE CAST: the children, cut from the film's own frame, added one by one around the table and lit by the 3D scene */
-const KIDS = [{ file: 'child1.png', h: .56, base: TABLE_Y - .1, da: -.66, pts: [] }, { file: 'child2.png', h: .25, base: TABLE_Y + .05, da: -.04, pts: [] }, { file: 'child3.png', h: .72, base: TABLE_Y - .14, da: .58, pts: [] }];
-const kidTex = KIDS.map(k => { const t = new T.TextureLoader().load('assets/weaver/' + k.file, tt => { k.aspect = tt.image.width / tt.image.height;
-  try { const c = document.createElement('canvas'), w = 96, h = Math.max(48, Math.round(96 / k.aspect)); c.width = w; c.height = h; const x = c.getContext('2d'); x.drawImage(tt.image, 0, 0, w, h); const d = x.getImageData(0, 0, w, h).data, pts = [];
+const KIDS = [
+  { file: 'stelline_child1.webp', frames: 16, fps: 10, h: .56, base: TABLE_Y - .1, da: -.66, pts: [] },
+  { file: 'stelline_child2.webp', frames: 16, fps: 10, h: .34, base: TABLE_Y + .03, da: -.04, pts: [] },
+  { file: 'stelline_child3.webp', frames: 16, fps: 10, h: .72, base: TABLE_Y - .14, da: .58, pts: [] }
+];
+const kidTex = KIDS.map(k => { const t = new T.TextureLoader().load('assets/cutouts/' + k.file, tt => {
+  const fw = tt.image.width / (k.frames || 1), fh = tt.image.height;
+  k.aspect = fw / fh;
+  tt.repeat.set(1 / (k.frames || 1), 1);
+  try { const c = document.createElement('canvas'), w = 96, h = Math.max(48, Math.round(96 / k.aspect)); c.width = w; c.height = h; const x = c.getContext('2d'); x.drawImage(tt.image, 0, 0, fw, fh, 0, 0, w, h); const d = x.getImageData(0, 0, w, h).data, pts = [];
     for (let y = 0; y < h; y += 2) for (let u = 0; u < w; u += 2) { const idx = (y * w + u) * 4; if (d[idx + 3] > 64) pts.push([u / w - .5, .5 - y / h, d[idx] / 255, d[idx + 1] / 255, d[idx + 2] / 255]); }
     k.pts = pts; mistDirty = true; } catch (e) { }
   castDirty = true; }); t.encoding = T.sRGBEncoding; return t; });
@@ -699,6 +706,7 @@ function placeCast(dt) { const list = S.tweenCast || DOC.cast;
   const cp = cam.position.clone(); MEM.worldToLocal(cp);
   list.forEach(c => { const m = castObj(c), k = KIDS[c.i], asp = k.aspect || .7; const prevVis = c.vis || 0; c.vis = (c.vis == null ? (c.op || 1) : c.vis) + ((c.op || 0) - (c.vis == null ? (c.op || 1) : c.vis)) * Math.min(1, dt * 6.0);
     if (Math.abs(c.vis - prevVis) > .02) mistDirty = true;
+    if (k.frames > 1 && kidTex[c.i]) { const fi = Math.floor(NOW * (k.fps || 10) + c.i * 5) % k.frames; kidTex[c.i].offset.x = fi / k.frames; }
     const hh = k.h * (c.s || 1) * (c.sh || 1); m.scale.set(k.h * asp * (c.s || 1) * (c.sw || 1), hh, 1); m.position.set(Math.cos(c.a) * c.r, k.base + hh / 2 + (c.lift || 0), Math.sin(c.a) * c.r);
     m.lookAt(MEM.localToWorld(new T.Vector3(cp.x, m.position.y, cp.z))); m.rotateY((c.yaw || 0) * Math.PI / 180); m.rotateX(-(c.tilt || 0) * Math.PI / 180); m.rotateZ((c.roll || 0) * Math.PI / 180);
     m.material.opacity = c.vis; m.visible = c.vis > .02; });
@@ -1053,7 +1061,7 @@ function updMist(dt) { const m = Math.max(S.pull || 0, S.mode === 'WEAVE' ? (S.w
 /* =============================================================== PAIRING: tap QR·PAIR or the grip end; a flat scannable QR card + display show; open full mobile Weaver or Orb remote */
 const PHONE = /[?&]orb\b/.test(location.search);
 const PAIR = (function () { const uid = () => Math.random().toString(36).slice(2, 10), dev = uid(), TE = new TextEncoder(), TD = new TextDecoder(), SEEN = new Set(); let MID = 0, room = null, socks = [], urls = new Set(), peers = new Map(), kind = 'full';
-  const RELAYS = ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt', 'wss://test.mosquitto.org:8081/mqtt'];
+  const RELAYS = ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt'];
   let BC = null; try { BC = new BroadcastChannel('stelline-weaver'); BC.onmessage = e => recv(e.data); } catch (e) { }
   const cat = (...ps) => { const o = new Uint8Array(ps.reduce((a, p) => a + p.length, 0)); let i = 0; for (const p of ps) { o.set(p, i); i += p.length; } return o; };
   const mqStr = s => { const b = TE.encode(s); return cat(new Uint8Array([b.length >> 8, b.length & 255]), b); };
@@ -1068,9 +1076,9 @@ const PAIR = (function () { const uid = () => Math.random().toString(36).slice(2
   function send(m) { m.from = dev; m.mid = dev + ':' + (++MID); try { BC && BC.postMessage(m); } catch (e) { } if (room && socks.length) { const p = mqPkt(0x30, cat(mqStr(topic()), TE.encode(JSON.stringify(m)))); for (const K of socks) if (K.ok) try { K.ws.send(p); } catch (e) { } } }
   const role = PHONE ? 'orb' : 'scene', hello = () => send({ type: 'hello', role });
   function recv(m) { if (!m || !m.type || m.from === dev || SEEN.has(m.mid)) return; SEEN.add(m.mid); const was = peers.size; peers.set(m.from, { role: m.role, at: performance.now() });
-    if (!PHONE && m.role === 'orb' && !was) { say('PHONE PAIRED · ITS RINGS ARE THESE RINGS'); S.pairShow = false; syncQRCard(); shimmer(); }
-    if (!PHONE && m.type === 'act') { if (m.k === 'turn') turn(m.i, m.steps); else if (m.k === 'scrub') scrub(m.i, m.frac); else if (m.k === 'press') press(m.b, m.long); }
-    if (PHONE && m.type === 'state') { window.REMOTE_STATE = m.s; S.mode = m.s.mode; S.msg = m.s.msg; S.msgT = NOW; oledDirty = true; }
+    if (!PHONE && m.role === 'orb' && !was) { document.body.classList.add('paired'); resize(); say('PHONE PAIRED · FULL STAGE ACTIVE'); S.pairShow = false; syncQRCard(); shimmer(); }
+    if (!PHONE && m.type === 'act') { document.body.classList.add('paired'); if (m.k === 'turn') turn(m.i, m.steps, true); else if (m.k === 'scrub') scrub(m.i, m.frac, true); else if (m.k === 'press') press(m.b, m.long, true); }
+    if (PHONE && m.type === 'state') { window.REMOTE_STATE = m.s; if (m.s.mode && m.s.mode !== S.mode) S.mode = m.s.mode; if (m.s.msg) { S.msg = m.s.msg; S.msgT = NOW; } oledDirty = true; }
     syncQRCard(); }
   const join = c => { room = c; for (const u of RELAYS) open1(u); setInterval(hello, 2500); hello(); };
   const base = () => 'https://hartswf0.github.io/stelline-orb/weaver.html';
@@ -1108,8 +1116,7 @@ const PAIR = (function () { const uid = () => Math.random().toString(36).slice(2
     stateLoop() { setInterval(() => { if (PHONE || !P.peers().some(p => p.role === 'orb')) return; const RS = rings(); send({ type: 'state', s: { mode: S.mode, msg: S.msg, last: S.lastRing, step: GSTEPS[GUIDE.i] ? GSTEPS[GUIDE.i].t : '', rings: RS.map(r => r ? { n: r.n, val: String(r.f(r.v())), u: v01(r), axis: r.axis } : null) } }); }, 120); },
     join, syncQRCard };
   const qRoom = new URLSearchParams(location.search).get('room');
-  if (PHONE) { document.body.classList.add('phone'); if (qRoom) join(qRoom.toUpperCase()); window.REMOTE = a => send(Object.assign({ type: 'act' }, a));
-    window.REMOTE_RINGS = () => (window.REMOTE_STATE ? window.REMOTE_STATE.rings : [null, null, null, null, null]).map(r => r ? { n: r.n, v: () => 0, f: () => r.val, u: r.u, axis: r.axis } : null); }
+  if (PHONE) { document.body.classList.add('phone'); if (qRoom) join(qRoom.toUpperCase()); window.REMOTE = a => send(Object.assign({ type: 'act' }, a)); }
   else { if (qRoom) join(qRoom.toUpperCase()); P.stateLoop(); }
   return P; })();
 function drawPairQR(x, W, H) { if (!PAIR.qr) { try { const q = qrcode(0, 'M'); q.addData(PAIR.url()); q.make(); PAIR.qr = q; } catch (e) { return; } } const q = PAIR.qr, n = q.getModuleCount(), sz = H - 40, cell = Math.floor(sz / (n + 2)), ox = 40, oy = (H - cell * n) / 2;
@@ -1120,10 +1127,9 @@ function drawPairQR(x, W, H) { if (!PAIR.qr) { try { const q = qrcode(0, 'M'); q
 let oledDirty = true, perfDirty = true, perf = { tris: 0, calls: 0 };
 function drawOLED() { const W = OLED.width, H = OLED.height, x = ox; x.fillStyle = '#020403'; x.fillRect(0, 0, W, H); const CY = '#5ff0dc', DIM = '#2e7a70', MID = '#8fe9dc', AMB = '#f0b040';
   if (S.pairShow && !PHONE) { drawPairQR(x, W, H); oledTex.needsUpdate = true; return; }
-  if (PHONE) { const st = window.REMOTE_STATE; x.textAlign = 'left'; x.font = '700 64px ui-monospace, Menlo, monospace'; x.fillStyle = CY; x.fillText(st ? st.mode : 'LOOKING FOR THE ROOM', 30, 100); x.font = '500 28px ui-monospace, Menlo, monospace'; x.fillStyle = MID; x.fillText(st ? (st.step || '') : 'ROOM ' + (PAIR.room || '?'), 30, 160); x.fillStyle = DIM; x.fillText((S.msg || '').slice(0, 70), 30, 214); oledTex.needsUpdate = true; return; }
   x.strokeStyle = '#123630'; x.lineWidth = 2; x.beginPath(); x.moveTo(W * .25, 18); x.lineTo(W * .25, 226); x.moveTo(W * .72, 18); x.lineTo(W * .72, 226); x.moveTo(20, 236); x.lineTo(W - 20, 236); x.stroke();
   const F = DOC.frames, mistAmt = Math.max(S.pull || 0, S.mode === 'WEAVE' ? (S.weave.mist || 0) : 0);
-  const st = S.exporting ? 'EXPORT' : mistAmt > .05 ? 'MIST · ' + Math.round(mistAmt * 100) + '%' : ST ? 'WORKING' : S.state;
+  const st = PHONE ? ('ORB REMOTE · ROOM ' + (PAIR.room || 'LOCAL')) : S.exporting ? 'EXPORT' : mistAmt > .05 ? 'MIST · ' + Math.round(mistAmt * 100) + '%' : ST ? 'WORKING' : S.state;
   x.font = '600 26px ui-monospace, Menlo, monospace'; x.fillStyle = mistAmt > .05 ? AMB : DIM; x.textAlign = 'left'; x.fillText(st, 26, 48);
   x.font = '700 58px ui-monospace, Menlo, monospace'; x.fillStyle = CY; x.fillText(S.mode, 26, 118); x.font = '500 24px ui-monospace, Menlo, monospace'; x.fillStyle = MID;
   x.fillText(curNode().name + ' · FRAME ' + (DOC.cur + 1) + '/' + F.length, 26, 162); x.fillStyle = DIM; x.fillText(Math.round(perf.tris / 1000) + 'K TRIS · ' + (DOC.hasTable ? 'TABLE SET' : 'CHAMBER CONE'), 26, 202);

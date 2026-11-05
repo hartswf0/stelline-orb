@@ -14,6 +14,7 @@
   #orb { background: radial-gradient(120% 140% at 50% 0%, #161816 0%, #0a0b0a 55%, #040504 100%); border-top: 1px solid #1a1c1a; }
   @media (max-width: 700px) { .app { grid-template-rows: minmax(0, 1fr) 46%; } }
   body.phone .app { grid-template-rows: 1fr; } body.phone #room { display: none; }
+  body.paired .app { grid-template-rows: 1fr 0px !important; } body.paired #orb { height: 0 !important; border: 0 !important; overflow: hidden !important; pointer-events: none !important; }
   body.film .app { grid-template-rows: 1fr; } body.film #orb { position: fixed; left: 32vw; bottom: -.5vw; width: 36vw; height: 13.5vw; background: none; border: 0; }
 </style>
 </head>
@@ -108,13 +109,18 @@ function buildWriting(c, F) { const w = c.writing; if (!w || !w.text) return; co
 const tableMat = mistify(new T.MeshStandardMaterial({ roughness: .88, transparent: true })), legMat = mistify(new T.MeshStandardMaterial({ color: 0x141210, roughness: .7, transparent: true }));
 function buildTable(t) { TABLE.clear(); if (!t) return; tableMat.color.setHex(WOOD[t.wood][1]); const top = new T.Mesh(new T.CylinderGeometry(.6 * t.w, .6 * t.w, .035, t.shape ? 72 : 6), tableMat); top.position.y = TOP - .018; top.receiveShadow = top.castShadow = true; TABLE.add(top);
   const leg = new T.Mesh(new T.CylinderGeometry(.05, .09, TOP - .04, 16), legMat); leg.position.y = (TOP - .04) / 2; TABLE.add(leg); }
-// the children: cut from the film's own frame; flat, standing round the table, lit by the same light as the cake
-const KIDS = [{ file: 'child1.png', h: .56, base: -.1, slot: Math.PI - .62 }, { file: 'child2.png', h: .25, base: .05, slot: Math.PI - .04 }, { file: 'child3.png', h: .72, base: -.14, slot: Math.PI + .56 }];
-KIDS.forEach(k => { k.tex = new T.TextureLoader().load('assets/weaver/' + k.file, t => { k.aspect = t.image.width / t.image.height; k.img = t.image; dirty.kids = true; dirty.mist = true; }); k.tex.encoding = T.sRGBEncoding; k.aspect = .7;
-  k.mat = mistify(new T.MeshStandardMaterial({ map: k.tex, alphaTest: .35, side: T.DoubleSide, roughness: .92, emissive: 0xffffff, emissiveMap: k.tex, emissiveIntensity: .2, transparent: true })); });
+// the children: segmented animated video tracks cut from the film's own frames; standing round the table, lit by the same light as the cake
+const KIDS = [
+  { file: 'stelline_child1.webp', frames: 16, aspect: 1.377, h: .56, base: -.1, slot: Math.PI - .62 },
+  { file: 'stelline_child2.webp', frames: 16, aspect: 1.377, h: .42, base: -.02, slot: Math.PI - .04 },
+  { file: 'stelline_child3.webp', frames: 16, aspect: 1.636, h: .68, base: -.14, slot: Math.PI + .56 }
+];
+KIDS.forEach(k => { k.tex = new T.TextureLoader().load('assets/cutouts/' + k.file, t => { t.repeat.set(1 / k.frames, 1); k.img = t.image; dirty.kids = true; dirty.mist = true; }); k.tex.encoding = T.sRGBEncoding; k.tex.repeat.set(1 / k.frames, 1);
+  k.mat = mistify(new T.MeshStandardMaterial({ map: k.tex, alphaTest: .28, side: T.DoubleSide, roughness: .88, emissive: 0xffffff, emissiveMap: k.tex, emissiveIntensity: .22, transparent: true })); });
 const KM = {};
 function placeKids(dt) { const ids = new Set(DOC.kids.map(c => c.i)); for (const i in KM) if (!ids.has(+i)) { KIDG.remove(KM[i]); delete KM[i]; }
-  DOC.kids.forEach(c => { const k = KIDS[c.i]; let m = KM[c.i]; if (!m) { m = KM[c.i] = new T.Mesh(new T.PlaneGeometry(1, 1), k.mat); m.castShadow = true; m.userData.vis = 0; KIDG.add(m); }
+  DOC.kids.forEach(c => { const k = KIDS[c.i]; let m = KM[c.i]; if (!m) { m = KM[c.i] = new T.Mesh(new T.PlaneGeometry(1, 1), k.mat); m.castShadow = true; m.userData.vis = 0; m.userData.kidIdx = c.i; KIDG.add(m); }
+    if (k.tex && k.frames > 1) k.tex.offset.x = (Math.floor(NOW * 10 + c.i * 3) % k.frames) / k.frames;
     m.userData.vis = Math.min(1, m.userData.vis + dt * .8); k.mat.opacity = m.userData.vis; const h = k.h * c.s;
     m.scale.set(h * k.aspect, h, 1); m.position.set(Math.sin(c.a) * c.r, TOP + k.base * c.s + h / 2, Math.cos(c.a) * c.r); m.updateMatrixWorld(true); const wp = m.getWorldPosition(new T.Vector3()); m.lookAt(cam.position.x, wp.y, cam.position.z); m.rotateY(c.face * Math.PI / 180); }); }
 
@@ -240,7 +246,6 @@ const list = (n, get, set, L) => ({ n, v: get, set: v => set(clamp(Math.round(v)
 const num = (n, get, set, lo, hi, st, f, wrap) => ({ n, v: get, set: v => set(wrap ? ((v - lo) % (hi - lo) + (hi - lo)) % (hi - lo) + lo : clamp(+v.toFixed(4), lo, hi)), st, f, lo, hi, wrap });
 const deg = v => Math.round(((v * 57.2958) % 360 + 540) % 360 - 180) + '°';
 function rings() {
-  if (window.REMOTE_RINGS) return window.REMOTE_RINGS();
   const out = [null, null, null, null, null];
   if (S.mode === 'VIEW') { const V = S.view, free = () => { if (V.preset !== 'FREE') V.preset = 'FREE'; }, P = Object.keys(VIEWS);
     out[0] = list('CAMERA', () => P.indexOf(V.preset), v => setView(P[v]), P);
@@ -271,21 +276,24 @@ function writingRings(Wt, dc) { const at = () => Wt.text[Wt.cur] || ' ';
 function v01(r) { if (r && r.u != null) return r.u; if (!r || r.lo == null) return .5; let v = r.v(); if (r.wrap) { const sp = r.hi - r.lo; v = ((v - r.lo) % sp + sp) % sp + r.lo; } return clamp((v - r.lo) / Math.max(1e-6, r.hi - r.lo), 0, 1); }
 const AXC = ['#ff5b4d', '#5fe36e', '#4f8dff'];
 let scrubAcc = [0, 0, 0, 0, 0];
-function turn(i, steps) { if (window.REMOTE) { tick('ring', i); ORB.spin(i, steps); S.lastRing = i; return window.REMOTE({ k: 'turn', i, steps }); }
-  const r = rings()[i]; if (!r) { tick('dead'); return; } tick('ring', i); if (r.undoable) snap(); r.set(r.v() + r.st * steps); S.lastRing = i; S.retT = NOW; ORB.spin(i, steps); oledDirty = true; }
-function scrub(i, frac) { if (window.REMOTE) { ORB.spin(i, frac); S.lastRing = i; return window.REMOTE({ k: 'scrub', i, frac }); }
-  const r = rings()[i]; if (!r) return; if (r.step || r.st >= 1) { scrubAcc[i] += frac; while (Math.abs(scrubAcc[i]) >= 1) { turn(i, Math.sign(scrubAcc[i])); scrubAcc[i] -= Math.sign(scrubAcc[i]); } return; }
-  if (r.undoable) snap(); const b = Math.floor(r.v() / r.st); r.set(r.v() + r.st * frac); if (Math.floor(r.v() / r.st) !== b) tick('ring', i); S.lastRing = i; S.retT = NOW; ORB.spin(i, frac); oledDirty = true; }
+function turn(i, steps, fromRemote) {
+  const r = rings()[i]; if (!r) { tick('dead'); return; } tick('ring', i); if (r.undoable) snap(); r.set(r.v() + r.st * steps); S.lastRing = i; S.retT = NOW; ORB.spin(i, steps); oledDirty = true; drawDialLabels();
+  if (!fromRemote && window.REMOTE) window.REMOTE({ k: 'turn', i, steps }); }
+function scrub(i, frac, fromRemote) {
+  const r = rings()[i]; if (!r) return; if (r.step || r.st >= 1) { scrubAcc[i] += frac; while (Math.abs(scrubAcc[i]) >= 1) { turn(i, Math.sign(scrubAcc[i]), fromRemote); scrubAcc[i] -= Math.sign(scrubAcc[i]); } return; }
+  if (r.undoable) snap(); const b = Math.floor(r.v() / r.st); r.set(r.v() + r.st * frac); if (Math.floor(r.v() / r.st) !== b) tick('ring', i); S.lastRing = i; S.retT = NOW; ORB.spin(i, frac); oledDirty = true; drawDialLabels();
+  if (!fromRemote && window.REMOTE) window.REMOTE({ k: 'scrub', i, frac }); }
 /* the camera: presets, and free movement from the grip, the lens end, and the mouse in the room */
 function sceneBox() { const b = new T.Box3(); ['cake', 'candles', 'table', ...DOC.kids.map(c => 'kid' + c.i)].forEach(k => { const x = boxOf(k); if (x) b.union(x); }); return b.isEmpty() ? null : b; }
 function setView(p) { const V = S.view; V.preset = p; const P = VIEWS[p]; if (P) { const b = sceneBox(), sz = b ? b.getSize(new T.Vector3()).length() : .3; V.yaw = P.yaw; V.pitch = P.pitch; V.dist = P.eye ? P.dist : clamp(sz * .32 / Math.tan(P.fov * Math.PI / 360), .45, 3.5); V.fov = P.fov; V.pan.set(0, 0, 0); } say('CAMERA · ' + p); }
-function viewBy(dyaw, dpitch, dzoom, panx, pany) { if (window.REMOTE) return window.REMOTE({ k: 'view', dx: dyaw, dy: dpitch, dc: dzoom, px: panx, py: pany }); const V = S.view; if (V.preset !== 'FREE') { V.preset = 'FREE'; oledDirty = true; }
+function viewBy(dyaw, dpitch, dzoom, panx, pany, fromRemote) { const V = S.view; if (V.preset !== 'FREE') { V.preset = 'FREE'; oledDirty = true; }
   V.yaw += dyaw || 0; V.pitch = clamp(V.pitch + (dpitch || 0), -.2, 1.5); V.dist = clamp(V.dist * Math.exp(-(dzoom || 0)), .25, 4);
   if (panx || pany) { const r = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion), u = new T.Vector3(0, 1, 0).applyQuaternion(cam.quaternion); V.pan.addScaledVector(r, -(panx || 0) * V.dist).addScaledVector(u, (pany || 0) * V.dist); }
-  setStretch(1 + clamp((1.38 - V.dist) / 1.1, 0, 1) * .45); }
+  setStretch(1 + clamp((1.38 - V.dist) / 1.1, 0, 1) * .45);
+  if (!fromRemote && window.REMOTE) window.REMOTE({ k: 'view', dx: dyaw, dy: dpitch, dc: dzoom, px: panx, py: pany }); }
 
 /* =============================================================== BUTTONS: MODE · UNDO on the grip; ADD · DEL · KEEP on the lens end. Each is lit only when it can act. */
-function press(b, long) { if (window.REMOTE) { tick('press'); ORB.push(b); return window.REMOTE({ k: 'press', b, long }); } tick('press'); ORB.push(b);
+function press(b, long, fromRemote) { tick('press'); ORB.push(b);
   if (b === 'MODE') { S.adding = null; S.mode = S.mode === 'EDIT' ? 'VIEW' : 'EDIT'; say(S.mode === 'VIEW' ? 'VIEW · THE RINGS MOVE THE CAMERA' : 'EDIT · THE RINGS CHANGE ' + (picked() || { name: 'THE SCENE' }).name); }
   else if (b === 'ADD') { if (S.mode !== 'EDIT') { S.mode = 'EDIT'; } const A = addable(); if (!A.length) { tick('dead'); say('EVERYTHING IS IN THE SCENE'); return; }
     if (!S.adding) { S.adding = A[0].key; say('TURN RING 1 TO CHOOSE · ADD AGAIN TO PUT IT IN'); } else { snap(true); create(S.adding); const n = (picked() || {}).name; S.adding = null; chime(); say(n + ' ADDED'); } }
@@ -293,12 +301,13 @@ function press(b, long) { if (window.REMOTE) { tick('press'); ORB.push(b); retur
   else if (b === 'UNDO') { if (S.adding) { S.adding = null; say('CANCELLED'); return; } const from = long ? REDO : UNDO, to = long ? UNDO : REDO, s = from.pop(); if (!s) { tick('dead'); say(long ? 'NOTHING TO REDO' : 'NOTHING TO UNDO'); return; } to.push(JSON.stringify(DOC)); setDoc(JSON.parse(s)); say(long ? 'REDONE' : 'UNDONE'); }
   else if (b === 'KEEP') keep();
   else if (b === 'PAIR') PAIR.open();
-  oledDirty = true; }
+  oledDirty = true; RINGS.forEach(r => r.key = ''); drawDialLabels();
+  if (!fromRemote && window.REMOTE) window.REMOTE({ k: 'press', b, long }); }
 function keep() { try { new T.GLTFExporter().parse(MEM, r => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([r], { type: 'model/gltf-binary' })); a.download = 'memory.glb'; document.body.append(a); a.click(); setTimeout(() => a.remove(), 1000); say('KEPT · MEMORY.GLB'); }, { binary: true }); } catch (e) { say('COULD NOT KEEP · ' + e.message.slice(0, 30)); } }
 const nextAct = () => null;
 const PHONE = /[?&]orb\b/.test(location.search);
 const PAIR = (function () { const uid = () => Math.random().toString(36).slice(2, 10), dev = uid(), TE = new TextEncoder(), TD = new TextDecoder(), SEEN = new Set(); let MID = 0, room = null, socks = [], urls = new Set(), peers = new Map();
-  const RELAYS = ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt', 'wss://test.mosquitto.org:8081/mqtt'];
+  const RELAYS = ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt'];
   let BC = null; try { BC = new BroadcastChannel('stelline-maker'); BC.onmessage = e => recv(e.data); } catch (e) { }
   const cat = (...ps) => { const o = new Uint8Array(ps.reduce((a, p) => a + p.length, 0)); let i = 0; for (const p of ps) { o.set(p, i); i += p.length; } return o; };
   const mqStr = s => { const b = TE.encode(s); return cat(new Uint8Array([b.length >> 8, b.length & 255]), b); };
@@ -313,19 +322,18 @@ const PAIR = (function () { const uid = () => Math.random().toString(36).slice(2
   function send(m) { m.from = dev; m.mid = dev + ':' + (++MID); try { BC && BC.postMessage(m); } catch (e) { } if (room && socks.length) { const p = mqPkt(0x30, cat(mqStr(topic()), TE.encode(JSON.stringify(m)))); for (const K of socks) if (K.ok) try { K.ws.send(p); } catch (e) { } } }
   const role = PHONE ? 'orb' : 'scene', hello = () => send({ type: 'hello', role });
   function recv(m) { if (!m || !m.type || m.from === dev || SEEN.has(m.mid)) return; SEEN.add(m.mid); const was = peers.size; peers.set(m.from, { role: m.role, at: performance.now() });
-    if (!PHONE && m.role === 'orb' && !was) { say('PHONE PAIRED · ITS RINGS ARE THESE RINGS'); S.pairShow = false; shimmer(); }
-    if (!PHONE && m.type === 'act') { if (m.k === 'turn') turn(m.i, m.steps); else if (m.k === 'scrub') scrub(m.i, m.frac); else if (m.k === 'press') press(m.b, m.long); else if (m.k === 'view') viewBy(m.dx, m.dy, m.dc, m.px, m.py); }
-    if (PHONE && m.type === 'state') { window.REMOTE_STATE = m.s; S.mode = m.s.mode; S.msg = m.s.msg; S.msgT = NOW; oledDirty = true; } }
+    if (!PHONE && m.role === 'orb') { if (!document.body.classList.contains('paired')) { document.body.classList.add('paired'); resize(); } if (!was) { say('PHONE PAIRED · FULL STAGE ACTIVE'); S.pairShow = false; chime(); } }
+    if (m.type === 'act') { if (m.k === 'turn') turn(m.i, m.steps, true); else if (m.k === 'scrub') scrub(m.i, m.frac, true); else if (m.k === 'press') press(m.b, m.long, true); else if (m.k === 'view') viewBy(m.dx, m.dy, m.dc, m.px, m.py, true); }
+    if (PHONE && m.type === 'state' && m.s && m.s.doc) { setDoc(m.s.doc); S.pick = m.s.pick; oledDirty = true; drawDialLabels(); } }
   const join = c => { room = c; for (const u of RELAYS) open1(u); setInterval(hello, 2500); hello(); };
   const base = () => /github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname) ? location.origin + location.pathname : 'https://hartswf0.github.io/stelline-orb/maker.html';
   const P = { get room() { return room; }, peers: () => [...peers.values()].filter(p => performance.now() - p.at < 7000),
     url: () => base() + '?orb&room=' + room,
     open() { if (!room) { let c = ''; try { c = localStorage.getItem('weaver-room') || ''; } catch (e) { } if (!/^[A-Z]{4}$/.test(c)) { c = Array.from({ length: 4 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.random() * 24 | 0]).join(''); try { localStorage.setItem('weaver-room', c); } catch (e) { } } join(c); }
       S.pairShow = !S.pairShow; P.qr = null; say(S.pairShow ? 'SCAN THE CODE WITH YOUR PHONE' : ''); oledDirty = true; },
-    stateLoop() { setInterval(() => { if (PHONE || !P.peers().some(p => p.role === 'orb')) return; const RS = rings(); send({ type: 'state', s: { mode: S.adding ? 'ADD' : S.mode, msg: S.msg, last: S.lastRing, step: (picked() || {}).name || '', rings: RS.map(r => r ? { n: r.n, val: String(r.f(r.v())), u: v01(r), axis: r.axis } : null) } }); }, 120); },
+    stateLoop() { setInterval(() => { if (PHONE || !P.peers().some(p => p.role === 'orb')) return; send({ type: 'state', s: { mode: S.mode, pick: S.pick, doc: DOC } }); }, 400); },
     join };
-  if (PHONE) { document.body.classList.add('phone'); const q = new URLSearchParams(location.search).get('room'); if (q) join(q.toUpperCase()); window.REMOTE = a => send(Object.assign({ type: 'act' }, a));
-    window.REMOTE_RINGS = () => (window.REMOTE_STATE ? window.REMOTE_STATE.rings : [null, null, null, null, null]).map(r => r ? { n: r.n, v: () => 0, f: () => r.val, u: r.u, axis: r.axis } : null); }
+  if (PHONE) { document.body.classList.add('phone'); const q = new URLSearchParams(location.search).get('room'); if (q) join(q.toUpperCase()); window.REMOTE = a => send(Object.assign({ type: 'act' }, a)); }
   else P.stateLoop();
   return P; })();
 function drawPairQR(x, W, H) { if (!PAIR.qr) { try { const q = qrcode(0, 'M'); q.addData(PAIR.url()); q.make(); PAIR.qr = q; } catch (e) { return; } } const q = PAIR.qr, n = q.getModuleCount(), sz = H - 40, cell = Math.floor(sz / (n + 2)), ox = 40, oy = (H - cell * n) / 2;
@@ -391,13 +399,13 @@ addEventListener('keydown', e => { const k = e.key; if (S.mode === 'EDIT' && S.p
 let oledDirty = true;
 function drawOLED() { const W = OLED.width, H = OLED.height, x = ox; x.fillStyle = '#020403'; x.fillRect(0, 0, W, H); const CY = '#5ff0dc', DIM = '#2e7a70', MID = '#8fe9dc', AMB = '#f0b040';
   if (S.pairShow && !PHONE) { drawPairQR(x, W, H); oledTex.needsUpdate = true; return; }
-  const st = window.REMOTE_STATE, mode = PHONE ? (st ? st.mode : '') : S.adding ? 'ADD' : S.mode, p = PHONE ? null : picked();
-  const what = PHONE ? (st && st.step) || '' : S.adding ? (addable().find(t => t.key === S.adding) || {}).name : S.mode === 'VIEW' ? S.view.preset : p ? p.name : 'EMPTY SCENE';
+  const mode = S.adding ? 'ADD' : S.mode, p = picked();
+  const what = S.adding ? (addable().find(t => t.key === S.adding) || {}).name : S.mode === 'VIEW' ? S.view.preset : p ? p.name : 'EMPTY SCENE';
   x.textAlign = 'left'; x.font = '700 30px ui-monospace, Menlo, monospace'; x.fillStyle = mode === 'VIEW' ? '#9fc4ff' : mode === 'ADD' ? AMB : CY; x.fillText(mode || '', 30, 64);
   x.font = '700 70px ui-monospace, Menlo, monospace'; x.fillStyle = '#e8f6f2'; x.fillText(what || '', 30, 150);
   const RS = rings(), r = RS[S.lastRing]; if (r) { x.textAlign = 'right'; x.font = '600 26px ui-monospace, Menlo, monospace'; x.fillStyle = DIM; x.fillText(r.n, W - 30, 64); x.font = '700 70px ui-monospace, Menlo, monospace'; x.fillStyle = CY; x.fillText(String(r.f(r.v())), W - 30, 150); }
   x.textAlign = 'center'; x.font = '500 26px ui-monospace, Menlo, monospace'; x.fillStyle = MID;
-  if (S.msg && NOW - S.msgT < 3.5) x.fillText(S.msg.slice(0, 72), W / 2, 280); else if (!PHONE && !things().some(t => t.key !== 'light')) x.fillText('PRESS ADD', W / 2, 280);
+  if (S.msg && NOW - S.msgT < 3.5) x.fillText(S.msg.slice(0, 72), W / 2, 280); else if (!things().some(t => t.key !== 'light')) x.fillText('PRESS ADD', W / 2, 280);
   oledTex.needsUpdate = true; }
 setInterval(() => { oledDirty = true; }, 500);
 
