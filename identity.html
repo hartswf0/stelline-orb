@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" data-state="warm">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vesper Identity System · Field Orb 04</title>
+<meta name="description" content="The Vesper identity: the optical-roller arc as container, a dial-driven variable typeface, analog seeds, and a template that cannot be misaligned.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,100..900&family=Martian+Mono:wdth,wght@75..112,100..800&family=Permanent+Marker&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site/vesper.css">
+<style>
+  nav.top{position:sticky;top:0;z-index:50;background:var(--void);color:var(--steel);display:flex;align-items:center;gap:22px;padding:0 var(--g);height:52px;border-bottom:3px solid var(--accent)}
+  nav.top a{text-decoration:none;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase}nav.top a:hover{color:var(--accent)}nav.top .r{margin-left:auto;display:flex;gap:20px}
+  .zones{display:grid;grid-template-rows:2fr 1fr;aspect-ratio:16/9;border:4px solid currentColor;position:relative;overflow:hidden;border-radius:6px}
+  .zones .top{background:var(--void);color:var(--amber);display:flex;align-items:center;justify-content:center;font:800 clamp(14px,2.4vw,34px) var(--display);font-variation-settings:"wdth" 140,"wght" 800;text-transform:uppercase;position:relative}
+  .zones .bot{background:var(--steel);color:var(--void);display:grid;grid-template-columns:repeat(6,1fr);align-items:center;font:500 clamp(8px,1vw,12px) var(--mono);text-transform:uppercase;text-align:center;letter-spacing:.06em}
+  .zones .bot span{border-right:1px solid rgba(11,11,12,.35);padding:10px 2px}.zones .bot span:last-child{border:0;background:var(--amber)}
+  .zones .arc{position:absolute;left:-10%;right:-10%;top:calc(66.6% - 3.2vw);height:6.4vw;border-top:5px solid var(--red);border-radius:50%/100% 100% 0 0;pointer-events:none}
+  .sw{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin:0}
+  .sw div{padding:var(--g) 12px 14px;min-height:150px;display:flex;flex-direction:column;justify-content:flex-end;font:500 11px/1.4 var(--mono);text-transform:uppercase}
+  .sw b{display:block;font:800 clamp(16px,2.2vw,26px)/1 var(--display);font-variation-settings:"wdth" 125,"wght" 800}
+  @media(max-width:700px){.sw{grid-template-columns:1fr 1fr}}
+  .spec{width:100%;font:500 13px/1.5 var(--mono)}.spec td:first-child{width:28%}
+  .ctl{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--g);margin:var(--g) 0}
+  .ctl label{display:block;font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;border-top:4px solid currentColor;padding-top:8px}
+  .ctl input{width:100%;accent-color:var(--red);margin-top:8px}
+  @media(max-width:700px){.ctl{grid-template-columns:1fr}}
+  .specimen{font:800 clamp(40px,10vw,150px)/.9 var(--display);text-transform:uppercase;font-variation-settings:"wdth" var(--sw),"wght" var(--sv);transform:skewX(var(--st));transform-origin:0 100%;filter:blur(var(--sb));margin:var(--g) 0;overflow:hidden}
+  ol.rules{padding-left:1.2em}ol.rules li{margin:10px 0}
+  .tex{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--g)}.tex figure{margin:0}
+  .tex .pl{aspect-ratio:4/3;background:var(--void);position:relative;overflow:hidden;border:3px solid currentColor}.tex .pl i{position:absolute;inset:0;background-size:cover;background-position:center;opacity:1;mix-blend-mode:normal}
+  .tex figcaption{font:500 11px/1.5 var(--mono);text-transform:uppercase;margin-top:8px}
+  @media(max-width:700px){.tex{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="rough" x="-5%" y="-30%" width="110%" height="160%"><feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="3" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="5"/></filter></svg>
+<nav class="top"><a href="index.html">← Vesper</a><div class="r"><a href="#container">01 Container</a><a href="#type">02 Type</a><a href="#seed">03 Seed</a><a href="#spec">04 Spec</a></div></nav>
+
+<main>
+<section class="sec void" style="padding-top:calc(var(--g)*1.4)">
+  <div class="seed glass"></div>
+  <div class="tele"><span>Vesper Instruments</span><span>Identity system</span><span>v1 · Field Orb 04</span></div>
+  <p class="kick" style="color:var(--accent)">Basic principles of scale and color</p>
+  <h1 class="hd"><span class="fit">One arc.</span><span class="fit" style="color:var(--accent)">Three dials.</span><span class="fit">No exceptions.</span></h1>
+  <p class="lede" style="font:700 clamp(18px,2.4vw,32px)/1.15 var(--display);font-variation-settings:'wdth' 110,'wght' 700;max-width:30em;margin:calc(var(--g)*1.4) 0 0;color:var(--steel)">The Memory Orb is a lens, a hand controller and an editor. The identity borrows its geometry, its dials and its deadpan telemetry, then locks them so nobody can improve them.</p>
+</section>
+
+<section class="sec amber" id="container">
+  <i class="edge"></i><div class="seed frost"></div>
+  <div class="tele"><span>01</span><span>The core container</span></div>
+  <h2 class="hd"><span class="fit">The optical arc</span><span class="fit">is the grid.</span></h2>
+  <div class="g12" style="margin-top:calc(var(--g)*1.4)">
+    <div class="c-l">
+      <p>Berkeley Rep’s ticket, cut in half, became the B and then every layout. The Vesper equivalent is the curve where the glass of the orb meets its barrel: the horizontal arc that divides the lit memory from the mechanism.</p>
+      <p><b>Every page, pack and screen is cut by that one curve.</b> Above it: the image, the headline, the lit thing. Below it: telemetry, six cells, always the same six. Nothing crosses the arc except the red line that marks it.</p>
+      <p>The lens itself is the letterform. The O of the mark is the tall, narrow ellipse of the front glass, seen at an angle, with the red band beside it.</p>
+    </div>
+    <div class="c-r">
+      <div class="zones" role="img" aria-label="The container: upper two thirds for image and headline, lower third for six telemetry cells, divided by the optical arc">
+        <div class="top">Image · headline · the lit thing</div>
+        <div class="bot"><span>Solid</span><span>f/7.7</span><span>Piped</span><span>Candlelight</span><span>3300 K</span><span>[ Snapshot ]</span></div>
+        <div class="arc"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="type">
+  <i class="edge"></i>
+  <div class="tele"><span>02</span><span>The typographic engine</span></div>
+  <h2 class="hd"><span class="fit">Vesper Ring.</span><span class="fit">The dials set the type.</span></h2>
+  <div class="g12" style="margin-top:calc(var(--g)*1.4)">
+    <div class="c-l"><p>Vesper Ring is drawn as one variable family with three axes, one per physical ring. It never appears at an unset value: headlines are only ever <b>extended</b> (width 112–138) and always <b>flush-left</b>, and every line is scaled to fill its zone exactly. That is the MAM rule: the in-house team can type anything, and cannot make it look wrong.</p>
+    <p>The type is also telemetry. As the FIELD ring sweeps the forest away, the letterforms widen and pick up optical blur. VARIANT snaps the weight between three detents. TIME leans the whole line forward or back by how far the held layer has drifted from the host clock. The live site does exactly this. Turn the dials on it, or here:</p></div>
+    <div class="c-r"><table class="spec"><tbody>
+      <tr><td>Axis 110 · FLD</td><td>Width 112 → 138. Optical blur 0 → 1.2 px. Driven by the field ring.</td></tr>
+      <tr><td>Axis 112 · VAR</td><td>Weight in three detents: 560 · 710 · 860. Driven by the variant ring.</td></tr>
+      <tr><td>Axis 114 · TIM</td><td>Slant −10° → +10°, proportional to the cake’s offset from host time. Driven by the time ring.</td></tr>
+      <tr><td>Mode</td><td>Warm memory (amber, 3300 K) or isolation (cyan, 5600 K). Changes accent only.</td></tr>
+      <tr><td>Setting</td><td>Caps, flush-left, fit to zone. Telemetry in a monospaced companion, never mixed with headline faces.</td></tr>
+    </tbody></table></div>
+  </div>
+  <div class="specimen" id="spec1" style="--sw:125;--sv:800;--st:0deg;--sb:0px">Memory</div>
+  <div class="ctl">
+    <label>110 Field <input id="cF" type="range" min="0" max="100" value="0"></label>
+    <label>112 Variant <input id="cV" type="range" min="0" max="2" step="1" value="2"></label>
+    <label>114 Time <input id="cT" type="range" min="-100" max="100" value="0"></label>
+  </div>
+  <p class="mono" style="max-width:62em">Prototype note: the live pages use Anybody (variable width and weight, Google Fonts) as the working stand-in for a drawn Vesper Ring. The mapping, limits and fit rules above are the specification the final face must meet; the slant is applied as a transform until the face has a true slant axis.</p>
+</section>
+
+<section class="sec cyan" id="seed">
+  <i class="edge"></i>
+  <div class="tele"><span>03</span><span>The analog seed</span></div>
+  <h2 class="hd"><span class="fit">The hand is mightier</span><span class="fit">than the screen.</span></h2>
+  <div class="g12" style="margin-top:calc(var(--g)*1.4)">
+    <div class="c-l"><p>The Orb’s world is synthetic memory, so the identity starts with things that cannot be synthesised: real birthday mess. Three raw sources, scanned flat at 1,200 dpi, then used as the only texture layer on the site and as texture maps in the 3D scenes.</p>
+    <ol class="rules"><li><b>Frosting smear.</b> Buttercream dragged across white card with a palette knife. Gives the directional streak.</li><li><b>Candle wax on acetate.</b> Dripped and pressed, backlit on a lightbox. Gives the amber blobs and drip edges.</li><li><b>Scratched glass.</b> A lens blank scored with a needle and graphite. Gives the long, uneven scratches across the dark blocks.</li></ol>
+    <p>Hand marks on top: red marker underlines and rings, drawn on paper, scanned, never redrawn in a vector tool.</p></div>
+    <div class="c-r"><div class="tex">
+      <figure><div class="pl"><i style="background-image:url(assets/site/seed-frosting.png);background-color:#0B0B0C"></i></div><figcaption>Frosting smear</figcaption></figure>
+      <figure><div class="pl"><i style="background-image:url(assets/site/seed-wax.png);background-color:#C5CED3"></i></div><figcaption>Wax on acetate</figcaption></figure>
+      <figure><div class="pl"><i style="background-image:url(assets/site/seed-glass.png);background-color:#0B0B0C"></i></div><figcaption>Scratched glass</figcaption></figure>
+    </div>
+    <p class="mono" style="margin-top:var(--g)"><b>Stand-in, not scans.</b> The three textures shown and used on this site were generated procedurally to the above descriptions, because no physical scans exist yet. They are placeholders for the real ones. Swap the three PNGs in <code>assets/site/</code> and the whole site changes.</p></div>
+  </div>
+</section>
+
+<section class="sec" id="spec">
+  <i class="edge"></i><div class="seed wax"></div>
+  <div class="tele"><span>04</span><span>The unbreakable spec</span></div>
+  <h2 class="hd"><span class="fit">Their hands</span><span class="fit">are cut off.</span></h2>
+  <div class="sw" style="margin-top:calc(var(--g)*1.4)">
+    <div style="background:#0B0B0C;color:#C5CED3"><b>Void</b>#0B0B0C · ground</div>
+    <div style="background:#F2A31B;color:#0B0B0C"><b>Amber</b>#F2A31B · warm memory, 3300 K</div>
+    <div style="background:#C5CED3;color:#0B0B0C"><b>Steel</b>#C5CED3 · hardware, telemetry</div>
+    <div style="background:#4FC3D0;color:#0B0B0C"><b>Cyan</b>#4FC3D0 · isolation, 5600 K</div>
+    <div style="background:#C8301E;color:#C5CED3"><b>Red band</b>#C8301E · signal only</div>
+  </div>
+  <div class="g12" style="margin-top:calc(var(--g)*1.4)">
+    <div class="c-l"><ol class="rules">
+      <li><b>Five colours, no others.</b> Amber and cyan never share a block: a scene is warm or it is isolated. Red only marks the arc, the ring band and hand marks.</li>
+      <li><b>One grid.</b> Twelve columns, one gutter. Every section is the same pair of hemispheres: tele strip, headline zone, copy zone, evidence zone.</li>
+      <li><b>Headlines are fit, not sized.</b> Each line is scaled to its zone width. Short lines are huge, long lines are small; nobody chooses a size.</li>
+      <li><b>Six cells, one bar.</b> Solid/ghost · aperture · variant · light · kelvin · snapshot. Fixed to the bottom edge of every screen, same order, same widths.</li>
+    </ol></div>
+    <div class="c-r"><ol class="rules" start="5">
+      <li><b>Copy is cut to fit.</b> Headlines ≤ 3 lines of ≤ 28 characters. A longer title is rewritten, not shrunk.</li>
+      <li><b>Texture comes from the seed folder only.</b> No stock grain, no gradients, no glow.</li>
+      <li><b>Motion has one job:</b> it shows a dial moving. Nothing animates on its own.</li>
+      <li><b>No sixth colour, no second headline face, no centred type.</b> If a brief seems to need one, the brief is wrong.</li>
+    </ol></div>
+  </div>
+</section>
+</main>
+
+<footer class="sec void" style="padding-bottom:calc(var(--g)*2)"><i class="edge"></i>
+  <div class="tele"><span>Vesper Instruments</span><span><a href="index.html">Back to the instrument →</a></span></div>
+  <p class="mono" style="max-width:80em">Fictional identity study for a fictional manufacturer. Design approach drawn from Paula Scher’s published talk on Pentagram’s identity work. Not affiliated with Pentagram or the film’s rights holders.</p>
+</footer>
+
+<div class="telebar" role="status"><span id="t1"><b>SOLID</b></span><span id="t2">f/<b>1.4</b></span><span><b>PIPED</b></span><span>CANDLELIGHT</span><span><b>3300</b>K</span><button type="button">[ Snapshot ]</button></div>
+
+<script>
+(function(){
+  var s=document.getElementById('spec1'),F=document.getElementById('cF'),V=document.getElementById('cV'),T=document.getElementById('cT');
+  function u(){var f=F.value/100;s.style.setProperty('--sw',Math.round(112+f*26));s.style.setProperty('--sv',[560,710,860][V.value]);s.style.setProperty('--st',(-T.value/10)+'deg');s.style.setProperty('--sb',(f*1.2)+'px');
+    document.getElementById('t1').innerHTML='<b>'+(f<.5?'SOLID':'GHOST')+'</b>';document.getElementById('t2').innerHTML='f/<b>'+(1.4*Math.pow(2,f*3.5)).toFixed(1)+'</b>';}
+  [F,V,T].forEach(function(e){e.addEventListener('input',u)});u();
+})();
+</script>
+<script src="assets/site/vesper.js"></script>
+</body>
+</html>

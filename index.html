@@ -1,138 +1,83 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-state="warm">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Vesper Instruments · Field Orb 04</title>
 <meta name="description" content="The Memory Orb looks like a Canon cinema lens, works like an ARRI hand controller, and edits like Blender. Turn the TIME ring and watch the cake move while the children stay still.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,100..900&family=Martian+Mono:wdth,wght@75..112,100..800&family=Permanent+Marker&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site/vesper.css">
 <style>
-  :root{
-    --paper:#f4f1ea; --paper2:#ece8dd; --ink:#121211; --muted:#6a6860; --line:#d8d3c6; --amber:#d9892a; --red:#c8301e;
-    --stage:#0a0d0c; --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
-    --sans:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Inter",Segoe UI,Roboto,Arial,sans-serif;
-    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
-  }
-  *{box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
-  a{color:inherit;text-decoration-color:rgba(18,18,17,.35);text-underline-offset:3px}
-  a:hover{text-decoration-color:var(--amber)}
-  .wrap{max-width:1120px;margin:0 auto;padding:0 28px}
-  .eyebrow{font:500 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
-  /* nav */
-  header.top{position:sticky;top:0;z-index:20;background:rgba(244,241,234,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-  header.top .wrap{display:flex;align-items:center;gap:28px;height:54px}
-  .brand{font:600 13px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;text-decoration:none}
-  .brand i{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--red);margin-right:9px;vertical-align:0}
-  nav{display:flex;gap:22px;margin-left:auto;font-size:13px}
-  nav a{text-decoration:none;color:var(--muted)} nav a:hover{color:var(--ink)}
-  nav a.cta{color:var(--ink);font-weight:600;border-bottom:1px solid var(--ink)}
-  @media(max-width:760px){nav a:not(.cta){display:none}}
-  /* hero */
-  .hero{padding:64px 0 28px}
-  h1{font:600 clamp(30px,5.2vw,58px)/1.06 var(--sans);letter-spacing:-.025em;margin:16px 0 22px;max-width:18em}
-  h1 em{font-style:normal;color:var(--red)}
-  .lede{font:400 clamp(17px,2vw,21px)/1.5 var(--serif);max-width:38em;color:#2b2a27;margin:0 0 6px}
-  .lede b{font-weight:600;color:var(--ink)}
-  /* stage */
-  .stagebox{margin:34px auto 0;max-width:1120px;padding:0 28px}
-  .stage{position:relative;background:var(--stage);border-radius:6px;overflow:hidden;aspect-ratio:16/9;box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 40px 80px -40px rgba(0,0,0,.55)}
+  .stage{position:relative;background:#050807;overflow:hidden;aspect-ratio:16/9;border:4px solid var(--steel);margin-top:calc(var(--g)*1.4)}
   .stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-  .hud{position:absolute;left:18px;right:18px;display:flex;justify-content:space-between;gap:12px;font:500 10.5px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:rgba(247,236,222,.78);pointer-events:none}
-  .hud.t{top:14px} .hud.b{bottom:96px}
-  .hud span b{color:#f0b050;font-weight:500}
-  .tabs{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:flex;gap:2px;background:rgba(0,0,0,.45);border:1px solid rgba(247,236,222,.18);border-radius:999px;padding:3px}
-  .tabs button{font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:rgba(247,236,222,.7);background:none;border:0;border-radius:999px;padding:6px 12px;cursor:pointer}
-  .tabs button[aria-pressed=true]{background:rgba(247,236,222,.92);color:#111}
   .stage canvas.tl{inset:auto 0 0 0;height:84px}
+  .hud{position:absolute;left:18px;right:18px;display:flex;justify-content:space-between;gap:12px;font:500 10.5px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:rgba(247,236,222,.82);pointer-events:none}
+  .hud.t{top:14px}.hud.b{bottom:96px}.hud span b{color:var(--amber);font-weight:500}
+  .tabs{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:flex;gap:0;background:var(--void);border:2px solid var(--steel)}
+  .tabs button{font:600 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--steel);background:none;border:0;padding:7px 13px;cursor:pointer}
+  .tabs button[aria-pressed=true]{background:var(--steel);color:var(--void)}
+  @media(max-width:860px){.orbbox .note{left:53.3%}}
   @media(max-width:700px){.hud{font-size:9px}.hud.b{bottom:80px}.tabs{top:40px}}
-  /* orb */
-  .orbwrap{max-width:1120px;margin:30px auto 0;padding:0 28px}
-  svg#orb{width:100%;height:auto;display:block;touch-action:none;user-select:none;-webkit-user-select:none}
-  .ring{cursor:ns-resize;outline:none}
-  .ring:focus-visible .hit{stroke:var(--amber);stroke-width:2;fill:rgba(217,137,42,.08)}
-  #thumb{cursor:pointer;outline:none}
-  #thumb:focus-visible .keycap{stroke:var(--amber);stroke-width:2}
-  .legend{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--line);margin-top:6px}
-  .legend div{padding:14px 16px 12px 0}
-  .legend h3{margin:0 0 4px;font:600 12px var(--mono);letter-spacing:.14em;color:var(--ink)} .legend h3 span{color:var(--muted);font-weight:400}
-  .legend p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.45}
-  .readout{font:500 12px var(--mono);letter-spacing:.06em;color:var(--muted);margin:14px 0 0;min-height:1.4em}
-  .readout b{color:var(--ink);font-weight:500}
-  .hint{display:inline-block;margin-left:10px;color:var(--red);animation:pulse 1.6s ease-in-out infinite}
-  @keyframes pulse{50%{opacity:.35}}
-  @media(max-width:760px){.legend{grid-template-columns:1fr 1fr}}
-  /* sections */
-  section{padding:76px 0 8px}
-  section h2{font:600 clamp(24px,3.4vw,36px)/1.12 var(--sans);letter-spacing:-.02em;margin:10px 0 18px;max-width:20em}
-  section p{max-width:44em;color:#2b2a27} .mut{color:var(--muted)}
-  hr.rule{border:0;border-top:1px solid var(--line);margin:70px 0 0}
-  table{width:100%;border-collapse:collapse;font-size:14.5px;margin:20px 0 0}
-  th{font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:left;padding:0 18px 10px 0;border-bottom:1px solid var(--ink)}
-  td{vertical-align:top;padding:16px 18px 16px 0;border-bottom:1px solid var(--line)}
-  td:first-child{font-weight:600;width:22%}
-  td b{font-weight:600}
-  .two{display:grid;grid-template-columns:1fr 1fr;gap:48px}
-  @media(max-width:820px){.two{grid-template-columns:1fr;gap:10px} td:first-child{width:auto}
-    table,thead,tbody,tr,td,th{display:block} thead{display:none} tr{padding:14px 0;border-bottom:1px solid var(--line)} td{border:0;padding:2px 0}}
-  .formula{font:500 15px/1.6 var(--mono);background:var(--paper2);border-left:3px solid var(--ink);padding:14px 18px;margin:20px 0;overflow-x:auto;white-space:pre}
-  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0}
-  .chip{font:500 11px var(--mono);letter-spacing:.08em;border:1px solid var(--line);border-radius:999px;padding:5px 11px;color:var(--muted)}
-  details{border-top:1px solid var(--line);padding:0}
-  details:last-of-type{border-bottom:1px solid var(--line)}
-  summary{cursor:pointer;list-style:none;padding:18px 0;font:600 17px var(--sans);display:flex;gap:16px;align-items:baseline}
-  summary::-webkit-details-marker{display:none}
-  summary span{font:500 11px var(--mono);color:var(--muted);letter-spacing:.12em;min-width:2.2em}
-  summary::after{content:"+";margin-left:auto;font:400 22px var(--mono);color:var(--muted)}
-  details[open] summary::after{content:"–"}
-  details .body{padding:0 0 26px 52px;max-width:50em}
-  details .body p,details .body li{color:#2b2a27}
-  ol.steps{padding-left:20px} ol.steps li{margin:8px 0}
-  blockquote{margin:22px 0;padding:0 0 0 22px;border-left:3px solid var(--red);font:400 18px/1.5 var(--serif);max-width:40em}
-  .figs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0 0}
-  .fig{border:1px solid var(--line);background:#fbf9f4;padding:12px;font:11px var(--mono);color:var(--muted)}
-  .fig svg{width:100%;height:auto;display:block;margin-bottom:8px}
-  @media(max-width:820px){.figs{grid-template-columns:1fr 1fr}}
-  .studio{display:grid;grid-template-columns:1.25fr 1fr;gap:44px;align-items:center}
-  .studio img{width:100%;border-radius:6px;display:block;background:#000}
-  @media(max-width:820px){.studio{grid-template-columns:1fr}}
-  .btn{display:inline-block;margin-top:18px;background:var(--ink);color:var(--paper);text-decoration:none;font:600 13px var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:14px 20px;border-radius:3px}
-  .btn.ghost{background:none;color:var(--ink);border:1px solid var(--ink);margin-left:8px}
-  .btn:hover{background:var(--red);color:#fff;border-color:var(--red)}
-  footer{margin-top:90px;border-top:1px solid var(--line);padding:30px 0 60px;font-size:12.5px;color:var(--muted)}
-  footer p{max-width:60em;margin:0 0 8px;color:var(--muted)}
-  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .orbbox{position:relative;padding-top:clamp(40px,6vw,70px)}
+  .orbbox .note{position:absolute;left:calc(50% + 820px*0.033);top:0;transform:translateX(-50%) rotate(-3deg);font-size:clamp(18px,3vw,34px);white-space:nowrap}
+  .orbbox .note svg{display:block;margin:2px auto 0;width:40px;height:44px;fill:none;stroke:currentColor;stroke-width:4;stroke-linecap:round}
+  svg#orb{width:100%;max-width:820px;margin:0 auto;height:auto;display:block;touch-action:none;user-select:none;-webkit-user-select:none}
+  .ring{cursor:ns-resize;outline:none}.ring:focus-visible .hit{stroke:var(--steel);stroke-width:3;fill:rgba(255,255,255,.08)}
+  #thumb{cursor:pointer;outline:none}#thumb:focus-visible .keycap{stroke:var(--steel);stroke-width:3}
+  .readout{font:500 12px/1.5 var(--mono);letter-spacing:.06em;text-transform:uppercase;margin:10px 0 0;min-height:1.6em}
+  .readout b{font-weight:700}
+  .legend{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--g);margin-top:18px}
+  .legend>div{border-top:4px solid currentColor;padding-top:8px;position:relative}
+  .legend .num{display:block;font:900 clamp(30px,5.4vw,88px)/.88 var(--display);font-variation-settings:"wdth" 150,"wght" 900;letter-spacing:-.02em}
+  .legend h3{margin:8px 0 6px;font:800 clamp(15px,1.7vw,22px)/1 var(--display);font-variation-settings:"wdth" 125,"wght" 800;text-transform:uppercase}
+  .legend p{margin:0;font-size:15px;line-height:1.4}
+  .legend .ring-mark{position:absolute;left:-10px;top:-6px;width:calc(100% + 20px);height:calc(100% + 14px);pointer-events:none;filter:url(#rough);overflow:visible;fill:none;stroke:var(--red);stroke-width:5;stroke-linecap:round}
+  @media(max-width:820px){.legend{grid-template-columns:repeat(2,1fr)}}
+  .barrel{position:relative;border-radius:16px 50% 50% 16px/16px 50% 50% 16px;overflow:hidden;aspect-ratio:16/9;background:var(--void)}
+  .barrel img{width:100%;height:100%;object-fit:cover;display:block}
+  .barrel::after{content:"";position:absolute;top:0;bottom:0;left:79%;width:2.2%;background:var(--red)}
+  nav.top{position:sticky;top:0;z-index:50;background:var(--void);color:var(--steel);display:flex;align-items:center;gap:22px;padding:0 var(--g);height:52px;border-bottom:3px solid var(--accent)}
+  nav.top .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--steel)}
+  nav.top .brand svg{height:26px;width:auto;display:block}
+  nav.top .brand b{font:800 15px/1 var(--display);font-variation-settings:"wdth" 140,"wght" 800;letter-spacing:.06em;text-transform:uppercase}
+  nav.top .links{margin-left:auto;display:flex;gap:20px;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase}
+  nav.top a.links-a{text-decoration:none}nav.top a.links-a:hover{color:var(--accent)}
+  nav.top a.go{background:var(--accent);color:var(--void);padding:9px 12px;font-weight:700}
+  @media(max-width:760px){nav.top .links a:not(.go){display:none}}
+  .lede{font:700 clamp(22px,3.1vw,44px)/1.08 var(--display);font-variation-settings:"wdth" 112,"wght" 700;color:var(--accent);max-width:22em;margin:calc(var(--g)*1.1) 0 10px}
+  .sub{max-width:44em;margin:0}
 </style>
 </head>
 <body>
-<header class="top"><div class="wrap">
-  <a class="brand" href="#top"><i></i>Vesper Instruments</a>
-  <nav>
-    <a href="#instrument">Instrument</a><a href="#references">References</a><a href="#origins">Origins</a><a href="#theory">Theory</a><a href="#disclosure">Disclosure</a><a class="cta" href="studio.html">Open the studio →</a>
-  </nav>
-</div></header>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="rough" x="-5%" y="-30%" width="110%" height="160%"><feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="3" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="5"/></filter></svg>
+
+<nav class="top"><a class="brand" href="#top"><svg viewBox="0 0 250 60" aria-hidden="true"><rect x="2" y="12" width="14" height="36" rx="2" fill="currentColor"/><rect x="16" y="8" width="132" height="44" rx="3" fill="none" stroke="currentColor" stroke-width="3"/><rect x="62" y="2" width="12" height="56" fill="currentColor"/><rect x="82" y="2" width="12" height="56" fill="currentColor"/><rect x="102" y="2" width="12" height="56" fill="currentColor"/><rect x="148" y="14" width="40" height="32" fill="currentColor"/><rect x="156" y="14" width="6" height="32" fill="#C8301E"/><ellipse cx="190" cy="30" rx="16" ry="29" fill="var(--accent)"/><ellipse cx="193" cy="30" rx="8" ry="16" fill="#0B0B0C"/></svg><b>Vesper</b></a>
+  <div class="links"><a class="links-a" href="#instrument">Instrument</a><a class="links-a" href="#references">References</a><a class="links-a" href="#origins">Origins</a><a class="links-a" href="#theory">Theory</a><a class="links-a" href="#disclosure">Disclosure</a><a class="links-a" href="identity.html">Identity</a><a class="links-a go" href="studio.html">Studio →</a></div></nav>
 
 <main id="top">
-<section class="hero" style="padding-top:64px"><div class="wrap">
-  <div class="eyebrow">Vesper Instruments · Field Orb 04</div>
-  <h1>The Memory Orb looks like a Canon cinema lens, works like an ARRI hand controller, and <em>edits like Blender.</em></h1>
-  <p class="lede"><b>Turn the TIME ring and watch the cake move while the children stay still.</b> The orb below is live: three rings and a thumb key, labelled with what they do in the demo. Drag a ring, or use the arrow keys.</p>
-</div>
-
-<div class="stagebox">
+<section class="sec void" style="padding-top:calc(var(--g)*1.4)">
+  <div class="seed glass"></div>
+  <div class="tele"><span>Vesper Instruments</span><span>Field Orb 04 <i>/ model 100</i></span><span>Memory instrument</span></div>
+  <p class="kick" style="color:var(--accent)">The Memory Orb</p>
+  <h1 class="hd"><span class="fit ">Looks like a Canon cinema lens,</span><span class="fit ">works like an ARRI hand controller,</span><span class="fit" style="color:var(--accent)">and edits like Blender.<svg class="scrawl" viewBox="0 0 1000 20" preserveAspectRatio="none"><path d="M4 11C120 3 240 17 380 8S640 15 800 6 940 12 996 8" stroke="#C8301E" stroke-width="7" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M12 17C200 11 420 19 700 12S900 16 990 13" stroke="#C8301E" stroke-width="3" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg></span></h1>
+  <p class="lede" style="margin-top:calc(var(--g)*1.6)">Turn the TIME ring and watch the cake move while the children stay still.</p>
+  <p class="sub">The orb below is live. Three rings and a thumb key, labelled with what they do in the demo. Drag a ring, or use the arrow keys.</p>
   <div class="stage" id="stage">
     <canvas id="scene" aria-label="Live demonstration scene"></canvas>
-    <div class="tabs" role="tablist" aria-label="Scene">
-      <button id="tabB" aria-pressed="true">Birthday</button><button id="tabF" aria-pressed="false">Forest</button>
-    </div>
+    <div class="tabs" role="tablist" aria-label="Scene"><button id="tabB" aria-pressed="true">Birthday</button><button id="tabF" aria-pressed="false">Forest</button></div>
     <div class="hud t"><span id="hudL">Chamber · memory vignette</span><span id="hudR"></span></div>
     <div class="hud b"><span id="msg"></span><span id="hint"></span></div>
     <canvas class="tl" id="tl" aria-label="Independent layer clocks against host time"></canvas>
   </div>
-</div>
+</section>
 
-<div class="orbwrap">
-  <svg id="orb" viewBox="0 0 960 300" role="group" aria-label="Field Orb 04. Three rotary rings and a thumb key.">
+<section class="sec amber" id="instrument">
+  <i class="edge"></i><div class="seed frost"></div>
+  <div class="tele"><span>110 Field</span><span>112 Variant</span><span>114 Time</span><span>120 Hold</span></div>
+  <div class="orbbox">
+    <div class="note" aria-hidden="true">turn this<svg viewBox="0 0 40 44"><path d="M20 2C18 14 22 26 20 38M9 28l11 12 12-13"/></svg></div>
+    <svg id="orb" viewBox="0 0 960 300" role="group" aria-label="Field Orb 04. Three rotary rings and a thumb key.">
     <defs>
       <linearGradient id="barrel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16181a"/><stop offset=".18" stop-color="#3b4045"/><stop offset=".34" stop-color="#25282b"/><stop offset=".7" stop-color="#101214"/><stop offset="1" stop-color="#050607"/></linearGradient>
       <linearGradient id="ringg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e1011"/><stop offset=".2" stop-color="#555b61"/><stop offset=".38" stop-color="#2e3236"/><stop offset=".72" stop-color="#15181a"/><stop offset="1" stop-color="#090a0b"/></linearGradient>
@@ -152,7 +97,7 @@
     <rect x="552" y="52" width="150" height="196" rx="4" fill="url(#ringg)"/>
     <rect x="566" y="52" width="9" height="196" fill="url(#redg)"/>
     <rect x="552" y="52" width="150" height="3" fill="#fff" opacity=".16"/>
-    <text x="596" y="154" font-family="ui-monospace,Menlo,monospace" font-size="9" letter-spacing="2.4" fill="#cfd3d6" opacity=".55" transform="rotate(-90 596 154)" text-anchor="middle">VESPER · FIELD ORB 04 · 150 × 66 mm</text>
+    <text x="596" y="154" font-family="ui-monospace,Menlo,monospace" font-size="7.5" letter-spacing="1.4" fill="#cfd3d6" opacity=".55" transform="rotate(-90 596 154)" text-anchor="middle">VESPER · FIELD ORB 04 · 150 × 66 mm</text>
     <ellipse cx="702" cy="150" rx="50" ry="98" fill="#0a0b0c"/>
     <ellipse cx="704" cy="150" rx="46" ry="90" fill="#1b1e20"/>
     <ellipse cx="708" cy="150" rx="36" ry="72" fill="url(#glass)"/>
@@ -160,10 +105,10 @@
     <ellipse cx="700" cy="118" rx="9" ry="22" fill="#fff" opacity=".24"/>
     <path d="M690 190 Q712 200 726 176" stroke="#9fd0e0" stroke-opacity=".5" fill="none" stroke-width="2"/>
     <!-- engraved labels -->
-    <g font-family="ui-monospace,Menlo,monospace" font-size="10" letter-spacing="3" fill="#e8ecee" opacity=".78" text-anchor="middle">
+    <g font-family="ui-monospace,Menlo,monospace" font-size="10" letter-spacing="3" fill="#0B0B0C" opacity="1" text-anchor="middle">
       <text x="351" y="34">FIELD</text><text x="431" y="34">VARIANT</text><text x="511" y="34">TIME</text>
     </g>
-    <g font-family="ui-monospace,Menlo,monospace" font-size="8.5" letter-spacing="2" fill="#9aa1a6" text-anchor="middle"><text x="351" y="276">110</text><text x="431" y="276">112</text><text x="511" y="276">114</text></g>
+    <g font-family="ui-monospace,Menlo,monospace" font-size="8.5" letter-spacing="2" fill="#0B0B0C" text-anchor="middle"><text x="351" y="276">110</text><text x="431" y="276">112</text><text x="511" y="276">114</text></g>
     <g stroke="#6b7278" stroke-width="1"><path d="M130 252h160M130 252v-6M170 252v-4M210 252v-6M250 252v-4M290 252v-6"/></g>
     <!-- thumb key (120) -->
     <g id="thumb" tabindex="0" role="switch" aria-checked="true" aria-label="Hold. Holds the companion layer at its sampled time.">
@@ -188,80 +133,52 @@
     </g>
     <rect x="96" y="40" width="540" height="220" rx="6" fill="url(#spec)" opacity=".5" pointer-events="none"/>
   </svg>
-
+  </div>
   <div class="readout" id="readout"></div>
   <div class="legend">
-    <div><h3>FIELD <span>110</span></h3><p>Sweeps the forest away in depth, revealing the chamber behind it.</p></div>
-    <div><h3>VARIANT <span>112</span></h3><p>Changes the insect on the same leaf, or the cake on the same table, while preserving the composition.</p></div>
-    <div><h3>TIME <span>114</span></h3><p>Jogs the selected layer forward or backward. Let go and it carries on from where you left it.</p></div>
-    <div><h3>HOLD <span>120</span></h3><p>Locks the selected subjects while the other layers continue.</p></div>
+    <div><span class="num">110</span><h3>Field</h3><p>Sweeps the forest away in depth, revealing the chamber behind it.</p></div>
+    <div><span class="num">112</span><h3>Variant</h3><p>Changes the insect on the same leaf, or the cake on the same table, while preserving the composition.</p></div>
+    <div><svg class="ring-mark" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path vector-effect="non-scaling-stroke" d="M4 52C0 18 40 2 82 6c18 2 20 36 14 62-6 20-48 26-80 18C-2 82 2 70 6 54"/></svg><span class="num">114</span><h3>Time</h3><p>Jogs the selected layer forward or backward. Let go and it carries on from where you left it.</p></div>
+    <div><span class="num">120</span><h3>Hold</h3><p>Locks the selected subjects while the other layers continue.</p></div>
   </div>
-</div>
+  <p style="margin:calc(var(--g)*1.2) 0 0;max-width:46em"><b>The hardware explains itself in the room.</b> Apple Vision Pro has the closest single interaction for the forest reveal. Blackmagic has the closest one for the birthday scene. Those are design analogies. Vesper’s control mapping is original: the product image is the control, with three independently draggable rings and a thumb key.</p>
 </section>
 
-<hr class="rule">
-<section id="instrument"><div class="wrap">
-  <div class="eyebrow">The instrument</div>
-  <h2>The hardware explains itself in the room.</h2>
-  <p>Apple Vision Pro has the closest single interaction for the forest reveal. Blackmagic has the closest one for the birthday scene. Those are design analogies for Vesper, grounded in what Ana does on screen. The current Vesper demo put its controls beside the chamber. <b>This design puts them on the orb:</b> the product image is the control, with three independently draggable rings and a thumb key.</p>
-  <p>That mapping is original to Vesper. The page leads with one shot that proves what the company makes: turn the TIME ring and the cake moves while the children stay still.</p>
-</div></section>
+<section class="sec" id="references">
+  <i class="edge"></i>
+  <div class="tele"><span>References</span><span>Six design analogies</span></div>
+  <h2 class="hd"><span class="fit ">Six analogies,</span><span class="fit ">and what each explains.</span></h2>
+  <div style="margin-top:calc(var(--g)*1.4)"><div class="ref "><h3>Canon Cinema EOS / ARRI Hi-5</h3><p><b>The object and the grip.</b> Canon gives you the barrel, engraved scales, and nested rings. ARRI gives you the professional hand unit: discrete controls for separate axes that an operator can adjust while watching the shot. This is the strongest hardware pairing. <a href="https://www.usa.canon.com/pro/rf-lens-world/cinema-lenses">Canon cinema lenses</a></p></div><div class="ref "><h3>Blender / Unreal Sequencer</h3><p><b>What Ana is editing.</b> In the birthday scene, the children hold while the cake keeps moving. Think separate objects and animation tracks in one scene. Blender is the analogy for authoring the objects. Sequencer is the analogy for running their timing in a live 3D scene. <a href="https://theasc.com/article/uncanny-valley-blade-runner-2049/">ASC on the shot</a></p></div><div class="ref "><h3>Blackmagic Speed Editor</h3><p><b>How time should feel in the hand.</b> Its jog wheel makes frame-by-frame movement tactile. For Vesper, apply that to a selected object or group. Hold the children, then jog the cake while the rest of the room stays put. <a href="https://www.blackmagicdesign.com/products/davinciresolve/techspecs">Blackmagic</a></p></div><div class="ref "><h3>Apple Vision Pro / Meta Quest</h3><p><b>How the room responds.</b> Vision Pro’s Digital Crown is the closest analogy for turning from the projected forest toward the physical chamber. Quest is a useful reference for a hand-held spatial input, especially if pointing chooses <i>where</i> to edit. The film gives a more distinctive visual than a generic immersion slider: the forest recedes in sections. <a href="https://developer.apple.com/design/human-interface-guidelines/digital-crown">Digital Crown</a></p></div><div class="ref "><h3>Logitech MX Creative Console / 3Dconnexion SpaceMouse</h3><p><b>How the controls can be assigned.</b> Logitech gives you a dial and dedicated action keys. SpaceMouse gives you push, pull, tilt, and twist for navigation. Use the first as a reference for assigning actions to the orb’s buttons, and the second if moving the whole orb should move your viewpoint. <a href="https://news.logitech.com/press-releases/news-details/2024/Logitech-Launches-MX-Creative-Console-Redefining-Digital-Creation-and-Unleashing-Your-Creative-Potential/default.aspx">Logitech</a></p></div><div class="ref "><h3>Sony / Nikon</h3><p><b>Where they fit in the visual identity.</b> Sony on the <i>room-system</i> side of the comparison, Nikon on the <i>precision-optics</i> side. For the orb itself, Canon’s marked cinema barrel and ARRI’s separate control axes give Vesper more specific details to borrow.</p></div></div>
+</section>
 
-<section id="references"><div class="wrap">
-  <div class="eyebrow">References</div>
-  <h2>Six design analogies, and what each one explains.</h2>
-  <table>
-    <thead><tr><th>Reference</th><th>What it explains about the orb</th></tr></thead>
-    <tbody>
-      <tr><td>Canon Cinema EOS / ARRI Hi-5</td><td><b>The object and the grip.</b> Canon gives you the barrel, engraved scales, and nested rings. ARRI gives you the professional hand unit: discrete controls for separate axes that an operator can adjust while watching the shot. This is the strongest hardware pairing. <a href="https://www.usa.canon.com/pro/rf-lens-world/cinema-lenses">Canon cinema lenses</a></td></tr>
-      <tr><td>Blender / Unreal Sequencer</td><td><b>What Ana is editing.</b> In the birthday scene, the children hold while the cake keeps moving. Think separate objects and animation tracks in one scene. Blender is the analogy for authoring the objects. Sequencer is the analogy for running their timing in a live 3D scene. <a href="https://theasc.com/article/uncanny-valley-blade-runner-2049/">ASC on the shot</a></td></tr>
-      <tr><td>Blackmagic Speed Editor</td><td><b>How time should feel in the hand.</b> Its jog wheel makes frame-by-frame movement tactile. For Vesper, apply that to a selected object or group. Hold the children, then jog the cake while the rest of the room stays put. <a href="https://www.blackmagicdesign.com/products/davinciresolve/techspecs">Blackmagic</a></td></tr>
-      <tr><td>Apple Vision Pro / Meta Quest</td><td><b>How the room responds.</b> Vision Pro’s Digital Crown is the closest analogy for turning from the projected forest toward the physical chamber. Quest is a useful reference for a hand-held spatial input, especially if pointing chooses <i>where</i> to edit. The film gives a more distinctive visual than a generic immersion slider: the forest recedes in sections. <a href="https://developer.apple.com/design/human-interface-guidelines/digital-crown">Digital Crown</a></td></tr>
-      <tr><td>Logitech MX Creative Console / 3Dconnexion SpaceMouse</td><td><b>How the controls can be assigned.</b> Logitech gives you a dial and dedicated action keys. SpaceMouse gives you push, pull, tilt, and twist for navigation. Use the first as a reference for assigning actions to the orb’s buttons, and the second if moving the whole orb should move your viewpoint. <a href="https://news.logitech.com/press-releases/news-details/2024/Logitech-Launches-MX-Creative-Console-Redefining-Digital-Creation-and-Unleashing-Your-Creative-Potential/default.aspx">Logitech</a></td></tr>
-      <tr><td>Sony / Nikon</td><td><b>Where they fit in the visual identity.</b> Sony on the <i>room-system</i> side of the comparison, Nikon on the <i>precision-optics</i> side. For the orb itself, Canon’s marked cinema barrel and ARRI’s separate control axes give Vesper more specific details to borrow.</td></tr>
-    </tbody>
-  </table>
-</div></section>
-
-<section id="origins"><div class="wrap">
-  <div class="two">
-    <div>
-      <div class="eyebrow">Origins</div>
-      <h2>Who made the Memory Orb?</h2>
+<section class="sec cyan" id="origins">
+  <i class="edge"></i><div class="seed glass" style="opacity:.25"></div>
+  <div class="tele"><span>Origins</span><span>Evidence</span></div>
+  <div class="g12">
+    <div class="c-l"><h2 class="hd"><span class="fit ">Who made</span><span class="fit ">the Memory Orb?</span></h2><div style="margin-top:calc(var(--g)*1.2)">
       <p><b>Mike Hill designed the film prop. The film leaves its in-world manufacturer unidentified.</b> Propstore documents the original as a custom-built animatronic with expandable outer rings, independently spinning inner rings, and inset buttons. Property master Doug Harlocker demonstrated those controls. The fabrication company is not verified, and the <i>Moxie Tool</i> attribution could not be corroborated. In the story, Ana operates the orb and Wallace buys her memory work.</p>
       <p>Vesper Instruments is an in-world product study for an independent optical instrument maker. Vesper, the model number, and the demo controls are original design choices. Other in-world brands are discussed in <a href="https://alekseybusygin.medium.com/wallace-corporation-in-blade-runner-2049-2017-18bf09e36a31">this analysis of the Wallace Corporation</a>.</p>
       <div class="chips"><span class="chip">Prop designer · Mike Hill</span><span class="chip">Prop · Propstore lot 131</span><span class="chip">Fabricator · unverified</span></div>
-    </div>
-    <div>
-      <div class="eyebrow">Evidence</div>
-      <h2>What UI do we actually see?</h2>
-      <table style="margin-top:6px">
-        <tbody>
-          <tr><td>The orb in Ana’s hands</td><td>Concentric rings and inset buttons; a labelled power switch. The sources don’t establish a button-by-button mapping. <a href="https://propstoreauction.com/lot-details/index/catalog/536/lot/217362/131-Dr-Ana-Stelline-s-Carla-Juri-Animatronic-Memory-Orb-BLADE-RUNNER-2049-2017">Prop</a> · <a href="https://mikehill.artstation.com/projects/nXW6O">Hill’s concept</a></td></tr>
-          <tr><td>The projection around her</td><td>The insect changes on the leaf, the forest drops away in sections, the children freeze while the cake keeps spinning. <b>You see the edit happen to the scene itself.</b> <a href="https://kinolab.org/FilmClip.php?id=1281">Scene</a> · <a href="https://buf.com/films/blade-runner-2049/">BUF</a></td></tr>
-          <tr><td>The chamber and glass</td><td>The pale dome, low perimeter light, and transparent partition. <a href="https://jonmccoyart.com/blade-runner-2049">McCoy</a> · <a href="https://theasc.com/article/uncanny-valley-blade-runner-2049/">Deakins</a></td></tr>
-          <tr><td>The scan station</td><td>The screenplay describes a <b>Stelline Scan</b> with a chin rest and an eye-scanning light, like a slit lamp: a second instrument in the lab. <a href="https://assets.scriptslug.com/live/pdf/scripts/blade-runner-2049.pdf?v=1729114873">Screenplay</a></td></tr>
-        </tbody>
-      </table>
-    </div>
+    </div></div>
+    <div class="c-r"><h2 class="hd"><span class="fit ">What UI do</span><span class="fit ">we actually see?</span></h2><div style="margin-top:calc(var(--g)*1.2)"><div class="ref sm"><h3>The orb in Ana’s hands</h3><p>Concentric rings and inset buttons; a labelled power switch. The sources don’t establish a button-by-button mapping. <a href="https://propstoreauction.com/lot-details/index/catalog/536/lot/217362/131-Dr-Ana-Stelline-s-Carla-Juri-Animatronic-Memory-Orb-BLADE-RUNNER-2049-2017">Prop</a> · <a href="https://mikehill.artstation.com/projects/nXW6O">Hill’s concept</a></p></div><div class="ref sm"><h3>The projection around her</h3><p>The insect changes on the leaf, the forest drops away in sections, the children freeze while the cake keeps spinning. <b>You see the edit happen to the scene itself.</b> <a href="https://kinolab.org/FilmClip.php?id=1281">Scene</a> · <a href="https://buf.com/films/blade-runner-2049/">BUF</a></p></div><div class="ref sm"><h3>The chamber and glass</h3><p>The pale dome, low perimeter light, and transparent partition. <a href="https://jonmccoyart.com/blade-runner-2049">McCoy</a> · <a href="https://theasc.com/article/uncanny-valley-blade-runner-2049/">Deakins</a></p></div><div class="ref sm"><h3>The scan station</h3><p>The screenplay describes a <b>Stelline Scan</b> with a chin rest and an eye-scanning light, like a slit lamp: a second instrument in the lab. <a href="https://assets.scriptslug.com/live/pdf/scripts/blade-runner-2049.pdf?v=1729114873">Screenplay</a></p></div></div></div>
   </div>
-</div></section>
+</section>
 
-<section id="theory"><div class="wrap">
-  <div class="eyebrow">Design theory</div>
-  <h2>A spatial editor for rehearsing how an event could have happened.</h2>
-  <p>Ana works inside a running scene, changes one part of it, and judges the change against everything she chose to keep. The leaf still supports the insect. The table still holds the cake. The children can stay in a pose while the cake turns. <b>The operation that ties those moments together is changing one part of a live scene while preserving particular relationships to the rest.</b></p>
-  <blockquote>Independent layer clocks are an ingredient. The stronger claim candidate is how the system keeps an edit valid when the scene keeps moving, the target changes form, or a dependency crosses from held time into live time.</blockquote>
-
-  <div class="formula" id="formula">local(i, t) = q(i) + r(i) · (t − e(i))
+<section class="sec" id="theory">
+  <i class="edge"></i><div class="seed wax"></div>
+  <div class="tele"><span>Design theory</span><span>Spatial editor</span></div>
+  <h2 class="hd"><span class="fit ">A spatial editor</span><span class="fit ">for rehearsing how an event</span><span class="fit ">could have happened.</span></h2>
+  <div class="g12" style="margin-top:calc(var(--g)*1.4)">
+    <div class="c-l"><p>Ana works inside a running scene, changes one part of it, and judges the change against everything she chose to keep. The leaf still supports the insect. The table still holds the cake. The children can stay in a pose while the cake turns. <b>The operation that ties those moments together is changing one part of a live scene while preserving particular relationships to the rest.</b></p>
+    <blockquote>Independent layer clocks are an ingredient. The stronger claim candidate is how the system keeps an edit valid when the scene keeps moving, the target changes form, or a dependency crosses from held time into live time.</blockquote></div>
+    <div class="c-r"><div class="formula" id="formula">local(i, t) = q(i) + r(i) · (t − e(i))
 hold  : q ← local(t_H) · e ← t_H · r ← 0
 jog   : q ← q + Δ
-release: e ← t_release · r ← 1        (no jump in pose)</div>
-  <p class="mut" id="worked" style="font-family:var(--mono);font-size:13px">Worked example from the specification: both layers reach 2.00 s, a hold captures the children at 2.00 s, one host second later the cake is at 3.00 s while the children remain at 2.00 s, and a −0.25 s jog on the held cake gives 2.75 s without altering the children.</p>
-
-  <div style="margin-top:34px">
-    <details open><summary><span>01</span>Initial interpretation</summary><div class="body"><p>The Memory Orb is a spatial editor for rehearsing how an event could have happened. I would revise the patent’s center of gravity: independent layer clocks are an ingredient, and the stronger claim candidate is how the system keeps an edit valid when the scene keeps moving, the target changes form, or a dependency crosses from held time into live time. That requires a theory of what an edit is allowed to change.</p></div></details>
-    <details><summary><span>02</span>Theory skeleton</summary><div class="body">
+release: e ← t_release · r ← 1        (no jump in pose)</div></div>
+  </div>
+  <p class="mono" style="max-width:60em">Worked example from the specification: both layers reach 2.00 s, a hold captures the children at 2.00 s, one host second later the cake is at 3.00 s while the children remain at 2.00 s, and a −0.25 s jog on the held cake gives 2.75 s without altering the children.</p>
+  <div style="margin-top:calc(var(--g)*1.6)"><details open><summary><span>01</span>Initial interpretation</summary><div class="in"><p>The Memory Orb is a spatial editor for rehearsing how an event could have happened. I would revise the patent’s center of gravity: independent layer clocks are an ingredient, and the stronger claim candidate is how the system keeps an edit valid when the scene keeps moving, the target changes form, or a dependency crosses from held time into live time. That requires a theory of what an edit is allowed to change.</p></div></details>
+    <details><summary><span>02</span>Theory skeleton</summary><div class="in">
       <table><tbody>
         <tr><td>Beetle → other insects → scarab → changing eyes, on the same leaf</td><td>A persistent role such as <i>insect-on-this-leaf</i>, interchangeable assets, and a way to narrow an edit from the whole insect to a feature. Placement and appearance are separate.</td></tr>
         <tr><td>Visitor alert → doorway appears → forest gives way to lab</td><td>Separate states for the authored forest, its visibility in the room, and the doorway. Revealing the actual room can be a presentation operation while the forest edit remains recoverable.</td></tr>
@@ -272,13 +189,13 @@ release: e ← t_release · r ← 1        (no jump in pose)</div>
       </tbody></table>
       <p>The software to build is a <b>live scene sequencer with a transaction attached to every continuous gesture</b>. Each transaction carries {target role, property, source revision, preview delta, preservation rules}. The orb provides the gesture; the scene provides its meaning. The system binds that meaning when she takes hold of the control, so crossing another object with the orb mid-turn cannot reinterpret the gesture.</p>
     </div></details>
-    <details><summary><span>03</span>Assumption ledger</summary><div class="body"><table><tbody>
+    <details><summary><span>03</span>Assumption ledger</summary><div class="in"><table><tbody>
       <tr><td>Safe</td><td>A prototype can represent the demonstrated actions with a scene graph, pre-authored variants, animation tracks, and a real-time renderer. The scenes do not require automatic generation.</td></tr>
       <tr><td>Uncertain</td><td>The orb’s gesture vocabulary, whether it tracks pointing, what its rings sense, and whether it talks to a separate chamber host. The prop proves moving hardware; the software assignments are ours.</td></tr>
       <tr><td>Uncertain</td><td>Whether Ana intends to hold a subject’s pose, its position in the room, or every channel that contributes to its appearance.</td></tr>
       <tr><td>Needs a user decision</td><td>What the operator means by <b>hold</b>. A child on a moving chair can stay seated in the same pose or stay fixed in the room. Prototype <b>hold pose</b> as the default and make <b>hold in room</b> an explicit second operation.</td></tr>
     </tbody></table></div></details>
-    <details><summary><span>04</span>Operational description</summary><div class="body"><ol class="steps">
+    <details><summary><span>04</span>Operational description</summary><div class="in"><ol class="steps">
       <li><b>Resolve</b>: the operator points to the insect; the software offers body, eyes, or placement because the current asset declares those capabilities.</li>
       <li><b>Capture</b>: the thumb press attaches the gesture to the role, property, reference frame, and revision. A new mesh or a wandering pointer does not change what the current turn means.</li>
       <li><b>Produce</b>: ring motion creates a temporary edit. For a body swap the editor aligns the incoming insect’s contact frame to the existing leaf anchor.</li>
@@ -287,7 +204,7 @@ release: e ← t_release · r ← 1        (no jump in pose)</div>
       <li><b>Visitor alert</b>: the entrance becomes visible while the forest composition and the current edit stay separately addressable.</li>
     </ol>
     <p><b>The birthday scene is the decisive example.</b> Ana holds the child’s pose and jogs the cake backward. The child can still receive live candlelight. But if the child’s finger touches the icing, the backward jog can make the cake pass through it. The software can preserve contact by moving the hand with the cake, suspend the contact constraint for the rehearsal, or block the jog until Ana chooses. A second clock alone cannot decide among them.</p></div></details>
-    <details><summary><span>05</span>Failure and change tests</summary><div class="body"><table><tbody>
+    <details><summary><span>05</span>Failure and change tests</summary><div class="in"><table><tbody>
       <tr><td>Replacement insect has different geometry</td><td>Keep the leaf attachment through a declared contact frame. If it cannot be satisfied, keep the last valid preview and expose the missing attachment.</td></tr>
       <tr><td>The selected eye disappears during a body swap</td><td>End or suspend the eye edit. Preserve the parent insect selection. Re-apply only if the new body declares a compatible mapping.</td></tr>
       <tr><td>Jogging crosses a candle ignition or sound cue</td><td>Evaluate the preview at the requested time without firing real-time events. Scrubbing over a flame cue five times should not emit five ignitions.</td></tr>
@@ -296,43 +213,50 @@ release: e ← t_release · r ← 1        (no jump in pose)</div>
       <tr><td>If the leaf tears while the insect is held</td><td>The same-triangle anchor fails; a new mapping can attach the insect to a surviving fragment, otherwise the edit suspends and the lost attachment is shown.</td></tr>
       <tr><td>If the whole birthday should rewind except the candle flames</td><td>The clock assignment moves from one object to a group with an exclusion. Flames keep live time; candle placement follows the cake; flame illumination is evaluated against the rewound geometry.</td></tr>
     </tbody></table></div></details>
-    <details><summary><span>06</span>Implementation plan</summary><div class="body"><p>Use <b>one scene evaluator for both demos</b>, forest and birthday, with three pieces around it: a <i>scene model</i> (stable roles, attachment frames, editable properties, clocks, dependencies), a <i>gesture interpreter</i> (binds ring and key events to an operation for the lifetime of a gesture), and a <i>preview evaluator</i> (checks dependency rules, shows a tentative result, commits or cancels as one edit).</p><p>The test that matters most compares <b>two evaluations at the same elapsed time</b>: the scene with no edit and the scene with the proposed edit. Compare protected properties against that live baseline. An unedited leaf may keep swaying in both runs; a child whose pose was held should retain the held pose in the edited run.</p></div></details>
-    <details><summary><span>07</span>What is novel, and what only Ana can supply</summary><div class="body"><p>The first draft’s broad claims face credible overlap: independent clip timelines, OpenUSD variants and edit layers, immersive animation authoring, pointer capture, and selective rollback in game engines. A ring-shaped controller combining those familiar functions has a weak obviousness story on its own.</p><p><b>The stronger candidate is a specific evaluation procedure.</b> A gesture captures a semantic target and a set of properties to preserve. During a variant change or local-time edit, the system resolves dependencies crossing between edited and protected properties by binding each to live, held, or recomputed state, and validates the result against the running scene before committing. That is a claim candidate to search and test; nothing here establishes novelty or non-obviousness.</p><p>The part only Ana can supply is <b>what is worth preserving</b>. She may keep the child’s hesitation and change the smile, or keep the leaf and give the insect a different face. The software can preserve a contact, a pose, a rhythm, or a viewpoint. The artist decides which of those makes it the same memory.</p></div></details>
+    <details><summary><span>06</span>Implementation plan</summary><div class="in"><p>Use <b>one scene evaluator for both demos</b>, forest and birthday, with three pieces around it: a <i>scene model</i> (stable roles, attachment frames, editable properties, clocks, dependencies), a <i>gesture interpreter</i> (binds ring and key events to an operation for the lifetime of a gesture), and a <i>preview evaluator</i> (checks dependency rules, shows a tentative result, commits or cancels as one edit).</p><p>The test that matters most compares <b>two evaluations at the same elapsed time</b>: the scene with no edit and the scene with the proposed edit. Compare protected properties against that live baseline. An unedited leaf may keep swaying in both runs; a child whose pose was held should retain the held pose in the edited run.</p></div></details>
+    <details><summary><span>07</span>What is novel, and what only Ana can supply</summary><div class="in"><p>The first draft’s broad claims face credible overlap: independent clip timelines, OpenUSD variants and edit layers, immersive animation authoring, pointer capture, and selective rollback in game engines. A ring-shaped controller combining those familiar functions has a weak obviousness story on its own.</p><p><b>The stronger candidate is a specific evaluation procedure.</b> A gesture captures a semantic target and a set of properties to preserve. During a variant change or local-time edit, the system resolves dependencies crossing between edited and protected properties by binding each to live, held, or recomputed state, and validates the result against the running scene before committing. That is a claim candidate to search and test; nothing here establishes novelty or non-obviousness.</p><p>The part only Ana can supply is <b>what is worth preserving</b>. She may keep the child’s hesitation and change the smile, or keep the leaf and give the insect a different face. The software can preserve a contact, a pose, a rhythm, or a viewpoint. The artist decides which of those makes it the same memory.</p></div></details>
   </div>
-</div></section>
+</section>
 
-<section id="disclosure"><div class="wrap">
-  <div class="eyebrow">Fictional technical disclosure</div>
-  <h2>Handheld apparatus for spatial scene authoring with independent layer time control.</h2>
-  <p>A fictional utility patent specification: 38 paragraphs, 18 claims, 8 figures, and a source concordance that separates what comes from the screenplay, film, or prop from what is proposed here. It has no filing or grant number.</p>
-  <blockquote>A spatial scene authoring system comprising a handheld controller having a pose tracker, independently sensed first and second rotary inputs, and a capture actuator… retain the association when the selection ray moves away from the identified layer, set a playback rate of the identified layer to zero in response to a hold command while advancing a second layer, modify a sampled local time of the identified layer in response to a signed increment from the first rotary input while the playback rate remains zero… <span class="mut">— Claim 1</span></blockquote>
-  <div class="figs">
-    <div class="fig"><svg viewBox="0 0 200 90" fill="none" stroke="#121211" stroke-width="1.2"><ellipse cx="30" cy="45" rx="14" ry="30"/><path d="M30 15h110M30 75h110"/><ellipse cx="68" cy="45" rx="7" ry="30"/><ellipse cx="86" cy="45" rx="7" ry="30"/><ellipse cx="104" cy="45" rx="7" ry="30"/><ellipse cx="140" cy="45" rx="14" ry="30"/><ellipse cx="140" cy="45" rx="7" ry="15"/><rect x="42" y="36" width="12" height="7" rx="3"/></svg>FIG. 1 · Instrument 100, rings 110 112 114, thumb actuator 120</div>
-    <div class="fig"><svg viewBox="0 0 200 90" fill="none" stroke="#121211" stroke-width="1.2"><rect x="10" y="22" width="12" height="46"/><rect x="40" y="10" width="40" height="22"/><rect x="92" y="10" width="40" height="22"/><rect x="144" y="10" width="40" height="22"/><path d="M60 44h120M160 32v12M60 56h120"/></svg>FIG. 3 · Controller → host 200 → spatial output 210, scene store 220</div>
-    <div class="fig"><svg viewBox="0 0 200 90" fill="none" stroke="#121211" stroke-width="1.2"><path d="M10 80h180"/><path d="M14 30L100 14h70" /><path d="M14 66L50 40h120" stroke-dasharray="0"/><path d="M50 8v72M118 8v72M150 8v72" stroke-dasharray="3 3"/></svg>FIG. 6 · Child and cake local times; hold, hold, jog</div>
-    <div class="fig"><svg viewBox="0 0 200 90" fill="none" stroke="#121211" stroke-width="1.2"><rect x="6" y="10" width="52" height="26"/><rect x="74" y="10" width="52" height="26"/><rect x="142" y="10" width="52" height="26"/><path d="M58 23h16M126 23h16M168 36v12"/><rect x="142" y="48" width="52" height="26"/><rect x="74" y="48" width="52" height="26"/><path d="M142 61h-16"/></svg>FIG. 7 · Acquire, capture, preview, validate and commit, undo</div>
+<section class="sec void" id="disclosure">
+  <i class="edge"></i>
+  <div class="tele"><span>Fictional technical disclosure</span><span>Patent specification · no filing number</span></div>
+  <h2 class="hd" style="color:var(--accent)"><span class="fit ">Handheld apparatus for</span><span class="fit ">spatial scene authoring with</span><span class="fit ">independent layer time control.</span></h2>
+  <div class="g12" style="margin-top:calc(var(--g)*1.4)">
+    <div class="c-l"><p>A fictional utility patent specification: 38 paragraphs, 18 claims, 8 figures, and a source concordance that separates what comes from the screenplay, film, or prop from what is proposed here. It has no filing or grant number.</p>
+    <p><a class="btn" href="docs/Vesper_Field_Orb_04_Patent_Specification.pdf">Read the specification · PDF</a></p></div>
+    <div class="c-r"><blockquote style="font-size:clamp(16px,1.7vw,22px)">A spatial scene authoring system comprising a handheld controller having a pose tracker, independently sensed first and second rotary inputs, and a capture actuator… retain the association when the selection ray moves away from the identified layer, set a playback rate of the identified layer to zero in response to a hold command while advancing a second layer, modify a sampled local time of the identified layer in response to a signed increment from the first rotary input while the playback rate remains zero… <span class="mut">— Claim 1</span><br><span class="mono">— Claim 1</span></blockquote></div>
   </div>
-  <p style="margin-top:22px"><a class="btn" href="docs/Vesper_Field_Orb_04_Patent_Specification.pdf">Read the specification (PDF, 14 pages)</a></p>
-  <p class="mut" style="font-size:13px;margin-top:16px">Reference numerals: 100 controller · 102 housing · 104 spine · 106 sleeve · 110 field ring · 112 variant ring · 114 time ring · 120 thumb actuator · 130 angle sensors · 132 pose assembly · 134 processor · 136 haptic actuator · 140 window · 200 host · 210 spatial output · 220 scene store · 230 chamber · 234 protected volume · 236 barrier · 240 selection ray · 250 layer · 252 element · 254 anchor · 256 variants · 260 child time · 262 cake time · 270 transaction · 280 inspection terminal · 282 input station · 284 review console · 286 review store.</p>
-</div></section>
+  <div class="figs" style="margin:var(--g) 0">
+    <div class="fig"><svg viewBox="0 0 200 90" fill="none"  stroke-width="1.2"><ellipse cx="30" cy="45" rx="14" ry="30"/><path d="M30 15h110M30 75h110"/><ellipse cx="68" cy="45" rx="7" ry="30"/><ellipse cx="86" cy="45" rx="7" ry="30"/><ellipse cx="104" cy="45" rx="7" ry="30"/><ellipse cx="140" cy="45" rx="14" ry="30"/><ellipse cx="140" cy="45" rx="7" ry="15"/><rect x="42" y="36" width="12" height="7" rx="3"/></svg>FIG. 1 · Instrument 100, rings 110 112 114, thumb actuator 120</div>
+    <div class="fig"><svg viewBox="0 0 200 90" fill="none"  stroke-width="1.2"><rect x="10" y="22" width="12" height="46"/><rect x="40" y="10" width="40" height="22"/><rect x="92" y="10" width="40" height="22"/><rect x="144" y="10" width="40" height="22"/><path d="M60 44h120M160 32v12M60 56h120"/></svg>FIG. 3 · Controller → host 200 → spatial output 210, scene store 220</div>
+    <div class="fig"><svg viewBox="0 0 200 90" fill="none"  stroke-width="1.2"><path d="M10 80h180"/><path d="M14 30L100 14h70" /><path d="M14 66L50 40h120" stroke-dasharray="0"/><path d="M50 8v72M118 8v72M150 8v72" stroke-dasharray="3 3"/></svg>FIG. 6 · Child and cake local times; hold, hold, jog</div>
+    <div class="fig"><svg viewBox="0 0 200 90" fill="none"  stroke-width="1.2"><rect x="6" y="10" width="52" height="26"/><rect x="74" y="10" width="52" height="26"/><rect x="142" y="10" width="52" height="26"/><path d="M58 23h16M126 23h16M168 36v12"/><rect x="142" y="48" width="52" height="26"/><rect x="74" y="48" width="52" height="26"/><path d="M142 61h-16"/></svg>FIG. 7 · Acquire, capture, preview, validate and commit, undo</div>
+  </div>
+  <p class="mono" style="max-width:70em;opacity:.8">Reference numerals: 100 controller · 102 housing · 104 spine · 106 sleeve · 110 field ring · 112 variant ring · 114 time ring · 120 thumb actuator · 130 angle sensors · 132 pose assembly · 134 processor · 136 haptic actuator · 140 window · 200 host · 210 spatial output · 220 scene store · 230 chamber · 234 protected volume · 236 barrier · 240 selection ray · 250 layer · 252 element · 254 anchor · 256 variants · 260 child time · 262 cake time · 270 transaction · 280 inspection terminal · 282 input station · 284 review console · 286 review store.</p>
+</section>
 
-<section id="studio"><div class="wrap">
-  <div class="studio">
-    <img src="assets/site/cakes.jpg" alt="Four cakes rendered by the studio: a sponge drum with shell border, a faceted ganache cake with daisy candles, an orange buttercream cake, and a naked-layer cake with number candles" loading="lazy" width="1400" height="787">
-    <div>
-      <div class="eyebrow">The working tool</div>
-      <h2 style="font-size:clamp(24px,3vw,32px)">Stelline Studio: the orb as the whole interface.</h2>
-      <p>A browser studio for the details Ana lingers on: a bug’s compound eye, a birthday cake and its piped name, a child’s face in candlelight. Rings are banks of controls, the orb types the name, and an inverse mode turns the rings by itself to match a target. Procedural and live; the film’s segmentation atlas is inside.</p>
-      <a class="btn" href="studio.html">Open the studio →</a><a class="btn ghost" href="v4-master.html">V4 master</a>
-    </div>
+<section class="sec amber" id="studio">
+  <i class="edge"></i><div class="seed frost"></div>
+  <div class="tele"><span>The working tool</span><span>Stelline Studio</span></div>
+  <h2 class="hd"><span class="fit ">Open the studio.</span></h2>
+  <div class="g12" style="margin-top:calc(var(--g)*1.4);align-items:center">
+    <div class="c-l barrel"><img src="assets/site/cakes.jpg" alt="Four cakes rendered by the studio: a sponge drum with shell border, a faceted ganache cake with daisy candles, an orange buttercream cake, and a naked-layer cake with number candles" loading="lazy" width="1400" height="787"></div>
+    <div class="c-r"><p style="font-size:19px"><b>Stelline Studio: the orb as the whole interface.</b> A browser studio for the details Ana lingers on: a bug’s compound eye, a birthday cake and its piped name, a child’s face in candlelight. Rings are banks of controls, the orb types the name, and an inverse mode turns the rings by itself to match a target. Procedural and live; the film’s segmentation atlas is inside.</p>
+    <p><a class="btn" href="studio.html">Open the studio →</a><a class="btn ghost" href="v4-master.html">V4 master</a></p></div>
   </div>
-</div></section>
+</section>
 </main>
 
-<footer><div class="wrap">
-  <p><b>Fictional.</b> Vesper Instruments, Field Orb 04, the control assignments, and the technical disclosure are an original design study based on <i>Blade Runner 2049</i>. No filing or grant number exists. Not affiliated with, or endorsed by, the film’s rights holders; the Memory Orb prop was designed by Mike Hill.</p>
-  <p>Source concordance: screenplay pp. 57–62 · BUF · ASC (Deakins) · Propstore lot 131 · Mike Hill · Kinolab. Claim language, brand, control mappings, and engineering details are proposed here.</p>
-</div></footer>
+<footer class="sec void" style="padding-bottom:calc(var(--g)*2)"><i class="edge"></i>
+  <div class="tele"><span>Disclaimer</span><span><a href="identity.html">Identity system →</a></span></div>
+  <p class="mono" style="max-width:80em"><b>Fictional.</b> Vesper Instruments, Field Orb 04, the control assignments, and the technical disclosure are an original design study based on <i>Blade Runner 2049</i>. No filing or grant number exists. Not affiliated with, or endorsed by, the film’s rights holders; the Memory Orb prop was designed by Mike Hill.</p>
+  <p class="mono" style="max-width:80em;opacity:.75">Source concordance: screenplay pp. 57–62 · BUF · ASC (Deakins) · Propstore lot 131 · Mike Hill · Kinolab. Claim language, brand, control mappings, and engineering details are proposed here.</p>
+</footer>
+
+<div class="telebar" role="status" aria-label="Orb telemetry">
+  <span id="tbState"><b>SOLID</b></span><span id="tbAp">f/<b>1.4</b></span><span id="tbVar"><b>—</b></span><span id="tbLight">CANDLELIGHT</span><span id="tbK"><b>3300</b>K</span><button id="tbSnap" type="button">[ Snapshot ]</button>
+</div>
 
 <script>
 (() => {
@@ -555,7 +479,31 @@ cv.addEventListener('click', e => { const r = cv.getBoundingClientRect(), x = (e
 cv.style.cursor = 'default';
 syncKey(); hint('Both clocks run. At 2.00 s the children are held.');
 requestAnimationFrame(render);
+window.__orb={get field(){return field},get idx(){return variant[scene]},get scene(){return scene},VAR,off:()=>L.cake.t(host())-host(),cv};
 })();
 </script>
+<script>
+(function(){
+  const root=document.documentElement,tb=id=>document.getElementById(id);
+  let last='';
+  function frame(){
+    const o=window.__orb; if(o){
+      const f=o.field, idx=o.idx|0, cold=o.scene==='forest';
+      const wd=Math.round(112+f*26), wt=[560,710,860][idx]||800, sk=Math.max(-10,Math.min(10,-o.off()*5)).toFixed(1), bl=(f*1.2).toFixed(2);
+      const key=wd+'|'+wt+'|'+sk+'|'+bl+'|'+cold;
+      if(key!==last){ const wChanged=last.split('|').slice(0,2).join()!==[wd,wt].join(); last=key;
+        root.style.setProperty('--wd',wd);root.style.setProperty('--wt',wt);root.style.setProperty('--sk',sk+'deg');root.style.setProperty('--blur',bl+'px');
+        root.dataset.state=cold?'cold':'warm';
+        tb('tbState').innerHTML='<b>'+(f<.5?'SOLID':'GHOST')+'</b>'; tb('tbAp').innerHTML='f/<b>'+(1.4*Math.pow(2,f*3.5)).toFixed(1)+'</b>';
+        tb('tbVar').innerHTML='<b>'+String(o.VAR[o.scene][idx]).toUpperCase()+'</b>'; tb('tbLight').textContent=cold?'MOSS DAWN':'CANDLELIGHT'; tb('tbK').innerHTML='<b>'+(cold?5600:3300)+'</b>K';
+        if(wChanged&&window.VesperFit) VesperFit.refit(); }
+    }
+    requestAnimationFrame(frame);
+  }
+  frame();
+  tb('tbSnap').addEventListener('click',()=>{ const c=document.getElementById('scene'); c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='vesper-field-orb-snapshot.png'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); }); });
+})();
+</script>
+<script src="assets/site/vesper.js"></script>
 </body>
 </html>
