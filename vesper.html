@@ -261,6 +261,12 @@
     .thesis-drawer { inset: 8px; padding: 12px; }
     .thesis-grid { grid-template-columns: 1fr; }
   }
+
+  /* ---- all UI lives on the orb: the screen carries only the scene ---- */
+  .top-bar, .vp-hud-left, .vp-hud-right, .mid-strip, .thesis-drawer, .orb-hint-left, .orb-hint-right { display: none !important; }
+  :root { --deck: 270px; }
+  .app-shell { grid-template-columns: minmax(0, 1fr) !important; grid-template-rows: minmax(0, 1fr) var(--deck) !important; width: 100%; height: 100vh; height: 100dvh; }
+  @media (max-width: 820px) { :root { --deck: clamp(300px, 40vh, 380px); } }
 </style>
 </head>
 <body>

@@ -1213,46 +1213,84 @@
   /* ---------------- 13. Operable Vesper Field Orb 04 Hardware Barrel (#vesperOrbCanvas) ---------------- */
   let orbCanvas, orbCtx, dragRing = null, dragStartX = 0;
 
+
+  /* Orb layout: one geometry shared by drawing and hit-testing. Every control lives on the barrel. */
+  const STAGE_KEYS = [['1', 'stage', 1, 'BUNDT'], ['2', 'stage', 2, 'GLAZE'], ['3', 'stage', 3, 'FLAME'], ['4', 'stage', 4, 'HOLD'], ['5', 'stage', 5, 'HAND'], ['B', 'scene', 'forest', 'FOREST'], ['C', 'scene', 'scan', 'SCAN']];
+  const ROLE_KEYS = [['cake', 'CAKE'], ['icing', 'ICING'], ['candles', 'CANDLE'], ['children', 'KIDS'], ['hand', 'HAND'], ['insect', 'BUG'], ['eyeR', 'EYE'], ['setae', 'SETAE']];
+  const CLOCK_KEYS = [['children', 'KID'], ['cake', 'CAKE'], ['hand', 'HND']];
+  function orbLayout(W, H, dpr, cssW) {
+    const k = cssW < 600 ? 0.97 : 0.62;
+    const bw = Math.min(W * k, 620 * dpr);
+    const rowH = 26 * dpr, gap = 6 * dpr, head = 14 * dpr;
+    const bh = Math.max(90 * dpr, Math.min(195 * dpr, H - (head + 2 * rowH + 4 * gap + 6 * dpr)));
+    const total = head + gap + rowH + gap + bh + gap + rowH;
+    const y0 = Math.max(0, (H - total) / 2);
+    const r1 = y0 + head + gap, top = r1 + rowH + gap, r2 = top + bh + gap;
+    const cx = W / 2, left = cx - bw / 2, cy = top + bh / 2;
+    const s = Math.max(0.8, Math.min(1, bw / dpr / 560));
+    const narrow = bw / dpr < 480;
+    const L = { W, H, dpr, bw, bh, cx, cy, left, top, r1, r2, rowH, s, narrow, hy: y0 + head * 0.55, zones: [] };
+    const add = (z, x, y, w, h) => L.zones.push({ z, x, y, w, h });
+    // row 1: stages and scenes; row 2: capture targets
+    const kw1 = Math.min(bw / STAGE_KEYS.length, 86 * dpr), x1 = cx - kw1 * STAGE_KEYS.length / 2;
+    STAGE_KEYS.forEach((kk, i) => add('stage:' + i, x1 + i * kw1, r1, kw1, rowH));
+    const kw2 = Math.min(bw / ROLE_KEYS.length, 80 * dpr), x2 = cx - kw2 * ROLE_KEYS.length / 2;
+    ROLE_KEYS.forEach((kk, i) => add('role:' + i, x2 + i * kw2, r2, kw2, rowH));
+    // left housing: 140 shroud, 278 undo / 276 commit, 234 doorway
+    const rad = Math.min(bw * 0.05, 20 * dpr);
+    L.rad = rad;
+    L.btn = {
+      shroud: [left + bw * 0.07, cy - bh * 0.2], undo: [left + bw * 0.185, cy - bh * 0.2],
+      commit: [left + bw * 0.07, cy + bh * 0.2], door: [left + bw * 0.185, cy + bh * 0.2],
+      thumb: [left + bw * 0.87, cy - bh * 0.1], world: [left + bw * 0.87, cy + bh * 0.28]
+    };
+    L.thumbRad = Math.min(bw * 0.058, 24 * dpr); L.worldRad = Math.min(bw * 0.048, 19 * dpr);
+    Object.keys(L.btn).forEach(n => { const r = n === 'thumb' ? L.thumbRad : n === 'world' ? L.worldRad : rad; add('btn:' + n, L.btn[n][0] - r, L.btn[n][1] - r, 2 * r, 2 * r); });
+    // clock lamps above the thumb
+    L.lamps = CLOCK_KEYS.map((c, i) => [left + bw * (0.79 + i * 0.07), cy - bh * 0.4]);
+    L.lamps.forEach((l, i) => add('lamp:' + i, l[0] - 13 * dpr, l[1] - 13 * dpr, 26 * dpr, 30 * dpr));
+    // rings
+    const ringAreaLeft = left + bw * 0.25, ringW = bw * 0.49 / 3;
+    ['field', 'variant', 'time'].forEach((n, i) => add('ring:' + n, ringAreaLeft + i * ringW, top, ringW, bh));
+    return L;
+  }
+  function orbHit(L, x, y) {
+    for (let i = L.zones.length - 1; i >= 0; i--) { const z = L.zones[i]; if (z.w > 0 && x >= z.x && x <= z.x + z.w && y >= z.y && y <= z.y + z.h) return z.z; }
+    return null;
+  }
+  function orbPress(zone) {
+    const [kind, arg] = zone.split(':');
+    const click = sel => { const el = document.querySelector(sel); if (el) el.click(); };
+    if (kind === 'stage') { const kk = STAGE_KEYS[Number(arg)]; click(kk[1] === 'stage' ? `[data-donut-stage="${kk[2]}"]` : `[data-scene-mode="${kk[2]}"]`); return true; }
+    if (kind === 'role') { click(`[data-capture-role="${ROLE_KEYS[Number(arg)][0]}"]`); return true; }
+    if (kind === 'lamp') { click(`[data-toggle-clock="${CLOCK_KEYS[Number(arg)][0]}"]`); return true; }
+    if (zone === 'btn:undo') { click('#btnUndoTx'); return true; }
+    if (zone === 'btn:door') { click('#btnDoorwayAlert'); return true; }
+    return false;
+  }
+
   function initOrbBarrel(canvas) {
     orbCanvas = canvas;
     orbCtx = canvas.getContext('2d');
 
     const getHitZone = (ex, ey) => {
       const r = canvas.getBoundingClientRect();
-      const x = (ex - r.left) * (canvas.width / r.width);
-      const y = (ey - r.top) * (canvas.height / r.height);
-      const W = canvas.width, H = canvas.height;
       const dpr = canvas.width / r.width;
-      const cx = W * 0.5, cy = H * 0.53;
-      const bw = Math.min(W * (r.width < 600 ? 0.94 : 0.62), 560 * dpr), bh = Math.min(H * 0.74, 195 * dpr);
-      const left = cx - bw / 2, top = cy - bh / 2;
-
-      // Thumb Actuator (120) on right grip housing
-      const thumbX = left + bw * 0.84, thumbY = cy - bh * 0.1;
-      if (Math.hypot(x - thumbX, y - thumbY) < 28) return 'thumb_hold';
-
-      const worldX = left + bw * 0.84, worldY = cy + bh * 0.24;
-      if (Math.hypot(x - worldX, y - worldY) < 22) return 'thumb_world';
-
-      const shroudX = left + bw * 0.14, shroudY = cy - bh * 0.14;
-      if (Math.hypot(x - shroudX, y - shroudY) < 24) return 'shroud_140';
-
-      const commitX = left + bw * 0.14, commitY = cy + bh * 0.22;
-      if (Math.hypot(x - commitX, y - commitY) < 24) return 'commit_276';
-
-      // 3 Coaxial Rings (110 FIELD, 112 VARIANT, 114 TIME)
-      if (y >= top && y <= top + bh) {
-        const rx = (x - (left + bw * 0.26)) / (bw * 0.48);
-        if (rx >= 0 && rx <= 0.33) return 'field';
-        if (rx > 0.33 && rx <= 0.67) return 'variant';
-        if (rx > 0.67 && rx <= 1.0) return 'time';
-      }
-      return null;
+      const x = (ex - r.left) * dpr, y = (ey - r.top) * dpr;
+      const z = orbHit(orbLayout(canvas.width, canvas.height, dpr, r.width), x, y);
+      if (!z) return null;
+      if (z.startsWith('ring:')) return z.slice(5);
+      if (z === 'btn:thumb') return 'thumb_hold';
+      if (z === 'btn:world') return 'thumb_world';
+      if (z === 'btn:shroud') return 'shroud_140';
+      if (z === 'btn:commit') return 'commit_276';
+      return z;
     };
 
     canvas.addEventListener('pointerdown', e => {
       const zone = getHitZone(e.clientX, e.clientY);
       if (!zone) return;
+      if (orbPress(zone)) { e.preventDefault(); return; }
       if (zone === 'thumb_hold') {
         toggleHoldCaptured();
         return;
@@ -1315,9 +1353,8 @@
     x.clearRect(0, 0, W, H);
 
     // Ambient studio floor reflection beneath the Vesper barrel
-    const cx = W * 0.5, cy = H * 0.53;
-    const bw = Math.min(W * (rect.width < 600 ? 0.94 : 0.62), 560 * dpr), bh = Math.min(H * 0.74, 195 * dpr);
-    const left = cx - bw / 2, top = cy - bh / 2;
+    const L = orbLayout(W, H, dpr, rect.width);
+    const { cx, cy, bw, bh, left, top } = L;
 
     const bgGlow = x.createRadialGradient(cx, cy, bh * 0.1, cx, cy, bw * 0.65);
     bgGlow.addColorStop(0, 'rgba(60, 115, 135, 0.16)');
@@ -1372,34 +1409,20 @@
       x.fill();
       x.stroke();
       x.fillStyle = active ? accent : '#cfd8e0';
-      x.font = `700 ${Math.round(8.5 * dpr)}px "JetBrains Mono",monospace`;
+      x.font = `700 ${Math.round(Math.min(9 * dpr, rad * 0.46))}px "JetBrains Mono",monospace`;
       x.textAlign = 'center';
       x.textBaseline = 'middle';
-      x.fillText(label, bx, by - 3 * dpr);
-      x.fillStyle = 'rgba(180,195,205,0.7)';
-      x.font = `500 ${Math.round(7 * dpr)}px "JetBrains Mono",monospace`;
-      x.fillText(sub, bx, by + 6 * dpr);
+      x.fillText(label, bx, by - rad * 0.16);
+      x.fillStyle = 'rgba(180,195,205,0.78)';
+      x.font = `500 ${Math.round(Math.min(7 * dpr, rad * 0.34))}px "JetBrains Mono",monospace`;
+      x.fillText(sub, bx, by + rad * 0.34);
       x.restore();
     };
 
-    drawSideButton(
-      left + bw * 0.13,
-      cy - bh * 0.18,
-      20 * dpr,
-      '140 SHROUD',
-      STATE.shroudExtended ? 'EXTENDED' : 'STOWED',
-      STATE.shroudExtended,
-      '#70d6ff'
-    );
-    drawSideButton(
-      left + bw * 0.13,
-      cy + bh * 0.21,
-      20 * dpr,
-      '276 COMMIT',
-      `STACK (${STATE.txStack.length})`,
-      Boolean(STATE.pendingTx),
-      '#98f5b0'
-    );
+    drawSideButton(...L.btn.shroud, L.rad, '140', STATE.shroudExtended ? 'OUT' : 'IN', STATE.shroudExtended, '#70d6ff');
+    drawSideButton(...L.btn.undo, L.rad, '278', 'UNDO', false, '#e8f0f6');
+    drawSideButton(...L.btn.commit, L.rad, '276', `COMMIT ${STATE.txStack.length}`, Boolean(STATE.pendingTx), '#98f5b0');
+    drawSideButton(...L.btn.door, L.rad, '234', 'DOOR', STATE.doorwayAlert, '#ff9f43');
 
     // 3 Coaxial Draggable Rings in the Central Cinema Barrel Window (110 FIELD, 112 VARIANT, 114 TIME)
     const ringAreaLeft = left + bw * 0.25;
@@ -1512,15 +1535,16 @@
       x.fillStyle = rs.accent;
       x.font = `700 ${Math.round(9.5 * dpr)}px "JetBrains Mono",monospace`;
       x.textAlign = 'center';
-      x.fillText(`${rs.num} ${rs.name}`, rx + rw / 2, cy - 6 * dpr);
+      x.fillText(L.narrow ? rs.name : `${rs.num} ${rs.name}`, rx + rw / 2, cy - 6 * dpr);
 
       x.fillStyle = '#e8f0f5';
       x.font = `600 ${Math.round(8.5 * dpr)}px "JetBrains Mono",monospace`;
       x.fillText(rs.readout, rx + rw / 2, cy + 7 * dpr);
 
+      if (!L.narrow) {
       x.fillStyle = 'rgba(170,185,198,0.65)';
       x.font = `500 ${Math.round(6.8 * dpr)}px "JetBrains Mono",monospace`;
-      x.fillText(rs.sub, rx + rw / 2, cy + 16 * dpr);
+      x.fillText(rs.sub, rx + rw / 2, cy + 16 * dpr); }
     });
 
     // Right Grip Housing: Thumb Actuator (120 HOLD POSE & WORLD HOLD)
@@ -1528,34 +1552,36 @@
     const isHeld = activeClk && activeClk.r === 0;
     const isWorldHeld = activeClk && activeClk.worldHold;
 
-    drawSideButton(
-      left + bw * 0.85,
-      cy - bh * 0.15,
-      23 * dpr,
-      '120 THUMB',
-      isHeld ? 'HELD (r=0)' : 'LIVE (r=1)',
-      isHeld,
-      '#ffcc66'
-    );
-    drawSideButton(
-      left + bw * 0.85,
-      cy + bh * 0.23,
-      19 * dpr,
-      'WORLD HOLD',
-      isWorldHeld ? 'LOCKED' : 'FOLLOW',
-      isWorldHeld,
-      '#ff9f43'
-    );
+    drawSideButton(...L.btn.thumb, L.thumbRad, '120', isHeld ? 'HELD' : 'LIVE', isHeld, '#ffcc66');
+    drawSideButton(...L.btn.world, L.worldRad, 'WORLD', isWorldHeld ? 'LOCK' : 'FOLLOW', isWorldHeld, '#ff9f43');
+    // clock lamps: one per layer, lit amber while held, green while live
+    CLOCK_KEYS.forEach((c, i) => {
+      const clk = STATE.clocks[c[0]]; const held = clk && clk.r === 0; const lx = L.lamps[i][0], ly = L.lamps[i][1];
+      x.save(); x.fillStyle = held ? '#ffcc66' : '#98f5b0'; x.shadowColor = held ? '#ffcc66' : '#98f5b0'; x.shadowBlur = 8 * dpr;
+      x.beginPath(); x.arc(lx, ly, 5 * dpr, 0, Math.PI * 2); x.fill(); x.restore();
+      x.fillStyle = 'rgba(200,214,224,0.8)'; x.font = `600 ${Math.round(6.5 * dpr)}px "JetBrains Mono",monospace`; x.textAlign = 'center'; x.textBaseline = 'middle';
+      x.fillText(c[1], lx, ly + 12 * dpr);
+    });
 
-    // Top Engraved Serial & Patent Header on the Barrel
-    x.fillStyle = 'rgba(210, 224, 232, 0.78)';
+    // Engraved header: what is captured, and what the scene is doing
+    x.fillStyle = 'rgba(210, 224, 232, 0.8)';
     x.font = `600 ${Math.round(9 * dpr)}px "JetBrains Mono",monospace`;
-    x.textAlign = 'center';
-    x.fillText(
-      `VESPER INSTRUMENTS · FIELD ORB 04 // TARGET: ${ROLE_INFO[STATE.capturedRole]?.title.toUpperCase()}`,
-      cx,
-      top - 11 * dpr
-    );
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    const depTxt = (document.getElementById('vConflictBadge') || {}).textContent || '';
+    x.fillText(`${ROLE_INFO[STATE.capturedRole]?.title.toUpperCase()} · ${STATE.sceneMode === 'birthday' ? 'STAGE ' + STATE.donutStage : STATE.sceneMode.toUpperCase()}${depTxt ? ' · ' + depTxt : ''}`, cx, L.hy);
+    const keyRow = (n, y, w, labeler, isOn, accent) => {
+      const kw = Math.min(L.bw / n, 86 * dpr), x0 = cx - kw * n / 2;
+      for (let i = 0; i < n; i++) {
+        const on = isOn(i), kx = x0 + i * kw + 2 * dpr;
+        x.fillStyle = on ? 'rgba(28,46,60,0.96)' : '#14181d'; x.strokeStyle = on ? accent : '#46505b'; x.lineWidth = (on ? 2 : 1) * dpr;
+        x.beginPath(); x.roundRect(kx, y, kw - 4 * dpr, L.rowH, 6 * dpr); x.fill(); x.stroke();
+        x.fillStyle = on ? accent : '#b9c6d2'; x.font = `700 ${Math.round((L.narrow ? 8 : 9.5) * dpr)}px "JetBrains Mono",monospace`;
+        x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(labeler(i), kx + (kw - 4 * dpr) / 2, y + L.rowH / 2 + dpr * 0.5);
+      }
+    };
+    keyRow(STAGE_KEYS.length, L.r1, 0, i => L.narrow ? STAGE_KEYS[i][0] : STAGE_KEYS[i][0] + ' ' + STAGE_KEYS[i][3],
+      i => STAGE_KEYS[i][1] === 'stage' ? (STATE.sceneMode === 'birthday' && STATE.donutStage === STAGE_KEYS[i][2]) : STATE.sceneMode === STAGE_KEYS[i][2], '#ffcc66');
+    keyRow(ROLE_KEYS.length, L.r2, 0, i => ROLE_KEYS[i][1], i => STATE.capturedRole === ROLE_KEYS[i][0], '#70d6ff');
   }
 
   /* ---------------- 14. Main Render Loop & Viewport Picking ---------------- */
