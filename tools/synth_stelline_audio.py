@@ -1,159 +1,197 @@
 #!/usr/bin/env python3
 """
-Synthesizes the 45.0-second stereo soundtrack (/tmp/stelline_orb_audio.wav)
-synchronized to the exact mechanical clicks, ring detents, piping strokes,
-candle ignition, thumb-hold latch, and chamber pad of Field Orb 05's Director Reel.
+Synthesize frame-accurate mechanical Orb foley + atmospheric CS-80 pad
+from /tmp/stelline_film_events.json into /tmp/stelline_film_audio.wav.
 """
+import json
 import math
 import struct
 import wave
+import random
 
-SAMPLE_RATE = 44100
-DURATION = 45.0
-NUM_SAMPLES = int(SAMPLE_RATE * DURATION)
+SR = 44100
+EVENTS_PATH = '/tmp/stelline_film_events.json'
+OUT_WAV = '/tmp/stelline_film_audio.wav'
+FPS = 24.0
 
+RING_FREQS = [2700.0, 2300.0, 1900.0, 2500.0, 3100.0]
+
+def biquad_bandpass(samples, f0, q, sr=SR):
+    w0 = 2.0 * math.pi * f0 / sr
+    alpha = math.sin(w0) / (2.0 * q)
+    b0 = alpha
+    b1 = 0.0
+    b2 = -alpha
+    a0 = 1.0 + alpha
+    a1 = -2.0 * math.cos(w0)
+    a2 = 1.0 - alpha
+    b0 /= a0; b1 /= a0; b2 /= a0
+    a1 /= a0; a2 /= a0
+    out = [0.0] * len(samples)
+    x1 = x2 = y1 = y2 = 0.0
+    for i, x0 in enumerate(samples):
+        y0 = b0 * x0 + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2
+        out[i] = y0
+        x2 = x1; x1 = x0
+        y2 = y1; y1 = y0
+    return out
+
+def add_buf(mix_l, mix_r, start_idx, mono_buf, gain_l=1.0, gain_r=1.0):
+    n = len( mix_l )
+    for i, val in enumerate(mono_buf):
+        idx = start_idx + i
+        if 0 <= idx < n:
+            mix_l[idx] += val * gain_l
+            mix_r[idx] += val * gain_r
+
+def make_ring_click(ring_idx):
+    rng = random.Random(1000 + ring_idx * 97)
+    L = 420
+    raw = [(rng.random() * 2.0 - 1.0) * math.exp(-k / 52.0) for k in range(L)]
+    f0 = RING_FREQS[ring_idx % 5]
+    filt = biquad_bandpass(raw, f0, 2.6)
+    # Add subtle machined aluminum body resonance
+    for k in range(L):
+        body = math.sin(2.0 * math.pi * (340.0 + ring_idx * 35.0) * (k / SR)) * math.exp(-k / 75.0) * 0.25
+        filt[k] = filt[k] * 1.45 + body
+    return filt
+
+def make_press_thud(long_press=False):
+    rng = random.Random(4242 + (1 if long_press else 0))
+    L = 1100
+    raw = [(rng.random() * 2.0 - 1.0) * math.exp(-k / 145.0) for k in range(L)]
+    filt = biquad_bandpass(raw, 1100.0, 2.4)
+    for k in range(L):
+        thud = math.sin(2.0 * math.pi * (165.0 if not long_press else 135.0) * (k / SR)) * math.exp(-k / 190.0) * 0.45
+        filt[k] = filt[k] * 1.35 + thud
+    return filt
+
+def make_tone_sweep(f0, f1, dur, vol, wave_type='sine'):
+    L = int(dur * SR)
+    out = [0.0] * L
+    phase = 0.0
+    attack = int(0.012 * SR)
+    for k in range(L):
+        u = k / max(1, L - 1)
+        freq = f0 * ((f1 / f0) ** u)
+        phase += 2.0 * math.pi * freq / SR
+        if wave_type == 'triangle':
+            s = (2.0 / math.pi) * math.asin(math.sin(phase))
+        elif wave_type == 'sawtooth':
+            p_norm = (phase / (2.0 * math.pi)) % 1.0
+            s = (2.0 * p_norm - 1.0) * 0.55
+        else:
+            s = math.sin(phase)
+        if k < attack:
+            env = (k / max(1, attack)) * vol
+        else:
+            env = vol * ((0.0008 / max(0.0008, vol)) ** ((k - attack) / max(1, L - attack)))
+        out[k] = s * env
+    return out
 
 def main():
-    left = [0.0] * NUM_SAMPLES
-    right = [0.0] * NUM_SAMPLES
+    with open(EVENTS_PATH, 'r') as f:
+        meta = json.load(f)
 
-    # 1. Warm Blade Runner 2049 Chamber Atmospheric Drone (A1=55Hz, E2=82.4Hz, A2=110Hz, C#3=138.6Hz, E3=164.8Hz)
-    for i in range(NUM_SAMPLES):
-        t = i / SAMPLE_RATE
-        # Smooth fade in & fade out
-        env = min(1.0, t / 1.5) * min(1.0, (DURATION - t) / 1.8)
-        # Slow breathing LFO
-        lfo1 = 0.55 + 0.45 * math.sin(2.0 * math.pi * 0.11 * t)
-        lfo2 = 0.60 + 0.40 * math.cos(2.0 * math.pi * 0.07 * t + 0.8)
+    total_frames = meta.get('totalFrames', 1152)
+    events = meta.get('events', [])
+    duration = total_frames / FPS + 0.5
+    n_samples = int(duration * SR)
 
-        sub = 0.055 * math.sin(2.0 * math.pi * 55.0 * t)
-        fifth = 0.032 * math.sin(2.0 * math.pi * 82.41 * t + 0.3 * math.sin(2.0 * math.pi * 0.19 * t))
-        octv = 0.028 * math.sin(2.0 * math.pi * 110.0 * t + 0.4 * math.sin(2.0 * math.pi * 0.23 * t))
-        shimmer = 0.014 * lfo1 * math.sin(2.0 * math.pi * 220.0 * t + math.sin(2.0 * math.pi * 110.0 * t) * 0.6)
+    mix_l = [0.0] * n_samples
+    mix_r = [0.0] * n_samples
 
-        # Warm swell when 3200K candles & children appear (t >= 24.0)
-        warmth = 0.0
-        if t > 24.0:
-            w_env = min(1.0, (t - 24.0) / 3.0)
-            warmth = w_env * 0.024 * (
-                math.sin(2.0 * math.pi * 277.18 * t) * 0.6 +
-                math.sin(2.0 * math.pi * 329.63 * t) * 0.5
-            )
+    # 1. Warm Blade Runner 2049 CS-80 low ambient pad + chamber air
+    chords = [146.83, 220.00, 293.66, 349.23, 440.00, 523.25] # D3, A3, D4, F4, A4, C5
+    phases = [0.0] * len(chords)
+    rng_air = random.Random(77)
+    for i in range(n_samples):
+        t = i / SR
+        # Smooth envelope across the 6 Acts
+        env = min(1.0, t / 2.5) * min(1.0, max(0.0, (duration - t) / 1.5))
+        # Swell during STAGE (26s-35s) and WEAVE (41s-48s)
+        swell = 0.045 + 0.025 * math.exp(-((t - 29.5) / 5.5) ** 2) + 0.032 * math.exp(-((t - 44.0) / 4.5) ** 2)
+        pad_l = 0.0
+        pad_r = 0.0
+        for c_idx, freq in enumerate(chords):
+            detune = 1.0 + math.sin(t * (0.23 + c_idx * 0.07) + c_idx) * 0.0018
+            phases[c_idx] += 2.0 * math.pi * (freq * detune) / SR
+            # Soft filtered CS-80 brass/pad harmonic
+            sig = (math.sin(phases[c_idx]) + 0.28 * math.sin(phases[c_idx] * 2.0)) * (0.35 / (1.0 + c_idx * 0.35))
+            if c_idx % 2 == 0:
+                pad_l += sig
+                pad_r += sig * 0.75
+            else:
+                pad_l += sig * 0.75
+                pad_r += sig
+        air = (rng_air.random() * 2.0 - 1.0) * 0.0018
+        mix_l[i] = (pad_l * swell + air) * env
+        mix_r[i] = (pad_r * swell + air) * env
 
-        # Scanline hologram modulation during Act VII (37.5s - 42.0s)
-        scan_mod = 0.0
-        if 37.5 <= t <= 42.0:
-            u = (t - 37.5) / 4.5
-            depth = math.sin(u * math.pi)
-            scan_mod = depth * 0.025 * math.sin(2.0 * math.pi * (180.0 + 90.0 * depth) * t)
+    # Precompute ring clicks
+    ring_clicks = [make_ring_click(i) for i in range(5)]
+    press_short = make_press_thud(False)
+    press_long = make_press_thud(True)
 
-        pad_l = env * (sub + fifth * lfo1 + octv + shimmer + warmth + scan_mod)
-        pad_r = env * (sub + fifth * lfo2 + octv * 0.95 + shimmer * 0.85 + warmth * 1.05 - scan_mod * 0.7)
-        left[i] += pad_l
-        right[i] += pad_r
+    # 2. Layer exact frame-synced foley events
+    for ev in events:
+        t = float(ev.get('t', 0.0))
+        idx = int(t * SR)
+        etype = ev.get('type', '')
 
-    def add_click(t_sec, freq=1800.0, dur=0.032, amp=0.38, pan=0.0, kind="detent"):
-        start = int(t_sec * SAMPLE_RATE)
-        length = int(dur * SAMPLE_RATE)
-        pan_l = math.sqrt(0.5 * (1.0 - max(-1.0, min(1.0, pan))))
-        pan_r = math.sqrt(0.5 * (1.0 + max(-1.0, min(1.0, pan))))
-        for j in range(length):
-            idx = start + j
-            if idx < 0 or idx >= NUM_SAMPLES:
-                break
-            dt = j / SAMPLE_RATE
-            # Crisp machined metallic impulse + low-end brass housing thud
-            fast_env = math.exp(-dt * 115.0)
-            body_env = math.exp(-dt * 48.0)
-            sig = (
-                0.65 * fast_env * math.sin(2.0 * math.pi * freq * dt) +
-                0.35 * fast_env * math.sin(2.0 * math.pi * (freq * 1.62) * dt) +
-                0.45 * body_env * math.sin(2.0 * math.pi * 185.0 * dt)
-            )
-            if kind == "press":
-                sig += 0.40 * body_env * math.sin(2.0 * math.pi * 128.0 * dt)
-            left[idx] += amp * sig * pan_l
-            right[idx] += amp * sig * pan_r
+        if etype == 'ring':
+            r_idx = int(ev.get('ring', 0)) % 5
+            # Slight stereo pan matching horizontal position RX on the Orb (-0.46 to +0.46)
+            pan = (r_idx - 2) * 0.16
+            gl = 0.52 * (1.0 - max(0.0, pan))
+            gr = 0.52 * (1.0 + min(0.0, pan))
+            add_buf(mix_l, mix_r, idx, ring_clicks[r_idx], gl, gr)
 
-    def add_chime(t_sec, freqs, dur=0.9, amp=0.14):
-        start = int(t_sec * SAMPLE_RATE)
-        length = int(dur * SAMPLE_RATE)
-        for j in range(length):
-            idx = start + j
-            if idx < 0 or idx >= NUM_SAMPLES:
-                break
-            dt = j / SAMPLE_RATE
-            env = math.exp(-dt * 4.2) * min(1.0, dt / 0.015)
-            s = sum(math.sin(2.0 * math.pi * f * dt) for f in freqs) / max(1, len(freqs))
-            left[idx] += amp * env * s
-            right[idx] += amp * env * s * 0.96
+        elif etype == 'press':
+            is_long = bool(ev.get('btn_long', ev.get('long', False)))
+            btn = ev.get('btn', 'MODE')
+            pan = -0.25 if btn in ('MODE', 'UNDO') else 0.25
+            gl = 0.65 * (1.0 - max(0.0, pan))
+            gr = 0.65 * (1.0 + min(0.0, pan))
+            add_buf(mix_l, mix_r, idx, press_long if is_long else press_short, gl, gr)
 
-    # 2. Exact Choreographed Foley Events matching updateDirectorReel(t, L)
-    # Act I: Start & Cast Sponge
-    add_click(0.05, 1800, 0.045, 0.36, -0.35, "press")
-    add_click(1.40, 920, 0.055, 0.45, -0.35, "press")
-    add_chime(1.42, [220.0, 329.63, 440.0], 0.85, 0.12)
+        elif etype == 'place':
+            # Subtle patisserie placement tap + crystal harmonic
+            tap = make_tone_sweep(980.0, 620.0, 0.055, 0.08, 'triangle')
+            add_buf(mix_l, mix_r, idx, tap, 0.5, 0.5)
 
-    # Act II: Drag R2 (BUNDT 12-Flute Morph) [3.5s - 10.0s, every 0.22s]
-    t = 3.52
-    while t < 9.90:
-        add_click(t, 1780 + (t - 3.5) * 35, 0.030, 0.34, -0.18, "detent")
-        t += 0.22
+        elif etype == 'shimmer':
+            s1 = make_tone_sweep(440.0, 880.0, 0.9, 0.09, 'triangle')
+            s2 = make_tone_sweep(660.0, 1320.0, 0.8, 0.07, 'triangle')
+            add_buf(mix_l, mix_r, idx, s1, 0.55, 0.45)
+            add_buf(mix_l, mix_r, idx + int(0.12 * SR), s2, 0.45, 0.55)
 
-    # Act III: Drag R3 (ICING & 44 SHELL ROSETTES) [10.0s - 16.5s, every 0.18s]
-    t = 10.04
-    while t < 16.40:
-        add_click(t, 2020 + (t - 10.0) * 30, 0.028, 0.32, -0.05, "detent")
-        t += 0.18
+        elif etype == 'lock_chime':
+            c1 = make_tone_sweep(1320.0, 1310.0, 0.09, 0.13, 'sine')
+            c2 = make_tone_sweep(1760.0, 1750.0, 0.14, 0.10, 'sine')
+            add_buf(mix_l, mix_r, idx, c1, 0.5, 0.5)
+            add_buf(mix_l, mix_r, idx + int(0.07 * SR), c2, 0.5, 0.5)
 
-    # Act IV: Etch-a-Sketch Pipe Red Inscription (生日快樂) [16.5s - 23.0s, every 0.16s]
-    t = 16.54
-    while t < 22.90:
-        add_click(t, 2320 + math.sin(t * 4.0) * 140, 0.024, 0.30, 0.02, "detent")
-        t += 0.16
+        elif etype == 'servo':
+            foc = float(ev.get('focus') or 1.0)
+            sv = make_tone_sweep(180.0 + foc * 160.0, 200.0 + foc * 160.0, 0.07, 0.055, 'sawtooth')
+            add_buf(mix_l, mix_r, idx, sv, 0.48, 0.52)
 
-    # Act V: Drag R4 (CANDLES 1..7 & 3200K IGNITION) [23.0s - 29.5s, every 0.24s]
-    t = 23.05
-    while t < 29.40:
-        add_click(t, 2150, 0.030, 0.34, 0.10, "detent")
-        t += 0.24
-    # Candle ignition shimmer at t=24.2s & Children materialization chord at t=25.0s
-    add_chime(24.20, [329.63, 440.0, 554.37, 659.25], 1.2, 0.14)
-    add_chime(25.20, [220.0, 277.18, 329.63, 440.0], 1.5, 0.15)
-
-    # Act VI: THE HERO PROOF — Click THUMB HOLD (t=30.2s) & Drag R5 TIME (30.7s - 37.5s, every 0.18s)
-    add_click(30.20, 1320, 0.060, 0.48, 0.35, "press")
-    add_click(30.28, 980, 0.050, 0.42, 0.35, "press")
-    add_chime(30.25, [110.0, 220.0, 329.63], 1.1, 0.16)
-    t = 30.72
-    while t < 37.40:
-        add_click(t, 2480, 0.026, 0.33, 0.22, "detent")
-        t += 0.18
-
-    # Act VII: Capacitive Squeeze Scanline Hologram Weave [37.5s - 42.0s, every 0.22s]
-    t = 37.55
-    while t < 41.90:
-        add_click(t, 1540, 0.026, 0.28, -0.45, "detent")
-        t += 0.22
-
-    # Act VIII: Click BAKE & COMMIT MEMORY (<100MB FixFlip=ON) at t=43.05s
-    add_click(43.05, 2240, 0.060, 0.46, 0.45, "press")
-    add_chime(43.08, [220.0, 277.18, 329.63, 440.0, 659.25], 1.8, 0.18)
-
-    # Write 16-bit stereo WAV
-    out_path = "/tmp/stelline_orb_audio.wav"
-    with wave.open(out_path, "wb") as wf:
+    # Soft limiter & write 16-bit stereo WAV
+    with wave.open(OUT_WAV, 'w') as wf:
         wf.setnchannels(2)
         wf.setsampwidth(2)
-        wf.setframerate(SAMPLE_RATE)
-        frames = bytearray(NUM_SAMPLES * 4)
-        for i in range(NUM_SAMPLES):
-            l_val = int(max(-0.98, min(0.98, left[i])) * 32767)
-            r_val = int(max(-0.98, min(0.98, right[i])) * 32767)
-            struct.pack_into("<hh", frames, i * 4, l_val, r_val)
+        wf.setframerate(SR)
+        frames = bytearray()
+        for l, r in zip(mix_l, mix_r):
+            cl = math.tanh(l * 1.15)
+            cr = math.tanh(r * 1.15)
+            il = max(-32767, min(32767, int(cl * 32767)))
+            ir = max(-32767, min(32767, int(cr * 32767)))
+            frames += struct.pack('<hh', il, ir)
         wf.writeframes(frames)
-    print(f"Wrote {out_path} ({DURATION}s stereo WAV)")
 
+    print(f"Synthesized {duration:.2f}s stereo soundtrack ({len(events)} foley events) -> {OUT_WAV}")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
