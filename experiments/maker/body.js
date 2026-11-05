@@ -1,93 +1,106 @@
-/* =============================================================== THE DOCUMENT: what the memory is. Everything in the room is rebuilt from it; undo keeps copies of it. */
-const DOC0 = () => ({ cake: null, table: null, kids: [], light: { a: 40, h: .8, warm: .75, k: 1.2 }, mist: 0 });
-let DOC = DOC0(); const UNDO = [], REDO = []; let gestT = -9, dirty = { cake: true, table: true, kids: true, mist: true };
-const S = { pick: 'cake', lastRing: -1, hoverRing: -1, turn: 0, tilt: 0, close: 0, stretch: 1, msg: '', msgT: -9, retT: -9, pairShow: false, anim: null, recall: null };
-function snap(force) { if (!force && NOW - gestT < 1.2) { gestT = NOW; return; } gestT = NOW; UNDO.push(JSON.stringify(DOC)); if (UNDO.length > 80) UNDO.shift(); REDO.length = 0; }
-function setDoc(d) { DOC = d; dirty.cake = dirty.table = dirty.kids = dirty.mist = true; if (!things().some(t => t.key === S.pick)) S.pick = (things()[0] || { key: 'cake' }).key; }
+/* =============================================================== THE DOCUMENT: the scene. The room is rebuilt from it; undo keeps copies of it. */
+const DOC0 = () => ({ cake: null, candles: null, table: null, kids: [], light: { a: 40, h: .8, warm: .75, k: 1.2 } });
+let DOC = DOC0(); const UNDO = [], REDO = []; let gestT = -9, dirty = { cake: true, table: true };
+const S = { mode: 'EDIT', pick: null, adding: null, lastRing: -1, hoverRing: -1, msg: '', msgT: -9, retT: -9, pairShow: false, stretch: 1,
+  view: { preset: 'EYE', yaw: 0, pitch: .21, dist: 1.38, fov: 38, tgt: new T.Vector3(0, .69, 0), pan: new T.Vector3() } };
+const VIEWS = { EYE: { yaw: 0, pitch: .21, dist: 1.38, fov: 38, eye: true }, FRONT: { yaw: 0, pitch: .06, dist: 1.3, fov: 32 }, SIDE: { yaw: Math.PI / 2, pitch: .06, dist: 1.3, fov: 32 }, TOP: { yaw: 0, pitch: 1.5, dist: 1.4, fov: 32 }, FREE: null };
+const CAM = { yaw: 0, pitch: .21, dist: 1.38, fov: 38, tgt: new T.Vector3(0, .69, 0) };   // where the camera is; S.view is where it is going
+function snap(force) { if (!force && NOW - gestT < 1.2) { gestT = NOW; return; } gestT = NOW; UNDO.push(JSON.stringify(DOC)); if (UNDO.length > 120) UNDO.shift(); REDO.length = 0; }
+function setDoc(d) { DOC = d; dirty.cake = dirty.table = true; if (!things().some(t => t.key === S.pick)) S.pick = (things()[0] || {}).key || null; }
 function say(m) { S.msg = m; S.msgT = NOW; oledDirty = true; }
-function lockChime() { tone(1320, 1310, .09, .12); setTimeout(() => tone(1760, 1750, .14, .09), 70); }
-function shimmer() { tone(440, 880, .9, .07, 'triangle'); setTimeout(() => tone(660, 1320, .8, .05, 'triangle'), 120); }
+function chime() { tone(1320, 1310, .09, .1); setTimeout(() => tone(1760, 1750, .14, .08), 70); }
 
-/* =============================================================== WHAT CAN BE PICKED: only what exists */
-function things() { const L = []; if (DOC.cake) L.push({ key: 'cake', name: 'CAKE' }); if (DOC.table) L.push({ key: 'table', name: 'TABLE' });
-  DOC.kids.forEach(c => L.push({ key: 'kid' + c.i, name: 'CHILD ' + (c.i + 1), c })); if (DOC.cake) L.push({ key: 'light', name: 'LIGHT' }, { key: 'memory', name: 'THE MEMORY' }); return L; }
+/* =============================================================== OBJECTS: what is in the scene, and what could be added */
+function things() { const L = []; if (DOC.cake) L.push({ key: 'cake', name: 'CAKE' }); if (DOC.candles) L.push({ key: 'candles', name: 'CANDLES' }); if (DOC.table) L.push({ key: 'table', name: 'TABLE' });
+  DOC.kids.slice().sort((a, b) => a.i - b.i).forEach(c => L.push({ key: 'kid' + c.i, name: 'FIGURE ' + (c.i + 1), c })); L.push({ key: 'light', name: 'LIGHT' }); return L; }
+function addable() { const L = []; if (!DOC.cake) L.push({ key: 'cake', name: 'CAKE' }); if (DOC.cake && !DOC.candles) L.push({ key: 'candles', name: 'CANDLES' }); if (!DOC.table) L.push({ key: 'table', name: 'TABLE' });
+  [0, 1, 2].forEach(i => { if (!DOC.kids.some(c => c.i === i)) L.push({ key: 'kid' + i, name: 'FIGURE ' + (i + 1) }); }); return L; }
+function create(key) { if (key === 'cake') DOC.cake = { form: 'DRUM', icing: 1, border: 0, size: 1 }; else if (key === 'candles') DOC.candles = { n: 7, lit: 1, spread: 1, len: 1 };
+  else if (key === 'table') DOC.table = { w: 1, wood: 0, shape: 0, k: 0 }; else { const i = +key.slice(3); DOC.kids.push({ i, a: KIDS[i].slot, r: .62, face: 0, s: 1 }); } dirty.cake = dirty.table = true; S.pick = key; }
+function remove(key) { if (key === 'cake') { DOC.cake = null; DOC.candles = null; } else if (key === 'candles') DOC.candles = null; else if (key === 'table') DOC.table = null; else if (key.startsWith('kid')) DOC.kids = DOC.kids.filter(c => c.i !== +key.slice(3)); else return false; dirty.cake = dirty.table = true; return true; }
 const picked = () => things().find(t => t.key === S.pick) || null;
-/* =============================================================== THE RINGS: ring 1 picks (when there is a choice); rings 2-5 are the picked thing's properties */
-const list = (n, get, set, L) => ({ n, v: get, set: v => set(clamp(Math.round(v), 0, L.length - 1)), st: 1, f: v => L[v], lo: 0, hi: L.length - 1 });
+
+/* =============================================================== THE RINGS */
+const list = (n, get, set, L) => ({ n, v: get, set: v => set(clamp(Math.round(v), 0, L.length - 1)), st: 1, f: v => L[clamp(Math.round(v), 0, L.length - 1)], lo: 0, hi: L.length - 1, step: true });
 const num = (n, get, set, lo, hi, st, f, wrap) => ({ n, v: get, set: v => set(wrap ? ((v - lo) % (hi - lo) + (hi - lo)) % (hi - lo) + lo : clamp(+v.toFixed(4), lo, hi)), st, f, lo, hi, wrap });
+const deg = v => Math.round(((v * 57.2958) % 360 + 540) % 360 - 180) + '°';
 function rings() {
   if (window.REMOTE_RINGS) return window.REMOTE_RINGS();
-  const L = things(), p = picked(), out = [null, null, null, null, null]; if (S.recall) return out;
-  if (L.length > 1) out[0] = list('PICK', () => Math.max(0, L.findIndex(t => t.key === S.pick)), v => { if (L[v].key !== S.pick) { S.pick = L[v].key; lockChime(); } }, L.map(t => t.name));
-  if (!p) return out; const C = DOC.cake, Tb = DOC.table, Lt = DOC.light, ch = p.c;
-  const props = p.key === 'cake' ? [list('FORM', () => Object.keys(FORMS).indexOf(C.form), v => { C.form = Object.keys(FORMS)[v]; dirty.cake = true; }, Object.keys(FORMS)), list('ICING', () => C.icing, v => { C.icing = v; dirty.cake = true; }, ICING.map(i => i[0])),
-      list('BORDER', () => C.border, v => { C.border = v; dirty.cake = true; }, BORDER.map(i => i[0])), num('CANDLES', () => C.candles, v => { C.candles = Math.round(v); C.out = 0; dirty.cake = true; }, 0, 12, 1, v => String(Math.round(v)))]
-    : p.key === 'table' ? [num('WIDTH', () => Tb.w, v => { Tb.w = v; dirty.table = true; }, .6, 1.5, .05, v => '×' + v.toFixed(2)), list('WOOD', () => Tb.wood, v => { Tb.wood = v; dirty.table = true; }, WOOD.map(w => w[0]))]
-    : p.key === 'light' ? [num('AROUND', () => Lt.a, v => Lt.a = v, -180, 180, 10, v => Math.round(v) + '°', true), num('HEIGHT', () => Lt.h, v => Lt.h = v, .05, 1.6, .05, v => Math.round(v * 100) + ' CM'), num('WARMTH', () => Lt.warm, v => Lt.warm = v, 0, 1, .05, v => v < .34 ? 'COOL' : v < .67 ? 'NEUTRAL' : 'WARM'), num('STRENGTH', () => Lt.k, v => Lt.k = v, 0, 3, .1, v => Math.round(v / 3 * 100) + '%')]
-    : p.key === 'memory' ? [num('MIST', () => DOC.mist, v => DOC.mist = v, 0, 1, .05, v => Math.round(v * 100) + '%')]
-    : [num('AROUND', () => ch.a * 57.2958, v => ch.a = v / 57.2958, 0, 360, 4, v => Math.round(v) + '°', true), num('DISTANCE', () => ch.r, v => ch.r = v, .3, 1.3, .025, v => Math.round(v * 100) + ' CM'), num('FACE', () => ch.face, v => ch.face = Math.round(v), -70, 70, 5, v => (v > 0 ? '+' : '') + Math.round(v) + '°'), num('SIZE', () => ch.s, v => ch.s = v, .6, 1.5, .05, v => '×' + v.toFixed(2))];
+  const out = [null, null, null, null, null];
+  if (S.mode === 'VIEW') { const V = S.view, free = () => { if (V.preset !== 'FREE') V.preset = 'FREE'; }, P = Object.keys(VIEWS);
+    out[0] = list('CAMERA', () => P.indexOf(V.preset), v => setView(P[v]), P);
+    out[1] = num('ORBIT', () => V.yaw, v => { free(); V.yaw = v; }, -Math.PI, Math.PI, 5 / 57.3, deg, true);
+    out[2] = num('TILT', () => V.pitch, v => { free(); V.pitch = v; }, -.2, 1.5, 3 / 57.3, v => Math.round(v * 57.3) + '°');
+    out[3] = num('ZOOM', () => V.dist, v => { free(); V.dist = v; }, .25, 4, .05, v => v.toFixed(2) + ' M');
+    out[4] = num('LENS', () => V.fov, v => V.fov = Math.round(v), 14, 70, 2, v => Math.round(12 / Math.tan(v * Math.PI / 360)) + ' MM'); return out; }
+  if (S.adding) { const A = addable(); out[0] = list('ADD', () => Math.max(0, A.findIndex(t => t.key === S.adding)), v => { S.adding = A[v].key; }, A.map(t => t.name)); return out; }
+  const L = things(); if (L.length > 1) out[0] = list('PICK', () => Math.max(0, L.findIndex(t => t.key === S.pick)), v => { if (L[v].key !== S.pick) { S.pick = L[v].key; chime(); } }, L.map(t => t.name));
+  const p = picked(); if (!p) return out; const C = DOC.cake, Cd = DOC.candles, Tb = DOC.table, Lt = DOC.light, ch = p.c, dc = () => dirty.cake = true;
+  const props = p.key === 'cake' ? [list('FORM', () => Object.keys(FORMS).indexOf(C.form), v => { C.form = Object.keys(FORMS)[v]; dc(); }, Object.keys(FORMS)), list('ICING', () => C.icing, v => { C.icing = v; dc(); }, ICING.map(i => i[0])),
+      list('BORDER', () => C.border, v => { C.border = v; dc(); }, BORDER.map(i => i[0])), num('SIZE', () => C.size, v => { C.size = v; dc(); }, .6, 1.8, .05, v => '×' + v.toFixed(2))]
+    : p.key === 'candles' ? [num('COUNT', () => Cd.n, v => { Cd.n = Math.round(v); dc(); }, 1, 12, 1, v => String(Math.round(v))), list('FLAME', () => Cd.lit, v => { Cd.lit = v; dc(); }, ['OUT', 'LIT']),
+      num('SPREAD', () => Cd.spread, v => { Cd.spread = v; dc(); }, .3, 1.5, .05, v => '×' + v.toFixed(2)), num('LENGTH', () => Cd.len, v => { Cd.len = v; dc(); }, .5, 1.8, .05, v => Math.round(55 * v) + ' MM')]
+    : p.key === 'table' ? [num('WIDTH', () => Tb.w, v => { Tb.w = v; dirty.table = true; }, .6, 1.6, .05, v => Math.round(120 * v) + ' CM'), list('WOOD', () => Tb.wood, v => { Tb.wood = v; dirty.table = true; }, WOOD.map(w => w[0])), list('SHAPE', () => Tb.shape, v => { Tb.shape = v; dirty.table = true; }, ['HEX', 'ROUND'])]
+    : p.key === 'light' ? [num('AROUND', () => Lt.a, v => Lt.a = v, -180, 180, 10, v => Math.round(v) + '°', true), num('HEIGHT', () => Lt.h, v => Lt.h = v, .05, 1.6, .05, v => Math.round(v * 100) + ' CM'), num('WARMTH', () => Lt.warm, v => Lt.warm = v, 0, 1, .05, v => Math.round(lerp(6500, 2200, v) / 100) * 100 + ' K'), num('STRENGTH', () => Lt.k, v => Lt.k = v, 0, 3, .1, v => Math.round(v / 3 * 100) + '%')]
+    : [num('AROUND', () => ch.a * 57.2958, v => ch.a = v / 57.2958, 0, 360, 4, v => Math.round(v) + '°', true), num('DISTANCE', () => ch.r, v => ch.r = v, .3, 1.3, .025, v => Math.round(v * 100) + ' CM'), num('FACE', () => ch.face, v => ch.face = Math.round(v), -90, 90, 5, v => (v > 0 ? '+' : '') + Math.round(v) + '°'), num('SIZE', () => ch.s, v => ch.s = v, .6, 1.5, .05, v => '×' + v.toFixed(2))];
   props.forEach((r, i) => { r.undoable = true; out[i + 1] = r; }); return out; }
-function v01(r) { if (r && r.u != null) return r.u; if (!r || r.lo == null) return .5; return clamp((r.v() - r.lo) / Math.max(1e-6, r.hi - r.lo), 0, 1); }
+function v01(r) { if (r && r.u != null) return r.u; if (!r || r.lo == null) return .5; let v = r.v(); if (r.wrap) { const sp = r.hi - r.lo; v = ((v - r.lo) % sp + sp) % sp + r.lo; } return clamp((v - r.lo) / Math.max(1e-6, r.hi - r.lo), 0, 1); }
 const AXC = ['#ff5b4d', '#5fe36e', '#4f8dff'];
 let scrubAcc = [0, 0, 0, 0, 0];
 function turn(i, steps) { if (window.REMOTE) { tick('ring', i); ORB.spin(i, steps); S.lastRing = i; return window.REMOTE({ k: 'turn', i, steps }); }
-  const r = rings()[i]; if (!r) { tick('dead'); return; } tick('ring', i); if (r.undoable) snap(); r.set(r.v() + r.st * steps); S.lastRing = i; S.retT = NOW; ORB.spin(i, steps); oledDirty = true; dirty.mist = true; }
+  const r = rings()[i]; if (!r) { tick('dead'); return; } tick('ring', i); if (r.undoable) snap(); r.set(r.v() + r.st * steps); S.lastRing = i; S.retT = NOW; ORB.spin(i, steps); oledDirty = true; }
 function scrub(i, frac) { if (window.REMOTE) { ORB.spin(i, frac); S.lastRing = i; return window.REMOTE({ k: 'scrub', i, frac }); }
-  const r = rings()[i]; if (!r) return; if (r.f === undefined || r.st === 1) { scrubAcc[i] += frac; while (Math.abs(scrubAcc[i]) >= 1) { turn(i, Math.sign(scrubAcc[i])); scrubAcc[i] -= Math.sign(scrubAcc[i]); } return; }
+  const r = rings()[i]; if (!r) return; if (r.step || r.st >= 1) { scrubAcc[i] += frac; while (Math.abs(scrubAcc[i]) >= 1) { turn(i, Math.sign(scrubAcc[i])); scrubAcc[i] -= Math.sign(scrubAcc[i]); } return; }
   if (r.undoable) snap(); const b = Math.floor(r.v() / r.st); r.set(r.v() + r.st * frac); if (Math.floor(r.v() / r.st) !== b) tick('ring', i); S.lastRing = i; S.retT = NOW; ORB.spin(i, frac); oledDirty = true; }
-function viewBy(dx, dy, dc) { if (window.REMOTE) return window.REMOTE({ k: 'view', dx, dy, dc }); S.turn += dx; S.tilt = clamp(S.tilt + dy, -.5, .6); S.close = clamp(S.close + dc, 0, 1); S.stretch = 1 + S.close * .45; setStretch(S.stretch); }
+/* the camera: presets, and free movement from the grip, the lens end, and the mouse in the room */
+function sceneBox() { const b = new T.Box3(); ['cake', 'candles', 'table', ...DOC.kids.map(c => 'kid' + c.i)].forEach(k => { const x = boxOf(k); if (x) b.union(x); }); return b.isEmpty() ? null : b; }
+function setView(p) { const V = S.view; V.preset = p; const P = VIEWS[p]; if (P) { const b = sceneBox(), sz = b ? b.getSize(new T.Vector3()).length() : .3; V.yaw = P.yaw; V.pitch = P.pitch; V.dist = P.eye ? P.dist : clamp(sz * .32 / Math.tan(P.fov * Math.PI / 360), .45, 3.5); V.fov = P.fov; V.pan.set(0, 0, 0); } say('CAMERA · ' + p); }
+function viewBy(dyaw, dpitch, dzoom, panx, pany) { if (window.REMOTE) return window.REMOTE({ k: 'view', dx: dyaw, dy: dpitch, dc: dzoom, px: panx, py: pany }); const V = S.view; if (V.preset !== 'FREE') { V.preset = 'FREE'; oledDirty = true; }
+  V.yaw += dyaw || 0; V.pitch = clamp(V.pitch + (dpitch || 0), -.2, 1.5); V.dist = clamp(V.dist * Math.exp(-(dzoom || 0)), .25, 4);
+  if (panx || pany) { const r = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion), u = new T.Vector3(0, 1, 0).applyQuaternion(cam.quaternion); V.pan.addScaledVector(r, -(panx || 0) * V.dist).addScaledVector(u, (pany || 0) * V.dist); }
+  setStretch(1 + clamp((1.38 - V.dist) / 1.1, 0, 1) * .45); }
 
-/* =============================================================== DO: the one next thing the memory needs, named on the display */
-function nextAct() { const C = DOC.cake;
-  if (!C) return { t: 'BRING THE CAKE', run: () => { DOC.cake = { form: 'DRUM', icing: 1, border: 0, candles: 0, out: 0 }; S.pick = 'cake'; shimmer(); } };
-  if (!DOC.table) return { t: 'SET THE TABLE', run: () => { DOC.table = { w: 1, wood: 0, k: 0 }; S.pick = 'table'; shimmer(); } };
-  if (DOC.kids.length < 3) return { t: 'BRING A CHILD', run: () => { const used = new Set(DOC.kids.map(c => c.i)), i = [0, 1, 2].find(n => !used.has(n)); DOC.kids.push({ i, a: KIDS[i].slot, r: .62, face: 0, s: 1 }); S.pick = 'kid' + i; shimmer(); } };
-  if (!C.candles) return { t: 'SEVEN CANDLES', run: () => { C.candles = 7; C.out = 0; S.pick = 'cake'; tone(880, 880, .25, .05); } };
-  if ((C.out || 0) < C.candles) return { t: 'BLOW THEM OUT', run: () => { S.anim = { k: 'blow', t: 0, n: C.candles - (C.out || 0) }; } };
-  if (DOC.mist < 1) return { t: 'LET IT GO TO MIST', run: () => { S.pick = 'memory'; S.anim = { k: 'mist', t: 0, from: DOC.mist, to: 1, dur: 3.5 }; } };
-  return { t: 'BRING IT BACK', run: () => { C.out = 0; S.anim = { k: 'mist', t: 0, from: 1, to: 0, dur: 2.5 }; } }; }
+/* =============================================================== BUTTONS: MODE · UNDO on the grip; ADD · DEL · KEEP on the lens end. Each is lit only when it can act. */
 function press(b, long) { if (window.REMOTE) { tick('press'); ORB.push(b); return window.REMOTE({ k: 'press', b, long }); } tick('press'); ORB.push(b);
-  if (S.recall && b !== 'PLAY') { S.recall = null; setDoc(JSON.parse(S.recallEnd)); say('BACK TO NOW'); return; }
-  if (b === 'CAPTURE') { const a = nextAct(); snap(true); a.run(); setDoc(DOC); say(a.t); }
-  else if (b === 'UNDO') { const from = long ? REDO : UNDO, to = long ? UNDO : REDO, s = from.pop(); if (!s) { tick('dead'); say(long ? 'NOTHING TO REDO' : 'NOTHING TO UNDO'); return; } to.push(JSON.stringify(DOC)); S.anim = null; setDoc(JSON.parse(s)); say(long ? 'REDONE' : 'UNDONE'); }
-  else if (b === 'PLAY') { if (S.recall) { S.recall = null; setDoc(JSON.parse(S.recallEnd)); say('BACK TO NOW'); return; } if (!UNDO.length) { tick('dead'); return; } S.recallEnd = JSON.stringify(DOC); S.recall = { i: 0, t: 0, frames: [...UNDO, S.recallEnd] }; setDoc(JSON.parse(S.recall.frames[0])); say('RECALLING'); }
+  if (b === 'MODE') { S.adding = null; S.mode = S.mode === 'EDIT' ? 'VIEW' : 'EDIT'; say(S.mode === 'VIEW' ? 'VIEW · THE RINGS MOVE THE CAMERA' : 'EDIT · THE RINGS CHANGE ' + (picked() || { name: 'THE SCENE' }).name); }
+  else if (b === 'ADD') { if (S.mode !== 'EDIT') { S.mode = 'EDIT'; } const A = addable(); if (!A.length) { tick('dead'); say('EVERYTHING IS IN THE SCENE'); return; }
+    if (!S.adding) { S.adding = A[0].key; say('TURN RING 1 TO CHOOSE · ADD AGAIN TO PUT IT IN'); } else { snap(true); create(S.adding); const n = (picked() || {}).name; S.adding = null; chime(); say(n + ' ADDED'); } }
+  else if (b === 'DEL') { if (S.adding) { S.adding = null; say('CANCELLED'); return; } const p = picked(); if (!p || p.key === 'light') { tick('dead'); return; } snap(true); remove(p.key); setDoc(DOC); say(p.name + ' REMOVED · UNDO BRINGS IT BACK'); }
+  else if (b === 'UNDO') { if (S.adding) { S.adding = null; say('CANCELLED'); return; } const from = long ? REDO : UNDO, to = long ? UNDO : REDO, s = from.pop(); if (!s) { tick('dead'); say(long ? 'NOTHING TO REDO' : 'NOTHING TO UNDO'); return; } to.push(JSON.stringify(DOC)); setDoc(JSON.parse(s)); say(long ? 'REDONE' : 'UNDONE'); }
   else if (b === 'KEEP') keep();
   oledDirty = true; }
-function keep() { try { const ex = new T.GLTFExporter(); ex.parse(MEM, r => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([r], { type: 'model/gltf-binary' })); a.download = 'memory.glb'; document.body.append(a); a.click(); setTimeout(() => a.remove(), 1000); say('KEPT · MEMORY.GLB'); }, { binary: true }); } catch (e) { say('COULD NOT KEEP · ' + e.message.slice(0, 30)); } }
+function keep() { try { new T.GLTFExporter().parse(MEM, r => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([r], { type: 'model/gltf-binary' })); a.download = 'memory.glb'; document.body.append(a); a.click(); setTimeout(() => a.remove(), 1000); say('KEPT · MEMORY.GLB'); }, { binary: true }); } catch (e) { say('COULD NOT KEEP · ' + e.message.slice(0, 30)); } }
+const nextAct = () => null;
 /*PAIR*/
-
-/* =============================================================== THE BUTTONS: four, each lit only while it can do something */
 const CAN_KEEP = window.top === window && !PHONE;
 const BTN = {};
-[['UNDO', -.8, 0, 0xd9d5cc], ['CAPTURE', .66, -.1, 0xd23a2a], ['PLAY', .77, .03, 0xd9d5cc], ['KEEP', .88, -.1, 0x5ff0dc]].forEach(([n, x, dz, col]) => { if (n === 'KEEP' && !CAN_KEEP) return;
+[['MODE', -.87, -.07, 0xd9d5cc], ['UNDO', -.73, .07, 0xd9d5cc], ['ADD', .66, -.1, 0xd9d5cc], ['DEL', .77, .03, 0xd9d5cc], ['KEEP', .88, -.1, 0x5ff0dc]].forEach(([n, x, dz, col]) => { if (n === 'KEEP' && !CAN_KEEP) return;
   const a = .95 + dz * 2, y = Math.cos(a) * .25, z = Math.sin(a) * .25; const g = new T.Group(); g.position.set(x, y, z); g.lookAt(x, y * 3, z * 3); g.userData.keepW = true; ORB.add(g);
   const well = new T.Mesh(new T.CylinderGeometry(.045, .045, .012, 40), darkAlu); well.rotation.x = Math.PI / 2; g.add(well);
-  const capM = n === 'CAPTURE' ? new T.MeshPhysicalMaterial({ color: col, roughness: .25, clearcoat: 1, emissive: 0x3a0804 }) : new T.MeshPhysicalMaterial({ color: col, metalness: .8, roughness: .3, clearcoat: .6, emissive: 0x000000 });
-  const cap = new T.Mesh(new T.SphereGeometry(.038, 32, 16, 0, TAU, 0, Math.PI / 2), capM); cap.rotation.x = Math.PI / 2; cap.scale.set(1, .42, 1); cap.position.z = .006; cap.userData.btn = n; g.add(cap);
+  const cap = new T.Mesh(new T.SphereGeometry(.038, 32, 16, 0, TAU, 0, Math.PI / 2), new T.MeshPhysicalMaterial({ color: col, metalness: .8, roughness: .3, clearcoat: .6 })); cap.rotation.x = Math.PI / 2; cap.scale.set(1, .42, 1); cap.position.z = .006; cap.userData.btn = n; g.add(cap);
   const lab = new T.Mesh(new T.PlaneGeometry(.17, .051), new T.MeshBasicMaterial({ map: label(n), transparent: true, toneMapped: false })); lab.position.set(0, -.072, .002); lab.userData.btn = n; g.add(lab); FLAT.push(lab);
-  const ic = new T.Mesh(new T.CircleGeometry(.026, 32), new T.MeshBasicMaterial({ map: iconTex(n, n === 'CAPTURE' ? '#ffffff' : '#1b1a17'), transparent: true, toneMapped: false })); ic.position.z = .006 + .038 * .42 + .0015; ic.userData.btn = n; g.add(ic); FLAT.push(ic);
+  const ic = new T.Mesh(new T.CircleGeometry(.026, 32), new T.MeshBasicMaterial({ map: iconTex(n, '#1b1a17'), transparent: true, toneMapped: false })); ic.position.z = .006 + .038 * .42 + .0015; ic.userData.btn = n; g.add(ic); FLAT.push(ic);
   BTN[n] = { g, cap, lab, z0: .006, down: 0 }; });
-let orbPitchV = 0, orbYawV = 0, orbRollV = 0; ORB.rotation.x = .18;
-ORB.spin = (i, steps) => { const r = RINGS[i]; r.target += steps * TAU / 36; orbPitchV += Math.sign(steps) * .03; };
-ORB.push = b => { if (BTN[b]) { BTN[b].down = 1; orbPitchV -= .03; } };
+let orbPitchV = 0; ORB.rotation.x = .18;
+ORB.spin = (i, steps) => { const r = RINGS[i]; r.target += steps * TAU / 36; orbPitchV += Math.sign(steps) * .02; };
+ORB.push = b => { if (BTN[b]) { BTN[b].down = 1; orbPitchV -= .02; } };
 function setStretch(v) { S.stretch = clamp(v, 1, 1.8); ORB.scale.x = S.stretch; ORB.traverse(o => { if (o.userData.keepW) o.scale.x = 1 / S.stretch; }); fitOrb(); }
 
-/* =============================================================== HANDS ON THE ORB */
+/* =============================================================== HANDS ON THE ORB: rings up/down click, sideways scrub; grip end orbits; lens end zooms; pinch zooms */
 const oray = new T.Raycaster(), ondc = new T.Vector2(); let odrag = null; const optrs = new Map();
 function orbHit(e) { const r = OR.domElement.getBoundingClientRect(); ondc.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1); oray.setFromCamera(ondc, OC); const h = oray.intersectObjects(ORB.children, true)[0]; if (!h) return null; let o = h.object; while (o && o.userData.ring == null && !o.userData.btn && !o.userData.grip && !o.userData.pair && !o.userData.lens) o = o.parent; return o ? o.userData : null; }
-OR.domElement.addEventListener('pointerdown', e => { optrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (optrs.size === 2) { const [p, q] = [...optrs.values()]; odrag = { pinch: Math.hypot(p.x - q.x, p.y - q.y), c0: S.close }; return; }
+OR.domElement.addEventListener('pointerdown', e => { optrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (optrs.size === 2) { const [p, q] = [...optrs.values()]; odrag = { pinch: Math.hypot(p.x - q.x, p.y - q.y) }; return; }
   const u = orbHit(e); if (!u) return; OR.domElement.setPointerCapture(e.pointerId);
   if (u.btn) { odrag = { btn: u.btn, t: performance.now() }; BTN[u.btn].down = 1; return; }
   if (u.pair) { PAIR.open(); return; }
-  if (u.grip) { odrag = { grip: true, x: e.clientX, y: e.clientY }; return; }
-  if (u.lens) { odrag = { lens: true, x: e.clientX, y: e.clientY }; return; }
+  if (u.grip || u.lens) { odrag = { grip: !!u.grip, lens: !!u.lens, x: e.clientX, y: e.clientY }; return; }
   odrag = { ring: u.ring, x: e.clientX, y: e.clientY, acc: 0, lock: null }; S.lastRing = u.ring; oledDirty = true; if (!rings()[u.ring]) tick('dead'); });
 OR.domElement.addEventListener('pointermove', e => { if (optrs.has(e.pointerId)) optrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
   if (!odrag) { const u = orbHit(e); const hr = u && u.ring != null && rings()[u.ring] ? u.ring : -1; if (hr !== S.hoverRing) { S.hoverRing = hr; oledDirty = true; } OR.domElement.style.cursor = u ? (u.btn || u.pair ? 'pointer' : u.grip || u.lens ? 'grab' : hr >= 0 ? 'ns-resize' : '') : ''; return; }
+  if (odrag.pinch != null) { if (optrs.size === 2) { const [p, q] = [...optrs.values()], d = Math.hypot(p.x - q.x, p.y - q.y); viewBy(0, 0, Math.log(d / odrag.pinch) * 1.4); odrag.pinch = d; } return; }
   const rx = e.clientX - (odrag.x || 0), ry = e.clientY - (odrag.y || 0);
-  if (odrag.pinch != null && optrs.size === 2) { const [p, q] = [...optrs.values()]; viewBy(0, 0, odrag.c0 + (Math.hypot(p.x - q.x, p.y - q.y) / odrag.pinch - 1) * 1.5 - S.close); return; }
-  if (odrag.grip) { odrag.x = e.clientX; odrag.y = e.clientY; viewBy(PORTRAIT ? ry * .012 : rx * .012, PORTRAIT ? -rx * .006 : ry * .006, 0); return; }
-  if (odrag.lens) { odrag.x = e.clientX; odrag.y = e.clientY; viewBy(0, 0, (PORTRAIT ? -ry : rx) * .004); return; }
+  if (odrag.grip) { odrag.x = e.clientX; odrag.y = e.clientY; viewBy(-(PORTRAIT ? ry : rx) * .01, (PORTRAIT ? -rx : ry) * .006, 0); return; }
+  if (odrag.lens) { odrag.x = e.clientX; odrag.y = e.clientY; viewBy(0, 0, (PORTRAIT ? -ry : rx) * .006); return; }
   if (odrag.ring == null) return; const dx = PORTRAIT ? -ry : rx, dy = PORTRAIT ? rx : -ry; odrag.x = e.clientX; odrag.y = e.clientY;
   if (!odrag.lock) { odrag.ax = (odrag.ax || 0) + Math.abs(dx); odrag.ay = (odrag.ay || 0) + Math.abs(dy); if (odrag.ax + odrag.ay > 6) odrag.lock = odrag.ax > odrag.ay ? 'x' : 'y'; else return; }
   if (odrag.lock === 'x') { scrub(odrag.ring, dx / (orbEl.clientWidth < 700 ? 16 : 22)); return; }
@@ -95,64 +108,73 @@ OR.domElement.addEventListener('pointermove', e => { if (optrs.has(e.pointerId))
 OR.domElement.addEventListener('pointerup', e => { optrs.delete(e.pointerId); if (odrag && odrag.btn) press(odrag.btn, performance.now() - odrag.t > 550); odrag = null; });
 OR.domElement.addEventListener('pointercancel', e => { optrs.delete(e.pointerId); odrag = null; });
 OR.domElement.addEventListener('pointerleave', () => { S.hoverRing = -1; oledDirty = true; });
-OR.domElement.addEventListener('wheel', e => { e.preventDefault(); const u = orbHit(e); if (!u) return; if (u.lens || e.ctrlKey) { viewBy(0, 0, -e.deltaY * .002); return; } if (u.grip) { viewBy(-e.deltaY * .004, 0, 0); return; } if (u.ring == null) return; if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) scrub(u.ring, -e.deltaX / 40); else turn(u.ring, e.deltaY < 0 ? 1 : -1); }, { passive: false });
-addEventListener('keydown', e => { const k = e.key; if (k >= '1' && k <= '5') { S.lastRing = +k - 1; oledDirty = true; } else if (k === 'ArrowUp' || k === 'ArrowDown') { e.preventDefault(); turn(Math.max(0, S.lastRing), k === 'ArrowUp' ? 1 : -1); } else if (k === 'ArrowLeft' || k === 'ArrowRight') { e.preventDefault(); viewBy(k === 'ArrowRight' ? .08 : -.08, 0, 0); }
-  else if (k === 'd' || k === ' ') { e.preventDefault(); press('CAPTURE'); } else if (k === 'z') press('UNDO', e.shiftKey); else if (k === 'r') press('PLAY'); else if (k === 'p') PAIR.open(); else if (k === '+' || k === '=') viewBy(0, 0, .1); else if (k === '-') viewBy(0, 0, -.1); });
+OR.domElement.addEventListener('wheel', e => { e.preventDefault(); const u = orbHit(e); if (!u) return; if (u.lens || u.grip || e.ctrlKey) { viewBy(0, 0, -e.deltaY * .002); return; } if (u.ring == null) return; if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) scrub(u.ring, -e.deltaX / 40); else turn(u.ring, e.deltaY < 0 ? 1 : -1); }, { passive: false });
+/* hands in the room: drag orbits, right-drag or two fingers pan, wheel or pinch zooms, a click picks */
+const rptr = new Map(); let rdrag = null; const rray = new T.Raycaster(), rndc = new T.Vector2();
+R.domElement.addEventListener('contextmenu', e => e.preventDefault());
+R.domElement.addEventListener('pointerdown', e => { R.domElement.setPointerCapture(e.pointerId); rptr.set(e.pointerId, { x: e.clientX, y: e.clientY }); rdrag = { x0: e.clientX, y0: e.clientY, pan: e.button === 2 || e.shiftKey, moved: 0 }; if (rptr.size === 2) { const [p, q] = [...rptr.values()]; rdrag = { two: true, d: Math.hypot(p.x - q.x, p.y - q.y), cx: (p.x + q.x) / 2, cy: (p.y + q.y) / 2, moved: 9 }; } });
+R.domElement.addEventListener('pointermove', e => { if (!rptr.has(e.pointerId) || !rdrag) return; const pr = rptr.get(e.pointerId), dx = e.clientX - pr.x, dy = e.clientY - pr.y; rptr.set(e.pointerId, { x: e.clientX, y: e.clientY }); const H = roomEl.clientHeight;
+  if (rdrag.two && rptr.size === 2) { const [p, q] = [...rptr.values()], d = Math.hypot(p.x - q.x, p.y - q.y), cx = (p.x + q.x) / 2, cy = (p.y + q.y) / 2; viewBy(0, 0, Math.log(d / rdrag.d) * 1.4, (cx - rdrag.cx) / H, (cy - rdrag.cy) / H); rdrag.d = d; rdrag.cx = cx; rdrag.cy = cy; return; }
+  rdrag.moved += Math.abs(dx) + Math.abs(dy); if (rdrag.moved < 4) return; if (rdrag.pan) viewBy(0, 0, 0, dx / H, dy / H); else viewBy(-dx * .008, dy * .005, 0); });
+const rEnd = e => { rptr.delete(e.pointerId); if (rdrag && !rdrag.two && rdrag.moved < 4 && e.type === 'pointerup') clickPick(e); if (!rptr.size) rdrag = null; };
+R.domElement.addEventListener('pointerup', rEnd); R.domElement.addEventListener('pointercancel', rEnd);
+R.domElement.addEventListener('wheel', e => { e.preventDefault(); viewBy(0, 0, -e.deltaY * .0015); }, { passive: false });
+function clickPick(e) { const r = R.domElement.getBoundingClientRect(); rndc.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1); rray.setFromCamera(rndc, cam);
+  const objs = [...CAKE.children, ...TABLE.children, ...Object.values(KM), keyMark]; const h = rray.intersectObjects(objs, true)[0]; if (!h) return; let o = h.object;
+  for (const i in KM) if (KM[i] === o) return pickKey('kid' + i); let p = o; while (p) { if (p === keyMark) return pickKey('light'); if (p === TABLE) return pickKey('table'); if (p.parent === CAKE && p.isGroup) return pickKey(DOC.candles ? 'candles' : 'cake'); if (p === CAKE) return pickKey('cake'); p = p.parent; } }
+function pickKey(k) { if (S.mode !== 'EDIT') S.mode = 'EDIT'; S.adding = null; if (k !== S.pick) { S.pick = k; chime(); } S.retT = NOW; oledDirty = true; }
+addEventListener('keydown', e => { const k = e.key; if (k >= '1' && k <= '5') { S.lastRing = +k - 1; oledDirty = true; } else if (k === 'ArrowUp' || k === 'ArrowDown') { e.preventDefault(); turn(Math.max(0, S.lastRing), k === 'ArrowUp' ? 1 : -1); } else if (k === 'ArrowLeft' || k === 'ArrowRight') { e.preventDefault(); scrub(Math.max(0, S.lastRing), k === 'ArrowRight' ? .25 : -.25); }
+  else if (k === 'Tab' || k === 'v') { e.preventDefault(); press('MODE'); } else if (k === 'a') press('ADD'); else if (k === 'Delete' || k === 'Backspace' || k === 'x') press('DEL'); else if (k === 'z') press('UNDO', e.shiftKey); else if (k === 'p') PAIR.open();
+  else if (k === 'f' || k === 'F') { S.view.pan.set(0, 0, 0); say('FRAMED'); } else if (k === '+' || k === '=') viewBy(0, 0, .15); else if (k === '-') viewBy(0, 0, -.15); });
 
-/* =============================================================== THE DISPLAY: what is picked · what the ring last turned is · what DO will do */
+/* =============================================================== THE DISPLAY: the mode, the object, the value just set */
 let oledDirty = true;
 function drawOLED() { const W = OLED.width, H = OLED.height, x = ox; x.fillStyle = '#020403'; x.fillRect(0, 0, W, H); const CY = '#5ff0dc', DIM = '#2e7a70', MID = '#8fe9dc', AMB = '#f0b040';
   if (S.pairShow && !PHONE) { drawPairQR(x, W, H); oledTex.needsUpdate = true; return; }
-  const st = window.REMOTE_STATE, p = PHONE ? null : picked(), act = PHONE ? (st && st.step ? { t: st.step } : null) : nextAct();
-  x.textAlign = 'left'; x.font = '600 26px ui-monospace, Menlo, monospace'; x.fillStyle = DIM; x.fillText(S.recall ? 'RECALLING' : PHONE ? 'PAIRED ORB' : p ? 'WORKING ON' : 'NOTHING YET', 30, 64);
-  x.font = '700 72px ui-monospace, Menlo, monospace'; x.fillStyle = CY; x.fillText(PHONE ? (st ? st.mode || '' : '') : p ? p.name : '', 30, 150);
-  const RS = rings(), r = RS[S.lastRing]; if (r && !S.recall) { x.textAlign = 'center'; x.font = '600 26px ui-monospace, Menlo, monospace'; x.fillStyle = DIM; x.fillText(r.n, W * .52, 64); x.font = '700 72px ui-monospace, Menlo, monospace'; x.fillStyle = '#e8f6f2'; x.fillText(String(r.f(r.v())), W * .52, 150); }
-  if (act) { x.textAlign = 'right'; x.font = '600 26px ui-monospace, Menlo, monospace'; x.fillStyle = '#7a3a30'; x.fillText('DO', W - 30, 64); x.font = '700 50px ui-monospace, Menlo, monospace'; x.fillStyle = AMB; x.fillText(act.t, W - 30, 146); }
-  x.textAlign = 'center'; x.font = '500 26px ui-monospace, Menlo, monospace'; x.fillStyle = MID; if (S.msg && NOW - S.msgT < 3.5) x.fillText(S.msg.slice(0, 70), W / 2, 280);
-  else if (!PHONE && !DOC.cake) x.fillText('PRESS DO', W / 2, 280); else if (!PHONE && NOW - S.retT > 20) { x.fillStyle = DIM; x.fillText('GRIP END TURNS THE MEMORY · LENS END BRINGS IT CLOSE', W / 2, 280); }
+  const st = window.REMOTE_STATE, mode = PHONE ? (st ? st.mode : '') : S.adding ? 'ADD' : S.mode, p = PHONE ? null : picked();
+  const what = PHONE ? (st && st.step) || '' : S.adding ? (addable().find(t => t.key === S.adding) || {}).name : S.mode === 'VIEW' ? S.view.preset : p ? p.name : 'EMPTY SCENE';
+  x.textAlign = 'left'; x.font = '700 30px ui-monospace, Menlo, monospace'; x.fillStyle = mode === 'VIEW' ? '#9fc4ff' : mode === 'ADD' ? AMB : CY; x.fillText(mode || '', 30, 64);
+  x.font = '700 70px ui-monospace, Menlo, monospace'; x.fillStyle = '#e8f6f2'; x.fillText(what || '', 30, 150);
+  const RS = rings(), r = RS[S.lastRing]; if (r) { x.textAlign = 'right'; x.font = '600 26px ui-monospace, Menlo, monospace'; x.fillStyle = DIM; x.fillText(r.n, W - 30, 64); x.font = '700 70px ui-monospace, Menlo, monospace'; x.fillStyle = CY; x.fillText(String(r.f(r.v())), W - 30, 150); }
+  x.textAlign = 'center'; x.font = '500 26px ui-monospace, Menlo, monospace'; x.fillStyle = MID;
+  if (S.msg && NOW - S.msgT < 3.5) x.fillText(S.msg.slice(0, 72), W / 2, 280); else if (!PHONE && !things().some(t => t.key !== 'light')) x.fillText('PRESS ADD', W / 2, 280);
   oledTex.needsUpdate = true; }
 setInterval(() => { oledDirty = true; }, 500);
 
-/* =============================================================== THE SIGHT: one small reticle beside what a ring is changing, only while it changes */
-const SIGHT = new T.Group(); scene.add(SIGHT); const sMat = new T.MeshBasicMaterial({ color: 0xd8e6e2, transparent: true, opacity: 0, depthTest: false, depthWrite: false, toneMapped: false });
-const sArc = new T.Mesh(new T.TorusGeometry(1, .03, 6, 80, 4.2), sMat); sArc.rotation.z = Math.PI / 2 + (TAU - 4.2) / 2 + Math.PI; sArc.renderOrder = 40; SIGHT.add(sArc);
-const sBox = new T.Mesh(new T.BoxGeometry(.13, .13, .02), sMat); sBox.renderOrder = 41; SIGHT.add(sBox);
-const sTick = []; for (let k = 0; k < 9; k++) { const t = new T.Mesh(new T.BoxGeometry(.03, .14, .01), sMat); const a = Math.PI * .5 + (TAU - 4.2) / 2 + Math.PI - 4.2 / 2 + k / 8 * 4.2; t.position.set(Math.cos(a) * 1.12, Math.sin(a) * 1.12, 0); t.rotation.z = a; t.renderOrder = 40; SIGHT.add(t); sTick.push(t); }
-function centerOf(key) { if (key === 'cake') { const b = new T.Box3().setFromObject(CAKE); return b.isEmpty() ? null : { c: b.getCenter(new T.Vector3()), r: b.getSize(new T.Vector3()).length() / 2 }; }
-  if (key === 'table') { const b = new T.Box3().setFromObject(TABLE.children[0] || TABLE); return { c: b.getCenter(new T.Vector3()), r: .3 }; }
-  if (key === 'light') return { c: keyMark.position.clone(), r: .06 };
-  if (key.startsWith('kid')) { const m = KM[+key.slice(3)]; if (!m) return null; return { c: m.getWorldPosition(new T.Vector3()), r: m.scale.y * .5 }; } return null; }
-function updSight(dt) { const show = !S.recall && !FILM ? NOW - S.retT < 2.4 : NOW - S.retT < 2.4, ce = show ? centerOf(S.pick) : null; const want = ce ? .75 : 0; sMat.opacity += (want - sMat.opacity) * Math.min(1, dt * 6); SIGHT.visible = sMat.opacity > .02; if (!ce) return;
-  const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion), s = clamp(ce.r * .42, .025, .16); SIGHT.position.copy(ce.c).addScaledVector(right, ce.r * 1.05 + s * 1.3); SIGHT.quaternion.copy(cam.quaternion); SIGHT.scale.setScalar(s);
-  const r = rings()[S.lastRing], u = v01(r), a = Math.PI * .5 + (TAU - 4.2) / 2 + Math.PI - 4.2 / 2 + u * 4.2; sBox.position.set(Math.cos(a), Math.sin(a), 0); sBox.rotation.z = a; }
+/* =============================================================== SELECTION: thin brackets on the picked object, for a moment after it is picked or changed */
+const SEL = new T.LineSegments(new T.BufferGeometry(), new T.LineBasicMaterial({ color: 0xd8e6e2, transparent: true, opacity: 0, depthTest: false, toneMapped: false })); SEL.renderOrder = 40; scene.add(SEL);
+function boxOf(key) { const b = new T.Box3(); if (key === 'cake') CAKE.children.forEach(o => { if (!o.isGroup) b.expandByObject(o); }); else if (key === 'candles') CAKE.children.forEach(o => { if (o.isGroup) b.expandByObject(o); }); else if (key === 'table') b.expandByObject(TABLE.children[0] || TABLE);
+  else if (key === 'light') b.setFromCenterAndSize(keyMark.position, new T.Vector3(.06, .06, .06)); else if (key && key.startsWith('kid') && KM[+key.slice(3)]) b.expandByObject(KM[+key.slice(3)]); return b.isEmpty() ? null : b; }
+function updSel(dt) { const b = S.mode === 'EDIT' && !FILM && NOW - S.retT < 2.2 ? boxOf(S.pick) : null; SEL.material.opacity += ((b ? .7 : 0) - SEL.material.opacity) * Math.min(1, dt * 8); SEL.visible = SEL.material.opacity > .02; if (!b) return;
+  const m = .006, lo = b.min.clone().subScalar(m), hi = b.max.clone().addScalar(m), L = Math.min(.04, (hi.x - lo.x) / 4, (hi.y - lo.y) / 4), P = [];
+  for (const cx of [0, 1]) for (const cy of [0, 1]) for (const cz of [0, 1]) { const c = new T.Vector3(cx ? hi.x : lo.x, cy ? hi.y : lo.y, cz ? hi.z : lo.z), s = new T.Vector3(cx ? -1 : 1, cy ? -1 : 1, cz ? -1 : 1).multiplyScalar(L); P.push(c, c.clone().add(new T.Vector3(s.x, 0, 0)), c, c.clone().add(new T.Vector3(0, s.y, 0)), c, c.clone().add(new T.Vector3(0, 0, s.z))); }
+  SEL.geometry.setFromPoints(P); }
 
-/* =============================================================== THE ROOM: rebuild what changed; the camera is your eye, kneeling */
-function apply(dt) { if (dirty.cake) { buildCake(DOC.cake); dirty.cake = false; dirty.mist = true; } if (dirty.table) { buildTable(DOC.table); dirty.table = false; dirty.mist = true; }
-  if (DOC.table) { DOC.table.k = Math.min(1, (DOC.table.k || 0) + dt * .9); tableMat.opacity = legMat.opacity = DOC.table.k; tableMat.transparent = legMat.transparent = DOC.table.k < 1; } placeKids(dt);
-  const Lt = DOC.light, cw = CAKE.getWorldPosition(new T.Vector3()).add(new T.Vector3(0, .05, 0)), la = Lt.a * Math.PI / 180;
-  key.position.set(cw.x + Math.sin(la) * .95, cw.y + Lt.h, cw.z + Math.cos(la) * .95); key.target.position.copy(cw); key.color.setRGB(lerp(.72, 1, Lt.warm), lerp(.82, .72, Lt.warm), lerp(1, .45, Lt.warm)); key.intensity = DOC.cake ? Lt.k : 0;
-  keyMark.position.copy(key.position); keyMark.visible = keyLine.visible = S.pick === 'light' && NOW - S.retT < 3 && !FILM; keyLine.geometry.setFromPoints([key.position, cw]);
+/* =============================================================== THE ROOM */
+function apply(dt) { if (dirty.cake) { buildCake(DOC.cake ? Object.assign({}, DOC.cake, { candles: DOC.candles ? DOC.candles.n : 0, out: DOC.candles && !DOC.candles.lit ? DOC.candles.n : 0, spread: DOC.candles ? DOC.candles.spread : 1, clen: DOC.candles ? DOC.candles.len : 1 }) : null); dirty.cake = false; }
+  if (dirty.table) { buildTable(DOC.table); dirty.table = false; }
+  if (DOC.table) { DOC.table.k = Math.min(1, (DOC.table.k || 0) + dt * 1.5); tableMat.opacity = legMat.opacity = DOC.table.k; tableMat.transparent = legMat.transparent = DOC.table.k < 1; } placeKids(dt);
+  const Lt = DOC.light, cw = new T.Vector3(0, TOP + .05, 0), la = Lt.a * Math.PI / 180;
+  key.position.set(cw.x + Math.sin(la) * .95, cw.y + Lt.h, cw.z + Math.cos(la) * .95); key.target.position.copy(cw); key.color.setRGB(lerp(.72, 1, Lt.warm), lerp(.82, .72, Lt.warm), lerp(1, .45, Lt.warm)); key.intensity = Lt.k;
+  keyMark.position.copy(key.position); keyMark.visible = keyLine.visible = S.mode === 'EDIT' && S.pick === 'light' && !FILM; keyLine.geometry.setFromPoints([key.position, cw]);
   const lit = FLAMES.length; candleLight.position.set(cw.x, cw.y + .15, cw.z); candleLight.intensity = lit ? (.25 + Math.min(lit, 12) * .12) * (.94 + Math.sin(NOW * 21) * .04 + Math.sin(NOW * 7) * .03) : 0;
-  FLAMES.forEach((f, i) => { const k = 1 + Math.sin(NOW * 13 + i * 1.7) * .06 + Math.sin(NOW * 31 + i) * .04; f.scale.set(.016 * k, .034 * (2 - k), 1); });
-  MU.uMist.value = DOC.mist; MISTP.visible = DOC.mist > .01; if (MISTP.visible && dirty.mist) { buildMist(); dirty.mist = false; }
-  PIV.rotation.set(S.tilt, S.turn, 0, 'XYZ'); if (!DOC.table) { PIV.rotation.z = Math.sin(NOW * .45) * .03; PIV.rotation.x += Math.sin(NOW * .31 + 1) * .025; } }
-function placeCam() { const k = sm(S.close); cam.position.set(Math.sin(NOW * .23) * .004, lerp(.98, .8, k) + Math.sin(NOW * .9) * .003, lerp(1.32, .5, k)); cam.lookAt(0, lerp(.69, .68, k), 0); }
-function tickAnim(dt) { const A = S.anim; if (!A) return; A.t += dt;
-  if (A.k === 'blow') { const C = DOC.cake; if (A.t > .45) { A.t = 0; C.out = (C.out || 0) + 1; dirty.cake = true; tone(320, 120, .35, .04, 'triangle'); if (C.out >= C.candles) { S.anim = null; say('MAKE A WISH'); } } }
-  if (A.k === 'mist') { const u = clamp(A.t / A.dur, 0, 1); DOC.mist = lerp(A.from, A.to, sm(u)); if (u >= 1) { S.anim = null; say(A.to ? 'ALL OF IT IS MIST' : 'IT COMES BACK'); } } }
-function tickRecall(dt) { const Rc = S.recall; if (!Rc) return; Rc.t += dt; if (Rc.t > .55) { Rc.t = 0; Rc.i++; if (Rc.i >= Rc.frames.length) { S.recall = null; setDoc(JSON.parse(S.recallEnd)); say('THAT IS HOW IT WAS MADE'); return; } setDoc(JSON.parse(Rc.frames[Rc.i])); tick('ring', Rc.i % 5); } }
-function resize() { const w = Math.max(2, roomEl.clientWidth), h = Math.max(2, roomEl.clientHeight); R.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); const pr = R.getPixelRatio(); rt.setSize(Math.round(w * pr), Math.round(h * pr)); mistMat.uniforms.uPx.value = h * pr / (2 * Math.tan(cam.fov * Math.PI / 360)); fitOrb(); }
+  FLAMES.forEach((f, i) => { const k = 1 + Math.sin(NOW * 13 + i * 1.7) * .06 + Math.sin(NOW * 31 + i) * .04; f.scale.set(.016 * k, .034 * (2 - k), 1); }); }
+function placeCam(dt) { const V = S.view, P = VIEWS[V.preset], eye = P && P.eye, k = Math.min(1, (dt || 1) * 6);
+  let bc = new T.Vector3(0, TOP + .07, 0); if (!eye) { const b = sceneBox(); if (b) bc = b.getCenter(new T.Vector3()); }
+  const tgt = (eye ? new T.Vector3(0, .69, 0) : bc).add(V.pan);
+  CAM.yaw += (((V.yaw - CAM.yaw + Math.PI) % TAU + TAU) % TAU - Math.PI) * k; CAM.pitch += (V.pitch - CAM.pitch) * k; CAM.dist += (V.dist - CAM.dist) * k; CAM.fov += (V.fov - CAM.fov) * k; CAM.tgt.lerp(tgt, k);
+  cam.position.set(CAM.tgt.x + Math.sin(CAM.yaw) * Math.cos(CAM.pitch) * CAM.dist, CAM.tgt.y + Math.sin(CAM.pitch) * CAM.dist, CAM.tgt.z + Math.cos(CAM.yaw) * Math.cos(CAM.pitch) * CAM.dist); cam.lookAt(CAM.tgt);
+  if (Math.abs(cam.fov - CAM.fov) > .01) { cam.fov = CAM.fov; cam.updateProjectionMatrix(); } }
+function resize() { const w = Math.max(2, roomEl.clientWidth), h = Math.max(2, roomEl.clientHeight); R.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); const pr = R.getPixelRatio(); rt.setSize(Math.round(w * pr), Math.round(h * pr)); fitOrb(); }
 addEventListener('resize', resize);
-function update(dt) { NOW += dt; MU.uTime.value = NOW; tickAnim(dt); tickRecall(dt); apply(dt); placeCam(); updSight(dt);
-  const dpos = dustG.attributes.position; for (let i = 0; i < DUSTN; i++) { let y = dpos.array[i * 3 + 1] + dt * (.015 + (i % 7) * .003); if (y > 2.2) y = 0; dpos.array[i * 3 + 1] = y; } dpos.needsUpdate = true;
-  RINGS.forEach((r, i) => { r.ang += (r.target - r.ang) * Math.min(1, dt * 18); r.g.rotation.x = r.ang; const on = !!rings()[i]; r.lit.visible = on; r.lit.material.color.setHex(i === S.lastRing ? 0x8ffff0 : i === 0 ? 0xb07a20 : 0x2fae9f); });
-  const can = { CAPTURE: true, UNDO: UNDO.length > 0, PLAY: UNDO.length > 0 || !!S.recall, KEEP: !!DOC.cake };
-  for (const k in BTN) { const b = BTN[k]; if (odrag && odrag.btn === k) b.down = 1; else b.down = Math.max(0, b.down - dt * 6); b.cap.position.z = b.z0 - b.down * .008; b.lab.material.opacity = can[k] ? 1 : .25; b.g.visible = true; }
-  orbPitchV += ((.18 - ORB.rotation.x) * 42 - orbPitchV * 9) * dt; ORB.rotation.x += orbPitchV * dt;
-  ORB.userData.iris.material.opacity = .55 + .35 * (.5 + .5 * Math.sin(NOW * 1.6));
+function update(dt) { NOW += dt; MU.uTime.value = NOW; apply(dt); placeCam(dt); updSel(dt);
+  RINGS.forEach((r, i) => { r.ang += (r.target - r.ang) * Math.min(1, dt * 18); r.g.rotation.x = r.ang; const on = !!rings()[i]; r.lit.visible = on; r.lit.material.color.setHex(i === S.lastRing ? 0x8ffff0 : i === 0 ? (S.mode === 'VIEW' ? 0x5f8fd0 : 0xb07a20) : S.mode === 'VIEW' ? 0x3a6fb0 : 0x2fae9f); });
+  const can = { MODE: true, UNDO: UNDO.length > 0 || !!S.adding, ADD: addable().length > 0, DEL: !!S.adding || (!!picked() && S.pick !== 'light' && S.mode === 'EDIT'), KEEP: things().length > 1 };
+  for (const k in BTN) { const b = BTN[k]; if (odrag && odrag.btn === k) b.down = 1; else b.down = Math.max(0, b.down - dt * 6); b.cap.position.z = b.z0 - b.down * .008; b.lab.material.opacity = can[k] ? 1 : .25; }
+  orbPitchV += ((.18 - ORB.rotation.x) * 42 - orbPitchV * 9) * dt; ORB.rotation.x += orbPitchV * dt; ORB.userData.iris.material.opacity = .55 + .35 * (.5 + .5 * Math.sin(NOW * 1.6));
   drawDialLabels(); if (oledDirty || (S.msg && NOW - S.msgT < 3.6)) { drawOLED(); oledDirty = false; } }
 function render() { if (!PHONE) { grade.uniforms.gt.value = (NOW * 37.1) % 100; R.setRenderTarget(rt); R.render(scene, cam); R.setRenderTarget(null); R.render(gQ, gC); } OR.render(OS, OC); }
 let last = performance.now(), auto = true;
 function loop(now) { if (!auto) return; const dt = Math.min(.05, (now - last) / 1000); last = now; update(dt); render(); requestAnimationFrame(loop); }
 resize(); requestAnimationFrame(loop);
-window.FORGE = { S, get DOC() { return DOC; }, turn, scrub, press, viewBy, rings, things, nextAct, now: () => NOW, flames: () => FLAMES.length, manual() { auto = false; }, advance(dt) { update(dt); render(); }, step(dt) { update(dt); }, PAIR };
+window.FORGE = { S, get DOC() { return DOC; }, turn, scrub, press, viewBy, setView, rings, things, addable, pickKey, now: () => NOW, flames: () => FLAMES.length, manual() { auto = false; }, advance(dt) { update(dt); render(); }, step(dt) { update(dt); }, PAIR };
