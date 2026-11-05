@@ -18,7 +18,7 @@
 </head>
 <body>
 <canvas id="c"></canvas>
-<div id="hint">hold anywhere to recall · drag the line below to move through it · slider: mist ↔ data</div>
+<div id="hint">hold anywhere to recall · drag the line below · slider: mist ↔ data</div>
 <div id="tc"></div>
 <div id="mist"><i></i><b id="mk"></b><span id="mt" style="top:0">mist</span><span style="bottom:0">data</span></div>
 <script>
@@ -65,7 +65,7 @@
     g.save(); g.filter = 'none'; g.strokeStyle = 'rgba(255,255,255,.28)'; g.lineWidth = px; g.beginPath(); g.moveTo(bx, by); g.lineTo(bx + bw, by); g.stroke();
     g.strokeStyle = 'rgba(255,255,255,.75)'; g.lineWidth = 1.2 * px; g.beginPath(); M.frames.forEach(function (f, i) { var x = bx + bw * i / (M.frames.length - 1), y = by - f.feel * hh; i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke();
     var px2 = bx + bw * t / M.dur; g.fillStyle = '#fff'; g.fillRect(px2 - px, by - hh - 3 * px, 2 * px, hh + 6 * px); g.restore();
-    var ts = 109 + t; document.getElementById('tc').textContent = Math.floor(ts / 60) + ':' + String(Math.floor(ts % 60)).padStart(2, '0') + '  ·  ' + (mist > .5 ? 'mist' : mist > .12 ? 'fading' : 'data');
+    var fnow = Math.floor(t * M.fps), rg = M.ranges[0]; M.ranges.forEach(function (r) { if (fnow >= r[2]) rg = r; }); var ts = rg[0] + (t * M.fps - rg[2]) / M.fps; document.getElementById('tc').textContent = Math.floor(ts / 60) + ':' + String(Math.floor(ts % 60)).padStart(2, '0') + '  ·  ' + (mist > .5 ? 'mist' : mist > .12 ? 'fading' : 'data');
     document.getElementById('mk').style.top = ((1 - mist) * 100) + '%';
   }
   // touch: hold to recall; drag the timeline to move; the right edge slides mist and data

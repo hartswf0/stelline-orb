@@ -1,13 +1,14 @@
 """Segment the memory (1:49 on) into tracked regions with a feeling weight.
-Usage: python3 segment.py VIDEO OUT.json [start=109] [end=226] [fps=4] [K=16]
+Usage: python3 segment.py VIDEO OUT.json [ranges="137-166,172-186,213-228"] [fps=4] [K=24]
+Only the memory: the cake, the children, her hands on the orb, the face lit by the candles. Dialogue and reaction shots are left out.
 Each frame is clustered in (Lab colour, position) with k-means seeded from the previous frame, so a region keeps its id over time.
 Per region and frame we keep only what a mist needs: where it is, how big, what colour, how much feeling it carries, a loose outline."""
 import sys, json, subprocess, os, tempfile, glob
 import numpy as np, cv2
 from ai_edge_litert.interpreter import Interpreter
 V, OUT = sys.argv[1], sys.argv[2]
-T0 = float(sys.argv[3]) if len(sys.argv) > 3 else 109; T1 = float(sys.argv[4]) if len(sys.argv) > 4 else 226
-FPS = int(sys.argv[5]) if len(sys.argv) > 5 else 4; K = int(sys.argv[6]) if len(sys.argv) > 6 else 24
+RANGES = [tuple(float(x) for x in r.split('-')) for r in (sys.argv[3] if len(sys.argv) > 3 else '137-166,172-186,213-228').split(',')]
+FPS = int(sys.argv[4]) if len(sys.argv) > 4 else 4; K = int(sys.argv[5]) if len(sys.argv) > 5 else 24
 MODEL = os.environ.get('SELFIE', '/home/user/work/wheels/x/mediapipe/modules/selfie_segmentation/selfie_segmentation.tflite')
 it = Interpreter(model_path=MODEL); it.allocate_tensors(); i0 = it.get_input_details()[0]; o0 = it.get_output_details()[0]
 def person(bgr):
@@ -15,11 +16,14 @@ def person(bgr):
     x = cv2.resize(cv2.cvtColor(b, cv2.COLOR_BGR2RGB), (256, 256), interpolation=cv2.INTER_AREA).astype(np.float32) / 255
     it.set_tensor(i0['index'], x[None]); it.invoke(); return it.get_tensor(o0['index'])[0, :, :, 0]
 d = tempfile.mkdtemp()
-subprocess.run(['ffmpeg', '-v', 'error', '-y', '-ss', str(T0), '-t', str(T1 - T0), '-i', V, '-vf', f'fps={FPS},scale=320:180', f'{d}/%04d.png'], check=True)
-files = sorted(glob.glob(d + '/*.png')); GW, GH = 128, 72
+starts = []; files = []
+for ri, (a0, a1) in enumerate(RANGES):
+    subprocess.run(['ffmpeg', '-v', 'error', '-y', '-ss', str(a0), '-t', str(a1 - a0), '-i', V, '-vf', f'fps={FPS},scale=320:180', f'{d}/r{ri}_%04d.png'], check=True)
+    fs = sorted(glob.glob(f'{d}/r{ri}_*.png')); starts.append(len(files)); files += fs; GW, GH = 128, 72
 cent = None; out = []; prevlab = None; COLS = 24; ROWS = (len(files) + COLS - 1) // COLS
 mos = np.zeros((ROWS * GH, COLS * GW, 3), np.uint8); salsheet = np.zeros((ROWS * GH, COLS * GW), np.uint8)
 for fi, f in enumerate(files):
+    if fi in starts: cent = None; prevlab = None
     im = cv2.imread(f); small = cv2.resize(im, (GW, GH), interpolation=cv2.INTER_AREA); lab = cv2.cvtColor(small, cv2.COLOR_BGR2LAB).astype(np.float32)
     yy, xx = np.mgrid[0:GH, 0:GW]; feat = np.dstack([lab[..., 0] * 1.0, lab[..., 1] * 1.4, lab[..., 2] * 1.4, xx * 1.1, yy * 1.1]).reshape(-1, 5).astype(np.float32)
     crit = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 12, .5)
@@ -44,7 +48,7 @@ for fi, f in enumerate(files):
     feel = float(np.clip(.5 * pm.mean() * 2 + .3 * ((lum > .7) & (rgb[..., 0] > rgb[..., 2])).mean() * 12 + .2 * (0 if prevlab is None else np.abs(lum - prevlab).mean() * 10), 0, 1)); prevlab = lum
     out.append({'f': frame, 'feel': round(feel, 3), 'lum': round(float(lum.mean()), 3)})
     if fi % 40 == 0: print(fi, len(files), flush=True)
-json.dump({'t0': T0, 't1': T1, 'fps': FPS, 'K': K, 'gw': GW, 'gh': GH, 'cols': COLS, 'frames': out}, open(OUT, 'w'), separators=(',', ':'))
+json.dump({'ranges': [[a, b, st] for (a, b), st in zip(RANGES, starts)], 'fps': FPS, 'K': K, 'gw': GW, 'gh': GH, 'cols': COLS, 'frames': out}, open(OUT, 'w'), separators=(',', ':'))
 base = OUT[:-5]
 cv2.imwrite(base + '_mosaic.jpg', cv2.cvtColor(mos, cv2.COLOR_RGB2BGR), [cv2.IMWRITE_JPEG_QUALITY, 86]); cv2.imwrite(base + '_sal.png', salsheet, [cv2.IMWRITE_PNG_COMPRESSION, 9])
 print('wrote', OUT, os.path.getsize(OUT) // 1024, 'KB')

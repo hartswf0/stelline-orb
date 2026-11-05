@@ -1,8 +1,8 @@
 # Mist
 
-`mist.html` plays the memory from 1:49 to 3:46 of the clip the way Ana says memory works: by what it felt like, not by how much of it there is.
+`mist.html` plays the memory itself (2:17-2:46, 2:52-3:06, 3:33-3:48 of the clip: the cake appearing, her hands on the orb, the children at the candles, her face lit) the way Ana says memory works: by what it felt like, not by how much of it there is.
 
-**How it is made** (`tools/mist/segment.py`): every quarter second is clustered into 24 regions in colour and position (k-means seeded from the previous frame, so a region keeps its identity through time).
+**How it is made** (`tools/mist/segment.py`): the dialogue and the reaction shots are left out. Every quarter second is clustered into 24 regions in colour and position (k-means seeded from the previous frame, so a region keeps its identity through time).
 Each region gets a *felt* weight: how much of it is a person, how much is a small bright warm thing (a flame), how much edge it carries. Stored per frame: a 128x72 mosaic of region colours, a map of what was felt, and one number for the whole frame.
 
 **How it is shown**: everything drifts and blurs. Only what was felt stays sharper, and warm felt regions glow. Hold a finger anywhere and that part of the memory comes back. The slider on the right moves from mist to data, where the same regions are shown as the blocks they are.
