@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Cake Rig</title>
+<meta name="description" content="The birthday cake made on the orb: select, extrude, rotate, bevel, inspect, accept, cancel, undo, and a shot camera you carry with a clutch.">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #050605; --ink: #e8e4da; --dim: #7d7a72; --cy: #5ff0dc; --amb: #f0b040; --red: #ff5a3c; --oled: #030504; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 12px/1.3 "IBM Plex Mono", ui-monospace, monospace; overflow: hidden; user-select: none; -webkit-user-select: none; }
+  .app { height: 100dvh; display: grid; grid-template-rows: minmax(0, 1fr) auto; }
+  #room { position: relative; overflow: hidden; touch-action: none; }
+  #room canvas { display: block; width: 100%; height: 100%; }
+  .tag { position: absolute; transform: translate(-50%, -50%); color: var(--cy); font-weight: 600; font-size: 13px; white-space: nowrap; pointer-events: none; text-shadow: 0 0 6px #000, 0 0 2px #000; }
+  .tag.fault { color: var(--red); }
+  #pipfr { position: absolute; border: 1px solid rgba(95,240,220,.55); pointer-events: none; }
+  #pipfr span { position: absolute; left: 6px; top: 4px; font-size: 10px; color: var(--cy); text-shadow: 0 0 3px #000; }
+  #frame { position: absolute; inset: 0; pointer-events: none; display: none; }
+  #frame.on { display: block; }
+  #frame i { position: absolute; width: 26px; height: 26px; border: 2px solid var(--cy); }
+  #frame .a { left: 14px; top: 14px; border-right: 0; border-bottom: 0; } #frame .b { right: 14px; top: 14px; border-left: 0; border-bottom: 0; }
+  #frame .c { left: 14px; bottom: 14px; border-right: 0; border-top: 0; } #frame .d { right: 14px; bottom: 14px; border-left: 0; border-top: 0; }
+  #frame .hz { position: absolute; left: 30%; right: 30%; top: 50%; border-top: 1px solid rgba(95,240,220,.45); }
+  #frame .aim { position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px; border: 1px solid var(--cy); border-radius: 50%; }
+  #frame .rec { position: absolute; right: 50px; top: 18px; color: var(--red); font-weight: 600; display: none; } #frame .rec.on { display: block; }
+  /* the controller */
+  #dev { padding: 10px 10px 12px; background: linear-gradient(#0a0b0a, #040504); border-top: 1px solid #1d1f1c; }
+  .slab { position: relative; max-width: 980px; margin: 0 auto; border-radius: 34px; padding: 12px 14px 12px; background: linear-gradient(180deg, #cfcac0, #a8a399 40%, #8c877d 75%, #6f6b63); box-shadow: inset 0 2px 0 rgba(255,255,255,.55), inset 0 -3px 6px rgba(0,0,0,.35), 0 8px 26px rgba(0,0,0,.6); }
+  .keys { position: absolute; top: -9px; left: 64px; right: 64px; display: flex; gap: 8px; justify-content: space-between; }
+  .key { height: 18px; padding: 0 10px; border-radius: 6px 6px 3px 3px; border: 0; background: linear-gradient(#e6e1d7, #9a958b); color: #23221f; font: 600 9px "IBM Plex Mono", monospace; letter-spacing: .08em; cursor: pointer; box-shadow: 0 -1px 0 rgba(0,0,0,.3) inset; }
+  .key.on { background: linear-gradient(#7ff5e3, #2ea898); color: #032a24; }
+  .key[disabled] { opacity: .45; cursor: default; }
+  .oled { display: grid; grid-template-columns: 1fr 2fr 1fr; height: 84px; background: var(--oled); border-radius: 12px; border: 1px solid #000; box-shadow: inset 0 0 0 2px #2a2b28, inset 0 3px 8px rgba(0,0,0,.9); overflow: hidden; }
+  .oled > div { position: relative; display: flex; align-items: center; justify-content: center; padding: 4px 8px; }
+  .oled > div + div { border-left: 1px solid #1c3d38; }
+  .oled svg { position: absolute; left: 8px; top: 15px; width: calc(100% - 16px); height: calc(100% - 32px); }
+  .oled .st { position: absolute; left: 8px; top: 5px; font-size: 9px; letter-spacing: .12em; color: #3fa898; }
+  .oled .nm { position: absolute; left: 0; right: 0; bottom: 4px; text-align: center; font-size: 10px; color: #8fe9dc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 4px; }
+  .mid { display: grid; grid-template-columns: 74px 1fr 74px; gap: 10px; margin-top: 10px; align-items: stretch; }
+  .wing { border: 0; border-radius: 14px; background: linear-gradient(#ebe7de, #b6b1a6); box-shadow: inset 0 1px 0 #fff, 0 2px 0 #5c5850, 0 3px 6px rgba(0,0,0,.4); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #1f1e1b; font: 600 9px "IBM Plex Mono", monospace; letter-spacing: .08em; padding: 6px 2px; }
+  .wing svg { width: 34px; height: 34px; }
+  .wing.go { background: linear-gradient(#18201f, #0b1110); color: var(--cy); box-shadow: inset 0 0 0 1px #2c5a52, 0 2px 0 #2a2925; }
+  .wing.quiet { opacity: .45; cursor: default; }
+  .wing:active:not(.quiet) { transform: translateY(1px); }
+  .rollers { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 6px; border-radius: 10px; background: linear-gradient(#3c3a35, #22211e); box-shadow: inset 0 2px 6px rgba(0,0,0,.7); }
+  .roller { position: relative; height: 150px; border-radius: 8px; cursor: ns-resize; touch-action: none; overflow: hidden; background-color: #b9b4aa; }
+  .roller .tex { position: absolute; inset: -40px 0; }
+  .roller::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.62), rgba(0,0,0,.08) 26%, rgba(255,255,255,.22) 48%, rgba(0,0,0,.05) 70%, rgba(0,0,0,.66)); pointer-events: none; }
+  .r1 .tex { background-image: repeating-linear-gradient(90deg, #8d887e 0 1px, #d9d4ca 1px 4px); }
+  .r2 .tex { background-image: repeating-linear-gradient(45deg, rgba(60,58,52,.7) 0 1px, transparent 1px 7px), repeating-linear-gradient(-45deg, rgba(60,58,52,.7) 0 1px, transparent 1px 7px); background-color: #cfcac0; }
+  .r3 .tex { background-image: repeating-linear-gradient(90deg, #77736a 0 3px, #e3ded4 3px 9px, #a39e94 9px 12px); }
+  .r4 .tex { background-image: radial-gradient(circle, #6f6b63 1.6px, transparent 2.2px); background-size: 9px 9px; background-color: #d3cec4; }
+  .r5 .tex { background-image: repeating-linear-gradient(60deg, #7b776e 0 2px, #dcd7cd 2px 8px); }
+  .roller .line { position: absolute; left: 50%; top: 4px; bottom: 4px; width: 2px; margin-left: -1px; background: var(--cy); box-shadow: 0 0 8px var(--cy); z-index: 1; display: none; }
+  .roller.on .line { display: block; }
+  .roller .tickL, .roller .tickR { position: absolute; top: 50%; width: 6px; height: 2px; background: var(--red); z-index: 1; } .roller .tickL { left: 0; } .roller .tickR { right: 0; }
+  .roller.on .tickL, .roller.on .tickR { background: var(--cy); }
+  .roller.quiet { filter: saturate(.6) brightness(.82); }
+  .roller.flash { animation: flash .5s ease-out; }
+  @keyframes flash { from { box-shadow: inset 0 0 0 3px var(--cy); } to { box-shadow: inset 0 0 0 0 transparent; } }
+  .labs { display: grid; grid-template-columns: 74px 1fr 74px; gap: 10px; margin-top: 6px; }
+  .labs .row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 0 6px; }
+  .labs .row div { text-align: center; font-size: 9.5px; font-weight: 600; color: #2a2925; min-height: 24px; line-height: 1.2; letter-spacing: .04em; }
+  .labs .row div small { display: block; font-weight: 500; color: #3c3a35; }
+  .labs .row div.quiet { color: transparent; }
+  .slab.open .rollers { gap: 22px; } .slab.open .oled { box-shadow: inset 0 0 0 2px var(--amb), inset 0 3px 8px rgba(0,0,0,.9); }
+  @media (max-width: 720px) {
+    #dev { padding: 8px 6px 8px; } .slab { border-radius: 24px; padding: 10px 8px 8px; }
+    .keys { left: 30px; right: 30px; gap: 4px; } .key { padding: 0 6px; font-size: 8px; }
+    .oled { height: 74px; } .mid { grid-template-columns: 48px 1fr 48px; gap: 6px; } .labs { grid-template-columns: 48px 1fr 48px; gap: 6px; }
+    .wing svg { width: 24px; height: 24px; } .wing { font-size: 8px; border-radius: 10px; }
+    .roller { height: 108px; } .rollers { gap: 4px; padding: 4px; } .labs .row { gap: 4px; padding: 0 4px; } .labs .row div { font-size: 8px; }
+    .oled .nm { font-size: 9px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div id="room"><div id="tags"></div><div id="pipfr"><span>SHOT</span></div>
+    <div id="frame"><i class="a"></i><i class="b"></i><i class="c"></i><i class="d"></i><div class="hz"></div><div class="aim"></div><div class="rec">REC</div></div></div>
+  <div id="dev">
+    <div class="slab" id="slab">
+      <div class="keys">
+        <button class="key" id="kClutch" aria-label="Clutch: hold to connect your movement">CLUTCH</button>
+        <button class="key" id="kUndo" aria-label="Undo the last accepted edit">UNDO</button>
+        <button class="key" id="kFrame" aria-label="Frame the selection">FRAME</button>
+        <button class="key" id="kOpen" aria-label="Open the controller to inspect construction">OPEN</button>
+        <button class="key" id="kExit" aria-label="Exit">EXIT</button>
+      </div>
+      <div class="oled" aria-live="polite"><div id="oL"></div><div id="oC"></div><div id="oR"></div></div>
+      <div class="mid">
+        <button class="wing" id="wL"></button>
+        <div class="rollers" id="rollers"></div>
+        <button class="wing" id="wR"></button>
+      </div>
+      <div class="labs"><div></div><div class="row" id="labs"></div><div></div></div>
+    </div>
+  </div>
+</div>
+<script src="assets/three.min.js"></script>
+<script>
+/* CAKE RIG. The room carries the consequence, the controller carries the controls.
+   One target is latched at a time; one operation owns the rollers at a time; every geometry change is a preview until it is accepted.
+   Cancel restores the geometry before the pending operation; Undo reverses the last accepted one; Back only moves through menus. */
+const T = THREE, clamp = (v, a, b) => Math.max(a, Math.min(b, v)), $ = s => document.querySelector(s), mm = v => Math.round(v * 1000);
+const deep = o => JSON.parse(JSON.stringify(o));
+
+/* ---------------- the model: a lathe profile (r, y) from the base centre to the top centre, candles on the top face, a transform, the shot camera */
+const M0 = { P: [[0, 0], [.12, 0], [.12, .085], [0, .085]], cn: 7, lit: [1, 1, 1, 1, 1, 1, 1], pos: [0, 0, 0], rot: [0, 0, 0], s: 1,
+  cam: { p: [.48, 1.06, .62], yaw: .66, pitch: -.27, f: 50, N: 2.8, fd: .78 } };
+let M = deep(M0); const HIST = [], REDO = [];
+const topEdge = P => P.length - 2;           // the top face is the last edge: P[n-2] to the axis
+const isAxis = p => p[0] < 1e-6;
+
+/* ---------------- operations. Each takes a copy of the model and the roller values, returns the changed model or throws a fault */
+const fault = (msg, at) => { const e = new Error(msg); e.fault = true; e.at = at; throw e; };
+const OPS = {
+  EXTRUDE: { on: 'top', diag: 'extrude', p: { main: ['DISTANCE', 'mm', -80, 150, 0], aux: ['INSET', '%', 0, 70, 0], con: ['SNAP', ['1 mm', '5 mm', '10 mm']] },
+    step: v => [1, 5, 10][v.con] / 1000, apply(m, v) { const P = m.P, n = P.length, d = v.main, k = v.aux / 100, [rt, yt] = P[n - 2];
+      if (k === 0) { const ny = yt + d; const below = P[n - 3][1]; if (ny < below + .004 && d < 0) fault('THE TOP WOULD PASS THE EDGE BELOW IT', [rt, ny]); P[n - 2] = [rt, ny]; P[n - 1] = [0, ny]; }
+      else { const ri = rt * (1 - k), ny = yt + d; if (ny < .006) fault('THE WELL GOES THROUGH THE BASE', [ri, ny]); if (d < 0 && ri < .006) fault('THE WELL IS TOO NARROW', [ri, ny]);
+        P.splice(n - 1, 1, [ri, yt], [ri, ny], [0, ny]); } return m; },
+    say: v => (v.aux ? `INSET ${v.aux}% · ` : '') + (v.main >= 0 ? 'RAISED ' : 'SUNK ') + Math.abs(mm(v.main)) + ' MM' },
+  CANDLES: { on: 'top', diag: 'candles', p: { main: ['COUNT', '', 0, 12, 0] }, step: () => 1, init: m => ({ main: m.cn }),
+    apply(m, v) { m.cn = Math.round(v.main); m.lit = Array.from({ length: m.cn }, (_, i) => m.lit[i] == null ? 1 : m.lit[i]); return m; }, say: v => v.main + ' CANDLES' },
+  INFLATE: { on: 'side', diag: 'inflate', p: { main: ['OUTWARD', 'mm', -60, 60, 0] }, step: () => .001,
+    apply(m, v, t) { const P = m.P, e = t.e; for (const i of [e, e + 1]) { if (isAxis(P[i])) continue; P[i] = [P[i][0] + v.main, P[i][1]]; if (P[i][0] < .01) fault('THE SIDE WOULD CROSS THE CENTRE', P[i]); } return m; },
+    say: v => (v.main >= 0 ? 'OUT ' : 'IN ') + Math.abs(mm(v.main)) + ' MM' },
+  BEVEL: { on: 'edge', diag: 'bevel', p: { main: ['WIDTH', 'mm', 0, 40, 0], con: ['SEGMENTS', ['1', '2', '3', '4', '6']] }, step: () => .001,
+    apply(m, v, t) { const P = m.P, c = t.c, w = v.main; if (w <= 0) return m; const A = P[c - 1], C = P[c], B = P[c + 1];
+      const la = Math.hypot(A[0] - C[0], A[1] - C[1]), lb = Math.hypot(B[0] - C[0], B[1] - C[1]); if (w >= la - .002 || w >= lb - .002) fault('WIDER THAN THE FACE BESIDE IT', C);
+      const p0 = [C[0] + (A[0] - C[0]) / la * w, C[1] + (A[1] - C[1]) / la * w], p1 = [C[0] + (B[0] - C[0]) / lb * w, C[1] + (B[1] - C[1]) / lb * w]; const seg = [1, 2, 3, 4, 6][v.con]; const pts = [];
+      for (let i = 0; i <= seg; i++) { const u = i / seg, a = (1 - u) * (1 - u), b = 2 * u * (1 - u), cc = u * u; pts.push([a * p0[0] + b * C[0] + cc * p1[0], a * p0[1] + b * C[1] + cc * p1[1]]); }
+      P.splice(c, 1, ...pts); return m; }, say: v => 'BEVEL ' + mm(v.main) + ' MM' },
+  MOVE: { on: 'object', diag: 'move', p: { main: ['DISTANCE', 'mm', -400, 400, 0], con: ['AXIS', ['X', 'Y', 'Z']] }, step: () => .005,
+    apply(m, v) { m.pos[v.con] += v.main; if (m.pos[1] < -.0005) fault('THE CAKE WOULD SINK INTO THE TABLE', null); return m; }, say: v => 'MOVED ' + mm(v.main) + ' MM ' + 'XYZ'[v.con] },
+  ROTATE: { on: 'object', diag: 'rotate', p: { main: ['ANGLE', '°', -180, 180, 0], con: ['AXIS', ['Y', 'X', 'Z']] }, step: () => 5,
+    apply(m, v) { m.rot[[1, 0, 2][v.con]] += v.main; return m; }, say: v => 'TURNED ' + v.main + '° ' + 'YXZ'[v.con] },
+  SCALE: { on: 'object', diag: 'scale', p: { main: ['FACTOR', '%', 40, 250, 100] }, step: () => 5, apply(m, v) { m.s *= v.main / 100; return m; }, say: v => 'SCALED ' + v.main + '%' },
+  FLAME: { on: 'candle', diag: 'flame', p: { main: ['FLAME', ['OUT', 'LIT']] }, init: (m, t) => ({ main: m.lit[t.i] ? 1 : 0 }), step: () => 1,
+    apply(m, v, t) { m.lit[t.i] = v.main ? 1 : 0; return m; }, say: (v, t) => 'CANDLE ' + (t.i + 1) + (v.main ? ' LIT' : ' OUT') },
+  LENS: { on: 'camera', diag: 'lens', p: { main: ['FOCAL', ' MM', 14, 135, 50], aux: ['APERTURE', 'f/', 1.4, 16, 2.8] }, init: m => ({ main: m.cam.f, aux: m.cam.N }), step: () => 1,
+    apply(m, v) { m.cam.f = v.main; m.cam.N = v.aux; return m; }, say: v => v.main + ' MM f/' + v.aux },
+  FOCUS: { on: 'camera', diag: 'focus', p: { main: ['DISTANCE', 'm', .15, 4, .78], con: ['ON', null] }, init: m => ({ main: m.cam.fd }), step: () => .01,
+    apply(m, v) { m.cam.fd = v.main; return m; }, say: v => 'FOCUS ' + v.main.toFixed(2) + ' M' },
+  'LOOK THROUGH': { on: 'camera', diag: 'look', action: true }
+};
+const FAMILIES = { object: ['MOVE', 'ROTATE', 'SCALE'], top: ['EXTRUDE', 'CANDLES'], side: ['INFLATE'], edge: ['BEVEL'], candle: ['FLAME'], camera: ['LOOK THROUGH', 'LENS', 'FOCUS'] };
+const AUX_STEP = { INSET: 1, APERTURE: .1 };
+
+/* ---------------- interface state */
+const S = { entered: false, sel: null, pre: null, tools: null, op: null, opV: null, prev: null, fault: null, done: null, open: false, look: false, clutch: false, exitAsk: false,
+  orbit: { yaw: .55, pitch: -.42, dist: 1.25, tgt: [0, .82, 0] }, rev: 0, takes: [], rec: null, say: '' };
+const ROLLERS = ['grooves', 'knurl', 'ribs', 'stipple', 'flutes'];
+
+/* ---------------- three.js room */
+const room = $('#room'), R = new T.WebGLRenderer({ antialias: true }); R.setPixelRatio(Math.min(2, devicePixelRatio)); R.outputEncoding = T.sRGBEncoding; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = 1.15; R.shadowMap.enabled = true; room.prepend(R.domElement);
+const scene = new T.Scene(); scene.background = new T.Color(0x040504); scene.fog = new T.Fog(0x040504, 3, 9);
+const eye = new T.PerspectiveCamera(42, 1, .01, 30), shot = new T.PerspectiveCamera(30, 16 / 9, .01, 30);
+scene.add(new T.HemisphereLight(0xb8c2bc, 0x2a1a0c, .5)); const fill = new T.DirectionalLight(0xffc98a, .55); fill.position.set(.6, 1.3, 1.4); scene.add(fill); const bounce = new T.PointLight(0xffa850, .5, 1.6, 2); bounce.position.set(0, .86, .45); scene.add(bounce);
+const amb = new T.PointLight(0xffb060, 0, 2.2, 1.6); amb.castShadow = true; amb.shadow.mapSize.set(1024, 1024); amb.shadow.bias = -.002; scene.add(amb);
+const key = new T.SpotLight(0xdfe8ff, .35, 6, .5, .8); key.position.set(-1.2, 2.4, 1.2); key.target.position.set(0, .8, 0); scene.add(key, key.target);
+// the dome: a dark floor and the lit horizon ring
+const floor = new T.Mesh(new T.CircleGeometry(8, 64), new T.MeshStandardMaterial({ color: 0x0b0c0b, roughness: .9 })); floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+const ring = new T.Mesh(new T.TorusGeometry(4.2, .012, 6, 160), new T.MeshBasicMaterial({ color: 0xcfe0da })); ring.rotation.x = Math.PI / 2; ring.position.y = 1.15; scene.add(ring);
+const halo = new T.Mesh(new T.TorusGeometry(4.2, .09, 6, 160), new T.MeshBasicMaterial({ color: 0x6f8580, transparent: true, opacity: .12 })); halo.rotation.x = Math.PI / 2; halo.position.y = 1.15; scene.add(halo);
+// the film's hex table, warm under the candles
+const TABLE_Y = .74; const table = new T.Mesh(new T.CylinderGeometry(.62, .62, .04, 6), new T.MeshStandardMaterial({ color: 0xc89a4a, roughness: .55, metalness: .05 })); table.position.y = TABLE_Y - .02; table.receiveShadow = true; scene.add(table);
+const leg = new T.Mesh(new T.CylinderGeometry(.05, .08, TABLE_Y - .04, 12), new T.MeshStandardMaterial({ color: 0x1a1714 })); leg.position.y = (TABLE_Y - .04) / 2; scene.add(leg);
+const plate = new T.Mesh(new T.CylinderGeometry(.165, .17, .008, 48), new T.MeshStandardMaterial({ color: 0xe9e4da, roughness: .3 })); plate.position.y = TABLE_Y + .004; plate.receiveShadow = true; scene.add(plate);
+const BASE_Y = TABLE_Y + .008;
+// the cake
+const cream = new T.MeshStandardMaterial({ color: 0xf0e2c2, roughness: .78, side: T.FrontSide });
+(function bumps() { const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d'); const id = x.createImageData(256, 256);
+  for (let i = 0; i < id.data.length; i += 4) { const v = 128 + (Math.random() - .5) * 90; id.data[i] = id.data[i + 1] = id.data[i + 2] = v; id.data[i + 3] = 255; } x.putImageData(id, 0, 0);
+  const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(6, 3); cream.bumpMap = t; cream.bumpScale = .0015; })();
+const cakeG = new T.Group(); scene.add(cakeG);
+let cakeMesh = null, ghost = null, beads = null, candleG = new T.Group(); cakeG.add(candleG);
+const stripeTex = (() => { const c = document.createElement('canvas'); c.width = 16; c.height = 64; const x = c.getContext('2d'); x.fillStyle = '#f4ecdc'; x.fillRect(0, 0, 16, 64); x.fillStyle = '#d4483e'; for (let y = -16; y < 80; y += 12) { x.beginPath(); x.moveTo(0, y); x.lineTo(16, y + 8); x.lineTo(16, y + 13); x.lineTo(0, y + 5); x.fill(); } const t = new T.CanvasTexture(c); t.wrapT = T.RepeatWrapping; return t; })();
+const flameTex = (() => { const c = document.createElement('canvas'); c.width = 64; c.height = 128; const x = c.getContext('2d'); const g = x.createRadialGradient(32, 84, 2, 32, 76, 46); g.addColorStop(0, 'rgba(255,250,225,1)'); g.addColorStop(.25, 'rgba(255,200,90,.95)'); g.addColorStop(.6, 'rgba(255,120,30,.35)'); g.addColorStop(1, 'rgba(255,90,20,0)'); x.fillStyle = g; x.beginPath(); x.ellipse(32, 76, 18, 46, 0, 0, Math.PI * 2); x.fill(); return new T.CanvasTexture(c); })();
+const flameMat = new T.SpriteMaterial({ map: flameTex, blending: T.AdditiveBlending, depthWrite: true, alphaTest: .08, transparent: true, toneMapped: false });
+function latheOf(P, seg) { const pts = []; P.forEach((p, i) => { pts.push(new T.Vector2(Math.max(p[0], 1e-5), p[1])); if (i > 0 && i < P.length - 1) pts.push(new T.Vector2(Math.max(p[0], 1e-5), p[1])); }); return new T.LatheGeometry(pts, seg || 96); }
+function candleSpots(m) { const P = m.P, n = P.length, rt = P[n - 2][0], yt = P[n - 2][1], out = []; for (let i = 0; i < m.cn; i++) { const a = i / Math.max(1, m.cn) * Math.PI * 2 + .3; out.push([Math.cos(a) * rt * .62, yt, Math.sin(a) * rt * .62]); } return out; }
+function buildCake(m) {
+  if (cakeMesh) { cakeG.remove(cakeMesh); cakeMesh.geometry.dispose(); } if (beads) { cakeG.remove(beads); beads.geometry.dispose(); }
+  cakeMesh = new T.Mesh(latheOf(m.P), cream); cakeMesh.castShadow = cakeMesh.receiveShadow = true; cakeMesh.userData.pick = 'cake'; cakeG.add(cakeMesh);
+  // piped beads along every outer corner that faces up and out, as on the film's cake
+  const spots = []; for (let i = 1; i < m.P.length - 1; i++) { const [r, y] = m.P[i]; if (r < .03) continue; const a = m.P[i - 1], b = m.P[i + 1]; const up = b[1] - y, inw = r - b[0]; const conv = (a[1] < y || a[0] < r) && (b[0] < r || b[1] > y); if (!conv && i !== 1) continue; const k = Math.round(r * 2 * Math.PI / .011); for (let j = 0; j < k; j++) { const t = j / k * Math.PI * 2; spots.push([Math.cos(t) * r, y, Math.sin(t) * r]); } }
+  beads = new T.InstancedMesh(new T.SphereGeometry(.0058, 8, 6), cream, Math.max(1, spots.length)); const o = new T.Object3D(); spots.forEach((s, i) => { o.position.set(...s); o.scale.set(1, .8, 1); o.updateMatrix(); beads.setMatrixAt(i, o.matrix); }); beads.count = spots.length; beads.castShadow = true; cakeG.add(beads);
+  cakeG.remove(candleG); candleG = new T.Group(); cakeG.add(candleG);
+  candleSpots(m).forEach((p, i) => { const c = new T.Mesh(new T.CylinderGeometry(.0034, .0034, .055, 10), new T.MeshStandardMaterial({ map: stripeTex, roughness: .5 })); c.position.set(p[0], p[1] + .0275, p[2]); c.userData.pick = 'candle'; c.userData.i = i; c.castShadow = true; candleG.add(c);
+    const w = new T.Mesh(new T.CylinderGeometry(.0006, .0006, .007, 4), new T.MeshBasicMaterial({ color: 0x1b1612 })); w.position.set(p[0], p[1] + .0585, p[2]); candleG.add(w);
+    if (m.lit[i]) { const f = new T.Sprite(flameMat); f.scale.set(.016, .034, 1); f.position.set(p[0], p[1] + .072, p[2]); f.userData.flame = true; candleG.add(f); } });
+  cakeG.position.set(m.pos[0], BASE_Y + m.pos[1], m.pos[2]); cakeG.rotation.set(m.rot[0] * Math.PI / 180, m.rot[1] * Math.PI / 180, m.rot[2] * Math.PI / 180); cakeG.scale.setScalar(m.s);
+  const lit = m.lit.slice(0, m.cn).reduce((a, b) => a + b, 0), H = m.P[m.P.length - 2][1]; amb.intensity = lit * .34; amb.position.copy(cakeG.localToWorld(new T.Vector3(0, H + .09, 0)));
+}
+function setGhost(m) { if (ghost) { cakeG.remove(ghost); ghost.geometry.dispose(); ghost = null; } if (!m) return; ghost = new T.LineSegments(new T.EdgesGeometry(latheOf(m.P, 32), 20), new T.LineBasicMaterial({ color: 0x8fb5ad, transparent: true, opacity: .35 })); cakeG.add(ghost); }
+// the shot camera: body, lens, frustum
+const camG = new T.Group(); scene.add(camG);
+const camBody = new T.Mesh(new T.BoxGeometry(.07, .05, .09), new T.MeshStandardMaterial({ color: 0x2b2c2a, roughness: .5, metalness: .4 })); camBody.userData.pick = 'camera'; camG.add(camBody);
+const camLens = new T.Mesh(new T.CylinderGeometry(.022, .026, .05, 20), camBody.material); camLens.rotation.x = Math.PI / 2; camLens.position.z = -.068; camLens.userData.pick = 'camera'; camG.add(camLens);
+const fr = new T.LineSegments(new T.BufferGeometry(), new T.LineBasicMaterial({ color: 0x5ff0dc, transparent: true, opacity: .5 })); camG.add(fr);
+const focusPlane = new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshBasicMaterial({ color: 0x5ff0dc, transparent: true, opacity: .07, side: T.DoubleSide, depthWrite: false })); camG.add(focusPlane);
+const focusEdge = new T.LineSegments(new T.EdgesGeometry(new T.PlaneGeometry(1, 1)), new T.LineBasicMaterial({ color: 0x5ff0dc, transparent: true, opacity: .55 })); focusPlane.add(focusEdge);
+function vfov(f) { return 2 * Math.atan(12 / f) * 180 / Math.PI; }
+function placeShot(c) { shot.position.set(...c.p); shot.rotation.set(0, 0, 0, 'YXZ'); shot.rotation.order = 'YXZ'; shot.rotation.y = c.yaw; shot.rotation.x = c.pitch; shot.fov = vfov(c.f); shot.updateProjectionMatrix(); shot.updateMatrixWorld();
+  camG.position.copy(shot.position); camG.quaternion.copy(shot.quaternion);
+  const L = Math.min(1.6, c.fd * 1.25), h = Math.tan(shot.fov * Math.PI / 360) * L, w = h * 16 / 9; const v = [0, 0, -.09, -w, -h, -L, 0, 0, -.09, w, -h, -L, 0, 0, -.09, w, h, -L, 0, 0, -.09, -w, h, -L, -w, -h, -L, w, -h, -L, w, -h, -L, w, h, -L, w, h, -L, -w, h, -L, -w, h, -L, -w, -h, -L];
+  fr.geometry.setAttribute('position', new T.Float32BufferAttribute(v, 3)); const fh = Math.tan(shot.fov * Math.PI / 360) * c.fd; focusPlane.position.set(0, 0, -c.fd); focusPlane.scale.set(fh * 2 * 16 / 9, fh * 2, 1); }
+
+/* ---------------- depth of field for the shot camera: render to a target with depth, blur by circle of confusion */
+const rt = new T.WebGLRenderTarget(16, 16, { depthTexture: new T.DepthTexture(16, 16), depthBuffer: true });
+const dofMat = new T.ShaderMaterial({ uniforms: { tC: { value: null }, tD: { value: null }, near: { value: .01 }, far: { value: 30 }, fd: { value: .8 }, k: { value: 1 }, px: { value: new T.Vector2() } },
+  vertexShader: 'varying vec2 vUv; void main(){ vUv=uv; gl_Position=vec4(position.xy,0.,1.); }',
+  fragmentShader: `uniform sampler2D tC, tD; uniform float near, far, fd, k; uniform vec2 px; varying vec2 vUv;
+    float lin(float d){ float z=d*2.-1.; return 2.*near*far/(far+near-z*(far-near)); }
+    float coc(vec2 uv){ float z=lin(texture2D(tD,uv).r); return clamp(k*abs(1./fd-1./z)*fd, 0., 14.); }
+    void main(){ float c=coc(vUv); vec3 acc=texture2D(tC,vUv).rgb; float wsum=1.;
+      for(int i=0;i<24;i++){ float a=float(i)*2.39996; float r=sqrt(float(i)+.5)/sqrt(24.)*c; vec2 o=vec2(cos(a),sin(a))*r*px; float cs=coc(vUv+o); float w=step(r*.9, cs+.5); acc+=texture2D(tC,vUv+o).rgb*w; wsum+=w; }
+      gl_FragColor=vec4(acc/wsum,1.); }`, depthTest: false, depthWrite: false });
+const quad = new T.Mesh(new T.PlaneGeometry(2, 2), dofMat), qScene = new T.Scene(), qCam = new T.OrthographicCamera(-1, 1, 1, -1, 0, 1); qScene.add(quad);
+function renderShot(x, y, w, h, c) { const pr = R.getPixelRatio(), W = Math.round(w * pr), H = Math.round(h * pr); if (rt.width !== W || rt.height !== H) { rt.setSize(W, H); rt.depthTexture.image.width = W; rt.depthTexture.image.height = H; rt.depthTexture.needsUpdate = true; }
+  shot.aspect = w / h; shot.updateProjectionMatrix(); camG.visible = false; const fv = focusPlane.visible; R.setRenderTarget(rt); R.setScissorTest(false); R.clear(); R.render(scene, shot); camG.visible = true;
+  dofMat.uniforms.tC.value = rt.texture; dofMat.uniforms.tD.value = rt.depthTexture; dofMat.uniforms.near.value = shot.near; dofMat.uniforms.far.value = shot.far; dofMat.uniforms.fd.value = c.fd; dofMat.uniforms.px.value.set(1 / W, 1 / H);
+  const fmm = c.f / 1000, aperture = fmm / c.N, sensorH = .024; dofMat.uniforms.k.value = (aperture * fmm / Math.max(.05, c.fd - fmm)) / sensorH * H * .5;
+  R.setRenderTarget(null); R.setViewport(x, y, w, h); R.setScissor(x, y, w, h); R.setScissorTest(true); R.render(qScene, qCam); R.setScissorTest(false); }
+
+/* ---------------- selection display: outlines, handles, value tags */
+const fxG = new T.Group(); scene.add(fxG);
+const CY = 0x5ff0dc;
+function loopAt(r, y, dashed, op) { const pts = []; for (let i = 0; i <= 96; i++) { const a = i / 96 * Math.PI * 2; pts.push(new T.Vector3(Math.cos(a) * r, y, Math.sin(a) * r)); } const g = new T.BufferGeometry().setFromPoints(pts);
+  const l = new T.Line(g, dashed ? new T.LineDashedMaterial({ color: CY, dashSize: .008, gapSize: .006, transparent: true, opacity: op || .9 }) : new T.LineBasicMaterial({ color: CY, transparent: true, opacity: op || 1 })); if (dashed) l.computeLineDistances(); return l; }
+function band(r0, y0, r1, y1, op) { const g = new T.LatheGeometry([new T.Vector2(r0 + .0015, y0), new T.Vector2(r1 + .0015, y1)], 96); return new T.Mesh(g, new T.MeshBasicMaterial({ color: CY, transparent: true, opacity: op, side: T.DoubleSide, depthWrite: false })); }
+function disc(r, y, op) { const m = new T.Mesh(new T.CircleGeometry(r, 96), new T.MeshBasicMaterial({ color: CY, transparent: true, opacity: op, side: T.DoubleSide, depthWrite: false })); m.rotation.x = -Math.PI / 2; m.position.y = y + .0012; return m; }
+function outline(t, m, dashed) { const g = new T.Group(); if (!t) return g; const P = m.P, op = dashed ? .55 : 1, fill = dashed ? .05 : .12;
+  if (t.kind === 'object') { for (let i = 1; i < P.length - 1; i++) g.add(loopAt(P[i][0] + .002, P[i][1], dashed, op)); }
+  else if (t.kind === 'top') { const [r, y] = P[P.length - 2]; g.add(loopAt(r + .001, y + .001, dashed, op), disc(r, y, fill)); }
+  else if (t.kind === 'side') { const a = P[t.e], b = P[t.e + 1]; g.add(loopAt(a[0] + .002, a[1], dashed, op), loopAt(b[0] + .002, b[1], dashed, op), band(a[0], a[1], b[0], b[1], fill)); }
+  else if (t.kind === 'edge') { const [r, y] = P[t.c]; const tor = new T.Mesh(new T.TorusGeometry(r, dashed ? .0012 : .0022, 6, 120), new T.MeshBasicMaterial({ color: CY, transparent: true, opacity: op })); tor.rotation.x = Math.PI / 2; tor.position.y = y; g.add(tor); }
+  else if (t.kind === 'candle') { const p = candleSpots(m)[t.i]; if (p) { const b = new T.Mesh(new T.CylinderGeometry(.007, .007, .064, 16, 1, true), new T.MeshBasicMaterial({ color: CY, transparent: true, opacity: dashed ? .25 : .45, side: T.DoubleSide, depthWrite: false })); b.position.set(p[0], p[1] + .03, p[2]); g.add(b); } }
+  return g; }
+function handles(t, m, op, v) { const g = new T.Group(); if (!op || !t) return g; const P = m.P, n = P.length, H = P[n - 2][1];
+  const arrow = (dir, origin, len, col) => new T.ArrowHelper(dir.clone().normalize(), origin, Math.max(.02, len), col || CY, .018, .011);
+  if (op === 'EXTRUDE') { const d = v.main; g.add(arrow(new T.Vector3(0, d >= 0 ? 1 : -1, 0), new T.Vector3(0, H, 0), Math.abs(d) + .03)); }
+  if (op === 'MOVE') { const ax = [new T.Vector3(1, 0, 0), new T.Vector3(0, 1, 0), new T.Vector3(0, 0, 1)]; ax.forEach((a, i) => g.add(arrow(a, new T.Vector3(0, H / 2, 0), i === v.con ? .2 : .08, i === v.con ? CY : 0x3a6a62))); }
+  if (op === 'ROTATE') { const r = (P[1][0] + .05); const ax = v.con; const tor = new T.Mesh(new T.TorusGeometry(r, .0016, 6, 120, Math.PI * 2), new T.MeshBasicMaterial({ color: CY, transparent: true, opacity: .8 })); if (ax === 0) tor.rotation.x = Math.PI / 2; if (ax === 2) tor.rotation.y = 0; if (ax === 1) tor.rotation.y = Math.PI / 2; tor.position.y = H / 2; g.add(tor);
+    const sw = new T.Mesh(new T.RingGeometry(r - .012, r + .012, 48, 1, 0, clamp(Math.abs(v.main), 0, 360) * Math.PI / 180 * Math.sign(v.main || 1)), new T.MeshBasicMaterial({ color: CY, transparent: true, opacity: .25, side: T.DoubleSide, depthWrite: false })); sw.rotation.copy(tor.rotation); sw.position.copy(tor.position); g.add(sw); }
+  if (op === 'SCALE') { const b = new T.Box3().setFromObject(cakeMesh); const bh = new T.Box3Helper(b, CY); g.userData.world = bh; }
+  if (op === 'INFLATE' && t.kind === 'side') { const a = P[t.e], b = P[t.e + 1], y = (a[1] + b[1]) / 2, r = (a[0] + b[0]) / 2; for (let k = 0; k < 6; k++) { const ang = k / 6 * Math.PI * 2; const dir = new T.Vector3(Math.cos(ang), 0, Math.sin(ang)); g.add(arrow(dir.clone().multiplyScalar(v.main >= 0 ? 1 : -1), dir.clone().multiplyScalar(r).setY(y), Math.abs(v.main) + .02)); } }
+  return g; }
+let tags = [];
+function tag(world, text, cls) { tags.push({ world, text, cls }); }
+
+/* ---------------- what the model looks like right now: accepted, or the pending preview */
+let shown = null, shownKey = '';
+function compute() {
+  S.fault = null; let m = M;
+  if (S.op && !OPS[S.op].action) { try { m = OPS[S.op].apply(deep(M), S.opV, S.sel); } catch (e) { if (!e.fault) throw e; S.fault = { msg: e.message, at: e.at }; m = M; } }
+  const k = JSON.stringify(m); if (k !== shownKey) { buildCake(m); shownKey = k; } shown = m;
+  setGhost(S.op && changed() && !S.fault && !OPS[S.op].action && ['EXTRUDE', 'INFLATE', 'BEVEL'].includes(S.op) ? M : null);
+  placeShot(S.look && S.lookCam ? S.lookCam : m.cam); }
+const changed = () => { if (!S.op || !S.opV) return false; const b = S.opBase; return JSON.stringify(S.opV) !== JSON.stringify(b); };
+
+/* ---------------- states, as the specification names them */
+function stateName() { if (!S.entered) return 'REST'; if (S.exitAsk) return 'EXIT?'; if (S.look) return 'CAMERA'; if (S.fault) return 'FAULT'; if (S.op) return changed() ? (S.turning ? 'WORKING' : 'CHANGED') : 'WORKING'; if (S.tools) return 'TOOLS'; if (S.recovered) return 'RECOVERY'; if (S.done && S.sel) return 'COMPLETE'; if (S.sel) return 'READY'; return 'IN MEMORY'; }
+
+/* ---------------- roller assignments: what each roller changes now. Quiet rollers do nothing */
+function assignments() {
+  const A = [null, null, null, null, null];
+  if (!S.entered || S.open || S.exitAsk) return A;
+  if (S.clutch && !S.look) { A[0] = { name: 'ORBIT', get: () => S.orbit.yaw, set: v => S.orbit.yaw = v, step: .06, fmt: v => Math.round(v * 57.3 % 360) + '°' }; A[1] = { name: 'TILT', get: () => S.orbit.pitch, set: v => S.orbit.pitch = clamp(v, -1.4, .3), step: .04, fmt: v => Math.round(v * 57.3) + '°' }; A[2] = { name: 'DOLLY', get: () => S.orbit.dist, set: v => S.orbit.dist = clamp(v, .25, 4), step: .04, fmt: v => v.toFixed(2) + ' M' }; return A; }
+  if (S.look) { const c = S.lookCam;
+    if (S.takes.length) A[0] = { name: 'TAKE ' + S.takes.length, get: () => S.scrub || 0, set: v => { S.scrub = clamp(v, 0, 1); const tk = S.takes[S.takes.length - 1]; const i = Math.round(S.scrub * (tk.length - 1)); Object.assign(c, deep(tk[i])); }, step: .02, fmt: v => Math.round(v * 100) + '%' };
+    A[1] = { name: 'DOLLY', get: () => 0, set: (v, d) => { const f = new T.Vector3(0, 0, -1).applyEuler(new T.Euler(c.pitch, c.yaw, 0, 'YXZ')); c.p = c.p.map((x, i) => x + f.getComponent(i) * d); }, step: .02, delta: true, fmt: () => '' };
+    A[2] = { name: 'FOCAL', get: () => c.f, set: v => c.f = clamp(Math.round(v), 14, 135), step: 2, fmt: v => v + ' MM' };
+    A[3] = { name: 'FOCUS', get: () => c.fd, set: v => c.fd = clamp(v, .15, 4), step: .01, fmt: v => v.toFixed(2) + ' M' };
+    A[4] = { name: 'RESPONSE', get: () => S.resp, set: v => S.resp = clamp(v, .1, 1), step: .05, fmt: v => Math.round(v * 100) + '%' }; return A; }
+  if (S.tools) { const fam = FAMILIES[S.sel.kind]; A[2] = { name: 'TOOL', get: () => S.tools.i, set: v => S.tools.i = clamp(Math.round(v), 0, fam.length - 1), step: 1, fmt: v => fam[v] }; return A; }
+  if (S.op && !OPS[S.op].action) { const o = OPS[S.op], p = o.p;
+    const num = (k, slot, st) => { const [nm, unit, lo, hi] = p[k]; if (Array.isArray(unit)) A[slot] = { name: nm, get: () => S.opV[k], set: v => S.opV[k] = clamp(Math.round(v), 0, unit.length - 1), step: 1, fmt: v => unit[v] };
+      else A[slot] = { name: nm, get: () => S.opV[k], set: v => S.opV[k] = clamp(+v.toFixed(4), unit === 'mm' ? lo / 1000 : lo, unit === 'mm' ? hi / 1000 : hi), step: st, fmt: v => unit === 'mm' ? (v >= 0 && k === 'main' && S.op !== 'BEVEL' ? '+' : '') + mm(v) + ' MM' : unit === '%' ? Math.round(v) + '%' : unit === 'm' ? v.toFixed(2) + ' M' : unit === 'f/' ? 'f/' + v.toFixed(1) : Math.round(v) + unit }; };
+    num('main', 2, o.step(S.opV)); if (p.aux) num('aux', 3, AUX_STEP[p.aux[0]] || 1);
+    if (p.con) { if (S.op === 'FOCUS') { const L = focusTargets(); A[4] = { name: 'ON', get: () => S.opV.con || 0, set: v => { S.opV.con = clamp(Math.round(v), 0, L.length - 1); if (S.opV.con) S.opV.main = +L[S.opV.con].d.toFixed(2); }, step: 1, fmt: v => L[v] ? L[v].name : '' }; }
+      else { const [nm, list] = p.con; A[4] = { name: nm, get: () => S.opV.con, set: v => S.opV.con = clamp(Math.round(v), 0, list.length - 1), step: 1, fmt: v => list[v] }; } }
+    return A; }
+  if (S.sel && S.sel.kind !== 'camera' && S.sel.kind !== 'candle') { A[1] = { name: 'SCOPE', get: () => SCOPES.indexOf(scopeOf(S.pre || S.sel)), set: v => { const k = SCOPES[clamp(Math.round(v), 0, 2)]; S.pre = scopeTarget(S.sel, k); }, step: 1, fmt: v => SCOPES[v].toUpperCase() }; }
+  return A;
+}
+const SCOPES = ['object', 'face', 'edge'];
+const scopeOf = t => t.kind === 'object' ? 'object' : t.kind === 'edge' ? 'edge' : 'face';
+function scopeTarget(t, k) { const P = M.P, n = P.length; const e = t.kind === 'side' ? t.e : t.kind === 'edge' ? t.c - 1 : n - 2;
+  if (k === 'object') return { kind: 'object' }; if (k === 'face') return e >= n - 2 ? { kind: 'top' } : { kind: 'side', e }; return { kind: 'edge', c: t.kind === 'side' ? t.e + 1 : t.kind === 'edge' ? t.c : n - 2 }; }
+function focusTargets() { const out = [{ name: 'FREE', d: S.opV ? S.opV.main : M.cam.fd }]; const cp = new T.Vector3(...M.cam.p);
+  out.push({ name: 'CAKE', d: cp.distanceTo(cakeG.localToWorld(new T.Vector3(0, shown.P[shown.P.length - 2][1] * .6, 0))) });
+  candleSpots(shown).forEach((p, i) => out.push({ name: 'CANDLE ' + (i + 1), d: cp.distanceTo(cakeG.localToWorld(new T.Vector3(p[0], p[1] + .06, p[2]))) })); return out; }
+
+/* ---------------- the wings: what each does in this state */
+function wings() {
+  const st = stateName(); if (S.open) return [null, null];
+  if (st === 'REST') return [null, { id: 'enter', label: 'ENTER', icon: 'enter' }];
+  if (st === 'EXIT?') return [{ id: 'discard', label: 'DISCARD', icon: 'x' }, { id: 'accept', label: 'ACCEPT', icon: 'check', go: !S.fault && changed() }];
+  if (S.look) return [{ id: 'return', label: 'RETURN', icon: 'back' }, { id: 'rec', label: S.rec ? 'STOP' : 'RECORD', icon: S.rec ? 'stop' : 'rec', go: !!S.rec }];
+  if (S.op) return [{ id: 'cancel', label: 'CANCEL', icon: 'x' }, { id: 'accept', label: 'ACCEPT', icon: 'check', go: !S.fault && changed(), quiet: !!S.fault || !changed() }];
+  if (S.tools) return [{ id: 'back', label: 'BACK', icon: 'back' }, { id: 'choose', label: 'CHOOSE', icon: FAMILIES[S.sel.kind][S.tools.i] === 'LOOK THROUGH' ? 'look' : 'op', go: true }];
+  const newPre = S.pre && !sameT(S.pre, S.sel);
+  if (S.sel) return [{ id: 'clear', label: 'CLEAR', icon: 'clear' }, newPre ? { id: 'select', label: 'SELECT', icon: 'select', go: true } : { id: 'tools', label: 'TOOLS', icon: 'tools' }];
+  return [null, { id: 'select', label: 'SELECT', icon: 'select', quiet: !S.pre, go: !!S.pre }];
+}
+const sameT = (a, b) => !!a && !!b && JSON.stringify(a) === JSON.stringify(b);
+function act(id) {
+  S.recovered = false;
+  if (id === 'enter') { S.entered = true; }
+  else if (id === 'select') { if (!S.pre) return; S.sel = S.pre; S.pre = null; S.done = null; say('LATCHED · ' + tName(S.sel)); }
+  else if (id === 'clear') { S.sel = null; S.pre = null; S.done = null; }
+  else if (id === 'tools') { S.tools = { i: 0 }; }
+  else if (id === 'back') { S.tools = null; }
+  else if (id === 'choose') { const name = FAMILIES[S.sel.kind][S.tools.i]; S.tools = null; if (name === 'LOOK THROUGH') return enterLook(); startOp(name); }
+  else if (id === 'cancel') { S.op = null; S.opV = null; say('CANCELLED · GEOMETRY AS BEFORE'); }
+  else if (id === 'accept') { if (S.fault || !changed()) return; const o = OPS[S.op], m = o.apply(deep(M), S.opV, S.sel); HIST.push({ m: deep(M), name: S.op, said: o.say(S.opV, S.sel) }); REDO.length = 0; M = m; S.done = HIST[HIST.length - 1]; S.op = null; S.opV = null; if (S.exitAsk) { S.exitAsk = false; S.entered = false; S.sel = null; } say('ACCEPTED · ' + S.done.said); fixSel(); }
+  else if (id === 'discard') { S.op = null; S.opV = null; S.exitAsk = false; S.entered = false; S.sel = null; }
+  else if (id === 'return') { exitLook(); }
+  else if (id === 'rec') { if (S.rec) { S.takes.push(S.rec); S.rec = null; say('TAKE ' + S.takes.length + ' KEPT · TURN THE GROOVED ROLLER TO SCRUB IT'); } else { S.rec = []; say('RECORDING THE CAMERA'); } }
+  bump();
+}
+function startOp(name) { const o = OPS[name]; const v = {}; for (const k of ['main', 'aux', 'con']) if (o.p[k]) v[k] = Array.isArray(o.p[k][1]) ? 0 : (o.p[k][1] === 'mm' ? o.p[k][4] / 1000 : o.p[k][4]); if (o.p.con && o.p.con[1] === null) v.con = 0; Object.assign(v, o.init ? o.init(M, S.sel) : {}); S.op = name; S.opV = v; S.opBase = deep(v); }
+function fixSel() { const P = M.P, n = P.length; if (S.sel && S.sel.kind === 'side' && S.sel.e >= n - 2) S.sel = { kind: 'top' }; if (S.sel && S.sel.kind === 'edge' && (S.sel.c < 1 || S.sel.c > n - 2)) S.sel = { kind: 'edge', c: n - 2 }; if (S.sel && S.sel.kind === 'candle' && S.sel.i >= M.cn) S.sel = { kind: 'top' }; }
+function undo(redo) { if (S.op) { say('A PENDING EDIT USES CANCEL'); return; } const from = redo ? REDO : HIST, to = redo ? HIST : REDO; const h = from.pop(); if (!h) { say(redo ? 'NOTHING TO REDO' : 'NOTHING TO UNDO'); return; } to.push({ m: deep(M), name: h.name, said: h.said }); M = h.m; S.done = null; S.recovered = true; S.recName = (redo ? 'REDONE · ' : 'UNDONE · ') + h.said; say(S.recName); fixSel(); bump(); }
+function enterLook() { S.look = true; S.lookFrom = deep(S.orbit); S.lookCam = deep(M.cam); S.resp = S.resp || .6; say('LOOKING THROUGH THE SHOT CAMERA · TAP A THING TO FOCUS ON IT'); bump(); }
+function exitLook() { if (S.rec) { S.takes.push(S.rec); S.rec = null; } if (JSON.stringify(S.lookCam) !== JSON.stringify(M.cam)) { HIST.push({ m: deep(M), name: 'SHOT', said: 'SHOT CAMERA PLACED' }); REDO.length = 0; M.cam = deep(S.lookCam); S.done = HIST[HIST.length - 1]; } S.look = false; S.lookCam = null; S.orbit = S.lookFrom; S.clutch = false; say('BACK TO THE VIEW YOU LEFT'); bump(); }
+function tName(t) { if (!t) return '—'; return { object: 'CAKE', top: 'CAKE · TOP FACE', side: 'CAKE · SIDE ' + ((t.e || 0) + 1), edge: 'CAKE · EDGE', candle: 'CANDLE ' + ((t.i || 0) + 1), camera: 'SHOT CAMERA' }[t.kind]; }
+
+/* ---------------- keys on the top edge */
+function keyPress(k, long) {
+  if (k === 'undo') undo(long);
+  else if (k === 'frame') { const b = new T.Box3().setFromObject(S.sel && S.sel.kind === 'camera' ? camG : cakeG); const c = b.getCenter(new T.Vector3()); S.orbit.tgt = c.toArray(); S.orbit.dist = clamp(b.getSize(new T.Vector3()).length() * 2.4, .3, 3); say('FRAMED · ' + tName(S.sel || { kind: 'object' })); }
+  else if (k === 'open') { S.open = !S.open; say(S.open ? 'OPEN · CONSTRUCTION SHOWN, NOTHING CAN CHANGE' : 'CLOSED · AS IT WAS'); }
+  else if (k === 'exit') { if (S.look) return exitLook(); if (S.op && changed()) { S.exitAsk = !S.exitAsk; if (!S.exitAsk) say('STAYED'); } else { S.op = null; S.tools = null; S.sel = null; S.pre = null; S.entered = false; say('LEFT · THE MEMORY IS KEPT'); } }
+  bump(); }
+
+/* ---------------- the room: aim and tap. Tapping previews a target; nothing changes until SELECT. Blank space does nothing */
+const ray = new T.Raycaster(), ptr = new T.Vector2();
+function pick(ev) { const r = R.domElement.getBoundingClientRect(); let x0 = r.left, y0 = r.top, rw = r.width, rh = r.height;
+  if (S.look) { let fw = rw, fh = rw * 9 / 16; if (fh > rh) { fh = rh; fw = rh * 16 / 9; } x0 += (rw - fw) / 2; y0 += (rh - fh) / 2; rw = fw; rh = fh; shot.aspect = 16 / 9; shot.updateProjectionMatrix(); }
+  ptr.set((ev.clientX - x0) / rw * 2 - 1, -(ev.clientY - y0) / rh * 2 + 1); ray.setFromCamera(ptr, S.look ? shot : eye);
+  const objs = [cakeMesh, ...(S.look ? [] : [camBody, camLens]), ...candleG.children.filter(c => c.userData.pick)]; const h = ray.intersectObjects(objs, false)[0]; if (!h) return null; const u = h.object.userData;
+  if (u.pick === 'camera') return S.look ? null : { kind: 'camera' }; if (u.pick === 'candle') return { kind: 'candle', i: u.i, point: h.point };
+  const lp = cakeMesh.worldToLocal(h.point.clone()); const r2 = Math.hypot(lp.x, lp.z), y = lp.y, P = M.P; let best = 0, bd = 1e9;
+  for (let i = 0; i < P.length - 1; i++) { const a = P[i], b = P[i + 1]; const dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy || 1e-9; const t = clamp(((r2 - a[0]) * dx + (y - a[1]) * dy) / L2, 0, 1); const d = Math.hypot(a[0] + dx * t - r2, a[1] + dy * t - y); if (d < bd) { bd = d; best = i; } }
+  if (best === 0) return { kind: 'object', point: h.point }; return best === P.length - 2 ? { kind: 'top', point: h.point } : { kind: 'side', e: best, point: h.point }; }
+let drag = null;
+R.domElement.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, moved: false }; R.domElement.setPointerCapture(e.pointerId); });
+R.domElement.addEventListener('pointermove', e => { if (!drag) { if (!S.op && !S.tools && !S.look && S.entered && e.pointerType === 'mouse') { const t = pick(e); hover = t ? strip(t) : null; } return; }
+  const dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true;
+  if (S.clutch && drag.moved) { motion(dx * -.006, dy * -.006); drag.x = e.clientX; drag.y = e.clientY; } });
+R.domElement.addEventListener('pointerup', e => { const d = drag; drag = null; if (!d || d.moved || !S.entered || S.open) return; const t = pick(e); if (!t) return;
+  if (S.look) { const c = S.lookCam, cp = new T.Vector3(...c.p); c.fd = +cp.distanceTo(t.point || cakeG.position).toFixed(3); say('FOCUS ON ' + tName(t) + ' · ' + c.fd.toFixed(2) + ' M'); bump(); return; }
+  if (S.op || S.tools) { say(S.op ? 'FINISH OR CANCEL THE PENDING EDIT FIRST' : 'CLOSE THE TOOLS WITH BACK FIRST'); bump(); return; }
+  S.pre = strip(t); if (sameT(S.pre, S.sel)) S.pre = null; bump(); });
+let hover = null; const strip = t => { const o = Object.assign({}, t); delete o.point; return o; };
+
+/* ---------------- the clutch: while held, your movement drives what owns motion (the view, or the shot camera when looking through) */
+let ori = null, oriRef = null, sensor = false;
+function motion(dyaw, dpitch) { if (S.look) { const c = S.lookCam, k = S.resp; c.yaw += dyaw * k; c.pitch = clamp(c.pitch + dpitch * k, -1.4, 1.2); } else { S.orbit.yaw += dyaw; S.orbit.pitch = clamp(S.orbit.pitch + dpitch, -1.45, .35); } }
+addEventListener('deviceorientation', e => { if (e.alpha == null) return; sensor = true; ori = [e.alpha, e.beta, e.gamma]; if (!S.clutch) return; if (!oriRef) { oriRef = ori.slice(); return; }
+  let da = ori[0] - oriRef[0]; if (da > 180) da -= 360; if (da < -180) da += 360; const db = ori[1] - oriRef[1]; oriRef = ori.slice(); motion(da * Math.PI / 180, -db * Math.PI / 180); });
+function clutch(on) { if (on && !S.entered) return; if (on && window.DeviceOrientationEvent && DeviceOrientationEvent.requestPermission && !clutch.asked) { clutch.asked = true; DeviceOrientationEvent.requestPermission().catch(() => { }); }
+  S.clutch = on; oriRef = null; say(on ? (S.look ? 'CLUTCH · YOU MOVE THE SHOT CAMERA' : 'CLUTCH · YOU MOVE THE VIEW; THE EDIT WAITS') + (sensor ? '' : ' · DRAG THE ROOM') : (S.look ? 'CAMERA PARKED' : 'VIEW PARKED')); bump(); }
+
+/* ---------------- the controller, drawn */
+const rollEl = $('#rollers'), labEl = $('#labs');
+ROLLERS.forEach((n, i) => { const d = document.createElement('div'); d.className = 'roller r' + (i + 1); d.innerHTML = '<div class="tex"></div><div class="line"></div><i class="tickL"></i><i class="tickR"></i>'; d.setAttribute('aria-label', 'Roller ' + (i + 1) + ', ' + n); d.tabIndex = 0; rollEl.append(d);
+  const l = document.createElement('div'); labEl.append(l); bindRoller(d, i); });
+const rollPos = [0, 0, 0, 0, 0];
+function turn(i, steps) { const A = assignments()[i]; if (!A) return false; if (A.delta) A.set(null, A.step * steps); else A.set(A.get() + A.step * steps); rollPos[i] += steps; S.turning = true; clearTimeout(turn.t); turn.t = setTimeout(() => { S.turning = false; bump(); }, 500); bump(); return true; }
+function bindRoller(el, i) { let y0 = null, acc = 0, rev = -1;
+  el.addEventListener('pointerdown', e => { y0 = e.clientY; acc = 0; rev = S.rev; el.setPointerCapture(e.pointerId); });
+  el.addEventListener('pointermove', e => { if (y0 == null) return; if (rev !== S.rev) { y0 = null; return; } acc += y0 - e.clientY; y0 = e.clientY; const px = window.innerWidth < 720 ? 9 : 12; while (Math.abs(acc) >= px) { turn(i, Math.sign(acc) * (e.shiftKey ? .2 : 1)); acc -= Math.sign(acc) * px; } });
+  const up = () => { y0 = null; }; el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+  el.addEventListener('wheel', e => { e.preventDefault(); turn(i, (e.deltaY < 0 ? 1 : -1) * (e.shiftKey ? .2 : 1)); }, { passive: false });
+  el.addEventListener('keydown', e => { if (e.key === 'ArrowUp') { turn(i, e.shiftKey ? .2 : 1); e.preventDefault(); } if (e.key === 'ArrowDown') { turn(i, e.shiftKey ? -.2 : -1); e.preventDefault(); } }); }
+// a change of assignment is announced: the roller flashes, and a finger already resting on a roller is ignored until it lifts and touches again
+let lastAssign = '';
+function syncController() {
+  const A = assignments(), sig = A.map(a => a ? a.name : '').join('|') + (S.op || '') + (S.tools ? 't' : '') + (S.look ? 'l' : '') + (S.clutch ? 'c' : '');
+  if (sig !== lastAssign) { lastAssign = sig; S.rev++; [...rollEl.children].forEach((r, i) => { r.classList.remove('flash'); if (A[i]) { void r.offsetWidth; r.classList.add('flash'); } }); }
+  [...rollEl.children].forEach((r, i) => { r.classList.toggle('on', !!A[i]); r.classList.toggle('quiet', !A[i]); r.querySelector('.tex').style.transform = `translateY(${(rollPos[i] * 7) % 40}px)`; });
+  [...labEl.children].forEach((l, i) => { const a = A[i]; l.className = a ? '' : 'quiet'; l.innerHTML = a ? `${a.name}<small>${a.fmt(a.get())}</small>` : '&nbsp;<small>&nbsp;</small>'; });
+  const [wl, wr] = wings(); paintWing($('#wL'), wl); paintWing($('#wR'), wr);
+  $('#kClutch').classList.toggle('on', S.clutch); $('#kOpen').classList.toggle('on', S.open);
+  $('#kUndo').textContent = S.op ? 'UNDO' : HIST.length ? 'UNDO ' + HIST[HIST.length - 1].name : 'UNDO'; $('#kUndo').disabled = !HIST.length && !REDO.length;
+  $('#kExit').textContent = S.look ? 'RETURN TO VIEW' : 'EXIT';
+  $('#slab').classList.toggle('open', S.open); oled();
+}
+const ICON = {
+  enter: '<rect x="9" y="5" width="16" height="24" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="21" cy="17" r="1.5" fill="currentColor"/>',
+  select: '<rect x="7" y="7" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 3"/><circle cx="17" cy="17" r="2.5" fill="currentColor"/>',
+  clear: '<rect x="7" y="7" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 3"/><path d="M12 12l10 10M22 12l-10 10" stroke="currentColor" stroke-width="2"/>',
+  tools: '<path d="M8 24l9-4 9 4-9 4z M8 18l9-4 9 4-9 4z M8 12l9-4 9 4-9 4z" fill="none" stroke="currentColor" stroke-width="1.8"/>',
+  op: '<path d="M8 22h18v6H8z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M17 20V7m-4 4l4-4 4 4" fill="none" stroke="currentColor" stroke-width="2"/>',
+  look: '<rect x="6" y="11" width="16" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M22 15l7-4v12l-7-4z" fill="none" stroke="currentColor" stroke-width="2"/>',
+  back: '<path d="M12 10l-6 6 6 6M6 16h14a7 7 0 010 14h-4" fill="none" stroke="currentColor" stroke-width="2"/>',
+  x: '<path d="M9 9l16 16M25 9L9 25" stroke="currentColor" stroke-width="2.4"/>',
+  check: '<path d="M7 18l7 7 14-15" fill="none" stroke="currentColor" stroke-width="2.6"/>',
+  rec: '<circle cx="17" cy="17" r="8" fill="#ff5a3c"/>', stop: '<rect x="10" y="10" width="14" height="14" fill="#ff5a3c"/>'
+};
+function paintWing(el, w) { el.className = 'wing' + (!w || w.quiet ? ' quiet' : '') + (w && w.go ? ' go' : ''); el.innerHTML = w ? `<svg viewBox="0 0 34 34">${ICON[w.icon]}</svg>${w.label}` : ''; el.dataset.id = w && !w.quiet ? w.id : ''; el.setAttribute('aria-label', w ? w.label : 'Quiet'); }
+$('#wL').onclick = () => $('#wL').dataset.id && act($('#wL').dataset.id); $('#wR').onclick = () => $('#wR').dataset.id && act($('#wR').dataset.id);
+// keys: clutch is held; undo held is redo
+const kc = $('#kClutch'); let clLatch = false;
+kc.addEventListener('pointerdown', e => { e.preventDefault(); if (clLatch) { clLatch = false; clutch(false); return; } clutch(true); kc.dataset.t = performance.now(); });
+kc.addEventListener('pointerup', () => { if (!S.clutch) return; if (performance.now() - (+kc.dataset.t) < 220) { clLatch = true; say('CLUTCH LATCHED · TAP AGAIN TO PARK'); bump(); return; } clutch(false); });
+let ut = 0; $('#kUndo').addEventListener('pointerdown', () => { ut = performance.now(); }); $('#kUndo').addEventListener('pointerup', () => keyPress('undo', performance.now() - ut > 600));
+$('#kFrame').onclick = () => keyPress('frame'); $('#kOpen').onclick = () => keyPress('open'); $('#kExit').onclick = () => keyPress('exit');
+addEventListener('keydown', e => { if (e.repeat && e.key === ' ') return; const k = e.key;
+  if (k === ' ') { e.preventDefault(); clutch(true); } else if (k === 'Enter') { const id = $('#wR').dataset.id; if (id) act(id); } else if (k === 'Escape' || k === 'Backspace') { const id = $('#wL').dataset.id; if (id) act(id); }
+  else if (k === 'z' || k === 'Z') undo(e.shiftKey); else if (k === 'f') keyPress('frame'); else if (k === 'o') keyPress('open'); else if (k === 'x') keyPress('exit');
+  else if (k >= '1' && k <= '5') rollEl.children[+k - 1].focus(); else if (k === 'Tab' && S.entered && !S.op && !S.tools && !S.look) { e.preventDefault(); const L = [{ kind: 'object' }, { kind: 'top' }, { kind: 'side', e: 1 }, { kind: 'edge', c: M.P.length - 2 }, { kind: 'candle', i: 0 }, { kind: 'camera' }]; const i = L.findIndex(t => sameT(t, S.pre)); S.pre = L[(i + 1) % L.length]; bump(); } });
+addEventListener('keyup', e => { if (e.key === ' ') clutch(false); });
+
+/* ---------------- the three-zone display: what am I controlling, what am I doing, how will it move */
+const SV = (inner, vb) => `<svg viewBox="${vb || '0 0 120 60'}" fill="none" stroke="#5ff0dc" stroke-width="1.6">${inner}</svg>`;
+function targetIcon(t) { const cyl = (hl) => `<ellipse cx="60" cy="18" rx="30" ry="8" ${hl === 'top' ? 'fill="rgba(95,240,220,.35)"' : ''} ${hl === 'top' || hl === 'object' || hl === 'edge' ? '' : 'stroke-dasharray="3 3"'} ${hl === 'edge' ? 'stroke-width="3.2"' : ''}/><path d="M30 18v22a30 8 0 0060 0V18" ${hl === 'side' ? 'fill="rgba(95,240,220,.25)"' : ''} ${hl === 'object' || hl === 'side' ? '' : 'stroke-dasharray="3 3"'}/>`;
+  if (!t) return SV('<path d="M50 30h20" stroke-dasharray="3 3"/>');
+  if (t.kind === 'camera') return SV('<rect x="36" y="20" width="30" height="20" rx="2"/><path d="M66 26l16-8v24l-16-8z"/>');
+  if (t.kind === 'candle') return SV('<rect x="56" y="22" width="8" height="28"/><path d="M60 8c4 5 4 9 0 12-4-3-4-7 0-12z" fill="rgba(95,240,220,.4)"/>');
+  if (t.kind === 'view') return SV('<circle cx="60" cy="30" r="6"/><ellipse cx="60" cy="30" rx="34" ry="14" stroke-dasharray="4 3"/><path d="M92 26l3 4-5 1"/>');
+  return SV(cyl({ object: 'object', top: 'top', side: 'side', edge: 'edge' }[t.kind])); }
+function opDiagram() { const o = S.op, v = S.opV;
+  if (S.open) { const L = HIST.slice(-4).map((h, i) => `<text x="6" y="${14 + i * 12}" font-size="9" fill="#8fe9dc" stroke="none">${HIST.length - Math.min(4, HIST.length) + i + 1} ${h.said}</text>`).join(''); return SV((L || '<text x="6" y="16" font-size="9" fill="#8fe9dc" stroke="none">NO EDITS YET</text>') + `<text x="6" y="58" font-size="8" fill="#3fa898" stroke="none">PROFILE ${M.P.length} POINTS · ${M.cn} CANDLES</text>`, '0 0 220 60'); }
+  if (S.exitAsk) return SV('<text x="110" y="24" text-anchor="middle" font-size="10" fill="#8fe9dc" stroke="none">A CHANGE IS STILL PENDING</text><text x="110" y="42" text-anchor="middle" font-size="9" fill="#3fa898" stroke="none">DISCARD · ACCEPT · EXIT AGAIN TO STAY</text>', '0 0 220 60');
+  if (S.tools) { const fam = FAMILIES[S.sel.kind]; return SV(fam.map((n, i) => `<text x="${20 + i * (180 / fam.length)}" y="34" font-size="10" fill="${i === S.tools.i ? '#5ff0dc' : '#2f7a70'}" stroke="none" font-weight="${i === S.tools.i ? 600 : 400}">${n}</text>`).join('') + `<path d="M${16 + S.tools.i * (180 / fam.length)} 42h${fam[S.tools.i].length * 6.2}"/>`, '0 0 220 60'); }
+  if (S.look) return SV('<rect x="70" y="10" width="80" height="45"/><path d="M76 16h8M76 16v6M144 16h-8M144 16v6M76 49h8M76 49v-6M144 49h-8M144 49v-6"/><circle cx="110" cy="32" r="3"/>' + (S.rec ? '<circle cx="160" cy="14" r="4" fill="#ff5a3c" stroke="none"/>' : ''), '0 0 220 60');
+  if (!o) { if (S.recovered) return SV(`<text x="110" y="34" text-anchor="middle" font-size="10" fill="#8fe9dc" stroke="none">${S.recName}</text>`, '0 0 220 60'); if (S.done && S.sel) return SV(`<text x="110" y="28" text-anchor="middle" font-size="10" fill="#8fe9dc" stroke="none">${S.done.said}</text><text x="110" y="44" text-anchor="middle" font-size="9" fill="#3fa898" stroke="none">ACCEPTED</text>`, '0 0 220 60');
+    if (S.sel) return SV('<rect x="80" y="14" width="60" height="32" stroke-dasharray="4 3"/><text x="110" y="34" text-anchor="middle" font-size="10" fill="#5ff0dc" stroke="none">TOOLS</text>', '0 0 220 60');
+    return SV(`<text x="110" y="34" text-anchor="middle" font-size="9.5" fill="#3fa898" stroke="none">${S.entered ? 'TAP A THING IN THE ROOM' : 'A MEMORY IS AVAILABLE'}</text>`, '0 0 220 60'); }
+  const d = v.main;
+  if (o === 'EXTRUDE') { const h = clamp(-d * 900, -26, 26), k = v.aux / 100, x0 = 40 + 70 * k, x1 = 180 - 70 * k; return SV(`<path d="M20 40h180" stroke-dasharray="4 3" stroke="#2f7a70"/><path d="M20 40h${x0 - 20}${k ? '' : ''}V${40 + h}H${x1}V40H200"/>` + (changed() ? `<path d="M110 ${40 + h - 4}v-0" />` : ''), '0 0 220 60'); }
+  if (o === 'CANDLES') return SV(Array.from({ length: Math.round(d) }, (_, i) => `<rect x="${110 - Math.round(d) * 7 + i * 14}" y="26" width="5" height="18"/><path d="M${112.5 - Math.round(d) * 7 + i * 14} 16v6"/>`).join('') + '<path d="M30 46h160"/>', '0 0 220 60');
+  if (o === 'INFLATE') return SV(`<path d="M40 10v40M180 10v40" stroke-dasharray="4 3" stroke="#2f7a70"/><path d="M${40 - d * 400} 10v40M${180 + d * 400} 10v40"/>`, '0 0 220 60');
+  if (o === 'BEVEL') { const w = clamp(d * 900, 0, 30); return SV(`<path d="M60 52V12H170" stroke-dasharray="4 3" stroke="#2f7a70"/><path d="M60 52V${12 + w}L${60 + w} 12H170"/>`, '0 0 220 60'); }
+  if (o === 'MOVE') return SV(`<path d="M50 30h120M160 22l12 8-12 8"/><rect x="${80 + clamp(d * 120, -40, 40)}" y="20" width="30" height="20" stroke-dasharray="${changed() ? '' : '3 3'}"/>`, '0 0 220 60');
+  if (o === 'ROTATE') { const a = d * Math.PI / 180; return SV(`<circle cx="110" cy="30" r="22" stroke-dasharray="3 3" stroke="#2f7a70"/><path d="M110 8A22 22 0 ${Math.abs(d) > 180 ? 1 : 0} ${d >= 0 ? 1 : 0} ${110 + 22 * Math.sin(a)} ${30 - 22 * Math.cos(a)}"/><circle cx="110" cy="30" r="2" fill="#5ff0dc"/>`, '0 0 220 60'); }
+  if (o === 'SCALE') { const s = clamp(d / 100, .4, 2.2) * 18; return SV(`<rect x="92" y="12" width="36" height="36" stroke-dasharray="3 3" stroke="#2f7a70"/><rect x="${110 - s}" y="${30 - s}" width="${s * 2}" height="${s * 2}"/>`, '0 0 220 60'); }
+  if (o === 'FLAME') return SV(`<rect x="106" y="28" width="8" height="26"/>` + (d ? '<path d="M110 8c6 7 6 13 0 17-6-4-6-10 0-17z" fill="rgba(95,240,220,.4)"/>' : '<path d="M110 26c-2-4 3-7 0-12" stroke-dasharray="2 2"/>'), '0 0 220 60');
+  if (o === 'LENS') { const a = Math.atan(18 / d) * 2; return SV(`<path d="M40 30L${40 + 150} ${30 - 150 * Math.tan(a / 2)}M40 30L190 ${30 + 150 * Math.tan(a / 2)}"/><rect x="26" y="24" width="14" height="12"/>`, '0 0 220 60'); }
+  if (o === 'FOCUS') { const x = 40 + clamp(d / 4, 0, 1) * 150; return SV(`<path d="M40 30H200" stroke-dasharray="3 3" stroke="#2f7a70"/><rect x="26" y="24" width="14" height="12"/><path d="M${x} 10v40"/>`, '0 0 220 60'); }
+  return SV(''); }
+function constraint() { const A = assignments();
+  if (S.clutch) return SV('<circle cx="60" cy="30" r="9"/><path d="M60 8v8M60 44v8M38 30h8M74 30h8"/><text x="60" y="58" text-anchor="middle" font-size="8" fill="#8fe9dc" stroke="none">' + (S.look ? 'MOVES CAMERA' : 'MOVES VIEW') + '</text>');
+  if (S.look) { const c = S.lookCam; return SV(`<text x="60" y="22" text-anchor="middle" font-size="12" fill="#5ff0dc" stroke="none">${c.f} MM</text><text x="60" y="40" text-anchor="middle" font-size="10" fill="#8fe9dc" stroke="none">f/${c.N} · ${c.fd.toFixed(2)} M</text>`); }
+  if (S.op && !OPS[S.op].action) { const a = A[2]; if (!a) return SV(''); const val = a.fmt(a.get()); const sub = A[4] ? A[4].name + ' ' + A[4].fmt(A[4].get()) : A[3] ? A[3].name + ' ' + A[3].fmt(A[3].get()) : '';
+    const arrow = S.op === 'EXTRUDE' ? (S.opV.main >= 0 ? '<path d="M14 40V18m-5 5l5-5 5 5"/>' : '<path d="M14 18v22m-5-5l5 5 5-5"/>') : '';
+    return SV(`${arrow}<text x="${arrow ? 66 : 60}" y="34" text-anchor="middle" font-size="14" fill="${S.fault ? '#ff5a3c' : '#5ff0dc'}" stroke="none" font-weight="600">${val}</text><text x="60" y="52" text-anchor="middle" font-size="8" fill="#3fa898" stroke="none">${S.fault ? S.fault.msg.slice(0, 26) : sub}</text>`); }
+  if (S.sel && S.sel.kind !== 'camera' && S.sel.kind !== 'candle') return SV('<path d="M60 34V14M60 34l16 8M60 34l-16 8"/><path d="M57 17l3-4 3 4M73 39l4 3-5 1M47 39l-4 3 5 1"/><text x="60" y="56" text-anchor="middle" font-size="8" fill="#3fa898" stroke="none">LOCAL</text>');
+  return SV(''); }
+function oled() { const st = stateName(), t = S.clutch && !S.look ? { kind: 'view' } : (S.pre && !S.op && !S.tools ? S.pre : S.sel);
+  $('#oL').innerHTML = `<span class="st">${st}</span>${targetIcon(t)}<span class="nm">${S.clutch && !S.look ? 'YOUR VIEW' : S.look ? 'SHOT CAMERA' : (S.pre && !S.op && !S.tools && !sameT(S.pre, S.sel) ? 'PREVIEW · ' : '') + tName(t)}</span>`;
+  $('#oC').innerHTML = opDiagram() + `<span class="nm">${S.say || (S.op ? S.op : S.tools ? 'CHOOSE A TOOL' : '')}</span>`;
+  $('#oR').innerHTML = constraint(); }
+let sayT = 0; function say(s) { S.say = s; clearTimeout(sayT); sayT = setTimeout(() => { S.say = ''; bump(); }, 3200); }
+
+/* ---------------- frame loop */
+let dirty = true; const bump = () => { dirty = true; };
+let tPrev = performance.now();
+function resize() { const w = room.clientWidth, h = room.clientHeight; R.setSize(w, h, false); eye.aspect = w / h; eye.updateProjectionMatrix(); }
+addEventListener('resize', () => { resize(); bump(); }); resize();
+function frame(now) {
+  const dt = Math.min(.05, (now - tPrev) / 1000); tPrev = now;
+  if (dirty) { compute(); syncController(); dirty = false; }
+  // the inspection viewpoint
+  const o = S.orbit, tg = new T.Vector3(...o.tgt); eye.position.set(tg.x + Math.sin(o.yaw) * Math.cos(o.pitch) * o.dist, tg.y - Math.sin(o.pitch) * o.dist, tg.z + Math.cos(o.yaw) * Math.cos(o.pitch) * o.dist); eye.lookAt(tg);
+  if (S.rec && S.lookCam) { S.rec.push(deep(S.lookCam)); if (S.rec.length > 1800) act('rec'); }
+  // flames flicker
+  candleG.children.forEach((c, i) => { if (c.userData.flame) { const f = 1 + Math.sin(now * .013 + i * 1.7) * .06 + Math.sin(now * .031 + i) * .04; c.scale.set(.016 * f, .034 * (2 - f), 1); } }); amb.intensity *= .985 + Math.random() * .03; amb.intensity = clamp(amb.intensity, 0, 4);
+  if (shown) { const lit = shown.lit.slice(0, shown.cn).reduce((a, b) => a + b, 0); amb.intensity = lit * .34 * (.96 + Math.sin(now * .02) * .04); }
+  // selection outlines and handles (dimmed while the clutch moves the view)
+  fxUpdate(); frameRest(now);
+}
+function fxUpdate() {
+  const fk = JSON.stringify([S.sel, S.pre, hover, S.op, S.opV, S.clutch, S.open, S.entered, S.look, S.fault && S.fault.msg, shownKey, M.cam]);
+  if (fk !== fxKey) { fxKey = fk; rebuildFx(); }
+}
+let fxKey = '';
+function rebuildFx() {
+  cakeG.updateMatrixWorld(true); camG.updateMatrixWorld(true);
+  fxG.traverse(o => { if (o.material) o.material.dispose(); if (o.geometry && !(o.parent && o.parent.type === 'ArrowHelper')) o.geometry.dispose(); }); fxG.clear(); tags = [];
+  if (S.entered && !S.look) {
+    const m = shown || M, w = cakeG.matrixWorld; const add = g => { g.applyMatrix4(w); g.traverse(x => { if (x.material && S.clutch) { x.material = x.material.clone(); x.material.transparent = true; x.material.opacity = (x.material.opacity || 1) * .35; } }); fxG.add(g); };
+    if (S.sel && S.sel.kind !== 'camera') add(outline(S.sel, m, false)); if (S.pre && !sameT(S.pre, S.sel)) add(outline(S.pre, m, true)); else if (hover && !S.sel) add(outline(hover, m, true));
+    if (S.op) { const h = handles(S.sel, m, S.op, S.opV); add(h); if (h.userData.world) fxG.add(h.userData.world); }
+    if (S.open) { const wf = new T.LineSegments(new T.WireframeGeometry(latheOf(M.P, 24)), new T.LineBasicMaterial({ color: 0xf0b040, transparent: true, opacity: .28 })); add(wf); }
+    // the value stands beside its consequence
+    if (S.op && !OPS[S.op].action) { const P = m.P, H = P[P.length - 2][1], a = assignments()[2]; let at = new T.Vector3(P[1][0] + .05, H, 0);
+      if (S.op === 'EXTRUDE') at = new T.Vector3(.0, H + Math.max(0, S.opV.main) + .045, 0); if (S.op === 'BEVEL' && S.sel.c) at = new T.Vector3(P[Math.min(S.sel.c, P.length - 2)][0] + .04, P[Math.min(S.sel.c, P.length - 2)][1] + .02, 0);
+      if (S.op === 'LENS' || S.op === 'FOCUS') at = camG.position.clone().add(new T.Vector3(0, .08, 0)); else at.applyMatrix4(w);
+      tag(at, a ? a.fmt(a.get()) : '', S.fault ? 'fault' : ''); if (S.fault && S.fault.at) tag(new T.Vector3(S.fault.at[0], S.fault.at[1], 0).applyMatrix4(w).add(new T.Vector3(0, -.02, 0)), S.fault.msg, 'fault'); }
+    if (S.sel && S.sel.kind === 'camera') { const b = new T.BoxHelper(camG, CY); fxG.add(b); }
+  }
+}
+function frameRest(now) {
+  placeShot(S.look ? S.lookCam : (shown || M).cam); camG.visible = S.entered && !S.look; focusPlane.visible = !!(S.sel && S.sel.kind === 'camera') || S.op === 'FOCUS';
+  // draw: the room from your view, or the shot camera full frame
+  const w = room.clientWidth, h = room.clientHeight;
+  if (S.look) { R.setViewport(0, 0, w, h); R.setScissorTest(false); R.setClearColor(0x000000); R.clear(); let fw = w, fh = w * 9 / 16; if (fh > h) { fh = h; fw = h * 16 / 9; } renderShot((w - fw) / 2, (h - fh) / 2, fw, fh, S.lookCam); }
+  else { R.setRenderTarget(null); R.setViewport(0, 0, w, h); R.setScissorTest(false); R.render(scene, eye);
+    if (S.entered) { const pw = Math.round(Math.min(w * .3, 300)), ph = Math.round(pw * 9 / 16), px = w - pw - 10, py = h - ph - 10; renderShot(px, py, pw, ph, shown ? shown.cam : M.cam); const pf = $('#pipfr'); pf.style.cssText = `display:block;left:${px}px;top:${10}px;width:${pw}px;height:${ph}px`; pf.firstChild.textContent = 'SHOT · ' + (shown ? shown.cam.f : 50) + ' MM'; } else $('#pipfr').style.display = 'none'; }
+  if (S.look) $('#pipfr').style.display = 'none'; $('#frame').classList.toggle('on', S.look); $('#frame .rec').classList.toggle('on', !!S.rec);
+  // tags
+  const tb = $('#tags'); tb.innerHTML = tags.map(t => { const p = t.world.clone().project(eye); if (p.z > 1) return ''; return `<div class="tag ${t.cls}" style="left:${(p.x + 1) / 2 * w}px;top:${(1 - p.y) / 2 * h}px">${t.text}</div>`; }).join('');
+  if (!S.entered) { R.setScissorTest(false); }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+window.RIG = { S, get M() { return M; }, HIST, act, turn, keyPress, clutch, undo, pickAt: (x, y) => pick({ clientX: x, clientY: y }), tapTarget: t => { S.pre = t; bump(); }, stateName, assignments, wings, OPS, eye, shot, cakeG, project: v => { const p = v.clone().project(eye); return [(p.x + 1) / 2 * room.clientWidth, (1 - p.y) / 2 * room.clientHeight]; } };
+</script>
+</body>
+</html>
