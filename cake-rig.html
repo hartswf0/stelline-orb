@@ -117,7 +117,7 @@ const isAxis = p => p[0] < 1e-6;
 /* ---------------- operations. Each takes a copy of the model and the roller values, returns the changed model or throws a fault */
 const fault = (msg, at) => { const e = new Error(msg); e.fault = true; e.at = at; throw e; };
 const OPS = {
-  EXTRUDE: { on: 'top', diag: 'extrude', p: { main: ['DISTANCE', 'mm', -80, 150, 0], aux: ['INSET', '%', 0, 70, 0], con: ['SNAP', ['1 mm', '5 mm', '10 mm']] },
+  EXTRUDE: { on: 'top', diag: 'extrude', init: () => ({ con: 1 }), p: { main: ['DISTANCE', 'mm', -80, 150, 0], aux: ['INSET', '%', 0, 70, 0], con: ['SNAP', ['1 mm', '5 mm', '10 mm']] },
     step: v => [1, 5, 10][v.con] / 1000, apply(m, v) { const P = m.P, n = P.length, d = v.main, k = v.aux / 100, [rt, yt] = P[n - 2];
       if (k === 0) { const ny = yt + d; const below = P[n - 3][1]; if (ny < below + .004 && d < 0) fault('THE TOP WOULD PASS THE EDGE BELOW IT', [rt, ny]); P[n - 2] = [rt, ny]; P[n - 1] = [0, ny]; }
       else { const ri = rt * (1 - k), ny = yt + d; if (ny < .006) fault('THE WELL GOES THROUGH THE BASE', [ri, ny]); if (d < 0 && ri < .006) fault('THE WELL IS TOO NARROW', [ri, ny]);
@@ -148,10 +148,10 @@ const OPS = {
   'LOOK THROUGH': { on: 'camera', diag: 'look', action: true }
 };
 const FAMILIES = { object: ['MOVE', 'ROTATE', 'SCALE'], top: ['EXTRUDE', 'CANDLES'], side: ['INFLATE'], edge: ['BEVEL'], candle: ['FLAME'], camera: ['LOOK THROUGH', 'LENS', 'FOCUS'] };
-const AUX_STEP = { INSET: 1, APERTURE: .1 };
+const AUX_STEP = { INSET: 5, APERTURE: .1 };
 
 /* ---------------- interface state */
-const S = { entered: false, sel: null, pre: null, tools: null, op: null, opV: null, prev: null, fault: null, done: null, open: false, look: false, clutch: false, exitAsk: false,
+const S = { entered: true, sel: null, pre: null, tools: null, op: null, opV: null, prev: null, fault: null, done: null, open: false, look: false, clutch: false, exitAsk: false,
   orbit: { yaw: .55, pitch: -.42, dist: 1.25, tgt: [0, .82, 0] }, rev: 0, takes: [], rec: null, say: '' };
 const ROLLERS = ['grooves', 'knurl', 'ribs', 'stipple', 'flutes'];
 
@@ -267,6 +267,23 @@ const changed = () => { if (!S.op || !S.opV) return false; const b = S.opBase; r
 function stateName() { if (!S.entered) return 'REST'; if (S.exitAsk) return 'EXIT?'; if (S.look) return 'CAMERA'; if (S.fault) return 'FAULT'; if (S.op) return changed() ? (S.turning ? 'WORKING' : 'CHANGED') : 'WORKING'; if (S.tools) return 'TOOLS'; if (S.recovered) return 'RECOVERY'; if (S.done && S.sel) return 'COMPLETE'; if (S.sel) return 'READY'; return 'IN MEMORY'; }
 
 /* ---------------- roller assignments: what each roller changes now. Quiet rollers do nothing */
+const PRIMARY = { top: 'EXTRUDE', side: 'INFLATE', edge: 'BEVEL', object: 'ROTATE', candle: 'FLAME', camera: 'FOCUS' };
+const VIEW = { orbit: { name: 'ORBIT', get: () => S.orbit.yaw, set: v => S.orbit.yaw = v, step: .09, fmt: v => ((Math.round(v * 57.3) % 360) + 360) % 360 + '°' },
+  tilt: { name: 'TILT', get: () => S.orbit.pitch, set: v => S.orbit.pitch = clamp(v, -1.4, .3), step: .05, fmt: v => Math.round(-v * 57.3) + '°' },
+  dolly: { name: 'DOLLY', get: () => S.orbit.dist, set: v => S.orbit.dist = clamp(v, .25, 4), step: .05, fmt: v => v.toFixed(2) + ' M' } };
+// direct edits with nothing latched: each is kept in the history (one entry per gesture), so UNDO reverses it
+function directEdit(name, fn, said) { const last = HIST[HIST.length - 1]; if (!(last && last.name === name && performance.now() - last.t < 1500)) { HIST.push({ m: deep(M), name, said: '' }); REDO.length = 0; } fn(M); const h = HIST[HIST.length - 1]; h.t = performance.now(); h.said = said(M); S.done = null; }
+const DIRECT = { flames: { name: 'FLAMES', get: () => M.lit.slice(0, M.cn).reduce((a, b) => a + b, 0), set: v => { const n = clamp(Math.round(v), 0, M.cn); directEdit('FLAMES', m => { m.lit = Array.from({ length: m.cn }, (_, i) => i < n ? 1 : 0); }, m => n + ' OF ' + m.cn + ' LIT'); }, step: 1, fmt: v => v + ' LIT' },
+  turn: { name: 'TURN CAKE', get: () => M.rot[1], set: v => directEdit('TURN', m => { m.rot[1] = Math.round(v); }, m => 'CAKE TURNED ' + m.rot[1] + '°'), step: 15, fmt: v => Math.round(v) + '°' } };
+function opRollers(A) {
+  const o = OPS[S.op], p = o.p;
+    const num = (k, slot, st) => { const [nm, unit, lo, hi] = p[k]; if (Array.isArray(unit)) A[slot] = { name: nm, get: () => S.opV[k], set: v => S.opV[k] = clamp(Math.round(v), 0, unit.length - 1), step: 1, fmt: v => unit[v] };
+      else A[slot] = { name: nm, get: () => S.opV[k], set: v => S.opV[k] = clamp(+v.toFixed(4), unit === 'mm' ? lo / 1000 : lo, unit === 'mm' ? hi / 1000 : hi), step: st, fmt: v => unit === 'mm' ? (v >= 0 && k === 'main' && S.op !== 'BEVEL' ? '+' : '') + mm(v) + ' MM' : unit === '%' ? Math.round(v) + '%' : unit === 'm' ? v.toFixed(2) + ' M' : unit === 'f/' ? 'f/' + v.toFixed(1) : Math.round(v) + unit }; };
+    num('main', 2, o.step(S.opV)); if (p.aux) num('aux', 3, AUX_STEP[p.aux[0]] || 1);
+    if (p.con) { if (S.op === 'FOCUS') { const L = focusTargets(); A[4] = { name: 'ON', get: () => S.opV.con || 0, set: v => { S.opV.con = clamp(Math.round(v), 0, L.length - 1); if (S.opV.con) S.opV.main = +L[S.opV.con].d.toFixed(2); }, step: 1, fmt: v => L[v] ? L[v].name : '' }; }
+      else { const [nm, list] = p.con; A[4] = { name: nm, get: () => S.opV.con, set: v => S.opV.con = clamp(Math.round(v), 0, list.length - 1), step: 1, fmt: v => list[v] }; } }
+    return A;
+}
 function assignments() {
   const A = [null, null, null, null, null];
   if (!S.entered || S.open || S.exitAsk) return A;
@@ -278,13 +295,14 @@ function assignments() {
     A[3] = { name: 'FOCUS', get: () => c.fd, set: v => c.fd = clamp(v, .15, 4), step: .01, fmt: v => v.toFixed(2) + ' M' };
     A[4] = { name: 'RESPONSE', get: () => S.resp, set: v => S.resp = clamp(v, .1, 1), step: .05, fmt: v => Math.round(v * 100) + '%' }; return A; }
   if (S.tools) { const fam = FAMILIES[S.sel.kind]; A[2] = { name: 'TOOL', get: () => S.tools.i, set: v => S.tools.i = clamp(Math.round(v), 0, fam.length - 1), step: 1, fmt: v => fam[v] }; return A; }
-  if (S.op && !OPS[S.op].action) { const o = OPS[S.op], p = o.p;
-    const num = (k, slot, st) => { const [nm, unit, lo, hi] = p[k]; if (Array.isArray(unit)) A[slot] = { name: nm, get: () => S.opV[k], set: v => S.opV[k] = clamp(Math.round(v), 0, unit.length - 1), step: 1, fmt: v => unit[v] };
-      else A[slot] = { name: nm, get: () => S.opV[k], set: v => S.opV[k] = clamp(+v.toFixed(4), unit === 'mm' ? lo / 1000 : lo, unit === 'mm' ? hi / 1000 : hi), step: st, fmt: v => unit === 'mm' ? (v >= 0 && k === 'main' && S.op !== 'BEVEL' ? '+' : '') + mm(v) + ' MM' : unit === '%' ? Math.round(v) + '%' : unit === 'm' ? v.toFixed(2) + ' M' : unit === 'f/' ? 'f/' + v.toFixed(1) : Math.round(v) + unit }; };
-    num('main', 2, o.step(S.opV)); if (p.aux) num('aux', 3, AUX_STEP[p.aux[0]] || 1);
-    if (p.con) { if (S.op === 'FOCUS') { const L = focusTargets(); A[4] = { name: 'ON', get: () => S.opV.con || 0, set: v => { S.opV.con = clamp(Math.round(v), 0, L.length - 1); if (S.opV.con) S.opV.main = +L[S.opV.con].d.toFixed(2); }, step: 1, fmt: v => L[v] ? L[v].name : '' }; }
-      else { const [nm, list] = p.con; A[4] = { name: nm, get: () => S.opV.con, set: v => S.opV.con = clamp(Math.round(v), 0, list.length - 1), step: 1, fmt: v => list[v] }; } }
-    return A; }
+  if (S.op && !OPS[S.op].action) { opRollers(A); A[0] = VIEW.orbit; A[1] = VIEW.dolly; return A; }
+  // nothing latched: every roller still acts on the room
+  if (!S.sel) { A[0] = VIEW.orbit; A[1] = VIEW.tilt; A[2] = VIEW.dolly; A[3] = DIRECT.flames; A[4] = DIRECT.turn; return A; }
+  // a target is latched: the ribbed, stippled and fluted rollers start its main operation at once, as a pending edit
+  A[0] = VIEW.orbit; const prim = PRIMARY[S.sel.kind];
+  if (prim) { const sv = [S.op, S.opV, S.opBase]; startOp(prim); const vv = S.opV, B = [null, null, null, null, null]; opRollers(B); [S.op, S.opV, S.opBase] = sv;
+    for (let k = 2; k < 5; k++) if (B[k]) { const bk = B[k]; A[k] = { name: bk.name, step: bk.step, fmt: bk.fmt, get: () => { const s0 = S.opV; S.opV = vv; const r = bk.get(); S.opV = s0; return r; },
+      set: v => { if (!S.op) startOp(prim); const C = [null, null, null, null, null]; opRollers(C); C[k].set(v); } }; } }
   if (S.sel && S.sel.kind !== 'camera' && S.sel.kind !== 'candle') { A[1] = { name: 'SCOPE', get: () => SCOPES.indexOf(scopeOf(S.pre || S.sel)), set: v => { const k = SCOPES[clamp(Math.round(v), 0, 2)]; S.pre = scopeTarget(S.sel, k); }, step: 1, fmt: v => SCOPES[v].toUpperCase() }; }
   return A;
 }
@@ -373,18 +391,22 @@ const rollEl = $('#rollers'), labEl = $('#labs');
 ROLLERS.forEach((n, i) => { const d = document.createElement('div'); d.className = 'roller r' + (i + 1); d.innerHTML = '<div class="tex"></div><div class="line"></div><i class="tickL"></i><i class="tickR"></i>'; d.setAttribute('aria-label', 'Roller ' + (i + 1) + ', ' + n); d.tabIndex = 0; rollEl.append(d);
   const l = document.createElement('div'); labEl.append(l); bindRoller(d, i); });
 const rollPos = [0, 0, 0, 0, 0];
-function turn(i, steps) { const A = assignments()[i]; if (!A) return false; if (A.delta) A.set(null, A.step * steps); else A.set(A.get() + A.step * steps); rollPos[i] += steps; S.turning = true; clearTimeout(turn.t); turn.t = setTimeout(() => { S.turning = false; bump(); }, 500); bump(); return true; }
+let AC = null; const TONE = [2600, 2200, 1800, 2400, 3000];
+function tick(dead, i) { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); const t = AC.currentTime, n = AC.createBufferSource(), b = AC.createBuffer(1, 400, AC.sampleRate), d = b.getChannelData(0);
+  for (let k = 0; k < d.length; k++) d[k] = (Math.random() * 2 - 1) * Math.exp(-k / (dead ? 30 : 55)); n.buffer = b; const f = AC.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = dead ? 700 : TONE[i || 0]; f.Q.value = 3; const g = AC.createGain(); g.gain.value = dead ? .25 : .9; n.connect(f).connect(g).connect(AC.destination); n.start(t); } catch (e) { }
+  if (navigator.vibrate) navigator.vibrate(dead ? 3 : 7); }
+function turn(i, steps) { const A = assignments()[i]; if (!A) { tick(true); return false; } tick(false, i); if (A.delta) A.set(null, A.step * steps); else A.set(A.get() + A.step * steps); rollPos[i] += steps; S.turning = true; clearTimeout(turn.t); turn.t = setTimeout(() => { S.turning = false; bump(); }, 500); bump(); return true; }
 function bindRoller(el, i) { let y0 = null, acc = 0, rev = -1;
-  el.addEventListener('pointerdown', e => { y0 = e.clientY; acc = 0; rev = S.rev; el.setPointerCapture(e.pointerId); });
-  el.addEventListener('pointermove', e => { if (y0 == null) return; if (rev !== S.rev) { y0 = null; return; } acc += y0 - e.clientY; y0 = e.clientY; const px = window.innerWidth < 720 ? 9 : 12; while (Math.abs(acc) >= px) { turn(i, Math.sign(acc) * (e.shiftKey ? .2 : 1)); acc -= Math.sign(acc) * px; } });
+  el.addEventListener('pointerdown', e => { y0 = e.clientY; acc = 0; rev = REVS[i]; el.setPointerCapture(e.pointerId); tick(!assignments()[i], i); });
+  el.addEventListener('pointermove', e => { if (y0 == null) return; if (rev !== REVS[i]) { y0 = null; return; } acc += y0 - e.clientY; y0 = e.clientY; const px = window.innerWidth < 720 ? 9 : 12; while (Math.abs(acc) >= px) { turn(i, Math.sign(acc) * (e.shiftKey ? .2 : 1)); acc -= Math.sign(acc) * px; } });
   const up = () => { y0 = null; }; el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
   el.addEventListener('wheel', e => { e.preventDefault(); turn(i, (e.deltaY < 0 ? 1 : -1) * (e.shiftKey ? .2 : 1)); }, { passive: false });
   el.addEventListener('keydown', e => { if (e.key === 'ArrowUp') { turn(i, e.shiftKey ? .2 : 1); e.preventDefault(); } if (e.key === 'ArrowDown') { turn(i, e.shiftKey ? -.2 : -1); e.preventDefault(); } }); }
 // a change of assignment is announced: the roller flashes, and a finger already resting on a roller is ignored until it lifts and touches again
-let lastAssign = '';
+let lastAssign = '', lastNames = ['', '', '', '', '']; const REVS = [0, 0, 0, 0, 0];
 function syncController() {
   const A = assignments(), sig = A.map(a => a ? a.name : '').join('|') + (S.op || '') + (S.tools ? 't' : '') + (S.look ? 'l' : '') + (S.clutch ? 'c' : '');
-  if (sig !== lastAssign) { lastAssign = sig; S.rev++; [...rollEl.children].forEach((r, i) => { r.classList.remove('flash'); if (A[i]) { void r.offsetWidth; r.classList.add('flash'); } }); }
+  if (sig !== lastAssign) { lastAssign = sig; S.rev++; [...rollEl.children].forEach((r, i) => { const nm = A[i] ? A[i].name : ''; if (nm === lastNames[i]) return; lastNames[i] = nm; REVS[i]++; r.classList.remove('flash'); if (A[i]) { void r.offsetWidth; r.classList.add('flash'); } }); }
   [...rollEl.children].forEach((r, i) => { r.classList.toggle('on', !!A[i]); r.classList.toggle('quiet', !A[i]); r.querySelector('.tex').style.transform = `translateY(${(rollPos[i] * 7) % 40}px)`; });
   [...labEl.children].forEach((l, i) => { const a = A[i]; l.className = a ? '' : 'quiet'; l.innerHTML = a ? `${a.name}<small>${a.fmt(a.get())}</small>` : '&nbsp;<small>&nbsp;</small>'; });
   const [wl, wr] = wings(); paintWing($('#wL'), wl); paintWing($('#wR'), wr);
