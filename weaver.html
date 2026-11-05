@@ -88,7 +88,7 @@ function holo(mat) { mat.onBeforeCompile = sh => { Object.assign(sh.uniforms, HU
         vec3 lit = gl_FragColor.rgb * (1.0 - uScan * 0.45 + uScan * 0.45 * scan) * flick;
         vec3 rim = vec3(0.45, 0.95, 0.88) * fr * 1.1 + vec3(1.0, 0.72, 0.4) * fr * 0.25;
         float edge = smoothstep(uMat - 0.07, uMat, h) * step(uMat, 0.995); rim += vec3(0.6, 1.0, 0.95) * edge * 1.5;
-        gl_FragColor.rgb = mix(gl_FragColor.rgb, lit * 1.15 + rim, uHolo); }`); };
+        gl_FragColor.rgb = mix(gl_FragColor.rgb, lit * 0.9 + rim * 0.8, uHolo); }`); };
   mat.customProgramCacheKey = () => 'holo'; return mat; }
 
 /* =============================================================== the memory: table, plate, and the made things */
@@ -136,13 +136,13 @@ const ITEMS = ['CANDLE', 'BERRY', 'SPRINKLES', 'ROSETTE', 'CHERRY'];
 const TOOLS = ['SPAWN', 'GRAB', 'PULL', 'PUSH', 'SMOOTH', 'FLATTEN', 'PAINT', 'PIPE', 'PLACE'];
 const SPINS = ['FREE', 'SPIN 6', 'SPIN 12', 'TURNED'];   // symmetry: none, 6 copies, 12 copies, the whole turn (lathe)
 const PLAYS = [['STEP 12', 12, 0], ['STEP 8', 8, 0], ['STEP 6', 6, 0], ['TWEEN 24', 24, 1]];
-const frameNew = () => ({ clay: null, strokes: [], items: [], rotY: 0, hold: 1 });
-let DOC = { frames: [frameNew()], cur: 0 };
+const frameNew = () => ({ clay: null, strokes: [], items: [], rotY: 0, tilt: 0, lift: 0, hold: 1 });
+let DOC = { frames: [frameNew()], cur: 0, cast: [] };
 const curF = () => DOC.frames[DOC.cur];
-const copyFrame = f => ({ clay: f.clay ? { kind: f.clay.kind, pos: f.clay.pos.slice(), col: f.clay.col.slice() } : null, strokes: f.strokes.map(s => ({ ...s, pts: s.pts.slice() })), items: f.items.map(i => ({ ...i })), rotY: f.rotY, hold: f.hold });
+const copyFrame = f => ({ clay: f.clay ? { kind: f.clay.kind, pos: f.clay.pos.slice(), col: f.clay.col.slice() } : null, strokes: f.strokes.map(s => ({ ...s, pts: s.pts.slice() })), items: f.items.map(i => ({ ...i })), rotY: f.rotY, tilt: f.tilt || 0, lift: f.lift || 0, hold: f.hold });
 const UNDO = [], REDO = [];
-function snapshot() { UNDO.push({ frames: DOC.frames.map(copyFrame), cur: DOC.cur }); if (UNDO.length > 40) UNDO.shift(); REDO.length = 0; dirtyDoc = true; }
-function undo(redo) { const from = redo ? REDO : UNDO, to = redo ? UNDO : REDO; const s = from.pop(); if (!s) { say(redo ? 'NOTHING TO REDO' : 'NOTHING TO UNDO'); tick('dead'); return; } to.push({ frames: DOC.frames.map(copyFrame), cur: DOC.cur }); DOC = s; showFrame(); S.state = 'RECOVERY'; say(redo ? 'REDONE' : 'UNDONE · THE LAST CHANGE IS REVERSED'); }
+function snapshot() { UNDO.push({ frames: DOC.frames.map(copyFrame), cur: DOC.cur, cast: DOC.cast.map(c => ({ ...c })) }); if (UNDO.length > 40) UNDO.shift(); REDO.length = 0; dirtyDoc = true; }
+function undo(redo) { const from = redo ? REDO : UNDO, to = redo ? UNDO : REDO; const s = from.pop(); if (!s) { say(redo ? 'NOTHING TO REDO' : 'NOTHING TO UNDO'); tick('dead'); return; } to.push({ frames: DOC.frames.map(copyFrame), cur: DOC.cur, cast: DOC.cast.map(c => ({ ...c })) }); DOC = s; DOC.cast = DOC.cast || []; showFrame(); S.state = 'RECOVERY'; say(redo ? 'REDONE' : 'UNDONE · THE LAST CHANGE IS REVERSED'); }
 let dirtyDoc = false;
 
 /* =============================================================== show a frame (or a point between two frames) in the room */
@@ -177,6 +177,7 @@ function showFrame(t) { // t: optional fractional frame position for tweened pla
   if (clayMesh) { const p = clayMesh.geometry.attributes.position, c = clayMesh.geometry.attributes.color; if (tween) { const k = sm(u); for (let n = 0; n < p.array.length; n++) { p.array[n] = A.clay.pos[n] + (B.clay.pos[n] - A.clay.pos[n]) * k; c.array[n] = A.clay.col[n] + (B.clay.col[n] - A.clay.col[n]) * k; } } else { p.array.set(A.clay.pos); c.array.set(A.clay.col); }
     p.needsUpdate = c.needsUpdate = true; clayMesh.geometry.computeVertexNormals(); clayMesh.geometry.computeBoundingSphere(); }
   CAKE.rotation.y = (tween ? lerp(A.rotY, B.rotY + (B.rotY - A.rotY > 180 ? -360 : A.rotY - B.rotY > 180 ? 360 : 0), sm(u)) : A.rotY) * Math.PI / 180;
+  CAKE.rotation.x = (tween ? lerp(A.tilt || 0, B.tilt || 0, sm(u)) : (A.tilt || 0)) * Math.PI / 180; CAKE.position.y = BASE_Y + (tween ? lerp(A.lift || 0, B.lift || 0, sm(u)) : (A.lift || 0));
   STROKES.clear(); A.strokes.forEach(s => STROKES.add(strokeMesh(s))); ITEMG.clear(); FLAMES = []; A.items.forEach(it => { const o = itemObj(it); ITEMG.add(o); o.traverse(x => { if (x.userData.flame) FLAMES.push(x); }); });
   // onion skin: earlier frames as cool ghosts, the next as a warm one
   ONION.clear(); if (t == null && S.mode === 'ANIMATE' && ONIONN > 0) { for (let k = 1; k <= ONIONN + 1; k++) { const j = k <= ONIONN ? DOC.cur - k : DOC.cur + 1; if (j < 0 || j >= F.length || !F[j].clay) continue; const g = new T.BufferGeometry(); g.setAttribute('position', new T.BufferAttribute(F[j].clay.pos, 3)); g.setIndex(topology(F[j].clay.kind).idx);
@@ -187,7 +188,7 @@ function showFrame(t) { // t: optional fractional frame position for tweened pla
 /* =============================================================== interface state */
 const S = { mode: 'SCULPT', tool: 2, radius: .03, strength: .5, opt: { SPAWN: 0, GRAB: 3, PULL: 3, PUSH: 3, SMOOTH: 3, FLATTEN: 3, PAINT: 1, PIPE: 0, PLACE: 0 }, state: 'REST', msg: '', msgT: 0,
   play: false, playT: 0, plays: 0, onion: 1, weave: { t: 0, mat: 1, scale: 1, haze: .45, scan: .5 }, take: null, takeRec: null, takeT: 0, exporting: false, fmt: 0, lastRing: -1,
-  orbit: { yaw: .5, pitch: -.3, dist: .95, tgt: new T.Vector3(0, .83, 0) } };
+  orbit: { yaw: .5, pitch: -.3, dist: .95, tgt: new T.Vector3(0, .83, 0) }, stageT: 0, focus: { d: null, auto: true } };
 function say(m) { S.msg = m; S.msgT = NOW; oledDirty = true; }
 function toolName() { return TOOLS[S.tool]; }
 function optList() { const t = toolName(); return t === 'SPAWN' ? Object.keys(BASES) : (t === 'PAINT' || t === 'PIPE') ? COLORS.map(c => c[0]) : t === 'PLACE' ? ITEMS : SPINS; }
@@ -209,6 +210,12 @@ function rings() {
       { n: 'ONION', v: () => S.onion, set: v => { S.onion = ONIONN = clamp(Math.round(v), 0, 3); showFrame(); }, st: 1, f: v => v ? '±' + v : 'OFF' },
       { n: 'TURN', v: () => curF().rotY, set: v => { curF().rotY = Math.round(v); showFrame(); }, st: 15, f: v => Math.round(v) + '°', undoable: true },
       { n: 'PLAYBACK', v: () => S.plays, set: v => S.plays = clamp(Math.round(v), 0, PLAYS.length - 1), st: 1, f: v => PLAYS[v][0] }]; }
+  if (S.mode === 'STAGE') { const T0 = stageTargets(), tg = T0[S.stageT] || T0[0], ch = tg.kind === 'child' ? DOC.cast.find(c => c.id === tg.id) : null, F = curF();
+    return [{ n: 'TARGET', v: () => S.stageT, set: v => { const k = clamp(Math.round(v), 0, T0.length - 1); if (k !== S.stageT) { S.stageT = k; lockChime(); if (S.focus.auto) S.focus.d = null; } }, st: 1, f: v => (T0[v] || T0[0]).name.toUpperCase() },
+      { n: 'TURN', v: () => ch ? ch.yaw : F.rotY, set: v => { if (ch) ch.yaw = Math.round(v); else F.rotY = Math.round(v); showFrame(); }, st: 5, f: v => Math.round(v) + '°', undoable: true },
+      { n: 'TILT', v: () => ch ? ch.tilt : (F.tilt || 0), set: v => { v = clamp(Math.round(v), -45, 45); if (ch) ch.tilt = v; else F.tilt = v; showFrame(); }, st: 3, f: v => (v > 0 ? '+' : '') + Math.round(v) + '°', undoable: true },
+      { n: ch ? 'DEPTH' : 'LIFT', v: () => ch ? ch.r : (F.lift || 0), set: v => { if (ch) ch.r = clamp(+v.toFixed(3), .35, 1.4); else F.lift = clamp(+v.toFixed(3), 0, .45); showFrame(); }, st: ch ? .025 : .01, f: v => ch ? v.toFixed(2) + ' M' : Math.round(v * 1000) + ' MM', undoable: true },
+      { n: 'FOCUS', v: () => S.focus.d == null ? focusAuto() : S.focus.d, set: v => { S.focus.d = clamp(+v.toFixed(3), .2, 3); S.focus.auto = false; servo(S.focus.d); }, st: .02, f: v => v.toFixed(2) + ' M' }]; }
   const W = S.weave;
   return [{ n: 'TIME', v: () => W.t, set: v => { W.t = ((v % 1) + 1) % 1; S.play = false; }, st: .02, f: v => Math.round(v * 100) + '%' },
     { n: 'MATERIALIZE', v: () => W.mat, set: v => W.mat = clamp(v, 0, 1), st: .05, f: v => Math.round(v * 100) + '%' },
@@ -217,18 +224,19 @@ function rings() {
     { n: 'SCANLINE', v: () => W.scan, set: v => W.scan = clamp(v, 0, 1), st: .05, f: v => Math.round(v * 100) + '%' }];
 }
 let gestureT = 0;
-function turn(i, steps) { const r = rings()[i]; if (!r) { tick('dead'); return; } tick('ring', i); if (r.undoable && NOW - gestureT > 1.2) snapshot(); gestureT = NOW; r.set(r.v() + r.st * steps); S.lastRing = i; ORB.spin(i, steps); oledDirty = true; if (S.mode === 'SCULPT' && i === 1) cursorDirty = true; }
+function turn(i, steps) { const r = rings()[i]; if (!r) { tick('dead'); return; } tick('ring', i); if (r.undoable && NOW - gestureT > 1.2) snapshot(); gestureT = NOW; r.set(r.v() + r.st * steps); S.spinAcc = (S.spinAcc || 0) + steps * .17; S.lastRing = i; ORB.spin(i, steps); oledDirty = true; if (S.mode === 'SCULPT' && i === 1) cursorDirty = true; }
 
 /* =============================================================== buttons */
 function press(b, long) { tick('press'); ORB.push(b);
   if (S.exporting) { if (b === 'KEEP' || b === 'CAPTURE') doExport(); else { S.exporting = false; say('EXPORT CLOSED'); } oledDirty = true; return; }
-  if (b === 'MODE') { S.mode = { SCULPT: 'ANIMATE', ANIMATE: 'WEAVE', WEAVE: 'SCULPT' }[S.mode]; S.play = false; ONIONN = S.mode === 'ANIMATE' ? S.onion : 0; showFrame(); say(S.mode === 'SCULPT' ? 'SCULPT · THE TIMELINE IS LOCKED' : S.mode === 'ANIMATE' ? 'ANIMATE · CAPTURE ADDS A FRAME' : 'WEAVE · THE MEMORY BECOMES LIGHT'); }
+  if (b === 'MODE') { S.mode = { SCULPT: 'STAGE', STAGE: 'ANIMATE', ANIMATE: 'WEAVE', WEAVE: 'SCULPT' }[S.mode]; S.play = false; ONIONN = S.mode === 'ANIMATE' ? S.onion : 0; showFrame(); say(S.mode === 'STAGE' ? 'STAGE · RING 1 CHOOSES, THE OTHERS TURN, TILT, LIFT AND FOCUS' : S.mode === 'SCULPT' ? 'SCULPT · THE TIMELINE IS LOCKED' : S.mode === 'ANIMATE' ? 'ANIMATE · CAPTURE ADDS A FRAME' : 'WEAVE · THE MEMORY BECOMES LIGHT'); }
   else if (b === 'UNDO') undo(long);
-  else if (b === 'PLAY') { if (S.mode === 'SCULPT') { say('PLAY LIVES IN ANIMATE AND WEAVE'); tick('dead'); } else { S.play = !S.play; if (!S.play) showFrame(); say(S.play ? (S.mode === 'WEAVE' && S.take ? 'PLAYING THE TAKE' : 'PLAYING THE LOOP') : 'STOPPED'); } }
+  else if (b === 'PLAY') { if (S.mode === 'SCULPT' || S.mode === 'STAGE') { say('PLAY LIVES IN ANIMATE AND WEAVE'); tick('dead'); } else { S.play = !S.play; if (!S.play) showFrame(); say(S.play ? (S.mode === 'WEAVE' && S.take ? 'PLAYING THE TAKE' : 'PLAYING THE LOOP') : 'STOPPED'); } }
   else if (b === 'CAPTURE') capture(long);
   else if (b === 'KEEP') { S.exporting = true; say('EXPORT · RING 2 CHOOSES, KEEP WRITES'); }
   oledDirty = true; }
 function capture(long) {
+  if (S.mode === 'STAGE') return castCapture(long);
   if (S.mode === 'ANIMATE') { snapshot(); if (long) { if (DOC.frames.length > 1) { DOC.frames.splice(DOC.cur, 1); DOC.cur = Math.max(0, DOC.cur - 1); say('FRAME REMOVED'); } } else { DOC.frames.splice(DOC.cur + 1, 0, copyFrame(curF())); DOC.cur++; say('FRAME ' + (DOC.cur + 1) + ' ADDED · CHANGE IT, THE ONION SHOWS THE LAST'); } showFrame(); return; }
   if (S.mode === 'WEAVE') { if (S.takeRec) { S.take = S.takeRec; S.takeRec = null; say('TAKE KEPT · ' + S.take.length + ' SAMPLES · PLAY REPLAYS IT'); } else { S.takeRec = []; S.takeT = NOW; say('RECORDING THE RINGS'); } return; }
   // SCULPT: the thumb acts at the reticle in the centre of the room
@@ -319,7 +327,7 @@ const scr = v => { const p = v.clone().project(cam); return p.z > 1 ? null : [(p
 const hot = i => i === S.lastRing || i === S.hoverRing;
 const C = { cy: '#5ff0dc', hot: '#b8fff6', dim: 'rgba(95,240,220,.45)', amb: '#f0b040' };
 function tagSVG(x, y, txt, i, anchor) { const h = hot(i), tw = String(txt).length * (h ? 8.6 : 7.4), Wd = roomEl.clientWidth; anchor = anchor || 'start'; const left = anchor === 'start' ? x : anchor === 'end' ? x - tw : x - tw / 2; if (left < 6) x += 6 - left; else if (left + tw > Wd - 6) x -= left + tw - (Wd - 6); y = clamp(y, 14, roomEl.clientHeight - 6); return `<text x="${x}" y="${y}" fill="${h ? C.hot : C.cy}" font-size="${h ? 14 : 12}" font-weight="${h ? 700 : 500}" text-anchor="${anchor || 'start'}" paint-order="stroke" stroke="#000" stroke-width="3">${txt}</text>`; }
-function brackets(b, dashed, label, i) { if (!b) return ''; const [x0, y0, x1, y1] = b, L = Math.min(22, (x1 - x0) / 4, (y1 - y0) / 4), st = `stroke="${hot(i) ? C.hot : C.cy}" stroke-width="${dashed ? 1.5 : 2.5}" fill="none" ${dashed ? 'stroke-dasharray="4 3"' : ''}`;
+function brackets(b, dashed, label, i) { return ''; const [x0, y0, x1, y1] = b, L = Math.min(22, (x1 - x0) / 4, (y1 - y0) / 4), st = `stroke="${hot(i) ? C.hot : C.cy}" stroke-width="${dashed ? 1.5 : 2.5}" fill="none" ${dashed ? 'stroke-dasharray="4 3"' : ''}`;
   return `<path ${st} d="M${x0} ${y0 + L}V${y0}H${x0 + L}M${x1 - L} ${y0}H${x1}V${y0 + L}M${x1} ${y1 - L}V${y1}H${x1 - L}M${x0 + L} ${y1}H${x0}V${y1 - L}"/>` + (label ? tagSVG(x0, y0 - 7, label, i) : ''); }
 function boxOf(obj) { const b = new T.Box3().setFromObject(obj); if (b.isEmpty()) return null; let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (let k = 0; k < 8; k++) { const v = new T.Vector3(k & 1 ? b.max.x : b.min.x, k & 2 ? b.max.y : b.min.y, k & 4 ? b.max.z : b.min.z); const p = scr(v); if (!p) continue; x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]); x1 = Math.max(x1, p[0]); y1 = Math.max(y1, p[1]); } return x1 > x0 ? [x0 - 8, y0 - 8, x1 + 8, y1 + 8] : null; }
 function ellipseArc(r, y, a0, a1, n) { const pts = []; n = n || 48; for (let k = 0; k <= n; k++) { const a = a0 + (a1 - a0) * k / n; const p = scr(MEM.localToWorld(new T.Vector3(Math.cos(a) * r, y, Math.sin(a) * r))); if (p) pts.push(p); } return pts.length > 1 ? 'M' + pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('L') : ''; }
@@ -359,6 +367,7 @@ function updReticle() {
     // the orbit ring's counterpart: a compass on the table under the cake
     { const ac = Math.PI / 2 - S.orbit.yaw; svg += arcSVG(ellipseArc(.34, TABLE_Y + .001, ac - .3, ac + .3, 14), 0, hot(0) ? 2.5 : 1.2, '3 4'); const op = scr(MEM.localToWorld(new T.Vector3(Math.cos(ac) * .34, TABLE_Y, Math.sin(ac) * .34))); if (op && hot(0)) svg += tagSVG(op[0], op[1] + 18, 'ORBIT ' + rings()[0].f(S.orbit.yaw), 0, 'middle'); }
     retSVG.innerHTML = svg; return; }
+  if (S.mode === 'STAGE') { retSVG.innerHTML = ''; return; }
   const CENTER = MEM.localToWorld(new T.Vector3(0, BASE_Y + .05, 0)), F = DOC.frames;
   if (S.mode === 'ANIMATE') { // frames as segments of a ring on the table, each as long as its hold; the turn of each frame on an inner ring
     let beats = 0; F.forEach(f => beats += f.hold); let a = -Math.PI / 2; const r1 = .24, r2 = .205;
@@ -380,6 +389,92 @@ function updReticle() {
   if (S.takeRec) svg += `<circle cx="${W - 24}" cy="24" r="7" fill="#ff5a3c"/>` + tagSVG(W - 36, 28, 'TAKE', -1, 'end');
   retSVG.innerHTML = svg; }
 
+
+/* =============================================================== THE CAST: the children, cut from the film's own frame, added one by one */
+const KIDS = [{ file: 'child1.png', h: .56, base: TABLE_Y - .1, da: -.62 }, { file: 'child2.png', h: .24, base: TABLE_Y + .05, da: -.05 }, { file: 'child3.png', h: .72, base: TABLE_Y - .14, da: .52 }];
+const kidTex = KIDS.map(k => { const t = new T.TextureLoader().load('assets/weaver/' + k.file, tt => { k.aspect = tt.image.width / tt.image.height; castDirty = true; }); t.encoding = T.sRGBEncoding; return t; });
+const CASTG = new T.Group(); MEM.add(CASTG); const castMesh = {}; let castDirty = true;
+function castObj(c) { if (castMesh[c.id]) return castMesh[c.id]; const k = KIDS[c.i]; const m = new T.Mesh(new T.PlaneGeometry(1, 1), holo(new T.MeshStandardMaterial({ map: kidTex[c.i], emissiveMap: kidTex[c.i], emissive: 0xffffff, color: 0x000000, transparent: true, alphaTest: .25, side: T.DoubleSide, depthWrite: true })));
+  m.material.customProgramCacheKey = () => 'holo-kid'; m.userData.cast = c.id; CASTG.add(m); castMesh[c.id] = m; return m; }
+function placeCast(dt) { const ids = new Set(DOC.cast.map(c => c.id)); for (const id in castMesh) if (!ids.has(+id)) { CASTG.remove(castMesh[id]); delete castMesh[id]; }
+  const cp = cam.position.clone(); MEM.worldToLocal(cp);
+  DOC.cast.forEach(c => { const m = castObj(c), k = KIDS[c.i], asp = k.aspect || .7; c.vis = (c.vis == null ? 0 : c.vis) + ((c.op || 0) - (c.vis || 0)) * Math.min(1, dt * 2.4);
+    m.scale.set(k.h * asp, k.h, 1); m.position.set(Math.cos(c.a) * c.r, k.base + k.h / 2 + (c.lift || 0), Math.sin(c.a) * c.r);
+    m.lookAt(MEM.localToWorld(new T.Vector3(cp.x, m.position.y, cp.z))); m.rotateY((c.yaw || 0) * Math.PI / 180); m.rotateX(-(c.tilt || 0) * Math.PI / 180);
+    m.material.opacity = c.vis; m.visible = c.vis > .02; }); }
+let CASTID = 1;
+function castCapture(long) { const T0 = stageTargets(), tg = T0[S.stageT];
+  if (long) { if (tg && tg.kind === 'child') { snapshot(); DOC.cast = DOC.cast.filter(c => c.id !== tg.id); S.stageT = 0; say('CHILD TAKEN OUT OF THE MEMORY'); } else { say('AIM RING 1 AT A CHILD TO TAKE THEM OUT'); tick('dead'); } return; }
+  const used = new Set(DOC.cast.map(c => c.i)); const i = [0, 1, 2].find(n => !used.has(n)); if (i == null) { say('ALL THREE CHILDREN ARE HERE'); tick('dead'); return; }
+  snapshot(); const ca = Math.atan2(cam.position.z, cam.position.x), a = ca + Math.PI + KIDS[i].da; const c = { id: CASTID++, i, a, r: .62, yaw: 0, tilt: 0, lift: 0, op: 1, vis: 0 }; DOC.cast.push(c);
+  S.stageT = stageTargets().findIndex(t => t.id === c.id); S.ease = { t: 1.6, y: 1.0, d: Math.max(S.orbit.dist, 1.32), p: -.16 }; shimmer(); say('CHILD ' + (i + 1) + ' COMES IN FROM THE DARK'); }
+function stageTargets() { return [{ kind: 'cake', name: 'cake', id: 0 }, ...DOC.cast.map(c => ({ kind: 'child', name: 'child ' + (c.i + 1), id: c.id }))]; }
+function stageName() { const t = stageTargets()[S.stageT]; return t ? t.name : 'cake'; }
+function targetWorld() { const t = (S.mode === 'STAGE' ? stageTargets()[S.stageT] : null) || { kind: 'cake' };
+  if (t.kind === 'child' && castMesh[t.id]) { const m = castMesh[t.id]; return { c: m.getWorldPosition(new T.Vector3()).add(new T.Vector3(0, m.scale.y * MEM.scale.x * .28, 0)), r: m.scale.y * MEM.scale.x * .32, kind: 'child', obj: m }; }
+  const b = new T.Box3().setFromObject(clayMesh || plate); const c = b.getCenter(new T.Vector3()), r = b.getSize(new T.Vector3()).length() / 2; return { c, r: Math.max(.06, r), kind: 'cake' }; }
+function focusAuto() { return Math.max(.2, cam.position.distanceTo(targetWorld().c)); }
+// sounds: a lock chime when the reticle takes a new target, a swell when a child arrives, a tone that follows the focus pull
+function tone(f0, f1, dur, vol, type) { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime; o.type = type || 'sine'; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .012); g.gain.exponentialRampToValueAtTime(.0001, t + dur); o.connect(g).connect(AC.destination); o.start(t); o.stop(t + dur + .02); } catch (e) { } }
+function lockChime() { tone(1320, 1310, .09, .12); setTimeout(() => tone(1760, 1750, .14, .09), 70); RT.pop = 1; }
+function shimmer() { tone(440, 880, .9, .07, 'triangle'); setTimeout(() => tone(660, 1320, .8, .05, 'triangle'), 120); RT.pop = 1; }
+function servo(d) { tone(180 + d * 160, 200 + d * 160, .07, .05, 'sawtooth'); }
+
+/* =============================================================== THE FILM'S RETICLE: a lit, segmented ring that stands beside the target in the room.
+   It is an object, not an overlay: seen from the side it is a thin arc of light. Its segments turn as a ring turns, a bright cursor slides along the band to the
+   value, hairlines cross it, and a leader runs out to three lines of readout. A small one rides above each child. */
+const retM = new T.MeshStandardMaterial({ color: 0x9aa39e, metalness: .55, roughness: .32, emissive: 0x1c2321, transparent: true, opacity: .9, depthWrite: false, side: T.DoubleSide });
+const retLight = new T.PointLight(0xdfe8e4, .9, 1.4, 2); scene.add(retLight);
+function sector(a0, a1, r0, r1) { const sh = new T.Shape(); sh.absarc(0, 0, r1, a0, a1, false); sh.lineTo(Math.cos(a1) * r0, Math.sin(a1) * r0); sh.absarc(0, 0, r0, a1, a0, true); sh.closePath(); return new T.ExtrudeGeometry(sh, { depth: .07, bevelEnabled: true, bevelThickness: .025, bevelSize: .018, bevelSegments: 2, curveSegments: 18 }); }
+function makeReticle(small) { const g = new T.Group(), band = new T.Group(), bm = retM.clone(); g.add(band); const spans = small ? [70, 55, 60, 50] : [52, 38, 46, 30, 44, 40]; let a = 0; const gap = small ? 9 : 5;
+  spans.forEach(sp => { const m = new T.Mesh(sector(a * Math.PI / 180, (a + sp) * Math.PI / 180, .8, 1), retM); m.renderOrder = 30; band.add(m); m.material = bm; a += sp + gap; });
+  const lm = new T.LineBasicMaterial({ color: 0xcfdcd6, transparent: true, opacity: .7, depthWrite: false });
+  const inner = new T.Mesh(new T.TorusGeometry(.7, .009, 6, 64, Math.PI * 1.15), new T.MeshBasicMaterial({ color: 0xbcc8c2, transparent: true, opacity: .55, depthWrite: false })); inner.rotation.z = Math.PI * .55; g.add(inner);
+  const hair = new T.Group(); [0, .5, 1.6].forEach(an => { const l = new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(Math.cos(an) * .55, Math.sin(an) * .55, .05), new T.Vector3(Math.cos(an) * 1.16, Math.sin(an) * 1.16, .05)]), lm); hair.add(l); }); g.add(hair);
+  const ticks = new T.Group(); for (let k = 0; k < (small ? 6 : 14); k++) { const an = -.9 + k * .13; ticks.add(new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(Math.cos(an) * 1.07, Math.sin(an) * 1.07, .04), new T.Vector3(Math.cos(an) * (k % 5 ? 1.12 : 1.18), Math.sin(an) * (k % 5 ? 1.12 : 1.18), .04)]), lm)); } g.add(ticks);
+  const cur = new T.Mesh(new T.BoxGeometry(.13, .25, .13), new T.MeshBasicMaterial({ color: 0xf2fbf7, toneMapped: false, transparent: true, depthWrite: false })); band.add(cur);
+  const can = document.createElement('canvas'); can.width = 512; can.height = 120; const ctex = new T.CanvasTexture(can); ctex.encoding = T.sRGBEncoding;
+  const txt = new T.Mesh(new T.PlaneGeometry(2.3, .54), new T.MeshBasicMaterial({ map: ctex, transparent: true, depthWrite: false, toneMapped: false })); g.add(txt);
+  const lead = new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(), new T.Vector3()]), lm); g.add(lead);
+  g.traverse(o => { o.renderOrder = 30; }); scene.add(g);
+  return { g, band, bm, cur, hair, txt, can, ctex, lead, small, spin: 0, spinV: 0, curA: 0, curV: 0, pos: null, q: new T.Quaternion(), sc: 0, alpha: 0, lines: '', inner }; }
+function setLines(R0, lines) { const key = lines.join('|'); if (key === R0.lines) return; R0.lines = key; const x = R0.can.getContext('2d'); x.clearRect(0, 0, 512, 120); x.font = '500 25px ui-monospace, Menlo, monospace'; x.fillStyle = 'rgba(214,226,220,.92)'; x.textAlign = 'right'; lines.forEach((l, i) => x.fillText(l, 505, 30 + i * 36)); R0.ctex.needsUpdate = true; }
+// drive one reticle toward a target with springs: it glides, overshoots a little, settles
+function driveReticle(R0, dt, want) { const k = Math.min(1, dt * 7);
+  if (!want) { R0.alpha += (0 - R0.alpha) * k; } else { R0.alpha += (1 - R0.alpha) * k;
+    if (!R0.pos) R0.pos = want.pos.clone(); R0.vel = R0.vel || new T.Vector3(); const acc = want.pos.clone().sub(R0.pos).multiplyScalar(90).sub(R0.vel.clone().multiplyScalar(14)); R0.vel.addScaledVector(acc, dt); R0.pos.addScaledVector(R0.vel, dt);
+    R0.q.slerp(want.q, Math.min(1, dt * 6)); R0.sc += (want.sc - R0.sc) * Math.min(1, dt * 8);
+    const sA = (want.spin - R0.spin) * 120 - R0.spinV * 13; R0.spinV += sA * dt; R0.spin += R0.spinV * dt; const cA = (want.cur - R0.curA) * 140 - R0.curV * 15; R0.curV += cA * dt; R0.curA += R0.curV * dt;
+    setLines(R0, want.lines); }
+  const g = R0.g; g.visible = R0.alpha > .02; if (!g.visible || !R0.pos) return; g.position.copy(R0.pos); g.quaternion.copy(R0.q); g.scale.setScalar(R0.sc * (1 + (RT.pop || 0) * .12 * (R0.small ? 0 : 1)));
+  R0.band.rotation.z = R0.spin; R0.hair.rotation.z = R0.spin * .6; const span = R0.small ? 4.3 : 4.75, ca = R0.curA * span; R0.cur.position.set(Math.cos(ca) * .9, Math.sin(ca) * .9, .06); R0.cur.rotation.z = ca;
+  const tx = R0.small ? -1.9 : -2.55, ty = R0.small ? .55 : .12; R0.txt.position.set(tx - .05, ty, 0); const lp = R0.lead.geometry.attributes.position; if (R0.small) { lp.setXYZ(0, -.9, -.45, 0); lp.setXYZ(1, -1.6, -1.6, 0); } else { lp.setXYZ(0, -1.05, 0, 0); lp.setXYZ(1, -1.25, ty - .1, 0); } lp.needsUpdate = true;
+  g.traverse(o => { if (o.material && o.material !== R0.bm) o.material.opacity = (o === R0.cur ? 1 : o === R0.txt ? .95 : o.material === R0.inner.material ? .55 : .7) * R0.alpha; }); R0.bm.opacity = .9 * R0.alpha; }
+const RT = { main: makeReticle(false), kids: {}, rot: 0, cur: 0, pop: 0 };
+// what the main reticle reads in each mode: which ring value it shows as the cursor, the spin of its segments, and its three lines
+function reticleWant() { const tw = targetWorld(); if ((S.mode === 'SCULPT' && !clayMesh) || S.exporting) return null;
+  const RS = rings(), li = S.lastRing >= 0 ? S.lastRing : 1, r = RS[li] || RS.find(Boolean); let v01 = .5;
+  if (r) { const v = r.v(); const lo = { TURN: -180, TILT: -45, LIFT: 0, DEPTH: .35, FOCUS: .2, ORBIT: -Math.PI, RADIUS: .005, STRENGTH: .05, TIME: 0, MATERIALIZE: 0, SCALE: .3, HAZE: 0, SCANLINE: 0, FRAME: 0, HOLD: 1, ONION: 0 }[r.n], hi = { TURN: 180, TILT: 45, LIFT: .45, DEPTH: 1.4, FOCUS: 3, ORBIT: Math.PI, RADIUS: .09, STRENGTH: 1, TIME: 1, MATERIALIZE: 1, SCALE: 3, HAZE: 1, SCANLINE: 1, FRAME: Math.max(1, DOC.frames.length - 1), HOLD: 12, ONION: 3 }[r.n];
+    if (lo != null) v01 = clamp((((r.n === 'TURN' ? ((v + 180) % 360 + 360) % 360 - 180 : v) - lo) / (hi - lo)), 0, 1); else v01 = (r.v() % 8) / 8; }
+  RT.cur = v01; RT.rot = (S.spinAcc || 0);
+  const camR = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion), camU = new T.Vector3(0, 1, 0).applyQuaternion(cam.quaternion);
+  const side = tw.kind === 'child' ? 1.25 : 1.5, pos = tw.c.clone().addScaledVector(camR, tw.r * side).addScaledVector(camU, tw.r * (tw.kind === 'child' ? .1 : .05));
+  const look = new T.Matrix4().lookAt(pos, cam.position, camU), q = new T.Quaternion().setFromRotationMatrix(look); q.multiply(new T.Quaternion().setFromEuler(new T.Euler(0, Math.PI, 0)));
+  const F = curF(), tilt = tw.kind === 'cake' ? (F.tilt || 0) : ((DOC.cast.find(c => c.id === (stageTargets()[S.stageT] || {}).id) || {}).tilt || 0);
+  q.multiply(new T.Quaternion().setFromEuler(new T.Euler(tilt * Math.PI / 360, -.42, 0)));   // turned toward the target, and leaning with its tilt: the angle shows
+  const fmt = n => (RS[n] ? RS[n].n.toLowerCase().replace(/ /g, '_') + '  ' + RS[n].f(RS[n].v()).toLowerCase() : '');
+  const lines = S.mode === 'STAGE' ? ['obj_' + stageName().replace(' ', '_') + '_orient', fmt(1) + '   ' + fmt(2), fmt(3) + '   ' + fmt(4)] : S.mode === 'SCULPT' ? ['clay_' + toolName().toLowerCase() + '_' + (SYM(toolName()) || 'free').toLowerCase().replace(' ', ''), fmt(2), fmt(3) + '   ' + fmt(4)]
+    : S.mode === 'ANIMATE' ? ['seq_frame_' + (DOC.cur + 1) + '_of_' + DOC.frames.length, fmt(1) + '   ' + fmt(3), fmt(4)] : ['mem_weave_' + (S.play ? 'live' : 'held'), fmt(0) + '   ' + fmt(1), fmt(2) + '   ' + fmt(3)];
+  return { pos, q, sc: tw.r * (tw.kind === 'child' ? .42 : .55), spin: RT.rot, cur: v01, lines }; }
+function updFilmReticles(dt) { RT.pop = Math.max(0, (RT.pop || 0) - dt * 3); const w = S.mode === 'SCULPT' && hover && !ST ? null : reticleWant(); driveReticle(RT.main, dt, S.mode === 'SCULPT' ? (clayMesh ? w : null) : w);
+  const cmr = RT.main.pos; if (cmr) { retLight.position.copy(cmr).add(new T.Vector3(0, .25, .2)); retLight.intensity = .9 * RT.main.alpha; }
+  // a small reticle over each child, its leader running down to the head
+  const camU = new T.Vector3(0, 1, 0).applyQuaternion(cam.quaternion), camR = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion), tsel = stageTargets()[S.stageT];
+  const ids = new Set(DOC.cast.map(c => c.id)); for (const id in RT.kids) if (!ids.has(+id)) { RT.kids[id].g.visible = false; scene.remove(RT.kids[id].g); delete RT.kids[id]; }
+  DOC.cast.forEach(c => { const R0 = RT.kids[c.id] || (RT.kids[c.id] = makeReticle(true)); const m = castMesh[c.id]; if (!m || !m.visible || S.mode === 'SCULPT') { driveReticle(R0, dt, null); return; }
+    const top = m.getWorldPosition(new T.Vector3()).addScaledVector(camU, m.scale.y * MEM.scale.x * .5 + .07).addScaledVector(camR, m.scale.x * MEM.scale.x * .12);
+    const look = new T.Matrix4().lookAt(top, cam.position, camU), q = new T.Quaternion().setFromRotationMatrix(look); q.multiply(new T.Quaternion().setFromEuler(new T.Euler(0, Math.PI - .5, 0)));
+    const sel = tsel && tsel.id === c.id; driveReticle(R0, dt, { pos: top, q, sc: sel ? .05 : .04, spin: (c.yaw || 0) * Math.PI / 180, cur: clamp((c.vis || 0), 0, 1), lines: ['child_0' + (c.i + 1) + (sel ? '  held' : ''), 'turn ' + (c.yaw || 0) + '  tilt ' + (c.tilt || 0), 'op ' + (c.vis || 0).toFixed(2)] }); R0.alpha *= Math.min(1, c.vis || 0); }); }
 /* =============================================================== THE ORB: modelled, lit and turned in its own scene */
 const orbEl = document.getElementById('orb');
 const OR = new T.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true }); OR.setPixelRatio(Math.min(2, devicePixelRatio)); OR.outputEncoding = T.sRGBEncoding; OR.toneMapping = T.ACESFilmicToneMapping; OR.toneMappingExposure = 1.05; OR.setClearColor(0x000000, 0); orbEl.append(OR.domElement);
@@ -462,7 +557,7 @@ function drawOLED() { const W = OLED.width, H = OLED.height, x = ox; x.fillStyle
   x.strokeStyle = '#123630'; x.lineWidth = 2; x.beginPath(); x.moveTo(W * .25, 18); x.lineTo(W * .25, 220); x.moveTo(W * .72, 18); x.lineTo(W * .72, 220); x.moveTo(20, 232); x.lineTo(W - 20, 232); x.stroke();
   const F = DOC.frames, st = S.exporting ? 'EXPORT' : ST ? 'WORKING' : S.state; x.font = '600 26px ui-monospace, Menlo, monospace'; x.fillStyle = DIM; x.textAlign = 'left'; x.fillText(st, 26, 48);
   x.font = '700 58px ui-monospace, Menlo, monospace'; x.fillStyle = CY; x.fillText(S.mode, 26, 118); x.font = '500 24px ui-monospace, Menlo, monospace'; x.fillStyle = MID;
-  x.fillText(S.mode === 'SCULPT' ? 'TIMELINE LOCKED' : 'FRAME ' + (DOC.cur + 1) + ' OF ' + F.length, 26, 160); x.fillStyle = DIM; x.fillText(Math.round(perf.tris / 1000) + 'K TRIS · ' + perf.calls + ' DRAWS', 26, 200);
+  x.fillText(S.mode === 'SCULPT' ? 'TIMELINE LOCKED' : S.mode === 'STAGE' ? stageName().toUpperCase() : 'FRAME ' + (DOC.cur + 1) + ' OF ' + F.length, 26, 160); x.fillStyle = DIM; x.fillText(Math.round(perf.tris / 1000) + 'K TRIS · ' + perf.calls + ' DRAWS', 26, 200);
   // centre: the operation, drawn
   const cx = W * .485; x.textAlign = 'center';
   if (S.exporting) { EXPORTS.forEach((e, i) => { x.font = (i === S.fmt ? '700 ' : '500 ') + '30px ui-monospace, Menlo, monospace'; x.fillStyle = i === S.fmt ? CY : DIM; x.fillText(e, cx, 52 + i * 36); }); }
@@ -470,6 +565,7 @@ function drawOLED() { const W = OLED.width, H = OLED.height, x = ox; x.fillStyle
   else if (S.mode === 'ANIMATE') { const n = F.length, w = Math.min(70, 560 / n); let tot = 0; F.forEach(f => tot += f.hold); let xx = cx - Math.min(560, tot * w) / 2; const unit = Math.min(560, tot * w) / tot;
     F.forEach((f, i) => { const ww = f.hold * unit; x.fillStyle = i === DOC.cur ? CY : '#164a43'; x.fillRect(xx + 2, 90, ww - 4, 64); if (f.hold > 1) { x.fillStyle = '#020403'; x.fillRect(xx + unit - 2, 118, ww - unit, 8); } xx += ww; });
     x.font = '700 40px ui-monospace, Menlo, monospace'; x.fillStyle = CY; x.fillText(S.play ? 'PLAYING · ' + PLAYS[S.plays][0] : 'STOP-MOTION', cx, 60); }
+  else if (S.mode === 'STAGE') { x.font = '700 44px ui-monospace, Menlo, monospace'; x.fillStyle = CY; x.fillText(stageName().toUpperCase(), cx, 66); const r0 = 52, a0 = Math.PI * .75; x.lineWidth = 9; for (let k = 0; k < 6; k++) { x.strokeStyle = '#2e7a70'; x.beginPath(); x.arc(cx, 150, r0, a0 + k * .8 + RT.rot, a0 + k * .8 + .7 + RT.rot); x.stroke(); } const ca = a0 + RT.cur * 4.7; x.fillStyle = CY; x.fillRect(cx + Math.cos(ca) * r0 - 7, 150 + Math.sin(ca) * r0 - 7, 14, 14); }
   else { x.font = '700 40px ui-monospace, Menlo, monospace'; x.fillStyle = CY; x.fillText(S.takeRec ? 'RECORDING TAKE' : S.play ? 'WEAVING' : 'MEMORY OF LIGHT', cx, 60); const m = S.weave.mat; for (let k = 0; k < 40; k++) { const a = k / 40 * TAU; x.fillStyle = k / 40 < m ? CY : '#123630'; x.fillRect(cx + Math.cos(a) * 70 - 4, 140 + Math.sin(a) * 50 - 4, 8, 8); } }
   // right: the value of the ring last touched
   const RS = rings(), r = RS[S.lastRing] || RS.find(Boolean); x.textAlign = 'right'; if (r) { x.font = '600 26px ui-monospace, Menlo, monospace'; x.fillStyle = DIM; x.fillText(r.n, W - 28, 48); x.font = '700 56px ui-monospace, Menlo, monospace'; x.fillStyle = CY; x.fillText(r.f(r.v()), W - 28, 118); }
@@ -500,7 +596,23 @@ function loopSeconds() { const fps = PLAYS[S.plays][1], tw = PLAYS[S.plays][2]; 
 /* =============================================================== the loop */
 function resize() { const w = roomEl.clientWidth, h = roomEl.clientHeight; R.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); fitOrb(); oledDirty = true; }
 addEventListener('resize', resize);
-function renderRoom() { placeCam(); R.render(scene, cam); }
+const rtR = new T.WebGLRenderTarget(16, 16, { depthTexture: new T.DepthTexture(16, 16), depthBuffer: true }); rtR.texture.encoding = T.sRGBEncoding;
+const dofR = new T.ShaderMaterial({ uniforms: { tC: { value: null }, tD: { value: null }, near: { value: .01 }, far: { value: 40 }, fd: { value: .9 }, k: { value: 1 }, px: { value: new T.Vector2() } },
+  vertexShader: 'varying vec2 vUv; void main(){ vUv=uv; gl_Position=vec4(position.xy,0.,1.); }',
+  fragmentShader: `uniform sampler2D tC, tD; uniform float near, far, fd, k; uniform vec2 px; varying vec2 vUv;
+    float lin(float d){ float z=d*2.-1.; return 2.*near*far/(far+near-z*(far-near)); }
+    float coc(vec2 uv){ float z=lin(texture2D(tD,uv).r); return clamp(k*abs(1./fd-1./z)*fd, 0., 16.); }
+    void main(){ float c=coc(vUv); vec3 acc=texture2D(tC,vUv).rgb; float ws=1.;
+      for(int i=0;i<28;i++){ float a=float(i)*2.39996; float r=sqrt(float(i)+.5)/sqrt(28.)*c; vec2 o=vec2(cos(a),sin(a))*r*px; float cs=coc(vUv+o); float w=step(r*.85, cs+.6); acc+=texture2D(tC,vUv+o).rgb*w; ws+=w; }
+      gl_FragColor=vec4(acc/ws,1.); }`, depthTest: false, depthWrite: false, toneMapped: false });
+const dQ = new T.Scene(), dC = new T.OrthographicCamera(-1, 1, 1, -1, 0, 1); dQ.add(new T.Mesh(new T.PlaneGeometry(2, 2), dofR));
+let FOCUS_NOW = .9;
+function renderRoom() { placeCam(); const pr = R.getPixelRatio(), w = Math.round(roomEl.clientWidth * pr), h = Math.round(roomEl.clientHeight * pr);
+  if (rtR.width !== w || rtR.height !== h) { rtR.setSize(w, h); rtR.depthTexture.image.width = w; rtR.depthTexture.image.height = h; rtR.depthTexture.needsUpdate = true; }
+  const want = S.focus.d == null ? focusAuto() : S.focus.d; FOCUS_NOW += (want - FOCUS_NOW) * .12;
+  R.setRenderTarget(rtR); R.render(scene, cam); R.setRenderTarget(null);
+  const f = .033, N = S.mode === 'SCULPT' ? 4 : 1.8; dofR.uniforms.tC.value = rtR.texture; dofR.uniforms.tD.value = rtR.depthTexture; dofR.uniforms.near.value = cam.near; dofR.uniforms.far.value = cam.far; dofR.uniforms.fd.value = FOCUS_NOW; dofR.uniforms.px.value.set(1 / w, 1 / h);
+  dofR.uniforms.k.value = (f / N) * f / Math.max(.05, FOCUS_NOW - f) / .024 * h * .5; R.render(dQ, dC); }
 function update(dt) { NOW += dt; HU.uTime.value = NOW;
   // playback: stepped frames honour their holds; tweened playback morphs the clay between frames
   if (S.play && S.mode !== 'SCULPT') { const [, fps, tw] = PLAYS[S.plays]; const F = DOC.frames; let beats = 0; F.forEach(f => beats += f.hold);
@@ -512,7 +624,7 @@ function update(dt) { NOW += dt; HU.uTime.value = NOW;
   if (S.takeRec) { S.takeRec.push({ t: NOW - S.takeT, w: { ...S.weave } }); }
   // weave: the memory becomes light; the lab stays as it is
   const weave = S.mode === 'WEAVE', W = S.weave; HU.uHolo.value = lerp(HU.uHolo.value, weave ? 1 : 0, .12); HU.uMat.value = weave ? W.mat : 1; HU.uScan.value = W.scan;
-  const sc = weave ? W.scale : 1; MEM.scale.setScalar(lerp(MEM.scale.x, sc, .15)); holoLight.intensity = HU.uHolo.value * (.5 + W.mat * .8);
+  const sc = weave ? W.scale : 1; MEM.scale.setScalar(lerp(MEM.scale.x, sc, .15)); MEM.position.y = BASE_Y * (1 - MEM.scale.x); holoLight.intensity = HU.uHolo.value * (.15 + W.mat * .3);
   const hz = weave ? W.haze : .35; coneMat.uniforms.haze.value = hz; dustMat.opacity = .15 + hz * .6; scene.fog.density = .02 + hz * .07;
   const dpos = dustGeo.attributes.position; for (let i = 0; i < DUST; i++) { let y = dpos.array[i * 3 + 1] + dt * (.02 + (i % 7) * .004); if (y > 2.7) y = 0; dpos.array[i * 3 + 1] = y; dpos.array[i * 3] += Math.sin(NOW * .3 + i) * .0004; } dpos.needsUpdate = true;
   FLAMES.forEach((f, i) => { const k = 1 + Math.sin(NOW * 13 + i * 1.7) * .06 + Math.sin(NOW * 31 + i) * .04; f.scale.set(.016 * k, .034 * (2 - k), 1); });
@@ -522,7 +634,8 @@ function update(dt) { NOW += dt; HU.uTime.value = NOW;
   for (const k in BTN) { const b = BTN[k]; if (odrag && odrag.btn === k) b.down = 1; else b.down = Math.max(0, b.down - dt * 8); b.cap.position.z = b.z0 - b.down * .007; }
   ORB.userData.iris.material.opacity = .55 + .35 * (S.takeRec ? (Math.sin(NOW * 9) > 0 ? 1 : .2) : .5 + .5 * Math.sin(NOW * 1.6));
   if (oledDirty || (S.msg && NOW - S.msgT < 4.2)) { drawOLED(); oledDirty = false; }
-  updReticle();
+  if (S.ease) { const e = S.ease, k = Math.min(1, dt * 2.2); S.orbit.tgt.y += (e.y - S.orbit.tgt.y) * k; S.orbit.dist += (e.d - S.orbit.dist) * k; S.orbit.pitch += (e.p - S.orbit.pitch) * k; e.t -= dt; if (e.t <= 0) S.ease = null; }
+  placeCast(dt); updFilmReticles(dt); updReticle();
 }
 function render() { renderRoom(); perf = { tris: R.info.render.triangles, calls: R.info.render.calls }; OR.render(OS, OC); }
 let last = performance.now(), auto = true;
