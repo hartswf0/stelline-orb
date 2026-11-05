@@ -1222,8 +1222,9 @@
       const x = (ex - r.left) * (canvas.width / r.width);
       const y = (ey - r.top) * (canvas.height / r.height);
       const W = canvas.width, H = canvas.height;
-      const cx = W * 0.5, cy = H * 0.52;
-      const bw = Math.min(W * 0.56, 520), bh = Math.min(H * 0.76, 210);
+      const dpr = canvas.width / r.width;
+      const cx = W * 0.5, cy = H * 0.53;
+      const bw = Math.min(W * (r.width < 600 ? 0.94 : 0.62), 560 * dpr), bh = Math.min(H * 0.74, 195 * dpr);
       const left = cx - bw / 2, top = cy - bh / 2;
 
       // Thumb Actuator (120) on right grip housing
@@ -1315,7 +1316,7 @@
 
     // Ambient studio floor reflection beneath the Vesper barrel
     const cx = W * 0.5, cy = H * 0.53;
-    const bw = Math.min(W * 0.62, 560 * dpr), bh = Math.min(H * 0.74, 195 * dpr);
+    const bw = Math.min(W * (rect.width < 600 ? 0.94 : 0.62), 560 * dpr), bh = Math.min(H * 0.74, 195 * dpr);
     const left = cx - bw / 2, top = cy - bh / 2;
 
     const bgGlow = x.createRadialGradient(cx, cy, bh * 0.1, cx, cy, bw * 0.65);
