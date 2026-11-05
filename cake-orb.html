@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Cake Orb</title>
+<meta name="description" content="Every cake, bug and film reference the Stelline project has, standing in the dome, turned by three rings and one thumb.">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #050605; --ink: #e9e4d8; --dim: #8a877e; --amb: #f0b040; --line: #2a2a26; --metal1: #d9d4ca; --metal2: #8d887e; --metal3: #4a4741; }
+  :root[data-theme="light"] { --bg: #050605; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 12px/1.3 "IBM Plex Mono", ui-monospace, monospace; overflow: hidden; user-select: none; }
+  .app { height: 100dvh; display: grid; grid-template-rows: minmax(0, 1fr) 210px; }
+  #dome { position: relative; overflow: hidden; background: radial-gradient(120% 90% at 50% 35%, #12130f 0%, #070806 55%, #030403 100%); cursor: crosshair; touch-action: none; }
+  #horizon { position: absolute; left: -5%; right: -5%; height: 2px; background: linear-gradient(90deg, transparent, rgba(225,232,226,.55) 20%, rgba(240,245,240,.8) 50%, rgba(225,232,226,.55) 80%, transparent); box-shadow: 0 0 18px 3px rgba(200,215,205,.18); pointer-events: none; }
+  .it { position: absolute; left: 0; top: 0; transform-origin: 50% 50%; border: 1px solid rgba(255,255,255,.08); background: #000; will-change: transform, opacity; }
+  .it img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+  .it.aim { outline: 2px solid var(--amb); outline-offset: 1px; }
+  .it.sel { border-color: rgba(240,176,64,.9); }
+  .it.kept::after { content: ""; position: absolute; right: 4px; top: 4px; width: 7px; height: 7px; border-radius: 50%; background: var(--amb); box-shadow: 0 0 6px var(--amb); }
+  .glab { position: absolute; left: 0; top: 0; color: var(--dim); font-size: 10px; letter-spacing: .08em; white-space: nowrap; pointer-events: none; }
+  #ref { position: absolute; border: 1px solid rgba(255,255,255,.14); background: #000; pointer-events: none; }
+  #ref img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  #ref span { position: absolute; left: 6px; bottom: 5px; font-size: 10px; color: #d8d4ca; background: rgba(0,0,0,.6); padding: 1px 5px; }
+  #strip { position: absolute; left: 3%; right: 3%; height: 26px; display: flex; pointer-events: auto; cursor: pointer; }
+  #strip i { flex: 1; height: 100%; background-size: cover; background-position: center; }
+  #strip i.on { outline: 2px solid var(--amb); z-index: 1; }
+  /* the orb */
+  #orb { position: relative; background: linear-gradient(#0b0c0a, #050605); border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: center; touch-action: none; }
+  .body { position: relative; width: min(980px, 96vw); height: 150px; display: grid; grid-template-columns: 110px 1fr 1.6fr 1fr 70px; align-items: center; }
+  .cap { height: 132px; border-radius: 16px 6px 6px 16px; background: linear-gradient(180deg, var(--metal2), var(--metal1) 30%, var(--metal2) 70%, var(--metal3)); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.4); }
+  .cap.r { border-radius: 6px 30px 30px 6px; background: radial-gradient(circle at 40% 50%, #1a1d1a 0 26%, var(--metal3) 27% 31%, var(--metal2) 32%, var(--metal1) 55%, var(--metal3)); }
+  #thumb { width: 54px; height: 30px; border-radius: 15px; border: 0; background: radial-gradient(circle at 45% 35%, #f6d48a, #c7832a 60%, #6e4310); box-shadow: 0 2px 0 #2b1a06, inset 0 -2px 3px rgba(0,0,0,.35); cursor: pointer; }
+  #thumb.down { transform: translateY(2px); box-shadow: 0 0 0 #2b1a06, inset 0 2px 3px rgba(0,0,0,.4); }
+  .eng { font-size: 9px; letter-spacing: .1em; color: #2b2925; font-weight: 600; text-align: center; }
+  .ring { position: relative; height: 150px; margin: 0 3px; border-radius: 10px; overflow: hidden; cursor: ns-resize; background: linear-gradient(180deg, #2c2b27, #8e897f 18%, #d6d1c6 44%, #e8e3d8 52%, #9a958a 80%, #33322d); box-shadow: inset 0 0 0 1px rgba(0,0,0,.5); }
+  .ring.on { box-shadow: inset 0 0 0 2px var(--amb); }
+  .ring .tex { position: absolute; inset: 0; opacity: .5; pointer-events: none; }
+  .ring .val { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; font-weight: 600; font-size: 12px; color: #1b1a17; padding: 0 8px; line-height: 1.25; }
+  .ring .val small { display: block; font-weight: 500; font-size: 10px; color: #4a4740; margin-top: 2px; }
+  .ring .nm { position: absolute; left: 0; right: 0; bottom: 6px; text-align: center; font-size: 9px; letter-spacing: .14em; color: #3a3833; font-weight: 600; }
+  .ring .tick { position: absolute; left: 0; right: 0; top: 50%; height: 0; border-top: 1px solid rgba(160,40,20,.65); pointer-events: none; }
+  #say { position: absolute; left: 0; right: 0; bottom: 6px; text-align: center; color: var(--dim); font-size: 10px; letter-spacing: .06em; pointer-events: none; }
+  @media (max-width: 700px) {
+    .app { grid-template-rows: minmax(0, 1fr) 190px; }
+    .body { grid-template-columns: 64px 1fr 1.4fr 1fr 40px; height: 140px; }
+    .ring { height: 140px; } .ring .val { font-size: 11px; padding: 0 4px; } .ring .val small { font-size: 9px; }
+    #thumb { width: 40px; height: 26px; } .eng { font-size: 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div id="dome"><div id="horizon"></div><div id="ref"><img alt="The film's frame at this time"><span></span></div><div id="strip"></div></div>
+  <div id="orb">
+    <div class="body">
+      <div class="cap"><button id="thumb" aria-label="Thumb: press to keep, hold to make"></button><div class="eng">PRESS KEEP<br>HOLD MAKE</div></div>
+      <div class="ring" data-r="field"><svg class="tex" preserveAspectRatio="none"></svg><div class="tick"></div><div class="val"></div><div class="nm">FIELD</div></div>
+      <div class="ring" data-r="variant"><svg class="tex" preserveAspectRatio="none"></svg><div class="tick"></div><div class="val"></div><div class="nm">VARIANT</div></div>
+      <div class="ring" data-r="time"><svg class="tex" preserveAspectRatio="none"></svg><div class="tick"></div><div class="val"></div><div class="nm">TIME</div></div>
+      <div class="cap r"></div>
+    </div>
+    <div id="say"></div>
+  </div>
+</div>
+<script>
+/* CAKE ORB · the shelf. Everything the project has made or kept stands in the dome on its horizon ring.
+   FIELD: how much of it is there (the one in hand, the shelf, everything).   VARIANT: which one is in hand (one detent per thing).
+   TIME: which frame of the film stands beside it.   THUMB: press keeps it, hold opens it to be made.   AIM: point at any thing, press to take it. */
+const $ = s => document.querySelector(s), clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t;
+const fmt = s => String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+// the details re-made from the film's own pixels on the hand orb (designs.html)
+const T6 = { 7: 47, 27: 44, 36: 32, 44: 44, 29: 47 };
+const FILMDESIGNS = [
+  ['cake', 'c_kl', 27, 34, 'words:2', '快乐 RE-SET'], ['cake', 'c_sr', 27, 28, 'words:1', '生日 RE-SET'], ['cake', 'c_le', 27, 26, 'words:3', '乐 RE-SET'], ['cake', 'c_ana', 27, 22, 'words:5', '安娜 PIPED'], ['cake', 'c_joe', 27, 28, 'words:6', 'JOE PIPED'],
+  ['cake', 'c_out0', 27, 36, 'lit:0', 'ALL SEVEN OUT'], ['cake', 'c_out3', 27, 10, 'lit:3', 'THREE BURNING'], ['cake', 'b_out', 36, 14, 'lit:0', 'THE BOY, CANDLE OUT'], ['cake', 'k_out', 44, 18, 'lit:0', 'THE GIRLS, ALL OUT'], ['cake', 'k_half', 44, 30, 'lit:3', 'THE GIRLS, THREE OUT'], ['cake', 'p_out', 29, 34, 'lit:0', 'THE GHOSTS, ALL OUT'],
+  ['bug', 'e_both', 7, 18, 'focusR:1,focusL:1', 'BOTH EYES SHARP'], ['bug', 'e_swap', 7, 40, 'focusR:0.2,focusL:1', 'LEFT SHARP, RIGHT SOFT'], ['bug', 'e_none', 7, 28, 'focusR:0,focusL:0', 'BOTH EYES SOFT']];
+const GROUPS = { film: 'THE FILM\'S OWN, AND ITS OTHERWISES', recipe: 'RECIPES', remade: 'RE-MADE FROM THE FILM\'S PIXELS', made: 'MADE BY THE ENGINE', kept: 'KEPT' };
+const REFS = { cake: { n: 216, t0: 128, pre: 'cake' }, bug: { n: 88, t0: 13.5, pre: 'bug' } };
+let ITEMS = [], S = { field: 1, variant: 0, time: 0, v: 0, f: 1, aim: -1, ring: 1 }, KEPT = new Set();
+try { KEPT = new Set(JSON.parse(localStorage.getItem('cakeorb.kept') || '[]')); } catch (e) { }
+const b64 = o => btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+
+async function boot() {
+  let made = []; try { made = await (await fetch('assets/shelf/made.json')).json(); } catch (e) { }
+  const one = (kind, group) => made.filter(m => m.kind === kind && m.group === group).map(m => ({ id: m.id, kind, group, img: 'assets/shelf/' + m.id + '.jpg', title: (m.code || m.title).replace(/\s*\[.*\]\s*/, ' ').trim(), sub: m.code ? m.title : m.title, open: 'studio.html?m=' + kind + '&g=' + b64(m.g), ref: kind === 'cake' ? 52 : 36 }));
+  const fd = kind => FILMDESIGNS.filter(d => d[0] === kind).map(([k, name, n, j, d, cap]) => ({ id: 'fd_' + name, kind, group: 'remade', img: 'assets/v6/designproof/' + name + '.jpg', title: cap, sub: 'film pixels, beat ' + n, open: 'hand-orb.html?t=' + (n + (j + .5) / T6[n]).toFixed(3) + '&d=' + d, ref: null }));
+  ITEMS = [...one('cake', 'film'), ...one('cake', 'recipe'), ...fd('cake'), ...one('cake', 'made'), ...one('bug', 'film'), ...fd('bug'), ...one('bug', 'made')];
+  const dome = $('#dome');
+  ITEMS.forEach((it, i) => { const el = document.createElement('div'); el.className = 'it'; el.innerHTML = `<img alt="${it.title}" loading="lazy" src="${it.img}">`; it.el = el; dome.append(el); });
+  // group labels
+  let last = ''; ITEMS.forEach((it, i) => { const key = it.kind + it.group; if (key !== last) { const l = document.createElement('div'); l.className = 'glab'; l.textContent = (it.kind === 'bug' ? 'BUGS · ' : 'CAKES · ') + GROUPS[it.group]; it.lab = l; dome.append(l); last = key; } });
+  const strip = $('#strip'); strip.onpointerdown = e => { const r = strip.getBoundingClientRect(); const R = refsOf(); S.time = clamp(Math.floor((e.clientX - r.left) / r.width * R.n), 0, R.n - 1); refresh(); e.stopPropagation(); };
+  for (const r of document.querySelectorAll('.ring')) bindRing(r);
+  S.variant = 0; S.v = 0; S.time = 52; refresh(); requestAnimationFrame(frame);
+}
+const cur = () => ITEMS[clamp(Math.round(S.variant), 0, ITEMS.length - 1)];
+const refsOf = () => REFS[cur() ? cur().kind : 'cake'];
+let lastKind = 'cake';
+
+/* three layouts, blended by FIELD: 0 the one in hand, 1 the shelf on the horizon, 2 everything */
+function layout(W, H) {
+  const N = ITEMS.length, hy = H * .5, big = Math.min(W * .46, H * .62) , bw = big * 4 / 3;
+  const L0 = [], L1 = [], L2 = [];
+  // grid that fits every thing, leaving room for the film strip
+  const gh = H - 54, gw = W - 24; let cols = Math.ceil(Math.sqrt(N * gw / gh * .75)); let cw = gw / cols, ch = cw * .75; while (Math.ceil(N / cols) * (ch + 14) > gh && cols < N) { cols++; cw = gw / cols; ch = cw * .75; }
+  for (let i = 0; i < N; i++) {
+    const k = i - S.v, a = Math.abs(k);
+    L0.push({ x: W / 2 + k * 30, y: hy, w: k === 0 ? bw : bw * .3, o: a < .5 ? 1 : 0 });
+    const sx = W / 2 + Math.sign(k) * (a < 1 ? a * (bw * .5 + 70) : bw * .5 + 70 + (a - 1) * Math.max(70, W * .085)), sw = a < 1 ? lerp(bw, Math.max(80, W * .075), a) : Math.max(64, W * .075) * Math.max(.55, 1 - (a - 1) * .05);
+    L1.push({ x: sx, y: a < 1 ? lerp(hy, hy - 10, a) : hy - 10, w: sw, o: clamp(1.4 - a * .09, 0, 1) * (sx > -100 && sx < W + 100 ? 1 : 0) });
+    const r = Math.floor(i / cols), c = i % cols; L2.push({ x: 12 + c * cw + cw / 2, y: 18 + r * (ch + 14) + ch / 2, w: cw - 8, o: 1 });
+  }
+  return { L0, L1, L2, big, bw, cols, cw, ch };
+}
+let LAY = null;
+function frame() {
+  S.v = lerp(S.v, S.variant, .22); if (Math.abs(S.v - S.variant) < .002) S.v = S.variant;
+  S.f = lerp(S.f, S.field, .18); if (Math.abs(S.f - S.field) < .002) S.f = S.field;
+  const dome = $('#dome'), W = dome.clientWidth, H = dome.clientHeight; const L = LAY = layout(W, H);
+  const f = S.f, A = f <= 1 ? L.L0 : L.L1, B = f <= 1 ? L.L1 : L.L2, t = f <= 1 ? f : f - 1;
+  ITEMS.forEach((it, i) => { const a = A[i], b = B[i]; const x = lerp(a.x, b.x, t), y = lerp(a.y, b.y, t), w = lerp(a.w, b.w, t), o = lerp(a.o, b.o, t), h = w * .75;
+    it.pos = { x: x - w / 2, y: y - h / 2, w, h, o }; it.el.style.width = w + 'px'; it.el.style.height = h + 'px'; it.el.style.transform = `translate(${x - w / 2}px,${y - h / 2}px)`; it.el.style.opacity = o; it.el.style.zIndex = i === Math.round(S.variant) ? 3 : 1;
+    it.el.style.pointerEvents = o > .3 ? 'auto' : 'none'; it.el.classList.toggle('sel', i === Math.round(S.variant)); it.el.classList.toggle('kept', KEPT.has(it.id)); it.el.classList.toggle('aim', i === S.aim);
+    if (it.lab) { const lo = clamp((f - .5) * 2, 0, 1) * (o > .5 ? 1 : 0); it.lab.style.opacity = lo; it.lab.style.transform = `translate(${x - w / 2}px,${y - h / 2 - 13}px)`; } });
+  $('#horizon').style.top = (H * .5 + (L.big * .75) * .5 * (1 - clamp(f, 0, 1)) * .0 - 10) + 'px'; $('#horizon').style.opacity = 1 - clamp(f - 1, 0, 1);
+  // the film's frame stands to the right of what is in hand; with everything out, the whole film runs as a strip along the floor
+  const R = refsOf(), rw = Math.min(W * .26, 340), rf = clamp(f - 1, 0, 1); const ref = $('#ref');
+  ref.style.width = rw + 'px'; ref.style.height = rw * .5625 + 'px'; ref.style.left = (W - rw - 14) + 'px'; ref.style.top = '14px'; ref.style.opacity = 1 - rf;
+  const strip = $('#strip'); strip.style.top = (H - 34) + 'px'; strip.style.opacity = clamp(f - .6, 0, 1); strip.style.pointerEvents = f > .8 ? 'auto' : 'none';
+  requestAnimationFrame(frame);
+}
+function refresh() {
+  const it = cur(); if (!it) return; const R = refsOf();
+  if (it.kind !== lastKind) { S.time = it.kind === 'cake' ? 52 : 36; lastKind = it.kind; buildStrip(); }
+  S.time = clamp(S.time, 0, R.n - 1);
+  const t = R.t0 + S.time * .5; $('#ref img').src = `assets/shelf/ref/${R.pre}_${String(S.time + 1).padStart(3, '0')}.jpg`; $('#ref span').textContent = 'FILM ' + fmt(t);
+  document.querySelectorAll('#strip i').forEach((e, j) => e.classList.toggle('on', j === S.time));
+  const fl = ['THE ONE', 'THE SHELF', 'EVERYTHING'];
+  setVal('field', fl[Math.round(S.field)], ITEMS.length + ' things · ' + (REFS.cake.n + REFS.bug.n) + ' frames');
+  setVal('variant', it.title, (KEPT.has(it.id) ? 'KEPT · ' : '') + (Math.round(S.variant) + 1) + ' / ' + ITEMS.length + ' · ' + (it.kind === 'bug' ? 'bug' : 'cake'));
+  setVal('time', 'FILM ' + fmt(t), it.kind === 'bug' ? 'the forest' : 'the birthday');
+  document.querySelectorAll('.ring').forEach(r => r.classList.toggle('on', ['field', 'variant', 'time'][S.ring] === r.dataset.r));
+}
+let stripKind = null;
+function buildStrip() { const R = refsOf(); if (stripKind === R.pre) return; stripKind = R.pre; const s = $('#strip'); s.innerHTML = ''; for (let j = 0; j < R.n; j += 1) { const i = document.createElement('i'); i.style.backgroundImage = `url(assets/shelf/ref/${R.pre}_${String(j + 1).padStart(3, '0')}.jpg)`; s.append(i); } }
+function setVal(k, a, b) { const el = document.querySelector(`.ring[data-r="${k}"] .val`); el.innerHTML = `${a}<small>${b}</small>`; }
+
+/* rings: drag up or down, or the wheel, turns them; the drum's ridges move with the value */
+const STEP = { field: [0, 2], variant: null, time: null };
+function turn(k, d) {
+  if (k === 'field') S.field = clamp(Math.round(S.field) + Math.sign(d), 0, 2);
+  else if (k === 'variant') S.variant = clamp(Math.round(S.variant) + d, 0, ITEMS.length - 1);
+  else S.time = clamp(S.time + d, 0, refsOf().n - 1);
+  S.ring = ['field', 'variant', 'time'].indexOf(k); refresh(); ridges();
+}
+function bindRing(el) {
+  const k = el.dataset.r; let y0 = null, acc = 0; const px = k === 'field' ? 40 : k === 'variant' ? 18 : 8;
+  el.addEventListener('pointerdown', e => { y0 = e.clientY; acc = 0; el.setPointerCapture(e.pointerId); S.ring = ['field', 'variant', 'time'].indexOf(k); refresh(); });
+  el.addEventListener('pointermove', e => { if (y0 == null) return; acc += y0 - e.clientY; y0 = e.clientY; while (Math.abs(acc) >= px) { turn(k, acc > 0 ? 1 : -1); acc -= Math.sign(acc) * px; } });
+  el.addEventListener('pointerup', () => y0 = null); el.addEventListener('pointercancel', () => y0 = null);
+  el.addEventListener('wheel', e => { e.preventDefault(); turn(k, e.deltaY > 0 ? 1 : -1); }, { passive: false });
+}
+function ridges() {
+  document.querySelectorAll('.ring').forEach(r => { const k = r.dataset.r, svg = r.querySelector('.tex'); const h = r.clientHeight, w = r.clientWidth; svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    const v = k === 'field' ? S.field * 8 : k === 'variant' ? S.variant * 3 : S.time; const gap = k === 'field' ? 22 : k === 'variant' ? 12 : 5, off = (v * gap * .37) % gap; let s = '';
+    for (let y = -gap + off; y < h + gap; y += gap) { const c = Math.cos((y / h - .5) * Math.PI); s += `<line x1="0" x2="${w}" y1="${y}" y2="${y}" stroke="rgba(0,0,0,${.35 * c})" stroke-width="${k === 'field' ? 6 * c : k === 'variant' ? 2 : 1}"/>`; }
+    svg.innerHTML = s; });
+}
+addEventListener('resize', ridges);
+
+/* aim: what the pointer is over lights; press takes it into hand */
+const dome = $('#dome');
+function hit(e) { const r = dome.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; let best = -1, bz = -1; ITEMS.forEach((it, i) => { const p = it.pos; if (!p || p.o < .3) return; if (x >= p.x && x <= p.x + p.w && y >= p.y && y <= p.y + p.h) { const z = i === Math.round(S.variant) ? 2 : 1; if (z > bz) { bz = z; best = i; } } }); return best; }
+dome.addEventListener('pointermove', e => { S.aim = hit(e); });
+dome.addEventListener('pointerleave', () => S.aim = -1);
+dome.addEventListener('pointerdown', e => { const i = hit(e); if (i < 0) return; if (i === Math.round(S.variant) && S.field < 2) { thumbDown(); setTimeout(thumbUp, 60); return; } S.variant = i; if (S.field === 2) S.field = 1; S.ring = 1; refresh(); ridges(); });
+
+/* thumb: press keeps, hold makes (opens the thing in the tool that made it) */
+let tDown = 0, tHeld = false, tTimer = 0;
+function thumbDown() { tDown = performance.now(); tHeld = false; $('#thumb').classList.add('down'); clearTimeout(tTimer); tTimer = setTimeout(() => { tHeld = true; const it = cur(); say('OPENING ' + it.title + ' TO MAKE IT'); setTimeout(() => location.href = it.open, 250); }, 650); }
+function thumbUp() { $('#thumb').classList.remove('down'); clearTimeout(tTimer); if (tHeld) return; const it = cur(); if (KEPT.has(it.id)) { KEPT.delete(it.id); say('PUT BACK · ' + it.title); } else { KEPT.add(it.id); say('KEPT · ' + it.title + ' · ' + KEPT.size + ' kept'); } try { localStorage.setItem('cakeorb.kept', JSON.stringify([...KEPT])); } catch (e) { } refresh(); }
+$('#thumb').addEventListener('pointerdown', e => { e.preventDefault(); thumbDown(); });
+$('#thumb').addEventListener('pointerup', thumbUp); $('#thumb').addEventListener('pointerleave', () => { if (performance.now() - tDown < 650) { clearTimeout(tTimer); $('#thumb').classList.remove('down'); } });
+let sayT = 0; function say(s) { $('#say').textContent = s; clearTimeout(sayT); sayT = setTimeout(() => $('#say').textContent = '', 2600); }
+
+/* keys: 1 2 3 pick a ring, arrows turn it, space is the thumb */
+let spaceT = 0;
+addEventListener('keydown', e => { const k = ['field', 'variant', 'time'];
+  if (e.key >= '1' && e.key <= '3') { S.ring = +e.key - 1; refresh(); }
+  else if (e.key === 'ArrowUp' || e.key === 'ArrowRight') { turn(k[S.ring], 1); e.preventDefault(); }
+  else if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') { turn(k[S.ring], -1); e.preventDefault(); }
+  else if (e.key === ' ' && !e.repeat) { thumbDown(); e.preventDefault(); } });
+addEventListener('keyup', e => { if (e.key === ' ') thumbUp(); });
+const q = new URLSearchParams(location.search); boot().then(() => { if (q.get('f')) S.field = S.f = +q.get('f'); if (q.get('v')) { S.variant = S.v = +q.get('v'); } refresh(); ridges(); buildStrip(); refresh(); });
+</script>
+</body>
+</html>

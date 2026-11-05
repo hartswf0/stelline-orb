@@ -1,6 +1,44 @@
-◎ 1000 Small Futures
+◎ 1000 Small Futures · Stelline Memory Orb & Vesper Field Orb 04
 
-> **Tagline:** *Tools for thinking about media, narrative, belief, and culture*
+> **Tagline:** *Tools for thinking about media, narrative, belief, and culture — and the spatial-temporal Memory Maker instrument from Blade Runner 2049*
+
+## Featured Instrument: Vesper Instruments · Field Orb 04 (`vesper.html`)
+
+### Thesis: The Birthday Cake = The "Blender Donut" of the Stelline Orb
+
+In Blender, Andrew Price's **Donut Tutorial** became the universal "Hello World" of 3D modeling because a single object teaches the entire stack in five cumulative layers:
+1. **Torus Mesh & Proportional Subsurface**
+2. **Shrinkwrap Icing & Materiality**
+3. **Geometry-Node Sprinkles & Particle Placement**
+4. **Lighting & Photorealistic Compositing**
+5. **Animation & Turntable Rendering**
+
+In Dr. Ana Stelline's Memory Chamber (*Blade Runner 2049*, `02:13–03:35`), the **Birthday Cake** is the exact same cumulative "Hello World" — not just for 3D geometry, but for **spatial-temporal memory authoring where independent scene layers have separate local clocks**:
+1. **Stage 1 · Sponge & 12-Flute Bundt Torus (`<cake-on-table>`):** Morph continuously between the cylindrical sponge and the 12-lobe scalloped Bundt torus while preserving the surface anchor (`table_hex_01 · tri #18`) and icing crown.
+2. **Stage 2 · Buttercream Glaze & Piped `生日快樂` Calligraphy (`<icing-crown>`):** Cycle glaze materiality (`112 VARIANT`) and scrub the 5-stroke calligraphy piping curve (`生日快樂` + `Z` underline) or any custom recipient inscription (`114 TIME`).
+3. **Stage 3 · Candles, `3200K` Flames & Breath Smoke (`<candle-ring>`):** Dial `1–12` striped wax candles and Smarties dragees (`112 VARIANT`), and jog `114 TIME` from flickering `3200K` teardrop flames to blown-out glowing red wick embers, rising smoke wisps, and twilight chamber relighting.
+4. **Stage 4 · Held Children vs. Live Cake — The Hero Proof (`<children-table>`, `FIG. 6`):** Lock the 4 SAM-segmented + depth-displaced birthday children at $t_H = 2.00\text{ s}$ (`r = 0`) while `<cake-on-table>` remains captured. Turning the **`114 TIME` ring** rotates the cake and shifts live `3200K` candle bounce light across their frozen faces.
+5. **Stage 5 · 1st-Person Hand & Cross-Time Dependency Resolver (`<1st-person-hand>`, `[0028]`, `[0033]`):** Hold the reaching 1st-person child's hand in frosting contact (`r = 0`) and jog the cake away from the contact epoch (`FOLLOW CONTACT` vs. `SUSPEND CONSTRAINT` vs. `BLOCK JOG`).
+
+### Vesper Field Orb 04 Hardware Mapping (`[0001]–[0038]`, `FIGS. 1–8`, `Claims 1–18`)
+
+| Control | Hardware Analogy | Function in the Chamber |
+|---|---|---|
+| **`110 FIELD`** | Apple Vision Pro Digital Crown / Canon Cinema Ring | Sweeps the projected forest or birthday memory away in discrete depth bands ($d = \mathbf{n}\cdot\mathbf{x}$) and modulates 1st-person peripheral edge softness (`Claim 14`). |
+| **`112 VARIANT`** | Blender Object/Modifier Stack / Detented Aperture Ring | Mutates the captured object or sub-element (`Bundt %`, `Glaze`, `Candle Count`, or `Insect Species` on `elderberry_leaf_01#T142`) while preserving its surface socket (`244`). |
+| **`114 TIME`** | Blackmagic Speed Editor Jog Wheel / Unreal Sequencer | Jogs the captured layer's local time $q_i(t) = q_i(t_0) + r_i(t - t_0) + \Delta q_i$ forward or backward while held layers remain frozen at $t_H$. |
+| **`120 THUMB`** | ARRI Hi-5 Hand Unit Thumb Key | Toggles **`HOLD POSE`** ($r_i \in \{0,1\}$) or **`WORLD HOLD`** (`Claim 12`: freezes an anchored insect in room coordinates while its support leaf keeps swaying). |
+
+### Live Entry Points
+
+* **[`vesper.html`](vesper.html)** — **Vesper Instruments · Field Orb 04 ("The Birthday Cake = The Donut of the Orb")** interactive 3D studio & patent implementation (`FIGS. 1–8`).
+* **[`hand-orb.html`](hand-orb.html)** — **The Memory Maker (`v6` Unified Cinema Bench)**: Full 114-beat *Blade Runner 2049* footage atlas (`306` frames), MediaPipe hand tracking, WebRTC phone-as-orb pairing, and `IMPRINT` match scoring.
+* **[`index.html`](index.html)** — **Stelline.OS `v18` Master Studio**: 1280×720 diegetic viewport, 8-node C-arc selector, `PATISSERIE.OS` Cake Builder & `ENTOMOLOGY.OS` Bug Builder.
+* **[`designs.html`](designs.html)** — **25 Counterfactual Bug & Birthday Cake Blueprints** with one-click live 3D inspection.
+* **[`moments.html`](moments.html)** — **9 Film-Matched 3D Moments** (`00:25` Wet Leaf to `03:16` Floor Miniature).
+* **[`versions.html`](versions.html)** — **Complete 18-Build Archive & Evolution Atlas (`v1`–`vesper.04`)**.
+
+---
 
 **LEGOS Framework** (Legible Emergent Generative Ontological Systems) — A collection of 14 computational engines for systematic exploration, spatial reasoning, and temporal memory. Built as **anti-tools**: single-file HTML artifacts that expose their operations, invite modification, and resist extraction.
 
@@ -283,83 +321,3 @@ This is a living project. The code is the theory. The interface is the argument.
 **Next OLOG**: TBD (when significant changes occur)
 
 ◎ ⋈ ▶ ⋔
-
-
----
-
-## Studio V5 (`studio.html`): the orb-driven bug, birthday and child builders
-
-A speculative artifact from *Blade Runner 2049* made real: Dr. Stelline's memory orb as a working design tool. Two builders, **BUG** and **BIRTHDAY**, render a procedural macro specimen live in the browser (PBR materials, depth of field, candle light, faceted compound eyes, instanced bristles, piped icing). The five coaxial orb rings edit the specimen's genome. A third mode, **FILM**, treats the whole 407-second footage as data: every second segmented, relief-modelled and addressable by the same rings.
-
-```bash
-python3 -m http.server 8095
-# open http://localhost:8095/studio.html   (?m=bug | ?m=cake | ?m=film&t=179)
-```
-
-## V5 ATLAS (default engine)
-
-| Mode | What you get |
-|---|---|
-| **BUG** | Procedural beetle: ommatidia, pseudopupil, mandibles, beaded antennae, 6 legs with a tripod gait, ~1,900 swaying setae, structural-colour chitin. Starts as the film's emerald carabid (`CANONICAL`). |
-| **BIRTHDAY** | Procedural cake on the film's golden hex table: 1-3 tiers or fluted bundt, drips, piped rosettes, striped candles (one per year of age) with flickering flames that light the icing, piped inscription (CJK ok), balloons, smarties, sprinkles. Starts as the film's vanilla cylinder with red 生日快樂 and 7 wicks. |
-| **FILM** | 407 s / 57 shots at 1 Hz: tracked segment ids, class and colour names, relief proxy, vector outlines, FILM / PARTS / RELIEF views, a per-segment model ladder (FLAT > GRADIENT > RELIEF > MOSAIC > FILM) and a "blind critic" that scores the model against the frame. |
-
-**Practical output:** `DESIGN` drawer (name, age, inscription, sponge / icing / ink palettes, drips, balloons; bug: species, length, habitat, elytra pattern, jaw / legs / antennae) then `SNAPSHOT` saves a **spec card PNG** (render + spec + the palette of the film moment it came from), `LINK` copies a share URL that reopens the exact design, `SPEC` saves JSON. `REROLL` makes a new seeded specimen; `OTHERWISE` cycles the film's four counterfactual variants (SCARAB.AURUM, OBSIDIAN.VOID, HETEROCERA.SPLIT / kept bundt, dark ganache, rose crown).
-
-### The orb is the interface
-
-Rings (labels and readouts change with what is on the glass): **BUG** L1 HEX.FACET, L2 OPTIC.DOME (focus / aperture), L3 SETAE, R1 MAND.GAIT, R2 CHITIN.NM. **BIRTHDAY** L1 GEOM.SOLID (tiers), L2 WICKS.DOF, L3 BUNDT.PIPE, R1 STAGE.LUMA (candlelight to room light), R2 WIND.GLAZE. **FILM** L1 SOLID ladder, L2 FOCUS, L3 MORPH, R1 LUMA, R2 TINT.
-
-Buttons: SELECT = next part (camera racks to it) · ENGRAM = new specimen (film: next chapter) · red dot = snapshot (hold: share link) · aux = switch mode (hold: back to film canon) · jog wheel = rack focus (film: scrub) · rocker = orbit / dolly · X-RAY = bug anatomy / **blow the candles** · speed dome tap = OTHERWISE · big red thumb = photo mode · M1-M4, LR1 tap = that ring seeks the film's canon, hold = spin · scale window = sound. Everything also has a key (`?` in the app lists them) and a screen-reader mirror.
-
-Scene makes the interface: ring positions are the specimen's genome, the ◆ on each orb gauge is the film's canon, the orb's casing takes the scene's light (candle flicker included), and the accordion spread follows the shot scale. Interface makes the scene: every ring edit rebuilds or re-lights the specimen.
-
-### The glass has no menus: the orb is the interface
-
-Mode, tool, recipe, actions and outputs all live on the orb. **Aux button** = mode (film / bug / birthday / child). **Rocker ◀ ▶** = ring bank, **▲ ▼** = dolly. **SYSTEM bank:** L1 MODE, L2 TOOL, L3 RECIPE (cake recipes, or the film's OTHERWISE variants for bug and child), R1 ACTION (replay, reroll, gallery, otherwise, match, fit, undo, redo, blow, photo mode, sound, narrate, drawer, help, plus keep-clear / clear piping / snuff / light on cake), R2 OUTPUT (snapshot, 4K still, clip, share link, spec file). **Red dot** executes the selected action or output (in WRITING it types the letter). The orb's strip shows the mode, the bank tabs, the part, candle count, critic score and inverse-design progress.
-
-### The orb designs everything (inverse design)
-
-The drawer is a convenience; the orb alone can design any specimen. **Ring banks:** the rocker ◀ ▶ (or `PgUp`/`PgDn`, or the BANK tabs) switches five-ring banks. Cake: LENS, FORM (shape, finish, tiers, border, sides), SURFACE (sponge, icing, drips, topping, dust), CANDLES (type, age, layout, burn, party), WRITING. Bug: LENS, EYE, BODY, SURFACE. Child: LENS, LOOK. Discrete choices are detented rings; continuous ones are smooth. **Letter wheel:** in WRITING, L1 spins A–Z 0–9 space ⌫ and the red-dot button (or `Enter`) types the letter, so the orb types the name. **Inverse design:** `I` (or FIT, or hold the LR1 button) makes the orb turn its own rings, bank by bank, searching for the setting that best matches the film's frame; `Shift+I`, PHOTO, or dropping an image on the glass does it for your photo. The final ring positions are the recipe. Honest limits: the matcher scores coarse colour and layout at 96×54, so it finds the closest thing the engine can build, not a faithful copy; a full search takes about 5 minutes on slow software rendering.
-
-### Cake engine
-
-Build any cake from parts. **Bodies:** drum (tall cylinder), 12-gon polygon, opera slab, round tiers, square, heart, bundt, naked layers, cupcake tower. **Finishes:** crumb sponge, ridged buttercream, mirror ganache, naked layers with caramel, opera stripes. **Borders:** piped shells, beads, sugar crystals. **Sides:** orange slices, gold leaf. **Dust.** **Candles:** striped, braided, daisy, wax numbers from the age with drips, taper, tealight, sparkler, each in a holder; layouts auto / grid / row / arc / cluster. **Lettering:** real 3D piped tubes from a single-stroke font (A–Z, 0–9, & ! . - '), drawn stroke by stroke by the L3 ring; other scripts fall back to a texture. **Scene:** pure black void, no table, hero framing. **RECIPES** in the drawer rebuild five reference cakes (LUZ, BEA, IZZY, NIA, MARA); typing a name pipes it. Random genomes (`G` gallery) mix all of these.
-
-### Authoring (key `D` opens the drawer; `C` cycles tools; `Z` undo / `Shift+Z` redo)
-
-- **CANDLES tool:** click the icing to place a candle, click a candle to light or snuff it, shift-click to remove. The ghost candle turns red when too close to another and yellow when it sits on the writing; `KEEP CLEAR` moves candles off the inscription. Snuffed candles stop lighting the icing and leave a smoke wisp; `BURN` shortens candles in real time or ×6 until they gutter; all out = a wish is made.
-- **PIPE tool:** draw freehand piping on the cake top (camera drops top-down); nozzle width slider; strokes are saved in the design and the share link, and undoable.
-- **WRITING:** presets (English, 中文, 日本語, Español, Русский, Français), 5 scripts, 4 media (pipe, gel, chocolate, gold leaf), 4 layouts (top, arc, side, topper), ink colour, L3 ring reveals the piping stroke by stroke.
-- **EYE STUDIO (bug):** 7 eye types, hex / square / round facets, density, size, bulge, colour, banding + band colour, cornea sheen, bioluminescence, symmetric or asymmetric. The key light follows the pointer so facets glint as you sweep, and the dark pseudopupil tracks the camera as in real compound eyes.
-
-### Replay the film's beats (key `B`, or REPLAY)
-
-Four moments Stelline lingers on, each choreographed so one event happens in three places at once: the orb ring turns, the screen answers, and a crescent reticle (arc opens with the ring's value, leader line to the exact thing changing, LOCK flash when the ring hits the film's value) follows. Drag the reticle's arc to turn that ring yourself.
-- **THE EYE 0:29** L2 FOCUS racks while the camera dives; L1 resolves the facets.
-- **THE WRITING 2:17** the cake spawns cold and ghostly (L1 solid, R2 warm), candles 3, 5, 7, then L3 pipes the inscription stroke by stroke with a glowing nozzle.
-- **THE CHILDREN 2:32** cake solid; L1 materialises the film's children from ghost.
-- **THE FACE 2:51** child portrait: ghost to solid, candle light up, rack focus flame to face, expression to blowing, then the flame goes out.
-New builder **CHILD**: underlit faces, 6 skins, 6 hair colours, 5 styles, eye colour, expression neutral to blow. Inscription variants: 5 scripts, 4 media (pipe, gel, chocolate, gold leaf), 4 layouts (top, arc, side, topper), plus CJK presets. Candles: striped, taper, tealight, sparkler.
-
-**Honest status:** the child faces are stylised and clearly synthetic; they are a working system with correct lighting behaviour, not film-grade faces. The bug and cake are better. The 'blind critic' trained classifier is not trained yet (features exist in `atlas-builder.js`); the gallery's quality score is a hand-written heuristic.
-
-### Watch the film: the critic wired to the builders
-
-`MATCH` (key `M`, or the big red thumb button on the orb) locks the camera to the film's own camera, draws the film frame on the left of a draggable wipe and your model on the right, and scores them every couple of seconds (SSIM, colour distance, edges, tone histogram) with plain-language notes ("model is brighter than the frame", "too warm"). `,` `.` step through the film. Reference frames: bug 0:33 (head-on macro), cake 2:34 (children round the cake). The cake canon includes the film's own children as cutouts (`FILM CHILDREN` in the drawer). Current scores for the canonical specimens: cake about 52-63 / 100 across frames 2:30-2:42, bug about 33-36 (the bug is the weaker match). These are honest baselines, not "indistinguishable".
-
-### Blind-critic accessibility
-
-`SOUND` sonifies the frame (pan = x, pitch = height, level = area, timbre = class) and gives each builder its own room tone, candle crackle, shutter and breath. `NARRATE` / `H` describe the frame, part or specimen aloud (aria-live + speech synthesis). Full keyboard control.
-
-## How the film atlas was made (no ML downloads)
-
-`SLIC` superpixels, greedy region merging on Lab colour, edge strength and a person mask (MediaPipe selfie segmenter + BlazeFace, both run offline from the pip wheel's bundled `.tflite`), boundary snapping at full resolution, Hungarian IoU tracking of ids within shots, a heuristic relief proxy (sharpness + person + vertical prior, flattened per segment). The ladder levels and class priors were measured offline by reconstructing each segment from progressively richer parameters and scoring SSIM. This is **classical CV, not SAM or MiDaS**: names such as `FOLIAGE` or `HAIR` are colour/position heuristics and can be wrong; relief is a proxy, not metric depth. Frames are 768x432, labels 480x270; load your own copy of the film (`FOOTAGE`) for live playback (it stays on your device).
-
-## Legacy engines
-
-`ENGINE` (in `?` help, or `?engine=v4`) still opens V4 SAM-RELIEF, V3, V2, V1 and the mobile / versions pages from the earlier work.
-
-## Layout
-
-`assets/atlas-core.js` segment-mesh renderer and film views · `atlas-hero.js` PBR + DOF macro renderer · `atlas-bug.js`, `atlas-cake.js` the builders (genome, geometry, labels, spec) · `atlas-ui.js` viewfinder HUD, drawer, orb operations, keys · `atlas-sense.js` sound and narration · `atlas-builder.js` film critic, ladder fit, legacy 2D stage · `assets/atlas/` data (`f/` frames, `l/` labels, `d/` relief, `atlas-data.js`).

@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Vesper Instruments · Field Orb 04 — The Birthday Cake (The Donut of the Memory Orb)</title>
+<style>
+  :root {
+    --bg: #05070a;
+    --panel: #0b0f14;
+    --panel-hi: #121820;
+    --line: #1e2733;
+    --line-hi: #344356;
+    --ink: #e8f0f6;
+    --muted: #8a99ad;
+    --dim: #546275;
+    --cyan: #70d6ff;
+    --amber: #ffcc66;
+    --orange: #ff9f43;
+    --green: #98f5b0;
+    --crimson: #e04848;
+    --mono: "JetBrains Mono", "SF Mono", "Menlo", monospace;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    background: var(--bg); color: var(--ink);
+    font-family: var(--mono); font-size: 11px;
+  }
+  input { user-select: text; -webkit-user-select: text; }
+
+  .app-shell {
+    display: grid;
+    grid-template-rows: 34px 1fr auto 205px;
+    width: 100vw; height: 100vh;
+  }
+
+  /* 1. Top Instrument Header Bar */
+  .top-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 14px; background: #070a0e; border-bottom: 1px solid var(--line);
+    z-index: 30;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; letter-spacing: 0.08em; color: var(--ink);
+  }
+  .brand-tag {
+    padding: 2px 6px; border-radius: 3px;
+    background: rgba(112, 214, 255, 0.12); border: 1px solid rgba(112, 214, 255, 0.4);
+    color: var(--cyan); font-size: 9.5px;
+  }
+  .top-links {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .nav-btn, .pill-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 8px; border-radius: 3px;
+    background: var(--panel); border: 1px solid var(--line);
+    color: var(--muted); text-decoration: none; font-family: var(--mono);
+    font-size: 9.5px; font-weight: 600; letter-spacing: 0.04em;
+    cursor: pointer; transition: all 0.12s ease;
+  }
+  .nav-btn:hover, .pill-btn:hover {
+    border-color: var(--line-hi); color: var(--ink); background: var(--panel-hi);
+  }
+  .pill-btn.active {
+    background: rgba(112, 214, 255, 0.14);
+    border-color: var(--cyan); color: var(--ink);
+  }
+  .pill-btn.amber.active {
+    background: rgba(255, 204, 102, 0.16);
+    border-color: var(--amber); color: var(--amber);
+  }
+
+  /* 2. 16:9 Chamber Viewport Area */
+  .viewport-wrap {
+    position: relative; width: 100%; height: 100%;
+    background: #030507; overflow: hidden;
+  }
+  #chamberCanvas {
+    width: 100%; height: 100%; display: block; cursor: crosshair;
+  }
+  #vEdgeSoftnessOverlay {
+    position: absolute; inset: 0; pointer-events: none;
+    transition: box-shadow 0.15s ease;
+  }
+
+  /* Diegetic Viewport HUD Overlays */
+  .vp-hud-left {
+    position: absolute; top: 12px; left: 14px;
+    display: flex; flex-direction: column; gap: 6px;
+    max-width: 385px; pointer-events: none;
+  }
+  .hero-proof-card {
+    background: rgba(8, 12, 18, 0.82);
+    border: 1px solid rgba(255, 204, 102, 0.45);
+    border-left: 3px solid var(--amber);
+    padding: 8px 11px; border-radius: 4px;
+    backdrop-filter: blur(6px);
+  }
+  .hero-proof-title {
+    font-size: 10px; font-weight: 700; color: var(--amber);
+    letter-spacing: 0.06em; margin-bottom: 3px;
+  }
+  .hero-proof-sub {
+    font-size: 9.5px; line-height: 1.4; color: #d0dce8;
+  }
+  .telemetry-row {
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .tel-chip {
+    background: rgba(8, 12, 18, 0.82);
+    border: 1px solid var(--line);
+    padding: 3px 7px; border-radius: 3px;
+    font-size: 9.5px; color: var(--muted);
+  }
+  .tel-chip b { color: var(--ink); }
+
+  .vp-hud-right {
+    position: absolute; top: 12px; right: 14px;
+    display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
+    z-index: 10;
+  }
+  .capture-bar {
+    display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 5px;
+    background: rgba(8, 12, 18, 0.84);
+    border: 1px solid var(--line); padding: 5px 7px; border-radius: 4px;
+  }
+  .custom-icing-box {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(8, 12, 18, 0.84);
+    border: 1px solid var(--line); padding: 4px 8px; border-radius: 4px;
+  }
+  .custom-icing-box input {
+    background: #05080c; border: 1px solid var(--line-hi);
+    color: var(--amber); font-family: var(--mono); font-size: 10px;
+    padding: 2px 6px; border-radius: 3px; width: 120px;
+  }
+
+  /* 3. Middle Strip: The 5 Donut Stages + FIG. 6 Multi-Clock Sequencer */
+  .mid-strip {
+    display: grid; grid-template-columns: 1.35fr 1fr;
+    gap: 12px; padding: 8px 14px;
+    background: #080b10; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    align-items: center;
+  }
+  .donut-stages-col {
+    display: flex; flex-direction: column; gap: 5px;
+  }
+  .strip-label {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
+    color: var(--muted); display: flex; align-items: center; justify-content: space-between;
+  }
+  .stage-pills {
+    display: flex; flex-wrap: wrap; gap: 5px;
+  }
+  .clocks-col {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  }
+  .clock-card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 4px; padding: 5px 8px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .clock-head {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 9px; font-weight: 700; color: var(--ink);
+  }
+  .clock-stat {
+    padding: 1px 5px; border-radius: 2px; font-size: 8.5px; cursor: pointer;
+  }
+  .clock-stat.held {
+    background: rgba(255, 204, 102, 0.18); color: var(--amber); border: 1px solid rgba(255, 204, 102, 0.45);
+  }
+  .clock-stat.live {
+    background: rgba(152, 245, 176, 0.15); color: var(--green); border: 1px solid rgba(152, 245, 176, 0.4);
+  }
+  .clock-track {
+    width: 100%; height: 5px; background: #040609;
+    border-radius: 3px; overflow: hidden; border: 1px solid #19212c;
+  }
+  .clock-fill {
+    height: 100%; background: linear-gradient(90deg, var(--cyan), var(--amber));
+    width: 40%; transition: width 0.06s linear;
+  }
+
+  /* 4. Bottom Deck: Operable Vesper Field Orb 04 Barrel */
+  .orb-deck {
+    position: relative; width: 100%; height: 100%;
+    background: radial-gradient(circle at 50% 60%, #101722 0%, #05070a 75%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #vesperOrbCanvas {
+    width: 100%; height: 100%; display: block; cursor: ew-resize;
+  }
+  .orb-hint-left, .orb-hint-right {
+    position: absolute; bottom: 10px;
+    font-size: 9px; color: var(--muted); line-height: 1.45;
+    background: rgba(7, 10, 14, 0.78); border: 1px solid var(--line);
+    padding: 5px 9px; border-radius: 4px; pointer-events: none;
+  }
+  .orb-hint-left { left: 14px; }
+  .orb-hint-right { right: 14px; text-align: right; }
+
+  /* 5. Patent & Thesis Modal Drawer */
+  .thesis-drawer {
+    position: fixed; inset: 42px 24px 24px 24px;
+    background: rgba(8, 12, 17, 0.96); border: 1px solid var(--cyan);
+    border-radius: 6px; padding: 20px 24px; z-index: 100;
+    overflow-y: auto; display: none;
+    backdrop-filter: blur(12px);
+  }
+  .thesis-drawer.open { display: block; }
+  .thesis-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 12px;
+  }
+  .thesis-box {
+    background: var(--panel); border: 1px solid var(--line);
+    padding: 12px 14px; border-radius: 4px; line-height: 1.55; font-size: 11px;
+  }
+  .thesis-box h3 {
+    color: var(--amber); font-size: 12px; margin-bottom: 6px; letter-spacing: 0.05em;
+  }
+  .thesis-box ul { padding-left: 16px; color: #c9d6e2; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <!-- 1. Top Instrument Bar -->
+  <header class="top-bar">
+    <div class="brand">
+      <span>VESPER INSTRUMENTS // FIELD ORB 04</span>
+      <span class="brand-tag">PATENT [0001]-[0038] · FIGS. 1-8</span>
+      <span style="color:var(--amber);font-size:10px;">THE BIRTHDAY CAKE = THE DONUT OF THE ORB</span>
+    </div>
+    <div class="top-links">
+      <button class="pill-btn amber" id="btnToggleThesis">WHY THE CAKE = BLENDER DONUT (PATENT SPEC)</button>
+      <button class="pill-btn" id="btnDoorwayAlert" title="FIG. 4 (234) Protected Doorway Volume">234 DOORWAY ALERT</button>
+      <button class="pill-btn" id="btnCommitTx" title="FIG. 7 (276) Validate & Commit Transaction">COMMIT (ENTER)</button>
+      <button class="pill-btn" id="btnUndoTx" title="FIG. 7 (278) Revert / Undo Transaction">UNDO (Z)</button>
+      <a class="nav-btn" href="cake.html">THE CAKE (8 CHAPTERS)</a>
+      <a class="nav-btn" href="hand-orb.html">HAND-ORB (V6)</a>
+      <a class="nav-btn" href="designs.html">DESIGNS</a>
+      <a class="nav-btn" href="moments.html">MOMENTS</a>
+      <a class="nav-btn" href="index.html">ORBIT INDEX</a>
+      <a class="nav-btn" href="versions.html">ALL VERSIONS</a>
+    </div>
+  </header>
+
+  <!-- 2. 16:9 Chamber Viewport -->
+  <main class="viewport-wrap">
+    <canvas id="chamberCanvas"></canvas>
+    <div id="vEdgeSoftnessOverlay"></div>
+
+    <!-- Top-Left Hero Proof & Patent Telemetry -->
+    <div class="vp-hud-left">
+      <div class="hero-proof-card">
+        <div class="hero-proof-title" id="vStageHeroTitle">PROVE IT IN ONE TURN // HERO PROOF (STAGE 4)</div>
+        <div class="hero-proof-sub" id="vStageHeroBody">
+          The 4 birthday children are <b>HELD at t_H = 2.00s (r = 0)</b> while <b>&lt;cake-on-table&gt;</b> is captured.
+          Drag the <b>114 TIME ring</b> (or scroll wheel) to rotate the cake &amp; shift live <b>3200K candlelight</b> across their frozen faces.
+        </div>
+      </div>
+      <div class="telemetry-row">
+        <div class="tel-chip">TARGET: <b id="vTargetBadge">&lt;cake-on-table&gt;</b></div>
+        <div class="tel-chip">ANCHOR (244): <b id="vAnchorBadge">table_hex_01 · tri #18</b></div>
+        <div class="tel-chip">112 VARIANT: <b id="vVariantReadout">CYLINDER SPONGE</b></div>
+        <div class="tel-chip">114 TIME: <b id="vTimeReadout">q=2.40s</b></div>
+        <div class="tel-chip">DEPENDENCY: <b id="vConflictBadge" style="color:var(--amber)">HELD-REF</b></div>
+      </div>
+    </div>
+
+    <!-- Top-Right Target Role Capture Bar & Custom Inscription -->
+    <div class="vp-hud-right">
+      <div class="capture-bar">
+        <span style="color:var(--muted);font-size:9px;align-self:center;margin-right:4px;">RAY CAPTURE (240):</span>
+        <button class="pill-btn active" data-capture-role="cake">&lt;cake-on-table&gt;</button>
+        <button class="pill-btn" data-capture-role="icing">&lt;icing-crown&gt;</button>
+        <button class="pill-btn" data-capture-role="candles">&lt;candle-ring&gt;</button>
+        <button class="pill-btn" data-capture-role="children">&lt;children-table&gt;</button>
+        <button class="pill-btn" data-capture-role="hand">&lt;1st-person-hand&gt;</button>
+        <button class="pill-btn" data-capture-role="insect">&lt;insect-on-leaf&gt;</button>
+        <button class="pill-btn" data-capture-role="eyeR">&lt;compound-eye&gt;</button>
+        <button class="pill-btn" data-capture-role="setae">&lt;setae-rim&gt;</button>
+        <button class="pill-btn amber" id="btnScanImport" style="display:none;">IMPORT SCAN TO EDIT STORE</button>
+      </div>
+      <div class="custom-icing-box">
+        <span style="color:var(--muted);font-size:9px;">PIPED INSCRIPTION:</span>
+        <input id="customCakeInput" type="text" value="生日快樂" placeholder="Type name or 生日快樂">
+      </div>
+    </div>
+  </main>
+
+  <!-- 3. Middle Strip: The 5 Donut Stages + FIG. 6 Multi-Clock Sequencer -->
+  <section class="mid-strip">
+    <div class="donut-stages-col">
+      <div class="strip-label">
+        <span>THE 5 STAGES OF THE BIRTHDAY CAKE ("THE BLENDER DONUT OF THE ORB")</span>
+        <span style="color:var(--cyan)">KEYS 1–5 OR CLICK STAGE</span>
+      </div>
+      <div class="stage-pills">
+        <button class="pill-btn amber" data-donut-stage="1">1. SPONGE &amp; BUNDT TORUS</button>
+        <button class="pill-btn amber" data-donut-stage="2">2. GLAZE &amp; 生日快樂 PIPING</button>
+        <button class="pill-btn amber" data-donut-stage="3">3. CANDLES, FLAMES &amp; SMOKE</button>
+        <button class="pill-btn amber active" data-donut-stage="4">4. HELD CHILDREN vs. LIVE CAKE (HERO)</button>
+        <button class="pill-btn amber" data-donut-stage="5">5. 1ST-PERSON HAND &amp; CONFLICT</button>
+        <button class="pill-btn" data-scene-mode="forest">SCENE B: FOREST &amp; INSECT (FIG. 4-5)</button>
+        <button class="pill-btn" data-scene-mode="scan">SCENE C: STELLINE SCAN (FIG. 8)</button>
+      </div>
+    </div>
+
+    <!-- FIG. 6 Multi-Clock Layer Strip -->
+    <div class="clocks-col">
+      <div class="clock-card">
+        <div class="clock-head">
+          <span>260 CHILDREN LAYER</span>
+          <span class="clock-stat held" id="clkStat_children" data-toggle-clock="children" title="Click to toggle HOLD / LIVE">HELD @ 2.00s</span>
+        </div>
+        <div class="clock-track"><div class="clock-fill" id="clkFill_children" style="width:40%"></div></div>
+      </div>
+      <div class="clock-card">
+        <div class="clock-head">
+          <span>262 CAKE &amp; CANDLES</span>
+          <span class="clock-stat held" id="clkStat_cake" data-toggle-clock="cake" title="Click to toggle HOLD / LIVE">HELD @ 2.40s</span>
+        </div>
+        <div class="clock-track"><div class="clock-fill" id="clkFill_cake" style="width:48%"></div></div>
+      </div>
+      <div class="clock-card">
+        <div class="clock-head">
+          <span>264 1ST-PERSON HAND</span>
+          <span class="clock-stat held" id="clkStat_hand" data-toggle-clock="hand" title="Click to toggle HOLD / LIVE">HELD @ 1.85s</span>
+        </div>
+        <div class="clock-track"><div class="clock-fill" id="clkFill_hand" style="width:46%"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Bottom Deck: Operable Vesper Field Orb 04 Cinema Barrel -->
+  <footer class="orb-deck">
+    <canvas id="vesperOrbCanvas"></canvas>
+    <div class="orb-hint-left">
+      <b>CANON EOS / ARRI HI-5 BARREL</b><br>
+      Drag <b>110 FIELD</b> (Scallops) · <b>112 VARIANT</b> (Detents) · <b>114 TIME</b> (Knurled Jog)
+    </div>
+    <div class="orb-hint-right">
+      <b>SPACE</b>: Toggle Hold Pose (120) · <b>W</b>: World Hold (Claim 12)<br>
+      <b>CLICK VIEWPORT</b>: Ray-Capture Object · <b>SCROLL</b>: Turn Active Ring
+    </div>
+  </footer>
+</div>
+
+<!-- 5. Thesis & Patent Specification Drawer -->
+<aside class="thesis-drawer" id="thesisDrawer">
+  <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:10px;">
+    <h2 style="font-size:14px;color:var(--cyan);letter-spacing:0.06em;">
+      WHY THE BIRTHDAY CAKE IS THE "BLENDER DONUT" OF THE STELLINE ORB (VESPER FIELD ORB 04)
+    </h2>
+    <button class="pill-btn amber" id="btnCloseThesis">CLOSE (ESC)</button>
+  </div>
+  <div class="thesis-grid">
+    <div class="thesis-box">
+      <h3>1. THE BLENDER DONUT ANALOGY</h3>
+      <ul>
+        <li>In 3D modeling, Andrew Price's <b>Blender Donut</b> is the universal "Hello World" because one compact pastry teaches every core layer of the pipeline: <b>Torus Mesh (Stage 1) -> Displaced Icing &amp; Piped Script (Stage 2) -> Scattered Sprinkles &amp; Candles (Stage 3) -> Subsurface/Flame Lighting (Stage 4)</b>.</li>
+        <li>In <i>Blade Runner 2049</i> (02:14–02:35), Dr. Ana Stelline's <b>Birthday Cake</b> is the exact spatial-temporal equivalent—plus the defining superpower of the Memory Orb: <b>Per-Layer Independent Clocks {q_i, e_i, r_i} (Stage 4 &amp; Stage 5)</b>.</li>
+        <li>Previously, our UI split the cake across separate film shots (Beat 24, Beat 27, Beat 29) and buried controls in 5 vertical drums. Here, <b>all 5 stages accumulate on one persistent cake</b> controlled directly by the 3-ring Vesper barrel.</li>
+      </ul>
+    </div>
+    <div class="thesis-box">
+      <h3>2. VESPER FIELD ORB 04 PATENT MAPPING (FIGS. 1–8)</h3>
+      <ul>
+        <li><b>110 FIELD Ring (Broad Scallops, Claim 5 &amp; 14):</b> Sweeps the depth-band reveal threshold <code>d = n·x</code> in sections and adjusts first-person peripheral memory edge softness.</li>
+        <li><b>112 VARIANT Ring (Indexed Detents, Claim 2 &amp; 11):</b> Morphs the captured target's form (Sponge -> 12-Flute Bundt, Glaze/Script, Candle count, Child facial expression, or Insect species on the same leaf socket <code>244</code>) without losing registration.</li>
+        <li><b>114 TIME Ring (Fine-Knurled Jog Wheel, Claim 4):</b> Jogs the captured layer's local time offset <code>q_i</code> frame-by-frame while held layers remain frozen at <code>r_j = 0</code>.</li>
+        <li><b>120 THUMB ACTUATOR (Capture / Hold / World Hold, Claims 3, 4, 12):</b> Captures ray target <code>240</code>, freezes/releases layer clocks with epoch rebasing (<code>e_i &lt;- t_release</code>), and resolves cross-time contact conflicts (<code>Follow Contact</code> / <code>Suspend</code> / <code>Block Jog</code>).</li>
+      </ul>
+    </div>
+  </div>
+</aside>
+
+<script src="assets/three.min.js"></script>
+<script src="assets/v6/anatomy.js"></script>
+<script src="assets/vesper-engine.js"></script>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    window.VESPER.initUI();
+    const drawer = document.getElementById('thesisDrawer');
+    document.getElementById('btnToggleThesis').addEventListener('click', () => drawer.classList.toggle('open'));
+    document.getElementById('btnCloseThesis').addEventListener('click', () => drawer.classList.remove('open'));
+    window.addEventListener('keydown', e => {
+      if (e.key === 'Escape') drawer.classList.remove('open');
+    });
+  });
+</script>
+</body>
+</html>
