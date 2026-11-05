@@ -79,7 +79,7 @@
 
 <div id="tags" role="status" aria-live="polite"><span id="tN">1</span><span>User <b>Operator</b></span><span id="tS"><b>Rest</b></span><span id="tO">Select a node</span></div>
 
-<svg id="m" viewBox="0 0 1600 1200" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Stelline Memory Orb. Nineteen nodes on an orbit; each opens one build.">
+<svg id="m" viewBox="0 0 1600 1200" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Stelline Memory Orb. Twenty-one nodes on an orbit; each opens one build.">
   <g id="rules"></g>
   <circle class="orbit" cx="800" cy="600" r="490"/>
   <g id="lines"></g>
@@ -108,8 +108,9 @@
 'use strict';
 var N=[
  {id:'stage',   s:'STG',c:'STG-0019',t:'Stage',       h:'stage.html',                        d:'Second screen. Pair the handheld orb: five rings, tilt, spread, a lens with real depth of field, a cake built from nothing.', i:'assets/bench/kids.webp',a:13,r:11},
- {id:'bench',   s:'BNC',c:'BNC-0000',t:'Bench',       h:'bench.html',                        d:'Film cut-outs of the people and trees, with 3D cakes and bugs. Pick one, turn it, hold the rest.', i:'assets/bench/kids.webp',a:37,r:11},
- {id:'studio',  s:'STU',c:'STU-0001',t:'Studio',      h:'studio.html',                       d:'Cake, bug eye, face and writing. The orb is the whole interface.', i:'assets/site/cakes.jpg',a:22, r:11},
+ {id:'weaver',  s:'WVR',c:'WVR-0020',t:'Weaver',      h:'weaver.html',                       d:'Memory Weaver: sculpt clay, pipe icing, animate stop-motion with onion skin, weave inside the glass room.', i:'assets/cake/c0.jpg',a:28,r:10},
+ {id:'bench',   s:'BNC',c:'BNC-0000',t:'Bench',       h:'bench.html',                        d:'Film cut-outs of the people and trees, with 3D cakes and bugs. Pick one, turn it, hold the rest.', i:'assets/bench/kids.webp',a:41,r:11},
+ {id:'studio',  s:'STU',c:'STU-0001',t:'Studio',      h:'studio.html',                       d:'Cake, bug eye, face and writing. The orb is the whole interface.', i:'assets/site/cakes.jpg',a:20, r:11},
  {id:'designs', s:'DSN',c:'DSN-0002',t:'Designs',     h:'designs.html',                      d:'Stelline Designs.',                                                i:'assets/depth_bugeye.png',a:52,r:7},
  {id:'cakeorb', s:'CKO',c:'CKO-0018',t:'Cake orb',    h:'cake-orb.html',                     d:'Every cake, bug and film reference, turned by three rings and one thumb.', i:'assets/shelf/cake_film_00.jpg',a:66,r:8},
  {id:'moments', s:'MOM',c:'MOM-0003',t:'Moments',     h:'moments.html',                      d:'Her hands on the orb, the change on screen and the reticle, read together.',                                                i:'assets/sec_141.jpg',a:82,r:7},
@@ -122,8 +123,9 @@ var N=[
  {id:'versions',s:'VER',c:'VER-0009',t:'Versions',    h:'versions.html',                     d:'All versions and the mobile archive.',                              i:'assets/depth_miniature.png',a:256,r:7},
  {id:'v4',      s:'V4M',c:'V4M-0010',t:'V4 master',   h:'v4-master.html',                    d:'The previous master build.',                                        i:'assets/sam_cutouts.png',a:276,r:6},
  {id:'process', s:'PRC',c:'PRC-0011',t:'Process',     h:'process.html',                      d:'Case study: process and prompts.',                                  i:'assets/sec_153.jpg',a:304,r:6},
- {id:'vesper',  s:'VSP',c:'VSP-0016',t:'Cake Orb 04', h:'vesper.html',                       d:'Vesper Field Orb 04: 3 rings, 1 thumb, live per-layer clocks.',     i:'assets/cake/c7.jpg',a:318,r:9},
- {id:'field',   s:'FLD',c:'FLD-0012',t:'Field orb',   h:'field-orb.html',                    d:'Hold and jog: independent layer clocks, live.',                     i:'assets/sec_146.jpg',a:332,r:8},
+ {id:'vesper',  s:'VSP',c:'VSP-0016',t:'Cake Orb 04', h:'vesper.html',                       d:'Vesper Field Orb 04: 3 rings, 1 thumb, live per-layer clocks.',     i:'assets/cake/c7.jpg',a:314,r:9},
+ {id:'orb05',   s:'F05',c:'ORB-0505',t:'Field Orb 05',h:'field-orb-05.html',                 d:'Stelline-Orb-Pro live virtual production: 3 rings, seed core, squeeze, multi-pass embody.',i:'assets/cake/c7.jpg',a:326,r:10},
+ {id:'field',   s:'FLD',c:'FLD-0012',t:'Field orb',   h:'field-orb.html',                    d:'Hold and jog: independent layer clocks, live.',                     i:'assets/sec_146.jpg',a:338,r:8},
  {id:'ident',   s:'IDN',c:'IDN-0013',t:'Identity',    h:'identity.html',                     d:'The type, grid and colour rules.',                                  i:'',a:346,r:5},
  {id:'spec',    s:'SPC',c:'SPC-0014',t:'Specification',h:'docs/Vesper_Field_Orb_04_Patent_Specification.pdf',d:'Fictional patent specification, 14 pages.',                   i:'',a:2,r:5}
 ];
