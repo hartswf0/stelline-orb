@@ -210,8 +210,9 @@
   // the film's pixels baked onto the thing at rest, from the film's camera: each vertex keeps the frame point it covered
   function bake(it) { const key = JSON.stringify(it.fit) + JSON.stringify(it.canon || {}); const had = B.baked.get(it.id); if (had && had.key === key) return had.fuv;
     const rest = BUILD[it.type](Object.assign({}, it, it.canon || {}), 0); place(rest, it.fit); const cam = refCamera(), VP = new T.Matrix4().multiplyMatrices(cam.projectionMatrix, cam.matrixWorldInverse), fuv = {}, v = new T.Vector4();
+    const shrink = it.type === 'cake' ? 0.91 : 1.0;
     rest.traverse(o => { if (!o.isMesh || !o.userData.sk) return; o.updateMatrixWorld(true); const P = o.geometry.attributes.position, A = new Float32Array(P.count * 2);
-      for (let i = 0; i < P.count; i++) { v.set(P.getX(i), P.getY(i), P.getZ(i), 1).applyMatrix4(o.matrixWorld).applyMatrix4(VP); A[i * 2] = v.x / v.w * .5 + .5; A[i * 2 + 1] = v.y / v.w * .5 + .5; } fuv[o.userData.sk] = { A, n: P.count }; });
+      for (let i = 0; i < P.count; i++) { v.set(P.getX(i) * shrink, P.getY(i), P.getZ(i) * shrink, 1).applyMatrix4(o.matrixWorld).applyMatrix4(VP); A[i * 2] = v.x / v.w * .5 + .5; A[i * 2 + 1] = v.y / v.w * .5 + .5; } fuv[o.userData.sk] = { A, n: P.count }; });
     rest.traverse(o => o.geometry && o.geometry.dispose()); B.baked.set(it.id, { key, fuv }); return fuv; }
   function skin(o, it, fuv) { const n = ST.build.ref, ks = (it.src.ks.concat([-1, -1, -1, -1])).slice(0, 4);
     // hairs grown on the model stand only where the film's own beetle is: each is kept if its root, seen from the film's camera, falls inside the cut
@@ -219,15 +220,46 @@
     o.traverse(m => { if (!m.isInstancedMesh) return; for (let i = 0; i < m.count; i++) { m.getMatrixAt(i, m4); v.set(m4.elements[12], m4.elements[13], m4.elements[14], 1).applyMatrix4(m.matrixWorld).applyMatrix4(VP);
         const u = v.x / v.w * .5 + .5, w = v.y / v.w * .5 + .5, k = u < 0 || u > 1 || w < 0 || w > 1 ? -1 : S.maskAt(n, u, 1 - w); if (!it.src.ks.includes(k)) m.setMatrixAt(i, Z); } m.instanceMatrix.needsUpdate = true; });
     if (it.skin > .5) o.traverse(m => { if ((m.isMesh || m.isSprite) && !m.userData.add && (!m.userData.sk || !fuv[m.userData.sk])) m.visible = false; });
+    const isBdayPart = (it.type === 'cake' || it.type === 'table') ? 1.0 : 0.0;
+    const bundtVal = (it.type === 'cake' && it.bundt) ? it.bundt : 0.0;
     o.traverse(m => { if (!m.isMesh || !m.userData.sk || !fuv[m.userData.sk] || fuv[m.userData.sk].n !== m.geometry.attributes.position.count) return;
       m.geometry.setAttribute('fuv', new T.BufferAttribute(fuv[m.userData.sk].A, 2)); const mat = m.material.clone(); m.material = mat;
-      mat.onBeforeCompile = sh => { mat.userData.sh = sh; sh.uniforms.ftex = { value: B.alt || tex(url('f', n)) }; sh.uniforms.fmask = { value: tex(url('m', n), true) }; sh.uniforms.ks = { value: new T.Vector4(...ks) }; sh.uniforms.skin = { value: it.skin };
-        sh.vertexShader = 'attribute vec2 fuv; varying vec2 vFuv;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vFuv = fuv;');
-        sh.fragmentShader = 'uniform sampler2D ftex, fmask; uniform vec4 ks; uniform float skin; varying vec2 vFuv;\n' + sh.fragmentShader.replace('#include <encodings_fragment>',
+      const isCakeTop = (m.userData.sk === 'top') ? 1.0 : 0.0;
+      mat.onBeforeCompile = sh => {
+        mat.userData.sh = sh;
+        sh.uniforms.ftex = { value: B.alt || tex(url('f', n)) };
+        sh.uniforms.fmask = { value: tex(url('m', n), true) };
+        sh.uniforms.ks = { value: new T.Vector4(...ks) };
+        sh.uniforms.skin = { value: it.skin };
+        sh.uniforms.candleK = { value: B.candleK != null ? B.candleK : 1.0 };
+        sh.uniforms.isBdayPart = { value: isBdayPart };
+        sh.uniforms.bundtK = { value: bundtVal };
+        sh.uniforms.isCakeTop = { value: isCakeTop };
+        sh.vertexShader = 'attribute vec2 fuv; varying vec2 vFuv; varying vec3 vLocPos;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vFuv = fuv; vLocPos = position;');
+        sh.fragmentShader = 'uniform sampler2D ftex, fmask; uniform vec4 ks; uniform float skin, candleK, isBdayPart, bundtK, isCakeTop; varying vec2 vFuv; varying vec3 vLocPos;\n' + sh.fragmentShader.replace('#include <encodings_fragment>',
           `{ float mv=texture2D(fmask,vFuv).r*255.0; float inm=max(max(step(abs(mv-ks.x),.5),step(abs(mv-ks.y),.5)),max(step(abs(mv-ks.z),.5),step(abs(mv-ks.w),.5)));
-             if(vFuv.x<0.0||vFuv.x>1.0||vFuv.y<0.0||vFuv.y>1.0) inm=0.0; vec3 film=pow(texture2D(ftex,vFuv).rgb,vec3(2.2)); gl_FragColor.rgb=mix(gl_FragColor.rgb,film,skin*inm); if(skin>.5&&inm<.5) discard; }
+             if(vFuv.x<0.0||vFuv.x>1.0||vFuv.y<0.0||vFuv.y>1.0) inm=0.0;
+             vec3 film=pow(texture2D(ftex,vFuv).rgb,vec3(2.2));
+             if (bundtK > 0.05) {
+               float rLoc = length(vLocPos.xz) / 0.72;
+               float aLoc = atan(vLocPos.z, vLocPos.x);
+               float flute = cos(aLoc * 12.0) * 0.16 * bundtK;
+               float well = smoothstep(0.38, 0.04, rLoc) * isCakeTop * 0.62 * bundtK;
+               film *= (1.0 + flute * (1.0 - isCakeTop * 0.5) - well);
+               film = mix(film, film * vec3(1.05, 0.80, 0.52), well * 0.7);
+             }
+             if (isBdayPart > 0.5 && candleK < 0.99) {
+               float flum = dot(film, vec3(0.3, 0.59, 0.11));
+               vec3 unlit = film * vec3(0.007, 0.010, 0.016) + vec3(0.0006, 0.0009, 0.0014) * flum;
+               film = mix(unlit, film, clamp(candleK, 0.0, 1.2));
+             }
+             if(skin>.5&&inm<.5) discard; gl_FragColor.rgb=mix(gl_FragColor.rgb,film,skin*step(.5,inm)); }
            #include <encodings_fragment>`); };
-      mat.customProgramCacheKey = () => 'skin'; }); }
+      mat.customProgramCacheKey = () => 'skin_' + isCakeTop; });
+    if (it.type === 'cake' && (it.bundt || 0) < 0.05 && it.skin > 0.95 && !(S.benchOrbit && (S.benchOrbit[0] || S.benchOrbit[1]))) {
+      o.traverse(m => { if (m.isMesh && (m.userData.sk === 'body' || m.userData.sk === 'top')) m.visible = false; });
+    }
+  }
   // a thing is at rest when the skin is on and nothing has been changed from what the film shows
   // facets the film's own pixels can re-make on the bench's reference beat (design.js): the thing stays at rest and the frame changes
   const DKEYS = { 7: { beetle: ['focusR', 'focusL'] }, 29: { cake: ['flames'] } };
@@ -252,11 +284,18 @@
     // the reference shot's own parts: shown unless a thing stands for them (then only as much as its skin); cards drive theirs
     // when the cake's candles or flames are changed, the frame under it is the one with its candles painted out
     const cakeIt = ST.build.items.find(i => i.type === 'cake'), C = cakeIt && cakeIt.canon, CLEAN = { 24: 'c24.jpg' };
-    B.alt = CLEAN[ref] && C && (cakeIt.candles !== C.candles || cakeIt.flames < C.flames - .05) ? tex(ST.base + CLEAN[ref]) : null;
+    B.candleK = cakeIt ? Math.max(0.0, Math.min(1.25, cakeIt.flames * (0.35 + 0.65 * Math.min(1.4, cakeIt.candles / Math.max(1, (C && C.candles) || 4))))) : 1.0;
+    B.alt = CLEAN[ref] && C && (cakeIt.candles !== C.candles || cakeIt.flames < C.flames - .05 || cakeIt.bundt > 0.05) ? tex(ST.base + CLEAN[ref]) : null;
     benchDesign(); if (!B.alt) B.alt = designTex(ref, ST.build.refFr) || null;
     for (const L of B.film.layers) { if (!L.map0) L.map0 = L.m.material.uniforms.map.value; }
     { const F = B.film, bu = F.back.material.uniforms; if (!F.map0) F.map0 = bu.map.value; bu.map.value = B.alt || F.map0; }
-    for (const [, h] of B.items) h.o.traverse(m => { if (m.material && m.material.userData && m.material.userData.sh) m.material.userData.sh.uniforms.ftex.value = B.alt || tex(url('f', ref)); });
+    for (const [, h] of B.items) h.o.traverse(m => {
+      if (m.material && m.material.userData && m.material.userData.sh) {
+        m.material.userData.sh.uniforms.ftex.value = B.alt || tex(url('f', ref));
+        if (m.material.userData.sh.uniforms.candleK) m.material.userData.sh.uniforms.candleK.value = B.candleK;
+        if (m.material.userData.sh.uniforms.bundtK && cakeIt) m.material.userData.sh.uniforms.bundtK.value = cakeIt.bundt || 0;
+      }
+    });
     const claimed = new Map(); for (const it of ST.build.items) if (it.src && it.src.ks) for (const k of it.src.ks) claimed.set(k, it);
     const cards = new Map(); for (const it of ST.build.items) if (it.type === 'card' && it.src.n === ref) cards.set(it.src.k, it);
     const bm = B.film.back.material.uniforms, rsh = ST.atlas.shots[ref]; bm.mixp.value = 1; bm.blurUnder.value = 0; bm.zl.value = 0; bm.relief.value = BENCH_REL; bm.edge.value = 0;
