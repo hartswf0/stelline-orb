@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stelline Bench</title>
+<meta name="description" content="The film's people and trees as cut-outs, the cakes and bugs as 3D models. Pick one, turn it, hold the rest.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--w:#fff;--d:rgba(255,255,255,.25);--f:"Barlow Semi Condensed","DIN Alternate","Roboto Condensed","Arial Narrow",Arial,sans-serif}
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:#000;color:var(--w);font:400 13px/1.3 var(--f);letter-spacing:.06em;overflow:hidden}
+  button{font:inherit;letter-spacing:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+  :focus-visible{outline:2px solid #fff;outline-offset:3px}
+  #app{position:fixed;inset:0;display:grid;grid-template-rows:40px minmax(0,1fr) auto;grid-template-columns:minmax(0,1fr) 168px;grid-template-areas:"top top" "stage gal" "orb gal"}
+  #top{grid-area:top;display:flex;gap:26px;align-items:center;padding:0 18px;text-transform:uppercase}
+  #top button{opacity:.55;padding:4px 0;border-bottom:1px solid transparent}#top button[aria-pressed=true]{opacity:1;border-bottom-color:#fff}
+  #top .r{margin-left:auto;opacity:.7}
+  #stage{grid-area:stage;position:relative;min-height:0;padding:0 0 0 18px;display:flex;align-items:center;justify-content:center}
+  #cv{max-width:100%;max-height:100%;aspect-ratio:16/9;width:100%;border:1px solid rgba(255,255,255,.55);background:#000;touch-action:none}
+  #gal{grid-area:gal;overflow-y:auto;padding:0 14px 10px 10px;display:flex;flex-direction:column;gap:8px}
+  #gal h2{margin:2px 0 4px;font:600 12px var(--f);text-transform:uppercase;opacity:.7}
+  .th{position:relative;border:1px solid rgba(255,255,255,.28);aspect-ratio:4/3;background-color:#000;background-repeat:no-repeat;flex:0 0 auto;text-align:left}
+  .th[aria-pressed=true]{border-color:#fff;border-width:2px}
+  .th span{position:absolute;left:5px;bottom:3px;font-size:11px;text-transform:uppercase;text-shadow:0 0 4px #000,0 0 4px #000}
+  #eye{border:1px solid #fff;padding:7px 10px;text-transform:uppercase}
+  #eye[aria-pressed=true]{background:#fff;color:#000}
+  #orbrow{grid-area:orb;display:flex;align-items:center;gap:18px;padding:4px 0 10px 18px;min-width:0}
+  #orbwrap{flex:0 0 min(46vw,440px)}
+  svg#orb{width:100%;height:auto;display:block;touch-action:none;user-select:none;-webkit-user-select:none}
+  .ring{cursor:ns-resize;outline:none}.ring.off{opacity:.35;cursor:not-allowed}
+  .ring:focus-visible .hit{stroke:#fff;stroke-width:3;fill:rgba(255,255,255,.08)}
+  #thumb{cursor:pointer;outline:none}#thumb:focus-visible .keycap{stroke:#fff;stroke-width:3}
+  #read{text-transform:uppercase;font-size:12px;line-height:1.7;min-width:0}
+  #read b{font-weight:600}
+  #read .l{opacity:.6}
+  @media(max-width:860px){
+    #app{grid-template-columns:minmax(0,1fr);grid-template-rows:40px minmax(0,1fr) 92px auto;grid-template-areas:"top" "stage" "gal" "orb"}
+    #stage{padding:0 8px}#gal{flex-direction:row;overflow-x:auto;overflow-y:hidden;padding:4px 8px}#gal h2{display:none}.th{height:84px;aspect-ratio:auto;width:112px}
+    #orbrow{padding:0 8px 6px;flex-direction:column;align-items:stretch;gap:6px}#orbwrap{flex-basis:auto;max-width:360px}
+    #top{gap:16px;padding:0 8px}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="top" role="tablist" aria-label="Scene">
+    <button data-s="birthday" aria-pressed="true">Birthday</button><button data-s="forest" aria-pressed="false">Forest</button><button data-s="leaf" aria-pressed="false">Leaf</button>
+    <span class="r" id="rtxt"></span>
+  </div>
+  <div id="stage"><canvas id="cv" width="1280" height="720" aria-label="Composite scene: film cut-outs with a 3D model"></canvas></div>
+  <aside id="gal" aria-label="Gallery"><h2 id="gh"></h2><div id="gl" style="display:contents"></div><button id="eye" aria-pressed="false" hidden>Eye</button></aside>
+  <div id="orbrow">
+    <div id="orbwrap"><svg id="orb" viewBox="0 0 960 300" role="group" aria-label="Field Orb 04. Three rotary rings and a thumb key.">
+    <defs>
+      <linearGradient id="barrel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16181a"/><stop offset=".18" stop-color="#3b4045"/><stop offset=".34" stop-color="#25282b"/><stop offset=".7" stop-color="#101214"/><stop offset="1" stop-color="#050607"/></linearGradient>
+      <linearGradient id="ringg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e1011"/><stop offset=".2" stop-color="#555b61"/><stop offset=".38" stop-color="#2e3236"/><stop offset=".72" stop-color="#15181a"/><stop offset="1" stop-color="#090a0b"/></linearGradient>
+      <linearGradient id="redg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a0f08"/><stop offset=".3" stop-color="#e2412c"/><stop offset=".6" stop-color="#b52516"/><stop offset="1" stop-color="#3a0a05"/></linearGradient>
+      <radialGradient id="glass" cx=".42" cy=".4" r=".75"><stop offset="0" stop-color="#7fb0c0" stop-opacity=".9"/><stop offset=".25" stop-color="#1c3a47"/><stop offset=".6" stop-color="#07131a"/><stop offset="1" stop-color="#000"/></radialGradient>
+      <linearGradient id="spec" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      <clipPath id="clipF"><rect x="318" y="46" width="66" height="214" rx="5"/></clipPath>
+      <clipPath id="clipV"><rect x="398" y="46" width="66" height="214" rx="5"/></clipPath>
+      <clipPath id="clipT"><rect x="478" y="46" width="66" height="214" rx="5"/></clipPath>
+    </defs>
+    <ellipse cx="480" cy="284" rx="400" ry="9" fill="#000" opacity=".16"/>
+    <!-- tail cap + barrel -->
+    <path d="M52 62 Q36 150 52 238 L110 238 L110 62 Z" fill="url(#barrel)"/>
+    <rect x="96" y="40" width="540" height="220" rx="6" fill="url(#barrel)"/>
+    <rect x="96" y="40" width="540" height="2" fill="#fff" opacity=".18"/>
+    <!-- front shroud + red band + glass end -->
+    <rect x="552" y="52" width="150" height="196" rx="4" fill="url(#ringg)"/>
+    <rect x="566" y="52" width="9" height="196" fill="url(#redg)"/>
+    <rect x="552" y="52" width="150" height="3" fill="#fff" opacity=".16"/>
+    <text x="596" y="154" font-family="ui-monospace,Menlo,monospace" font-size="9" letter-spacing="2.4" fill="#cfd3d6" opacity=".55" transform="rotate(-90 596 154)" text-anchor="middle">VESPER · FIELD ORB 04 · 150 × 66 mm</text>
+    <ellipse cx="702" cy="150" rx="50" ry="98" fill="#0a0b0c"/>
+    <ellipse cx="704" cy="150" rx="46" ry="90" fill="#1b1e20"/>
+    <ellipse cx="708" cy="150" rx="36" ry="72" fill="url(#glass)"/>
+    <ellipse cx="712" cy="150" rx="22" ry="44" fill="#02080b" stroke="#35505c" stroke-width="1"/>
+    <ellipse cx="700" cy="118" rx="9" ry="22" fill="#fff" opacity=".24"/>
+    <path d="M690 190 Q712 200 726 176" stroke="#9fd0e0" stroke-opacity=".5" fill="none" stroke-width="2"/>
+    <!-- engraved labels -->
+    <g font-family="ui-monospace,Menlo,monospace" font-size="10" letter-spacing="3" fill="#e8ecee" opacity=".78" text-anchor="middle">
+      <text x="351" y="34">FIELD</text><text x="431" y="34">VARIANT</text><text x="511" y="34">TIME</text>
+    </g>
+    <g font-family="ui-monospace,Menlo,monospace" font-size="8.5" letter-spacing="2" fill="#9aa1a6" text-anchor="middle"><text x="351" y="276">110</text><text x="431" y="276">112</text><text x="511" y="276">114</text></g>
+    <g stroke="#6b7278" stroke-width="1"><path d="M130 252h160M130 252v-6M170 252v-4M210 252v-6M250 252v-4M290 252v-6"/></g>
+    <!-- thumb key (120) -->
+    <g id="thumb" tabindex="0" role="switch" aria-checked="true" aria-label="Hold. Holds the companion layer at its sampled time.">
+      <rect class="keycap" x="150" y="22" width="86" height="34" rx="17" fill="url(#redg)" stroke="#2a0905" stroke-width="1"/>
+      <rect x="160" y="26" width="66" height="5" rx="2.5" fill="#fff" opacity=".28"/>
+      <text x="193" y="44" font-family="ui-monospace,Menlo,monospace" font-size="11" font-weight="700" letter-spacing="2.5" fill="#fff" text-anchor="middle">HOLD</text>
+      <circle id="led" cx="252" cy="39" r="4" fill="#f0b050"/>
+      <rect x="140" y="12" width="120" height="50" fill="transparent"/>
+    </g>
+    <!-- rings -->
+    <g class="ring" id="rF" tabindex="0" role="slider" aria-label="Field ring" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0">
+      <rect x="318" y="46" width="66" height="214" rx="5" fill="url(#ringg)"/><g clip-path="url(#clipF)" id="mF"></g>
+      <rect x="318" y="46" width="66" height="214" rx="5" fill="none" stroke="#000" stroke-opacity=".6"/><rect class="hit" x="318" y="46" width="66" height="214" rx="5" fill="transparent" stroke="none"/>
+    </g>
+    <g class="ring" id="rV" tabindex="0" role="slider" aria-label="Variant ring" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1">
+      <rect x="398" y="46" width="66" height="214" rx="5" fill="url(#ringg)"/><g clip-path="url(#clipV)" id="mV"></g>
+      <rect x="398" y="46" width="66" height="214" rx="5" fill="none" stroke="#000" stroke-opacity=".6"/><rect class="hit" x="398" y="46" width="66" height="214" rx="5" fill="transparent"/>
+    </g>
+    <g class="ring" id="rT" tabindex="0" role="slider" aria-label="Time ring" aria-valuenow="0">
+      <rect x="478" y="46" width="66" height="214" rx="5" fill="url(#ringg)"/><g clip-path="url(#clipT)" id="mT"></g>
+      <rect x="478" y="46" width="66" height="214" rx="5" fill="none" stroke="#000" stroke-opacity=".6"/><rect class="hit" x="478" y="46" width="66" height="214" rx="5" fill="transparent"/>
+    </g>
+    <rect x="96" y="40" width="540" height="220" rx="6" fill="url(#spec)" opacity=".5" pointer-events="none"/>
+  </svg></div>
+    <div id="read" aria-live="polite"></div>
+  </div>
+</div>
+<script>
+var G={"items": [{"id": "cake_luz", "kind": "cake", "title": "LUZ \u00b7 13 candles", "n": 12, "period": 12}, {"id": "cake_bea", "kind": "cake", "title": "BEA \u00b7 2 candles", "n": 12, "period": 12}, {"id": "cake_izzy", "kind": "cake", "title": "IZZY \u00b7 4 candles", "n": 12, "period": 12}, {"id": "cake_nia", "kind": "cake", "title": "NIA \u00b7 19 candles", "n": 12, "period": 12}, {"id": "cake_mara", "kind": "cake", "title": "MARA \u00b7 29 candles", "n": 12, "period": 12}, {"id": "cake_film", "kind": "cake", "title": "FILM CAKE \u00b7 7 candles", "n": 12, "period": 12}, {"id": "cake_s3", "kind": "cake", "title": "SEED 3 \u00b7 7 candles", "n": 12, "period": 12}, {"id": "cake_s8", "kind": "cake", "title": "SEED 8 \u00b7 10 candles", "n": 12, "period": 12}, {"id": "cake_s13", "kind": "cake", "title": "SEED 13 \u00b7 7 candles", "n": 12, "period": 12}, {"id": "cake_s21", "kind": "cake", "title": "SEED 21 \u00b7 8 candles", "n": 12, "period": 12}, {"id": "cake_s34", "kind": "cake", "title": "SEED 34 \u00b7 17 candles", "n": 12, "period": 12}, {"id": "cake_s55", "kind": "cake", "title": "SEED 55 \u00b7 13 candles", "n": 12, "period": 12}, {"id": "bug_film", "kind": "bug", "title": "CERAMBYX STELLINAE \u00b7 22MM", "n": 12, "period": 12, "eye": true}, {"id": "bug_fly", "kind": "bug", "title": "CHRYSINA UMBROSA \u00b7 44MM", "n": 12, "period": 12, "eye": true}, {"id": "bug_mantis", "kind": "bug", "title": "RHYNCHITES STELLINAE \u00b7 17MM", "n": 12, "period": 12, "eye": true}, {"id": "bug_scarab", "kind": "bug", "title": "LUCANUS AURUMQUE \u00b7 37MM", "n": 12, "period": 12, "eye": true}, {"id": "bug_carabid", "kind": "bug", "title": "LUCANUS MEMORIALIS \u00b7 11MM", "n": 12, "period": 12, "eye": true}, {"id": "bug_longhorn", "kind": "bug", "title": "PHIDIPPUS VIRIDIS \u00b7 34MM", "n": 12, "period": 12, "eye": true}, {"id": "bug_weevil", "kind": "bug", "title": "LUCANUS UMBROSA \u00b7 14MM", "n": 12, "period": 12, "eye": true}, {"id": "bug_stag", "kind": "bug", "title": "PHIDIPPUS VIRIDIS \u00b7 35MM", "n": 12, "period": 12, "eye": true}, {"id": "bug_jumper", "kind": "bug", "title": "CERAMBYX UMBROSA \u00b7 37MM", "n": 12, "period": 12, "eye": true}]};
+(function(){
+'use strict';
+var $=function(s){return document.querySelector(s)},clamp=function(x,a,b){return Math.max(a,Math.min(b,x))};
+var cv=$('#cv'),cx=cv.getContext('2d'),W=1280,H=720;
+var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* ---------- assets ---------- */
+var IM={};function img(n,src){var i=new Image();i.src=src;IM[n]=i;return i}
+['kids','table','forest_far','forest_mid','forest_near','ana'].forEach(function(n){img(n,'assets/bench/'+n+'.webp')});
+img('chamber','assets/bench/chamber.jpg');img('leaf','assets/bench/leaf.jpg');
+G.items.forEach(function(it){img(it.id,'assets/bench/'+it.id+'.'+'webp');if(it.eye)img(it.id+'_eye','assets/bench/'+it.id+'_eye.webp')});
+var BOX={kids:[321,135],table:[326,472]};
+var cakes=G.items.filter(function(i){return i.kind==='cake'}),bugs=G.items.filter(function(i){return i.kind==='bug'});
+/* ---------- independent layer clocks (hold, jog, release) ---------- */
+function Layer(){this.q=0;this.e=0;this.r=1;this.held=false}
+Layer.prototype={t:function(h){return this.q+this.r*(h-this.e)},hold:function(h){this.q=this.t(h);this.e=h;this.r=0;this.held=true},release:function(h){this.e=h;this.r=1;this.held=false},jog:function(d){this.q+=d}};
+var T0=performance.now();function host(){return(performance.now()-T0)/1000}
+var subj=new Layer(),amb=new Layer();
+/* ---------- state ---------- */
+var scene='birthday',idx={birthday:0,forest:0,leaf:0},field=0,eye=false,eyeP=0;
+function list(){return scene==='birthday'?cakes:bugs}
+function cur(){var l=list();return l[idx[scene]%l.length]}
+/* ---------- gallery ---------- */
+function paintGallery(){
+  var gl=$('#gl');gl.innerHTML='';var l=list();$('#gh').textContent=scene==='birthday'?'Cakes · '+l.length:'Bugs · '+l.length;
+  l.forEach(function(it,i){var b=document.createElement('button');b.className='th';b.setAttribute('aria-pressed',i===idx[scene]);b.setAttribute('aria-label',it.title);
+    var sz=it.kind==='cake'?'':'';b.style.backgroundImage='url(assets/bench/'+it.id+'.'+'webp'+')';b.style.backgroundSize=(it.n*100)+'% 100%';b.style.backgroundPosition='0 0';if(it.kind==='bug')b.style.backgroundColor='#10130f';
+    b.innerHTML='<span>'+it.title+'</span>';b.onclick=function(){pick(i)};gl.appendChild(b)});
+  var eb=$('#eye');eb.hidden=scene!=='leaf';
+}
+function pick(i){var l=list();idx[scene]=((i%l.length)+l.length)%l.length;[].forEach.call($('#gl').children,function(b,j){b.setAttribute('aria-pressed',j===idx[scene])});RING.V.ang=idx[scene]*30;ringMarks('V');upd()}
+$('#eye').onclick=function(){eye=!eye;this.setAttribute('aria-pressed',eye);upd()};
+[].forEach.call(document.querySelectorAll('#top button'),function(b){b.onclick=function(){setScene(b.getAttribute('data-s'))}});
+function setScene(s){scene=s;eye=false;$('#eye').setAttribute('aria-pressed',false);[].forEach.call(document.querySelectorAll('#top button'),function(b){b.setAttribute('aria-pressed',b.getAttribute('data-s')===s)});
+  RING.V.ang=idx[s]*30;ringMarks('V');$('#rF').classList.toggle('off',s!=='forest');$('#rF').setAttribute('aria-disabled',s!=='forest');paintGallery();
+  subj.release(host());amb.release(host());sync();upd();try{location.replace('#'+s)}catch(e){}}
+/* ---------- orb ---------- */
+var NS='http://www.w3.org/2000/svg',RING={F:{x:318,w:66,ang:0},V:{x:398,w:66,ang:0},T:{x:478,w:66,ang:0}},cy=153,R=104;
+function ringMarks(key){var r=RING[key],g=$('#m'+key),s='';
+  var mark=function(th,spec){var c=Math.cos(th*Math.PI/180);if(c<=.02)return;var y=cy+R*Math.sin(th*Math.PI/180),t=(spec.t||2)*c;s+=spec.draw(y,t,c)};
+  if(key==='F'){for(var k=0;k<20;k++)mark(r.ang+k*18,{t:15,draw:function(y,t,c){return '<rect x="'+(r.x+4)+'" y="'+(y-t/2)+'" width="'+(r.w-8)+'" height="'+t+'" rx="'+Math.min(6,t/2)+'" fill="#000" opacity="'+(.15+.25*c)+'"/><rect x="'+(r.x+5)+'" y="'+(y-t/2)+'" width="'+(r.w-10)+'" height="'+Math.max(.6,t*.35)+'" fill="#fff" opacity="'+(.18*c)+'"/>'}})}
+  if(key==='V'){for(var k=0;k<36;k++)(function(k){mark(r.ang+k*10,{t:2.2,draw:function(y,t,c){return '<rect x="'+(r.x+(k%3===0?6:16))+'" y="'+(y-t/2)+'" width="'+(r.w-(k%3===0?12:32))+'" height="'+Math.max(.5,t)+'" fill="#e9edf0" opacity="'+(.35+.4*c)+'"/>'}})})(k)}
+  if(key==='T'){for(var k=0;k<90;k++)(function(k){mark(r.ang+k*4,{t:1.4,draw:function(y,t,c){return '<rect x="'+(r.x+3)+'" y="'+(y-t/2)+'" width="'+(r.w-6)+'" height="'+Math.max(.4,t*.7)+'" fill="#fff" opacity="'+((k%5===0?.34:.16)*c)+'"/>'}})})(k);
+    mark(r.ang,{t:3,draw:function(y){return '<rect x="'+r.x+'" y="'+(y-1.5)+'" width="'+r.w+'" height="3" fill="#e2412c"/>'}})}
+  g.innerHTML=s}
+['F','V','T'].forEach(ringMarks);
+var downKey=null;
+function dragRing(key){var el=$('#r'+key),y0=null,acc=0;
+  var move=function(dy){ if(key==='F'&&scene!=='forest')return;
+    var d=dy*.9;
+    if(key==='F'){var r=RING.F;r.ang=clamp(r.ang+d,0,300);field=r.ang/300;ringMarks('F')}
+    if(key==='V'){var r=RING.V;r.ang+=d;ringMarks('V');var n=list().length,i=((Math.round(r.ang/30)%n)+n)%n;if(i!==idx[scene]){idx[scene]=i;[].forEach.call($('#gl').children,function(b,j){b.setAttribute('aria-pressed',j===i)});try{navigator.vibrate&&navigator.vibrate(6)}catch(e){}}}
+    if(key==='T'){RING.T.ang+=d;ringMarks('T');subj.jog(d/360*3)}
+    upd()};
+  el.addEventListener('pointerdown',function(e){if(key==='F'&&scene!=='forest')return;el.setPointerCapture(e.pointerId);y0=e.clientY;if(key==='T')subj.hold(host());e.preventDefault()});
+  el.addEventListener('pointermove',function(e){if(y0===null)return;var dy=e.clientY-y0;y0=e.clientY;move(dy)});
+  var up=function(){if(y0===null)return;y0=null;if(key==='T')subj.release(host())};
+  el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
+  el.addEventListener('keydown',function(e){var k={ArrowUp:-6,ArrowDown:6,ArrowLeft:-6,ArrowRight:6}[e.key];if(k===undefined)return;e.preventDefault();if(key==='T')subj.hold(host());move(k/.9);if(key==='T')subj.release(host())});
+}
+['F','V','T'].forEach(dragRing);
+var th=$('#thumb');function holdToggle(){var h=host();amb.held?amb.release(h):amb.hold(h);sync();upd()}
+th.addEventListener('click',holdToggle);th.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();holdToggle()}});
+function sync(){th.setAttribute('aria-checked',amb.held);$('#led').setAttribute('fill',amb.held?'#fff':'#444')}
+var AMBN={birthday:'children',forest:'forest',leaf:'leaf'},SUBN={birthday:'cake',forest:'bug',leaf:'bug'};
+function upd(){var h=host(),it=cur();
+  $('#rtxt').textContent=it.title+(scene==='leaf'&&eye?' · eye':'');
+  $('#read').innerHTML='<span class="l">Model</span> <b>'+it.title+'</b><br><span class="l">'+SUBN[scene]+'</span> <b>'+subj.t(h).toFixed(1)+' s</b> · <span class="l">'+AMBN[scene]+'</span> <b>'+amb.t(h).toFixed(1)+' s'+(amb.held?' held':'')+'</b>'+(scene==='forest'?'<br><span class="l">field</span> <b>'+field.toFixed(2)+'</b>':'')}
+/* ---------- drawing ---------- */
+function ready(i){return i&&i.complete&&i.naturalWidth>0}
+function frameDraw(g,it,tt,x,y,w,mode,alpha){var im=IM[it.id];if(!ready(im))return;var fw=im.naturalWidth/it.n,fh=im.naturalHeight,h=w*fh/fw;
+  var f=((tt/(it.period||12))%1+1)%1*it.n,a=Math.floor(f)%it.n,b=(a+1)%it.n,m=f-Math.floor(f);
+  g.save();g.globalAlpha=alpha==null?1:alpha;g.drawImage(im,a*fw,0,fw,fh,x-w/2,y-h,w,h);g.globalAlpha=(alpha==null?1:alpha)*m;g.drawImage(im,b*fw,0,fw,fh,x-w/2,y-h,w,h);g.restore();return h}
+var off=document.createElement('canvas');off.width=W;off.height=H;var ox=off.getContext('2d');
+function flame(h){return .5+.28*Math.sin(h*13.1)+.14*Math.sin(h*7.3+1)+.08*Math.sin(h*29)}
+function ease(t){return t*t*(3-2*t)}
+function birthday(g,h){
+  g.fillStyle='#000';g.fillRect(0,0,W,H);
+  var fl=flame(h);
+  g.save();g.strokeStyle='rgba(255,255,255,.38)';g.lineWidth=2;g.beginPath();g.ellipse(640,640,760,360,0,Math.PI*1.12,Math.PI*1.88);g.stroke();g.restore();
+  var t=IM.table;if(ready(t))g.drawImage(t,BOX.table[0],BOX.table[1]);
+  var k=IM.kids;if(ready(k)){var tc=amb.t(h);ox.clearRect(0,0,W,H);var bx=BOX.kids[0],by=BOX.kids[1],kw=k.naturalWidth,kh=k.naturalHeight,s=1+.007*Math.sin(tc*1.5),dy=Math.sin(tc*.9)*2.2;
+    ox.save();ox.translate(bx+kw/2,by+kh);ox.scale(s,s);ox.translate(-(bx+kw/2),-(by+kh)+dy);ox.drawImage(k,bx,by);ox.restore();
+    ox.globalCompositeOperation='source-atop';var gr=ox.createRadialGradient(650,440,10,650,440,430);gr.addColorStop(0,'rgba(255,170,70,'+(.16+.12*fl)+')');gr.addColorStop(1,'rgba(255,170,70,0)');ox.fillStyle=gr;ox.fillRect(0,0,W,H);ox.globalCompositeOperation='source-over';
+    g.drawImage(off,0,0)}
+  var gl=g.createRadialGradient(650,500,10,650,500,360);gl.addColorStop(0,'rgba(255,160,60,'+(.20+.12*fl)+')');gl.addColorStop(1,'rgba(255,160,60,0)');g.save();g.globalCompositeOperation='screen';g.fillStyle=gl;g.fillRect(0,0,W,H);g.restore();
+  g.save();g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.ellipse(650,512,150,26,0,0,7);g.fill();g.restore();
+  frameDraw(g,cur(),subj.t(h),650,536,270);
+}
+function forest(g,h){
+  var c=IM.chamber;if(ready(c))g.drawImage(c,0,0,W,H);else{g.fillStyle='#222';g.fillRect(0,0,W,H)}
+  g.save();g.fillStyle='rgba(0,0,0,.25)';g.fillRect(0,0,W,H);g.restore();
+  var names=['forest_far','forest_mid','forest_near'],tc=amb.t(h),S=8,sw=W/S;
+  for(var li=0;li<3;li++){var im=IM[names[li]];if(!ready(im))continue;var px=Math.sin(tc*.35)*(li+1)*3.5;
+    for(var s=0;s<S;s++){var p=clamp((field*1.6-(2-li)*.22-s*.045)/.5,0,1);p=ease(p);if(p>=1)continue;
+      g.save();g.globalAlpha=1-p*.85;g.beginPath();g.rect(s*sw+px,0,sw+1,H);g.clip();g.drawImage(im,px,p*H*.85,W,H);g.restore()}
+  }
+  var pn=ease(clamp((field*1.6)/.5,0,1));if(pn<1){var bw=280;g.save();g.globalAlpha=1-pn;g.fillStyle='rgba(0,0,0,.45)';g.beginPath();g.ellipse(250,668,bw*.4,14,0,0,7);g.fill();frameDraw(g,cur(),subj.t(h),250,672,bw);g.restore()}
+}
+function leaf(g,h){
+  eyeP+=((eye?1:0)-eyeP)*.12;var e=ease(clamp(eyeP,0,1)),tc=amb.t(h),lf=IM.leaf;
+  g.save();if(ready(lf)){var z=1.04+.012*Math.sin(tc*.5);g.translate(W/2,H/2);g.rotate(Math.sin(tc*.31)*.004);g.scale(z,z);g.translate(-W/2,-H/2);if(e>.01)g.filter='blur('+(e*16)+'px)';g.drawImage(lf,0,0,W,H)}g.restore();
+  if(e>.01){g.fillStyle='rgba(0,0,0,'+(.55*e)+')';g.fillRect(0,0,W,H)}
+  var it=cur();
+  if(e<.98){g.save();g.globalAlpha=1-e;g.fillStyle='rgba(10,30,0,.35)';g.beginPath();g.ellipse(640,462,210,30,-.05,0,7);g.fill();var im=IM[it.id];frameDraw(g,it,subj.t(h),620,480,560);g.restore()}
+  var ei=IM[it.id+'_eye'];if(e>.02&&ready(ei)){var ew=ei.naturalWidth,eh=ei.naturalHeight,sc=(.65+.35*e)*Math.min(W*.82/ew,H*.92/eh);ox.clearRect(0,0,W,H);ox.globalCompositeOperation='source-over';ox.drawImage(ei,W/2-ew*sc/2,H/2-eh*sc/2,ew*sc,eh*sc);ox.globalCompositeOperation='destination-in';var mk=ox.createRadialGradient(W/2,H/2,H*.18,W/2,H/2,H*.62);mk.addColorStop(0,'rgba(0,0,0,1)');mk.addColorStop(1,'rgba(0,0,0,0)');ox.fillStyle=mk;ox.fillRect(0,0,W,H);ox.globalCompositeOperation='source-over';g.save();g.globalAlpha=e;g.drawImage(off,0,0);g.restore()}
+  else if(e>.02){g.save();g.globalAlpha=e;g.fillStyle='#fff';g.fillText('no eye render for this bug',40,60);g.restore()}
+}
+var last=0;
+function frame(){var h=host();
+  if(scene==='birthday')birthday(cx,h);else if(scene==='forest')forest(cx,h);else leaf(cx,h);
+  if(Math.floor(h*4)!==last){last=Math.floor(h*4);upd()}
+  requestAnimationFrame(frame)}
+/* ---------- boot ---------- */
+var hs=(location.hash||'').slice(1);setScene(hs==='forest'||hs==='leaf'?hs:'birthday');frame();
+window.__bench={pick:pick,setScene:setScene,state:function(){return{scene:scene,idx:idx,field:field,subj:subj.t(host()),amb:amb.t(host()),held:amb.held}}};
+})();
+</script>
+</body>
+</html>
