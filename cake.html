@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Cake</title>
+<meta name="description" content="Blender's first lesson is a donut. The memory orb's first lesson is the cake Ana makes at 02:17: eight chapters, and why the orb we have cannot teach it yet.">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #070807; --panel: #0d0f0d; --ink: #e9ece6; --dim: #8f988f; --line: #262b26; --amb: #f0b040; --no: #e0533b; --ring: #3a3f3a; }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --bg: #f4f3ee; --panel: #ebe9e2; --ink: #161816; --dim: #5b625b; --line: #d2d1c9; --amb: #9a6200; --no: #b0221b; --ring: #c4c3bb; } }
+  :root[data-theme="light"] { --bg: #f4f3ee; --panel: #ebe9e2; --ink: #161816; --dim: #5b625b; --line: #d2d1c9; --amb: #9a6200; --no: #b0221b; --ring: #c4c3bb; }
+  :root[data-theme="dark"] { --bg: #070807; --panel: #0d0f0d; --ink: #e9ece6; --dim: #8f988f; --line: #262b26; --amb: #f0b040; --no: #e0533b; --ring: #3a3f3a; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 15px/1.5 "IBM Plex Sans", system-ui, sans-serif; overflow: hidden; }
+  .deck { height: 100dvh; display: grid; grid-template-rows: 1fr auto; }
+  .slide { display: none; height: 100%; min-height: 0; grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr); }
+  .slide.on { display: grid; }
+  .pic { position: relative; background: #000; min-height: 0; overflow: hidden; }
+  .pic img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .pic .stamp { position: absolute; left: 12px; bottom: 10px; font: 12px "IBM Plex Mono", monospace; color: #cfd3cc; background: rgba(0,0,0,.55); padding: 3px 7px; }
+  .side { background: var(--panel); border-left: 1px solid var(--line); padding: 26px 24px 18px; overflow-y: auto; min-height: 0; display: flex; flex-direction: column; gap: 14px; }
+  .k { font: 600 12px "IBM Plex Mono", monospace; letter-spacing: .08em; color: var(--dim); }
+  h1, h2 { font-family: "IBM Plex Mono", monospace; font-weight: 600; margin: 0; letter-spacing: .02em; }
+  h1 { font-size: 30px; } h2 { font-size: 22px; }
+  p { margin: 0; max-width: 46ch; } .dim { color: var(--dim); } .amb { color: var(--amb); } .no { color: var(--no); }
+  .twin { font: 13px "IBM Plex Mono", monospace; color: var(--dim); border-left: 2px solid var(--amb); padding-left: 10px; }
+  .twin b { color: var(--ink); font-weight: 500; }
+  table { border-collapse: collapse; width: 100%; font: 12.5px/1.4 "IBM Plex Mono", monospace; }
+  td, th { padding: 5px 6px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; } th { color: var(--dim); font-weight: 500; }
+  td.x { color: var(--dim); }
+  ol { margin: 0; padding-left: 22px; } ol li { margin: 0 0 8px; max-width: 52ch; } ol li b { font-weight: 500; }
+  svg.ctl { width: 100%; max-width: 420px; height: auto; margin-top: auto; }
+  svg.ctl text { font-family: "IBM Plex Mono", monospace; }
+  .bar { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-top: 1px solid var(--line); background: var(--bg); font: 12px "IBM Plex Mono", monospace; }
+  .bar button { font: inherit; background: none; color: var(--ink); border: 1px solid var(--line); padding: 7px 14px; cursor: pointer; }
+  .bar button:hover { border-color: var(--amb); }
+  .dots { display: flex; gap: 5px; flex: 1; justify-content: center; flex-wrap: wrap; }
+  .dots i { width: 22px; height: 4px; background: var(--line); cursor: pointer; } .dots i.on { background: var(--amb); }
+  .pin { position: absolute; width: 24px; height: 24px; border-radius: 50%; background: var(--no); color: #fff; font: 600 12px/24px "IBM Plex Mono", monospace; text-align: center; transform: translate(-50%, -50%); box-shadow: 0 0 0 2px rgba(0,0,0,.6); }
+  .shotwrap { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+  .shotwrap .inner { position: relative; width: 100%; aspect-ratio: 1400 / 860; max-height: 100%; }
+  .shotwrap .inner img { object-fit: fill; }
+  @media (max-width: 760px) {
+    .slide { grid-template-columns: 1fr; grid-template-rows: minmax(0, 46%) minmax(0, 54%); }
+    .side { border-left: 0; border-top: 1px solid var(--line); padding: 16px 16px 12px; gap: 10px; }
+    h1 { font-size: 22px; } h2 { font-size: 18px; } p { font-size: 14px; }
+    svg.ctl { max-width: 340px; }
+    .dots i { width: 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="deck">
+  <div id="slides"></div>
+  <div class="bar"><button id="prev" aria-label="Previous">PREV</button><div class="dots" id="dots"></div><button id="next" aria-label="Next">NEXT</button></div>
+</div>
+<script>
+/* The controller: three rings, one job each, and a thumb (after the Field Orb 04 specification). Each chapter lights what it uses. */
+const ROLE = { aim: 'AIM', thumb: 'THUMB', field: 'FIELD', variant: 'VARIANT', time: 'TIME' };
+function ctl(use) {
+  const on = k => use[k] ? 'var(--amb)' : 'var(--ring)', tx = k => use[k] ? 'var(--ink)' : 'var(--dim)';
+  const ring = (x, k, sub) => `<ellipse cx="${x}" cy="92" rx="13" ry="46" fill="none" stroke="${on(k)}" stroke-width="${use[k] ? 4 : 2}"/>
+    <text x="${x}" y="30" text-anchor="middle" font-size="11" fill="${tx(k)}" font-weight="600">${ROLE[k]}</text><text x="${x}" y="44" text-anchor="middle" font-size="9" fill="var(--dim)">${sub}</text>`;
+  const act = Object.entries(use).map(([k, v], i) => `<text x="0" y="${176 + i * 17}" font-size="12" fill="var(--ink)"><tspan fill="var(--amb)" font-weight="600">${ROLE[k]}</tspan>  ${v}</text>`).join('');
+  return `<svg class="ctl" viewBox="0 0 420 ${176 + Object.keys(use).length * 17}" role="img" aria-label="The orb's controls used in this chapter">
+    <rect x="40" y="50" width="270" height="84" rx="8" fill="none" stroke="var(--ring)" stroke-width="2"/>
+    <ellipse cx="40" cy="92" rx="16" ry="42" fill="var(--panel)" stroke="var(--ring)" stroke-width="2"/>
+    <rect x="62" y="84" width="26" height="14" rx="6" fill="${use.thumb ? 'var(--amb)' : 'none'}" stroke="${on('thumb')}" stroke-width="2"/>
+    <text x="75" y="120" text-anchor="middle" font-size="11" fill="${tx('thumb')}" font-weight="600">THUMB</text>
+    ${ring(135, 'field', 'scallops')}${ring(200, 'variant', 'detents')}${ring(265, 'time', 'knurl')}
+    <ellipse cx="310" cy="92" rx="16" ry="42" fill="var(--panel)" stroke="var(--ring)" stroke-width="2"/><ellipse cx="310" cy="92" rx="9" ry="26" fill="none" stroke="var(--ring)" stroke-width="2"/>
+    <line x1="326" y1="92" x2="${use.aim ? 418 : 346}" y2="92" stroke="${on('aim')}" stroke-width="${use.aim ? 3 : 2}" stroke-dasharray="6 5"/>
+    <text x="380" y="80" text-anchor="middle" font-size="11" fill="${tx('aim')}" font-weight="600">AIM</text>
+    ${act}</svg>`;
+}
+const S = [
+  { img: 'c0', stamp: '02:34 · the cake, the table, the children', html: `
+    <div class="k">STELLINE ORB · HELLO WORLD</div><h1>THE CAKE</h1>
+    <p>Blender's first lesson is a donut. The memory orb's first lesson should be the cake Ana makes at 02:17.</p>
+    <table><tr><th>Blender donut</th><th>Stelline cake</th></tr>
+      <tr><td>1 The basics</td><td>1 The orb</td></tr><tr><td>2 Basic modelling</td><td>2 The cake</td></tr>
+      <tr><td>3 Organic modelling (the icing)</td><td>3 The icing</td></tr><tr><td>5 Texturing</td><td>4 The writing</td></tr>
+      <tr><td>7 Scattering (the sprinkles)</td><td>5 The candles</td></tr><tr><td class="x">none</td><td class="amb">6 The children</td></tr>
+      <tr><td class="x">none</td><td class="amb">7 The hold</td></tr><tr><td>8 Lighting and rendering</td><td>8 The breath</td></tr></table>
+    <p class="dim">The cake is the donut plus two things Blender's first lesson does not have: people and time. Materials and UV unwrapping drop out, because the film supplies the surfaces.</p>` },
+  { img: 'c8', stamp: '03:36 · she blows', html: `
+    <div class="k">WHY A CAKE</div><h2>Everyone knows a good one</h2>
+    <ol><li>Anyone can see when a cake is wrong, so every mistake shows, as with the donut.</li>
+    <li>It uses every part of the orb once: aim, capture, variant, field, time.</li>
+    <li>It ends in something finished that you made and can show. Ten students make ten different cakes, and each can still read as a memory.</li>
+    <li>It is the memory she makes on screen, so every chapter has the film's own frame to check against.</li></ol>` },
+  { img: 'c1', stamp: '02:18 · a cake hangs in the dark', ch: 1, title: 'THE ORB', twin: 'The basics', use: { aim: 'point at the dark until the cake lights', thumb: 'press: the cake is captured' },
+    say: 'The dome is empty. Point the orb and a cake is there. Press the thumb and it is yours. Nothing else is taught.', learn: 'Aim and capture. What is captured stays captured when the orb moves away.' },
+  { img: 'c2', stamp: '02:20 · a plain sponge', img2: 'c2b', ch: 2, title: 'THE CAKE', twin: 'Basic modelling', use: { variant: 'one click per cake: sponge, dome, tiered' },
+    say: 'Turn the variant ring. Each click is another cake in the same place. She tries a sponge and a dome before she keeps the iced one.', learn: 'A thing can change what it is and keep where it is.' },
+  { img: 'c3', stamp: '02:25 · the iced cake', ch: 3, title: 'THE ICING', twin: 'Organic modelling: the donut\'s icing is chapter 3 too', use: { aim: 'draw across the top', thumb: 'held: pipe' },
+    say: 'Her hand pipes the frosting. Hold the thumb and draw across the cake; the icing follows the surface it is laid on.', learn: 'Drawing onto a surface. The stroke belongs to the cake and turns with it.' },
+  { img: 'c4', stamp: '02:27 · the writing', ch: 4, title: 'THE WRITING', twin: 'Texturing', use: { aim: 'move closer: the top of the cake lights', thumb: 'press again: capture the top, then write' },
+    say: 'Capture the top of the cake, not the cake, and write on it. Her characters, 生日快乐, set in the light of that frame.', learn: 'Going inside a thing. A second press captures a part of what is already captured.' },
+  { img: 'c5', stamp: '02:28 · seven candles', ch: 5, title: 'THE CANDLES', twin: 'Scattering: the donut\'s sprinkles', use: { variant: 'how many: one click per candle', aim: 'pick one candle', field: 'its flame, out to full' },
+    say: 'Seven candles. Each one can be lit or out on its own, and each lights the cake from where it stands.', learn: 'Many of one thing, each with its own state.' },
+  { img: 'c6', stamp: '02:33 · the children come in', ch: 6, title: 'THE CHILDREN', twin: 'No donut chapter: people', use: { field: 'how far the scene is there: table, then children', aim: 'pick a face', variant: 'its expression' },
+    say: 'Turn the field ring and the table, then the children, come in from the dark: ghosts first, then solid, as the film does it.', learn: 'Revealing a scene in depth order, and changing a face without replacing it.' },
+  { img: 'c7', stamp: '02:57 · held', ch: 7, title: 'THE HOLD', twin: 'No donut chapter: time', use: { thumb: 'long press on the children: hold', time: 'jog the cake a quarter second back' },
+    say: 'Hold the children. The cake keeps turning and the flames keep moving while the children stay where they are. Jog the cake back; the children do not change.', learn: 'Each layer keeps its own clock. This is the move the scene is known for, and Blender has no first-lesson equivalent.' },
+  { img: 'c8', stamp: '03:36 · the breath', ch: 8, title: 'THE BREATH', twin: 'Lighting and rendering', use: { thumb: 'release the hold; double press: keep the memory' , field: 'the flames go out' },
+    say: 'Release the children. They blow. The flames go out and the light goes with them: red falls to 0.41, green to 0.34, blue to 0.15, measured from this shot. Cool light from the wall stays.', learn: 'Light follows its source. A double press keeps the memory: your cake, beside hers.' },
+  { now: true, html: `
+    <div class="k">THE ORB WE HAVE</div><h2>Why it cannot teach the cake</h2>
+    <ol><li><b>It starts finished.</b> BIRTHDAY loads the film's cake with its candles lit. There is nothing to make, only settings to reach.</li>
+    <li><b>It never points.</b> The cake is picked from a list on ring 2, <span class="dim">TABLE FILM SKIN</span>, not by aiming at it, though she aims the orb in every shot.</li>
+    <li><b>Rings change meaning.</b> Ring 1 is TIME, then COMPARE TO. Ring 4 is VIEW, PUSH, MAKE or the film's own curve, by mode. A habit can't form on a ring whose job moves.</li>
+    <li><b>Fifteen controls before the first cake.</b> Five rings and ten buttons, and a room code with a QR square on the device's face.</li>
+    <li><b>One clock.</b> Everything shares one playhead, so the children cannot be held while the cake turns. The scene's defining move is impossible.</li>
+    <li><b>Sliders, not acts.</b> ICING 0 to 100%, FLAMES 0 to 100%: values on a whole object, where she pipes, writes and lights.</li>
+    <li><b>The lesson is a line of text.</b> "5/11 FACET CAKE CANDLES, MAKE: SEVEN CANDLES", in control names; three of the eleven steps are about finding the right shot.</li>
+    <li><b>No undo.</b> ZERO throws away the whole bench.</li>
+    <li><b>The goal is a score.</b> IMPRINT measures how close you came to the film. A first lesson should end with your cake, which can differ from hers.</li></ol>` },
+  { img: 'c1', stamp: '02:18 · where the lesson starts', end: true, html: `
+    <div class="k">WHAT CHANGES</div><h2>From the orb we have to the cake orb</h2>
+    <table>
+      <tr><th>Now</th><th>Cake orb</th></tr>
+      <tr><td>5 rings, jobs change by mode</td><td>3 rings, one job each: FIELD, VARIANT, TIME, told apart by touch</td></tr>
+      <tr><td>10 buttons and 3 modes</td><td>1 thumb: press captures, long press holds, double press keeps</td></tr>
+      <tr><td>pick from a list</td><td>aim; what the orb points at lights up</td></tr>
+      <tr><td>one playhead</td><td>a clock per layer: children, cake, flames, light</td></tr>
+      <tr><td>ZERO</td><td>every turn is a preview until the thumb keeps it; turning back undoes it</td></tr>
+      <tr><td>steps written as text</td><td>the film's frame for the chapter stands in the room; the chapter is done when your frame holds what hers holds</td></tr>
+      <tr><td>starts from the film's cake</td><td>starts from the empty dome</td></tr>
+      <tr><td>a match score</td><td>your memory, kept beside hers</td></tr></table>
+    <p class="dim">What carries over: the film cut into parts with depth, the writing re-set from her own characters, the flame light measured from 03:46, and the blind critic, now asked once per chapter.</p>
+    <p><a class="amb" href="hand-orb.html?t=29.5">The orb as it is now</a> · <a class="amb" href="designs.html">The details, re-made</a></p>` }
+];
+const PINS = [[50.7, 44, 1], [40.6, 86, 2], [33.5, 86, 3], [27.7, 77.4, 4], [40, 74.8, 5], [59.4, 82, 6], [62, 73.6, 7], [22.7, 92.7, 8], [77.2, 92.7, 9]];
+const box = document.getElementById('slides'), dots = document.getElementById('dots');
+box.style.minHeight = '0';
+S.forEach((s, i) => {
+  const el = document.createElement('section'); el.className = 'slide';
+  let pic;
+  if (s.now) pic = `<div class="pic"><div class="shotwrap"><div class="inner"><img src="assets/cake/now.jpg" alt="The orb as it is now, with the birthday bench loaded">${PINS.map(([x, y, n]) => `<span class="pin" style="left:${x}%;top:${y}%">${n}</span>`).join('')}</div></div></div>`;
+  else pic = `<div class="pic"><img src="assets/cake/${s.img}.jpg" alt="${s.stamp}"><span class="stamp">${s.stamp}</span></div>`;
+  const side = s.ch ? `<div class="k">CHAPTER ${s.ch} OF 8</div><h2>${s.title}</h2><div class="twin">Donut: <b>${s.twin}</b></div><p>${s.say}</p><p class="dim">${s.learn}</p>${ctl(s.use)}` : s.html;
+  el.innerHTML = pic + `<div class="side">${side}</div>`;
+  if (s.img2) { const im = el.querySelector('.pic img'); let b = false; setInterval(() => { if (!el.classList.contains('on')) return; b = !b; im.src = 'assets/cake/' + (b ? s.img2 : s.img) + '.jpg'; el.querySelector('.stamp').textContent = b ? '02:23 · a dome' : s.stamp; }, 1600); }
+  box.append(el);
+  const d = document.createElement('i'); d.title = s.title || (i === 0 ? 'THE CAKE' : ''); d.onclick = () => go(i); dots.append(d);
+});
+box.style.height = '100%'; box.style.overflow = 'hidden';
+let cur = 0;
+function go(i) { cur = Math.max(0, Math.min(S.length - 1, i)); box.querySelectorAll('.slide').forEach((e, j) => e.classList.toggle('on', j === cur)); dots.querySelectorAll('i').forEach((e, j) => e.classList.toggle('on', j === cur)); try { history.replaceState(null, '', '#' + (cur + 1)); } catch (e) { } }
+document.getElementById('prev').onclick = () => go(cur - 1); document.getElementById('next').onclick = () => go(cur + 1);
+addEventListener('keydown', e => { if (e.key === 'ArrowRight' || e.key === ' ') go(cur + 1); if (e.key === 'ArrowLeft') go(cur - 1); });
+let tx = null; addEventListener('touchstart', e => tx = e.touches[0].clientX, { passive: true }); addEventListener('touchend', e => { if (tx == null) return; const d = e.changedTouches[0].clientX - tx; if (Math.abs(d) > 50) go(cur + (d < 0 ? 1 : -1)); tx = null; });
+go((parseInt(location.hash.slice(1)) || 1) - 1);
+</script>
+</body>
+</html>
