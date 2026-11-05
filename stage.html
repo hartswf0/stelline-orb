@@ -9,12 +9,13 @@
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;background:#000;color:#fff;font:400 12px/1.35 var(--f);letter-spacing:.07em;overflow:hidden}
   #gl{position:fixed;inset:0;width:100%;height:100%;display:block}
-  /* the reticle: a crescent on the thing you hold, a leader to its menu */
-  #ret{position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;opacity:0;transition:opacity .15s;z-index:5}
-  #ret svg{position:absolute;left:-90px;top:-90px;width:180px;height:180px;overflow:visible}
-  #retLine{stroke:rgba(255,255,255,.55);stroke-width:1}
-  #retArc{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round}
-  #menu{position:fixed;right:3.2vw;top:50%;transform:translateY(-50%);width:230px;z-index:6;text-transform:uppercase;pointer-events:none;text-shadow:0 0 8px #000,0 0 3px #000}
+  /* the reticle: the film's own. A segmented crescent that floats beside what you hold; needles and tiny labels that read your rings */
+  #ret{position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;opacity:0;transition:opacity .25s;z-index:5;mix-blend-mode:screen}
+  #ret svg{position:absolute;left:-170px;top:-170px;width:340px;height:340px;overflow:visible;filter:blur(.35px) drop-shadow(0 0 3px rgba(255,255,255,.25))}
+  #ret text{font:500 7.2px "Barlow Semi Condensed","DIN Alternate",Arial,sans-serif;letter-spacing:.09em;fill:#fff;text-transform:uppercase}
+  #ret .code{font-size:6.8px;opacity:.9}
+  #ret .thin{fill:none;stroke:#fff;stroke-width:1.2}
+  #menu{display:none;position:fixed;right:3.2vw;top:50%;transform:translateY(-50%);width:230px;z-index:6;text-transform:uppercase;pointer-events:none;text-shadow:0 0 8px #000,0 0 3px #000}
   #menu .path{font-weight:600;font-size:13px;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,.5);padding-bottom:6px}
   #menu .chan{display:flex;gap:12px;margin-bottom:8px;opacity:.9}#menu .chan u{text-decoration:none;opacity:.4}#menu .chan u.on{opacity:1;border-bottom:2px solid #fff}
   #menu .ax{display:flex;justify-content:space-between;padding:2px 0}#menu .ax span{opacity:.75}#menu .ax b{font-weight:600}
@@ -34,7 +35,13 @@
 </head>
 <body>
 <canvas id="gl"></canvas>
-<div id="ret"><svg viewBox="-90 -90 180 180"><path id="retArc" d="M-52 -26 A58 58 0 0 1 36 -46"/><line id="retLine" x1="52" y1="-4" x2="300" y2="0"/></svg></div>
+<div id="ret"><svg id="rsvg" viewBox="-170 -170 340 340">
+  <defs><linearGradient id="rg" gradientUnits="userSpaceOnUse" x1="-80" y1="-120" x2="60" y2="110"><stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset=".45" stop-color="#f0f0f0" stop-opacity=".78"/><stop offset="1" stop-color="#cfcfcf" stop-opacity=".38"/></linearGradient></defs>
+  <path id="rBand" fill="url(#rg)"/><path id="rWedge" fill="#fff" opacity=".9"/><g id="rTicks"></g><g id="rNotch"></g><rect id="rMark" width="16" height="9" fill="#fff"/>
+  <path id="rInner" class="thin" opacity=".75"/><path id="rInner2" class="thin" opacity=".35"/>
+  <line id="rN1" stroke="#fff" stroke-width="1.6"/><line id="rN2" stroke="#fff" stroke-width="1.3" opacity=".9"/>
+  <text id="rL1"></text><text id="rL2"></text>
+  <g id="rCode"></g></svg></div>
 <div id="menu"></div>
 <div id="pair"><canvas id="qr" width="1" height="1"></canvas><div class="code" id="code"></div><small>Open the orb on your phone and enter the code</small><button id="skip">Use without the orb</button></div>
 <script src="assets/three.min.js"></script>

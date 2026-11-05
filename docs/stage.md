@@ -9,3 +9,6 @@ Ring 4 moves down or up the scene graph; ring 5 steps through siblings. The sele
 Thumb: CLUTCH (tilt drives the camera while held), PLACE (on the ADD palette), PEN (in ETCH).
 Spread: two fingers on the barrel, pull apart / push together, scales the selected node (dollies the camera when it is selected).
 Shake undoes the last stroke. NEXT PART jumps to the next item on the ADD palette so the whole cake can be built without leaving the rings.
+
+The reticle on the stage is the film's: a segmented crescent that floats up and to the left of the selected thing. The two needles read rings 1 and 2, the small block on the band reads ring 3, and the tiny labels and code lines read the selection and what the rings just did.
+The + pad on the handheld: up/down move through the scene graph, left/right step through siblings, the centre changes channel.

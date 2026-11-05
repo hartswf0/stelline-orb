@@ -321,7 +321,7 @@
     if (i >= 3) { S.acc[i - 3] += d; const step = 30; while (Math.abs(S.acc[i - 3]) >= step) { const sg = Math.sign(S.acc[i - 3]); S.acc[i - 3] -= sg * step; const hit = i === 3 ? stepDepth(sg) : stepSibling(sg); fx(hit ? 'wall' : 'detent'); } return; }
     const n = nsel(); const t = chans(n)[S.chan]; if (!t) return; const a = t[i]; if (!a || a[0] === '—') return;
     if (n.kind === 'cam' && i < 3 && S.chan === 'scale' && i !== 1) { }
-    const hit = a[1](d); if (hit) { if (!hitWall[i]) fx('wall'); hitWall[i] = 8; } changed();
+    const hit = a[1](d); logLine('ring' + (i + 1) + ' ' + (d > 0 ? '+' : '') + d.toFixed(1)); if (hit) { if (!hitWall[i]) fx('wall'); hitWall[i] = 8; } changed();
   }
   function key(id, dn) {
     if (id === 'thumb') { const n = nsel(); if (n.kind === 'palette') { if (dn) place(n.pal); } else if (S.chan === 'etch' && n.kind === 'writing') { penDown(dn); fx(dn ? 'pen' : 'detent'); } else { S.clutch = dn; if (!dn) { C.yaw += C.iy; C.pitch = clamp(C.pitch + C.ip, -60, 80); C.roll = clamp(C.roll + C.ir, -45, 45); C.iy = C.ip = C.ir = 0; imuS.ref = null; } fx(dn ? 'detent' : 'wall'); } changed(); return; }
@@ -329,6 +329,11 @@
     if (id === 'move' || id === 'turn' || id === 'scale' || id === 'etch') setChan(id);
     else if (id === 'undo') undo();
     else if (id === 'guide') { place('writing'); }
+    else if (id === 'up') { fx(stepDepth(-1) ? 'wall' : 'detent'); logLine('graph up'); }
+    else if (id === 'down') { fx(stepDepth(1) ? 'wall' : 'detent'); logLine('graph down'); }
+    else if (id === 'left') { fx(stepSibling(-1) ? 'wall' : 'detent'); logLine('graph prev'); }
+    else if (id === 'right') { fx(stepSibling(1) ? 'wall' : 'detent'); logLine('graph next'); }
+    else if (id === 'mid') { const cs = ['move', 'turn', 'scale'].concat(nsel().kind === 'writing' ? ['etch'] : []).filter(c => c === 'etch' ? nsel().kind === 'writing' : chanOK(nsel(), c)); setChan(cs[(cs.indexOf(S.chan) + 1) % cs.length] || 'move'); }
     else if (id === 'next') { const order = PALETTE.map(x => x[0]); const last = S.history.length ? S.history[S.history.length - 1].pal : null; let i = last ? order.indexOf(last) + 1 : 0; const done = q => ({ table: nodes.table.exists, tier: nodes.tier2.exists, icing: nodes.icing.exists, border: nodes.border.exists, candle: false, flame: nodes.flames.exists, writing: false, kids: nodes.kids.exists })[q]; let k = 0; while (k < order.length && done(order[i % order.length])) { i++; k++; } S.sel = ['add', 'add_' + order[i % order.length]]; fx('detent'); afterSel(); }
     changed();
   }
@@ -371,18 +376,43 @@
     const marks = (n.kind === 'cam' && S.chan === 'scale') ? focusMarks().map(m => `<i class="${lock && lock[0] === m[0] ? 'lk' : ''}">${m[0]} ${m[1].toFixed(1)}</i>`).join('') : '';
     menu.innerHTML = `<div class="path">${u.sel}</div><div class="chan">${['MOVE', 'TURN', 'SCALE', 'ETCH'].map(c => `<u class="${S.chan === c.toLowerCase() ? 'on' : ''}">${c}</u>`).join('')}</div>${ring}<div class="marks">${marks}</div><div class="tree">${tree}</div><div class="note">${u.note || ''}</div>`;
   }
-  const _v = new T.Vector3();
-  function placeReticle() {
-    const n = nsel(); const w = window.innerWidth, h = window.innerHeight; let o = n.obj; let box = new T.Box3(); let ok = false;
-    if (n.kind === 'cam') { ret.style.opacity = 0; return; }
-    if (n.kind === 'palette' || n.kind === 'add') o = nodes.table.exists ? nodes.table.obj : null; else if (n.kind === 'group' || n.kind === 'set') { o = n.id === 'cake' && topTier() ? nodes['tier' + topTier()].obj : n.id === 'forest' ? nodes.bug.obj : n.id === 'lights' ? null : null; }
-    if (n.kind === 'light') { _v.copy((n.id === 'key' ? keyLight : rimLight).position); ok = true; }
-    else if (o) { box.setFromObject(o); if (!box.isEmpty()) { box.getCenter(_v); ok = true; } }
-    if (!ok) { ret.style.opacity = 0; return; }
-    _v.project(cam); if (_v.z > 1) { ret.style.opacity = 0; return; }
-    const x = (_v.x * .5 + .5) * w, y = (-_v.y * .5 + .5) * h; ret.style.opacity = 1; ret.style.transform = `translate(${x}px,${y}px)`;
-    const mx = menu.getBoundingClientRect(); retLine.setAttribute('x2', (mx.left - x + 0) + ''); retLine.setAttribute('y2', (mx.top + 40 - y) + '');
+  const _v = new T.Vector3(); const rsvg = document.getElementById('rsvg'); const RT = { x: 0, y: 0, k: 1, built: false, log: [] };
+  const $r = id => document.getElementById(id), polar = (r, a) => [Math.cos(a * D2R) * r, Math.sin(a * D2R) * r];
+  function annulus(r0, r1, a0, a1) { const p = (r, a) => polar(r, a).map(v => v.toFixed(2)).join(' '); const big = (a1 - a0) > 180 ? 1 : 0; return `M${p(r1, a0)} A${r1} ${r1} 0 ${big} 1 ${p(r1, a1)} L${p(r0, a1)} A${r0} ${r0} 0 ${big} 0 ${p(r0, a0)} Z`; }
+  function buildReticle() {
+    $r('rBand').setAttribute('d', annulus(86, 118, -126, 104)); $r('rWedge').setAttribute('d', annulus(86, 118, -126, -92));
+    let t = ''; for (let a = -52; a <= 100; a += 6) { const [x0, y0] = polar(100, a), [x1, y1] = polar(118, a); t += `<line x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}" stroke="#000" stroke-width="1.3" opacity="${(.2 + .5 * (1 - (a + 52) / 152)).toFixed(2)}"/>`; } $r('rTicks').innerHTML = t;
+    $r('rNotch').innerHTML = [[14, 6], [58, 9]].map(([a, w]) => `<path d="${annulus(88, 116, a, a + w)}" fill="#000" opacity=".85"/>`).join('');
+    $r('rInner').setAttribute('d', `M${polar(70, -140).join(' ')} A70 70 0 1 1 ${polar(70, 70).join(' ')}`); $r('rInner2').setAttribute('d', `M${polar(58, -100).join(' ')} A58 58 0 0 1 ${polar(58, 40).join(' ')}`);
+    RT.built = true;
   }
+  const ctr = id => { const o = nodes[id].obj; return o; };
+  function logLine(t) { RT.log.push(t); if (RT.log.length > 5) RT.log.shift(); }
+  function drawReticle() {
+    if (!RT.built) buildReticle(); const n = nsel(), u = ui(), w = window.innerWidth, h = window.innerHeight; let o = n.obj, ok = false, sx = w * .3, sy = h * .38, dist = 6;
+    if (n.kind === 'palette' || n.kind === 'add') o = nodes.table.exists ? nodes.table.obj : null; else if (n.kind === 'group' || n.kind === 'set') o = n.id === 'cake' && topTier() ? nodes['tier' + topTier()].obj : n.id === 'forest' ? nodes.bug.obj : n.id === 'birthday' ? (nodes.table.exists ? nodes.table.obj : null) : null;
+    if (n.kind === 'light') { _v.copy((n.id === 'key' ? keyLight : rimLight).position); ok = true; }
+    else if (o) { const box = new T.Box3().setFromObject(o); if (!box.isEmpty()) { box.getCenter(_v); ok = true; } }
+    if (ok) { dist = _v.distanceTo(cam.position); _v.project(cam); if (_v.z > 1) ok = false; else { sx = (_v.x * .5 + .5) * w; sy = (-_v.y * .5 + .5) * h; } }
+    const k = clamp(2.6 / Math.max(.8, dist / 3.2), .8, 1.55) * (n.kind === 'cam' ? 1.1 : 1);
+    // it floats up and to the left of what you hold, like the film's, and trails a little
+    let tx = sx - 150 * k, ty = sy - 120 * k; tx = clamp(tx, 190 * k, w - 190 * k); ty = clamp(ty, 190 * k, h - 190 * k);
+    RT.x = lerp(RT.x || tx, tx, .12); RT.y = lerp(RT.y || ty, ty, .12); RT.k = lerp(RT.k || k, k, .1);
+    ret.style.opacity = ok || n.kind === 'cam' || n.kind === 'palette' ? .92 : .5; ret.style.transform = `translate(${RT.x}px,${RT.y}px) scale(${RT.k})`;
+    // the needles read rings 1 and 2; the block reads ring 3; the bright sector reads where you are among the siblings
+    const f = d => (((d % 360) + 360) % 360) / 360, a1 = -102 + f(S.deg[0]) * 74, a2 = 8 + f(S.deg[1]) * 80, a3 = -34 + f(S.deg[2]) * 130;
+    const L = (el, r0, r1, a) => { const [x0, y0] = polar(r0, a), [x1, y1] = polar(r1, a); el.setAttribute('x1', x0); el.setAttribute('y1', y0); el.setAttribute('x2', x1); el.setAttribute('y2', y1); };
+    L($r('rN1'), 18, 142, a1); L($r('rN2'), 62, 142, a2);
+    const [mx, my] = polar(116, a3); $r('rMark').setAttribute('transform', `translate(${mx - 8},${my - 4.5}) rotate(${a3} 8 4.5)`);
+    const [l1x, l1y] = polar(146, a1), [l2x, l2y] = polar(146, a2); const t1 = $r('rL1'), t2 = $r('rL2');
+    t1.setAttribute('x', l1x); t1.setAttribute('y', l1y); t1.textContent = u.sel.replace(/ › /g, '/'); t1.setAttribute('text-anchor', 'start');
+    const ax = u.rings.slice(0, 3).map(r => r.lab === '—' ? '' : r.lab + ' ' + r.val).filter(Boolean).join('  ');
+    t2.setAttribute('x', l2x); t2.setAttribute('y', l2y + 3); t2.textContent = (S.chan.toUpperCase()) + (ax ? ' · ' + ax : ''); t2.setAttribute('text-anchor', 'start');
+    // the code lines the film shows at the foot of it: what the rings just did
+    const lines = ['sel ' + u.sel.toLowerCase().replace(/ › /g, '.'), 'chan ' + S.chan + '  depth ' + (S.sel.length - 1), ...u.rings.slice(0, 3).filter(r => r.lab !== '—').map((r, i) => `ring${i + 1}.${r.lab.toLowerCase()} = ${r.val}`), ...RT.log.slice(-2)];
+    $r('rCode').innerHTML = lines.slice(0, 7).map((s, i) => `<text class="code" x="-165" y="${78 + i * 8.5}">${s.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</text>`).join('');
+  }
+  function placeReticle() { drawReticle(); }
 
   /* ------------------------------------------------------------------ frame */
   const clock = new T.Clock(); let tAcc = 0, lastUI = 0;
