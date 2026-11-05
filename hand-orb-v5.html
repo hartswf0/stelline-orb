@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Stelline Memory Orb</title>
+<meta name="description" content="The memory orb from Blade Runner 2049 as a hand instrument: the whole clip cut into parts, a model of every shot, and a bench to build the beetle, the birthday or anything, all from the device.">
+<meta name="theme-color" content="#050605">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #050605; --orbH: clamp(190px, 31vh, 340px); }
+  html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; overscroll-behavior: none; touch-action: none; -webkit-user-select: none; user-select: none; }
+  #scene { position: fixed; left: 0; top: 0; width: 100vw; height: calc(100vh - var(--orbH)); height: calc(100dvh - var(--orbH)); display: block; background: #000; }
+  #orb { position: fixed; left: 0; bottom: 0; width: 100vw; height: var(--orbH); display: block; background: radial-gradient(120% 140% at 50% 0%, #1b1e1d 0%, #0b0c0c 55%, #050605 100%); }
+  body.orbonly #scene { display: none; }
+  body.orbonly #orb { height: 100vh; height: 100dvh; top: 0; }
+  body.bare #orb { display: none; } body.bare #scene { height: 100vh; height: 100dvh; }
+  /* a tall phone: the film at its own 16:9 across the top, the device (turned along the long side) in all the rest */
+  @media (max-aspect-ratio: 4/5) { :root { --orbH: calc(100dvh - 56.25vw); } }
+  #cam { position: fixed; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+<canvas id="orb"></canvas>
+<video id="cam" playsinline muted></video>
+<script src="assets/three.min.js"></script>
+<script src="assets/v5/qrcode.js"></script>
+<script src="assets/v5/hands.js"></script>
+<script src="assets/v5/core.js"></script>
+<script src="assets/v5/orb.js"></script>
+<script src="assets/v5/anatomy.js"></script>
+<script src="assets/v5/scene.js"></script>
+<script src="assets/v5/hand.js"></script>
+<script src="assets/v5/link.js"></script>
+<script>
+/* Stelline Memory Orb v5. The film above, the device below; every control is on the device.
+   ?orb&room=ABCD   this screen is only the device, paired to the scene in room ABCD (open it on the phone)
+   ?sim=bug|birthday   a simulated hand builds it, as when BUG or BIRTHDAY is held */
+(async function () {
+  const Q = new URLSearchParams(location.search), ROLE = Q.has('orb') ? 'orb' : 'scene', { ST } = CORE;
+  if (ROLE === 'orb') document.body.classList.add('orbonly');
+  if (Q.has('bare')) document.body.classList.add('bare');
+  const orbCv = document.getElementById('orb'), sceneCv = document.getElementById('scene');
+  ORB.attach(orbCv);
+  await CORE.load('assets/v5/atlas/');
+  if (ROLE === 'scene') SCENE.init(sceneCv);
+  // the room: four letters, kept for this tab, shown on the device's left screen with a code for the phone's camera
+  let room = (Q.get('room') || '').toUpperCase();
+  if (!room) { try { room = sessionStorage.getItem('stelline-room') || ''; } catch (e) { } if (!room) room = Array.from({ length: 4 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.random() * 24 | 0]).join(''); try { sessionStorage.setItem('stelline-room', room); } catch (e) { } }
+  LINK.start(ROLE); if (!Q.has('solo')) LINK.join(room); ST.pair.room = room;
+  const orbURL = location.origin + location.pathname + '?orb&room=' + room;
+  if (ROLE === 'scene' && window.qrcode) { try { const q = qrcode(0, 'L'); q.addData(orbURL); q.make(); ORB.qr = q; } catch (e) { } }
+  // hands: a tap on the left screen starts the camera
+  let camOn = false;
+  ORB.onLcd = async () => { if (ROLE === 'orb') { fs(); return; } if (camOn || !window.MPHands) return; camOn = true; ST.hands.who = 'starting the camera';
+    try { await MPHands.start({ view: document.getElementById('cam'), on: { frame: t => HAND.feed(t, 'camera'), step: (k, ok, t) => { ST.hands.who = (t || '').slice(0, 40); }, error: m => { ST.hands.who = 'camera: ' + m; camOn = false; } } }); }
+    catch (e) { ST.hands.who = (e.message || 'no camera').slice(0, 40); camOn = false; } };
+  function fs() { const d = document.documentElement; if (!document.fullscreenElement && d.requestFullscreen) d.requestFullscreen().then(() => { try { screen.orientation.lock('landscape').catch(() => { }); } catch (e) { } }).catch(() => { }); }
+  if (ROLE === 'orb') { orbCv.addEventListener('pointerdown', fs, { once: true });
+    // the phone's tilt swings the model, as a held lens would
+    let tiltAt = 0; const tilt = e => { const now = performance.now(); if (now - tiltAt < 100 || e.gamma == null) return; tiltAt = now; const land = Math.abs(window.orientation || (screen.orientation && screen.orientation.angle) || 0) === 90;
+      const a = land ? e.beta : e.gamma, b = land ? e.gamma : e.beta - 45; ORB.remote && ORB.remote({ k: 'tilt', a: [Math.max(-1, Math.min(1, a / 40)) * .5, Math.max(-.5, Math.min(.6, b / 60))] }); };
+    orbCv.addEventListener('pointerdown', () => { try { if (window.DeviceOrientationEvent && DeviceOrientationEvent.requestPermission) DeviceOrientationEvent.requestPermission().then(r => { if (r === 'granted') addEventListener('deviceorientation', tilt); }).catch(() => { }); else addEventListener('deviceorientation', tilt); } catch (e) { } }, { once: true }); }
+  // direct hands on the film: drag swings the model, a tap picks a part (the same as a pinch there)
+  if (ROLE === 'scene') { let d = null;
+    sceneCv.addEventListener('pointerdown', e => { d = { x: e.clientX, y: e.clientY, o: (ST.mode === 'build' ? SCENE.benchOrbit : SCENE.handOrbit || [0, 0]).slice(), m: 0, at: performance.now() }; sceneCv.setPointerCapture(e.pointerId); });
+    sceneCv.addEventListener('pointermove', e => { if (!d) { const f = SCENE.toFrame(e.clientX, e.clientY); if (f) SCENE.hand = { u: f[0], v: f[1], k: .35, at: performance.now() }; return; } const dx = e.clientX - d.x, dy = e.clientY - d.y; d.m = Math.max(d.m, Math.hypot(dx, dy)); const o = [d.o[0] + dx / 300, Math.max(-.6, Math.min(.8, d.o[1] + dy / 400))]; if (ST.mode === 'build') SCENE.benchOrbit = o; else SCENE.handOrbit = o; });
+    sceneCv.addEventListener('pointerup', e => { if (d && d.m < 6 && ST.mode !== 'build') { const k = SCENE.pick(e.clientX, e.clientY); if (k >= 0) CORE.setRing(1, k); } d = null; });
+    sceneCv.addEventListener('dblclick', () => { SCENE.handOrbit = [0, 0]; SCENE.benchOrbit = [0, 0]; }); }
+  // IMPRINT: the bench, rendered from the reference camera, laid beside the film's frame and measured
+  const refImg = n => new Promise(r => { const im = new Image(); im.onload = () => r(im); im.src = 'assets/v5/atlas/f' + String(n).padStart(2, '0') + '.jpg'; });
+  function stats(src, w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'); x.drawImage(src, 0, 0, w, h); const d = x.getImageData(0, 0, w, h).data, L = new Float32Array(w * h), C = [];
+    for (let i = 0; i < w * h; i++) { const r = d[i * 4] / 255, g = d[i * 4 + 1] / 255, b = d[i * 4 + 2] / 255; L[i] = .3 * r + .59 * g + .11 * b; C.push([r, g, b]); } return { L, C, w, h }; }
+  function corr(a, b) { const n = a.length; let ma = 0, mb = 0; for (let i = 0; i < n; i++) { ma += a[i]; mb += b[i]; } ma /= n; mb /= n; let s = 0, sa = 0, sb = 0; for (let i = 0; i < n; i++) { const x = a[i] - ma, y = b[i] - mb; s += x * y; sa += x * x; sb += y * y; } return s / Math.sqrt(sa * sb + 1e-9); }
+  function grad(S) { const g = new Float32Array(S.w * S.h); for (let y = 1; y < S.h - 1; y++) for (let x = 1; x < S.w - 1; x++) { const i = y * S.w + x; g[i] = Math.hypot(S.L[i + 1] - S.L[i - 1], S.L[i + S.w] - S.L[i - S.w]); } return g; }
+  window.MATCH = function (a, b) { const A = stats(a, 64, 36), B = stats(b, 64, 36); let dc = 0; for (let i = 0; i < A.C.length; i++) dc += Math.hypot(A.C[i][0] - B.C[i][0], A.C[i][1] - B.C[i][1], A.C[i][2] - B.C[i][2]); dc /= A.C.length;
+    const color = Math.max(0, 1 - dc / .45), layout = Math.max(0, corr(A.L, B.L)), edges = Math.max(0, corr(grad(A), grad(B)));
+    return { score: Math.round(100 * (.45 * color + .35 * layout + .2 * edges)), color: +color.toFixed(3), layout: +layout.toFixed(3), edges: +edges.toFixed(3) }; };
+  CORE.on('imprint', async () => { if (ROLE !== 'scene') return; if (ST.mode !== 'build') { ST.lcd.note = 'IMPRINT LAYS A BUILD BESIDE THE FILM: PRESS BUILD, BUG OR BIRTHDAY FIRST'; CORE.touch('note'); setTimeout(() => { ST.lcd.note = ''; }, 3500); return; }
+    const ref = ST.build.ref, out = SCENE.imprint(), im = await refImg(ref), m = MATCH(out.canvas, im); window.LAST_MATCH = m; CORE.addMemory(out.img, ref, m.score);
+    ST.lcd.note = 'IMPRINTED BESIDE ' + CORE.fmt(ST.atlas.shots[ref].start) + ': MATCH ' + m.score + '% (COLOUR ' + Math.round(m.color * 100) + ', LAYOUT ' + Math.round(m.layout * 100) + ', EDGES ' + Math.round(m.edges * 100) + ')'; CORE.touch('imprinted'); setTimeout(() => { if (/^IMPRINTED/.test(ST.lcd.note)) ST.lcd.note = ''; }, 6000); });
+  // the left screen: pairing and hands
+  function lcd() { const p = ROLE === 'scene' ? LINK.orbs() : LINK.scenes();
+    if (ROLE === 'scene') ST.lcd.left = [p ? 'PHONE PAIRED' : 'ROOM ' + room, p ? 'THE PHONE IS THE ORB' : 'SCAN: PHONE ORB', LINK.relayOn() ? 'RELAY ON' : 'RELAY ...', camOn ? (ST.hands.n ? ST.hands.n + ' HAND' + (ST.hands.n > 1 ? 'S' : '') + ' SEEN' : 'NO HAND IN VIEW') : HAND.SIM.on ? 'SIMULATED HANDS' : 'TAP: CAMERA HANDS', (ST.hands.who || '').toUpperCase()];
+    else ST.lcd.left = ['ROOM ' + room, p ? 'SCENE PAIRED' : 'LOOKING FOR THE SCENE', LINK.relayOn() ? 'RELAY ON' : 'RELAY ...', 'TURN THE RINGS', 'TAP HERE: FULL SCREEN']; }
+  function size() { if (ROLE === 'scene') { const r = sceneCv.getBoundingClientRect(); SCENE.resize(Math.max(2, r.width), Math.max(2, r.height)); } }
+  addEventListener('resize', size); size();
+  let last = performance.now(), lcdAt = 0;
+  function loop(now) { const dt = Math.min(.1, (now - last) / 1000); last = now; if (ROLE === 'scene') CORE.tick(dt); if (now - lcdAt > 250) { lcdAt = now; lcd(); }
+    try { if (ROLE === 'scene') SCENE.frame(now, dt); } catch (e) { if (!loop.e1) { loop.e1 = 1; console.error(e); CORE.log('error', 'scene: ' + e.message); } }
+    try { ORB.draw(now); } catch (e) { if (!loop.e2) { loop.e2 = 1; console.error(e); CORE.log('error', 'orb: ' + e.message); } } requestAnimationFrame(loop); }
+  requestAnimationFrame(loop);
+  if (Q.get('sim') && ROLE === 'scene') setTimeout(() => HAND.SIM.run(Q.get('sim'), +(Q.get('speed') || 1)), 800);
+  if (Q.get('proof') && ROLE === 'scene') {
+    window.FAST_FIT = true;
+    const pf = Q.get('proof');
+    setTimeout(() => {
+      if (pf === 'bday7') {
+        CORE.startProto('birthday'); CORE.ST.spread = 1; SCENE.sp = 1;
+        const ck = CORE.it('cake'); if (ck) { ck.candles = 7; ck.bundt = 0.85; ck.icing = 1; ck.flames = 1; }
+        CORE.ST.build.items.filter(i => i.type === 'card').forEach(c => { c.appear = 1; });
+      } else if (pf === 'blown') {
+        CORE.startProto('birthday'); CORE.ST.spread = 1; SCENE.sp = 1;
+        const ck = CORE.it('cake'); if (ck) { ck.candles = 4; ck.bundt = 0; ck.icing = 1; ck.flames = 0; }
+        CORE.ST.build.items.filter(i => i.type === 'card').forEach(c => { c.appear = 1; });
+      } else if (pf === 'setae') {
+        CORE.startProto('bug'); CORE.ST.spread = 1; SCENE.sp = 1;
+        const bt = CORE.it('beetle'); if (bt) { bt.setae = 0.85; bt.focus = 0.92; }
+      } else if (pf === 'f22') {
+        CORE.ST.mode = 'watch'; CORE.ST.playing = false; CORE.ST.t = 22;
+        CORE.ST.spread = 0.25; SCENE.sp = 0.25; CORE.ST.view = 0.14;
+        CORE.emit('shot', CORE.cur());
+      }
+      let ticks = 0;
+      const keepAlive = setInterval(() => {
+        SCENE.frame(performance.now(), 0.016);
+        if (++ticks > 18) clearInterval(keepAlive);
+      }, 60);
+    }, 250);
+  }
+  window.APP = { ROLE, room, orbURL };
+})();
+</script>
+</body>
+</html>

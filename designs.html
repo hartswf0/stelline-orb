@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stelline Designs</title>
+<meta name="description" content="The details she works on, re-made from the film's own pixels on the orb, and five rounds of a blind critic.">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #070807; --ink: #e9ece6; --dim: #9aa39a; --line: #2a2f2a; --ok: #7fd38a; --no: #e0332b; --amb: #f0b040; }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --bg: #f4f3ee; --ink: #161816; --dim: #5b625b; --line: #d6d6cf; --ok: #1f7a32; --no: #b0221b; --amb: #9a6200; } }
+  :root[data-theme="light"] { --bg: #f4f3ee; --ink: #161816; --dim: #5b625b; --line: #d6d6cf; --ok: #1f7a32; --no: #b0221b; --amb: #9a6200; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 "IBM Plex Sans", system-ui, sans-serif; }
+  main { max-width: 1120px; margin: 0 auto; padding: 28px 16px 80px; }
+  h1, h2 { font-family: "IBM Plex Mono", monospace; font-weight: 600; letter-spacing: .02em; } h1 { font-size: 22px; margin: 0 0 6px; } h2 { font-size: 15px; margin: 36px 0 8px; }
+  p { max-width: 72ch; } .dim { color: var(--dim); } a { color: var(--amb); }
+  .pairs { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+  figure { margin: 0; } figure img { width: 100%; display: block; border: 1px solid var(--line); cursor: pointer; }
+  figcaption { font: 12px/1.45 "IBM Plex Mono", monospace; color: var(--dim); margin-top: 5px; }
+  figcaption b { color: var(--ink); font-weight: 500; } .ok { color: var(--ok); } .no { color: var(--no); }
+  table { border-collapse: collapse; width: 100%; font: 13px/1.45 "IBM Plex Mono", monospace; }
+  th, td { border-bottom: 1px solid var(--line); padding: 7px 8px; text-align: left; vertical-align: top; } th { color: var(--dim); font-weight: 500; }
+  .wrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+<main>
+  <h1>STELLINE · THE DETAILS, RE-MADE</h1>
+  <p class="dim">The details she works on in the film (the beetle's eyes, the writing on the cake, the candles and the light they put on the children) can be changed on the orb. In CUT, ring 2 lists them after the parts (CAKE WRITING, CAKE FLAMES, BEETLE RIGHT EYE, BOY FLAME), and ring 4 sets them. The change is made from the film's own pixels, frame by frame, so it plays with the film in WATCH and stands under the bench in BUILD. OTHERWISE picks a random version and ZERO puts the film back.</p>
+  <p class="dim">Tap an image to switch between the film's frame and the re-made one. Each caption ends with what the blind critic said the last time it saw that design.</p>
+
+  <h2>How each is made</h2>
+  <div class="wrap"><table>
+    <tr><th>Detail</th><th>Made from</th></tr>
+    <tr><td>Eye focus</td><td>For each eye on each frame: the frame's own eye with the fine detail of the nearest frame where that eye was in focus laid in (light and shape stay the frame's), or the frame softened around the eye. The two eyes are tracked separately.</td></tr>
+    <tr><td>Writing</td><td>The film's writing is taken off by carrying the cake top from before she wrote onto each frame (the top is a plane, so one homography carries it). New writing made of her own characters (生 日 快 乐 and the Z, lifted off frame 30) is re-set on the writing's plane in that frame's light. Typed words (安娜, JOE, ANA, 2049) are piped in a drawn hand instead.</td></tr>
+    <tr><td>Flames</td><td>Each flame is tracked; blown out, it is filled from the rows around it with its glow, and a wick is left. The light it gave goes with it, using the ratios measured when the film blows the candles out at 03:46: red to 0.41, green to 0.34, blue to 0.15 where the warm light fell. Cool light (the wall's ring) stays.</td></tr>
+  </table></div>
+
+  <h2>Eyes</h2><div class="pairs" id="eyes"></div>
+  <h2>Writing</h2><div class="pairs" id="writing"></div>
+  <h2>Candles and their light</h2><div class="pairs" id="flames"></div>
+
+  <h2>The blind critic, five rounds</h2>
+  <p class="dim">Each round, a new critic saw real frames mixed with re-made ones (full frame plus an enlarged crop), was not told how many of each, and said which were altered. After round 2, real frames shown with a design were at least 8 frames away from it, so the critic could not just diff two copies of the same moment.</p>
+  <div class="wrap"><table id="rounds">
+    <tr><th>Round</th><th>Re-made frames it caught</th><th>Real frames it called altered</th><th>Its main tells</th><th>What was changed</th></tr>
+    <tr><td>1</td><td class="no">12 of 14</td><td>3 of 13</td><td>typeset lettering; the light dimmed while a flame still burns; a soft eye with sharp hairs beside it</td><td>no light dial apart from the flames; writing as piped tubes with relief; softness spread round the eye</td></tr>
+    <tr><td>2</td><td class="no">13 of 14</td><td>3 of 14</td><td>lettering still font-like; the room still warm after the candles are out</td><td>writing built from her own characters; the room darkens as far as the film's own blow-out</td></tr>
+    <tr><td>3</td><td>8 of 14</td><td>4 of 14</td><td>painted smudges where flames were; typed words; soft eyes (it also called the film's own soft-eye frames altered)</td><td>flames filled from their rows; the wick marks moved</td></tr>
+    <tr><td>4</td><td class="no">12 of 14</td><td>2 of 13</td><td>a grey halo where each flame was; cool wall light dimmed with the candles; different words in frames of one shot</td><td>the glow taken off with the flame; cool light kept</td></tr>
+    <tr><td>5</td><td>8 of 11</td><td>3 of 12</td><td>grey leftovers at blown candle tips; the room dimmed but faces still modelled by candle light; writing that looks typeset (it said this of the film's own 生日快乐 too)</td><td>(not yet changed)</td></tr>
+  </table></div>
+  <p class="dim">What passes and what does not, honestly: the film's own pixels re-arranged pass most often (both eyes sharp passed in four of five rounds; one sharp eye and one soft passed twice; writing re-set from her own characters passed every time in round 3 and half the time since). Light changes are the hardest: a critic who sees the same scene lit two ways can measure it. Typed words have never passed.</p>
+</main>
+<script>
+const T = { 7: 47, 27: 44, 36: 32, 44: 44, 29: 47 };
+const G = {
+  eyes: [['e_both', 7, 18, 'focusR:1,focusL:1', 'BOTH EYES IN FOCUS · never both at once in the film', 'passed rounds 1, 3, 4, 5'],
+         ['e_swap', 7, 40, 'focusR:0.2,focusL:1', 'LEFT EYE SHARP, RIGHT SOFT · the reverse of this frame', 'passed rounds 3 and 5, caught round 4'],
+         ['e_none', 7, 28, 'focusR:0,focusL:0', 'BOTH EYES SOFT', 'caught every round (as were the film\'s own soft-eye frames)']],
+  writing: [['c_kl', 27, 34, 'words:2', '快乐 · her characters, re-set', 'passed round 3, caught rounds 4 and 5'], ['c_sr', 27, 28, 'words:1', '生日 · her characters, re-set', 'passed rounds 3 and 5'],
+            ['c_le', 27, 26, 'words:3', '乐 · her character, re-set', 'passed rounds 3 and 4'], ['c_ana', 27, 22, 'words:5', '安娜 · typed, piped', 'caught every round'], ['c_joe', 27, 28, 'words:6', 'JOE · typed, piped', 'caught every round']],
+  flames: [['c_out0', 27, 36, 'lit:0', 'THE CAKE · ALL SEVEN OUT', 'passed round 1, caught since'], ['c_out3', 27, 10, 'lit:3', 'THE CAKE · THREE LEFT BURNING', 'caught rounds 1 and 4'],
+           ['b_out', 36, 14, 'lit:0', 'THE BOY · HIS CANDLE OUT', 'caught every round'], ['k_out', 44, 18, 'lit:0', 'THE GIRLS · ALL OUT BEFORE SHE BLOWS', 'caught every round'],
+           ['k_half', 44, 30, 'lit:3', 'THE GIRLS · THREE OUT', 'caught every round'], ['p_out', 29, 34, 'lit:0', 'THE GHOSTS · ALL OUT', 'caught every round']]
+};
+for (const [id, list] of Object.entries(G)) { const box = document.getElementById(id);
+  for (const [name, n, j, d, cap, crit] of list) { const f = document.createElement('figure'), im = new Image(), c = document.createElement('figcaption'); let film = false;
+    im.src = 'assets/v6/designproof/' + name + '.jpg'; im.alt = cap; im.onclick = () => { film = !film; im.src = 'assets/v6/designproof/' + name + (film ? '_film' : '') + '.jpg'; c.firstChild.textContent = film ? 'THE FILM\'S FRAME' : cap; };
+    const t = (n + (j + .5) / T[n]).toFixed(3); c.innerHTML = `<b>${cap}</b><br>critic: <span class="${/passed/.test(crit) ? 'ok' : 'no'}">${crit}</span> · <a href="hand-orb.html?t=${t}&d=${d}">open on the orb</a>`;
+    f.append(im, c); box.append(f); } }
+</script>
+</body>
+</html>

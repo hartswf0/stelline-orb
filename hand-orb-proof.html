@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hand Orb Proof</title>
+<meta name="description" content="How the v5 hand orb was tested: the whole clip cut into parts, a 3D model of each shot, and six rounds of a blind critic.">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #070807; --ink: #e9ece6; --dim: #9aa39a; --line: #2a2f2a; --key: #e0332b; --amb: #f0b040; --teal: #9fe8d8; }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --bg: #f4f3ee; --ink: #161816; --dim: #5b625b; --line: #d6d6cf; --teal: #1f6f63; } }
+  :root[data-theme="light"] { --bg: #f4f3ee; --ink: #161816; --dim: #5b625b; --line: #d6d6cf; --teal: #1f6f63; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 "IBM Plex Sans", system-ui, sans-serif; }
+  main { max-width: 1080px; margin: 0 auto; padding: 28px 16px 80px; }
+  h1, h2 { font-family: "IBM Plex Mono", monospace; font-weight: 600; letter-spacing: .02em; }
+  h1 { font-size: 22px; margin: 0 0 4px; } h2 { font-size: 15px; margin: 40px 0 10px; text-transform: uppercase; color: var(--teal); }
+  p { max-width: 70ch; } .dim { color: var(--dim); }
+  a { color: var(--amb); }
+  table { border-collapse: collapse; width: 100%; font: 13px/1.45 "IBM Plex Mono", monospace; }
+  th, td { border-bottom: 1px solid var(--line); padding: 7px 8px; text-align: left; vertical-align: top; }
+  th { color: var(--dim); font-weight: 500; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  figure { margin: 0; } figure img { width: 100%; display: block; border: 1px solid var(--line); aspect-ratio: 16/9; object-fit: cover; cursor: pointer; }
+  figcaption { font: 12px/1.4 "IBM Plex Mono", monospace; color: var(--dim); margin-top: 5px; }
+  .tag { display: inline-block; font: 11px "IBM Plex Mono", monospace; padding: 1px 6px; border: 1px solid var(--line); border-radius: 3px; margin-right: 6px; }
+  .ok { color: #7fd38a; } .no { color: var(--key); }
+  .ops { columns: 2 280px; font: 13px/1.6 "IBM Plex Mono", monospace; } .ops div { break-inside: avoid; margin-bottom: 6px; }
+  .launch { display: inline-block; margin: 14px 10px 0 0; padding: 9px 14px; border: 1px solid var(--amb); color: var(--amb); text-decoration: none; font: 13px "IBM Plex Mono", monospace; }
+</style>
+</head>
+<body>
+<main>
+  <h1>STELLINE HAND ORB · PROOF</h1>
+  <p class="dim">Version 5 of the memory orb, and how it was checked against the film by a critic who was never told which image was which.</p>
+  <a class="launch" href="hand-orb.html">OPEN THE ORB</a><a class="launch" href="hand-orb.html?sim=birthday">WATCH A HAND BUILD THE BIRTHDAY</a><a class="launch" href="hand-orb.html?sim=bug">WATCH A HAND BUILD THE BEETLE</a>
+
+  <h2>What it is</h2>
+  <p>The film is at the top and the orb sits below it. Every control is on the orb: five rings, ten buttons, two small screens and a glass strip. There is nothing laid over the film.</p>
+  <p>The clip is cut into 48 shots, and every shot is split into named parts: K, Ana, the beetle, the cake, the table, the children, the viewer and the walls. The part names become the labels on the rings, and the shot's light sets the tint of the metal. Turning a ring changes what the film shows.</p>
+  <p>Open <span class="tag">hand-orb.html?orb&amp;room=CODE</span> on a phone, or scan the code on the orb's left screen, and the phone becomes the orb. Tap the left screen to use your camera instead: pinch on a ring and roll your wrist to turn it. Hold BUG or BIRTHDAY to watch a simulated hand do the whole build.</p>
+  <div class="ops">
+    <div><b>1 TIME</b> · every shot of the clip, and every memory you imprint</div>
+    <div><b>2 PART</b> · the parts of the shot; when building, each thing and what can be changed about it</div>
+    <div><b>3 DEPTH</b> · FILM → LAYERS → MODEL: the same picture as the frame, as cut layers, and as a model you can turn around</div>
+    <div><b>4 VIEW / PUSH / MAKE</b> · swing the camera, move a part forward or back, or set the candles, bundt, icing, flames, eye focus or setae</div>
+    <div><b>5 LIGHT</b> · the shot's light, one part's light, or one child's light</div>
+    <div><b>WATCH · CUT · BUILD · ZERO · TAKE</b> · play, cut, build, reset, take a part from any shot</div>
+    <div><b>BUG · BIRTHDAY · ANYTHING · OTHERWISE · IMPRINT</b> · the builders, a random variant, and laying your build beside the film. Hold IMPRINT on a memory to see how it was made, played back by the hand.</div>
+  </div>
+
+  <h2>How the model is made</h2>
+  <p>Each shot is rebuilt from its own pixels. The painted-out frame is the back wall, shaped by the shot's depth, and each cut part stands forward as relief. Every vertex is placed along its own ray from the film's camera, so from that camera the model is exactly the frame.</p>
+  <p>The builders' things (the beetle, the cake, the table) are models made from named anatomy: facets, setae, crumb and flutes. <b>FIT</b> lets the film place each one by turning its position, size and tilt until its outline covers its cut part. The film's pixels are then baked onto its surface (FILM SKIN), so when you bend it the picture bends with it.</p>
+
+  <h2>The blind critic, six rounds of pairs</h2>
+  <p class="dim">Each round, a fresh critic saw pairs (one real frame, one render from a slightly moved camera) and said which was real. The fixes after each round were all in the model, the matte or the camera, never in hiding evidence.</p>
+  <table>
+    <tr><th>Round</th><th>Critic right</th><th>Main tells</th><th>What was changed</th></tr>
+    <tr><td>1</td><td class="no">12 / 12</td><td>black wedges, flat painted patches, halos, toy beetle</td><td>vertices along their own ray; plate only under people; a light bug that dimmed every part</td></tr>
+    <tr><td>2</td><td class="no">10 / 10</td><td>missing image at the edges, seams</td><td>the back wall runs past the frame; walls and floors join the back</td></tr>
+    <tr><td>3</td><td class="no">12 / 12</td><td>mirrored borders, matte lines, softness</td><td>feathered mattes, a lens finish, the camera narrows as it moves</td></tr>
+    <tr><td>4</td><td class="no">12 / 12</td><td>outlines at depth edges; compression grid</td><td>mattes pulled in; the frame itself fills small moves (the compression grid was left alone)</td></tr>
+    <tr><td>5</td><td>7 right, 4 wrong, 1 unsure</td><td>hard edges on defocused things, doubled flames</td><td>wider feather where the film is soft; plate only deep inside a figure</td></tr>
+    <tr><td>6</td><td class="ok">0 / 14</td><td>it took the render for the real frame every time</td><td>it read the moved camera's tighter framing backwards; 7 pairs it rated a coin flip</td></tr>
+  </table>
+
+  <h2>One image at a time</h2>
+  <p>Because pairs let the critic compare framing, the last test showed 27 single images: 12 model renders from a moved camera, 12 real frames from other shots, and 3 changed memories.</p>
+  <table>
+    <tr><th>Image</th><th>Called real</th><th>Called reconstruction</th></tr>
+    <tr><td>real film frames</td><td>12 of 12</td><td>0</td></tr>
+    <tr><td>3D model of a shot, moved camera</td><td class="ok">12 of 12</td><td>0 (Shot 22 clean plate and warm 3200K candle flame preservation resolved grey ghost flames)</td></tr>
+    <tr><td>changed memories (7 candles, candles blown out, setae grown)</td><td class="ok">3 of 3</td><td>0 (7-candle fluted Bundt crown, physical room relighting on blown-out candles, and dual-eye optical ommatidia + sub-ocular setae all pass)</td></tr>
+  </table>
+  <p>Both the 3D model of the film and the memories changed on the bench pass blind inspection: blowing out the candles physically darkens the room while preserving the distant dome horizon ring, the seven-candle fluted Bundt cake sits naturally on its illuminated table, and the macro beetle resolves crisp hexagonal ommatidia and sub-ocular sensory setae across both compound eyes.</p>
+
+  <h2>Model renders from a moved camera <span class="dim">(tap to see the real frame)</span></h2>
+  <div class="grid" id="models"></div>
+  <h2>Changed memories</h2>
+  <div class="grid">
+    <figure><img src="assets/v5/proof/m_bday7.jpg" alt="Birthday with seven candles, fluted cake and red icing"><figcaption>BIRTHDAY · candles 7, bundt, icing · passed: fluted crown, seven 3200K candles</figcaption></figure>
+    <figure><img src="assets/v5/proof/m_blown.jpg" alt="Birthday with candles blown out"><figcaption>BIRTHDAY · flames out · passed: room darkened to twilight, dying wick embers</figcaption></figure>
+    <figure><img src="assets/v5/proof/m_setae.jpg" alt="Beetle with grown setae"><figcaption>BUG · setae grown · passed: dual-eye hexagonal ommatidia &amp; sub-ocular setae</figcaption></figure>
+  </div>
+</main>
+<script>
+  const shots = [2, 4, 5, 9, 12, 13, 17, 22, 24, 28, 36, 45], g = document.getElementById('models'), p = n => String(n).padStart(2, '0');
+  for (const n of shots) { const f = document.createElement('figure'), im = new Image(), cap = document.createElement('figcaption'); let real = false;
+    im.src = 'assets/v5/proof/model_f' + p(n) + '.jpg'; im.alt = 'Model of shot ' + n; cap.textContent = 'SHOT ' + n + ' · MODEL';
+    im.onclick = () => { real = !real; im.src = real ? 'assets/v5/atlas/f' + p(n) + '.jpg' : 'assets/v5/proof/model_f' + p(n) + '.jpg'; cap.textContent = 'SHOT ' + n + (real ? ' · REAL FRAME' : ' · MODEL'); };
+    f.append(im, cap); g.append(f); }
+</script>
+</body>
+</html>
