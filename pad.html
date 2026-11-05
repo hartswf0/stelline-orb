@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<title>Stelline Orb · pad</title>
+<style>
+  html,body{margin:0;height:100%;background:#000;overflow:hidden;overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+  #wrap{position:fixed;left:0;top:0;transform-origin:0 0}
+  canvas{display:block;touch-action:none}
+  #join{position:fixed;inset:0;background:#000;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;font:400 13px/1.3 "Barlow Semi Condensed","DIN Alternate","Arial Narrow",Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;z-index:5}
+  #join input{background:none;border:0;border-bottom:2px solid #fff;color:#fff;font:600 54px "Barlow Semi Condensed","Arial Narrow",Arial,sans-serif;letter-spacing:.3em;text-transform:uppercase;width:5.2em;text-align:center;outline:none;border-radius:0}
+  #join button{background:none;border:1px solid #fff;color:#fff;padding:14px 26px;font:inherit;letter-spacing:inherit;text-transform:inherit}
+  #join.hide{display:none}
+</style>
+</head>
+<body>
+<div id="wrap"><canvas id="c"></canvas></div>
+<div id="join"><div>Enter the code on the stage</div><input id="code" maxlength="4" autocapitalize="characters" autocomplete="off" spellcheck="false"><button id="go">Pair</button></div>
+<script src="assets/stage/pair.js"></script>
+<script>
+(function () {
+  'use strict';
+  var cv = document.getElementById('c'), g = cv.getContext('2d'), wrap = document.getElementById('wrap');
+  var W = 0, H = 0, DPR = 1, ROT = false;                  // W,H: the orb's own landscape frame. ROT: the phone is upright, so the orb is turned a quarter.
+  var $ = function (i) { return document.getElementById(i); };
+  var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
+  var FONT = '"Barlow Semi Condensed","DIN Alternate","Arial Narrow",Arial,sans-serif';
+  var ui = null, uiAt = 0, ackAt = 0, rtt = 0, imuOn = false, imuPerm = 'idle', mute = false, thumbDown = false;
+  var ang = [0, 0, 0, 0, 0], tickAcc = [0, 0, 0, 0, 0], pend = [0, 0, 0, 0, 0], speed = [0, 0, 0, 0, 0];
+
+  /* ------------------------------------------------------------ sound and touch-feel: each ring has its own timbre, each event a gesture */
+  var AC = null, master = null, noiseBuf = null;
+  function audio() { if (AC) { if (AC.state === 'suspended') AC.resume(); return AC; } try { AC = new (window.AudioContext || window.webkitAudioContext)(); master = AC.createGain(); master.gain.value = .6; master.connect(AC.destination); } catch (e) { } return AC; }
+  function noise() { if (noiseBuf) return noiseBuf; var b = AC.createBuffer(1, AC.sampleRate * .5, AC.sampleRate), d = b.getChannelData(0); for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; return noiseBuf = b; }
+  function burst(freq, q, dur, vol, type) { if (mute || !audio()) return; var t = AC.currentTime, s = AC.createBufferSource(); s.buffer = noise(); var f = AC.createBiquadFilter(); f.type = type || 'bandpass'; f.frequency.value = freq; f.Q.value = q; var gn = AC.createGain(); gn.gain.setValueAtTime(vol, t); gn.gain.exponentialRampToValueAtTime(.0001, t + dur); s.connect(f); f.connect(gn); gn.connect(master); s.start(t, Math.random() * .3, dur + .02); }
+  function tone(freq, dur, vol, type, glide) { if (mute || !audio()) return; var t = AC.currentTime, o = AC.createOscillator(); o.type = type || 'sine'; o.frequency.setValueAtTime(freq, t); if (glide) o.frequency.exponentialRampToValueAtTime(glide, t + dur); var gn = AC.createGain(); gn.gain.setValueAtTime(vol, t); gn.gain.exponentialRampToValueAtTime(.0001, t + dur); o.connect(gn); gn.connect(master); o.start(t); o.stop(t + dur + .02); }
+  var lastTick = [0, 0, 0, 0, 0];
+  function tick(i, v) { var now = performance.now(); if (now - lastTick[i] < 18) return; lastTick[i] = now; var sp = clamp(v || 1, .3, 2);
+    if (i < 3) burst(1700 + i * 700 + sp * 500, 7, .022, .1 + .05 * sp); else { burst(520, 3, .05, .22); tone(150 - (i - 3) * 20, .07, .12, 'sine', 90); }
+    buzz(i < 3 ? 5 : 11); }
+  var FX = {
+    detent: function () { burst(900, 4, .045, .25); tone(170, .09, .16, 'sine', 100); buzz(14); },
+    wall: function () { tone(78, .16, .3, 'sine', 52); burst(240, 2, .08, .25); buzz([22]); },
+    place: function () { tone(330, .12, .12, 'triangle'); setTimeout(function () { tone(495, .22, .14, 'triangle'); }, 70); burst(1400, 5, .05, .1); buzz([12, 36, 26]); },
+    deny: function () { tone(110, .1, .25, 'square', 90); setTimeout(function () { tone(98, .12, .22, 'square', 80); }, 110); buzz([30, 40, 30]); },
+    mark: function () { burst(3200, 9, .02, .35); tone(1900, .18, .1, 'sine'); buzz(18); },
+    pen: function () { burst(3400, 1.2, .04, .05 + Math.min(.06, (speed[0] + speed[1]) * .02), 'highpass'); if (Math.random() < .25) buzz(3); }
+  };
+  function buzz(p) { try { if (!mute && navigator.vibrate) navigator.vibrate(p); } catch (e) { } }
+  function fx(n) { if (FX[n]) FX[n](); }
+
+  /* ------------------------------------------------------------ the orb's frame: always landscape */
+  var L = {};
+  function layout() {
+    var sw = innerWidth, sh = innerHeight; ROT = sh > sw; W = ROT ? sh : sw; H = ROT ? sw : sh; DPR = Math.min(3, window.devicePixelRatio || 1);
+    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); cv.style.width = W + 'px'; cv.style.height = H + 'px';
+    wrap.style.width = W + 'px'; wrap.style.height = H + 'px'; wrap.style.transform = ROT ? 'translate(' + sw + 'px,0) rotate(90deg)' : 'none';
+    var m = Math.max(8, H * .035), top = H * .13, bot = H * .09, bh = H - top - bot;
+    L.bx = m; L.bw = W - 2 * m; L.by = top; L.bh = bh;
+    var lh = L.bw * .2, rh = L.bw * .22;                    // left housing (keys), right housing (thumb)
+    L.lh = lh; L.rh = rh; L.rx = L.bx + lh; L.rw = L.bw - lh - rh; L.ringW = L.rw / 5;
+    L.thumb = { x: L.bx + L.bw - rh * .5, y: L.by + bh * .4, r: Math.min(rh * .38, bh * .27) };
+  }
+  addEventListener('resize', layout); addEventListener('orientationchange', function () { setTimeout(layout, 120); }); layout();
+  try { var so = screen.orientation; if (so && so.lock) so.lock('landscape').catch(function () { }); } catch (e) { }
+
+  /* ------------------------------------------------------------ drawing */
+  function rr(x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+  function ringV(i) {
+    var x = L.rx + i * L.ringW + 2, w = L.ringW - 4, y = L.by - 6, h = L.bh + 12, r = ui && ui.rings[i] || { lab: '—', val: '', step: 10 }, dead = r.lab === '—', act = ptr && [...ptr.values()].some(function (p) { return p.role === 'ring' && p.i === i; });
+    var gr = g.createLinearGradient(x, 0, x + w, 0); gr.addColorStop(0, '#0a0a0a'); gr.addColorStop(.28, act ? '#4d4d4d' : '#383838'); gr.addColorStop(.5, act ? '#6a6a6a' : '#505050'); gr.addColorStop(.74, '#262626'); gr.addColorStop(1, '#070707');
+    g.save(); g.globalAlpha = dead ? .4 : 1; g.fillStyle = gr; g.strokeStyle = act ? '#fff' : 'rgba(255,255,255,.4)'; g.lineWidth = act ? 2 : 1; rr(x, y, w, h, 7); g.fill(); g.stroke(); g.clip();
+    var step = r.step || 10, n = Math.round(360 / step), cy = L.by + L.bh / 2, R = L.bh * .5;
+    for (var k = -n; k <= n; k++) { var a = (k * step + ang[i]) * Math.PI / 180, s = Math.sin(a), c = Math.cos(a); if (c < .04) continue; var py = cy + s * (R - 4); var maj = i >= 3 || k % 5 === 0;
+      g.strokeStyle = 'rgba(255,255,255,' + (.12 + .55 * c * (maj ? 1 : .45)) + ')'; g.lineWidth = (maj ? 2.2 : 1) * (.4 + .6 * c); g.beginPath(); g.moveTo(x + w * (maj ? .14 : .26), py); g.lineTo(x + w * (maj ? .86 : .74), py); g.stroke();
+      if (i >= 3) { g.fillStyle = 'rgba(0,0,0,' + (.25 * c) + ')'; g.fillRect(x + 3, py - 4 * c, w - 6, 8 * c); } }
+    g.restore();
+    // engraved plate on the ring: what this ring is doing now
+    var py2 = L.by + L.bh / 2 - 21; g.fillStyle = 'rgba(0,0,0,.78)'; g.fillRect(x + 3, py2, w - 6, 42); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#fff';
+    g.font = '600 ' + (W < 700 ? 10 : 11) + 'px ' + FONT; g.fillText((i + 1) + ' ' + r.lab, x + w / 2, py2 + 11);
+    var v = r.n ? r.val + ' ' + r.n : r.val; g.font = '500 ' + (W < 700 ? 9.5 : 10.5) + 'px ' + FONT; g.fillStyle = 'rgba(255,255,255,.85)'; g.fillText(clip(v, w - 10), x + w / 2, py2 + 29);
+    // witness mark
+    g.fillStyle = '#fff'; g.beginPath(); g.moveTo(x + w / 2, L.by - 1); g.lineTo(x + w / 2 - 4, L.by - 8); g.lineTo(x + w / 2 + 4, L.by - 8); g.fill();
+  }
+  function clip(t, w) { t = String(t); while (g.measureText(t).width > w && t.length > 2) t = t.slice(0, -2) + '…'; return t; }
+  function keyBtn(x, y, w, h, lab, on, ok, sub) { g.save(); g.globalAlpha = ok === false ? .32 : 1; g.fillStyle = on ? '#fff' : '#141414'; g.strokeStyle = 'rgba(255,255,255,' + (on ? 1 : .55) + ')'; g.lineWidth = on ? 2 : 1; rr(x, y, w, h, Math.min(10, h / 2)); g.fill(); g.stroke(); g.fillStyle = on ? '#000' : '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '600 ' + (W < 700 ? 11 : 12) + 'px ' + FONT; g.fillText(clip(lab, w - 8), x + w / 2, y + h / 2 + 1); g.restore(); }
+  var keyRects = [], ptr = new Map();
+  function draw() {
+    requestAnimationFrame(draw); g.setTransform(DPR, 0, 0, DPR, 0, 0); g.fillStyle = '#000'; g.fillRect(0, 0, W, H); keyRects = [];
+    var linked = performance.now() - ackAt < 3500, hasUI = !!ui && performance.now() - uiAt < 4000;
+    // header: link, path, motion
+    g.textBaseline = 'middle'; g.textAlign = 'left'; g.font = '500 11px ' + FONT; g.beginPath(); g.arc(L.bx + 8, H * .065, 4, 0, 7); g.fillStyle = linked ? '#fff' : 'rgba(255,255,255,.25)'; g.fill(); g.fillStyle = '#fff';
+    g.fillText((linked ? 'LINKED ' + (rtt ? Math.round(rtt) + ' MS' : '') : hasUI ? 'STAGE SEEN' : 'SEARCHING') + '  ·  ' + (PAIR.room || ''), L.bx + 20, H * .065);
+    g.textAlign = 'center'; g.font = '600 12px ' + FONT; g.fillText(ui ? ui.sel : '', W / 2, H * .065);
+    g.textAlign = 'right'; g.font = '500 11px ' + FONT; g.fillStyle = imuOn ? '#fff' : 'rgba(255,255,255,.6)'; g.fillText(imuOn ? 'MOTION ON' : imuPerm === 'denied' ? 'MOTION BLOCKED' : 'TOUCH TO ENABLE MOTION', L.bx + L.bw - 6, H * .065);
+    // the barrel
+    var gb = g.createLinearGradient(0, L.by, 0, L.by + L.bh); gb.addColorStop(0, '#3b3b3b'); gb.addColorStop(.18, '#5b5b5b'); gb.addColorStop(.5, '#262626'); gb.addColorStop(.85, '#141414'); gb.addColorStop(1, '#2c2c2c');
+    g.fillStyle = gb; g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 1.5; rr(L.bx, L.by, L.bw, L.bh, 22); g.fill(); g.stroke();
+    // red band at the thumb end, like the instrument
+    g.fillStyle = '#c8301e'; g.fillRect(L.rx + L.rw + 1, L.by + 2, 5, L.bh - 4);
+    for (var i = 0; i < 5; i++) ringV(i);
+    var u = ui || { keys: [], ctx: [], thumb: { lab: '—' }, note: '' };
+    // left housing: channels (2x2), then the two context keys
+    var lx = L.bx + 10, lw = L.lh - 20, kh = (L.bh - 20 - 4 * 8) / 5, half = (lw - 8) / 2;
+    u.keys.forEach(function (k, j) { var x = lx + (j % 2) * (half + 8), y = L.by + 10 + Math.floor(j / 2) * (kh + 8); keyBtn(x, y, half, kh, k.lab, k.on, k.ok); keyRects.push({ id: k.id, x: x, y: y, w: half, h: kh, ok: k.ok }); });
+    u.ctx.slice(0, 2).forEach(function (k, j) { var y = L.by + 10 + (2 + j) * (kh + 8) + 0, h = kh; keyBtn(lx, y, lw, h, k.lab, false, k.ok); keyRects.push({ id: k.id, x: lx, y: y, w: lw, h: h, ok: k.ok }); });
+    // right housing: the thumb key, and one more key under it
+    var T = L.thumb, on = thumbDown; var tg = g.createRadialGradient(T.x - T.r * .25, T.y - T.r * .3, 2, T.x, T.y, T.r); tg.addColorStop(0, on ? '#fff' : '#5a5a5a'); tg.addColorStop(1, on ? '#bbb' : '#0d0d0d');
+    g.fillStyle = tg; g.strokeStyle = '#fff'; g.lineWidth = 2; g.beginPath(); g.arc(T.x, T.y, T.r, 0, 7); g.fill(); g.stroke();
+    g.fillStyle = on ? '#000' : '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '600 ' + Math.round(clamp(T.r * .3, 11, 17)) + 'px ' + FONT; g.fillText(u.thumb.lab, T.x, T.y + 1);
+    if (u.ctx[2]) { var k = u.ctx[2], rx = L.bx + L.bw - L.rh + 12, rw = L.rh - 24, ry = L.by + L.bh - kh - 12; keyBtn(rx, ry, rw, kh, k.lab, false, k.ok); keyRects.push({ id: k.id, x: rx, y: ry, w: rw, h: kh, ok: k.ok }); }
+    g.fillStyle = 'rgba(255,255,255,.9)'; g.font = '600 12px ' + FONT; g.textAlign = 'center'; g.fillText(u.note || '', W / 2, H - H * .045);
+    for (var s = 0; s < 5; s++) speed[s] *= .9;
+  }
+  draw();
+
+  /* ------------------------------------------------------------ touch: rings turn along their length; the two ends pull apart or push together */
+  var spreadBase = null, spreadAcc = 0;
+  function pt(e) { return ROT ? { x: e.clientY, y: innerWidth - e.clientX } : { x: e.clientX, y: e.clientY }; }
+  function inRect(r, x, y) { return x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h; }
+  function ringAt(x, y) { if (y < L.by - 8 || y > L.by + L.bh + 8) return -1; var i = Math.floor((x - L.rx) / L.ringW); return x >= L.rx && i >= 0 && i < 5 ? i : -1; }
+  function send(m) { m.t = performance.now(); PAIR.send(m); }
+  function bodyPtrs() { return [...ptr.values()].filter(function (p) { return p.role === 'ring' || p.role === 'edge'; }); }
+  cv.addEventListener('pointerdown', function (e) {
+    audio(); motionPerm(); var p = pt(e), x = p.x, y = p.y; cv.setPointerCapture(e.pointerId); var T = L.thumb; e.preventDefault();
+    if (Math.hypot(x - T.x, y - T.y) < T.r + 6) { ptr.set(e.pointerId, { role: 'thumb' }); thumbDown = true; send({ k: 'key', id: 'thumb', dn: true }); buzz(10); return; }
+    var kr = keyRects.find(function (r) { return inRect(r, x, y); }); if (kr) { ptr.set(e.pointerId, { role: 'key', id: kr.id }); if (kr.ok === false) fx('deny'); else { send({ k: 'key', id: kr.id, dn: true }); buzz(8); } return; }
+    var ri = ringAt(x, y); if (ri >= 0) ptr.set(e.pointerId, { role: 'ring', i: ri, x: x, y: y }); else if (x > L.bx && x < L.bx + L.bw && y > L.by && y < L.by + L.bh) ptr.set(e.pointerId, { role: 'edge', x: x, y: y });
+    var bp = bodyPtrs(); if (bp.length === 2) { spreadBase = Math.abs(bp[0].x - bp[1].x) || 1; spreadAcc = 0; }
+  });
+  cv.addEventListener('pointermove', function (e) {
+    var p = ptr.get(e.pointerId); if (!p || (p.role !== 'ring' && p.role !== 'edge')) return; var q = pt(e), x = q.x, y = q.y, bp = bodyPtrs();
+    if (bp.length >= 2) { p.x = x; p.y = y; var d = Math.abs(bp[0].x - bp[1].x) || 1; if (spreadBase) { var v = Math.log(d / spreadBase); spreadBase = d; spreadAcc += v; send({ k: 'spread', v: v }); if (Math.abs(spreadAcc) > .06) { spreadAcc = 0; burst(v > 0 ? 1100 : 700, 4, .03, .18); buzz(6); } } return; }
+    if (p.role !== 'ring') return; var dy = y - p.y; p.x = x; p.y = y; var dd = dy * .9; pend[p.i] += dd; ang[p.i] += dd; speed[p.i] = Math.abs(dy);
+    var step = (ui && ui.rings[p.i] ? ui.rings[p.i].step : 10); tickAcc[p.i] += dd; while (Math.abs(tickAcc[p.i]) >= step) { tickAcc[p.i] -= Math.sign(tickAcc[p.i]) * step; tick(p.i, Math.abs(dy) / 8); }
+  });
+  function up(e) { var p = ptr.get(e.pointerId); ptr.delete(e.pointerId); if (!p) return; if (p.role === 'thumb') { thumbDown = false; send({ k: 'key', id: 'thumb', dn: false }); buzz(6); } if (p.role === 'key' && p.id) send({ k: 'key', id: p.id, dn: false }); if (bodyPtrs().length < 2) spreadBase = null; }
+  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+  setInterval(function () { for (var i = 0; i < 5; i++) if (pend[i]) { send({ k: 'ring', i: i, d: pend[i] }); pend[i] = 0; } }, 16);
+
+  /* ------------------------------------------------------------ motion: the barrel's own axis is the camera's. Heading, elevation and twist of its long axis, whatever way the screen faces. */
+  var R = { m: [1, 0, 0, 0, 1, 0, 0, 0, 1] }, lastImu = 0, shakeAt = [], was = false;
+  function rot(a, b, c) { // device to earth (x east, y north, z up), from alpha/beta/gamma (ZXY)
+    var d = Math.PI / 180, ca = Math.cos(a * d), sa = Math.sin(a * d), cb = Math.cos(b * d), sb = Math.sin(b * d), cg = Math.cos(c * d), sg = Math.sin(c * d);
+    return [ca * cg - sa * sb * sg, -sa * cb, ca * sg + sa * sb * cg, sa * cg + ca * sb * sg, ca * cb, sa * sg - ca * sb * cg, -cb * sg, sb, cb * cg];
+  }
+  function axisOf() { var m = R.m, v = [m[1], m[4], m[7]], w = [m[2], m[5], m[8]];   // v: long axis in earth coordinates; w: screen normal
+    var yaw = Math.atan2(v[0], v[1]) / Math.PI * 180, pitch = Math.asin(clamp(v[2], -1, 1)) / Math.PI * 180;
+    var rx = [v[1] * 0 - 0 * 1 + 0, 0, 0]; // right = v x up(0,0,1) = (v1, -v0, 0)
+    var rt = [v[1], -v[0], 0], rl = Math.hypot(rt[0], rt[1]) || 1; rt = [rt[0] / rl, rt[1] / rl, 0]; var up = [rt[1] * v[2] - 0 * v[1], 0 * v[0] - rt[0] * v[2], rt[0] * v[1] - rt[1] * v[0]];
+    var roll = Math.atan2(w[0] * rt[0] + w[1] * rt[1], w[0] * up[0] + w[1] * up[1] + w[2] * up[2]) / Math.PI * 180; return { y: yaw, p: pitch, r: roll }; }
+  function onOri(e) { if (e.alpha == null) return; R.m = rot(e.alpha, e.beta, e.gamma); imuOn = true; }
+  function onMot(e) { var a = e.accelerationIncludingGravity; if (!a) return; var m = Math.hypot(a.x || 0, a.y || 0, a.z || 0); if (m > 26) { var now = performance.now(); shakeAt = shakeAt.filter(function (t) { return now - t < 700; }); shakeAt.push(now); if (shakeAt.length >= 3) { shakeAt = []; send({ k: 'shake' }); tone(180, .2, .2, 'sawtooth', 70); burst(500, 1, .25, .3); buzz([30, 30, 30, 30, 30]); } } }
+  function motionPerm() {
+    if (imuPerm !== 'idle') return; imuPerm = 'asking'; var start = function () { imuPerm = 'on'; addEventListener('deviceorientation', onOri); addEventListener('devicemotion', onMot); };
+    try { if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') DeviceOrientationEvent.requestPermission().then(function (r) { r === 'granted' ? start() : (imuPerm = 'denied'); }).catch(function () { imuPerm = 'denied'; }); else start(); } catch (e) { imuPerm = 'denied'; }
+  }
+  setInterval(function () { if (!imuOn) return; var clutch = thumbDown && ui && ui.thumb.lab === 'CLUTCH'; if (clutch || was) { var o = axisOf(); send({ k: 'imu', y: o.y, p: o.p, r: o.r, dn: !!clutch }); was = !!clutch; } }, 33);
+
+  /* ------------------------------------------------------------ the link */
+  var q = new URLSearchParams(location.search), room = (q.get('room') || '').toUpperCase();
+  function join(r) { $('join').classList.add('hide'); try { sessionStorage.setItem('pad-room', r); } catch (e) { } PAIR.start('pad', r); PAIR.onmsg = onmsg; PAIR.send({ k: 'hello' }); }
+  function onmsg(m) {
+    if (m.role !== 'stage') return;
+    if (m.k === 'ui') { ui = m.u; uiAt = performance.now(); }
+    else if (m.k === 'fx') { (m.n || []).forEach(function (n) { fx(n); }); }
+    else if (m.k === 'ack') { ackAt = performance.now(); if (m.t) rtt = rtt ? rtt * .8 + (performance.now() - m.t) * .2 : performance.now() - m.t; }
+  }
+  if (!room) { try { room = sessionStorage.getItem('pad-room') || ''; } catch (e) { } }
+  if (room.length === 4 && q.get('room')) join(room);
+  $('code').value = room; $('go').onclick = function () { var r = $('code').value.toUpperCase().replace(/[^A-Z]/g, ''); if (r.length === 4) { audio(); motionPerm(); join(r); } };
+  $('code').addEventListener('input', function (e) { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z]/g, ''); if (e.target.value.length === 4) $('go').click(); });
+  window.__pad = { keys: function () { return keyRects; }, thumbPos: function () { return L.thumb; }, geo: function () { return { L: L, ROT: ROT, W: W, H: H }; }, ui: function () { return ui; }, state: function () { return { linked: performance.now() - ackAt < 3500, rtt: rtt, imuOn: imuOn }; }, ori: function (a, b, c) { onOri({ alpha: a, beta: b, gamma: c }); } };
+})();
+</script>
+</body>
+</html>

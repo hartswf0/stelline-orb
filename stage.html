@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stelline Stage</title>
+<style>
+  :root{--f:"Barlow Semi Condensed","DIN Alternate","Roboto Condensed","Arial Narrow",Arial,sans-serif}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#000;color:#fff;font:400 12px/1.35 var(--f);letter-spacing:.07em;overflow:hidden}
+  #gl{position:fixed;inset:0;width:100%;height:100%;display:block}
+  /* the reticle: a crescent on the thing you hold, a leader to its menu */
+  #ret{position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;opacity:0;transition:opacity .15s;z-index:5}
+  #ret svg{position:absolute;left:-90px;top:-90px;width:180px;height:180px;overflow:visible}
+  #retLine{stroke:rgba(255,255,255,.55);stroke-width:1}
+  #retArc{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round}
+  #menu{position:fixed;right:3.2vw;top:50%;transform:translateY(-50%);width:230px;z-index:6;text-transform:uppercase;pointer-events:none;text-shadow:0 0 8px #000,0 0 3px #000}
+  #menu .path{font-weight:600;font-size:13px;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,.5);padding-bottom:6px}
+  #menu .chan{display:flex;gap:12px;margin-bottom:8px;opacity:.9}#menu .chan u{text-decoration:none;opacity:.4}#menu .chan u.on{opacity:1;border-bottom:2px solid #fff}
+  #menu .ax{display:flex;justify-content:space-between;padding:2px 0}#menu .ax span{opacity:.75}#menu .ax b{font-weight:600}
+  #menu .marks{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0;min-height:0}#menu .marks i{font-style:normal;border:1px solid rgba(255,255,255,.45);padding:1px 5px;opacity:.8}#menu .marks i.lk{background:#fff;color:#000;opacity:1}
+  #menu .tree{margin-top:10px;border-top:1px solid rgba(255,255,255,.3);padding-top:6px;max-height:34vh;overflow:hidden}
+  #menu .row{opacity:.45;white-space:pre}#menu .row.in{opacity:.8}#menu .row.on{opacity:1;font-weight:600}
+  #menu .note{margin-top:8px;min-height:1.4em;font-weight:600}
+  /* pairing: only until the orb answers */
+  #pair{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;background:#000;z-index:20;transition:opacity .6s}
+  body.paired #pair{opacity:0;pointer-events:none}
+  #pair canvas{width:200px;height:200px;image-rendering:pixelated;background:#fff;padding:10px}
+  #pair .code{font-size:64px;font-weight:600;letter-spacing:.3em;margin-right:-.3em}
+  #pair small{opacity:.6;text-transform:uppercase}
+  #pair button{border-bottom:1px solid #fff;background:none;border-top:0;border-left:0;border-right:0;color:#fff;font:inherit;letter-spacing:inherit;text-transform:uppercase;cursor:pointer;padding:0 0 2px}
+  @media(max-width:760px){#menu{width:170px;right:10px;font-size:10px}}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="ret"><svg viewBox="-90 -90 180 180"><path id="retArc" d="M-52 -26 A58 58 0 0 1 36 -46"/><line id="retLine" x1="52" y1="-4" x2="300" y2="0"/></svg></div>
+<div id="menu"></div>
+<div id="pair"><canvas id="qr" width="1" height="1"></canvas><div class="code" id="code"></div><small>Open the orb on your phone and enter the code</small><button id="skip">Use without the orb</button></div>
+<script src="assets/three.min.js"></script>
+<script src="assets/v6/qrcode.js"></script>
+<script src="assets/stage/glyphs.js"></script>
+<script src="assets/stage/pair.js"></script>
+<script src="assets/stage/stage.js"></script>
+<script>
+(function(){
+  var q=new URLSearchParams(location.search),room=(q.get('room')||'').toUpperCase();
+  if(!room){try{room=sessionStorage.getItem('stage-room')||''}catch(e){}}
+  if(!room)room=PAIR.code();try{sessionStorage.setItem('stage-room',room)}catch(e){}
+  document.getElementById('code').textContent=room;
+  var url=new URL('pad.html',location.href);url.searchParams.set('room',room);
+  try{var qr=qrcode(0,'M');qr.addData(url.href);qr.make();var n=qr.getModuleCount(),cv=document.getElementById('qr'),s=4;cv.width=cv.height=n*s+0;var g=cv.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,cv.width,cv.height);g.fillStyle='#000';for(var r=0;r<n;r++)for(var c=0;c<n;c++)if(qr.isDark(r,c))g.fillRect(c*s,r*s,s,s)}catch(e){}
+  PAIR.start('stage',room);PAIR.onmsg=STAGE.onmsg;PAIR.onpeer=function(m){if(m.role==='pad')document.body.classList.add('paired')};
+  document.getElementById('skip').onclick=function(){document.body.classList.add('paired')};
+  STAGE.start();
+})();
+</script>
+</body>
+</html>
