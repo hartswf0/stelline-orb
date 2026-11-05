@@ -14,12 +14,39 @@
   #orb { background: radial-gradient(120% 140% at 50% 0%, #1a1c1a 0%, #0a0b0a 55%, #040504 100%); border-top: 1px solid #1c1e1c; }
   @media (max-width: 700px) { .app { grid-template-rows: minmax(0, 1fr) 44%; } }
   #cap { display: none; }
+  #qrCard { display: none; position: fixed; inset: 0; z-index: 60; background: rgba(2,5,4,.78); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 16px; }
+  #qrCard.on { display: flex; }
+  .qr-box { background: #070d0b; border: 1px solid #28645b; border-radius: 14px; padding: 20px 22px; max-width: 420px; width: 100%; color: #d8f6f0; box-shadow: 0 20px 60px rgba(0,0,0,.85); text-align: center; }
+  .qr-top { display: flex; justify-content: space-between; align-items: center; font-size: 11px; letter-spacing: .12em; color: #5ff0dc; margin-bottom: 12px; }
+  .qr-close { background: #102622; border: 1px solid #2e7a70; color: #8fe9dc; font: 600 11px ui-monospace, Menlo, monospace; padding: 4px 10px; border-radius: 6px; cursor: pointer; }
+  .qr-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .qr-tab { background: #0b1614; border: 1px solid #1d4640; color: #8fe9dc; font: 600 11px ui-monospace, Menlo, monospace; padding: 8px 6px; border-radius: 8px; cursor: pointer; letter-spacing: .04em; }
+  .qr-tab.active { background: #123832; border-color: #5ff0dc; color: #ffffff; }
+  #qrCan { background: #f4faf7; padding: 10px; border-radius: 10px; width: 220px; height: 220px; margin: 0 auto 12px; display: block; image-rendering: pixelated; }
+  .qr-room { font-size: 28px; font-weight: 700; letter-spacing: .22em; color: #ffffff; margin: 4px 0; }
+  .qr-sub { font-size: 11px; color: #8fe9dc; line-height: 1.45; margin-bottom: 10px; }
+  .qr-url { display: block; font-size: 11px; color: #5ff0dc; background: #040807; border: 1px solid #193b36; padding: 7px 10px; border-radius: 6px; word-break: break-all; text-decoration: none; margin-bottom: 8px; }
+  .qr-peer { font-size: 11px; letter-spacing: .08em; color: #f0b040; }
   body.phone .app { grid-template-rows: 1fr; } body.phone #room { display: none; }
   body.cine .app { grid-template-rows: 1fr; } body.cine #orb { position: fixed; right: 1.5vw; bottom: 1.5vw; width: 25vw; height: 13vw; background: none; border: 0; opacity: .92; } body.cine #cap { display: none; } #labBtn { display: none; } body.cine #labBtn { display: block; position: fixed; left: 12px; top: 12px; font: 600 10px ui-monospace, Menlo, monospace; letter-spacing: .1em; color: #8fb8b0; background: rgba(0,0,0,.4); border: 1px solid #2e4a45; padding: 5px 8px; opacity: .45; cursor: pointer; } body.cine #labBtn:hover { opacity: 1; }
 </style>
 </head>
 <body>
 <div class="app"><div id="room"><div id="cap"></div></div><div id="orb"></div></div>
+<div id="qrCard" onclick="if(event.target===this)PAIR.open()">
+  <div class="qr-box">
+    <div class="qr-top"><span>SCAN WITH PHONE CAMERA</span><button class="qr-close" onclick="PAIR.open()">CLOSE [M]</button></div>
+    <div class="qr-tabs">
+      <button class="qr-tab active" id="qrTabFull" onclick="PAIR.setKind('full')">1 · FULL MOBILE WEAVER</button>
+      <button class="qr-tab" id="qrTabOrb" onclick="PAIR.setKind('orb')">2 · ORB REMOTE ONLY</button>
+    </div>
+    <canvas id="qrCan" width="220" height="220"></canvas>
+    <div class="qr-room" id="qrRoomTxt">····</div>
+    <div class="qr-sub" id="qrModeDesc">Opens the full 3D Memory Weaver + 5-Ring Orb on your phone (synced to this room).</div>
+    <a class="qr-url" id="qrUrlLink" href="#" target="_blank" rel="noopener">https://hartswf0.github.io/stelline-orb/weaver.html</a>
+    <div class="qr-peer" id="qrPeerTxt">POINT PHONE CAMERA AT QR CODE</div>
+  </div>
+</div>
 <script src="assets/three.min.js"></script>
 <script src="assets/GLTFExporter.js"></script>
 <script src="assets/OBJExporter.js"></script>
@@ -52,7 +79,7 @@ const R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
 const scene = new T.Scene(); scene.background = new T.Color(0x050605); scene.fog = new T.FogExp2(0x060807, .05);
 const cam = new T.PerspectiveCamera(40, 1, .01, 40);
 const LAB = new T.Group(), MEM = new T.Group(); scene.add(LAB, MEM);
-const CINE = { on: /[?&]cinema/.test(location.search), shot: -1, t: 0, inset: true }; if (CINE.on) document.body.classList.add('cine');   // 01 physical lab, 02 the memory
+const CINE = { on: /[?&]cinema/.test(location.search), shot: null, cur: null, t: 0, tab: 0, N: 1.6, p: new T.Vector3(), tgt: new T.Vector3(), fov: 38, inset: true }; if (CINE.on) document.body.classList.add('cine');   // 01 physical lab, 02 the memory
 // light
 const hemi = new T.HemisphereLight(0x8a9894, 0x080604, .14); scene.add(hemi);
 const over = new T.SpotLight(0xe6efff, .78, 5.5, .36, .85, 1.4); over.position.set(0, 2.75, 0); over.target.position.set(0, .7, 0); over.castShadow = true; over.shadow.mapSize.set(1024, 1024); over.shadow.bias = -.0015; scene.add(over, over.target);
@@ -72,11 +99,12 @@ const bandGlow = new T.Mesh(new T.TorusGeometry(2.17, .06, 6, 200), new T.MeshBa
 const ringLamp = new T.Mesh(new T.TorusGeometry(.95, .025, 10, 160), new T.MeshBasicMaterial({ color: 0xf4f8ff })); ringLamp.rotation.x = Math.PI / 2; ringLamp.position.y = 2.8; LAB.add(ringLamp);
 const ceiling = new T.Mesh(new T.CircleGeometry(2.2, 96), new T.MeshStandardMaterial({ color: 0x0c0d0c, roughness: 1, side: T.DoubleSide })); ceiling.rotation.x = Math.PI / 2; ceiling.position.y = 2.95; LAB.add(ceiling);
 // the observer outside the glass, a silhouette with a rim of light
+let obsRim = null;
 (function observer() { const k = new T.Group(), dark = new T.MeshStandardMaterial({ color: 0x050505, roughness: .9 });
   const coat = new T.Mesh(new T.CylinderGeometry(.17, .27, 1.25, 24), dark); coat.position.y = .78; const chest = new T.Mesh(new T.CylinderGeometry(.21, .19, .42, 24), dark); chest.position.y = 1.5;
   const head = new T.Mesh(new T.SphereGeometry(.11, 24, 16), dark); head.position.y = 1.86; head.scale.set(1, 1.15, 1); const neck = new T.Mesh(new T.CylinderGeometry(.06, .07, .12, 12), dark); neck.position.y = 1.74;
   const legs = new T.Mesh(new T.CylinderGeometry(.13, .15, .2, 16), dark); legs.position.y = .1; k.add(coat, chest, head, neck, legs); k.position.set(2.75, 0, -1.55); k.lookAt(0, 0, 0); LAB.add(k);
-  const rim = new T.SpotLight(0x9fb6ff, 1.2, 4, .5, .6); rim.position.set(3.8, 2.4, -2.6); rim.target = k; LAB.add(rim); })();
+  obsRim = new T.SpotLight(0x9fb6ff, 1.2, 4, .5, .6); obsRim.position.set(3.8, 2.4, -2.6); obsRim.target = k; LAB.add(obsRim); })();
 // haze: a cone of light under the ring, and dust
 const coneMat = new T.ShaderMaterial({ uniforms: { haze: { value: .5 } }, transparent: true, depthWrite: false, blending: T.AdditiveBlending, side: T.DoubleSide,
   vertexShader: 'varying float vy; varying vec3 vn; varying vec3 vp; void main(){ vy=uv.y; vn=normalize(normalMatrix*normal); vec4 mv=modelViewMatrix*vec4(position,1.); vp=mv.xyz; gl_Position=projectionMatrix*mv; }',
@@ -186,23 +214,58 @@ const COLORS = [['CREAM', '#f2e6c9'], ['ROSE', '#f0a8b4'], ['MINT', '#b9e3cf'], 
 const ITEMS = ['CANDLE', 'BERRY', 'SPRINKLES', 'ROSETTE', 'CHERRY'];
 const TOOLS = ['SPAWN', 'GRAB', 'PULL', 'PUSH', 'SMOOTH', 'FLATTEN', 'PAINT', 'PIPE', 'PLACE'];
 const SPINS = ['FREE', 'SPIN 6', 'SPIN 12', 'TURNED'];   // symmetry: none, 6 copies, 12 copies, the whole turn (lathe)
-const PLAYS = [['STEP 12', 12, 0], ['STEP 8', 8, 0], ['STEP 6', 6, 0], ['TWEEN 24', 24, 1]];
+const PLAYS = [['TWEEN 24', 24, 1], ['STEP 12', 12, 0], ['STEP 8', 8, 0], ['STEP 6', 6, 0]];
+const CAM_SHOTS = [
+  { n: 'FREE CAM',       yaw: null },
+  { n: '1 · WIDE CONE',  yaw: .45,  pitch: -.22, dist: 1.38, tx: 0,    ty: .82, tz: 0,    fd: 1.38 },
+  { n: '2 · KNEEL POV',  yaw: .12,  pitch: -.08, dist: .88,  tx: 0,    ty: .76, tz: 0,    fd: .88 },
+  { n: '3 · CAKE MACRO', yaw: .08,  pitch: -.18, dist: .46,  tx: 0,    ty: .79, tz: 0,    fd: .46 },
+  { n: '4 · TABLE ARC',  yaw: -.28, pitch: -.16, dist: 1.15, tx: 0,    ty: .84, tz: -.08, fd: 1.05 },
+  { n: '5 · CHILD 1',    yaw: .62,  pitch: -.10, dist: .84,  tx: -.18, ty: .88, tz: -.24, fd: .92 },
+  { n: '6 · CHILD 2',    yaw: .04,  pitch: -.08, dist: .78,  tx: 0,    ty: .86, tz: -.28, fd: .88 },
+  { n: '7 · CHILD 3',    yaw: -.56, pitch: -.10, dist: .86,  tx: .18,  ty: .90, tz: -.24, fd: .94 },
+  { n: '8 · WISH GLOW',  yaw: .22,  pitch: .04,  dist: .54,  tx: 0,    ty: .82, tz: 0,    fd: .52 }
+];
+const KID_POSES = [
+  { n: '1 · ENTER DARK',  r: .82, lift: -.02, tilt: 0,  yaw: 0,  roll: 0,  s: .94 },
+  { n: '2 · AT TABLE',    r: .62, lift: 0,    tilt: 2,  yaw: 0,  roll: 0,  s: 1.0 },
+  { n: '3 · LEAN IN',     r: .49, lift: .01,  tilt: 10, yaw: 0,  roll: 0,  s: 1.04 },
+  { n: '4 · GLANCE SIDE', r: .58, lift: 0,    tilt: 3,  yaw: 18, roll: -3, s: 1.0 },
+  { n: '5 · INHALE WISH', r: .52, lift: .035, tilt: -7, yaw: 0,  roll: 0,  s: 1.05 },
+  { n: '6 · BLOW FLAMES', r: .44, lift: .015, tilt: 14, yaw: -4, roll: 2,  s: 1.08 }
+];
 const TR0 = () => ({ p: [0, 0, 0], r: [0, 0, 0], s: [1, 1, 1] });
-const frameNew = () => ({ clay: null, strokes: [], items: [], tr: TR0(), spread: {}, hold: 1 });
+const frameNew = () => ({ clay: null, strokes: [], items: [], tr: TR0(), tableTr: TR0(), cast: [], cam: null, spread: {}, hold: 1 });
 const trOf = f => f.tr || (f.tr = { p: [0, f.lift || 0, 0], r: [f.tilt || 0, f.rotY || 0, 0], s: [f.sc || 1, 1, 1] });
+const tableTrOf = f => f.tableTr || (f.tableTr = TR0());
 let DOC = { frames: [frameNew()], cur: 0, cast: [], hasTable: false };
-const curF = () => DOC.frames[DOC.cur];
-const copyFrame = f => ({ clay: f.clay ? { kind: f.clay.kind, pos: f.clay.pos.slice(), col: f.clay.col.slice() } : null, strokes: f.strokes.map(s => ({ ...s, pts: s.pts.slice() })), items: f.items.map(i => ({ ...i, rot: i.rot ? i.rot.slice() : undefined })), tr: JSON.parse(JSON.stringify(trOf(f))), spread: { ...(f.spread || {}) }, hold: f.hold });
+const curF = () => DOC.frames[DOC.cur] || DOC.frames[0];
+function captureCam() { const o = S.orbit; return { yaw: o.yaw, pitch: o.pitch, dist: o.dist, tx: o.tgt.x, ty: o.tgt.y, tz: o.tgt.z, fd: S.focus.d, shot: S.shotIdx || 0 }; }
+function syncFrameCam() { const F = curF(); if (F) F.cam = captureCam(); }
+function syncFrameCast() { const F = curF(); if (F) F.cast = (DOC.cast || []).map(c => ({ ...c })); }
+const copyFrame = f => ({
+  clay: f.clay ? { kind: f.clay.kind, pos: f.clay.pos.slice(), col: f.clay.col.slice() } : null,
+  strokes: (f.strokes || []).map(s => ({ ...s, pts: s.pts.slice() })),
+  items: (f.items || []).map(i => ({ ...i, p: i.p.slice(), n: i.n.slice(), rot: i.rot ? i.rot.slice() : undefined })),
+  tr: JSON.parse(JSON.stringify(trOf(f))),
+  tableTr: JSON.parse(JSON.stringify(tableTrOf(f))),
+  cast: ((f.cast && f.cast.length ? f.cast : DOC.cast) || []).map(c => ({ ...c })),
+  cam: f.cam ? { ...f.cam } : (typeof S !== 'undefined' && S.orbit ? captureCam() : null),
+  spread: { ...(f.spread || {}) },
+  hold: f.hold || 1
+});
 const UNDO = [], REDO = [];
-function snapshot() { UNDO.push({ frames: DOC.frames.map(copyFrame), cur: DOC.cur, cast: DOC.cast.map(c => ({ ...c })), hasTable: !!DOC.hasTable }); if (UNDO.length > 40) UNDO.shift(); REDO.length = 0; dirtyDoc = true; }
-function undo(redo) { const from = redo ? REDO : UNDO, to = redo ? UNDO : REDO; const s = from.pop(); if (!s) { say(redo ? 'NOTHING TO REDO' : 'NOTHING TO UNDO'); tick('dead'); return; } to.push({ frames: DOC.frames.map(copyFrame), cur: DOC.cur, cast: DOC.cast.map(c => ({ ...c })), hasTable: !!DOC.hasTable }); DOC = s; DOC.cast = DOC.cast || []; DOC.hasTable = !!s.hasTable; showFrame(); S.state = 'RECOVERY'; say(redo ? 'REDONE' : 'UNDONE · THE LAST CHANGE IS REVERSED'); }
+function snapshot() { syncFrameCast(); syncFrameCam(); UNDO.push({ frames: DOC.frames.map(copyFrame), cur: DOC.cur, cast: DOC.cast.map(c => ({ ...c })), hasTable: !!DOC.hasTable }); if (UNDO.length > 40) UNDO.shift(); REDO.length = 0; dirtyDoc = true; }
+function undo(redo) { const from = redo ? REDO : UNDO, to = redo ? UNDO : REDO; const s = from.pop(); if (!s) { say(redo ? 'NOTHING TO REDO' : 'NOTHING TO UNDO'); tick('dead'); return; } syncFrameCast(); syncFrameCam(); to.push({ frames: DOC.frames.map(copyFrame), cur: DOC.cur, cast: DOC.cast.map(c => ({ ...c })), hasTable: !!DOC.hasTable }); DOC = s; DOC.cast = (curF().cast && curF().cast.length ? curF().cast : DOC.cast) || []; DOC.hasTable = !!s.hasTable; S.lastShownCur = -1; showFrame(); S.state = 'RECOVERY'; say(redo ? 'REDONE' : 'UNDONE · THE LAST CHANGE IS REVERSED'); }
 let dirtyDoc = false;
 
 /* =============================================================== show a frame (or a point between two frames) in the room */
 const strokeMats = {}, strokeMat = c => strokeMats[c] || (strokeMats[c] = holo(new T.MeshStandardMaterial({ color: COLORS[c][1], roughness: .62 })));
 const STROKES = new T.Group(), ITEMG = new T.Group(); CAKE.add(STROKES, ITEMG);
 const meshOf = new WeakMap(), objOf = new WeakMap();
+function disposeStroke(s) { if (meshOf.has(s)) { const m = meshOf.get(s); if (m && m.geometry) m.geometry.dispose(); meshOf.delete(s); } }
 function strokeMesh(s) { if (meshOf.has(s)) return meshOf.get(s); const pts = []; for (let i = 0; i < s.pts.length; i += 6) pts.push(new T.Vector3(s.pts[i] + s.pts[i + 3] * s.w * .7, s.pts[i + 1] + s.pts[i + 4] * s.w * .7, s.pts[i + 2] + s.pts[i + 5] * s.w * .7));
+  if (!pts.length) pts.push(new T.Vector3(0, 0, 0));
   if (pts.length < 2) pts.push(pts[0].clone().add(new T.Vector3(.0005, 0, 0))); const curve = new T.CatmullRomCurve3(pts), L = curve.getLength(), seg = Math.max(8, Math.round(L / (s.w * .35))), rs = 10;
   const g = new T.TubeGeometry(curve, seg, s.w, rs, false); const p = g.attributes.position; // piped: the bead swells and narrows along the bag's path
   for (let i = 0; i <= seg; i++) { const c = curve.getPointAt(i / seg), k = 1 + .32 * Math.sin(i / seg * L / (s.w * 2.1) * TAU) * (s.style === 'line' ? 0 : 1), end = Math.min(1, Math.min(i, seg - i) / 3 + .25); for (let j = 0; j <= rs; j++) { const v = i * (rs + 1) + j; p.setXYZ(v, c.x + (p.getX(v) - c.x) * k * end, c.y + (p.getY(v) - c.y) * k * end, c.z + (p.getZ(v) - c.z) * k * end); } }
@@ -226,17 +289,49 @@ function applyItem(o, it) { o.position.set(...it.p); const s = it.s || 1; o.scal
 let ONIONN = 0;
 function showFrame(t) { // t: optional fractional frame position for tweened playback
   const F = DOC.frames; let i = DOC.cur, u = 0; if (t != null) { i = Math.floor(t) % F.length; u = t - Math.floor(t); }
-  const A = F[i], B = F[(i + 1) % F.length], tween = t != null && u > 0 && A.clay && B.clay && A.clay.kind === B.clay.kind;
+  const A = F[i] || F[0], B = F[(i + 1) % F.length] || A, isTween = t != null && u > 0, k = isTween ? sm(u) : 0;
+  const L = (x, y) => x + (y - x) * k, ang = (x, y) => x + ((((y - x) % 360) + 540) % 360 - 180) * k, angRad = (x, y) => x + ((((y - x) % TAU) + TAU * 1.5) % TAU - Math.PI) * k;
+  const tweenClay = isTween && A.clay && B.clay && A.clay.kind === B.clay.kind;
   ensureClay(A.clay ? A.clay.kind : null);
-  if (clayMesh) { const p = clayMesh.geometry.attributes.position, c = clayMesh.geometry.attributes.color; if (tween) { const k = sm(u); for (let n = 0; n < p.array.length; n++) { p.array[n] = A.clay.pos[n] + (B.clay.pos[n] - A.clay.pos[n]) * k; c.array[n] = A.clay.col[n] + (B.clay.col[n] - A.clay.col[n]) * k; } } else { p.array.set(A.clay.pos); c.array.set(A.clay.col); }
+  if (clayMesh) { const p = clayMesh.geometry.attributes.position, c = clayMesh.geometry.attributes.color; if (tweenClay) { for (let n = 0; n < p.array.length; n++) { p.array[n] = A.clay.pos[n] + (B.clay.pos[n] - A.clay.pos[n]) * k; c.array[n] = A.clay.col[n] + (B.clay.col[n] - A.clay.col[n]) * k; } } else { p.array.set(A.clay.pos); c.array.set(A.clay.col); }
     p.needsUpdate = c.needsUpdate = true; clayMesh.geometry.computeVertexNormals(); clayMesh.geometry.computeBoundingSphere(); }
-  { const TA = trOf(A), TB = trOf(B), k = tween ? sm(u) : 0, L = (x, y) => x + (y - x) * k, ang = (x, y) => x + ((((y - x) % 360) + 540) % 360 - 180) * k;
+  { const TA = trOf(A), TB = trOf(B);
     CAKE.position.set(L(TA.p[0], TB.p[0]), BASE_Y + L(TA.p[1], TB.p[1]), L(TA.p[2], TB.p[2])); CAKE.rotation.set(ang(TA.r[0], TB.r[0]) * Math.PI / 180, ang(TA.r[1], TB.r[1]) * Math.PI / 180, ang(TA.r[2], TB.r[2]) * Math.PI / 180, 'YXZ');
     const sa = L(TA.s[0], TB.s[0]), sh = L(TA.s[1], TB.s[1]), sw = L(TA.s[2], TB.s[2]); CAKE.scale.set(sa * sw, sa * sh, sa * sw); }
+  { const TTA = tableTrOf(A), TTB = tableTrOf(B), tx = L(TTA.p[0], TTB.p[0]), ty = L(TTA.p[1], TTB.p[1]), tz = L(TTA.p[2], TTB.p[2]), ry = ang(TTA.r[1], TTB.r[1]) * Math.PI / 180, ts = L(TTA.s[0], TTB.s[0]);
+    table.position.set(tx, TABLE_Y - .02 + ty, tz); table.rotation.y = ry; table.scale.set(ts * L(TTA.s[2], TTB.s[2]), L(TTA.s[1], TTB.s[1]), ts * L(TTA.s[2], TTB.s[2]));
+    leg.position.set(tx, (TABLE_Y - .04) / 2 + ty, tz); plate.position.set(tx, TABLE_Y + .004 + ty, tz); }
+  // per-frame segmented character performance & camera shot interpolation
+  if (typeof S !== 'undefined') {
+    if (!A.cast || (!A.cast.length && DOC.cast && DOC.cast.length && F.length === 1)) A.cast = (DOC.cast || []).map(c => ({ ...c }));
+    if (isTween) {
+      const caList = A.cast || [], cbList = (B.cast && B.cast.length) ? B.cast : caList;
+      S.tweenCast = caList.map(ca => { const cb = cbList.find(x => x.i === ca.i) || ca;
+        return { ...ca, a: angRad(ca.a, cb.a), r: L(ca.r, cb.r), lift: L(ca.lift || 0, cb.lift || 0), yaw: ang(ca.yaw || 0, cb.yaw || 0), tilt: L(ca.tilt || 0, cb.tilt || 0), roll: L(ca.roll || 0, cb.roll || 0), s: L(ca.s || 1, cb.s || 1), sh: L(ca.sh || 1, cb.sh || 1), sw: L(ca.sw || 1, cb.sw || 1), op: L(ca.op == null ? 1 : ca.op, cb.op == null ? 1 : cb.op), vis: 1 }; });
+      if (A.cam && B.cam && !CINE.on) {
+        S.orbit.yaw = angRad(A.cam.yaw, B.cam.yaw); S.orbit.pitch = L(A.cam.pitch, B.cam.pitch); S.orbit.dist = L(A.cam.dist, B.cam.dist);
+        S.orbit.tgt.set(L(A.cam.tx || 0, B.cam.tx || 0), L(A.cam.ty || .82, B.cam.ty || .82), L(A.cam.tz || 0, B.cam.tz || 0));
+        if (A.cam.fd != null && B.cam.fd != null) S.focus.d = L(A.cam.fd, B.cam.fd);
+      }
+    } else {
+      S.tweenCast = null;
+      if (A.cast && A.cast.length) DOC.cast = A.cast;
+      if (S.lastShownCur !== DOC.cur) {
+        S.lastShownCur = DOC.cur;
+        if (A.cam && (S.mode === 'TIME' || S.play) && !CINE.on) {
+          S.orbit.yaw = A.cam.yaw; S.orbit.pitch = A.cam.pitch; S.orbit.dist = A.cam.dist;
+          S.orbit.tgt.set(A.cam.tx || 0, A.cam.ty || .82, A.cam.tz || 0);
+          if (A.cam.fd != null) S.focus.d = A.cam.fd;
+          S.shotIdx = A.cam.shot || 0;
+        }
+      }
+    }
+  }
   mistDirty = true; STROKES.clear(); A.strokes.forEach(s => STROKES.add(strokeMesh(s))); ITEMG.clear(); FLAMES = []; A.items.forEach(it => { const o = itemObj(it); applyItem(o, it); ITEMG.add(o); o.traverse(x => { if (x.userData.flame) FLAMES.push(x); }); });
-  // onion skin: earlier frames as cool ghosts, the next as a warm one
-  ONION.clear(); if (t == null && S.mode === 'TIME' && ONIONN > 0) { for (let k = 1; k <= ONIONN + 1; k++) { const j = k <= ONIONN ? DOC.cur - k : DOC.cur + 1; if (j < 0 || j >= F.length || !F[j].clay) continue; const g = new T.BufferGeometry(); g.setAttribute('position', new T.BufferAttribute(F[j].clay.pos, 3)); g.setIndex(topology(F[j].clay.kind).idx);
-    const m = new T.Mesh(g, new T.MeshBasicMaterial({ color: k <= ONIONN ? 0x5ff0dc : 0xf0b040, wireframe: true, transparent: true, opacity: (k <= ONIONN ? .3 / k : .22), depthWrite: false })); m.rotation.y = (trOf(F[j]).r[1] - trOf(A).r[1]) * Math.PI / 180; ONION.add(m); } }
+  // onion skin: dispose previous wireframe geometries first so mobile WebGL never leaks memory
+  ONION.children.forEach(m => { if (m.geometry) m.geometry.dispose(); if (m.material) m.material.dispose(); });
+  ONION.clear(); if (t == null && S.mode === 'TIME' && ONIONN > 0) { for (let k2 = 1; k2 <= ONIONN + 1; k2++) { const j = k2 <= ONIONN ? DOC.cur - k2 : DOC.cur + 1; if (j < 0 || j >= F.length || !F[j].clay) continue; const g = new T.BufferGeometry(); g.setAttribute('position', new T.BufferAttribute(F[j].clay.pos, 3)); g.setIndex(topology(F[j].clay.kind).idx);
+    const m = new T.Mesh(g, new T.MeshBasicMaterial({ color: k2 <= ONIONN ? 0x5ff0dc : 0xf0b040, wireframe: true, transparent: true, opacity: (k2 <= ONIONN ? .3 / k2 : .22), depthWrite: false })); m.rotation.y = (trOf(F[j]).r[1] - trOf(A).r[1]) * Math.PI / 180; ONION.add(m); } }
   const lit = FLAMES.length, boost = S.lightBoost == null ? 1.25 : S.lightBoost;
   candleLight.intensity = lit ? (.45 + Math.min(lit, 12) * .22) * boost : 0;
   if (clayMesh) { clayMesh.geometry.computeBoundingBox(); const b = clayMesh.geometry.boundingBox; candleLight.position.set(0, BASE_Y + b.max.y + .12, 0); }
@@ -248,15 +343,37 @@ function showFrame(t) { // t: optional fractional frame position for tweened pla
 /* =============================================================== interface state */
 const S = { mode: 'MAKE', verb: 0, pickKey: 'cake', counts: {}, tool: 2, radius: .03, strength: .5, opt: { SPAWN: 0, GRAB: 3, PULL: 3, PUSH: 3, SMOOTH: 3, FLATTEN: 3, PAINT: 1, PIPE: 0, PLACE: 0 }, state: 'REST', msg: '', msgT: 0,
   play: false, playT: 0, plays: 0, onion: 1, weave: { t: 0, mat: 1, scale: 1, haze: .45, scan: .5, mist: 0 }, take: null, takeRec: null, takeT: 0, exporting: false, fmt: 0, lastRing: -1,
-  orbit: { yaw: .45, pitch: -.22, dist: .86, tgt: new T.Vector3(0, .82, 0) }, stageT: 0, focus: { d: null, auto: true }, aimH: .5, amt: 0, stretch: 1, pull: 0, lightBoost: 1.25, fov: 40, prevMode: 'MAKE' };
+  orbit: { yaw: .45, pitch: -.22, dist: .86, tgt: new T.Vector3(0, .82, 0) }, stageT: 0, focus: { d: null, auto: true }, aimH: .5, amt: 0, stretch: 1, pull: 0, lightBoost: 1.25, fov: 40, prevMode: 'MAKE', shotIdx: 0, lastShownCur: 0, tweenCast: null };
 function say(m) { S.msg = m; S.msgT = NOW; oledDirty = true; }
 function toolName() { return TOOLS[S.tool]; }
 function optList() { const t = toolName(); return t === 'SPAWN' ? Object.keys(BASES) : (t === 'PAINT' || t === 'PIPE') ? COLORS.map(c => c[0]) : t === 'PLACE' ? ITEMS : SPINS; }
+function applyCamShot(idx) {
+  S.shotIdx = clamp(Math.round(idx), 0, CAM_SHOTS.length - 1);
+  const sh = CAM_SHOTS[S.shotIdx];
+  if (sh && sh.yaw != null) {
+    S.orbit.yaw = sh.yaw; S.orbit.pitch = sh.pitch; S.orbit.dist = sh.dist;
+    S.orbit.tgt.set(sh.tx, sh.ty, sh.tz); S.focus.d = sh.fd; S.ease = null;
+  }
+  syncFrameCam();
+  say('CAMERA · ' + sh.n);
+}
+function applyKidPose(nd, idx) {
+  const pi = clamp(Math.round(idx), 0, KID_POSES.length - 1), p = KID_POSES[pi];
+  const slots = nd && nd.k === 'child' ? [nd.slot != null ? nd.slot : 0] : [0, 1, 2];
+  slots.forEach(s => {
+    const c = ensureChildSlot(s);
+    c.pose = pi; c.r = p.r; c.lift = p.lift; c.tilt = p.tilt;
+    c.yaw = p.yaw * (s === 0 ? 1 : s === 2 ? -1 : .4);
+    c.roll = p.roll * (s === 0 ? 1 : -1); c.s = p.s;
+  });
+  syncFrameCast(); mistDirty = true; showFrame();
+  say((slots.length > 1 ? 'ALL 3 KIDS' : 'CHILD ' + (slots[0] + 1)) + ' · ' + p.n);
+}
 
 /* =============================================================== what each ring does now */
 const EXPORTS = ['GLB · SCENE', 'OBJ · MESH', 'STILL · PNG', 'LOOP · WEBM', 'DOCUMENT · JSON'];
 const MODES = ['LOOK', 'MAKE', 'MOVE', 'TURN', 'SIZE', 'TIME', 'WEAVE'];
-const MODE_SAYS = { LOOK: 'LOOK · FIRST-PERSON VIEW & OPTICAL FOCUS', MAKE: 'MAKE · SCULPT CAKE, STAGE TABLE & 2D CUTOUTS', MOVE: 'MOVE · SLIDE PICKED ELEMENT IN SPACE', TURN: 'TURN · ANGLE PICKED ELEMENT TOWARD THE LIGHT', SIZE: 'SIZE · SCALE HEIGHT & SPREAD', TIME: 'TIME · STOP-MOTION FRAMES & CANDLE WISH', WEAVE: 'WEAVE · PULL BARREL ENDS OR DIAL MIST TO DISSOLVE' };
+const MODE_SAYS = { LOOK: 'LOOK · FIRST-PERSON VIEW & CAMERA SHOTS', MAKE: 'MAKE · SCULPT CAKE, STAGE TABLE & 2D CUTOUTS', MOVE: 'MOVE · SLIDE PICKED ELEMENT IN SPACE', TURN: 'TURN · ANGLE PICKED ELEMENT TOWARD THE LIGHT', SIZE: 'SIZE · SCALE HEIGHT & SPREAD', TIME: 'TIME · KEYFRAME CHARACTER POSES & CAMERA SHOTS', WEAVE: 'WEAVE · PULL BARREL ENDS OR DIAL MIST TO DISSOLVE' };
 const isXf = () => S.mode === 'MOVE' || S.mode === 'TURN' || S.mode === 'SIZE';
 const AXC = ['#ff5b4d', '#5fe36e', '#4f8dff'], AXH = [0xff5b4d, 0x5fe36e, 0x4f8dff];
 // MAKE's verbs: grouped into 6 logical craft chapters so Ring 2 (CHAPTER) jumps chapters and Ring 3 (VERB) steps within/across them
@@ -270,39 +387,49 @@ const CHAPTERS = [['1 · SPONGE', 0], ['2 · SCULPT', 4], ['3 · FROST', 8], ['4
 function curChapter() { for (let i = CHAPTERS.length - 1; i >= 0; i--) if (S.verb >= CHAPTERS[i][1]) return i; return 0; }
 function setVerb(k) { if (k !== S.verb) S.amt = 0; S.verb = clamp(k, 0, VERBS.length - 1); const [, t, o] = VERBS[S.verb]; if (TOOLS.indexOf(t) >= 0) { S.tool = TOOLS.indexOf(t); S.opt[t] = o; if (t === 'PIPE') S.opt.PIPE = o; } S.dialPipe = null; }
 const verbTool = () => VERBS[S.verb][1];
-/* the scene graph: never a 1-option list; always includes CAKE, TABLE, any placed toppings, and the 3 cutout children slots */
+/* the scene graph: never a 1-option list; includes CAKE, CAMERA SHOT, TABLE, ALL 3 KIDS, individual children, and placed toppings */
 const PLURAL = { CANDLE: 'CANDLES', BERRY: 'BERRIES', CHERRY: 'CHERRIES', ROSETTE: 'ROSETTES', SPRINKLE: 'SPRINKLES' };
-function nodes() { const F = curF(), L = [{ key: 'cake', k: 'cake', name: 'CAKE', depth: 0 }, { key: 'table', k: 'table', name: 'TABLE', depth: 0 }], G = {};
+function nodes() { const F = curF(), L = [{ key: 'cake', k: 'cake', name: 'CAKE', depth: 0 }, { key: 'cam', k: 'cam', name: 'CAMERA SHOT', depth: 0 }, { key: 'table', k: 'table', name: 'TABLE', depth: 0 }], G = {};
   F.items.forEach((it, i) => (G[it.t] = G[it.t] || []).push(i));
   for (const t of Object.keys(G)) { const ix = G[t]; L.push({ key: 'g:' + t, k: 'group', t, ix, name: PLURAL[t] + ' ' + ix.length, depth: 1 }); if (t !== 'SPRINKLE' && ix.length <= 24) ix.forEach((i, n) => L.push({ key: 'i:' + i, k: 'item', i, t, name: t + ' ' + (n + 1), depth: 2 })); }
+  L.push({ key: 'g:kids', k: 'kids', name: 'ALL 3 KIDS', depth: 0 });
   for (let i = 0; i < 3; i++) { const c = DOC.cast.find(x => x.i === i); L.push({ key: c ? 'c:' + c.id : 'slot:' + i, k: 'child', id: c ? c.id : -(i + 1), slot: i, name: 'CHILD ' + (i + 1), depth: 0 }); }
   return L; }
 function pickIndex() { const L = nodes(); const k = L.findIndex(n => n.key === S.pickKey || (n.k === 'child' && S.pickKey === 'slot:' + n.slot)); return k < 0 ? 0 : k; }
 function curNode() { const L = nodes(); return L[pickIndex()] || L[0]; }
-function ensureChildSlot(slot) { let c = DOC.cast.find(x => x.i === slot); if (!c) { DOC.hasTable = true; const ca = Math.PI / 2 - S.orbit.yaw, a = ca + Math.PI + KIDS[slot].da; c = { id: CASTID++, i: slot, a, r: .62, yaw: 0, tilt: 0, lift: 0, op: 1, vis: 0 }; DOC.cast.push(c); showFrame(); shimmer(); say('CHILD ' + (slot + 1) + ' JOINS THE TABLE'); } return c; }
+function ensureChildSlot(slot) { let c = DOC.cast.find(x => x.i === slot); if (!c) { DOC.hasTable = true; const ca = Math.PI / 2 - S.orbit.yaw, a = ca + Math.PI + KIDS[slot].da; c = { id: CASTID++, i: slot, a, r: .62, yaw: 0, tilt: 0, lift: 0, op: 1, vis: 0, pose: 1 }; DOC.cast.push(c); syncFrameCast(); showFrame(); shimmer(); say('CHILD ' + (slot + 1) + ' JOINS THE TABLE'); } return c; }
 function pickTo(key) { if (key && key.startsWith('slot:')) { const slot = +key.split(':')[1]; const c = ensureChildSlot(slot); key = 'c:' + c.id; }
+  if (key === 'g:kids' && !DOC.cast.length) { [0, 1, 2].forEach(ensureChildSlot); }
   if (key === 'table' && !DOC.hasTable) { DOC.hasTable = true; showFrame(); say('THE TABLE MATERIALIZES BENEATH THE CAKE'); }
-  if (key === S.pickKey) return; S.pickKey = key; lockChime(); if (S.focus.auto) S.focus.d = null; if (S.mode === 'LOOK') lookAtNode(); oledDirty = true; }
+  if (key === S.pickKey) return; S.pickKey = key; lockChime(); if (S.focus.auto && key !== 'cam') S.focus.d = null; if (S.mode === 'LOOK' && key !== 'cam') lookAtNode(); oledDirty = true; }
 function nodeCenter(nd) { nd = nd || curNode(); MEM.updateMatrixWorld(true); CAKE.updateMatrixWorld(true);
   if (nd.k === 'child' && castMesh[nd.id]) { const m = castMesh[nd.id]; return { c: m.getWorldPosition(new T.Vector3()), r: m.scale.y * MEM.scale.x * .5, obj: m }; }
+  if (nd.k === 'kids' && DOC.cast.length) { const b = new T.Box3(); DOC.cast.forEach(c => { if (castMesh[c.id]) b.expandByObject(castMesh[c.id]); }); if (!b.isEmpty()) return { c: b.getCenter(new T.Vector3()), r: Math.max(.25, b.getSize(new T.Vector3()).length() / 2) }; }
+  if (nd.k === 'table') { return { c: table.getWorldPosition(new T.Vector3()), r: .5, obj: table }; }
   if (nd.k === 'item') { const it = curF().items[nd.i], o = it && objOf.get(it); if (o) { const b = new T.Box3().setFromObject(o); if (!b.isEmpty()) return { c: b.getCenter(new T.Vector3()), r: Math.max(.012, b.getSize(new T.Vector3()).length() / 2), obj: o }; } }
-  if (nd.k === 'group') { const b = new T.Box3(); nd.ix.forEach(i => { const o = objOf.get(curF().items[i]); if (o) b.expandByObject(o); }); if (!b.isEmpty()) return { c: b.getCenter(new T.Vector3()), r: Math.max(.02, b.getSize(new T.Vector3()).length() / 2) }; }
+  if (nd.k === 'group' && nd.ix) { const b = new T.Box3(); nd.ix.forEach(i => { const o = objOf.get(curF().items[i]); if (o) b.expandByObject(o); }); if (!b.isEmpty()) return { c: b.getCenter(new T.Vector3()), r: Math.max(.02, b.getSize(new T.Vector3()).length() / 2) }; }
   const b = new T.Box3().setFromObject(clayMesh || plate); return { c: b.getCenter(new T.Vector3()), r: Math.max(.06, b.getSize(new T.Vector3()).length() / 2), obj: clayMesh || plate }; }
 function lookAtNode() { const n = nodeCenter(); const yaw = S.orbit.yaw; S.ease = { t: 1.4, y: n.c.y, d: clamp(n.r * 5.5, .35, 2.2), p: S.orbit.pitch, yaw }; S.orbit.tgt.x += 0; S.easeX = { x: n.c.x, z: n.c.z }; }
 /* a transform, read and written the same way for every kind of node: kind p (metres), r (degrees), s (ALL, HEIGHT, WIDTH) */
-const itemsOf = nd => nd.k === 'item' ? [curF().items[nd.i]] : nd.ix.map(i => curF().items[i]);
+const itemsOf = nd => nd.k === 'item' ? [curF().items[nd.i]].filter(Boolean) : (nd.ix || []).map(i => curF().items[i]).filter(Boolean);
 function xfGet(nd, kind, ax) { const F = curF();
   if (nd.k === 'cake') return trOf(F)[kind][ax];
-  if (nd.k === 'child') { const c = DOC.cast.find(c => c.id === nd.id); if (!c) return 0; if (kind === 'p') return ax === 0 ? Math.cos(c.a) * c.r : ax === 1 ? (c.lift || 0) : Math.sin(c.a) * c.r; if (kind === 'r') return [c.tilt || 0, c.yaw || 0, c.roll || 0][ax]; return [c.s || 1, c.sh || 1, c.sw || 1][ax]; }
-  const its = itemsOf(nd); if (!its.length) return 0; const mean = f => its.reduce((a, it) => a + f(it), 0) / its.length;
+  if (nd.k === 'table') return tableTrOf(F)[kind][ax];
+  if (nd.k === 'cam') { const o = S.orbit; if (kind === 'p') return ax === 0 ? o.tgt.x : ax === 1 ? o.tgt.y - .82 : o.dist - .86; if (kind === 'r') return [Math.round(-o.pitch * 57.3), Math.round(o.yaw * 57.3), 0][ax]; return [S.focus.d || .9, cam.fov / 40, 1][ax]; }
+  if (nd.k === 'kids') { const c = DOC.cast[0]; if (!c) return kind === 's' ? 1 : 0; if (kind === 'p') return ax === 0 ? Math.cos(c.a) * c.r : ax === 1 ? (c.lift || 0) : c.r; if (kind === 'r') return [c.tilt || 0, c.yaw || 0, c.roll || 0][ax]; return [c.s || 1, c.sh || 1, c.sw || 1][ax]; }
+  if (nd.k === 'child') { const c = DOC.cast.find(c => c.id === nd.id || c.i === nd.slot); if (!c) return kind === 's' ? 1 : 0; if (kind === 'p') return ax === 0 ? Math.cos(c.a) * c.r : ax === 1 ? (c.lift || 0) : Math.sin(c.a) * c.r; if (kind === 'r') return [c.tilt || 0, c.yaw || 0, c.roll || 0][ax]; return [c.s || 1, c.sh || 1, c.sw || 1][ax]; }
+  const its = itemsOf(nd); if (!its.length) return kind === 's' ? 1 : 0; const mean = f => its.reduce((a, it) => a + f(it), 0) / its.length;
   if (kind === 'p') return mean(it => it.p[ax]); if (kind === 'r') return nd.k === 'group' ? ((F.grot || {})[nd.t] || [0, 0, 0])[ax] : (its[0].rot || [0, 0, 0])[ax];
   return ax === 0 ? mean(it => it.s || 1) : ax === 1 ? mean(it => it.sh || 1) : nd.k === 'group' ? ((F.spread || {})[nd.t] || 1) : (its[0].sw || 1); }
 function xfSet(nd, kind, ax, v) { const F = curF(), old = xfGet(nd, kind, ax), d = v - old; S.counts[S.mode + ':' + nd.k] = (S.counts[S.mode + ':' + nd.k] || 0) + 1;
   if (nd.k === 'cake') { const t = trOf(F); t[kind][ax] = v; }
-  else if (nd.k === 'child') { const c = DOC.cast.find(c => c.id === nd.id); if (!c) return;
+  else if (nd.k === 'table') { DOC.hasTable = true; const t = tableTrOf(F); t[kind][ax] = v; }
+  else if (nd.k === 'cam') { const o = S.orbit; if (kind === 'p') { if (ax === 0) o.tgt.x = v; else if (ax === 1) o.tgt.y = .82 + v; else o.dist = clamp(.86 + v, .25, 4); } else if (kind === 'r') { if (ax === 0) o.pitch = -clamp(v / 57.3, -.3, 1.4); else if (ax === 1) o.yaw = v / 57.3; } else { if (ax === 0) { S.focus.auto = false; S.focus.d = clamp(v, .2, 3.5); } } syncFrameCam(); }
+  else if (nd.k === 'kids') { [0, 1, 2].forEach(s => { const c = ensureChildSlot(s); if (kind === 'p') { if (ax === 1) c.lift = v; else if (ax === 2) c.r = clamp(v, .25, 1.4); else c.a += d * 1.5; } else if (kind === 'r') { if (ax === 0) c.tilt = v; else if (ax === 1) c.yaw = v; else c.roll = v; } else { if (ax === 0) c.s = v; else if (ax === 1) c.sh = v; else c.sw = v; } }); syncFrameCast(); }
+  else if (nd.k === 'child') { const c = DOC.cast.find(c => c.id === nd.id || c.i === nd.slot) || ensureChildSlot(nd.slot || 0);
     if (kind === 'p') { if (ax === 1) c.lift = v; else { let x = Math.cos(c.a) * c.r, z = Math.sin(c.a) * c.r; if (ax === 0) x = v; else z = v; c.r = Math.max(.12, Math.hypot(x, z)); c.a = Math.atan2(z, x); } }
-    else if (kind === 'r') { if (ax === 0) c.tilt = v; else if (ax === 1) c.yaw = v; else c.roll = v; } else { if (ax === 0) c.s = v; else if (ax === 1) c.sh = v; else c.sw = v; } }
-  else { const its = itemsOf(nd);
+    else if (kind === 'r') { if (ax === 0) c.tilt = v; else if (ax === 1) c.yaw = v; else c.roll = v; } else { if (ax === 0) c.s = v; else if (ax === 1) c.sh = v; else c.sw = v; } syncFrameCast(); }
+  else { const its = itemsOf(nd); if (!its.length) return;
     if (kind === 'p') its.forEach(it => { it.p = it.p.slice(); it.p[ax] += d; });
     else if (kind === 'r') { if (nd.k === 'group') { F.grot = F.grot || {}; const g = F.grot[nd.t] = (F.grot[nd.t] || [0, 0, 0]).slice(); g[ax] = v; F.grot[nd.t] = g;
         if (ax === 1) { const a = -d * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a); its.forEach(it => { const [x, y, z] = it.p, [nx, ny, nz] = it.n; it.p = [x * ca - z * sa, y, x * sa + z * ca]; it.n = [nx * ca - nz * sa, ny, nx * sa + nz * ca]; objOf.delete(it); }); }
@@ -313,7 +440,7 @@ function xfSet(nd, kind, ax, v) { const F = curF(), old = xfGet(nd, kind, ax), d
   showFrame(); S.state = 'CHANGED'; }
 const XFN = { MOVE: [['ACROSS X', 'X'], ['UP Y', 'Y'], ['NEAR Z', 'Z']], TURN: [['PITCH X', 'X'], ['SPIN Y', 'Y'], ['ROLL Z', 'Z']], SIZE: [['ALL', ''], ['HEIGHT', 'Y'], ['WIDTH', 'XZ']] };
 function xfRing(ax) { const nd = curNode(), m = S.mode, kind = m === 'MOVE' ? 'p' : m === 'TURN' ? 'r' : 's'; let n = XFN[m][ax][0]; if (m === 'SIZE' && ax === 2 && nd.k === 'group') n = 'SPREAD';
-  const big = nd.k === 'child' || nd.k === 'cake', st = kind === 'p' ? (big ? .01 : .004) : kind === 'r' ? 5 : .05, R0 = kind === 'p' ? (big ? .6 : .2) : 0;
+  const big = nd.k === 'child' || nd.k === 'kids' || nd.k === 'cake' || nd.k === 'table' || nd.k === 'cam', st = kind === 'p' ? (big ? .01 : .004) : kind === 'r' ? 5 : .05, R0 = kind === 'p' ? (big ? .6 : .2) : 0;
   return { n, axis: ax, kind, v: () => xfGet(nd, kind, ax), set: v => xfSet(nd, kind, ax, kind === 's' ? clamp(+v.toFixed(3), .2, 4) : kind === 'r' ? Math.round(v) : +v.toFixed(4)), st, undoable: true,
     f: v => kind === 'p' ? (v >= 0 ? '+' : '') + Math.round(v * 1000) + ' MM' : kind === 'r' ? (v > 0 ? '+' : '') + Math.round(v) + '°' : '×' + v.toFixed(2), lo: kind === 'p' ? -R0 : kind === 'r' ? -180 : .2, hi: kind === 'p' ? R0 : kind === 'r' ? 180 : 3, wrap: kind === 'r' }; }
 const deg = v => ((Math.round(v * 57.2958) % 360) + 360) % 360 + '°';
@@ -327,17 +454,20 @@ function rings() {
     ? { n: 'STAGE', v: () => curChapter(), set: v => { const c = CHAPTERS[clamp(Math.round(v), 0, CHAPTERS.length - 1)]; setVerb(c[1]); }, st: 1, f: v => CHAPTERS[clamp(Math.round(v), 0, CHAPTERS.length - 1)][0], lo: 0, hi: CHAPTERS.length - 1 }
     : { n: 'PICK', v: () => pickIndex(), set: v => { const L = nodes(); pickTo(L[clamp(Math.round(v), 0, L.length - 1)].key); }, st: 1, f: v => (NL[v] || NL[0]).name, lo: 0, hi: Math.max(1, NL.length - 1) };
   let R3;
-  if (S.mode === 'LOOK') R3 = [{ n: 'ORBIT', v: () => o.yaw, set: v => o.yaw = v, st: 5 / 57.3, f: deg, lo: -Math.PI, hi: Math.PI, wrap: true },
-    { n: 'TILT', v: () => -o.pitch, set: v => o.pitch = -clamp(v, -.3, 1.4), st: 3 / 57.3, f: v => Math.round(v * 57.3) + '°', lo: -.3, hi: 1.4 },
-    { n: 'DOLLY', v: () => o.dist, set: v => o.dist = clamp(v, .25, 4), st: .04, f: v => v.toFixed(2) + ' M', lo: .25, hi: 4 }];
+  if (S.mode === 'LOOK') R3 = [{ n: 'ORBIT', v: () => o.yaw, set: v => { o.yaw = v; S.shotIdx = 0; syncFrameCam(); }, st: 5 / 57.3, f: deg, lo: -Math.PI, hi: Math.PI, wrap: true },
+    { n: 'TILT', v: () => -o.pitch, set: v => { o.pitch = -clamp(v, -.3, 1.4); S.shotIdx = 0; syncFrameCam(); }, st: 3 / 57.3, f: v => Math.round(v * 57.3) + '°', lo: -.3, hi: 1.4 },
+    { n: 'DOLLY', v: () => o.dist, set: v => { o.dist = clamp(v, .25, 4); S.shotIdx = 0; syncFrameCam(); }, st: .04, f: v => v.toFixed(2) + ' M', lo: .25, hi: 4 }];
   else if (S.mode === 'MAKE') { const t = verbTool();
     R3 = [{ n: 'VERB', v: () => S.verb, set: v => setVerb(Math.round(v)), st: 1, f: v => VERBS[v][0], lo: 0, hi: VERBS.length - 1 },
       { n: 'HEIGHT', v: () => S.aimH, set: v => { S.aimH = clamp(v, 0, 1); S.dialPipe = null; }, st: .04, f: v => v > .97 ? 'TOP' : v < .03 ? 'FOOT' : Math.round(v * 100) + '%', lo: 0, hi: 1 },
       { n: t === 'SPAWN' || t === 'TABLE' ? 'PUT DOWN' : t === 'PLACE' || t === 'CHILD' ? 'HOW MANY' : t === 'SNUFF' ? 'FLAMES' : t === 'LIGHT' ? 'INTENSITY' : t === 'PIPE' ? 'LENGTH' : 'AMOUNT', v: () => S.amt, act: n => dialApply(n), st: 1, f: v => (v > 0 ? '+' : '') + v, lo: -12, hi: 12 }]; }
   else if (isXf()) R3 = [0, 1, 2].map(xfRing);
-  else if (S.mode === 'TIME') { const F = DOC.frames;
-    R3 = [{ n: 'FRAME', v: () => DOC.cur, set: v => { const nv = Math.round(v); if (nv >= F.length && F.length < 16) { snapshot(); F.push(copyFrame(curF())); DOC.cur = F.length - 1; say('FRAME ' + F.length + ' ADDED'); } else DOC.cur = clamp(nv, 0, F.length - 1); S.play = false; showFrame(); }, st: 1, f: v => (v + 1) + ' OF ' + F.length + (F.length === 1 ? ' (+)' : ''), lo: 0, hi: F.length },
-      { n: 'HOLD', v: () => curF().hold, set: v => { curF().hold = clamp(Math.round(v), 1, 12); }, st: 1, f: v => v + (v > 1 ? ' BEATS' : ' BEAT'), undoable: true, lo: 1, hi: 12 },
+  else if (S.mode === 'TIME') { const F = DOC.frames, nd = curNode(), isKid = nd.k === 'child' || nd.k === 'kids';
+    const curPose = () => { const c = nd.k === 'child' ? DOC.cast.find(x => x.id === nd.id || x.i === nd.slot) : DOC.cast[0]; return c && c.pose != null ? c.pose : 1; };
+    R3 = [{ n: 'FRAME', v: () => DOC.cur, set: v => { const nv = Math.round(v); if (!S.inScrub && nv >= F.length && F.length < 16) { snapshot(); F.push(copyFrame(curF())); DOC.cur = F.length - 1; say('KEYFRAME ' + F.length + ' CAPTURED · POSE KIDS & CAMERA'); } else DOC.cur = clamp(nv, 0, F.length - 1); S.play = false; showFrame(); }, st: 1, f: v => 'KF ' + (clamp(Math.round(v), 0, F.length - 1) + 1) + '/' + F.length, lo: 0, hi: F.length },
+      isKid
+        ? { n: 'ACT POSE', v: curPose, set: v => applyKidPose(nd, v), st: 1, undoable: true, f: v => KID_POSES[clamp(Math.round(v), 0, KID_POSES.length - 1)].n, lo: 0, hi: KID_POSES.length - 1 }
+        : { n: 'CAM SHOT', v: () => S.shotIdx || 0, set: v => applyCamShot(v), st: 1, undoable: true, f: v => CAM_SHOTS[clamp(Math.round(v), 0, CAM_SHOTS.length - 1)].n, lo: 0, hi: CAM_SHOTS.length - 1 },
       { n: 'PLAYBACK', v: () => S.plays, set: v => S.plays = clamp(Math.round(v), 0, PLAYS.length - 1), st: 1, f: v => PLAYS[v][0], lo: 0, hi: PLAYS.length - 1 }]; }
   else { const W = S.weave;
     R3 = [{ n: 'TIME', v: () => W.t, set: v => { W.t = ((v % 1) + 1) % 1; S.play = false; }, st: .02, f: v => Math.round(v * 100) + '%', lo: 0, hi: 1 },
@@ -345,13 +475,13 @@ function rings() {
       { n: 'MIST', v: () => W.mist || 0, set: v => { W.mist = clamp(v, 0, 1); S.pull = W.mist; }, st: .05, f: v => Math.round(v * 100) + '%', lo: 0, hi: 1 }]; }
   return [R1, R2, ...R3];
 }
-function setMode(m) { if (typeof m === 'number') m = MODES[clamp(Math.round(m), 0, MODES.length - 1)]; if (!m || m === S.mode) return; S.mode = m; S.play = false; ONIONN = m === 'TIME' ? S.onion : 0; showFrame(); say(MODE_SAYS[m]); if (m === 'LOOK') lookAtNode(); oledDirty = true; lockChime(); }
+function setMode(m) { if (typeof m === 'number') m = MODES[clamp(Math.round(m), 0, MODES.length - 1)]; if (!m || m === S.mode) return; S.mode = m; S.play = false; ONIONN = m === 'TIME' ? S.onion : 0; showFrame(); say(MODE_SAYS[m]); if (m === 'LOOK' && S.pickKey !== 'cam') lookAtNode(); oledDirty = true; lockChime(); }
 // the value of a ring as 0..1, for the dials and the reticle
 function v01(r) { if (r && r.u != null) return r.u; if (!r || r.lo == null) return .5; let v = r.v(); if (r.wrap) { const span = r.hi - r.lo; v = ((v - r.lo) % span + span) % span + r.lo; } return clamp((v - r.lo) / Math.max(1e-6, r.hi - r.lo), 0, 1); }
 let gestureT = 0, scrubAcc = [0, 0, 0, 0, 0];
 // scrubbing: a sideways drag moves a ring smoothly between its detents; it still ticks at each one it passes
 function scrub(i, frac) { if (window.REMOTE) { ORB.spin(i, frac); S.lastRing = i; return window.REMOTE({ k: 'scrub', i, frac }); } const r = rings()[i]; if (!r) return; if (r.act) { scrubAcc[i] += frac; while (Math.abs(scrubAcc[i]) >= 1) { turn(i, Math.sign(scrubAcc[i])); scrubAcc[i] -= Math.sign(scrubAcc[i]); } return; }
-  if (r.undoable && NOW - gestureT > 1.2) snapshot(); gestureT = NOW; const before = Math.floor(r.v() / r.st); r.set(r.v() + r.st * frac); const after = Math.floor(r.v() / r.st); if (after !== before) tick('ring', i);
+  if (r.undoable && NOW - gestureT > 1.2) snapshot(); gestureT = NOW; S.inScrub = true; const before = Math.floor(r.v() / r.st); r.set(r.v() + r.st * frac); S.inScrub = false; const after = Math.floor(r.v() / r.st); if (after !== before) tick('ring', i);
   S.lastRing = i; S.spinAcc = (S.spinAcc || 0) + frac * .17; ORB.spin(i, frac); oledDirty = true; }
 function turn(i, steps) { if (window.REMOTE) { tick('ring', i); ORB.spin(i, steps); S.lastRing = i; return window.REMOTE({ k: 'turn', i, steps }); } const r = rings()[i]; if (!r) { tick('dead'); return; } tick('ring', i); if (r.undoable && NOW - gestureT > 1.2) snapshot(); gestureT = NOW; if (r.act) r.act(steps); else r.set(r.v() + r.st * steps); S.spinAcc = (S.spinAcc || 0) + steps * .17; S.lastRing = i; ORB.spin(i, steps); oledDirty = true; cursorDirty = true; }
 
@@ -362,16 +492,16 @@ function press(b, long) { if (window.REMOTE) { tick('press'); ORB.push(b); retur
   else if (b === 'UNDO') undo(long);
   else if (b === 'PLAY' && long) GUIDE.show();
   else if (b === 'PLAY' && S.mode === 'LOOK') { S.turntable = !S.turntable; say(S.turntable ? 'THE VIEW CIRCLES THE MEMORY' : 'THE VIEW HOLDS'); }
-  else if (b === 'PLAY') { if (!curF().clay && !DOC.cast.length) { GUIDE.show(); } else { S.play = !S.play; if (!S.play) showFrame(); say(S.play ? (S.mode === 'WEAVE' && S.take ? 'PLAYING THE TAKE' : 'PLAYING THE LOOP') : 'STOPPED'); } }
+  else if (b === 'PLAY') { if (!curF().clay && !DOC.cast.length) { GUIDE.show(); } else { S.play = !S.play; if (!S.play) showFrame(); say(S.play ? (S.mode === 'WEAVE' && S.take ? 'PLAYING THE TAKE' : 'PLAYING ' + DOC.frames.length + ' KEYFRAMES · ' + PLAYS[S.plays][0]) : 'STOPPED'); } }
   else if (b === 'CAPTURE') capture(long);
   else if (b === 'KEEP') { if (!curF().clay && !DOC.cast.length && !DOC.hasTable) { tick('dead'); say('NOTHING TO SAVE YET · PLACE THE SPONGE FIRST'); } else { S.exporting = true; say('EXPORT · RING 2 CHOOSES FORMAT, SAVE WRITES'); } }
   oledDirty = true; }
 function capture(long) {
   if (isXf()) { if (long) { snapshot(); const nd = curNode(); const kind = S.mode === 'MOVE' ? 'p' : S.mode === 'TURN' ? 'r' : 's'; for (let ax = 0; ax < 3; ax++) xfSet(nd, kind, ax, kind === 's' ? 1 : nd.k === 'child' && kind === 'p' ? xfGet(nd, kind, ax) : 0); say(nd.name + ' · ' + S.mode + ' RESET'); return; }
     const m0 = S.mode; S.mode = 'TIME'; capture(false); S.mode = m0; return; }
-  if (S.mode === 'LOOK') { S.views = S.views || []; if (long || S.views.length >= 4) { const v = S.views[(S.viewI = ((S.viewI || 0) + 1) % Math.max(1, S.views.length))]; if (v) { S.ease = { t: 1.4, y: v.y, d: v.d, p: v.p, yaw: v.yaw }; say('VIEW ' + (S.viewI + 1) + ' RECALLED'); } } else { S.views.push({ yaw: S.orbit.yaw, p: S.orbit.pitch, d: S.orbit.dist, y: S.orbit.tgt.y }); say('VIEW ' + S.views.length + ' KEPT · HOLD CAPTURE TO RECALL'); } return; }
+  if (S.mode === 'LOOK') { syncFrameCam(); const m0 = S.mode; S.mode = 'TIME'; capture(false); S.mode = m0; say('KEYFRAME ' + (DOC.cur + 1) + ' + CAMERA SHOT CAPTURED'); return; }
   if (S.mode === 'MAKE') return dialApply(long ? -1 : 1);
-  if (S.mode === 'TIME') { snapshot(); if (long) { if (DOC.frames.length > 1) { DOC.frames.splice(DOC.cur, 1); DOC.cur = Math.max(0, DOC.cur - 1); say('FRAME REMOVED'); } } else { DOC.frames.splice(DOC.cur + 1, 0, copyFrame(curF())); DOC.cur++; say('FRAME ' + (DOC.cur + 1) + ' ADDED · CHANGE IT, THE ONION SHOWS THE LAST'); } showFrame(); return; }
+  if (S.mode === 'TIME') { snapshot(); if (long) { if (DOC.frames.length > 1) { DOC.frames.splice(DOC.cur, 1); DOC.cur = Math.max(0, DOC.cur - 1); say('KEYFRAME REMOVED'); } } else { syncFrameCast(); syncFrameCam(); DOC.frames.splice(DOC.cur + 1, 0, copyFrame(curF())); DOC.cur++; S.lastShownCur = DOC.cur; say('KEYFRAME ' + (DOC.cur + 1) + ' CAPTURED (CAKE + KIDS + CAMERA) · POSE THE NEXT'); } showFrame(); return; }
   if (S.mode === 'WEAVE') { if (S.takeRec) { S.take = S.takeRec; S.takeRec = null; say('TAKE KEPT · ' + S.take.length + ' SAMPLES · PLAY REPLAYS IT'); } else { S.takeRec = []; S.takeT = NOW; say('RECORDING THE RINGS'); } return; }
   // SCULPT: the thumb acts at the reticle in the centre of the room
   const h = AIM || hitAt(roomEl.clientWidth / 2, roomEl.clientHeight / 2); if (toolName() === 'SPAWN') return spawn(long);
@@ -396,7 +526,7 @@ function strokeStart(h) { const t = toolName(); ST = { tool: t, last: h, path: [
   if (t === 'GRAB' && clayMesh) { const tp = topology(clayKind); ST.w = weightsFor(h, tp, clayMesh.geometry.attributes.position.array); ST.plane = new T.Plane().setFromNormalAndCoplanarPoint(cam.getWorldDirection(new T.Vector3()).negate(), h.world); ST.prevW = h.world.clone(); }
   S.state = 'WORKING'; }
 function strokeMove(h, sx, sy) { if (!ST) return; const t = ST.tool;
-  if (t === 'PIPE') { if (!h) return; const s = ST.s, n = s.pts.length; if (n >= 6) { const dx = h.p.x - s.pts[n - 6], dy = h.p.y - s.pts[n - 5], dz = h.p.z - s.pts[n - 4]; if (Math.hypot(dx, dy, dz) < s.w * .8) return; } s.pts.push(h.p.x, h.p.y, h.p.z, h.n.x, h.n.y, h.n.z); meshOf.delete(s); showFrame(); return; }
+  if (t === 'PIPE') { if (!h) return; const s = ST.s, n = s.pts.length; if (n >= 6) { const dx = h.p.x - s.pts[n - 6], dy = h.p.y - s.pts[n - 5], dz = h.p.z - s.pts[n - 4]; if (Math.hypot(dx, dy, dz) < s.w * .8) return; } s.pts.push(h.p.x, h.p.y, h.p.z, h.n.x, h.n.y, h.n.z); disposeStroke(s); showFrame(); return; }
   if (!clayMesh) return; const g = clayMesh.geometry, pos = g.attributes.position.array, col = g.attributes.color.array, nor = g.attributes.normal.array, tp = topology(clayKind), k = S.strength;
   if (t === 'GRAB') { if (sx == null) return; ndc.set(sx / roomEl.clientWidth * 2 - 1, -sy / roomEl.clientHeight * 2 + 1); ray.setFromCamera(ndc, cam); const q = new T.Vector3(); if (!ray.ray.intersectPlane(ST.plane, q)) return; const dW = q.clone().sub(ST.prevW); ST.prevW = q;
     const inv = new T.Matrix4().copy(CAKE.matrixWorld).invert(), dL = dW.clone().transformDirection(inv).multiplyScalar(dW.length()); const sp = SPINS[S.opt.GRAB], ah = Math.atan2(ST.last.p.z, ST.last.p.x), dr = dL.x * Math.cos(ah) + dL.z * Math.sin(ah);
@@ -439,7 +569,7 @@ function dialApply(steps) { const t = verbTool(); S.amt += steps; gestureT = NOW
   const h = aimHit(); if (!h) return; if (NOW - (S.amtT || -9) > 1.2) snapshot(); S.amtT = NOW;
   if (t === 'PIPE') { const F = curF(); let D = S.dialPipe; if (!D || D.row !== h.row || F.strokes.indexOf(D.s) < 0) { D = S.dialPipe = { row: h.row, j: h.col, s: { pts: [], w: Math.max(.0025, S.radius * .16), c: S.opt.PIPE, style: 'bead' } }; F.strokes.push(D.s); }
     const per = 4; for (let k = 0; k < Math.abs(steps); k++) { if (steps > 0) { for (let q = 0; q < per; q++) { if (D.j - D.j0 >= COLS) break; const r = rowPoint(D.row, D.j); D.s.pts.push(r.p.x, r.p.y, r.p.z, r.n.x, r.n.y, r.n.z); D.j += 1; } } else { D.s.pts.splice(Math.max(0, D.s.pts.length - per * 6)); D.j -= per; } }
-    if (D.j0 == null) D.j0 = h.col; meshOf.delete(D.s); if (D.s.pts.length < 6) { F.strokes.splice(F.strokes.indexOf(D.s), 1); S.dialPipe = null; } showFrame(); S.state = 'CHANGED'; say(D.j - D.j0 >= COLS ? 'THE BORDER IS CLOSED' : 'PIPING · ' + Math.round((D.j - D.j0) / COLS * 100) + '% ROUND'); return; }
+    if (D.j0 == null) D.j0 = h.col; disposeStroke(D.s); if (D.s.pts.length < 6) { F.strokes.splice(F.strokes.indexOf(D.s), 1); S.dialPipe = null; } showFrame(); S.state = 'CHANGED'; say(D.j - D.j0 >= COLS ? 'THE BORDER IS CLOSED' : 'PIPING · ' + Math.round((D.j - D.j0) / COLS * 100) + '% ROUND'); return; }
   if (t === 'PLACE') { const F = curF(), it = ITEMS[S.opt.PLACE], n = it === 'CANDLE' ? 7 : it === 'BERRY' ? 12 : it === 'CHERRY' ? 8 : it === 'ROSETTE' ? 10 : 1;
     for (let k = 0; k < Math.abs(steps); k++) { if (steps < 0) { const j = F.items.map(x => x.t).lastIndexOf(it === 'SPRINKLES' ? 'SPRINKLE' : it); if (j >= 0) F.items.splice(j, 1); continue; } if (it === 'SPRINKLES') { place(h); continue; }
       const already = F.items.filter(x => x.t === it && x.row === h.row).length, j = h.col + Math.round(already / n * COLS); const r = rowPoint(h.row, j);
@@ -451,9 +581,10 @@ function dialApply(steps) { const t = verbTool(); S.amt += steps; gestureT = NOW
   S.tool = keepTool; S.radius = kr; S.strength = ks; perfDirty = true; S.state = 'CHANGED'; }
 let CASTID0 = 1;
 function addChild() { const used = new Set(DOC.cast.map(c => c.i)); const i = [0, 1, 2].find(n => !used.has(n)); if (i == null) { say('ALL THREE CHILDREN ARE HERE'); tick('dead'); return; }
-  snapshot(); const ca = Math.PI / 2 - S.orbit.yaw, a = ca + Math.PI + KIDS[i].da; const c = { id: CASTID++, i, a, r: .62, yaw: 0, tilt: 0, lift: 0, op: 1, vis: 0 }; DOC.cast.push(c);
+  snapshot(); const ca = Math.PI / 2 - S.orbit.yaw, a = ca + Math.PI + KIDS[i].da; const c = { id: CASTID++, i, a, r: .62, yaw: 0, tilt: 0, lift: 0, op: 1, vis: 0, pose: 1 }; DOC.cast.push(c);
+  syncFrameCast();
   S.pickKey = 'c:' + c.id; S.ease = { t: 1.6, y: 1.0, d: Math.max(S.orbit.dist, 1.32), p: -.16 }; shimmer(); say('CHILD ' + (i + 1) + ' COMES IN FROM THE DARK'); }
-function removeChild() { const c = DOC.cast[DOC.cast.length - 1]; if (!c) { tick('dead'); return; } snapshot(); DOC.cast.pop(); S.pickKey = 'cake'; say('CHILD ' + (c.i + 1) + ' GOES BACK INTO THE DARK'); }
+function removeChild() { const c = DOC.cast[DOC.cast.length - 1]; if (!c) { tick('dead'); return; } snapshot(); DOC.cast.pop(); syncFrameCast(); S.pickKey = 'cake'; say('CHILD ' + (c.i + 1) + ' GOES BACK INTO THE DARK'); }
 
 /* =============================================================== the room's camera, and hands on the room */
 const SHOTS = {
@@ -558,15 +689,28 @@ const kidTex = KIDS.map(k => { const t = new T.TextureLoader().load('assets/weav
     k.pts = pts; mistDirty = true; } catch (e) { }
   castDirty = true; }); t.encoding = T.sRGBEncoding; return t; });
 const CASTG = new T.Group(); MEM.add(CASTG); const castMesh = {}; let castDirty = true;
+const CAST_ONION = new T.Group(); MEM.add(CAST_ONION); const castOnionMesh = {};
 function castObj(c) { if (castMesh[c.id]) return castMesh[c.id]; const k = KIDS[c.i]; const m = new T.Mesh(new T.PlaneGeometry(1, 1), holo(new T.MeshStandardMaterial({ map: kidTex[c.i], emissiveMap: kidTex[c.i], emissive: 0xffd4a6, emissiveIntensity: .16, color: 0xfff2e2, roughness: .64, metalness: .04, transparent: true, alphaTest: .06, side: T.DoubleSide, depthWrite: true })));
   m.material.customProgramCacheKey = () => 'holo-kid'; m.userData.cast = c.id; CASTG.add(m); castMesh[c.id] = m; return m; }
-function placeCast(dt) { const ids = new Set(DOC.cast.map(c => c.id)); for (const id in castMesh) if (!ids.has(+id)) { CASTG.remove(castMesh[id]); delete castMesh[id]; mistDirty = true; }
+function castOnionObj(c) { if (castOnionMesh[c.id]) return castOnionMesh[c.id]; const m = new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshBasicMaterial({ map: kidTex[c.i], color: 0x5ff0dc, transparent: true, opacity: .24, alphaTest: .08, side: T.DoubleSide, depthWrite: false, toneMapped: false }));
+  CAST_ONION.add(m); castOnionMesh[c.id] = m; return m; }
+function placeCast(dt) { const list = S.tweenCast || DOC.cast;
+  const ids = new Set(list.map(c => c.id)); for (const id in castMesh) if (!ids.has(+id)) { CASTG.remove(castMesh[id]); delete castMesh[id]; mistDirty = true; }
   const cp = cam.position.clone(); MEM.worldToLocal(cp);
-  DOC.cast.forEach(c => { const m = castObj(c), k = KIDS[c.i], asp = k.aspect || .7; const prevVis = c.vis || 0; c.vis = (c.vis == null ? 0 : c.vis) + ((c.op || 0) - (c.vis || 0)) * Math.min(1, dt * 2.4);
+  list.forEach(c => { const m = castObj(c), k = KIDS[c.i], asp = k.aspect || .7; const prevVis = c.vis || 0; c.vis = (c.vis == null ? (c.op || 1) : c.vis) + ((c.op || 0) - (c.vis == null ? (c.op || 1) : c.vis)) * Math.min(1, dt * 6.0);
     if (Math.abs(c.vis - prevVis) > .02) mistDirty = true;
     const hh = k.h * (c.s || 1) * (c.sh || 1); m.scale.set(k.h * asp * (c.s || 1) * (c.sw || 1), hh, 1); m.position.set(Math.cos(c.a) * c.r, k.base + hh / 2 + (c.lift || 0), Math.sin(c.a) * c.r);
     m.lookAt(MEM.localToWorld(new T.Vector3(cp.x, m.position.y, cp.z))); m.rotateY((c.yaw || 0) * Math.PI / 180); m.rotateX(-(c.tilt || 0) * Math.PI / 180); m.rotateZ((c.roll || 0) * Math.PI / 180);
-    m.material.opacity = c.vis; m.visible = c.vis > .02; }); }
+    m.material.opacity = c.vis; m.visible = c.vis > .02; });
+  // Onion-skin ghosts for segmented characters in TIME mode so you can see where each child stood on the previous keyframe
+  const prevCast = (S.mode === 'TIME' && !S.play && DOC.cur > 0 && DOC.frames[DOC.cur - 1] && DOC.frames[DOC.cur - 1].cast) ? DOC.frames[DOC.cur - 1].cast : [];
+  const oIds = new Set(prevCast.map(c => c.id)); for (const id in castOnionMesh) if (!oIds.has(+id)) { CAST_ONION.remove(castOnionMesh[id]); delete castOnionMesh[id]; }
+  prevCast.forEach(c => { const curC = list.find(x => x.id === c.id);
+    const moved = !curC || Math.hypot((curC.a - c.a) * .6, (curC.r - c.r), (curC.lift || 0) - (c.lift || 0), ((curC.yaw || 0) - (c.yaw || 0)) * .01, ((curC.tilt || 0) - (c.tilt || 0)) * .01) > .012;
+    const m = castOnionObj(c), k = KIDS[c.i], asp = k.aspect || .7, hh = k.h * (c.s || 1) * (c.sh || 1);
+    m.scale.set(k.h * asp * (c.s || 1) * (c.sw || 1), hh, 1); m.position.set(Math.cos(c.a) * c.r, k.base + hh / 2 + (c.lift || 0), Math.sin(c.a) * c.r);
+    m.lookAt(MEM.localToWorld(new T.Vector3(cp.x, m.position.y, cp.z))); m.rotateY((c.yaw || 0) * Math.PI / 180); m.rotateX(-(c.tilt || 0) * Math.PI / 180); m.rotateZ((c.roll || 0) * Math.PI / 180);
+    m.visible = moved && (c.op == null ? 1 : c.op) > .05; }); }
 let CASTID = 1;
 function stageTargets() { return nodes(); }
 function stageName() { return curNode().name; }
@@ -783,7 +927,7 @@ function ghand(m, ud, parent) { m.renderOrder = 31; m.userData.gz = ud; m.userDa
   const ctr = new T.Mesh(new T.BoxGeometry(.14, .14, .14), gmat(0xe8f2ee)); ghand(ctr, { ring: 2, kind: 'uniform' }, GZM.SIZE);
   const dot = new T.Mesh(new T.SphereGeometry(.05, 16, 10), gmat(0xe8f2ee, .8)); GZM.MOVE.add(dot); dot.renderOrder = 31; })();
 function gizmoScale() { const n = nodeCenter(); return { c: n.c, k: cam.position.distanceTo(n.c) * .15 }; }
-function updGizmo() { const on = isXf() && !S.exporting && (clayMesh || DOC.cast.length); GZ.visible = !!on; if (!on) return; const g = gizmoScale(); GZ.position.copy(g.c); GZ.scale.setScalar(g.k);
+function updGizmo() { const on = isXf() && !S.exporting && (clayMesh || DOC.cast.length || DOC.hasTable) && curNode().k !== 'cam'; GZ.visible = !!on; if (!on) return; const g = gizmoScale(); GZ.position.copy(g.c); GZ.scale.setScalar(g.k);
   for (const k in GZM) GZM[k].visible = k === S.mode; const hotR = drag && drag.gz ? drag.gz.ring : S.lastRing;
   GHAND.forEach(m => { const ud = m.userData.gz, hot = ud.ring === hotR || ud.ring2 === hotR || (gzHover && gzHover === m); m.material.color.setHex(hot ? 0xffffff : m.userData.base); m.material.opacity = hot ? 1 : ud.kind === 'plane' ? .45 : .82; }); }
 let gzHover = null;
@@ -895,7 +1039,7 @@ function buildMist() { mistDirty = false; const P = mistGeo.attributes.position.
   if (DOC.hasTable) { for (let k = 0; k < 2800; k++) { const a = Math.random() * TAU, rad = .14 + Math.sqrt(Math.random()) * .46, rim = k < 900;
       const rr = rim ? .55 + Math.random() * .05 : rad, yy = TABLE_Y + (rim ? (Math.random() - .3) * .025 : .003 + Math.random() * .018);
       push(Math.cos(a) * rr, yy, Math.sin(a) * rr, .75, .62, .42); } }
-  DOC.cast.forEach(c => { if ((c.op || 0) <= .05) return; const k = KIDS[c.i], m = castMesh[c.id]; if (!k || !m) return;
+  (S.tweenCast || DOC.cast).forEach(c => { if ((c.op || 0) <= .05) return; const k = KIDS[c.i], m = castMesh[c.id]; if (!k || !m) return;
     m.updateMatrix(); const mm = m.matrix, pts = k.pts && k.pts.length ? k.pts : null;
     if (pts) { for (let p = 0; p < pts.length; p++) { const pt = pts[p]; vTmp.set(pt[0] + (Math.random() - .5) * .016, pt[1] + (Math.random() - .5) * .016, (Math.random() - .5) * .038).applyMatrix4(mm);
         push(vTmp.x, vTmp.y, vTmp.z, Math.min(1, pt[2] * 1.15 + .08), Math.min(1, pt[3] * 1.1 + .08), Math.min(1, pt[4] * 1.05 + .1)); } }
@@ -906,9 +1050,9 @@ function updMist(dt) { const m = Math.max(S.pull || 0, S.mode === 'WEAVE' ? (S.w
   trailT += dt; if (m > .01 && trailT > .1) { trailT = 0; const t = TRAILS.pop(); t.matrix.identity(); t.position.set(Math.sin(NOW * 1.3) * .012 * m, Math.cos(NOW * 1.7) * .008 * m, Math.cos(NOW * 1.1) * .012 * m); t.updateMatrix(); t.userData.age = 0; TRAILS.unshift(t); }
   TRAILS.forEach((t, k) => { t.visible = m > .01; t.userData.age = (t.userData.age || 0) + dt; t.material.opacity = m * .42 * Math.max(0, 1 - (k + 1) / TRAILS.length); }); }
 
-/* =============================================================== PAIRING: tap QR·PAIR or the grip end; a code and a QR show on the display; the phone becomes the orb */
+/* =============================================================== PAIRING: tap QR·PAIR or the grip end; a flat scannable QR card + display show; open full mobile Weaver or Orb remote */
 const PHONE = /[?&]orb\b/.test(location.search);
-const PAIR = (function () { const uid = () => Math.random().toString(36).slice(2, 10), dev = uid(), TE = new TextEncoder(), TD = new TextDecoder(), SEEN = new Set(); let MID = 0, room = null, socks = [], urls = new Set(), peers = new Map();
+const PAIR = (function () { const uid = () => Math.random().toString(36).slice(2, 10), dev = uid(), TE = new TextEncoder(), TD = new TextDecoder(), SEEN = new Set(); let MID = 0, room = null, socks = [], urls = new Set(), peers = new Map(), kind = 'full';
   const RELAYS = ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt', 'wss://test.mosquitto.org:8081/mqtt'];
   let BC = null; try { BC = new BroadcastChannel('stelline-weaver'); BC.onmessage = e => recv(e.data); } catch (e) { }
   const cat = (...ps) => { const o = new Uint8Array(ps.reduce((a, p) => a + p.length, 0)); let i = 0; for (const p of ps) { o.set(p, i); i += p.length; } return o; };
@@ -924,25 +1068,54 @@ const PAIR = (function () { const uid = () => Math.random().toString(36).slice(2
   function send(m) { m.from = dev; m.mid = dev + ':' + (++MID); try { BC && BC.postMessage(m); } catch (e) { } if (room && socks.length) { const p = mqPkt(0x30, cat(mqStr(topic()), TE.encode(JSON.stringify(m)))); for (const K of socks) if (K.ok) try { K.ws.send(p); } catch (e) { } } }
   const role = PHONE ? 'orb' : 'scene', hello = () => send({ type: 'hello', role });
   function recv(m) { if (!m || !m.type || m.from === dev || SEEN.has(m.mid)) return; SEEN.add(m.mid); const was = peers.size; peers.set(m.from, { role: m.role, at: performance.now() });
-    if (!PHONE && m.role === 'orb' && !was) { say('PHONE PAIRED · ITS RINGS ARE THESE RINGS'); S.pairShow = false; shimmer(); }
+    if (!PHONE && m.role === 'orb' && !was) { say('PHONE PAIRED · ITS RINGS ARE THESE RINGS'); S.pairShow = false; syncQRCard(); shimmer(); }
     if (!PHONE && m.type === 'act') { if (m.k === 'turn') turn(m.i, m.steps); else if (m.k === 'scrub') scrub(m.i, m.frac); else if (m.k === 'press') press(m.b, m.long); }
-    if (PHONE && m.type === 'state') { window.REMOTE_STATE = m.s; S.mode = m.s.mode; S.msg = m.s.msg; S.msgT = NOW; oledDirty = true; } }
+    if (PHONE && m.type === 'state') { window.REMOTE_STATE = m.s; S.mode = m.s.mode; S.msg = m.s.msg; S.msgT = NOW; oledDirty = true; }
+    syncQRCard(); }
   const join = c => { room = c; for (const u of RELAYS) open1(u); setInterval(hello, 2500); hello(); };
-  const base = () => /github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname) ? location.origin + location.pathname : 'https://hartswf0.github.io/stelline-orb/weaver.html';
-  const P = { get room() { return room; }, peers: () => [...peers.values()].filter(p => performance.now() - p.at < 7000),
-    url: () => base() + '?orb&room=' + room,
-    open() { if (!room) { let c = ''; try { c = localStorage.getItem('weaver-room') || ''; } catch (e) { } if (!/^[A-Z]{4}$/.test(c)) { c = Array.from({ length: 4 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.random() * 24 | 0]).join(''); try { localStorage.setItem('weaver-room', c); } catch (e) { } } join(c); }
-      S.pairShow = !S.pairShow; P.qr = null; say(S.pairShow ? 'SCAN WITH YOUR PHONE · OR OPEN WEAVER?ORB AND TYPE ' + room : 'PAIRING HIDDEN'); oledDirty = true; },
+  const base = () => 'https://hartswf0.github.io/stelline-orb/weaver.html';
+  function ensureRoom() {
+    if (!room) { let c = ''; try { c = localStorage.getItem('weaver-room') || ''; } catch (e) { } if (!/^[A-Z]{4}$/.test(c)) { c = Array.from({ length: 4 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.random() * 24 | 0]).join(''); try { localStorage.setItem('weaver-room', c); } catch (e) { } } join(c); }
+  }
+  function syncQRCard() {
+    const card = document.getElementById('qrCard'); if (!card) return;
+    card.classList.toggle('on', !!S.pairShow && !PHONE);
+    if (!S.pairShow || PHONE) return;
+    ensureRoom();
+    const u = P.url();
+    document.getElementById('qrTabFull').classList.toggle('on', kind === 'full');
+    document.getElementById('qrTabOrb').classList.toggle('on', kind === 'orb');
+    document.getElementById('qrRoomTxt').textContent = room || '····';
+    document.getElementById('qrModeDesc').textContent = kind === 'full'
+      ? 'Point your phone camera at the QR code to open the full 3D Memory Weaver + 5-ring Orb on mobile.'
+      : 'Point your phone camera at the QR code to use your phone as the handheld 5-ring Orb driving this screen.';
+    const lnk = document.getElementById('qrUrlLink'); lnk.href = u; lnk.textContent = u.replace(/^https?:\/\//, '');
+    const np = P.peers().length;
+    document.getElementById('qrPeerTxt').textContent = np ? ('PAIRED · ' + np + ' MOBILE DEVICE CONNECTED') : 'READY TO SCAN · TAP QR·PAIR OR M TO CLOSE';
+    try {
+      const q = qrcode(0, 'M'); q.addData(u); q.make(); P.qr = q;
+      const can = document.getElementById('qrCan'), ctx = can.getContext('2d'), n = q.getModuleCount();
+      const cell = Math.floor(204 / n), pad = Math.floor((220 - cell * n) / 2);
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 220, 220);
+      ctx.fillStyle = '#020403';
+      for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) ctx.fillRect(pad + c * cell, pad + r * cell, cell, cell);
+    } catch (e) { }
+  }
+  const P = { get room() { return room; }, get kind() { return kind; }, peers: () => [...peers.values()].filter(p => performance.now() - p.at < 7000),
+    url: () => kind === 'full' ? (base() + '?room=' + room) : (base() + '?orb&room=' + room),
+    setKind(k) { kind = k === 'orb' ? 'orb' : 'full'; P.qr = null; syncQRCard(); oledDirty = true; },
+    open() { ensureRoom(); S.pairShow = !S.pairShow; P.qr = null; syncQRCard(); say(S.pairShow ? 'SCAN FLAT QR CARD WITH YOUR PHONE CAMERA · ROOM ' + room : 'PAIRING HIDDEN'); oledDirty = true; },
     stateLoop() { setInterval(() => { if (PHONE || !P.peers().some(p => p.role === 'orb')) return; const RS = rings(); send({ type: 'state', s: { mode: S.mode, msg: S.msg, last: S.lastRing, step: GSTEPS[GUIDE.i] ? GSTEPS[GUIDE.i].t : '', rings: RS.map(r => r ? { n: r.n, val: String(r.f(r.v())), u: v01(r), axis: r.axis } : null) } }); }, 120); },
-    join };
-  if (PHONE) { document.body.classList.add('phone'); const q = new URLSearchParams(location.search).get('room'); if (q) join(q.toUpperCase()); window.REMOTE = a => send(Object.assign({ type: 'act' }, a));
+    join, syncQRCard };
+  const qRoom = new URLSearchParams(location.search).get('room');
+  if (PHONE) { document.body.classList.add('phone'); if (qRoom) join(qRoom.toUpperCase()); window.REMOTE = a => send(Object.assign({ type: 'act' }, a));
     window.REMOTE_RINGS = () => (window.REMOTE_STATE ? window.REMOTE_STATE.rings : [null, null, null, null, null]).map(r => r ? { n: r.n, v: () => 0, f: () => r.val, u: r.u, axis: r.axis } : null); }
-  else P.stateLoop();
+  else { if (qRoom) join(qRoom.toUpperCase()); P.stateLoop(); }
   return P; })();
 function drawPairQR(x, W, H) { if (!PAIR.qr) { try { const q = qrcode(0, 'M'); q.addData(PAIR.url()); q.make(); PAIR.qr = q; } catch (e) { return; } } const q = PAIR.qr, n = q.getModuleCount(), sz = H - 40, cell = Math.floor(sz / (n + 2)), ox = 40, oy = (H - cell * n) / 2;
-  x.fillStyle = '#e8f2ee'; x.fillRect(ox - cell, oy - cell, cell * (n + 2), cell * (n + 2)); x.fillStyle = '#020403'; for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) x.fillRect(ox + c * cell, oy + r * cell, cell, cell);
-  const tx = ox + cell * (n + 2) + 40; x.textAlign = 'left'; x.fillStyle = '#5ff0dc'; x.font = '700 46px ui-monospace, Menlo, monospace'; x.fillText('PAIR A PHONE CONTROLLER', tx, 80); x.font = '700 110px ui-monospace, Menlo, monospace'; x.fillStyle = '#ffffff'; x.fillText(PAIR.room || '····', tx, 200);
-  x.font = '500 26px ui-monospace, Menlo, monospace'; x.fillStyle = '#8fe9dc'; x.fillText('SCAN QR, OR OPEN WEAVER.HTML?ORB&ROOM=' + PAIR.room, tx, 250); x.fillText(PAIR.peers().length ? 'PAIRED · ' + PAIR.peers().length + ' DEVICE' : 'WAITING FOR PHONE · TAP QR·PAIR BUTTON TO CLOSE', tx, 292); }
+  x.fillStyle = '#ffffff'; x.fillRect(ox - cell, oy - cell, cell * (n + 2), cell * (n + 2)); x.fillStyle = '#020403'; for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) x.fillRect(ox + c * cell, oy + r * cell, cell, cell);
+  const tx = ox + cell * (n + 2) + 40; x.textAlign = 'left'; x.fillStyle = '#5ff0dc'; x.font = '700 42px ui-monospace, Menlo, monospace'; x.fillText(PAIR.kind === 'full' ? 'FULL MOBILE WEAVER QR' : 'ORB REMOTE CONTROLLER QR', tx, 78); x.font = '700 104px ui-monospace, Menlo, monospace'; x.fillStyle = '#ffffff'; x.fillText(PAIR.room || '····', tx, 194);
+  x.font = '500 25px ui-monospace, Menlo, monospace'; x.fillStyle = '#8fe9dc'; x.fillText('SCAN FLAT QR CARD ABOVE · OR ' + PAIR.url().replace(/^https?:\/\//, '').toUpperCase(), tx, 246); x.fillText(PAIR.peers().length ? 'PAIRED · ' + PAIR.peers().length + ' DEVICE' : 'SWITCH FULL WEAVER / ORB REMOTE ON THE CARD ABOVE', tx, 290); }
 /* =============================================================== the display: what the orb is doing, plus the single guided line (no duplicate 5-ring row) */
 let oledDirty = true, perfDirty = true, perf = { tris: 0, calls: 0 };
 function drawOLED() { const W = OLED.width, H = OLED.height, x = ox; x.fillStyle = '#020403'; x.fillRect(0, 0, W, H); const CY = '#5ff0dc', DIM = '#2e7a70', MID = '#8fe9dc', AMB = '#f0b040';
@@ -1066,20 +1239,20 @@ function update(dt) { NOW += dt; HU.uTime.value = NOW;
   ORB.userData.iris.material.opacity = .55 + .35 * (S.takeRec ? (Math.sin(NOW * 9) > 0 ? 1 : .2) : .5 + .5 * Math.sin(NOW * 1.6));
   if (oledDirty || (S.msg && NOW - S.msgT < 4.2)) { drawOLED(); oledDirty = false; }
   if (S.turntable) S.orbit.yaw += dt * .25; if (S.ease) { const e = S.ease, k = Math.min(1, dt * 2.2); S.orbit.tgt.y += (e.y - S.orbit.tgt.y) * k; S.orbit.dist += (e.d - S.orbit.dist) * k; S.orbit.pitch += (e.p - S.orbit.pitch) * k; if (e.yaw != null) S.orbit.yaw += (e.yaw - S.orbit.yaw) * k; e.t -= dt; if (e.t <= 0) S.ease = null; }
-  if (!PHONE) { const n = nodeCenter(), k = Math.min(1, dt * 3); S.orbit.tgt.x += (n.c.x - S.orbit.tgt.x) * k; S.orbit.tgt.z += (n.c.z - S.orbit.tgt.z) * k; if (!S.ease) S.orbit.tgt.y += (n.c.y - S.orbit.tgt.y) * k * .5; }
+  if (!PHONE && !S.play && S.mode !== 'TIME' && S.mode !== 'WEAVE' && curNode().k !== 'cam' && !S.shotIdx) { const n = nodeCenter(), k = Math.min(1, dt * 3); S.orbit.tgt.x += (n.c.x - S.orbit.tgt.x) * k; S.orbit.tgt.z += (n.c.z - S.orbit.tgt.z) * k; if (!S.ease) S.orbit.tgt.y += (n.c.y - S.orbit.tgt.y) * k * .5; }
   RINGS.forEach((r, i) => { const want = odrag && odrag.ring === i && odrag.lock === 'x' ? 1 : 0; r.stretch += (want - r.stretch) * Math.min(1, dt * 12); r.g.scale.set(1 + r.stretch * .12, 1 + r.stretch * .05, 1 + r.stretch * .05); r.lp.scale.set(1 + r.stretch * .35, 1 + r.stretch * .35, 1); });
   drawDialLabels(); GUIDE.tick(dt); if (PHONE) return;
   placeCast(dt); updFilmReticles(dt); updReticle(); updGizmo(); updDataReticle(); updMist(dt);
 }
-function cineWorld(dt) { CSET.visible = true; cone.visible = rim.visible = false;
+function cineWorld(dt) { CSET.visible = true; cone.visible = false; if (obsRim) obsRim.visible = false;
   const want = (GUIDE.i >= 9 || DOC.cast.length > 0 || DOC.hasTable) ? 1 : 0; CINE.tab = lerp(CINE.tab || 0, want, Math.min(1, dt * 1.4));
   table.visible = leg.visible = CINE.tab > .01; plate.visible = false; tableMat.opacity = legMat.opacity = CINE.tab;
-  key.intensity = .35; fill.intensity = .32; cineKey.intensity = 1.9 + FLAMES.length * .12;
+  over.intensity = .35; warm.intensity = .32; cineKey.intensity = 1.9 + FLAMES.length * .12;
   scene.background.setHex(0x0b0e0d); scene.fog.color.setHex(0x0b0e0d); scene.fog.density = .028;
   const float = 1 - CINE.tab; CAKE.position.y = BASE_Y + (curF().tr ? curF().tr.p[1] : 0) + Math.sin(NOW * .7) * .005 * float;
   CAKE.rotation.z = Math.sin(NOW * .55) * .035 * float; CAKE.rotation.x = Math.cos(NOW * .42) * .025 * float; }
 function setCine(on) { CINE.on = !!on; document.body.classList.toggle('cine', CINE.on); CSET.visible = CINE.on;
-  if (!CINE.on) { cone.visible = rim.visible = true; table.visible = leg.visible = !!DOC.hasTable; plate.visible = !!DOC.hasTable || !!curF().clay; tableMat.opacity = legMat.opacity = 1; key.intensity = 1.75; fill.intensity = .65; cineKey.intensity = 0; scene.background.setHex(0x050605); scene.fog.color.setHex(0x050605); cam.fov = 38; cam.updateProjectionMatrix(); showFrame(); }
+  if (!CINE.on) { cone.visible = true; if (obsRim) obsRim.visible = true; table.visible = leg.visible = !!DOC.hasTable; plate.visible = !!DOC.hasTable || !!curF().clay; tableMat.opacity = legMat.opacity = 1; over.intensity = .78; warm.intensity = .55; cineKey.intensity = 0; scene.background.setHex(0x050605); scene.fog.color.setHex(0x050605); cam.fov = 38; cam.updateProjectionMatrix(); showFrame(); }
   else { CINE.cur = null; } resize(); GUIDE.draw(); }
 if (CINE.on) setCine(true);
 function render() { if (PHONE) { OR.render(OS, OC); return; } renderRoom(); perf = { tris: R.info.render.triangles, calls: R.info.render.calls }; OR.render(OS, OC); }
@@ -1089,7 +1262,7 @@ resize(); showFrame(); drawOLED(); requestAnimationFrame(loop);
 setInterval(() => { oledDirty = true; }, 500);
 
 /* =============================================================== a handle for scripts: tests, and the film */
-window.FORGE = { S, get DOC() { return DOC; }, turn, press, rings, scrub, nodes, curNode, pickTo, setMode, setVerb, GUIDE, GSTEPS, PAIR, CINE, setCine, now: () => NOW, gizmoHit, gizmoDrag, setStretch, setPull, VERBS, MODES, spawn, place, hitAt, strokeStart, strokeMove, strokeEnd, snapshot, showFrame, cam, CAKE, ORB, RINGS, BTN, OC, perf: () => perf,
+window.FORGE = { S, get DOC() { return DOC; }, turn, press, rings, scrub, nodes, curNode, pickTo, setMode, setVerb, GUIDE, GSTEPS, PAIR, CINE, setCine, CAM_SHOTS, KID_POSES, applyCamShot, applyKidPose, now: () => NOW, gizmoHit, gizmoDrag, setStretch, setPull, VERBS, MODES, spawn, place, hitAt, strokeStart, strokeMove, strokeEnd, snapshot, showFrame, cam, CAKE, ORB, RINGS, BTN, OC, perf: () => perf,
   manual() { auto = false; }, setAim(x, y) { hover = x == null ? null : { x, y }; }, aim: () => AIM, advance(dt) { update(dt); render(); }, step(dt) { update(dt); placeCam(); cam.updateMatrixWorld(); }, worldToRoom(v) { const p = v.clone().project(cam); return [(p.x + 1) / 2 * roomEl.clientWidth, (1 - p.y) / 2 * roomEl.clientHeight]; }, local(v) { return CAKE.localToWorld(v.clone()); } };
 </script>
 </body>
