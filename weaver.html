@@ -244,7 +244,8 @@ const ray = new T.Raycaster(), ndc = new T.Vector2();
 function hitAt(x, y, what) { CAKE.updateMatrixWorld(true); MEM.updateMatrixWorld(true); ndc.set(x / roomEl.clientWidth * 2 - 1, -y / roomEl.clientHeight * 2 + 1); ray.setFromCamera(ndc, cam); const objs = what === 'table' ? [table, plate] : [clayMesh, ...STROKES.children].filter(Boolean); const h = ray.intersectObjects(objs, false)[0]; if (!h) return null;
   const lp = CAKE.worldToLocal(h.point.clone()), nw = h.face.normal.clone().transformDirection(h.object.matrixWorld), nl = nw.clone().transformDirection(new T.Matrix4().copy(CAKE.matrixWorld).invert()).normalize(); return { p: lp, n: nl, world: h.point, obj: h.object }; }
 let ST = null;   // the stroke in progress
-function weightsFor(h, tp, pos) { const R0 = S.radius, sp = SPINS[S.opt[toolName()]] || 'FREE', w = new Float32Array(tp.nv); const rh = Math.hypot(h.p.x, h.p.z), ah = Math.atan2(h.p.z, h.p.x);
+const SYM = t => ['GRAB', 'PULL', 'PUSH', 'SMOOTH', 'FLATTEN'].includes(t) ? SPINS[S.opt[t]] : 'FREE';
+function weightsFor(h, tp, pos) { const R0 = S.radius, sp = SYM(toolName()), w = new Float32Array(tp.nv); const rh = Math.hypot(h.p.x, h.p.z), ah = Math.atan2(h.p.z, h.p.x);
   const copies = sp === 'SPIN 6' ? 6 : sp === 'SPIN 12' ? 12 : 1; for (let v = 0; v < tp.nv; v++) { const x = pos[v * 3], y = pos[v * 3 + 1], z = pos[v * 3 + 2]; let d;
     if (sp === 'TURNED') d = Math.hypot(Math.hypot(x, z) - rh, y - h.p.y); else { d = 1e9; for (let k = 0; k < copies; k++) { const a = ah + k / copies * TAU; d = Math.min(d, Math.hypot(x - Math.cos(a) * rh, y - h.p.y, z - Math.sin(a) * rh)); } }
     if (d < R0) { const q = 1 - (d / R0) ** 2; w[v] = q * q; } } return w; }
@@ -333,7 +334,7 @@ function updReticle() {
     svg += `<g stroke="${C.cy}" stroke-width="1.5" fill="none"><circle cx="${p.x}" cy="${p.y}" r="7"/><path d="M${p.x - 15} ${p.y}h6M${p.x + 9} ${p.y}h6M${p.x} ${p.y - 15}v6M${p.x} ${p.y + 9}v6"/></g>`;
     if (!h) { svg += tagSVG(p.x + 14, p.y + 22, t === 'SPAWN' ? 'AIM AT THE TABLE' : clayMesh ? 'AIM AT THE CAKE' : 'NOTHING HERE · SPAWN A BASE', 1); retSVG.innerHTML = svg; return; }
     const nW = h.n.clone().transformDirection(CAKE.matrixWorld), q = new T.Quaternion().setFromUnitVectors(new T.Vector3(0, 0, 1), nW), sc = MEM.scale.x;
-    const working = !!ST, sp = SPINS[S.opt[t]] || 'FREE', R0 = S.radius * sc;
+    const working = !!ST, sp = SYM(t), R0 = S.radius * sc;
     if (t === 'SPAWN') { const k = Object.keys(BASES)[S.opt.SPAWN], g = baseGhost[k]; g.visible = true; g.position.copy(CAKE.getWorldPosition(new T.Vector3())); g.scale.setScalar(sc);
       svg += brackets(boxOf(g), !working, (curF().clay ? 'TABLE · TAKEN · HOLD CAPTURE TO REPLACE' : 'TABLE · ' + k), 4); }
     else if (t === 'PLACE') { const it = ITEMS[S.opt.PLACE], g = itemGhost[it]; g.visible = true; g.position.copy(h.world); g.quaternion.setFromUnitVectors(new T.Vector3(0, 1, 0), it === 'CANDLE' ? new T.Vector3(0, 1, 0) : nW); g.scale.setScalar(sc * (it === 'SPRINKLES' ? 3 : 1));
@@ -531,7 +532,7 @@ setInterval(() => { oledDirty = true; }, 500);
 
 /* =============================================================== a handle for scripts: tests, and the film */
 window.FORGE = { S, get DOC() { return DOC; }, turn, press, rings, spawn, place, hitAt, strokeStart, strokeMove, strokeEnd, snapshot, showFrame, cam, CAKE, ORB, RINGS, BTN, OC, perf: () => perf,
-  manual() { auto = false; }, advance(dt) { update(dt); render(); }, worldToRoom(v) { const p = v.clone().project(cam); return [(p.x + 1) / 2 * roomEl.clientWidth, (1 - p.y) / 2 * roomEl.clientHeight]; }, local(v) { return CAKE.localToWorld(v.clone()); } };
+  manual() { auto = false; }, setAim(x, y) { hover = x == null ? null : { x, y }; }, aim: () => AIM, advance(dt) { update(dt); render(); }, worldToRoom(v) { const p = v.clone().project(cam); return [(p.x + 1) / 2 * roomEl.clientWidth, (1 - p.y) / 2 * roomEl.clientHeight]; }, local(v) { return CAKE.localToWorld(v.clone()); } };
 </script>
 </body>
 </html>
