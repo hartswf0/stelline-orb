@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Mist</title>
+<meta name="description" content="A memory from the film, kept the way Ana says memory works: by what it felt like, not by how much of it there is.">
+<style>
+  html,body{margin:0;height:100%;background:#000;overflow:hidden;color:#fff;font:400 11px/1.3 "Barlow Semi Condensed","DIN Alternate","Arial Narrow",Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;-webkit-user-select:none;user-select:none}
+  canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none;display:block}
+  #tc{position:fixed;left:18px;bottom:34px;opacity:.75;pointer-events:none}
+  #hint{position:fixed;left:18px;top:16px;opacity:.5;pointer-events:none;transition:opacity 1.5s}
+  #mist{position:fixed;right:14px;top:20%;bottom:20%;width:30px;touch-action:none;cursor:ns-resize}
+  #mist i{position:absolute;left:14px;width:1px;top:0;bottom:0;background:rgba(255,255,255,.35)}
+  #mist b{position:absolute;left:8px;width:13px;height:2px;background:#fff}
+  #mist span{position:absolute;right:30px;font-size:10px;opacity:.7;white-space:nowrap}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hint">hold anywhere to recall · drag the line below to move through it · slider: mist ↔ data</div>
+<div id="tc"></div>
+<div id="mist"><i></i><b id="mk"></b><span id="mt" style="top:0">mist</span><span style="bottom:0">data</span></div>
+<script>
+(function () {
+  'use strict';
+  var cv = document.getElementById('c'), g = cv.getContext('2d'), W = 128, H = 72, M;
+  var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); }, lerp = function (a, b, t) { return a + (b - a) * t; };
+  var mist = .72, t = 0, playing = true, focus = null, seed = Math.random() * 1000, T0 = performance.now(), last = T0, scrubbing = false;
+  function size() { var dpr = Math.min(2, devicePixelRatio || 1); cv.width = Math.round(innerWidth * dpr); cv.height = Math.round(innerHeight * dpr); }
+  addEventListener('resize', size); size();
+  var MOS = new Image(), SAL = new Image(), ready = 0; MOS.onload = SAL.onload = function () { ready++; };
+  MOS.src = 'assets/mist/memory_mosaic.jpg'; SAL.src = 'assets/mist/memory_sal.png';
+  fetch('assets/mist/memory.json').then(function (r) { return r.json(); }).then(function (d) { M = d; M.dur = (d.frames.length - 1) / d.fps; W = d.gw; H = d.gh; mk(); requestAnimationFrame(frame); });
+  var A, B, sa, sb, ca, cb, ma, mb;                         // small canvases: the mosaic of two neighbouring frames, and what was felt in them
+  function small() { var c = document.createElement('canvas'); c.width = M.gw; c.height = M.gh; return c; }
+  function mk() { ca = small(); cb = small(); ma = small(); mb = small(); sa = small(); sb = small(); A = B = sa.fi = sb.fi = -1; }
+  function grab(fi, cm, cs) { var col = fi % M.cols, row = Math.floor(fi / M.cols), w = M.gw, h = M.gh; cm.getContext('2d').drawImage(MOS, col * w, row * h, w, h, 0, 0, w, h); cs.getContext('2d').drawImage(SAL, col * w, row * h, w, h, 0, 0, w, h); }
+  var tmp = null, tg = null, big = null, bgx = null;
+  function felt(cs, out, amt) { // sal map -> alpha of the sharper layer, plus where you are holding
+    var sg = cs.getContext('2d'), d = sg.getImageData(0, 0, M.gw, M.gh).data, og2 = out.getContext('2d'), od = og2.getImageData(0, 0, M.gw, M.gh), px = focus ? focus.x / innerWidth : -9, py = focus ? focus.y / innerHeight : -9;
+    for (var i = 0; i < M.gw * M.gh; i++) { var x = (i % M.gw) / M.gw, y = Math.floor(i / M.gw) / M.gh, v = d[i * 4] / 255; var f = focus ? clamp(1 - Math.hypot((x - px) * 1.78, y - py) * 3.2, 0, 1) : 0; od.data[i * 4 + 3] = Math.max(0, Math.min(255, Math.max(Math.pow(v, 1.2), f) * 255)); }
+    og2.putImageData(od, 0, 0);
+  }
+  function frame(now) {
+    requestAnimationFrame(frame); if (ready < 2) return; var dt = Math.min(.1, (now - last) / 1000); last = now; if (playing && !scrubbing) t = (t + dt) % M.dur;
+    var fp = t * M.fps, fi = Math.min(M.frames.length - 2, Math.floor(fp)), u = fp - fi;
+    if (A !== fi) { grab(fi, ma, sa); grab(fi + 1, mb, sb); A = fi; }
+    // the sharper layer: the mosaic, kept only where it was felt (and where you hold)
+    var sw = cv.width, sh = cv.height, sc = Math.max(sw / M.gw, sh / M.gh), dw = M.gw * sc, dh = M.gh * sc, dx = (sw - dw) / 2, dy = (sh - dh) / 2, px = sw / innerWidth;
+    var amt = mist; g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = '#000'; g.fillRect(0, 0, sw, sh); g.imageSmoothingEnabled = amt > .1; g.imageSmoothingQuality = 'high';
+    if (!tmp) { tmp = small(); tg = tmp.getContext('2d'); big = small(); bgx = big.getContext('2d'); }
+    // 1: everything, drifting and blurred (the mist). 2: what was felt, less blurred, over it.
+    var blurAll = amt * 34 * px, blurFelt = (amt * 7 + 1.2) * px;
+    function draw(mc, alpha) { g.save(); g.globalAlpha = alpha; g.filter = amt > .05 ? 'blur(' + blurAll + 'px)' : 'none'; var drift = amt * 5 * px, ox = Math.sin(t * .33 + seed) * drift, oy = Math.cos(t * .27 + seed) * drift, z = 1 + amt * .05; g.drawImage(mc, dx - (z - 1) * dw / 2 + ox, dy - (z - 1) * dh / 2 + oy, dw * z, dh * z); g.restore(); }
+    draw(ma, 1); draw(mb, u);
+    felt(sa, ca, amt); felt(sb, cb, amt);
+    function sharp(cm, cmask, alpha) { tg.globalCompositeOperation = 'copy'; tg.drawImage(cm, 0, 0); tg.globalCompositeOperation = 'destination-in'; tg.drawImage(cmask, 0, 0); tg.globalCompositeOperation = 'source-over'; g.save(); g.globalAlpha = alpha * (amt > .08 ? .95 : 1); g.filter = 'blur(' + (amt > .05 ? blurFelt : 0) + 'px)'; g.drawImage(tmp, dx, dy, dw, dh); g.restore(); }
+    if (amt > .05) { sharp(ma, ca, 1 - u); sharp(mb, cb, u); } else { g.save(); g.imageSmoothingEnabled = false; g.drawImage(ma, dx, dy, dw, dh); g.restore(); }
+    // what it felt like: the felt regions glow
+    if (amt > .05) { g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = .35 * amt; g.filter = 'blur(' + (26 * px) + 'px)'; sharp2(ma, ca); g.restore(); }
+    function sharp2(cm, cmask) { tg.globalCompositeOperation = 'copy'; tg.drawImage(cm, 0, 0); tg.globalCompositeOperation = 'destination-in'; tg.drawImage(cmask, 0, 0); tg.globalCompositeOperation = 'source-over'; g.drawImage(tmp, dx, dy, dw, dh); }
+    // the timeline: how much of it was felt
+    var bw = sw - 36 * px, bx = 18 * px, by = sh - 18 * px, hh = 14 * px;
+    g.save(); g.filter = 'none'; g.strokeStyle = 'rgba(255,255,255,.28)'; g.lineWidth = px; g.beginPath(); g.moveTo(bx, by); g.lineTo(bx + bw, by); g.stroke();
+    g.strokeStyle = 'rgba(255,255,255,.75)'; g.lineWidth = 1.2 * px; g.beginPath(); M.frames.forEach(function (f, i) { var x = bx + bw * i / (M.frames.length - 1), y = by - f.feel * hh; i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke();
+    var px2 = bx + bw * t / M.dur; g.fillStyle = '#fff'; g.fillRect(px2 - px, by - hh - 3 * px, 2 * px, hh + 6 * px); g.restore();
+    var ts = 109 + t; document.getElementById('tc').textContent = Math.floor(ts / 60) + ':' + String(Math.floor(ts % 60)).padStart(2, '0') + '  ·  ' + (mist > .5 ? 'mist' : mist > .12 ? 'fading' : 'data');
+    document.getElementById('mk').style.top = ((1 - mist) * 100) + '%';
+  }
+  // touch: hold to recall; drag the timeline to move; the right edge slides mist and data
+  var hint = document.getElementById('hint'); setTimeout(function () { hint.style.opacity = 0; }, 9000);
+  function inTL(e) { return e.clientY > innerHeight - 44; }
+  cv.addEventListener('pointerdown', function (e) { cv.setPointerCapture(e.pointerId); if (inTL(e)) { scrubbing = true; scrub(e); } else focus = { x: e.clientX, y: e.clientY }; });
+  cv.addEventListener('pointermove', function (e) { if (scrubbing) scrub(e); else if (focus) focus = { x: e.clientX, y: e.clientY }; });
+  cv.addEventListener('pointerup', function () { scrubbing = false; focus = null; }); cv.addEventListener('pointercancel', function () { scrubbing = false; focus = null; });
+  function scrub(e) { t = clamp((e.clientX - 18) / (innerWidth - 36), 0, 1) * M.dur; }
+  var ms = document.getElementById('mist');
+  function setM(e) { var r = ms.getBoundingClientRect(); mist = clamp(1 - (e.clientY - r.top) / r.height, 0, 1); }
+  ms.addEventListener('pointerdown', function (e) { ms.setPointerCapture(e.pointerId); ms.dragging = true; setM(e); e.stopPropagation(); }); ms.addEventListener('pointermove', function (e) { if (ms.dragging) setM(e); }); ms.addEventListener('pointerup', function () { ms.dragging = false; });
+  addEventListener('keydown', function (e) { if (e.key === ' ') { playing = !playing; e.preventDefault(); } else if (e.key === 'ArrowUp') mist = clamp(mist + .08, 0, 1); else if (e.key === 'ArrowDown') mist = clamp(mist - .08, 0, 1); else if (e.key === 'ArrowLeft') t = clamp(t - 2, 0, M.dur); else if (e.key === 'ArrowRight') t = clamp(t + 2, 0, M.dur); else if (e.key.toLowerCase() === 'd') mist = mist > .3 ? 0 : .72; });
+  addEventListener('wheel', function (e) { mist = clamp(mist - e.deltaY * .001, 0, 1); }, { passive: true });
+  window.__mist = { set: function (m, tt) { if (m != null) mist = m; if (tt != null) { t = tt; playing = false; } }, focus: function (x, y) { focus = x == null ? null : { x: x, y: y }; } };
+})();
+</script>
+</body>
+</html>
