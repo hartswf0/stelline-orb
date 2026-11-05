@@ -1,6 +1,20 @@
-◎ 1000 Small Futures · Stelline Memory Orb & Vesper Field Orb 04
+◎ 1000 Small Futures · Stelline Memory Orb & Vesper Field Orb 04 / 05
 
 > **Tagline:** *Tools for thinking about media, narrative, belief, and culture — and the spatial-temporal Memory Maker instrument from Blade Runner 2049*
+
+## Featured Instrument: Vesper Instruments · Field Orb 05 (`field-orb-05.html` · `Stelline-Orb-Pro`)
+
+**Field Orb 05 (`Stelline-Orb-Pro`)** unifies the six VR spatial authoring paradigms (`Quill`, `Shapelab`, `AnimVR`, `Clayground`, `Tvori / ShapesXR`, `Animotive`) into a single handheld instrument inside Dr. Ana Stelline's cylindrical glass containment chamber — eliminating floating 2D UI menus, 3D RGB gizmo clutter, and desktop DCC round-trips:
+- **Pure Two-Zone Surface & Two-Collection Scene Graph (`01_PHYSICAL_LAB` + `02_HOLOGRAM_MEMORY`):** Cylindrical glass partition (`IOR 1.45, Roughness 0.03, Is Shadow Ray` transparent-shadow bypass), recessed concrete pit, bounded `Volume_Cube` (`Density 0.03, Anisotropy 0.6`), and procedural scanline/PBR hologram shaders driven by a single `Weaver_Control_Empty`.
+- **3 Concentric Optical Rotary Rings + In-Orb Holographic Seed Preview Core:**
+  - `OUTER RING (SEED)`: Cycles 9 Holographic Seeds (`1:ENV_DOME` through `9:CLAY_ONION`) inside the translucent central core; tap core or `CAST` to project into the chamber.
+  - `MIDDLE RING (DEFORM)`: Scales and organically morphs the active seed (`Bundt 0–100%` + `1–12 Candles` on `Prop_Cake`; `Ommatidia Hex` + `Setae` on `Prop_Beetle`; `Squash/Stretch` on `Clay_StopMotion`; `Boil Amplitude` on `Quill_AnimBrush`).
+  - `INNER RING (TIME/DOF)`: Scrubs the `00:00–00:15` Multi-Pass Loop timeline, or dials Bounded Volume Density and `85mm` DOF (`f/1.4–f/16`), with `SCULPT` mode isolation lock (`Quill 2.1+`).
+- **Capacitive Squeeze Sensor (`0% Scanline -> 50% 6DoF Tether -> 100% Solid PBR`):** Light squeeze renders holographic scanlines; half-squeeze tethers props to the Orb's 6DoF beam with zero gizmo arrows; full squeeze solidifies into full PBR + subsurface scattering.
+- **Multi-Pass Embodied Performance + In-World Faded Mirror Ghost (`Animotive 04:16 / 04:22 / 07:22`):** Embody `Char_Child_02` and record a live pass while `Pass 2` (`Char_Child_01` blowing out candles) plays back in the room; projects the `85mm` Faded Mirror Ghost on the lens axis for real-time solo framing and eyeline lock.
+- **Live Performance & Bake Monitor + Production Bridge (`Quill 2.3+ / 2.5+`):** Collapses multi-pass loops (`48.2MB -> 19.4MB`, `FixFlip=ON`) and exports `.USDA` Scene Graph, `.OBJ` (`FixFlip`), `.IMM.JSON` Capsule, and `4K .PNG`.
+
+---
 
 ## Featured Instrument: Vesper Instruments · Field Orb 04 (`vesper.html`)
 
@@ -31,12 +45,16 @@ In Dr. Ana Stelline's Memory Chamber (*Blade Runner 2049*, `02:13–03:35`), the
 
 ### Live Entry Points
 
+* **[`field-orb-05.html`](field-orb-05.html)** — **Vesper Instruments · Field Orb 05 (`Stelline-Orb-Pro`)**: Live virtual production stage uniting `Quill`, `Shapelab`, `AnimVR`, `Clayground`, `Tvori / ShapesXR`, and `Animotive` on a single 3-ring spherical controller with In-Orb Seed Preview, Capacitive Squeeze Solidification, Multi-Pass Embodied Layering, and `.USDA` / `.OBJ FixFlip` export.
 * **[`vesper.html`](vesper.html)** — **Vesper Instruments · Field Orb 04 ("The Birthday Cake = The Donut of the Orb")** interactive 3D studio & patent implementation (`FIGS. 1–8`).
+* **[`cake.html`](cake.html)** — **The Cake ("Blender's First Lesson Is a Donut; The Orb's First Lesson Is the Cake")** 8-chapter interactive manual.
+* **[`cake-orb.html`](cake-orb.html)** — **Cake Orb**: Every cake, bug, and film reference on the shelf, turned by three rings and one thumb.
+* **[`bench.html`](bench.html)** — **Bench**: Film cut-outs of the people and trees with 3D cakes and bugs; pick one, turn it, hold the rest.
 * **[`hand-orb.html`](hand-orb.html)** — **The Memory Maker (`v6` Unified Cinema Bench)**: Full 114-beat *Blade Runner 2049* footage atlas (`306` frames), MediaPipe hand tracking, WebRTC phone-as-orb pairing, and `IMPRINT` match scoring.
-* **[`index.html`](index.html)** — **Stelline.OS `v18` Master Studio**: 1280×720 diegetic viewport, 8-node C-arc selector, `PATISSERIE.OS` Cake Builder & `ENTOMOLOGY.OS` Bug Builder.
+* **[`index.html`](index.html)** — **Stelline Memory Orb Orbital Machine**: 19-node orbital state machine linking every build.
 * **[`designs.html`](designs.html)** — **25 Counterfactual Bug & Birthday Cake Blueprints** with one-click live 3D inspection.
 * **[`moments.html`](moments.html)** — **9 Film-Matched 3D Moments** (`00:25` Wet Leaf to `03:16` Floor Miniature).
-* **[`versions.html`](versions.html)** — **Complete 18-Build Archive & Evolution Atlas (`v1`–`vesper.04`)**.
+* **[`versions.html`](versions.html)** — **Complete 19-Build Archive & Evolution Atlas (`v1`–`field-orb-05`)**.
 
 ---
 
