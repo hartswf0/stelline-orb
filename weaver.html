@@ -98,19 +98,19 @@ dustGeo.setAttribute('position', new T.BufferAttribute(dp, 3)); const dustMat = 
 const CSET = new T.Group(); CSET.visible = false; scene.add(CSET);
 (function cineSet() { const dark = new T.MeshStandardMaterial({ color: 0x0b0d0c, roughness: 1, side: T.BackSide });
   CSET.add(new T.Mesh(new T.SphereGeometry(12, 64, 32, 0, TAU, 0, Math.PI / 2), dark));
-  const fl = new T.Mesh(new T.CircleGeometry(12, 96), new T.MeshStandardMaterial({ color: 0x0d0f0e, roughness: .42, metalness: .35 })); fl.rotation.x = -Math.PI / 2; fl.receiveShadow = true; CSET.add(fl);
+  const fl = new T.Mesh(new T.CircleGeometry(12, 96), new T.MeshStandardMaterial({ color: 0x060707, roughness: .5, metalness: .4 })); fl.rotation.x = -Math.PI / 2; fl.receiveShadow = true; CSET.add(fl);
   const line = new T.Mesh(new T.TorusGeometry(11.4, .02, 6, 360), new T.MeshBasicMaterial({ color: 0xf2f7f3, toneMapped: false })); line.rotation.x = Math.PI / 2; line.position.y = .55; CSET.add(line);
   const glow = new T.Mesh(new T.TorusGeometry(11.4, .16, 6, 360), new T.MeshBasicMaterial({ color: 0x9fb4ad, transparent: true, opacity: .1, depthWrite: false })); glow.rotation.x = Math.PI / 2; glow.position.y = .55; CSET.add(glow);
   const refl = new T.Mesh(new T.TorusGeometry(11.35, .07, 6, 360), new T.MeshBasicMaterial({ color: 0x8fa39c, transparent: true, opacity: .07, depthWrite: false })); refl.rotation.x = Math.PI / 2; refl.position.y = .01; CSET.add(refl);
   const seam = new T.LineBasicMaterial({ color: 0x161a18, transparent: true, opacity: .5 }); for (let k = 0; k < 10; k++) { const a = k / 10 * TAU, pts = []; for (let j = 0; j <= 24; j++) { const e = .08 + j / 24 * 1.4; pts.push(new T.Vector3(Math.cos(a) * Math.cos(e) * 11.9, Math.sin(e) * 11.9, Math.sin(a) * Math.cos(e) * 11.9)); } CSET.add(new T.Line(new T.BufferGeometry().setFromPoints(pts), seam)); }
   // the booth: a rounded arch, lit from inside
-  const B = new T.Group(); B.position.set(3.4, 0, -8.7); B.lookAt(0, 0, 0); CSET.add(B);
+  const B = new T.Group(); B.position.set(6.2, 0, -7.6); B.scale.setScalar(.72); B.lookAt(0, 0, 0); CSET.add(B);
   const arch = (w, h, r) => { const s = new T.Shape(); s.moveTo(-w / 2, 0); s.lineTo(-w / 2, h - r); s.quadraticCurveTo(-w / 2, h, -w / 2 + r, h); s.lineTo(w / 2 - r, h); s.quadraticCurveTo(w / 2, h, w / 2, h - r); s.lineTo(w / 2, 0); s.lineTo(-w / 2, 0); return s; };
-  const outer = arch(2.6, 2.3, .55), hole = arch(2.36, 2.16, .45); outer.holes.push(hole); const shell = new T.Mesh(new T.ExtrudeGeometry(outer, { depth: 1.8, bevelEnabled: false, curveSegments: 16 }), new T.MeshStandardMaterial({ color: 0xdfe6e2, emissive: 0x9aa59f, emissiveIntensity: .6, roughness: .6, side: T.DoubleSide })); shell.position.z = -1.8; B.add(shell);
-  const back = new T.Mesh(new T.ShapeGeometry(hole, 16), new T.MeshBasicMaterial({ color: 0x9fa9a4, toneMapped: false, side: T.DoubleSide })); back.position.z = -1.79; B.add(back);
+  const outer = arch(2.6, 2.3, .55), hole = arch(2.36, 2.16, .45); outer.holes.push(hole); const shell = new T.Mesh(new T.ExtrudeGeometry(outer, { depth: 1.8, bevelEnabled: false, curveSegments: 16 }), new T.MeshStandardMaterial({ color: 0xdfe6e2, emissive: 0x9aa59f, emissiveIntensity: .32, roughness: .6, side: T.DoubleSide })); shell.position.z = -1.8; B.add(shell);
+  const back = new T.Mesh(new T.ShapeGeometry(hole, 16), new T.MeshBasicMaterial({ color: 0x6f7874, toneMapped: false, side: T.DoubleSide })); back.position.z = -1.79; B.add(back);
   const fl2 = new T.Mesh(new T.PlaneGeometry(2.36, 1.8), new T.MeshBasicMaterial({ color: 0x9aa39f, toneMapped: false })); fl2.rotation.x = -Math.PI / 2; fl2.position.set(0, .002, -.9); B.add(fl2);
   const ceil = new T.Mesh(new T.PlaneGeometry(2.0, 1.6), new T.MeshBasicMaterial({ color: 0xf6fbf8, toneMapped: false })); ceil.rotation.x = Math.PI / 2; ceil.position.set(0, 2.14, -.9); B.add(ceil);
-  const spill = new T.PointLight(0xdbe8e2, .5, 3.2, 2); spill.position.set(0, 1.7, -.6); B.add(spill);
+  const spill = new T.PointLight(0xdbe8e2, .3, 2.6, 2); spill.position.set(0, 1.7, -.6); B.add(spill);
   const blk = new T.MeshStandardMaterial({ color: 0x030303, roughness: .9 }), man = new T.Group();
   [[.16, .24, 1.15, .62], [.21, .19, .42, 1.42]].forEach(([a, b, h, y]) => { const m = new T.Mesh(new T.CylinderGeometry(a, b, h, 20), blk); m.position.y = y; man.add(m); });
   const hd = new T.Mesh(new T.SphereGeometry(.105, 20, 14), blk); hd.position.y = 1.8; hd.scale.y = 1.15; man.add(hd); man.position.set(.15, 0, -1.0); B.add(man);
@@ -125,7 +125,7 @@ const CSET = new T.Group(); CSET.visible = false; scene.add(CSET);
   const face = new T.Mesh(new T.SphereGeometry(.082, 20, 14), new T.MeshStandardMaterial({ color: 0x33261e, roughness: .8 })); face.position.set(0, .86, .03); face.scale.set(.92, 1.1, .9); K.add(face);
   for (const sx of [-1, 1]) { const arm = new T.Mesh(new T.CylinderGeometry(.045, .04, .42, 12), coat); arm.position.set(sx * .17, .5, .1); arm.rotation.x = -.7; K.add(arm); }
   K.traverse(o => { if (o.isMesh) o.castShadow = true; }); CINE.maker = K; CSET.add(K); })();
-const cineKey = new T.SpotLight(0xffd9a8, 0, 6, .5, .7, 1.4); cineKey.position.set(.9, 1.5, 1.2); scene.add(cineKey, cineKey.target);
+const cineKey = new T.SpotLight(0xffb878, 0, 4, .2, .55, 1.2); cineKey.position.set(.55, 1.45, .75); scene.add(cineKey, cineKey.target);
 /* =============================================================== hologram: every memory material gets the same light treatment */
 const HU = { uHolo: { value: 0 }, uMat: { value: 1 }, uScan: { value: .5 }, uTime: { value: 0 }, uMist: { value: 0 } };
 function holo(mat) { mat.onBeforeCompile = sh => { Object.assign(sh.uniforms, HU);
@@ -441,7 +441,7 @@ function dialApply(steps) { const t = verbTool(); S.amt += steps; gestureT = NOW
   S.tool = keepTool; S.radius = kr; S.strength = ks; perfDirty = true; S.state = 'CHANGED'; }
 let CASTID0 = 1;
 function addChild() { const used = new Set(DOC.cast.map(c => c.i)); const i = [0, 1, 2].find(n => !used.has(n)); if (i == null) { say('ALL THREE CHILDREN ARE HERE'); tick('dead'); return; }
-  snapshot(); const ca = Math.PI / 2 - S.orbit.yaw, a = ca + Math.PI + KIDS[i].da; const c = { id: CASTID++, i, a, r: .62, yaw: 0, tilt: 0, lift: 0, op: 1, vis: 0 }; DOC.cast.push(c);
+  snapshot(); const ca = CINE.on ? Math.atan2(cam.position.z, cam.position.x) : Math.PI / 2 - S.orbit.yaw, a = ca + Math.PI + KIDS[i].da; const c = { id: CASTID++, i, a, r: .62, yaw: 0, tilt: 0, lift: 0, op: 1, vis: 0 }; DOC.cast.push(c);
   S.pickKey = 'c:' + c.id; S.ease = { t: 1.6, y: 1.0, d: Math.max(S.orbit.dist, 1.32), p: -.16 }; shimmer(); say('CHILD ' + (i + 1) + ' COMES IN FROM THE DARK'); }
 function removeChild() { const c = DOC.cast[DOC.cast.length - 1]; if (!c) { tick('dead'); return; } snapshot(); DOC.cast.pop(); S.pickKey = 'cake'; say('CHILD ' + (c.i + 1) + ' GOES BACK INTO THE DARK'); }
 
@@ -452,6 +452,7 @@ const SHOTS = { A: { yaw: .32, el: .06, d: 2.7, fov: 34, off: .48, dyaw: .004, d
   E: { yaw: .15, el: .28, d: .9, fov: 38, off: 0, dyaw: .02, dd: -.01, lift: .03 }, F: { yaw: .2, el: .16, d: 2.0, fov: 38, off: 0, dyaw: .13, dd: -.01, lift: .08 } };
 const SHOT_OF = ['A', 'O', 'B', 'B', 'B', 'B', 'B', 'C', 'C', 'C', 'D', 'D', 'L', 'E', 'F', 'F'];
 function cineCam(dt) { const id = SHOT_OF[Math.min(GUIDE.i, SHOT_OF.length - 1)]; if (id !== CINE.shot) { CINE.shot = id; CINE.t = 0; if (id === 'D' || id === 'L') CINE.kidYaw = CINE.kidYaw != null ? CINE.kidYaw : Math.atan2(cam.position.x, cam.position.z); } CINE.t += dt || 0;
+  if ((id === 'D' || id === 'L') && DOC.cast.length) { let sx = 0, sz = 0; DOC.cast.forEach(c => { sx += Math.cos(c.a); sz += Math.sin(c.a); }); const want = Math.atan2(-sx, -sz); if (CINE.kidLock == null || CINE.t < .05) CINE.kidLock = want; CINE.kidYaw = CINE.kidLock - SHOTS[id].yaw * 0; }
   const sh = SHOTS[id], yaw0 = (id === 'D' || id === 'L') ? (CINE.kidYaw || 0) + sh.yaw : sh.yaw, yaw = yaw0 + sh.dyaw * CINE.t, d = Math.max(.35, sh.d + sh.dd * CINE.t);
   CAKE.updateMatrixWorld(true); const c = CAKE.getWorldPosition(new T.Vector3()); c.y += .05 + (sh.lift || 0);
   cam.position.set(c.x + Math.sin(yaw) * Math.cos(sh.el) * d, c.y + Math.sin(sh.el) * d, c.z + Math.cos(yaw) * Math.cos(sh.el) * d); cam.lookAt(c); const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion); cam.lookAt(c.clone().addScaledVector(right, sh.off * d * .4));
@@ -839,8 +840,8 @@ const GSTEPS = [
     show: [['ring', 0, () => MODES.indexOf('LOOK')], ['turn', 2, 14], ['turn', 3, 4], ['turn', 4, -3], ['turn', 2, 6]] },
   { t: 'RAISE THE TOP', h: 'MAKE · VERB to PULL OUT · HEIGHT near the crown · turn the last ring up a few clicks', done: () => (S.counts.PULL || 0) >= 3,
     show: [['ring', 0, () => MODES.indexOf('MAKE')], ['ring', 2, () => vIdx('PULL OUT')], ['ring', 3, .96], ['turn', 4, 4, .25]] },
-  { t: 'FROST IT ROSE', h: 'VERB to FROST · ROSE · work the side, then the top', done: () => (S.counts.PAINT || 0) >= 4,
-    show: [['ring', 2, () => vIdx('FROST · ROSE')], ['ring', 3, .3], ['turn', 4, 3], ['ring', 3, .62], ['turn', 4, 3]] },
+  { t: 'FROST IT', h: 'VERB to FROST · WHITE · work the side, then the top', done: () => (S.counts.PAINT || 0) >= 4,
+    show: [['ring', 2, () => vIdx('FROST · WHITE')], ['ring', 3, .3], ['turn', 4, 3], ['ring', 3, .62], ['turn', 4, 3]] },
   { t: 'PIPE A BORDER', h: 'VERB to PIPE · WHITE · HEIGHT at the top edge · keep turning until it closes', done: () => curF().strokes.some(st => st.pts.length / 6 >= COLS * .9),
     show: [['ring', 2, () => vIdx('PIPE · WHITE')], ['ring', 3, .5], ['turn', 4, 28, .05]] },
   { t: 'SEVEN CANDLES', h: 'VERB to CANDLES · HEIGHT on the top · seven clicks, seven candles', done: () => curF().items.filter(i => i.t === 'CANDLE').length >= 7,
@@ -1034,9 +1035,9 @@ function update(dt) { NOW += dt; HU.uTime.value = NOW;
 }
 function cineWorld(dt) { LAB.visible = false; CSET.visible = true; const kids = DOC.cast.length > 0; CINE.tableK = (CINE.tableK || 0) + ((kids ? 1 : 0) - (CINE.tableK || 0)) * Math.min(1, dt * 1.5);
   table.visible = leg.visible = CINE.tableK > .02; plate.visible = false; tableMat.transparent = true; tableMat.opacity = CINE.tableK; leg.visible = false;
-  hemi.intensity = .06; over.intensity = 0; warm.intensity = .12; cineKey.target.position.copy(CAKE.getWorldPosition(new T.Vector3())); cineKey.intensity = 1.0; tableMat.color.setHex(0x8a6230); coneMat.uniforms.haze.value = 0; dustMat.opacity = .25; scene.fog.density = .035;
+  hemi.intensity = .06; over.intensity = 0; warm.intensity = .12; { const cw = CAKE.getWorldPosition(new T.Vector3()); cineKey.target.position.copy(cw); cineKey.position.set(cw.x + .55, cw.y + .8, cw.z + .75); } cineKey.intensity = 2.4; tableMat.color.setHex(0x8a6230); coneMat.uniforms.haze.value = 0; dustMat.opacity = .25; scene.fog.density = .035;
   // the maker kneels at the cake's right hand, looking at it
-  const c = CAKE.getWorldPosition(new T.Vector3()); CINE.maker.position.set(c.x + .78, 0, c.z + .08); CINE.maker.lookAt(c.x, 0, c.z); CINE.maker.visible = false; }
+  const c = CAKE.getWorldPosition(new T.Vector3()); CINE.maker.position.set(c.x + .78, 0, c.z + .08); CINE.maker.lookAt(c.x, 0, c.z); CINE.maker.visible = false; const fl = 1 - CINE.tableK; MEM.rotation.z = Math.sin(NOW * .45) * .035 * fl; MEM.rotation.x = Math.sin(NOW * .31 + 1) * .03 * fl; }
 function setCine(on) { CINE.on = on; document.body.classList.toggle('cine', on); if (!on) { LAB.visible = true; CSET.visible = false; table.visible = leg.visible = plate.visible = true; tableMat.opacity = 1; tableMat.transparent = false; tableMat.color.setHex(0xe8d2a6);
     hemi.intensity = .14; over.intensity = .78; warm.intensity = .55; cineKey.intensity = 0; scene.fog.density = .05; cam.fov = 40; cam.updateProjectionMatrix(); CINE.shot = -1; } resize(); say(on ? 'CINEMA · THE ROOM AS THE FILM HAS IT · C TO LEAVE' : 'THE LAB'); }
 function render() { if (PHONE) { OR.render(OS, OC); return; } renderRoom(); perf = { tris: R.info.render.triangles, calls: R.info.render.calls }; OR.render(OS, OC); }
