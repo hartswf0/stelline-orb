@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>The Memory Maker</title>
+<meta name="description" content="Make a memory from where Ana kneels: a cake in the dark, a table, three children cut from the film, a light, and the mist it all returns to. Every control is on the orb.">
+<style>
+  html, body { margin: 0; height: 100%; background: #050605; overflow: hidden; user-select: none; -webkit-user-select: none; font-family: ui-monospace, Menlo, monospace; }
+  * { -webkit-tap-highlight-color: transparent; }
+  .app { height: 100dvh; display: grid; grid-template-rows: minmax(0, 1fr) clamp(240px, 38vh, 400px); }
+  #room, #orb { position: relative; overflow: hidden; touch-action: none; }
+  #room canvas, #orb canvas { display: block; width: 100%; height: 100%; }
+  #orb { background: radial-gradient(120% 140% at 50% 0%, #161816 0%, #0a0b0a 55%, #040504 100%); border-top: 1px solid #1a1c1a; }
+  @media (max-width: 700px) { .app { grid-template-rows: minmax(0, 1fr) 46%; } }
+  body.phone .app { grid-template-rows: 1fr; } body.phone #room { display: none; }
+  body.film .app { grid-template-rows: 1fr; } body.film #orb { position: fixed; right: 1.4vw; bottom: 1.4vw; width: 24vw; height: 12.5vw; background: none; border: 0; }
+</style>
+</head>
+<body>
+<div class="app"><div id="room"></div><div id="orb"></div></div>
+<script src="assets/three.min.js"></script>
+<script src="assets/GLTFExporter.js"></script>
+<script src="assets/v6/qrcode.js"></script>
+<script>
+/* THE MEMORY MAKER. You kneel where Ana kneels; the memory forms in front of you, out of the dark.
+   Nothing is on the table until you put it there, and there is no table until you set it.
+   THE ORB  grip end: drag it to turn and tilt the memory · lens end: pull it out to bring the memory close, push it in to let it go back
+            ring 1 picks what you are working on (only when there is more than one thing) · rings 2 to 5 are that thing's properties, and only those
+            DO does the next thing the memory needs, and says what it is · UNDO (hold: redo) · RECALL plays the memory back as it was made
+            KEEP writes the memory out (where the page may save files) · tap the end of the grip to pair a phone: it becomes the orb.
+   A ring that has nothing to do is dark and says nothing. */
+const T = THREE, clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t, TAU = Math.PI * 2, sm = t => t * t * (3 - 2 * t);
+let NOW = 0, AC = null;
+const FILM = /[?&]film\b/.test(location.search); if (FILM) document.body.classList.add('film');
+const roomEl = document.getElementById('room');
+const R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); R.setPixelRatio(Math.min(2, devicePixelRatio)); R.outputEncoding = T.sRGBEncoding; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = 1.15; R.shadowMap.enabled = true; R.shadowMap.type = T.PCFSoftShadowMap; roomEl.append(R.domElement);
+const scene = new T.Scene(); scene.background = new T.Color(0x0b0d0c); scene.fog = new T.FogExp2(0x0b0d0c, .028);
+const cam = new T.PerspectiveCamera(38, 1, .02, 60);
+
+/* =============================================================== THE DOME: dark, its seams faint, one lit line where the wall meets the floor, the booth far off */
+(function dome() { scene.add(new T.Mesh(new T.SphereGeometry(12, 64, 32, 0, TAU, 0, Math.PI / 2), new T.MeshStandardMaterial({ color: 0x121513, roughness: 1, side: T.BackSide })));
+  const fl = new T.Mesh(new T.CircleGeometry(12, 96), new T.MeshStandardMaterial({ color: 0x0c0e0d, roughness: .55, metalness: .3 })); fl.rotation.x = -Math.PI / 2; fl.receiveShadow = true; scene.add(fl);
+  const ring = (r, t, y, c, op) => { const m = new T.Mesh(new T.TorusGeometry(r, t, 6, 360), new T.MeshBasicMaterial({ color: c, transparent: op < 1, opacity: op, depthWrite: op >= 1, toneMapped: false })); m.rotation.x = Math.PI / 2; m.position.y = y; scene.add(m); };
+  ring(11.4, .02, .55, 0xeef5f1, 1); ring(11.4, .17, .55, 0x9fb4ad, .1); ring(11.35, .06, .01, 0x8fa39c, .08);
+  const seam = new T.LineBasicMaterial({ color: 0x1c211f }); for (let k = 0; k < 10; k++) { const a = k / 10 * TAU, p = []; for (let j = 0; j <= 24; j++) { const e = .08 + j / 24 * 1.4; p.push(new T.Vector3(Math.cos(a) * Math.cos(e) * 11.9, Math.sin(e) * 11.9, Math.sin(a) * Math.cos(e) * 11.9)); } scene.add(new T.Line(new T.BufferGeometry().setFromPoints(p), seam)); }
+  // the booth, far to one side, lit from inside, a man standing in it
+  const B = new T.Group(); B.position.set(6.6, 0, -8.2); B.scale.setScalar(.72); B.lookAt(0, 0, 0); scene.add(B);
+  const arch = (w, h, r) => { const s = new T.Shape(); s.moveTo(-w / 2, 0); s.lineTo(-w / 2, h - r); s.quadraticCurveTo(-w / 2, h, -w / 2 + r, h); s.lineTo(w / 2 - r, h); s.quadraticCurveTo(w / 2, h, w / 2, h - r); s.lineTo(w / 2, 0); s.lineTo(-w / 2, 0); return s; };
+  const o = arch(2.6, 2.3, .55), hole = arch(2.36, 2.16, .45); o.holes.push(hole); const sh = new T.Mesh(new T.ExtrudeGeometry(o, { depth: 1.8, bevelEnabled: false, curveSegments: 16 }), new T.MeshStandardMaterial({ color: 0xdfe6e2, emissive: 0x9aa59f, emissiveIntensity: .3, roughness: .6, side: T.DoubleSide })); sh.position.z = -1.8; B.add(sh);
+  const back = new T.Mesh(new T.ShapeGeometry(hole, 16), new T.MeshBasicMaterial({ color: 0x6f7874, side: T.DoubleSide, toneMapped: false })); back.position.z = -1.79; B.add(back);
+  const blk = new T.MeshStandardMaterial({ color: 0x030303, roughness: .9 }), man = new T.Group(); [[.16, .24, 1.15, .62], [.21, .19, .42, 1.42]].forEach(([a, b, h, y]) => { const m = new T.Mesh(new T.CylinderGeometry(a, b, h, 20), blk); m.position.y = y; man.add(m); });
+  const hd = new T.Mesh(new T.SphereGeometry(.105, 20, 14), blk); hd.position.y = 1.8; man.add(hd); man.position.set(.15, 0, -1.0); B.add(man); })();
+const DUSTN = 700, dustG = new T.BufferGeometry(), dp = new Float32Array(DUSTN * 3); for (let i = 0; i < DUSTN; i++) { const a = Math.random() * TAU, r = Math.sqrt(Math.random()) * 2.4; dp[i * 3] = Math.cos(a) * r; dp[i * 3 + 1] = Math.random() * 2.2; dp[i * 3 + 2] = Math.sin(a) * r - .3; }
+dustG.setAttribute('position', new T.BufferAttribute(dp, 3)); const dust = new T.Points(dustG, new T.PointsMaterial({ color: 0xdfe8e4, size: .005, transparent: true, opacity: .35, blending: T.AdditiveBlending, depthWrite: false })); scene.add(dust);
+scene.add(new T.HemisphereLight(0x8a9894, 0x080604, .07));
+
+/* =============================================================== MIST: every made thing can come apart into points of light */
+const MU = { uMist: { value: 0 }, uTime: { value: 0 } };
+function mistify(mat) { mat.onBeforeCompile = sh => { Object.assign(sh.uniforms, MU);
+    sh.vertexShader = 'varying vec3 vMW;\n' + sh.vertexShader.replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\n vMW = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+    sh.fragmentShader = 'uniform float uMist, uTime; varying vec3 vMW;\nfloat mh(vec3 p){ return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }\n' + sh.fragmentShader.replace('void main() {', 'void main() {\n if (uMist > 0.001 && mh(floor(vMW * 640.0)) < uMist) discard;'); };
+  mat.customProgramCacheKey = () => 'mist' + (mat.alphaTest ? 'a' : ''); return mat; }
+
+/* =============================================================== THE MEMORY: a pivot the grip turns, and what is made inside it */
+const TOP = .62;                                     // where the cake sits: in the air, and later on the table
+const PIV = new T.Group(); PIV.position.set(0, TOP + .05, 0); scene.add(PIV); const MEM = new T.Group(); MEM.position.y = -(TOP + .05); PIV.add(MEM);
+const CAKE = new T.Group(); CAKE.position.y = TOP; MEM.add(CAKE);
+const TABLE = new T.Group(); MEM.add(TABLE); const KIDG = new T.Group(); MEM.add(KIDG);
+const key = new T.SpotLight(0xffb878, 0, 5, .42, .6, 1.3); key.castShadow = true; key.shadow.mapSize.set(1024, 1024); key.shadow.bias = -.0012; scene.add(key, key.target);
+const candleLight = new T.PointLight(0xffa04a, 0, 2.2, 1.7); scene.add(candleLight);
+const keyMark = new T.Group(); scene.add(keyMark); { const m = new T.Mesh(new T.SphereGeometry(.018, 16, 10), new T.MeshBasicMaterial({ color: 0xffe2b0, toneMapped: false })); keyMark.add(m); }
+const keyLine = new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(), new T.Vector3(0, 1, 0)]), new T.LineBasicMaterial({ color: 0xffe2b0, transparent: true, opacity: .35 })); scene.add(keyLine);
+
+const FORMS = { DRUM: { p: [[0, 0], [.118, 0], [.122, .006], [.122, .084], [.115, .092], [0, .092]], top: .092, edge: .118, cr: .075 },
+  DOME: { p: (() => { const p = [[0, 0], [.122, 0], [.122, .02]]; for (let k = 1; k <= 14; k++) { const a = k / 14 * Math.PI / 2; p.push([.122 * Math.cos(a), .02 + .085 * Math.sin(a)]); } return p; })(), top: .1, edge: .122, cr: .05, domed: true },
+  TIERS: { p: [[0, 0], [.13, 0], [.132, .006], [.132, .068], [.128, .072], [.088, .072], [.09, .078], [.09, .138], [.084, .144], [0, .144]], top: .144, edge: .086, cr: .05, low: [.13, .072] },
+  RING: { p: (() => { const p = []; for (let k = 0; k <= 40; k++) { const t = -Math.PI / 2 + k / 40 * TAU; p.push([.08 + .045 * Math.cos(t), .045 + .048 * Math.sin(t)]); } return p; })(), top: .093, edge: .08, cr: .08, ring: true } };
+const ICING = [['SPONGE', 0xc99b5e], ['CREAM', 0xf0e2c4], ['WHITE', 0xf8f4ec], ['ROSE', 0xeaa5b2], ['CHOCOLATE', 0x4a2b1b], ['LEMON', 0xf1d97c], ['MINT', 0xbadfcb]];
+const BORDER = [['NONE', 0], ['WHITE', 0xfbf8f2], ['ROSE', 0xd9748a], ['CHOCOLATE', 0x3a2114], ['GOLD', 0xd9a640]];
+const WOOD = [['OAK', 0x5a3b1c], ['WALNUT', 0x5e3c20], ['PALE', 0xd4c19a], ['BLACK', 0x1d1a16]];
+const bump = (() => { const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d'), id = x.createImageData(256, 256); for (let i = 0; i < id.data.length; i += 4) { const v = 128 + (Math.random() - .5) * 100; id.data[i] = id.data[i + 1] = id.data[i + 2] = v; id.data[i + 3] = 255; } x.putImageData(id, 0, 0); const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; return t; })();
+const stripe = (() => { const c = document.createElement('canvas'); c.width = 16; c.height = 64; const x = c.getContext('2d'); x.fillStyle = '#f4ecdc'; x.fillRect(0, 0, 16, 64); x.fillStyle = '#d4483e'; for (let y = -16; y < 80; y += 12) { x.beginPath(); x.moveTo(0, y); x.lineTo(16, y + 8); x.lineTo(16, y + 13); x.lineTo(0, y + 5); x.fill(); } const t = new T.CanvasTexture(c); t.wrapT = T.RepeatWrapping; t.encoding = T.sRGBEncoding; return t; })();
+const flameMat = new T.SpriteMaterial({ map: (() => { const c = document.createElement('canvas'); c.width = 64; c.height = 128; const x = c.getContext('2d'), g = x.createRadialGradient(32, 86, 2, 32, 76, 46); g.addColorStop(0, 'rgba(255,252,230,1)'); g.addColorStop(.22, 'rgba(255,205,95,.95)'); g.addColorStop(.6, 'rgba(255,120,30,.35)'); g.addColorStop(1, 'rgba(255,90,20,0)'); x.fillStyle = g; x.beginPath(); x.ellipse(32, 76, 18, 46, 0, 0, TAU); x.fill(); return new T.CanvasTexture(c); })(), blending: T.AdditiveBlending, depthWrite: false, transparent: true, toneMapped: false });
+const icingMat = mistify(new T.MeshStandardMaterial({ roughness: .78, bumpMap: bump, bumpScale: .0012 })), beadMat = mistify(new T.MeshStandardMaterial({ roughness: .5 })), candleMat = mistify(new T.MeshStandardMaterial({ map: stripe, roughness: .5 })), wickMat = new T.MeshBasicMaterial({ color: 0x1b1612 });
+let FLAMES = [];
+function buildCake(c) { CAKE.clear(); FLAMES = []; if (!c) return; const F = FORMS[c.form];
+  icingMat.color.setHex(ICING[c.icing][1]); const body = new T.Mesh(new T.LatheGeometry(F.p.map(p => new T.Vector2(p[0], p[1])), 112), icingMat); body.castShadow = body.receiveShadow = true; CAKE.add(body);
+  if (c.border) { beadMat.color.setHex(BORDER[c.border][1]); const rings = [[F.edge, F.top - (F.domed ? .07 : .002)], [F.p[1][0], .006]]; if (F.low) rings.push([F.low[0] - .003, F.low[1]]);
+    rings.forEach(([r, y]) => { const n = Math.round(TAU * r / .0105), im = new T.InstancedMesh(new T.SphereGeometry(.0062, 10, 8), beadMat, n), m4 = new T.Matrix4(); for (let k = 0; k < n; k++) { const a = k / n * TAU; m4.makeTranslation(Math.cos(a) * r, y, Math.sin(a) * r); im.setMatrixAt(k, m4); } im.castShadow = true; CAKE.add(im); }); }
+  for (let k = 0; k < c.candles; k++) { const a = k / c.candles * TAU + .3, r = c.candles === 1 ? 0 : F.cr, g = new T.Group(); g.position.set(Math.cos(a) * r, F.domed ? F.top - .004 - (r / F.edge) ** 2 * .03 : F.top, Math.sin(a) * r);
+    const cy = new T.Mesh(new T.CylinderGeometry(.0034, .0034, .055, 10), candleMat); cy.position.y = .0275; cy.castShadow = true; const w = new T.Mesh(new T.CylinderGeometry(.0006, .0006, .007, 4), wickMat); w.position.y = .0585; g.add(cy, w);
+    if (k >= (c.out || 0)) { const f = new T.Sprite(flameMat); f.scale.set(.016, .034, 1); f.position.y = .072; g.add(f); FLAMES.push(f); } CAKE.add(g); } }
+const tableMat = mistify(new T.MeshStandardMaterial({ roughness: .6, transparent: true })), legMat = mistify(new T.MeshStandardMaterial({ color: 0x141210, roughness: .7, transparent: true }));
+function buildTable(t) { TABLE.clear(); if (!t) return; tableMat.color.setHex(WOOD[t.wood][1]); const top = new T.Mesh(new T.CylinderGeometry(.6 * t.w, .6 * t.w, .035, 6), tableMat); top.position.y = TOP - .018; top.receiveShadow = top.castShadow = true; TABLE.add(top);
+  const leg = new T.Mesh(new T.CylinderGeometry(.05, .09, TOP - .04, 16), legMat); leg.position.y = (TOP - .04) / 2; TABLE.add(leg); }
+// the children: cut from the film's own frame; flat, standing round the table, lit by the same light as the cake
+const KIDS = [{ file: 'child1.png', h: .56, base: -.1, slot: Math.PI - .62 }, { file: 'child2.png', h: .25, base: .05, slot: Math.PI - .04 }, { file: 'child3.png', h: .72, base: -.14, slot: Math.PI + .56 }];
+KIDS.forEach(k => { k.tex = new T.TextureLoader().load('assets/weaver/' + k.file, t => { k.aspect = t.image.width / t.image.height; k.img = t.image; dirty.kids = true; dirty.mist = true; }); k.tex.encoding = T.sRGBEncoding; k.aspect = .7;
+  k.mat = mistify(new T.MeshStandardMaterial({ map: k.tex, alphaTest: .35, side: T.DoubleSide, roughness: .92, emissive: 0xffffff, emissiveMap: k.tex, emissiveIntensity: .2, transparent: true })); });
+const KM = {};
+function placeKids(dt) { const ids = new Set(DOC.kids.map(c => c.i)); for (const i in KM) if (!ids.has(+i)) { KIDG.remove(KM[i]); delete KM[i]; }
+  DOC.kids.forEach(c => { const k = KIDS[c.i]; let m = KM[c.i]; if (!m) { m = KM[c.i] = new T.Mesh(new T.PlaneGeometry(1, 1), k.mat); m.castShadow = true; m.userData.vis = 0; KIDG.add(m); }
+    m.userData.vis = Math.min(1, m.userData.vis + dt * .8); k.mat.opacity = m.userData.vis; const h = k.h * c.s;
+    m.scale.set(h * k.aspect, h, 1); m.position.set(Math.sin(c.a) * c.r, TOP + k.base * c.s + h / 2, Math.cos(c.a) * c.r); m.updateMatrixWorld(true); const wp = m.getWorldPosition(new T.Vector3()); m.lookAt(cam.position.x, wp.y, cam.position.z); m.rotateY(c.face * Math.PI / 180); }); }
+
+// the mist itself: points taken from everything made, rising slowly while the solid comes apart
+const MISTN = 9000, mistG = new T.BufferGeometry(); mistG.setAttribute('position', new T.BufferAttribute(new Float32Array(MISTN * 3), 3)); mistG.setAttribute('color', new T.BufferAttribute(new Float32Array(MISTN * 3), 3)); mistG.setAttribute('seed', new T.BufferAttribute(new Float32Array(MISTN), 1)); mistG.setDrawRange(0, 0);
+const mistMat = new T.ShaderMaterial({ uniforms: { uMist: MU.uMist, uTime: MU.uTime, uPx: { value: 1 } }, transparent: true, depthWrite: false, blending: T.AdditiveBlending,
+  vertexShader: 'attribute vec3 color; attribute float seed; uniform float uMist, uTime, uPx; varying vec3 vC; varying float vA; void main(){ vec3 p = position; float t = uTime * .12 + seed * 6.28; p += vec3(sin(t * 1.3 + seed * 9.), mod(uTime * .015 + seed, 1.) * 2.2 - .2, cos(t * 1.1 + seed * 7.)) * .03 * uMist * uMist; vec4 mv = modelViewMatrix * vec4(p, 1.); gl_Position = projectionMatrix * mv; gl_PointSize = max(1.5, uPx * (.0025 + seed * .003) / -mv.z); vC = color; vA = uMist * (.55 + .45 * sin(uTime * 2. + seed * 40.)); }',
+  fragmentShader: 'varying vec3 vC; varying float vA; void main(){ vec2 q = gl_PointCoord - .5; float d = length(q); if (d > .5) discard; gl_FragColor = vec4(vC * vA * (1. - d * 2.), 1.); }' });
+const MISTP = new T.Points(mistG, mistMat); MEM.add(MISTP);
+function buildMist() { const P = mistG.attributes.position.array, Cc = mistG.attributes.color.array, Sd = mistG.attributes.seed.array; let n = 0; const col = new T.Color();
+  const push = (v, c) => { if (n >= MISTN) return; P.set([v.x, v.y, v.z], n * 3); Cc.set([c.r, c.g, c.b], n * 3); Sd[n] = Math.random(); n++; };
+  MEM.updateMatrixWorld(true); const inv = new T.Matrix4().copy(MEM.matrixWorld).invert();
+  const sample = (mesh, k) => { const g = mesh.geometry, pa = g.attributes.position, c = mesh.material.color || new T.Color(1, 1, 1); const m4 = inv.clone().multiply(mesh.matrixWorld); for (let i = 0; i < pa.count; i += k) push(new T.Vector3().fromBufferAttribute(pa, i).applyMatrix4(m4), c); };
+  CAKE.traverse(o => { if (o.isMesh && !o.isInstancedMesh) sample(o, 1); if (o.isInstancedMesh) { const m4 = new T.Matrix4(); for (let i = 0; i < o.count; i++) { o.getMatrixAt(i, m4); push(new T.Vector3().applyMatrix4(m4).applyMatrix4(inv.clone().multiply(o.matrixWorld)), o.material.color); } } if (o.isSprite) { const w = o.getWorldPosition(new T.Vector3()).applyMatrix4(inv); for (let k = 0; k < 20; k++) push(w.clone().add(new T.Vector3((Math.random() - .5) * .006, (Math.random() - .5) * .02, 0)), col.setRGB(1, .7, .3)); } });
+  TABLE.traverse(o => { if (o.isMesh && o.geometry.type === 'CylinderGeometry' && o.position.y > .3) { const r = o.geometry.parameters.radiusTop, y = o.position.y + .018; for (let k = 0; k < 1600; k++) { const a = Math.random() * TAU, rr = Math.sqrt(Math.random()) * r * Math.cos(Math.PI / 6); push(new T.Vector3(Math.cos(a) * rr, y, Math.sin(a) * rr), o.material.color); } } });
+  for (const i in KM) { const m = KM[i], k = KIDS[i]; if (!k.img) continue; if (!k.px) { const c = document.createElement('canvas'); c.width = 96; c.height = Math.round(96 / k.aspect); const x = c.getContext('2d'); x.drawImage(k.img, 0, 0, c.width, c.height); k.px = { w: c.width, h: c.height, d: x.getImageData(0, 0, c.width, c.height).data }; }
+    const m4 = inv.clone().multiply(m.matrixWorld), { w, h, d } = k.px; for (let y = 0; y < h; y += 2) for (let x = 0; x < w; x += 2) { const j = (y * w + x) * 4; if (d[j + 3] < 120) continue; push(new T.Vector3(x / w - .5, .5 - y / h, 0).applyMatrix4(m4), col.setRGB(d[j] / 200, d[j + 1] / 200, d[j + 2] / 200)); } }
+  mistG.setDrawRange(0, n); mistG.attributes.position.needsUpdate = mistG.attributes.color.needsUpdate = mistG.attributes.seed.needsUpdate = true; }
+
+/* =============================================================== the film's look: lifted grey-green blacks, soft contrast, grain, vignette */
+const rt = new T.WebGLRenderTarget(16, 16); rt.texture.encoding = T.sRGBEncoding;
+const grade = new T.ShaderMaterial({ uniforms: { tC: { value: rt.texture }, gt: { value: 0 } }, depthTest: false, depthWrite: false,
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }',
+  fragmentShader: `uniform sampler2D tC; uniform float gt; varying vec2 vUv; void main(){ vec3 c = texture2D(tC, vUv).rgb; vec2 q = vUv - .5; c *= 1. - dot(q, q) * 1.1;
+    float l = dot(c, vec3(.299, .587, .114)); c = mix(vec3(l), c, .86); c = vec3(.034, .043, .038) + c * vec3(.97, 1., .95); c = c / (c + .72) * 1.62;
+    c += (fract(sin(dot(vUv * vec2(1913., 2711.) + gt, vec2(12.9898, 78.233))) * 43758.5453) - .5) * .03; gl_FragColor = vec4(c, 1.); }` });
+const gQ = new T.Scene(), gC = new T.OrthographicCamera(-1, 1, 1, -1, 0, 1); gQ.add(new T.Mesh(new T.PlaneGeometry(2, 2), grade));
+
+/* =============================================================== THE ORB (its body, rings and display are the weaver's) */
+function drawIcon(x, n, cx, cy, R, col) { x.save(); x.strokeStyle = x.fillStyle = col; x.lineWidth = R * .16; x.lineCap = x.lineJoin = 'round'; x.beginPath();
+  if (n === 'MODE') { for (let k = 0; k < 3; k++) { const a0 = k * TAU / 3 + .35, a1 = a0 + TAU / 3 - .7; x.beginPath(); x.arc(cx, cy, R * .62, a0, a1); x.stroke(); const ex = cx + Math.cos(a1) * R * .62, ey = cy + Math.sin(a1) * R * .62, ta = a1 + Math.PI / 2; x.beginPath(); x.moveTo(ex + Math.cos(ta - 2.5) * R * .3, ey + Math.sin(ta - 2.5) * R * .3); x.lineTo(ex, ey); x.lineTo(ex + Math.cos(ta + 2.5) * R * .3, ey + Math.sin(ta + 2.5) * R * .3); x.stroke(); } }
+  else if (n === 'UNDO') { x.arc(cx + R * .1, cy + R * .1, R * .5, -Math.PI * .95, Math.PI * .45); x.stroke(); x.beginPath(); x.moveTo(cx - R * .7, cy - R * .25); x.lineTo(cx - R * .4, cy + R * .2); x.lineTo(cx - R * .05, cy - R * .2); x.stroke(); }
+  else if (n === 'CAPTURE') { x.arc(cx, cy, R * .68, 0, TAU); x.stroke(); x.beginPath(); x.arc(cx, cy, R * .4, 0, TAU); x.fill(); }
+  else if (n === 'PLAY') { x.moveTo(cx - R * .38, cy - R * .6); x.lineTo(cx + R * .62, cy); x.lineTo(cx - R * .38, cy + R * .6); x.closePath(); x.fill(); }
+  else if (n === 'KEEP') { x.moveTo(cx, cy - R * .7); x.lineTo(cx, cy + R * .2); x.moveTo(cx - R * .38, cy - R * .15); x.lineTo(cx, cy + R * .25); x.lineTo(cx + R * .38, cy - R * .15); x.moveTo(cx - R * .7, cy + R * .2); x.lineTo(cx - R * .7, cy + R * .65); x.lineTo(cx + R * .7, cy + R * .65); x.lineTo(cx + R * .7, cy + R * .2); x.stroke(); }
+  else if (n === 'PAIR') { x.lineWidth = R * .1; x.strokeRect(cx - R * .38, cy - R * .7, R * .76, R * 1.4); x.beginPath(); x.moveTo(cx - R * .12, cy + R * .52); x.lineTo(cx + R * .12, cy + R * .52); x.stroke(); for (let k = 1; k <= 2; k++) { x.beginPath(); x.arc(cx + R * .3, cy - R * .62, R * (.25 + k * .2), -Math.PI * .45, -Math.PI * .05); x.stroke(); } }
+  x.restore(); }
+function iconTex(n, col, bg) { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'); if (bg) { x.fillStyle = bg; x.fillRect(0, 0, 128, 128); } drawIcon(x, n, 64, 64, 46, col); const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.anisotropy = 4; return t; }
+const WORD = { UNDO: 'UNDO', CAPTURE: 'DO', PLAY: 'RECALL', KEEP: 'KEEP' };
+function label(txt) { const c = document.createElement('canvas'); c.width = 320; c.height = 96; const x = c.getContext('2d'); x.fillStyle = 'rgba(6,10,9,.9)'; const r = 18; x.beginPath(); x.moveTo(r, 4); x.arcTo(316, 4, 316, 92, r); x.arcTo(316, 92, 4, 92, r); x.arcTo(4, 92, 4, 4, r); x.arcTo(4, 4, 316, 4, r); x.fill();
+  drawIcon(x, txt, 56, 48, 32, '#5ff0dc'); x.font = '700 44px ui-monospace, Menlo, monospace'; x.fillStyle = '#e8f2ee'; x.textAlign = 'left'; x.fillText(WORD[txt] || txt, 104, 64); const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.anisotropy = 4; return t; }
+const orbEl = document.getElementById('orb');
+const OR = new T.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true }); OR.setPixelRatio(Math.min(2, devicePixelRatio)); OR.outputEncoding = T.sRGBEncoding; OR.toneMapping = T.ACESFilmicToneMapping; OR.toneMappingExposure = 1.05; OR.setClearColor(0x000000, 0); orbEl.append(OR.domElement);
+const OS = new T.Scene(), OC = new T.PerspectiveCamera(26, 2, .1, 20);
+// a studio to reflect: soft boxes over a dark cyclorama
+(function studio() { const s = new T.Scene(); s.add(new T.Mesh(new T.SphereGeometry(10, 32, 16), new T.MeshBasicMaterial({ color: 0x0b0c0b, side: T.BackSide })));
+  const box = (w, h, x, y, z, c, ry, rx) => { const m = new T.Mesh(new T.PlaneGeometry(w, h), new T.MeshBasicMaterial({ color: c, side: T.DoubleSide })); m.position.set(x, y, z); m.lookAt(0, 0, 0); s.add(m); };
+  box(8, 2.2, 0, 6, 2, 0xffffff); box(3, 6, -6, 2, 3, 0x9fb0bb); box(3, 6, 6, 1.5, 2, 0xffe2c0); box(10, 1, 0, -3, 6, 0x343834); box(2, 2, 0, 3, -6, 0x5ff0dc);
+  const pm = new T.PMREMGenerator(OR); OS.environment = pm.fromScene(s, .04).texture; })();
+const OK = new T.DirectionalLight(0xffffff, .8); OK.position.set(1.5, 3, 2.5); OS.add(OK); OS.add(new T.AmbientLight(0x404040, .4));
+// textures for the five rings: grooves, knurl, ribs, stipple, flutes, as height fields turned into normal maps
+function normalTex(fn, W, H) { const h = new Float32Array(W * H); for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) h[y * W + x] = fn(x / W, y / H); const c = document.createElement('canvas'); c.width = W; c.height = H; const x2 = c.getContext('2d'), id = x2.createImageData(W, H);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const l = h[y * W + (x - 1 + W) % W], r = h[y * W + (x + 1) % W], u = h[((y - 1 + H) % H) * W + x], d = h[((y + 1) % H) * W + x]; let nx = (l - r) * 3, ny = (u - d) * 3, nz = 1; const L = Math.hypot(nx, ny, nz); const k = (y * W + x) * 4; id.data[k] = (nx / L * .5 + .5) * 255; id.data[k + 1] = (ny / L * .5 + .5) * 255; id.data[k + 2] = (nz / L * .5 + .5) * 255; id.data[k + 3] = 255; }
+  x2.putImageData(id, 0, 0); const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; return t; }
+const PAT = [(u, v) => .5 + .5 * Math.cos(u * TAU * 160), (u, v) => Math.max(Math.abs(Math.sin((u * 90 + v * 6) * Math.PI)), Math.abs(Math.sin((u * 90 - v * 6) * Math.PI))), (u, v) => Math.pow(.5 + .5 * Math.cos(u * TAU * 40), .4), (u, v) => { const a = (u * 120) % 1 - .5, b = (v * 8 + Math.floor(u * 120) * .5) % 1 - .5; return Math.max(0, 1 - Math.hypot(a, b * 1.1) * 3.2); }, (u, v) => .5 + .5 * Math.cos((u * 70 + v * 3.2) * TAU)];
+const ORB = new T.Group(); OS.add(ORB);
+const alu = new T.MeshPhysicalMaterial({ color: 0xc9c6bf, metalness: 1, roughness: .32, clearcoat: .3, clearcoatRoughness: .4 });
+const darkAlu = new T.MeshPhysicalMaterial({ color: 0x3a3a38, metalness: .9, roughness: .45 });
+const RX = [-.46, -.23, 0, .23, .46], RW = .205, RR = .27, BODY = .238;
+// body: one turned piece, with stepped housings at both ends
+(function body() { const prof = [[0, -1.02], [.16, -1.02], [.2, -1.0], [.236, -.97], [.25, -.93], [.25, -.6], [BODY, -.58], [BODY, .58], [.25, .6], [.25, .9], [.262, .92], [.262, 1.0], [.24, 1.02], [.2, 1.02]];
+  const pts = prof.map(p => new T.Vector2(p[0], p[1])); const g = new T.LatheGeometry(pts, 128); const m = new T.Mesh(g, alu); m.rotation.z = Math.PI / 2; m.rotation.y = 0; ORB.add(m);
+  // the lens at the right end: a dark glass eye with a lit iris
+  const lensG = new T.Group(); lensG.position.x = 1.02; lensG.userData.lens = true; ORB.add(lensG);
+  const glassM = new T.MeshPhysicalMaterial({ color: 0x0a1414, metalness: 0, roughness: .05, clearcoat: 1, transmission: 0, reflectivity: 1 });
+  const lens = new T.Mesh(new T.SphereGeometry(.2, 48, 24, 0, TAU, 0, Math.PI / 2), glassM); lens.rotation.z = -Math.PI / 2; lens.scale.set(1, .35, 1); lensG.add(lens);
+  const iris = new T.Mesh(new T.RingGeometry(.06, .095, 64), new T.MeshBasicMaterial({ color: 0x5ff0dc, transparent: true, opacity: .9, side: T.DoubleSide })); iris.rotation.y = Math.PI / 2; iris.position.x = .075; lensG.add(iris); ORB.userData.iris = iris;
+  const bezel = new T.Mesh(new T.TorusGeometry(.205, .014, 16, 96), alu); bezel.rotation.y = Math.PI / 2; lensG.add(bezel);
+  // grip end: a knurled cap
+  const capT = normalTex(PAT[1], 256, 64); capT.repeat.set(3, 1); const cap = new T.Mesh(new T.CylinderGeometry(.252, .252, .3, 96, 1, true), new T.MeshPhysicalMaterial({ color: 0x9a978f, metalness: 1, roughness: .38, normalMap: capT, normalScale: new T.Vector2(.9, .9) })); cap.rotation.z = Math.PI / 2; cap.position.x = -.8; cap.userData.grip = true; ORB.add(cap);
+  const end = new T.Mesh(new T.CircleGeometry(.2, 64), darkAlu); end.rotation.y = -Math.PI / 2; end.position.x = -1.021; end.userData.pair = true; ORB.add(end);
+  const pt = new T.Mesh(new T.PlaneGeometry(.2, .2), new T.MeshBasicMaterial({ map: iconTex('PAIR', '#5ff0dc', 'rgba(0,0,0,0)'), transparent: true })); pt.rotation.y = -Math.PI / 2; pt.position.x = -1.0225; pt.userData.pair = true; ORB.add(pt); })();
+// the five rings
+const RINGS = [], FLAT = []; let PORTRAIT = false;
+RX.forEach((x, i) => { const g = new T.Group(); g.position.x = x; g.userData.ring = i; ORB.add(g);
+  const nt = normalTex(PAT[i], 512, 64); nt.repeat.set(i === 0 ? 1 : 2, 1);
+  const m = new T.Mesh(new T.CylinderGeometry(RR, RR, RW - .012, 128, 1, true), new T.MeshPhysicalMaterial({ color: [0xd2cfc8, 0xc3c0b8, 0xd8d5ce, 0xc8c5bd, 0xcfccc4][i], metalness: 1, roughness: [.26, .36, .22, .34, .28][i], normalMap: nt, normalScale: new T.Vector2(1.2, 1.2), clearcoat: .2 }));
+  m.rotation.z = Math.PI / 2; m.userData.ring = i; g.add(m);
+  for (const s of [-1, 1]) { const ch = new T.Mesh(new T.TorusGeometry(RR - .003, .006, 10, 128), alu); ch.rotation.y = Math.PI / 2; ch.position.x = s * (RW / 2 - .006); ch.userData.ring = i; g.add(ch); }
+  for (let k = 0; k < 6; k++) { const a = k * TAU / 6, w = k === 0 ? RW - .026 : RW * .58, col = k === 0 ? 0xff5a3c : (k % 2 === 0 ? 0xd94e34 : 0x262522);
+    const mark = new T.Mesh(new T.BoxGeometry(w, .004, k === 0 ? .013 : .008), new T.MeshBasicMaterial({ color: col }));
+    mark.position.set(0, Math.cos(a) * (RR + .0012), Math.sin(a) * (RR + .0012)); mark.rotation.x = a; mark.userData.ring = i; g.add(mark); }
+  const lit = new T.Mesh(new T.TorusGeometry(RR + .0018, .0026, 8, 128), new T.MeshBasicMaterial({ color: 0x5ff0dc, toneMapped: false })); lit.rotation.y = Math.PI / 2; g.add(lit);
+  const lc = document.createElement('canvas'); lc.width = 320; lc.height = 140; const lt = new T.CanvasTexture(lc); lt.encoding = T.sRGBEncoding; lt.anisotropy = 4;
+  const la = .5, lp = new T.Mesh(new T.PlaneGeometry(RW * .94, RW * .94 * 140 / 320), new T.MeshBasicMaterial({ map: lt, transparent: true, toneMapped: false })); lp.position.set(0, Math.sin(la) * (RR + .012), Math.cos(la) * (RR + .012)); lp.rotation.x = -la; FLAT.push(lp); lp.userData.ring = i; lp.userData.keepW = true;
+  const lg = new T.Group(); lg.position.x = x; lg.add(lp); ORB.add(lg);
+  RINGS.push({ g, m, lit, ang: 0, target: 0, lc, lt, lp, lg, key: '', stretch: 0 }); });
+function drawDialLabels() { const RS = rings(); RINGS.forEach((R0, i) => { const r = RS[i], hot = i === S.lastRing || i === S.hoverRing, col = r && r.axis != null ? AXC[r.axis] : i === 0 ? '#f0b040' : i === 1 ? '#e8f2ee' : '#5ff0dc';
+  const key = r ? r.n + '|' + r.f(r.v()) + '|' + hot + '|' + col : '-'; if (key === R0.key) return; R0.key = key; const x = R0.lc.getContext('2d'), W = 320, H = 140; x.clearRect(0, 0, W, H);
+  x.fillStyle = hot ? 'rgba(10,40,36,.92)' : 'rgba(4,8,7,.82)'; x.beginPath(); x.moveTo(14, 4); x.arcTo(W - 4, 4, W - 4, H - 4, 14); x.arcTo(W - 4, H - 4, 4, H - 4, 14); x.arcTo(4, H - 4, 4, 4, 14); x.arcTo(4, 4, W - 4, 4, 14); x.fill();
+  x.fillStyle = col; x.fillRect(4, 4, 10, H - 8); x.textAlign = 'center';
+  if (!r) { R0.lp.visible = false; R0.lt.needsUpdate = true; return; } else if (!(R0.lp.visible = true)) { }
+  else { x.fillStyle = col; x.font = '700 28px ui-monospace, Menlo, monospace'; x.fillText((i + 1) + ' ' + r.n, W / 2 + 6, 40); let v = String(r.f(r.v())); x.fillStyle = hot ? '#ffffff' : '#d8f6f0'; let fs = 46; x.font = '700 ' + fs + 'px ui-monospace, Menlo, monospace'; while (x.measureText(v).width > W - 30 && fs > 22) { fs -= 2; x.font = '700 ' + fs + 'px ui-monospace, Menlo, monospace'; } x.fillText(v, W / 2 + 6, 98);
+    const u = v01(r); x.fillStyle = '#123630'; x.fillRect(24, 116, W - 40, 8); x.fillStyle = col; x.fillRect(24, 116, (W - 40) * u, 8); }
+  R0.lt.needsUpdate = true; }); }
+// fixed index ticks between the rings, as on the prop
+RX.forEach(x => { for (const s of [-1, 1]) { const t = new T.Mesh(new T.BoxGeometry(.009, .005, .022), new T.MeshBasicMaterial({ color: 0xff5a3c })); t.position.set(x + s * (RW / 2 + .006), BODY + .004, .12); ORB.add(t); } });
+// the display: a glass strip above the rings, angled to the eye
+const OLED = document.createElement('canvas'); OLED.width = 1600; OLED.height = 360; const ox = OLED.getContext('2d'); const oledTex = new T.CanvasTexture(OLED); oledTex.encoding = T.sRGBEncoding; oledTex.anisotropy = 4;
+const oledG = new T.Group(); oledG.position.set(0, .52, -.22); oledG.rotation.x = -.38; ORB.add(oledG);
+const housing = new T.Mesh(new T.BoxGeometry(1.32, .32, .05), darkAlu); housing.position.z = -.028; oledG.add(housing);
+const oled = new T.Mesh(new T.PlaneGeometry(1.26, .2835), new T.MeshBasicMaterial({ map: oledTex, toneMapped: false })); oled.position.z = .0015; oledG.add(oled);
+const oglass = new T.Mesh(new T.PlaneGeometry(1.27, .29), new T.MeshPhysicalMaterial({ color: 0x000000, transparent: true, opacity: .25, roughness: .05, metalness: 0, clearcoat: 1 })); oglass.position.z = .003; oledG.add(oglass);
+for (const s of [-1, 1]) { const st = new T.Mesh(new T.BoxGeometry(.035, .34, .04), alu); st.position.set(s * .6, -.24, -.06); st.rotation.x = .38; oledG.add(st); }
+function fitOrb() { const w = orbEl.clientWidth, h = orbEl.clientHeight; OR.setSize(w, h, false); OC.aspect = w / h; const pt = h > w * 1.15; if (pt !== PORTRAIT) { PORTRAIT = pt; oledG.visible = !pt; OC.up.set(pt ? 1 : 0, pt ? 0 : 1, 0); FLAT.forEach(m => m.rotation.z = pt ? -Math.PI / 2 : 0); }
+  let needW = 2.16 * (S.stretch || 1), needH = 1.02; if (pt) { const t = needW; needW = needH * 1.15; needH = t; } const vf = OC.fov * Math.PI / 180, distH = needH / 2 / Math.tan(vf / 2), distW = needW / 2 / (Math.tan(vf / 2) * OC.aspect); const d = Math.max(distH, distW) * 1.04;
+  OC.position.set(0, d * .4, d * .92); OC.lookAt(0, .2, 0); OC.updateProjectionMatrix(); }
+function tick(kind, i) { if (window.SNDLOG) window.SNDLOG.push({ t: NOW, k: kind, i: i || 0 }); try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); const n = AC.createBufferSource(), L = kind === 'press' ? 900 : 380, b = AC.createBuffer(1, L, AC.sampleRate), d = b.getChannelData(0);
+  for (let k = 0; k < L; k++) d[k] = (Math.random() * 2 - 1) * Math.exp(-k / (kind === 'dead' ? 25 : kind === 'press' ? 140 : 50)); n.buffer = b; const f = AC.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = kind === 'press' ? 1100 : kind === 'dead' ? 650 : [2700, 2300, 1900, 2500, 3100][i || 0]; f.Q.value = 2.5;
+  const g = AC.createGain(); g.gain.value = kind === 'dead' ? .2 : .8; n.connect(f).connect(g).connect(AC.destination); n.start(); } catch (e) { }
+  if (navigator.vibrate) navigator.vibrate(kind === 'press' ? 14 : kind === 'dead' ? 3 : 6); }
+function tone(f0, f1, dur, vol, type) { if (window.SNDLOG) window.SNDLOG.push({ t: NOW, k: 'tone', f0, f1, dur, vol, type: type || 'sine' }); try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime; o.type = type || 'sine'; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .012); g.gain.exponentialRampToValueAtTime(.0001, t + dur); o.connect(g).connect(AC.destination); o.start(t); o.stop(t + dur + .02); } catch (e) { } }
+/* =============================================================== THE DOCUMENT: what the memory is. Everything in the room is rebuilt from it; undo keeps copies of it. */
+const DOC0 = () => ({ cake: null, table: null, kids: [], light: { a: 40, h: .8, warm: .75, k: 1.2 }, mist: 0 });
+let DOC = DOC0(); const UNDO = [], REDO = []; let gestT = -9, dirty = { cake: true, table: true, kids: true, mist: true };
+const S = { pick: 'cake', lastRing: -1, hoverRing: -1, turn: 0, tilt: 0, close: 0, stretch: 1, msg: '', msgT: -9, retT: -9, pairShow: false, anim: null, recall: null };
+function snap(force) { if (!force && NOW - gestT < 1.2) { gestT = NOW; return; } gestT = NOW; UNDO.push(JSON.stringify(DOC)); if (UNDO.length > 80) UNDO.shift(); REDO.length = 0; }
+function setDoc(d) { DOC = d; dirty.cake = dirty.table = dirty.kids = dirty.mist = true; if (!things().some(t => t.key === S.pick)) S.pick = (things()[0] || { key: 'cake' }).key; }
+function say(m) { S.msg = m; S.msgT = NOW; oledDirty = true; }
+function lockChime() { tone(1320, 1310, .09, .12); setTimeout(() => tone(1760, 1750, .14, .09), 70); }
+function shimmer() { tone(440, 880, .9, .07, 'triangle'); setTimeout(() => tone(660, 1320, .8, .05, 'triangle'), 120); }
+
+/* =============================================================== WHAT CAN BE PICKED: only what exists */
+function things() { const L = []; if (DOC.cake) L.push({ key: 'cake', name: 'CAKE' }); if (DOC.table) L.push({ key: 'table', name: 'TABLE' });
+  DOC.kids.forEach(c => L.push({ key: 'kid' + c.i, name: 'CHILD ' + (c.i + 1), c })); if (DOC.cake) L.push({ key: 'light', name: 'LIGHT' }, { key: 'memory', name: 'THE MEMORY' }); return L; }
+const picked = () => things().find(t => t.key === S.pick) || null;
+/* =============================================================== THE RINGS: ring 1 picks (when there is a choice); rings 2-5 are the picked thing's properties */
+const list = (n, get, set, L) => ({ n, v: get, set: v => set(clamp(Math.round(v), 0, L.length - 1)), st: 1, f: v => L[v], lo: 0, hi: L.length - 1 });
+const num = (n, get, set, lo, hi, st, f, wrap) => ({ n, v: get, set: v => set(wrap ? ((v - lo) % (hi - lo) + (hi - lo)) % (hi - lo) + lo : clamp(+v.toFixed(4), lo, hi)), st, f, lo, hi, wrap });
+function rings() {
+  if (window.REMOTE_RINGS) return window.REMOTE_RINGS();
+  const L = things(), p = picked(), out = [null, null, null, null, null]; if (S.recall) return out;
+  if (L.length > 1) out[0] = list('PICK', () => Math.max(0, L.findIndex(t => t.key === S.pick)), v => { if (L[v].key !== S.pick) { S.pick = L[v].key; lockChime(); } }, L.map(t => t.name));
+  if (!p) return out; const C = DOC.cake, Tb = DOC.table, Lt = DOC.light, ch = p.c;
+  const props = p.key === 'cake' ? [list('FORM', () => Object.keys(FORMS).indexOf(C.form), v => { C.form = Object.keys(FORMS)[v]; dirty.cake = true; }, Object.keys(FORMS)), list('ICING', () => C.icing, v => { C.icing = v; dirty.cake = true; }, ICING.map(i => i[0])),
+      list('BORDER', () => C.border, v => { C.border = v; dirty.cake = true; }, BORDER.map(i => i[0])), num('CANDLES', () => C.candles, v => { C.candles = Math.round(v); C.out = 0; dirty.cake = true; }, 0, 12, 1, v => String(Math.round(v)))]
+    : p.key === 'table' ? [num('WIDTH', () => Tb.w, v => { Tb.w = v; dirty.table = true; }, .6, 1.5, .05, v => '×' + v.toFixed(2)), list('WOOD', () => Tb.wood, v => { Tb.wood = v; dirty.table = true; }, WOOD.map(w => w[0]))]
+    : p.key === 'light' ? [num('AROUND', () => Lt.a, v => Lt.a = v, -180, 180, 10, v => Math.round(v) + '°', true), num('HEIGHT', () => Lt.h, v => Lt.h = v, .05, 1.6, .05, v => Math.round(v * 100) + ' CM'), num('WARMTH', () => Lt.warm, v => Lt.warm = v, 0, 1, .05, v => v < .34 ? 'COOL' : v < .67 ? 'NEUTRAL' : 'WARM'), num('STRENGTH', () => Lt.k, v => Lt.k = v, 0, 3, .1, v => Math.round(v / 3 * 100) + '%')]
+    : p.key === 'memory' ? [num('MIST', () => DOC.mist, v => DOC.mist = v, 0, 1, .05, v => Math.round(v * 100) + '%')]
+    : [num('AROUND', () => ch.a * 57.2958, v => ch.a = v / 57.2958, 0, 360, 4, v => Math.round(v) + '°', true), num('DISTANCE', () => ch.r, v => ch.r = v, .3, 1.3, .025, v => Math.round(v * 100) + ' CM'), num('FACE', () => ch.face, v => ch.face = Math.round(v), -70, 70, 5, v => (v > 0 ? '+' : '') + Math.round(v) + '°'), num('SIZE', () => ch.s, v => ch.s = v, .6, 1.5, .05, v => '×' + v.toFixed(2))];
+  props.forEach((r, i) => { r.undoable = true; out[i + 1] = r; }); return out; }
+function v01(r) { if (r && r.u != null) return r.u; if (!r || r.lo == null) return .5; return clamp((r.v() - r.lo) / Math.max(1e-6, r.hi - r.lo), 0, 1); }
+const AXC = ['#ff5b4d', '#5fe36e', '#4f8dff'];
+let scrubAcc = [0, 0, 0, 0, 0];
+function turn(i, steps) { if (window.REMOTE) { tick('ring', i); ORB.spin(i, steps); S.lastRing = i; return window.REMOTE({ k: 'turn', i, steps }); }
+  const r = rings()[i]; if (!r) { tick('dead'); return; } tick('ring', i); if (r.undoable) snap(); r.set(r.v() + r.st * steps); S.lastRing = i; S.retT = NOW; ORB.spin(i, steps); oledDirty = true; dirty.mist = true; }
+function scrub(i, frac) { if (window.REMOTE) { ORB.spin(i, frac); S.lastRing = i; return window.REMOTE({ k: 'scrub', i, frac }); }
+  const r = rings()[i]; if (!r) return; if (r.f === undefined || r.st === 1) { scrubAcc[i] += frac; while (Math.abs(scrubAcc[i]) >= 1) { turn(i, Math.sign(scrubAcc[i])); scrubAcc[i] -= Math.sign(scrubAcc[i]); } return; }
+  if (r.undoable) snap(); const b = Math.floor(r.v() / r.st); r.set(r.v() + r.st * frac); if (Math.floor(r.v() / r.st) !== b) tick('ring', i); S.lastRing = i; S.retT = NOW; ORB.spin(i, frac); oledDirty = true; }
+function viewBy(dx, dy, dc) { if (window.REMOTE) return window.REMOTE({ k: 'view', dx, dy, dc }); S.turn += dx; S.tilt = clamp(S.tilt + dy, -.5, .6); S.close = clamp(S.close + dc, 0, 1); S.stretch = 1 + S.close * .45; setStretch(S.stretch); }
+
+/* =============================================================== DO: the one next thing the memory needs, named on the display */
+function nextAct() { const C = DOC.cake;
+  if (!C) return { t: 'BRING THE CAKE', run: () => { DOC.cake = { form: 'DRUM', icing: 1, border: 0, candles: 0, out: 0 }; S.pick = 'cake'; shimmer(); } };
+  if (!DOC.table) return { t: 'SET THE TABLE', run: () => { DOC.table = { w: 1, wood: 0, k: 0 }; S.pick = 'table'; shimmer(); } };
+  if (DOC.kids.length < 3) return { t: 'BRING A CHILD', run: () => { const used = new Set(DOC.kids.map(c => c.i)), i = [0, 1, 2].find(n => !used.has(n)); DOC.kids.push({ i, a: KIDS[i].slot, r: .62, face: 0, s: 1 }); S.pick = 'kid' + i; shimmer(); } };
+  if (!C.candles) return { t: 'SEVEN CANDLES', run: () => { C.candles = 7; C.out = 0; S.pick = 'cake'; tone(880, 880, .25, .05); } };
+  if ((C.out || 0) < C.candles) return { t: 'BLOW THEM OUT', run: () => { S.anim = { k: 'blow', t: 0, n: C.candles - (C.out || 0) }; } };
+  if (DOC.mist < 1) return { t: 'LET IT GO TO MIST', run: () => { S.pick = 'memory'; S.anim = { k: 'mist', t: 0, from: DOC.mist, to: 1, dur: 3.5 }; } };
+  return { t: 'BRING IT BACK', run: () => { C.out = 0; S.anim = { k: 'mist', t: 0, from: 1, to: 0, dur: 2.5 }; } }; }
+function press(b, long) { if (window.REMOTE) { tick('press'); ORB.push(b); return window.REMOTE({ k: 'press', b, long }); } tick('press'); ORB.push(b);
+  if (S.recall && b !== 'PLAY') { S.recall = null; setDoc(JSON.parse(S.recallEnd)); say('BACK TO NOW'); return; }
+  if (b === 'CAPTURE') { const a = nextAct(); snap(true); a.run(); setDoc(DOC); say(a.t); }
+  else if (b === 'UNDO') { const from = long ? REDO : UNDO, to = long ? UNDO : REDO, s = from.pop(); if (!s) { tick('dead'); say(long ? 'NOTHING TO REDO' : 'NOTHING TO UNDO'); return; } to.push(JSON.stringify(DOC)); S.anim = null; setDoc(JSON.parse(s)); say(long ? 'REDONE' : 'UNDONE'); }
+  else if (b === 'PLAY') { if (S.recall) { S.recall = null; setDoc(JSON.parse(S.recallEnd)); say('BACK TO NOW'); return; } if (!UNDO.length) { tick('dead'); return; } S.recallEnd = JSON.stringify(DOC); S.recall = { i: 0, t: 0, frames: [...UNDO, S.recallEnd] }; setDoc(JSON.parse(S.recall.frames[0])); say('RECALLING'); }
+  else if (b === 'KEEP') keep();
+  oledDirty = true; }
+function keep() { try { const ex = new T.GLTFExporter(); ex.parse(MEM, r => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([r], { type: 'model/gltf-binary' })); a.download = 'memory.glb'; document.body.append(a); a.click(); setTimeout(() => a.remove(), 1000); say('KEPT · MEMORY.GLB'); }, { binary: true }); } catch (e) { say('COULD NOT KEEP · ' + e.message.slice(0, 30)); } }
+const PHONE = /[?&]orb\b/.test(location.search);
+const PAIR = (function () { const uid = () => Math.random().toString(36).slice(2, 10), dev = uid(), TE = new TextEncoder(), TD = new TextDecoder(), SEEN = new Set(); let MID = 0, room = null, socks = [], urls = new Set(), peers = new Map();
+  const RELAYS = ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt', 'wss://test.mosquitto.org:8081/mqtt'];
+  let BC = null; try { BC = new BroadcastChannel('stelline-maker'); BC.onmessage = e => recv(e.data); } catch (e) { }
+  const cat = (...ps) => { const o = new Uint8Array(ps.reduce((a, p) => a + p.length, 0)); let i = 0; for (const p of ps) { o.set(p, i); i += p.length; } return o; };
+  const mqStr = s => { const b = TE.encode(s); return cat(new Uint8Array([b.length >> 8, b.length & 255]), b); };
+  const mqPkt = (h, body) => { const r = []; let n = body.length; do { let d = n % 128; n = Math.floor(n / 128); if (n) d |= 128; r.push(d); } while (n); return cat(new Uint8Array([h, ...r]), body); };
+  const topic = () => 'stelline-maker/v1/' + room;
+  function open1(url) { if (urls.has(url)) return; urls.add(url); let ws; try { ws = new WebSocket(url, 'mqtt'); } catch (e) { urls.delete(url); return; } ws.binaryType = 'arraybuffer'; const K = { ws, ok: false, buf: new Uint8Array(0) }; socks.push(K);
+    ws.onopen = () => ws.send(mqPkt(0x10, cat(mqStr('MQTT'), new Uint8Array([4, 2, 0, 60]), mqStr('sw-' + dev + uid().slice(0, 4)))));
+    ws.onmessage = e => { K.buf = cat(K.buf, new Uint8Array(e.data)); for (; ;) { const b = K.buf; if (b.length < 2) return; let m = 1, len = 0, i = 1, d; do { if (i >= b.length) return; d = b[i++]; len += (d & 127) * m; m *= 128; } while (d & 128); if (b.length < i + len) return; const h = b[0], body = b.subarray(i, i + len); K.buf = b.slice(i + len);
+        if (h >> 4 === 2) { K.ok = true; ws.send(mqPkt(0x82, cat(new Uint8Array([0, 1]), mqStr(topic()), new Uint8Array([0])))); hello(); } else if (h >> 4 === 3) { const tl = (body[0] << 8) | body[1], off = 2 + tl + (((h >> 1) & 3) ? 2 : 0); try { recv(JSON.parse(TD.decode(body.subarray(off)))); } catch (x) { } } } };
+    ws.onclose = () => { socks = socks.filter(x => x !== K); urls.delete(url); if (room) setTimeout(() => open1(url), 3000); }; ws.onerror = () => { }; }
+  setInterval(() => { for (const K of socks) if (K.ok) try { K.ws.send(new Uint8Array([0xC0, 0])); } catch (e) { } }, 25000);
+  function send(m) { m.from = dev; m.mid = dev + ':' + (++MID); try { BC && BC.postMessage(m); } catch (e) { } if (room && socks.length) { const p = mqPkt(0x30, cat(mqStr(topic()), TE.encode(JSON.stringify(m)))); for (const K of socks) if (K.ok) try { K.ws.send(p); } catch (e) { } } }
+  const role = PHONE ? 'orb' : 'scene', hello = () => send({ type: 'hello', role });
+  function recv(m) { if (!m || !m.type || m.from === dev || SEEN.has(m.mid)) return; SEEN.add(m.mid); const was = peers.size; peers.set(m.from, { role: m.role, at: performance.now() });
+    if (!PHONE && m.role === 'orb' && !was) { say('PHONE PAIRED · ITS RINGS ARE THESE RINGS'); S.pairShow = false; shimmer(); }
+    if (!PHONE && m.type === 'act') { if (m.k === 'turn') turn(m.i, m.steps); else if (m.k === 'scrub') scrub(m.i, m.frac); else if (m.k === 'press') press(m.b, m.long); else if (m.k === 'view') viewBy(m.dx, m.dy, m.dc); }
+    if (PHONE && m.type === 'state') { window.REMOTE_STATE = m.s; S.mode = m.s.mode; S.msg = m.s.msg; S.msgT = NOW; oledDirty = true; } }
+  const join = c => { room = c; for (const u of RELAYS) open1(u); setInterval(hello, 2500); hello(); };
+  const base = () => /github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname) ? location.origin + location.pathname : 'https://hartswf0.github.io/stelline-orb/maker.html';
+  const P = { get room() { return room; }, peers: () => [...peers.values()].filter(p => performance.now() - p.at < 7000),
+    url: () => base() + '?orb&room=' + room,
+    open() { if (!room) { let c = ''; try { c = localStorage.getItem('weaver-room') || ''; } catch (e) { } if (!/^[A-Z]{4}$/.test(c)) { c = Array.from({ length: 4 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.random() * 24 | 0]).join(''); try { localStorage.setItem('weaver-room', c); } catch (e) { } } join(c); }
+      S.pairShow = !S.pairShow; P.qr = null; say(S.pairShow ? 'SCAN THE CODE WITH YOUR PHONE' : ''); oledDirty = true; },
+    stateLoop() { setInterval(() => { if (PHONE || !P.peers().some(p => p.role === 'orb')) return; const RS = rings(); send({ type: 'state', s: { mode: (picked() || {}).name || '', msg: S.msg, last: S.lastRing, step: nextAct() ? nextAct().t : '', rings: RS.map(r => r ? { n: r.n, val: String(r.f(r.v())), u: v01(r), axis: r.axis } : null) } }); }, 120); },
+    join };
+  if (PHONE) { document.body.classList.add('phone'); const q = new URLSearchParams(location.search).get('room'); if (q) join(q.toUpperCase()); window.REMOTE = a => send(Object.assign({ type: 'act' }, a));
+    window.REMOTE_RINGS = () => (window.REMOTE_STATE ? window.REMOTE_STATE.rings : [null, null, null, null, null]).map(r => r ? { n: r.n, v: () => 0, f: () => r.val, u: r.u, axis: r.axis } : null); }
+  else P.stateLoop();
+  return P; })();
+function drawPairQR(x, W, H) { if (!PAIR.qr) { try { const q = qrcode(0, 'M'); q.addData(PAIR.url()); q.make(); PAIR.qr = q; } catch (e) { return; } } const q = PAIR.qr, n = q.getModuleCount(), sz = H - 40, cell = Math.floor(sz / (n + 2)), ox = 40, oy = (H - cell * n) / 2;
+  x.fillStyle = '#e8f2ee'; x.fillRect(ox - cell, oy - cell, cell * (n + 2), cell * (n + 2)); x.fillStyle = '#020403'; for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) x.fillRect(ox + c * cell, oy + r * cell, cell, cell);
+  const tx = ox + cell * (n + 2) + 40; x.textAlign = 'left'; x.fillStyle = '#5ff0dc'; x.font = '700 46px ui-monospace, Menlo, monospace'; x.fillText('PAIR A PHONE', tx, 80); x.font = '700 110px ui-monospace, Menlo, monospace'; x.fillStyle = '#ffffff'; x.fillText(PAIR.room || '····', tx, 200);
+  x.font = '500 26px ui-monospace, Menlo, monospace'; x.fillStyle = '#8fe9dc'; x.fillText('SCAN, OR OPEN MAKER.HTML?ORB&ROOM=' + PAIR.room, tx, 250); x.fillText(PAIR.peers().length ? 'PAIRED · ' + PAIR.peers().length + ' DEVICE' : 'WAITING FOR THE PHONE · TAP THE GRIP END TO CLOSE', tx, 292); }
+
+/* =============================================================== THE BUTTONS: four, each lit only while it can do something */
+const CAN_KEEP = window.top === window && !PHONE;
+const BTN = {};
+[['UNDO', -.8, 0, 0xd9d5cc], ['CAPTURE', .66, -.1, 0xd23a2a], ['PLAY', .77, .03, 0xd9d5cc], ['KEEP', .88, -.1, 0x5ff0dc]].forEach(([n, x, dz, col]) => { if (n === 'KEEP' && !CAN_KEEP) return;
+  const a = .95 + dz * 2, y = Math.cos(a) * .25, z = Math.sin(a) * .25; const g = new T.Group(); g.position.set(x, y, z); g.lookAt(x, y * 3, z * 3); g.userData.keepW = true; ORB.add(g);
+  const well = new T.Mesh(new T.CylinderGeometry(.045, .045, .012, 40), darkAlu); well.rotation.x = Math.PI / 2; g.add(well);
+  const capM = n === 'CAPTURE' ? new T.MeshPhysicalMaterial({ color: col, roughness: .25, clearcoat: 1, emissive: 0x3a0804 }) : new T.MeshPhysicalMaterial({ color: col, metalness: .8, roughness: .3, clearcoat: .6, emissive: 0x000000 });
+  const cap = new T.Mesh(new T.SphereGeometry(.038, 32, 16, 0, TAU, 0, Math.PI / 2), capM); cap.rotation.x = Math.PI / 2; cap.scale.set(1, .42, 1); cap.position.z = .006; cap.userData.btn = n; g.add(cap);
+  const lab = new T.Mesh(new T.PlaneGeometry(.17, .051), new T.MeshBasicMaterial({ map: label(n), transparent: true, toneMapped: false })); lab.position.set(0, -.072, .002); lab.userData.btn = n; g.add(lab); FLAT.push(lab);
+  const ic = new T.Mesh(new T.CircleGeometry(.026, 32), new T.MeshBasicMaterial({ map: iconTex(n, n === 'CAPTURE' ? '#ffffff' : '#1b1a17'), transparent: true, toneMapped: false })); ic.position.z = .006 + .038 * .42 + .0015; ic.userData.btn = n; g.add(ic); FLAT.push(ic);
+  BTN[n] = { g, cap, lab, z0: .006, down: 0 }; });
+let orbPitchV = 0, orbYawV = 0, orbRollV = 0; ORB.rotation.x = .18;
+ORB.spin = (i, steps) => { const r = RINGS[i]; r.target += steps * TAU / 36; orbPitchV += Math.sign(steps) * .03; };
+ORB.push = b => { if (BTN[b]) { BTN[b].down = 1; orbPitchV -= .03; } };
+function setStretch(v) { S.stretch = clamp(v, 1, 1.8); ORB.scale.x = S.stretch; ORB.traverse(o => { if (o.userData.keepW) o.scale.x = 1 / S.stretch; }); fitOrb(); }
+
+/* =============================================================== HANDS ON THE ORB */
+const oray = new T.Raycaster(), ondc = new T.Vector2(); let odrag = null; const optrs = new Map();
+function orbHit(e) { const r = OR.domElement.getBoundingClientRect(); ondc.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1); oray.setFromCamera(ondc, OC); const h = oray.intersectObjects(ORB.children, true)[0]; if (!h) return null; let o = h.object; while (o && o.userData.ring == null && !o.userData.btn && !o.userData.grip && !o.userData.pair && !o.userData.lens) o = o.parent; return o ? o.userData : null; }
+OR.domElement.addEventListener('pointerdown', e => { optrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (optrs.size === 2) { const [p, q] = [...optrs.values()]; odrag = { pinch: Math.hypot(p.x - q.x, p.y - q.y), c0: S.close }; return; }
+  const u = orbHit(e); if (!u) return; OR.domElement.setPointerCapture(e.pointerId);
+  if (u.btn) { odrag = { btn: u.btn, t: performance.now() }; BTN[u.btn].down = 1; return; }
+  if (u.pair) { PAIR.open(); return; }
+  if (u.grip) { odrag = { grip: true, x: e.clientX, y: e.clientY }; return; }
+  if (u.lens) { odrag = { lens: true, x: e.clientX, y: e.clientY }; return; }
+  odrag = { ring: u.ring, x: e.clientX, y: e.clientY, acc: 0, lock: null }; S.lastRing = u.ring; oledDirty = true; if (!rings()[u.ring]) tick('dead'); });
+OR.domElement.addEventListener('pointermove', e => { if (optrs.has(e.pointerId)) optrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (!odrag) { const u = orbHit(e); const hr = u && u.ring != null && rings()[u.ring] ? u.ring : -1; if (hr !== S.hoverRing) { S.hoverRing = hr; oledDirty = true; } OR.domElement.style.cursor = u ? (u.btn || u.pair ? 'pointer' : u.grip || u.lens ? 'grab' : hr >= 0 ? 'ns-resize' : '') : ''; return; }
+  const rx = e.clientX - (odrag.x || 0), ry = e.clientY - (odrag.y || 0);
+  if (odrag.pinch != null && optrs.size === 2) { const [p, q] = [...optrs.values()]; viewBy(0, 0, odrag.c0 + (Math.hypot(p.x - q.x, p.y - q.y) / odrag.pinch - 1) * 1.5 - S.close); return; }
+  if (odrag.grip) { odrag.x = e.clientX; odrag.y = e.clientY; viewBy(PORTRAIT ? ry * .012 : rx * .012, PORTRAIT ? -rx * .006 : ry * .006, 0); return; }
+  if (odrag.lens) { odrag.x = e.clientX; odrag.y = e.clientY; viewBy(0, 0, (PORTRAIT ? -ry : rx) * .004); return; }
+  if (odrag.ring == null) return; const dx = PORTRAIT ? -ry : rx, dy = PORTRAIT ? rx : -ry; odrag.x = e.clientX; odrag.y = e.clientY;
+  if (!odrag.lock) { odrag.ax = (odrag.ax || 0) + Math.abs(dx); odrag.ay = (odrag.ay || 0) + Math.abs(dy); if (odrag.ax + odrag.ay > 6) odrag.lock = odrag.ax > odrag.ay ? 'x' : 'y'; else return; }
+  if (odrag.lock === 'x') { scrub(odrag.ring, dx / (orbEl.clientWidth < 700 ? 16 : 22)); return; }
+  odrag.acc += dy; const px = orbEl.clientWidth < 700 ? 9 : 12; while (Math.abs(odrag.acc) >= px) { turn(odrag.ring, Math.sign(odrag.acc)); odrag.acc -= Math.sign(odrag.acc) * px; } });
+OR.domElement.addEventListener('pointerup', e => { optrs.delete(e.pointerId); if (odrag && odrag.btn) press(odrag.btn, performance.now() - odrag.t > 550); odrag = null; });
+OR.domElement.addEventListener('pointercancel', e => { optrs.delete(e.pointerId); odrag = null; });
+OR.domElement.addEventListener('pointerleave', () => { S.hoverRing = -1; oledDirty = true; });
+OR.domElement.addEventListener('wheel', e => { e.preventDefault(); const u = orbHit(e); if (!u) return; if (u.lens || e.ctrlKey) { viewBy(0, 0, -e.deltaY * .002); return; } if (u.grip) { viewBy(-e.deltaY * .004, 0, 0); return; } if (u.ring == null) return; if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) scrub(u.ring, -e.deltaX / 40); else turn(u.ring, e.deltaY < 0 ? 1 : -1); }, { passive: false });
+addEventListener('keydown', e => { const k = e.key; if (k >= '1' && k <= '5') { S.lastRing = +k - 1; oledDirty = true; } else if (k === 'ArrowUp' || k === 'ArrowDown') { e.preventDefault(); turn(Math.max(0, S.lastRing), k === 'ArrowUp' ? 1 : -1); } else if (k === 'ArrowLeft' || k === 'ArrowRight') { e.preventDefault(); viewBy(k === 'ArrowRight' ? .08 : -.08, 0, 0); }
+  else if (k === 'd' || k === ' ') { e.preventDefault(); press('CAPTURE'); } else if (k === 'z') press('UNDO', e.shiftKey); else if (k === 'r') press('PLAY'); else if (k === 'p') PAIR.open(); else if (k === '+' || k === '=') viewBy(0, 0, .1); else if (k === '-') viewBy(0, 0, -.1); });
+
+/* =============================================================== THE DISPLAY: what is picked · what the ring last turned is · what DO will do */
+let oledDirty = true;
+function drawOLED() { const W = OLED.width, H = OLED.height, x = ox; x.fillStyle = '#020403'; x.fillRect(0, 0, W, H); const CY = '#5ff0dc', DIM = '#2e7a70', MID = '#8fe9dc', AMB = '#f0b040';
+  if (S.pairShow && !PHONE) { drawPairQR(x, W, H); oledTex.needsUpdate = true; return; }
+  const st = window.REMOTE_STATE, p = PHONE ? null : picked(), act = PHONE ? (st && st.step ? { t: st.step } : null) : nextAct();
+  x.textAlign = 'left'; x.font = '600 26px ui-monospace, Menlo, monospace'; x.fillStyle = DIM; x.fillText(S.recall ? 'RECALLING' : PHONE ? 'PAIRED ORB' : p ? 'WORKING ON' : 'NOTHING YET', 30, 64);
+  x.font = '700 72px ui-monospace, Menlo, monospace'; x.fillStyle = CY; x.fillText(PHONE ? (st ? st.mode || '' : '') : p ? p.name : '', 30, 150);
+  const RS = rings(), r = RS[S.lastRing]; if (r && !S.recall) { x.textAlign = 'center'; x.font = '600 26px ui-monospace, Menlo, monospace'; x.fillStyle = DIM; x.fillText(r.n, W * .52, 64); x.font = '700 72px ui-monospace, Menlo, monospace'; x.fillStyle = '#e8f6f2'; x.fillText(String(r.f(r.v())), W * .52, 150); }
+  if (act) { x.textAlign = 'right'; x.font = '600 26px ui-monospace, Menlo, monospace'; x.fillStyle = '#7a3a30'; x.fillText('DO', W - 30, 64); x.font = '700 50px ui-monospace, Menlo, monospace'; x.fillStyle = AMB; x.fillText(act.t, W - 30, 146); }
+  x.textAlign = 'center'; x.font = '500 26px ui-monospace, Menlo, monospace'; x.fillStyle = MID; if (S.msg && NOW - S.msgT < 3.5) x.fillText(S.msg.slice(0, 70), W / 2, 280);
+  else if (!PHONE && !DOC.cake) x.fillText('PRESS DO', W / 2, 280); else if (!PHONE && NOW - S.retT > 20) { x.fillStyle = DIM; x.fillText('GRIP END TURNS THE MEMORY · LENS END BRINGS IT CLOSE', W / 2, 280); }
+  oledTex.needsUpdate = true; }
+setInterval(() => { oledDirty = true; }, 500);
+
+/* =============================================================== THE SIGHT: one small reticle beside what a ring is changing, only while it changes */
+const SIGHT = new T.Group(); scene.add(SIGHT); const sMat = new T.MeshBasicMaterial({ color: 0xd8e6e2, transparent: true, opacity: 0, depthTest: false, depthWrite: false, toneMapped: false });
+const sArc = new T.Mesh(new T.TorusGeometry(1, .03, 6, 80, 4.2), sMat); sArc.rotation.z = Math.PI / 2 + (TAU - 4.2) / 2 + Math.PI; sArc.renderOrder = 40; SIGHT.add(sArc);
+const sBox = new T.Mesh(new T.BoxGeometry(.13, .13, .02), sMat); sBox.renderOrder = 41; SIGHT.add(sBox);
+const sTick = []; for (let k = 0; k < 9; k++) { const t = new T.Mesh(new T.BoxGeometry(.03, .14, .01), sMat); const a = Math.PI * .5 + (TAU - 4.2) / 2 + Math.PI - 4.2 / 2 + k / 8 * 4.2; t.position.set(Math.cos(a) * 1.12, Math.sin(a) * 1.12, 0); t.rotation.z = a; t.renderOrder = 40; SIGHT.add(t); sTick.push(t); }
+function centerOf(key) { if (key === 'cake') { const b = new T.Box3().setFromObject(CAKE); return b.isEmpty() ? null : { c: b.getCenter(new T.Vector3()), r: b.getSize(new T.Vector3()).length() / 2 }; }
+  if (key === 'table') { const b = new T.Box3().setFromObject(TABLE.children[0] || TABLE); return { c: b.getCenter(new T.Vector3()), r: .3 }; }
+  if (key === 'light') return { c: keyMark.position.clone(), r: .06 };
+  if (key.startsWith('kid')) { const m = KM[+key.slice(3)]; if (!m) return null; return { c: m.getWorldPosition(new T.Vector3()), r: m.scale.y * .5 }; } return null; }
+function updSight(dt) { const show = !S.recall && !FILM ? NOW - S.retT < 2.4 : NOW - S.retT < 2.4, ce = show ? centerOf(S.pick) : null; const want = ce ? .75 : 0; sMat.opacity += (want - sMat.opacity) * Math.min(1, dt * 6); SIGHT.visible = sMat.opacity > .02; if (!ce) return;
+  const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion), s = clamp(ce.r * .42, .025, .16); SIGHT.position.copy(ce.c).addScaledVector(right, ce.r * 1.05 + s * 1.3); SIGHT.quaternion.copy(cam.quaternion); SIGHT.scale.setScalar(s);
+  const r = rings()[S.lastRing], u = v01(r), a = Math.PI * .5 + (TAU - 4.2) / 2 + Math.PI - 4.2 / 2 + u * 4.2; sBox.position.set(Math.cos(a), Math.sin(a), 0); sBox.rotation.z = a; }
+
+/* =============================================================== THE ROOM: rebuild what changed; the camera is your eye, kneeling */
+function apply(dt) { if (dirty.cake) { buildCake(DOC.cake); dirty.cake = false; dirty.mist = true; } if (dirty.table) { buildTable(DOC.table); dirty.table = false; dirty.mist = true; }
+  if (DOC.table) { DOC.table.k = Math.min(1, (DOC.table.k || 0) + dt * .9); tableMat.opacity = legMat.opacity = DOC.table.k; tableMat.transparent = legMat.transparent = DOC.table.k < 1; } placeKids(dt);
+  const Lt = DOC.light, cw = CAKE.getWorldPosition(new T.Vector3()).add(new T.Vector3(0, .05, 0)), la = Lt.a * Math.PI / 180;
+  key.position.set(cw.x + Math.sin(la) * .95, cw.y + Lt.h, cw.z + Math.cos(la) * .95); key.target.position.copy(cw); key.color.setRGB(lerp(.72, 1, Lt.warm), lerp(.82, .72, Lt.warm), lerp(1, .45, Lt.warm)); key.intensity = DOC.cake ? Lt.k : 0;
+  keyMark.position.copy(key.position); keyMark.visible = keyLine.visible = S.pick === 'light' && NOW - S.retT < 3 && !FILM; keyLine.geometry.setFromPoints([key.position, cw]);
+  const lit = FLAMES.length; candleLight.position.set(cw.x, cw.y + .15, cw.z); candleLight.intensity = lit ? (.25 + Math.min(lit, 12) * .12) * (.94 + Math.sin(NOW * 21) * .04 + Math.sin(NOW * 7) * .03) : 0;
+  FLAMES.forEach((f, i) => { const k = 1 + Math.sin(NOW * 13 + i * 1.7) * .06 + Math.sin(NOW * 31 + i) * .04; f.scale.set(.016 * k, .034 * (2 - k), 1); });
+  MU.uMist.value = DOC.mist; MISTP.visible = DOC.mist > .01; if (MISTP.visible && dirty.mist) { buildMist(); dirty.mist = false; }
+  PIV.rotation.set(S.tilt, S.turn, 0, 'XYZ'); if (!DOC.table) { PIV.rotation.z = Math.sin(NOW * .45) * .03; PIV.rotation.x += Math.sin(NOW * .31 + 1) * .025; } }
+function placeCam() { const k = sm(S.close); cam.position.set(Math.sin(NOW * .23) * .004, lerp(.98, .8, k) + Math.sin(NOW * .9) * .003, lerp(1.32, .5, k)); cam.lookAt(0, lerp(.69, .68, k), 0); }
+function tickAnim(dt) { const A = S.anim; if (!A) return; A.t += dt;
+  if (A.k === 'blow') { const C = DOC.cake; if (A.t > .45) { A.t = 0; C.out = (C.out || 0) + 1; dirty.cake = true; tone(320, 120, .35, .04, 'triangle'); if (C.out >= C.candles) { S.anim = null; say('MAKE A WISH'); } } }
+  if (A.k === 'mist') { const u = clamp(A.t / A.dur, 0, 1); DOC.mist = lerp(A.from, A.to, sm(u)); if (u >= 1) { S.anim = null; say(A.to ? 'ALL OF IT IS MIST' : 'IT COMES BACK'); } } }
+function tickRecall(dt) { const Rc = S.recall; if (!Rc) return; Rc.t += dt; if (Rc.t > .55) { Rc.t = 0; Rc.i++; if (Rc.i >= Rc.frames.length) { S.recall = null; setDoc(JSON.parse(S.recallEnd)); say('THAT IS HOW IT WAS MADE'); return; } setDoc(JSON.parse(Rc.frames[Rc.i])); tick('ring', Rc.i % 5); } }
+function resize() { const w = Math.max(2, roomEl.clientWidth), h = Math.max(2, roomEl.clientHeight); R.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); const pr = R.getPixelRatio(); rt.setSize(Math.round(w * pr), Math.round(h * pr)); mistMat.uniforms.uPx.value = h * pr / (2 * Math.tan(cam.fov * Math.PI / 360)); fitOrb(); }
+addEventListener('resize', resize);
+function update(dt) { NOW += dt; MU.uTime.value = NOW; tickAnim(dt); tickRecall(dt); apply(dt); placeCam(); updSight(dt);
+  const dpos = dustG.attributes.position; for (let i = 0; i < DUSTN; i++) { let y = dpos.array[i * 3 + 1] + dt * (.015 + (i % 7) * .003); if (y > 2.2) y = 0; dpos.array[i * 3 + 1] = y; } dpos.needsUpdate = true;
+  RINGS.forEach((r, i) => { r.ang += (r.target - r.ang) * Math.min(1, dt * 18); r.g.rotation.x = r.ang; const on = !!rings()[i]; r.lit.visible = on; r.lit.material.color.setHex(i === S.lastRing ? 0x8ffff0 : i === 0 ? 0xb07a20 : 0x2fae9f); });
+  const can = { CAPTURE: true, UNDO: UNDO.length > 0, PLAY: UNDO.length > 0 || !!S.recall, KEEP: !!DOC.cake };
+  for (const k in BTN) { const b = BTN[k]; if (odrag && odrag.btn === k) b.down = 1; else b.down = Math.max(0, b.down - dt * 6); b.cap.position.z = b.z0 - b.down * .008; b.lab.material.opacity = can[k] ? 1 : .25; b.g.visible = true; }
+  orbPitchV += ((.18 - ORB.rotation.x) * 42 - orbPitchV * 9) * dt; ORB.rotation.x += orbPitchV * dt;
+  ORB.userData.iris.material.opacity = .55 + .35 * (.5 + .5 * Math.sin(NOW * 1.6));
+  drawDialLabels(); if (oledDirty || (S.msg && NOW - S.msgT < 3.6)) { drawOLED(); oledDirty = false; } }
+function render() { if (!PHONE) { grade.uniforms.gt.value = (NOW * 37.1) % 100; R.setRenderTarget(rt); R.render(scene, cam); R.setRenderTarget(null); R.render(gQ, gC); } OR.render(OS, OC); }
+let last = performance.now(), auto = true;
+function loop(now) { if (!auto) return; const dt = Math.min(.05, (now - last) / 1000); last = now; update(dt); render(); requestAnimationFrame(loop); }
+resize(); requestAnimationFrame(loop);
+window.FORGE = { S, get DOC() { return DOC; }, turn, scrub, press, viewBy, rings, things, nextAct, now: () => NOW, flames: () => FLAMES.length, manual() { auto = false; }, advance(dt) { update(dt); render(); }, step(dt) { update(dt); }, PAIR };
+
+</script>
+</body>
+</html>
