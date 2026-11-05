@@ -108,7 +108,7 @@ function layout(W, H) {
   for (let i = 0; i < N; i++) {
     const k = i - S.v, a = Math.abs(k);
     L0.push({ x: W / 2 + k * 30, y: hy, w: k === 0 ? bw : bw * .3, o: a < .5 ? 1 : 0 });
-    const sx = W / 2 + Math.sign(k) * (a < 1 ? a * (bw * .5 + 70) : bw * .5 + 70 + (a - 1) * Math.max(70, W * .085)), sw = a < 1 ? lerp(bw, Math.max(80, W * .075), a) : Math.max(64, W * .075) * Math.max(.55, 1 - (a - 1) * .05);
+    const sx = W / 2 + Math.sign(k) * (a < 1 ? a * (bw * .5 + Math.min(70, W * .06)) : bw * .5 + Math.min(70, W * .06) + (a - 1) * Math.max(Math.min(70, W * .16), W * .085)), sw = a < 1 ? lerp(bw, Math.max(Math.min(80, W * .16), W * .075), a) : Math.max(Math.min(64, W * .15), W * .075) * Math.max(.55, 1 - (a - 1) * .05);
     L1.push({ x: sx, y: a < 1 ? lerp(hy, hy - 10, a) : hy - 10, w: sw, o: clamp(1.4 - a * .09, 0, 1) * (sx > -100 && sx < W + 100 ? 1 : 0) });
     const r = Math.floor(i / cols), c = i % cols; L2.push({ x: 12 + c * cw + cw / 2, y: 18 + r * (ch + 14) + ch / 2, w: cw - 8, o: 1 });
   }
