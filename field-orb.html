@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en" data-state="warm">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vesper Instruments · Field Orb 04</title>
+<meta name="description" content="The Memory Orb looks like a Canon cinema lens, works like an ARRI hand controller, and edits like Blender. Turn the TIME ring and watch the cake move while the children stay still.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,100..900&family=Martian+Mono:wdth,wght@75..112,100..800&family=Permanent+Marker&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site/vesper.css">
+<style>
+  .stage{position:relative;background:#050807;overflow:hidden;aspect-ratio:16/9;border:4px solid var(--steel);margin-top:calc(var(--g)*1.4)}
+  .stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .stage canvas.tl{inset:auto 0 0 0;height:84px}
+  .hud{position:absolute;left:18px;right:18px;display:flex;justify-content:space-between;gap:12px;font:500 10.5px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:rgba(247,236,222,.82);pointer-events:none}
+  .hud.t{top:14px}.hud.b{bottom:96px}.hud span b{color:var(--amber);font-weight:500}
+  .tabs{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:flex;gap:0;background:var(--void);border:2px solid var(--steel)}
+  .tabs button{font:600 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--steel);background:none;border:0;padding:7px 13px;cursor:pointer}
+  .tabs button[aria-pressed=true]{background:var(--steel);color:var(--void)}
+  @media(max-width:860px){.orbbox .note{left:53.3%}}
+  @media(max-width:700px){.hud{font-size:9px}.hud.b{bottom:80px}.tabs{top:40px}}
+  .orbbox{position:relative;padding-top:clamp(40px,6vw,70px)}
+  .orbbox .note{position:absolute;left:calc(50% + 820px*0.033);top:0;transform:translateX(-50%) rotate(-3deg);font-size:clamp(18px,3vw,34px);white-space:nowrap}
+  .orbbox .note svg{display:block;margin:2px auto 0;width:40px;height:44px;fill:none;stroke:currentColor;stroke-width:4;stroke-linecap:round}
+  svg#orb{width:100%;max-width:820px;margin:0 auto;height:auto;display:block;touch-action:none;user-select:none;-webkit-user-select:none}
+  .ring{cursor:ns-resize;outline:none}.ring:focus-visible .hit{stroke:var(--steel);stroke-width:3;fill:rgba(255,255,255,.08)}
+  #thumb{cursor:pointer;outline:none}#thumb:focus-visible .keycap{stroke:var(--steel);stroke-width:3}
+  .readout{font:500 12px/1.5 var(--mono);letter-spacing:.06em;text-transform:uppercase;margin:10px 0 0;min-height:1.6em}
+  .readout b{font-weight:700}
+  .legend{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--g);margin-top:18px}
+  .legend>div{border-top:4px solid currentColor;padding-top:8px;position:relative}
+  .legend .num{display:block;font:900 clamp(30px,5.4vw,88px)/.88 var(--display);font-variation-settings:"wdth" 150,"wght" 900;letter-spacing:-.02em}
+  .legend h3{margin:8px 0 6px;font:800 clamp(15px,1.7vw,22px)/1 var(--display);font-variation-settings:"wdth" 125,"wght" 800;text-transform:uppercase}
+  .legend p{margin:0;font-size:15px;line-height:1.4}
+  .legend .ring-mark{position:absolute;left:-10px;top:-6px;width:calc(100% + 20px);height:calc(100% + 14px);pointer-events:none;filter:url(#rough);overflow:visible;fill:none;stroke:var(--red);stroke-width:5;stroke-linecap:round}
+  @media(max-width:820px){.legend{grid-template-columns:repeat(2,1fr)}}
+  .barrel{position:relative;border-radius:16px 50% 50% 16px/16px 50% 50% 16px;overflow:hidden;aspect-ratio:16/9;background:var(--void)}
+  .barrel img{width:100%;height:100%;object-fit:cover;display:block}
+  .barrel::after{content:"";position:absolute;top:0;bottom:0;left:79%;width:2.2%;background:var(--red)}
+  nav.top{position:sticky;top:0;z-index:50;background:var(--void);color:var(--steel);display:flex;align-items:center;gap:22px;padding:0 var(--g);height:52px;border-bottom:3px solid var(--accent)}
+  nav.top .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--steel)}
+  nav.top .brand svg{height:26px;width:auto;display:block}
+  nav.top .brand b{font:800 15px/1 var(--display);font-variation-settings:"wdth" 140,"wght" 800;letter-spacing:.06em;text-transform:uppercase}
+  nav.top .links{margin-left:auto;display:flex;gap:20px;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase}
+  nav.top a.links-a{text-decoration:none}nav.top a.links-a:hover{color:var(--accent)}
+  nav.top a.go{background:var(--accent);color:var(--void);padding:9px 12px;font-weight:700}
+  @media(max-width:760px){nav.top .links a:not(.go){display:none}}
+  .lede{font:700 clamp(22px,3.1vw,44px)/1.08 var(--display);font-variation-settings:"wdth" 112,"wght" 700;color:var(--accent);max-width:22em;margin:calc(var(--g)*1.1) 0 10px}
+  .sub{max-width:44em;margin:0}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="rough" x="-5%" y="-30%" width="110%" height="160%"><feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="3" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="5"/></filter></svg>
+
+<nav class="top"><a class="brand" href="#top"><svg viewBox="0 0 250 60" aria-hidden="true"><rect x="2" y="12" width="14" height="36" rx="2" fill="currentColor"/><rect x="16" y="8" width="132" height="44" rx="3" fill="none" stroke="currentColor" stroke-width="3"/><rect x="62" y="2" width="12" height="56" fill="currentColor"/><rect x="82" y="2" width="12" height="56" fill="currentColor"/><rect x="102" y="2" width="12" height="56" fill="currentColor"/><rect x="148" y="14" width="40" height="32" fill="currentColor"/><rect x="156" y="14" width="6" height="32" fill="#C8301E"/><ellipse cx="190" cy="30" rx="16" ry="29" fill="var(--accent)"/><ellipse cx="193" cy="30" rx="8" ry="16" fill="#0B0B0C"/></svg><b>Vesper</b></a>
+  <div class="links"><a class="links-a" href="#instrument">Instrument</a><a class="links-a" href="#references">References</a><a class="links-a" href="#origins">Origins</a><a class="links-a" href="#theory">Theory</a><a class="links-a" href="#disclosure">Disclosure</a><a class="links-a" href="identity.html">Identity</a><a class="links-a" href="index.html">Machine</a><a class="links-a go" href="studio.html">Studio →</a></div></nav>
+
+<main id="top">
+<section class="sec void" style="padding-top:calc(var(--g)*1.4)">
+  <div class="seed glass"></div>
+  <div class="tele"><span>Vesper Instruments</span><span>Field Orb 04 <i>/ model 100</i></span><span>Memory instrument</span></div>
+  <p class="kick" style="color:var(--accent)">The Memory Orb</p>
+  <h1 class="hd"><span class="fit ">Looks like a Canon cinema lens,</span><span class="fit ">works like an ARRI hand controller,</span><span class="fit" style="color:var(--accent)">and edits like Blender.<svg class="scrawl" viewBox="0 0 1000 20" preserveAspectRatio="none"><path d="M4 11C120 3 240 17 380 8S640 15 800 6 940 12 996 8" stroke="#C8301E" stroke-width="7" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M12 17C200 11 420 19 700 12S900 16 990 13" stroke="#C8301E" stroke-width="3" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg></span></h1>
+  <p class="lede" style="margin-top:calc(var(--g)*1.6)">Turn the TIME ring and watch the cake move while the children stay still.</p>
+  <p class="sub">The orb below is live. Three rings and a thumb key, labelled with what they do in the demo. Drag a ring, or use the arrow keys.</p>
+  <div class="stage" id="stage">
+    <canvas id="scene" aria-label="Live demonstration scene"></canvas>
+    <div class="tabs" role="tablist" aria-label="Scene"><button id="tabB" aria-pressed="true">Birthday</button><button id="tabF" aria-pressed="false">Forest</button></div>
+    <div class="hud t"><span id="hudL">Chamber · memory vignette</span><span id="hudR"></span></div>
+    <div class="hud b"><span id="msg"></span><span id="hint"></span></div>
+    <canvas class="tl" id="tl" aria-label="Independent layer clocks against host time"></canvas>
+  </div>
+</section>
+
+<section class="sec amber" id="instrument">
+  <i class="edge"></i><div class="seed frost"></div>
+  <div class="tele"><span>110 Field</span><span>112 Variant</span><span>114 Time</span><span>120 Hold</span></div>
+  <div class="orbbox">
+    <div class="note" aria-hidden="true">turn this<svg viewBox="0 0 40 44"><path d="M20 2C18 14 22 26 20 38M9 28l11 12 12-13"/></svg></div>
+    <svg id="orb" viewBox="0 0 960 300" role="group" aria-label="Field Orb 04. Three rotary rings and a thumb key.">
+    <defs>
+      <linearGradient id="barrel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16181a"/><stop offset=".18" stop-color="#3b4045"/><stop offset=".34" stop-color="#25282b"/><stop offset=".7" stop-color="#101214"/><stop offset="1" stop-color="#050607"/></linearGradient>
+      <linearGradient id="ringg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e1011"/><stop offset=".2" stop-color="#555b61"/><stop offset=".38" stop-color="#2e3236"/><stop offset=".72" stop-color="#15181a"/><stop offset="1" stop-color="#090a0b"/></linearGradient>
+      <linearGradient id="redg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a0f08"/><stop offset=".3" stop-color="#e2412c"/><stop offset=".6" stop-color="#b52516"/><stop offset="1" stop-color="#3a0a05"/></linearGradient>
+      <radialGradient id="glass" cx=".42" cy=".4" r=".75"><stop offset="0" stop-color="#7fb0c0" stop-opacity=".9"/><stop offset=".25" stop-color="#1c3a47"/><stop offset=".6" stop-color="#07131a"/><stop offset="1" stop-color="#000"/></radialGradient>
+      <linearGradient id="spec" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      <clipPath id="clipF"><rect x="318" y="46" width="66" height="214" rx="5"/></clipPath>
+      <clipPath id="clipV"><rect x="398" y="46" width="66" height="214" rx="5"/></clipPath>
+      <clipPath id="clipT"><rect x="478" y="46" width="66" height="214" rx="5"/></clipPath>
+    </defs>
+    <ellipse cx="480" cy="284" rx="400" ry="9" fill="#000" opacity=".16"/>
+    <!-- tail cap + barrel -->
+    <path d="M52 62 Q36 150 52 238 L110 238 L110 62 Z" fill="url(#barrel)"/>
+    <rect x="96" y="40" width="540" height="220" rx="6" fill="url(#barrel)"/>
+    <rect x="96" y="40" width="540" height="2" fill="#fff" opacity=".18"/>
+    <!-- front shroud + red band + glass end -->
+    <rect x="552" y="52" width="150" height="196" rx="4" fill="url(#ringg)"/>
+    <rect x="566" y="52" width="9" height="196" fill="url(#redg)"/>
+    <rect x="552" y="52" width="150" height="3" fill="#fff" opacity=".16"/>
+    <text x="596" y="154" font-family="ui-monospace,Menlo,monospace" font-size="7.5" letter-spacing="1.4" fill="#cfd3d6" opacity=".55" transform="rotate(-90 596 154)" text-anchor="middle">VESPER · FIELD ORB 04 · 150 × 66 mm</text>
+    <ellipse cx="702" cy="150" rx="50" ry="98" fill="#0a0b0c"/>
+    <ellipse cx="704" cy="150" rx="46" ry="90" fill="#1b1e20"/>
+    <ellipse cx="708" cy="150" rx="36" ry="72" fill="url(#glass)"/>
+    <ellipse cx="712" cy="150" rx="22" ry="44" fill="#02080b" stroke="#35505c" stroke-width="1"/>
+    <ellipse cx="700" cy="118" rx="9" ry="22" fill="#fff" opacity=".24"/>
+    <path d="M690 190 Q712 200 726 176" stroke="#9fd0e0" stroke-opacity=".5" fill="none" stroke-width="2"/>
+    <!-- engraved labels -->
+    <g font-family="ui-monospace,Menlo,monospace" font-size="10" letter-spacing="3" fill="#0B0B0C" opacity="1" text-anchor="middle">
+      <text x="351" y="34">FIELD</text><text x="431" y="34">VARIANT</text><text x="511" y="34">TIME</text>
+    </g>
+    <g font-family="ui-monospace,Menlo,monospace" font-size="8.5" letter-spacing="2" fill="#0B0B0C" text-anchor="middle"><text x="351" y="276">110</text><text x="431" y="276">112</text><text x="511" y="276">114</text></g>
+    <g stroke="#6b7278" stroke-width="1"><path d="M130 252h160M130 252v-6M170 252v-4M210 252v-6M250 252v-4M290 252v-6"/></g>
+    <!-- thumb key (120) -->
+    <g id="thumb" tabindex="0" role="switch" aria-checked="true" aria-label="Hold. Holds the companion layer at its sampled time.">
+      <rect class="keycap" x="150" y="22" width="86" height="34" rx="17" fill="url(#redg)" stroke="#2a0905" stroke-width="1"/>
+      <rect x="160" y="26" width="66" height="5" rx="2.5" fill="#fff" opacity=".28"/>
+      <text x="193" y="44" font-family="ui-monospace,Menlo,monospace" font-size="11" font-weight="700" letter-spacing="2.5" fill="#fff" text-anchor="middle">HOLD</text>
+      <circle id="led" cx="252" cy="39" r="4" fill="#f0b050"/>
+      <rect x="140" y="12" width="120" height="50" fill="transparent"/>
+    </g>
+    <!-- rings -->
+    <g class="ring" id="rF" tabindex="0" role="slider" aria-label="Field ring" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0">
+      <rect x="318" y="46" width="66" height="214" rx="5" fill="url(#ringg)"/><g clip-path="url(#clipF)" id="mF"></g>
+      <rect x="318" y="46" width="66" height="214" rx="5" fill="none" stroke="#000" stroke-opacity=".6"/><rect class="hit" x="318" y="46" width="66" height="214" rx="5" fill="transparent" stroke="none"/>
+    </g>
+    <g class="ring" id="rV" tabindex="0" role="slider" aria-label="Variant ring" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1">
+      <rect x="398" y="46" width="66" height="214" rx="5" fill="url(#ringg)"/><g clip-path="url(#clipV)" id="mV"></g>
+      <rect x="398" y="46" width="66" height="214" rx="5" fill="none" stroke="#000" stroke-opacity=".6"/><rect class="hit" x="398" y="46" width="66" height="214" rx="5" fill="transparent"/>
+    </g>
+    <g class="ring" id="rT" tabindex="0" role="slider" aria-label="Time ring" aria-valuenow="0">
+      <rect x="478" y="46" width="66" height="214" rx="5" fill="url(#ringg)"/><g clip-path="url(#clipT)" id="mT"></g>
+      <rect x="478" y="46" width="66" height="214" rx="5" fill="none" stroke="#000" stroke-opacity=".6"/><rect class="hit" x="478" y="46" width="66" height="214" rx="5" fill="transparent"/>
+    </g>
+    <rect x="96" y="40" width="540" height="220" rx="6" fill="url(#spec)" opacity=".5" pointer-events="none"/>
+  </svg>
+  </div>
+  <div class="readout" id="readout"></div>
+  <div class="legend">
+    <div><span class="num">110</span><h3>Field</h3><p>Sweeps the forest away in depth, revealing the chamber behind it.</p></div>
+    <div><span class="num">112</span><h3>Variant</h3><p>Changes the insect on the same leaf, or the cake on the same table, while preserving the composition.</p></div>
+    <div><svg class="ring-mark" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path vector-effect="non-scaling-stroke" d="M4 52C0 18 40 2 82 6c18 2 20 36 14 62-6 20-48 26-80 18C-2 82 2 70 6 54"/></svg><span class="num">114</span><h3>Time</h3><p>Jogs the selected layer forward or backward. Let go and it carries on from where you left it.</p></div>
+    <div><span class="num">120</span><h3>Hold</h3><p>Locks the selected subjects while the other layers continue.</p></div>
+  </div>
+  <p style="margin:calc(var(--g)*1.2) 0 0;max-width:46em"><b>The hardware explains itself in the room.</b> Apple Vision Pro has the closest single interaction for the forest reveal. Blackmagic has the closest one for the birthday scene. Those are design analogies. Vesper’s control mapping is original: the product image is the control, with three independently draggable rings and a thumb key.</p>
+</section>
+
+<section class="sec" id="references">
+  <i class="edge"></i>
+  <div class="tele"><span>References</span><span>Six design analogies</span></div>
+  <h2 class="hd"><span class="fit ">Six analogies,</span><span class="fit ">and what each explains.</span></h2>
+  <div style="margin-top:calc(var(--g)*1.4)"><div class="ref "><h3>Canon Cinema EOS / ARRI Hi-5</h3><p><b>The object and the grip.</b> Canon gives you the barrel, engraved scales, and nested rings. ARRI gives you the professional hand unit: discrete controls for separate axes that an operator can adjust while watching the shot. This is the strongest hardware pairing. <a href="https://www.usa.canon.com/pro/rf-lens-world/cinema-lenses">Canon cinema lenses</a></p></div><div class="ref "><h3>Blender / Unreal Sequencer</h3><p><b>What Ana is editing.</b> In the birthday scene, the children hold while the cake keeps moving. Think separate objects and animation tracks in one scene. Blender is the analogy for authoring the objects. Sequencer is the analogy for running their timing in a live 3D scene. <a href="https://theasc.com/article/uncanny-valley-blade-runner-2049/">ASC on the shot</a></p></div><div class="ref "><h3>Blackmagic Speed Editor</h3><p><b>How time should feel in the hand.</b> Its jog wheel makes frame-by-frame movement tactile. For Vesper, apply that to a selected object or group. Hold the children, then jog the cake while the rest of the room stays put. <a href="https://www.blackmagicdesign.com/products/davinciresolve/techspecs">Blackmagic</a></p></div><div class="ref "><h3>Apple Vision Pro / Meta Quest</h3><p><b>How the room responds.</b> Vision Pro’s Digital Crown is the closest analogy for turning from the projected forest toward the physical chamber. Quest is a useful reference for a hand-held spatial input, especially if pointing chooses <i>where</i> to edit. The film gives a more distinctive visual than a generic immersion slider: the forest recedes in sections. <a href="https://developer.apple.com/design/human-interface-guidelines/digital-crown">Digital Crown</a></p></div><div class="ref "><h3>Logitech MX Creative Console / 3Dconnexion SpaceMouse</h3><p><b>How the controls can be assigned.</b> Logitech gives you a dial and dedicated action keys. SpaceMouse gives you push, pull, tilt, and twist for navigation. Use the first as a reference for assigning actions to the orb’s buttons, and the second if moving the whole orb should move your viewpoint. <a href="https://news.logitech.com/press-releases/news-details/2024/Logitech-Launches-MX-Creative-Console-Redefining-Digital-Creation-and-Unleashing-Your-Creative-Potential/default.aspx">Logitech</a></p></div><div class="ref "><h3>Sony / Nikon</h3><p><b>Where they fit in the visual identity.</b> Sony on the <i>room-system</i> side of the comparison, Nikon on the <i>precision-optics</i> side. For the orb itself, Canon’s marked cinema barrel and ARRI’s separate control axes give Vesper more specific details to borrow.</p></div></div>
+</section>
+
+<section class="sec cyan" id="origins">
+  <i class="edge"></i><div class="seed glass" style="opacity:.25"></div>
+  <div class="tele"><span>Origins</span><span>Evidence</span></div>
+  <div class="g12">
+    <div class="c-l"><h2 class="hd"><span class="fit ">Who made</span><span class="fit ">the Memory Orb?</span></h2><div style="margin-top:calc(var(--g)*1.2)">
+      <p><b>Mike Hill designed the film prop. The film leaves its in-world manufacturer unidentified.</b> Propstore documents the original as a custom-built animatronic with expandable outer rings, independently spinning inner rings, and inset buttons. Property master Doug Harlocker demonstrated those controls. The fabrication company is not verified, and the <i>Moxie Tool</i> attribution could not be corroborated. In the story, Ana operates the orb and Wallace buys her memory work.</p>
+      <p>Vesper Instruments is an in-world product study for an independent optical instrument maker. Vesper, the model number, and the demo controls are original design choices. Other in-world brands are discussed in <a href="https://alekseybusygin.medium.com/wallace-corporation-in-blade-runner-2049-2017-18bf09e36a31">this analysis of the Wallace Corporation</a>.</p>
+      <div class="chips"><span class="chip">Prop designer · Mike Hill</span><span class="chip">Prop · Propstore lot 131</span><span class="chip">Fabricator · unverified</span></div>
+    </div></div>
+    <div class="c-r"><h2 class="hd"><span class="fit ">What UI do</span><span class="fit ">we actually see?</span></h2><div style="margin-top:calc(var(--g)*1.2)"><div class="ref sm"><h3>The orb in Ana’s hands</h3><p>Concentric rings and inset buttons; a labelled power switch. The sources don’t establish a button-by-button mapping. <a href="https://propstoreauction.com/lot-details/index/catalog/536/lot/217362/131-Dr-Ana-Stelline-s-Carla-Juri-Animatronic-Memory-Orb-BLADE-RUNNER-2049-2017">Prop</a> · <a href="https://mikehill.artstation.com/projects/nXW6O">Hill’s concept</a></p></div><div class="ref sm"><h3>The projection around her</h3><p>The insect changes on the leaf, the forest drops away in sections, the children freeze while the cake keeps spinning. <b>You see the edit happen to the scene itself.</b> <a href="https://kinolab.org/FilmClip.php?id=1281">Scene</a> · <a href="https://buf.com/films/blade-runner-2049/">BUF</a></p></div><div class="ref sm"><h3>The chamber and glass</h3><p>The pale dome, low perimeter light, and transparent partition. <a href="https://jonmccoyart.com/blade-runner-2049">McCoy</a> · <a href="https://theasc.com/article/uncanny-valley-blade-runner-2049/">Deakins</a></p></div><div class="ref sm"><h3>The scan station</h3><p>The screenplay describes a <b>Stelline Scan</b> with a chin rest and an eye-scanning light, like a slit lamp: a second instrument in the lab. <a href="https://assets.scriptslug.com/live/pdf/scripts/blade-runner-2049.pdf?v=1729114873">Screenplay</a></p></div></div></div>
+  </div>
+</section>
+
+<section class="sec" id="theory">
+  <i class="edge"></i><div class="seed wax"></div>
+  <div class="tele"><span>Design theory</span><span>Spatial editor</span></div>
+  <h2 class="hd"><span class="fit ">A spatial editor</span><span class="fit ">for rehearsing how an event</span><span class="fit ">could have happened.</span></h2>
+  <div class="g12" style="margin-top:calc(var(--g)*1.4)">
+    <div class="c-l"><p>Ana works inside a running scene, changes one part of it, and judges the change against everything she chose to keep. The leaf still supports the insect. The table still holds the cake. The children can stay in a pose while the cake turns. <b>The operation that ties those moments together is changing one part of a live scene while preserving particular relationships to the rest.</b></p>
+    <blockquote>Independent layer clocks are an ingredient. The stronger claim candidate is how the system keeps an edit valid when the scene keeps moving, the target changes form, or a dependency crosses from held time into live time.</blockquote></div>
+    <div class="c-r"><div class="formula" id="formula">local(i, t) = q(i) + r(i) · (t − e(i))
+hold  : q ← local(t_H) · e ← t_H · r ← 0
+jog   : q ← q + Δ
+release: e ← t_release · r ← 1        (no jump in pose)</div></div>
+  </div>
+  <p class="mono" style="max-width:60em">Worked example from the specification: both layers reach 2.00 s, a hold captures the children at 2.00 s, one host second later the cake is at 3.00 s while the children remain at 2.00 s, and a −0.25 s jog on the held cake gives 2.75 s without altering the children.</p>
+  <div style="margin-top:calc(var(--g)*1.6)"><details open><summary><span>01</span>Initial interpretation</summary><div class="in"><p>The Memory Orb is a spatial editor for rehearsing how an event could have happened. I would revise the patent’s center of gravity: independent layer clocks are an ingredient, and the stronger claim candidate is how the system keeps an edit valid when the scene keeps moving, the target changes form, or a dependency crosses from held time into live time. That requires a theory of what an edit is allowed to change.</p></div></details>
+    <details><summary><span>02</span>Theory skeleton</summary><div class="in">
+      <table><tbody>
+        <tr><td>Beetle → other insects → scarab → changing eyes, on the same leaf</td><td>A persistent role such as <i>insect-on-this-leaf</i>, interchangeable assets, and a way to narrow an edit from the whole insect to a feature. Placement and appearance are separate.</td></tr>
+        <tr><td>Visitor alert → doorway appears → forest gives way to lab</td><td>Separate states for the authored forest, its visibility in the room, and the doorway. Revealing the actual room can be a presentation operation while the forest edit remains recoverable.</td></tr>
+        <tr><td>Cake placement, icing, candle states, facial expressions</td><td>A scene made of parts with different controls. A candle can be a visible object, a light source, and the source of a timed event. A child’s expression can be directed independently of placement.</td></tr>
+        <tr><td>Children freeze while the cake rotates</td><td>Concurrent evaluation of held and moving elements. A build has to decide whether holding a child’s pose also holds their location, shadows, expression, and response to candlelight.</td></tr>
+        <tr><td>Softened edges and a first-person hand reaching for frosting</td><td>A distinct <i>remembered viewpoint</i>. Edge softness belongs to the authored experience.</td></tr>
+        <tr><td>Ana examines K’s recollection</td><td>A separate <i>inspection session</i> with its own source and playback state. A judgment about a recollection belongs to the examiner.</td></tr>
+      </tbody></table>
+      <p>The software to build is a <b>live scene sequencer with a transaction attached to every continuous gesture</b>. Each transaction carries {target role, property, source revision, preview delta, preservation rules}. The orb provides the gesture; the scene provides its meaning. The system binds that meaning when she takes hold of the control, so crossing another object with the orb mid-turn cannot reinterpret the gesture.</p>
+    </div></details>
+    <details><summary><span>03</span>Assumption ledger</summary><div class="in"><table><tbody>
+      <tr><td>Safe</td><td>A prototype can represent the demonstrated actions with a scene graph, pre-authored variants, animation tracks, and a real-time renderer. The scenes do not require automatic generation.</td></tr>
+      <tr><td>Uncertain</td><td>The orb’s gesture vocabulary, whether it tracks pointing, what its rings sense, and whether it talks to a separate chamber host. The prop proves moving hardware; the software assignments are ours.</td></tr>
+      <tr><td>Uncertain</td><td>Whether Ana intends to hold a subject’s pose, its position in the room, or every channel that contributes to its appearance.</td></tr>
+      <tr><td>Needs a user decision</td><td>What the operator means by <b>hold</b>. A child on a moving chair can stay seated in the same pose or stay fixed in the room. Prototype <b>hold pose</b> as the default and make <b>hold in room</b> an explicit second operation.</td></tr>
+    </tbody></table></div></details>
+    <details><summary><span>04</span>Operational description</summary><div class="in"><ol class="steps">
+      <li><b>Resolve</b>: the operator points to the insect; the software offers body, eyes, or placement because the current asset declares those capabilities.</li>
+      <li><b>Capture</b>: the thumb press attaches the gesture to the role, property, reference frame, and revision. A new mesh or a wandering pointer does not change what the current turn means.</li>
+      <li><b>Produce</b>: ring motion creates a temporary edit. For a body swap the editor aligns the incoming insect’s contact frame to the existing leaf anchor.</li>
+      <li><b>Resolve dependencies</b>: for each dependency the edit crosses, read its live value, read a held sample, recompute it from the preview, or stop and expose a conflict.</li>
+      <li><b>Commit</b>: a valid preview and operator confirmation become one reversible scene revision. Ordinary playback continues.</li>
+      <li><b>Visitor alert</b>: the entrance becomes visible while the forest composition and the current edit stay separately addressable.</li>
+    </ol>
+    <p><b>The birthday scene is the decisive example.</b> Ana holds the child’s pose and jogs the cake backward. The child can still receive live candlelight. But if the child’s finger touches the icing, the backward jog can make the cake pass through it. The software can preserve contact by moving the hand with the cake, suspend the contact constraint for the rehearsal, or block the jog until Ana chooses. A second clock alone cannot decide among them.</p></div></details>
+    <details><summary><span>05</span>Failure and change tests</summary><div class="in"><table><tbody>
+      <tr><td>Replacement insect has different geometry</td><td>Keep the leaf attachment through a declared contact frame. If it cannot be satisfied, keep the last valid preview and expose the missing attachment.</td></tr>
+      <tr><td>The selected eye disappears during a body swap</td><td>End or suspend the eye edit. Preserve the parent insect selection. Re-apply only if the new body declares a compatible mapping.</td></tr>
+      <tr><td>Jogging crosses a candle ignition or sound cue</td><td>Evaluate the preview at the requested time without firing real-time events. Scrubbing over a flame cue five times should not emit five ignitions.</td></tr>
+      <tr><td>A shared dependency would silently move a protected object</td><td>Resolve it with the chosen rule or block the edit. A hold promises specific properties, such as the child’s pose; reflections and shadows may still respond to the live scene.</td></tr>
+      <tr><td>Tracking drops out during a turn</td><td>Keep the last valid preview, stop accepting deltas for that gesture, and require capture confirmation before resuming if the reference frame changed.</td></tr>
+      <tr><td>If the leaf tears while the insect is held</td><td>The same-triangle anchor fails; a new mapping can attach the insect to a surviving fragment, otherwise the edit suspends and the lost attachment is shown.</td></tr>
+      <tr><td>If the whole birthday should rewind except the candle flames</td><td>The clock assignment moves from one object to a group with an exclusion. Flames keep live time; candle placement follows the cake; flame illumination is evaluated against the rewound geometry.</td></tr>
+    </tbody></table></div></details>
+    <details><summary><span>06</span>Implementation plan</summary><div class="in"><p>Use <b>one scene evaluator for both demos</b>, forest and birthday, with three pieces around it: a <i>scene model</i> (stable roles, attachment frames, editable properties, clocks, dependencies), a <i>gesture interpreter</i> (binds ring and key events to an operation for the lifetime of a gesture), and a <i>preview evaluator</i> (checks dependency rules, shows a tentative result, commits or cancels as one edit).</p><p>The test that matters most compares <b>two evaluations at the same elapsed time</b>: the scene with no edit and the scene with the proposed edit. Compare protected properties against that live baseline. An unedited leaf may keep swaying in both runs; a child whose pose was held should retain the held pose in the edited run.</p></div></details>
+    <details><summary><span>07</span>What is novel, and what only Ana can supply</summary><div class="in"><p>The first draft’s broad claims face credible overlap: independent clip timelines, OpenUSD variants and edit layers, immersive animation authoring, pointer capture, and selective rollback in game engines. A ring-shaped controller combining those familiar functions has a weak obviousness story on its own.</p><p><b>The stronger candidate is a specific evaluation procedure.</b> A gesture captures a semantic target and a set of properties to preserve. During a variant change or local-time edit, the system resolves dependencies crossing between edited and protected properties by binding each to live, held, or recomputed state, and validates the result against the running scene before committing. That is a claim candidate to search and test; nothing here establishes novelty or non-obviousness.</p><p>The part only Ana can supply is <b>what is worth preserving</b>. She may keep the child’s hesitation and change the smile, or keep the leaf and give the insect a different face. The software can preserve a contact, a pose, a rhythm, or a viewpoint. The artist decides which of those makes it the same memory.</p></div></details>
+  </div>
+</section>
+
+<section class="sec void" id="disclosure">
+  <i class="edge"></i>
+  <div class="tele"><span>Fictional technical disclosure</span><span>Patent specification · no filing number</span></div>
+  <h2 class="hd" style="color:var(--accent)"><span class="fit ">Handheld apparatus for</span><span class="fit ">spatial scene authoring with</span><span class="fit ">independent layer time control.</span></h2>
+  <div class="g12" style="margin-top:calc(var(--g)*1.4)">
+    <div class="c-l"><p>A fictional utility patent specification: 38 paragraphs, 18 claims, 8 figures, and a source concordance that separates what comes from the screenplay, film, or prop from what is proposed here. It has no filing or grant number.</p>
+    <p><a class="btn" href="docs/Vesper_Field_Orb_04_Patent_Specification.pdf">Read the specification · PDF</a></p></div>
+    <div class="c-r"><blockquote style="font-size:clamp(16px,1.7vw,22px)">A spatial scene authoring system comprising a handheld controller having a pose tracker, independently sensed first and second rotary inputs, and a capture actuator… retain the association when the selection ray moves away from the identified layer, set a playback rate of the identified layer to zero in response to a hold command while advancing a second layer, modify a sampled local time of the identified layer in response to a signed increment from the first rotary input while the playback rate remains zero… <span class="mut">— Claim 1</span><br><span class="mono">— Claim 1</span></blockquote></div>
+  </div>
+  <div class="figs" style="margin:var(--g) 0">
+    <div class="fig"><svg viewBox="0 0 200 90" fill="none"  stroke-width="1.2"><ellipse cx="30" cy="45" rx="14" ry="30"/><path d="M30 15h110M30 75h110"/><ellipse cx="68" cy="45" rx="7" ry="30"/><ellipse cx="86" cy="45" rx="7" ry="30"/><ellipse cx="104" cy="45" rx="7" ry="30"/><ellipse cx="140" cy="45" rx="14" ry="30"/><ellipse cx="140" cy="45" rx="7" ry="15"/><rect x="42" y="36" width="12" height="7" rx="3"/></svg>FIG. 1 · Instrument 100, rings 110 112 114, thumb actuator 120</div>
+    <div class="fig"><svg viewBox="0 0 200 90" fill="none"  stroke-width="1.2"><rect x="10" y="22" width="12" height="46"/><rect x="40" y="10" width="40" height="22"/><rect x="92" y="10" width="40" height="22"/><rect x="144" y="10" width="40" height="22"/><path d="M60 44h120M160 32v12M60 56h120"/></svg>FIG. 3 · Controller → host 200 → spatial output 210, scene store 220</div>
+    <div class="fig"><svg viewBox="0 0 200 90" fill="none"  stroke-width="1.2"><path d="M10 80h180"/><path d="M14 30L100 14h70" /><path d="M14 66L50 40h120" stroke-dasharray="0"/><path d="M50 8v72M118 8v72M150 8v72" stroke-dasharray="3 3"/></svg>FIG. 6 · Child and cake local times; hold, hold, jog</div>
+    <div class="fig"><svg viewBox="0 0 200 90" fill="none"  stroke-width="1.2"><rect x="6" y="10" width="52" height="26"/><rect x="74" y="10" width="52" height="26"/><rect x="142" y="10" width="52" height="26"/><path d="M58 23h16M126 23h16M168 36v12"/><rect x="142" y="48" width="52" height="26"/><rect x="74" y="48" width="52" height="26"/><path d="M142 61h-16"/></svg>FIG. 7 · Acquire, capture, preview, validate and commit, undo</div>
+  </div>
+  <p class="mono" style="max-width:70em;opacity:.8">Reference numerals: 100 controller · 102 housing · 104 spine · 106 sleeve · 110 field ring · 112 variant ring · 114 time ring · 120 thumb actuator · 130 angle sensors · 132 pose assembly · 134 processor · 136 haptic actuator · 140 window · 200 host · 210 spatial output · 220 scene store · 230 chamber · 234 protected volume · 236 barrier · 240 selection ray · 250 layer · 252 element · 254 anchor · 256 variants · 260 child time · 262 cake time · 270 transaction · 280 inspection terminal · 282 input station · 284 review console · 286 review store.</p>
+</section>
+
+<section class="sec amber" id="studio">
+  <i class="edge"></i><div class="seed frost"></div>
+  <div class="tele"><span>The working tool</span><span>Stelline Studio</span></div>
+  <h2 class="hd"><span class="fit ">Open the studio.</span></h2>
+  <div class="g12" style="margin-top:calc(var(--g)*1.4);align-items:center">
+    <div class="c-l barrel"><img src="assets/site/cakes.jpg" alt="Four cakes rendered by the studio: a sponge drum with shell border, a faceted ganache cake with daisy candles, an orange buttercream cake, and a naked-layer cake with number candles" loading="lazy" width="1400" height="787"></div>
+    <div class="c-r"><p style="font-size:19px"><b>Stelline Studio: the orb as the whole interface.</b> A browser studio for the details Ana lingers on: a bug’s compound eye, a birthday cake and its piped name, a child’s face in candlelight. Rings are banks of controls, the orb types the name, and an inverse mode turns the rings by itself to match a target. Procedural and live; the film’s segmentation atlas is inside.</p>
+    <p><a class="btn" href="studio.html">Open the studio →</a><a class="btn ghost" href="v4-master.html">V4 master</a></p></div>
+  </div>
+</section>
+</main>
+
+<footer class="sec void" style="padding-bottom:calc(var(--g)*2)"><i class="edge"></i>
+  <div class="tele"><span>Disclaimer</span><span><a href="identity.html">Identity system →</a></span></div>
+  <p class="mono" style="max-width:80em"><b>Fictional.</b> Vesper Instruments, Field Orb 04, the control assignments, and the technical disclosure are an original design study based on <i>Blade Runner 2049</i>. No filing or grant number exists. Not affiliated with, or endorsed by, the film’s rights holders; the Memory Orb prop was designed by Mike Hill.</p>
+  <p class="mono" style="max-width:80em;opacity:.75">Source concordance: screenplay pp. 57–62 · BUF · ASC (Deakins) · Propstore lot 131 · Mike Hill · Kinolab. Claim language, brand, control mappings, and engineering details are proposed here.</p>
+</footer>
+
+<div class="telebar" role="status" aria-label="Orb telemetry">
+  <span id="tbState"><b>SOLID</b></span><span id="tbAp">f/<b>1.4</b></span><span id="tbVar"><b>—</b></span><span id="tbLight">CANDLELIGHT</span><span id="tbK"><b>3300</b>K</span><button id="tbSnap" type="button">[ Snapshot ]</button>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const clamp = (x,a,b) => Math.max(a, Math.min(b, x));
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const T0 = performance.now(); const host = () => (performance.now() - T0) / 1000;
+
+/* ---------- independent layer clocks (spec [0025]) ---------- */
+class Layer { constructor(n){ this.n=n; this.q=0; this.e=0; this.r=1; }
+  t(h){ return this.q + this.r*(h - this.e); }
+  hold(h){ this.q = this.t(h); this.e = h; this.r = 0; this.held = true; }
+  release(h){ this.e = h; this.r = 1; this.held = false; }
+  jog(d){ this.q += d; } }
+const L = { child: new Layer('children'), cake: new Layer('cake'), leaf: new Layer('leaf'), insect: new Layer('insect') };
+let scene = 'birthday', variant = { birthday:0, forest:0 }, field = 0, events = [], hist = [], autoHeld = false, touched = false, ringDown = null;
+const subject = () => scene === 'birthday' ? L.cake : L.insect;
+const companion = () => scene === 'birthday' ? L.child : L.leaf;
+const VAR = { birthday:['Vanilla cylinder','Fluted bundt','Dark ganache'], forest:['Longhorn beetle','Scarab','Stag beetle'] };
+
+/* ---------- audio / haptics ---------- */
+let ac = null; const tick = (f=1800,d=.03,g=.05) => { try { ac = ac || new (window.AudioContext||window.webkitAudioContext)(); const o=ac.createOscillator(), a=ac.createGain(); o.type='square'; o.frequency.value=f; a.gain.setValueAtTime(g,ac.currentTime); a.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+d); o.connect(a); a.connect(ac.destination); o.start(); o.stop(ac.currentTime+d+.01);} catch(e){} };
+const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch(e){} };
+
+/* ---------- canvas ---------- */
+const cv = $('#scene'), cx = cv.getContext('2d'), W = 1280, H = 720;
+const tlc = $('#tl'), tx = tlc.getContext('2d');
+function fit(){ const r = $('#stage').getBoundingClientRect(), d = Math.min(2, devicePixelRatio||1); cv.width = Math.round(r.width*d); cv.height = Math.round(r.height*d); tlc.width = Math.round(r.width*d); tlc.height = Math.round(84*d); }
+addEventListener('resize', fit); fit();
+const mk = (w,h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+const M = mk(W,H), C = mk(W,H), mx = M.getContext('2d'), ccx = C.getContext('2d');
+const rnd = (s => () => (s = (s*16807) % 2147483647) / 2147483647)(7);
+
+/* chamber: the real room behind the projection */
+function drawChamber(g, h, alert){
+  const bg = g.createLinearGradient(0,0,0,H); bg.addColorStop(0,'#1a2423'); bg.addColorStop(.62,'#0f1615'); bg.addColorStop(1,'#050807'); g.fillStyle = bg; g.fillRect(0,0,W,H);
+  g.save(); g.beginPath(); g.moveTo(880,500); g.lineTo(880,250); g.quadraticCurveTo(880,170,980,170); g.quadraticCurveTo(1230,170,1280,230); g.lineTo(1280,500); g.closePath();
+  const dm = g.createLinearGradient(880,170,1280,500); dm.addColorStop(0,'#d8dedb'); dm.addColorStop(1,'#7b8683'); g.fillStyle = dm; g.globalAlpha = .9; g.fill(); g.globalAlpha = 1;
+  g.strokeStyle = 'rgba(20,28,27,.5)'; g.lineWidth = 2; for (let k=0;k<4;k++){ g.beginPath(); g.moveTo(940+k*85,172+k*8); g.lineTo(900+k*95,500); g.stroke(); } g.restore();
+  g.strokeStyle = 'rgba(235,242,238,.8)'; g.lineWidth = 3; g.beginPath(); g.ellipse(640,520,820,104,0,Math.PI*1.04,Math.PI*1.96); g.stroke();
+  g.fillStyle = 'rgba(210,222,218,.55)'; g.fillRect(0,516,W,2);
+  if (alert){ g.save(); g.fillStyle = '#05080a'; const x = 1010, y = 285; g.beginPath(); g.ellipse(x,y,19,23,0,0,7); g.fill(); g.beginPath(); g.moveTo(x-34,y+30); g.quadraticCurveTo(x,y+14,x+34,y+30); g.lineTo(x+44,y+210); g.lineTo(x-44,y+210); g.closePath(); g.fill(); g.restore(); }
+  const f = g.createLinearGradient(0,600,0,H); f.addColorStop(0,'rgba(0,0,0,0)'); f.addColorStop(1,'rgba(0,0,0,.6)'); g.fillStyle = f; g.fillRect(0,600,W,120);
+}
+const DOOR = { x: 880, y: 160, w: 400, h: 350 };
+
+/* ---------- birthday scene ---------- */
+const KIDS = [{x:430,skin:'#e9c2a2',hair:'#c9a24d',ph:0,s:1}, {x:640,skin:'#d7a07c',hair:'#2a1a12',ph:1.7,s:1.06}, {x:850,skin:'#8d5b3f',hair:'#0b0807',ph:3.1,s:.98}];
+function drawKids(g, ct, live){
+  KIDS.forEach((k,i) => {
+    const sway = Math.sin(ct*.9 + k.ph)*7, lean = i===1 ? (Math.sin(ct*.5)*.5+.5)*20 : 0, blink = ((ct*.8 + k.ph) % 3) < .12;
+    const x = k.x + sway, y = 392 + lean*.4 - (i===1?lean*.2:0);
+    g.save(); g.translate(x, y); g.scale(k.s, k.s); g.rotate(Math.sin(ct*.7+k.ph)*.04);
+    g.fillStyle = '#e8dfcc'; g.beginPath(); g.ellipse(0,115,86,96,0,0,7); g.fill();
+    const wl = g.createLinearGradient(0,40,0,200); wl.addColorStop(0,'rgba(255,170,70,.55)'); wl.addColorStop(1,'rgba(0,0,0,.85)'); g.fillStyle = wl; g.beginPath(); g.ellipse(0,115,86,96,0,0,7); g.fill();
+    const hg = g.createLinearGradient(0,-40,0,42); hg.addColorStop(0,k.skin); hg.addColorStop(1,'#ffd9a0'); g.fillStyle = hg; g.beginPath(); g.ellipse(0,0,37,45,0,0,7); g.fill();
+    g.fillStyle = k.hair; g.beginPath(); g.ellipse(0,-14,40,34,0,Math.PI,0); g.fill(); g.beginPath(); g.ellipse(-30,0,10,28,0,0,7); g.fill(); g.beginPath(); g.ellipse(30,0,10,28,0,0,7); g.fill();
+    g.fillStyle = 'rgba(18,10,6,.8)'; if (blink){ g.fillRect(-19,2,12,1.6); g.fillRect(7,2,12,1.6); } else { g.beginPath(); g.ellipse(-13,2,4,2.6,0,0,7); g.ellipse(13,2,4,2.6,0,0,7); g.fill(); }
+    g.strokeStyle = 'rgba(70,30,20,.75)'; g.lineWidth = 2; g.beginPath(); g.arc(0,20,9 + (i===1?Math.sin(ct*.5)*2:0),.2,Math.PI-.2); g.stroke();
+    g.restore();
+  });
+}
+function drawCake(g, ct, live){
+  const v = variant.birthday, cxm = 640, cy = 470, rx = 160, ry = 36, hgt = v===1 ? 128 : 104, ang = ct*2.2;
+  // table (hex)
+  g.save(); g.fillStyle = '#c6a768'; g.beginPath(); for (let k=0;k<6;k++){ const a = k/6*Math.PI*2+Math.PI/6; const px = 640+Math.cos(a)*400, py = 640+Math.sin(a)*86; k?g.lineTo(px,py):g.moveTo(px,py); } g.closePath(); g.fill();
+  const tg = g.createLinearGradient(0,560,0,720); tg.addColorStop(0,'rgba(255,230,160,.35)'); tg.addColorStop(1,'rgba(0,0,0,.45)'); g.fillStyle = tg; g.fill(); g.restore();
+  // cake shadow + body
+  g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.ellipse(cxm, cy+hgt+8, rx+14, ry+6, 0,0,7); g.fill();
+  const palettes = [['#e9d29c','#f6e7bd','#d4b873'], ['#b9763c','#f4eadb','#8f5528'], ['#2e140b','#4a2316','#1a0905']][v];
+  const body = g.createLinearGradient(cxm-rx,0,cxm+rx,0); body.addColorStop(0,palettes[2]); body.addColorStop(.35,palettes[0]); body.addColorStop(.65,palettes[0]); body.addColorStop(1,palettes[2]);
+  g.fillStyle = body; g.beginPath();
+  if (v===1){ for (let k=0;k<=40;k++){ const t = k/40; const y = cy + t*hgt; const flute = 1 + .045*Math.sin(t*3.1)*1 ; const x = cxm - rx*flute*(1 - .12*t) + Math.sin(ang*0 + t*30)*0; k?g.lineTo(x,y):g.moveTo(x,y); } g.lineTo(cxm+rx*(1-.12),cy+hgt); for (let k=40;k>=0;k--){ const t = k/40; const y = cy + t*hgt; const x = cxm + rx*(1 + .045*Math.sin(t*3.1))*(1 - .12*t); g.lineTo(x,y); } }
+  else { g.moveTo(cxm-rx,cy); g.lineTo(cxm-rx,cy+hgt); g.ellipse(cxm,cy+hgt,rx,ry,0,Math.PI,0,true); g.lineTo(cxm+rx,cy); }
+  g.closePath(); g.fill();
+  if (v===2){ g.fillStyle = 'rgba(255,255,255,.14)'; g.fillRect(cxm-rx*.72,cy+8,10,hgt-4); g.fillStyle = '#d9a62e'; for (let k=0;k<14;k++){ const a = ang*.0 + k*1.7; const gx = cxm + Math.cos(a)*rx*.9, gy = cy + 20 + (k*37 % (hgt-30)); if (Math.cos(a+ang*.0) > -.2) g.fillRect(gx,gy,4,3); } }
+  g.fillStyle = palettes[1]; g.beginPath(); g.ellipse(cxm,cy,rx,ry,0,0,7); g.fill();
+  if (v!==1){ g.fillStyle = v===2 ? '#5a2a18' : '#f0dfb0'; g.beginPath(); g.ellipse(cxm,cy,rx*.9,ry*.82,0,0,7); g.fill(); }
+  if (v===1){ g.fillStyle = '#2a140b'; g.beginPath(); g.ellipse(cxm,cy,rx*.3,ry*.3,0,0,7); g.fill(); }
+  // piped rim, rotating with CAKE time
+  g.fillStyle = v===2 ? '#e8d8b0' : '#fbf1d6'; for (let k=0;k<30;k++){ const a = ang + k/30*Math.PI*2; const px = cxm + Math.cos(a)*(rx-8), py = cy + Math.sin(a)*(ry-4); if (Math.sin(a) > -.35){ g.beginPath(); g.arc(px,py,6.5,0,7); g.fill(); } }
+  // piped name stroke (rotates)
+  g.strokeStyle = v===2 ? '#f1e2b8' : '#c8301e'; g.lineWidth = 5; g.lineCap = 'round'; g.beginPath(); for (let k=0;k<=22;k++){ const t = k/22, a0 = ang + 1 + t*2.4; const rr = .55 + .1*Math.sin(t*18); const px = cxm + Math.cos(a0)*rx*rr, py = cy + Math.sin(a0)*ry*rr; k?g.lineTo(px,py):g.moveTo(px,py); } g.stroke();
+  // candles: positions follow CAKE time; flames use LIVE host time
+  const cs = []; for (let k=0;k<7;k++){ const a = ang + k/7*Math.PI*2; cs.push({ x: cxm + Math.cos(a)*rx*.62, y: cy + Math.sin(a)*ry*.62 }); } cs.sort((a,b)=>a.y-b.y);
+  cs.forEach((c,k) => { g.fillStyle = k%2 ? '#fff' : '#e6485a'; g.fillRect(c.x-4, c.y-48, 8, 48); g.fillStyle = k%2 ? '#e6485a' : '#fff'; for (let s=0;s<4;s++) g.fillRect(c.x-4, c.y-44+s*12, 8, 5);
+    const fl = reduce ? 1 : .85 + .16*Math.sin(live*11+k*2) + .08*Math.sin(live*23+k); const fh = 22*fl;
+    const gl = g.createRadialGradient(c.x,c.y-58,0,c.x,c.y-58,70); gl.addColorStop(0,'rgba(255,190,90,.55)'); gl.addColorStop(1,'rgba(255,140,40,0)'); g.fillStyle = gl; g.fillRect(c.x-80,c.y-130,160,150);
+    g.fillStyle = '#ffd27a'; g.beginPath(); g.moveTo(c.x,c.y-50-fh); g.quadraticCurveTo(c.x+8,c.y-58,c.x,c.y-49); g.quadraticCurveTo(c.x-8,c.y-58,c.x,c.y-50-fh); g.fill(); g.fillStyle = '#fff4cc'; g.beginPath(); g.ellipse(c.x,c.y-56,2.2,6,0,0,7); g.fill(); });
+}
+function drawBirthday(g, live){
+  g.clearRect(0,0,W,H);
+  const ct = L.child.t(live), kt = L.cake.t(live);
+  const wash = g.createRadialGradient(640,480,40,640,480,560); wash.addColorStop(0,'rgba(255,160,60,.22)'); wash.addColorStop(1,'rgba(0,0,0,0)'); g.fillStyle = wash; g.fillRect(0,0,W,H);
+  drawKids(g, ct, live); drawCake(g, kt, live);
+  if (L.child.held){ g.save(); g.strokeStyle = 'rgba(240,176,80,.9)'; g.lineWidth = 2; const bx = 280, by = 288, bw = 720, bh = 250, k = 22; [[bx,by,1,1],[bx+bw,by,-1,1],[bx,by+bh,1,-1],[bx+bw,by+bh,-1,-1]].forEach(([x,y,sx,sy]) => { g.beginPath(); g.moveTo(x,y+sy*k); g.lineTo(x,y); g.lineTo(x+sx*k,y); g.stroke(); });
+    g.font = '500 13px ui-monospace,Menlo,monospace'; g.fillStyle = 'rgba(240,176,80,.95)'; g.fillText('HELD · children @ ' + L.child.q.toFixed(2) + ' s', bx+8, by-10); g.restore(); }
+  if (L.cake.held && ringDown === 'T'){ g.save(); g.strokeStyle = 'rgba(247,236,222,.9)'; g.lineWidth = 2; g.beginPath(); g.ellipse(640,470,205,72,0,.35,Math.PI*1.3); g.stroke(); g.font = '500 13px ui-monospace,Menlo,monospace'; g.fillStyle = 'rgba(247,236,222,.95)'; g.fillText('JOG · cake @ ' + L.cake.q.toFixed(2) + ' s', 868, 560); g.restore(); }
+}
+
+/* ---------- forest scene ---------- */
+const trees = [...Array(6)].map((_,i) => [...Array(7+i*2)].map(() => ({ x: rnd()*W, w: 8+i*9+rnd()*8, top: rnd()*120, lean: (rnd()-.5)*.05, f: rnd() })));
+function drawForest(g, live){
+  g.clearRect(0,0,W,H);
+  const sky = g.createLinearGradient(0,0,0,H); sky.addColorStop(0,'#d9e6b2'); sky.addColorStop(1,'#6d9446'); g.fillStyle = sky; g.fillRect(0,0,W,H);
+  trees.forEach((band,i) => { const dark = i/5; const col = `rgb(${Math.round(150-dark*118)},${Math.round(184-dark*92)},${Math.round(106-dark*70)})`;
+    band.forEach(t => { g.save(); g.translate(t.x, H); g.rotate(t.lean); g.fillStyle = `rgba(${Math.round(70-dark*50)},${Math.round(60-dark*38)},${Math.round(40-dark*26)},${.35+dark*.5})`; g.fillRect(-t.w/2, -H+t.top, t.w, H); g.restore();
+      g.fillStyle = col; g.globalAlpha = .55 + dark*.3; for (let k=0;k<3;k++){ g.beginPath(); g.ellipse(t.x + (k-1)*t.w*2.2, t.top+30+k*22, t.w*3.2+20, t.w*2.2+12, 0,0,7); g.fill(); } g.globalAlpha = 1; }); });
+  // leaf (anchor) sways with LEAF time
+  const lt = L.leaf.t(live), sw = Math.sin(lt*.9)*.025, a = -.38 + sw;
+  g.save(); g.translate(640,470); g.rotate(a);
+  const lg = g.createLinearGradient(-300,0,300,0); lg.addColorStop(0,'#5d8a35'); lg.addColorStop(.5,'#8cba52'); lg.addColorStop(1,'#46702a');
+  g.fillStyle = lg; g.beginPath(); g.moveTo(-340,0); g.bezierCurveTo(-200,-170,150,-190,360,-6); g.bezierCurveTo(160,150,-190,170,-340,0); g.fill();
+  g.strokeStyle = 'rgba(255,255,220,.55)'; g.lineWidth = 3; g.beginPath(); g.moveTo(-340,0); g.lineTo(340,-4); g.stroke(); g.lineWidth = 1.5; for (let k=-4;k<=4;k++){ if(!k) continue; g.beginPath(); g.moveTo(k*70,-2); g.lineTo(k*70+60,-85*Math.sign(k)*.9); g.stroke(); g.beginPath(); g.moveTo(k*70,-2); g.lineTo(k*70+60,85*Math.sign(k)*.9); g.stroke(); }
+  [[-180,-40,10],[-60,50,7],[120,60,12],[220,-30,8],[40,-70,6]].forEach(([x,y,r]) => { g.fillStyle = 'rgba(210,240,255,.55)'; g.beginPath(); g.arc(x,y,r,0,7); g.fill(); g.fillStyle = 'rgba(255,255,255,.9)'; g.beginPath(); g.arc(x-r*.3,y-r*.3,r*.3,0,7); g.fill(); });
+  // insect on the leaf anchor, driven by INSECT time
+  const it = L.insect.t(live), v = variant.forest, walk = Math.sin(it*.6)*70;
+  g.translate(walk, -4); g.fillStyle = '#0c1209'; g.strokeStyle = '#0c1209'; g.lineWidth = 3; g.lineCap = 'round';
+  const bodyL = [64,44,56][v], bodyH = [24,34,28][v], off = [0,-2,0][v];
+  for (let k=0;k<3;k++) for (const s of [-1,1]){ const ph = (k%2?0:Math.PI) + (s>0?0:Math.PI), sw2 = Math.sin(it*7+ph)*.5; const bx = -bodyL*.4 + k*bodyL*.36; g.beginPath(); g.moveTo(bx, s*bodyH*.35); g.lineTo(bx+Math.cos(sw2)*10, s*(bodyH*.75)+sw2*10); g.lineTo(bx+sw2*22, s*(bodyH+16)); g.stroke(); }
+  const bg = g.createLinearGradient(0,-bodyH,0,bodyH); bg.addColorStop(0,v===1?'#2f6b4e':'#2d3a2a'); bg.addColorStop(.3,v===1?'#4cb47f':'#556b46'); bg.addColorStop(1,'#080c07'); g.fillStyle = bg; g.beginPath(); g.ellipse(0,off,bodyL*.6,bodyH*.5,0,0,7); g.fill();
+  g.fillStyle = '#0c1209'; g.beginPath(); g.ellipse(bodyL*.55,off,bodyL*.2,bodyH*.3,0,0,7); g.fill();
+  if (v===1){ g.beginPath(); g.moveTo(bodyL*.68,off-4); g.lineTo(bodyL*.92,off-18); g.lineTo(bodyL*.74,off+2); g.fill(); }
+  if (v===2){ g.lineWidth = 4; for (const s of [-1,1]){ g.beginPath(); g.moveTo(bodyL*.68,off+s*3); g.quadraticCurveTo(bodyL*1.0,off+s*16,bodyL*.9,off+s*2); g.stroke(); } }
+  g.lineWidth = 2; for (const s of [-1,1]){ g.beginPath(); g.moveTo(bodyL*.66,off+s*5); g.quadraticCurveTo(bodyL*1.05,off+s*(v===0?30:20),bodyL*(v===0?1.5:1.1),off+s*(v===0?22:8)); g.stroke(); }
+  g.fillStyle = 'rgba(255,255,255,.35)'; g.beginPath(); g.ellipse(-bodyL*.1,off-bodyH*.2,bodyL*.25,bodyH*.1,0,0,7); g.fill();
+  g.restore();
+  if (L.leaf.held){ g.save(); g.font = '500 13px ui-monospace,Menlo,monospace'; g.fillStyle = 'rgba(20,40,16,.9)'; g.fillText('HELD · leaf @ ' + L.leaf.q.toFixed(2) + ' s', 300, 330); g.restore(); }
+  g.save(); g.font = '500 12px ui-monospace,Menlo,monospace'; g.fillStyle = 'rgba(14,30,12,.85)'; g.fillText('ANCHOR · leaf contact frame kept across variants', 470, 620); g.restore();
+}
+
+/* ---------- compose with FIELD reveal in sections and doorway override ---------- */
+let alertOn = false, alertT = -9;
+function render(){
+  const h = host(); const live = h;
+  if (!autoHeld && h > 2.0 && scene === 'birthday' && !touched){ autoHeld = true; L.child.hold(h); events.push({ t: h, l: 'HOLD children' }); hint('Children held at ' + L.child.q.toFixed(2) + ' s · now turn the TIME ring'); syncKey(); }
+  if (alertOn && h - alertT > 6) alertOn = false;
+  scene === 'birthday' ? drawBirthday(mx, live) : drawForest(mx, live);
+  const secs = 8, soft = .045;
+  mx.save(); mx.globalCompositeOperation = 'destination-out';
+  for (let i=0;i<secs;i++){ const th = (i+.5)/secs; const a = clamp((field - th + soft)/(soft*2),0,1); if (a<=0) continue; const x0 = i*W/secs - 140, x1 = (i+1)*W/secs - 140; mx.fillStyle = `rgba(0,0,0,${a})`; mx.beginPath(); mx.moveTo(x0+140,0); mx.lineTo(x1+140+1,0); mx.lineTo(x1+1,H); mx.lineTo(x0,H); mx.closePath(); mx.fill(); }
+  mx.restore();
+  drawChamber(ccx, h, alertOn);
+  const g = cx, d = Math.min(2, devicePixelRatio||1), sx = cv.width/W, sy = cv.height/H;
+  g.setTransform(sx,0,0,sy,0,0); g.clearRect(0,0,W,H); g.drawImage(C,0,0); g.drawImage(M,0,0);
+  if (alertOn){ g.save(); g.beginPath(); g.rect(DOOR.x,DOOR.y,DOOR.w,DOOR.h); g.clip(); g.drawImage(C,0,0); g.restore(); g.strokeStyle = 'rgba(240,176,80,.8)'; g.setLineDash([6,6]); g.lineWidth = 2; g.strokeRect(DOOR.x,DOOR.y,DOOR.w,DOOR.h); g.setLineDash([]); g.font = '500 12px ui-monospace,Menlo,monospace'; g.fillStyle = 'rgba(240,176,80,.95)'; g.fillText('PROTECTED DOORWAY · VISITOR', DOOR.x+8, DOOR.y-8); }
+  // field edge marker
+  if (field > .01 && field < .99){ g.save(); g.strokeStyle = 'rgba(247,236,222,.5)'; g.lineWidth = 1.5; const x = field*(W+140)-140; g.beginPath(); g.moveTo(x,0); g.lineTo(x-140+140,0); g.stroke(); g.restore(); }
+  drawTimeline(h); hud(h);
+  requestAnimationFrame(render);
+}
+
+/* ---------- FIG. 6 style timeline ---------- */
+function drawTimeline(h){
+  hist.push({ h, c: L.child.t(h), k: L.cake.t(h), l: L.leaf.t(h), i: L.insect.t(h) }); while (hist.length && h - hist[0].h > 14) hist.shift();
+  const d = Math.min(2, devicePixelRatio||1), w = tlc.width, hh = tlc.height; tx.setTransform(1,0,0,1,0,0); tx.clearRect(0,0,w,hh); tx.scale(w/1000, hh/84);
+  tx.fillStyle = 'rgba(0,0,0,.42)'; tx.fillRect(0,0,1000,84);
+  const A = scene === 'birthday' ? ['c','k','CHILDREN','CAKE'] : ['l','i','LEAF','INSECT'];
+  const x0 = 92, x1 = 980, t1 = h, t0 = h - 14; const maxv = Math.max(8, ...hist.map(p => Math.max(p[A[0]], p[A[1]]))); const minv = Math.min(0, ...hist.map(p => Math.min(p[A[0]], p[A[1]])));
+  const X = t => x0 + (t - t0)/(t1 - t0)*(x1 - x0), Y = (v, r) => (r===0 ? 34 : 70) - ((v - minv)/(maxv - minv + .01))*26;
+  tx.font = '500 9px ui-monospace,Menlo,monospace'; tx.fillStyle = 'rgba(247,236,222,.7)';
+  [[0,A[2]],[1,A[3]]].forEach(([r,lab]) => { tx.fillText(lab, 10, r===0 ? 22 : 58); tx.fillStyle = 'rgba(240,176,80,.95)'; tx.fillText(hist[hist.length-1][A[r]].toFixed(2)+' s', 10, r===0 ? 34 : 70); tx.fillStyle = 'rgba(247,236,222,.7)';
+    tx.strokeStyle = r===0 ? 'rgba(247,236,222,.9)' : 'rgba(240,176,80,.95)'; tx.lineWidth = 1.6; tx.beginPath(); hist.forEach((p,i) => { const x = X(p.h), y = (r===0?36:72) - ((p[A[r]] - minv)/(maxv - minv + .01))*26; i?tx.lineTo(x,y):tx.moveTo(x,y); }); tx.stroke(); });
+  tx.strokeStyle = 'rgba(247,236,222,.35)'; tx.setLineDash([3,3]); tx.lineWidth = 1; let lastLx = -1e9; events.forEach(ev => { if (ev.t < t0 || ev.l.startsWith('JOG')) return; const x = X(ev.t); tx.beginPath(); tx.moveTo(x,6); tx.lineTo(x,80); tx.stroke(); if (x - lastLx > 90){ tx.fillStyle = 'rgba(247,236,222,.8)'; tx.fillText(ev.l, x+3, 12); lastLx = x; } }); tx.setLineDash([]);
+  tx.fillStyle = 'rgba(247,236,222,.5)'; tx.fillText('host time →', 920, 80);
+}
+
+/* ---------- readouts ---------- */
+const msg = $('#msg'), hintEl = $('#hint'), readout = $('#readout'); let hintT = 0;
+function hint(t){ msg.textContent = t; hintT = host(); }
+function hud(h){
+  $('#hudR').innerHTML = scene === 'birthday' ? `cake <b>${L.cake.t(h).toFixed(2)} s</b> · children <b>${L.child.t(h).toFixed(2)} s</b>${L.child.held?' · held':''}` : `insect <b>${L.insect.t(h).toFixed(2)} s</b> · leaf <b>${L.leaf.t(h).toFixed(2)} s</b>${L.leaf.held?' · held':''}`;
+  $('#hudL').textContent = scene === 'birthday' ? 'Chamber · birthday vignette' : 'Chamber · forest vignette';
+  readout.innerHTML = `FIELD <b>${field.toFixed(2)}</b> · VARIANT <b>${variant[scene]+1}/3 ${VAR[scene][variant[scene]]}</b> · TIME <b>${subject().t(h).toFixed(2)} s</b> · HOLD <b>${companion().held ? (scene==='birthday'?'children':'leaf') + ' @ ' + companion().q.toFixed(2) + ' s' : 'off'}</b>${!touched && autoHeld ? '<span class="hint">← turn TIME</span>' : ''}`;
+  if (h - hintT > 5 && touched) msg.textContent = '';
+}
+
+/* ---------- orb ---------- */
+const NS = 'http://www.w3.org/2000/svg', RING = { F:{x:318,w:66,ang:0}, V:{x:398,w:66,ang:0,raw:0}, T:{x:478,w:66,ang:0} }, cy = 153, R = 104;
+function ringMarks(key){
+  const r = RING[key], g = $('#m'+key); let s = '';
+  const mark = (th, spec) => { const c = Math.cos(th*Math.PI/180); if (c <= .02) return; const y = cy + R*Math.sin(th*Math.PI/180), t = (spec.t||2)*c; s += spec.draw(y, t, c); };
+  if (key === 'F'){ for (let k=0;k<20;k++) mark(r.ang + k*18, { t:15, draw:(y,t,c) => `<rect x="${r.x+4}" y="${y-t/2}" width="${r.w-8}" height="${t}" rx="${Math.min(6,t/2)}" fill="#000" opacity="${.15+.25*c}"/><rect x="${r.x+5}" y="${y-t/2}" width="${r.w-10}" height="${Math.max(.6,t*.35)}" fill="#fff" opacity="${.18*c}"/>` }); mark(r.ang+9, {t:2,draw:(y,t)=>`<text x="${r.x+r.w/2}" y="${y+3}" font-size="9" letter-spacing="2" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" fill="#eef" opacity=".6">0 · 1</text>`}); }
+  if (key === 'V'){ for (let k=0;k<36;k++) mark(r.ang + k*10, { t:2.2, draw:(y,t,c) => `<rect x="${r.x+(k%3===0?6:16)}" y="${y-t/2}" width="${r.w-(k%3===0?12:32)}" height="${Math.max(.5,t)}" fill="#e9edf0" opacity="${.35+.4*c}"/>` });
+    for (let k=0;k<3;k++) mark(r.ang + k*120 + 60, { t:2, draw:(y) => `<text x="${r.x+r.w/2}" y="${y+4}" font-size="13" font-weight="700" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" fill="#fff" opacity=".9">${k+1}</text>` }); }
+  if (key === 'T'){ for (let k=0;k<90;k++) mark(r.ang + k*4, { t:1.4, draw:(y,t,c) => `<rect x="${r.x+3}" y="${y-t/2}" width="${r.w-6}" height="${Math.max(.4,t*.7)}" fill="#fff" opacity="${(k%5===0?.34:.16)*c}"/>` });
+    mark(r.ang, {t:3, draw:(y)=>`<rect x="${r.x}" y="${y-1.5}" width="${r.w}" height="3" fill="#e2412c"/>`}); }
+  g.innerHTML = s;
+}
+function setRing(key, a){ RING[key].ang = a; ringMarks(key); }
+['F','V','T'].forEach(k => ringMarks(k));
+let lastIdx = 0;
+function turn(key, dDeg){
+  touched = true; const h = host();
+  if (key === 'F'){ const r = RING.F; r.ang = clamp(r.ang + dDeg, 0, 300); field = r.ang/300; ringMarks('F'); $('#rF').setAttribute('aria-valuenow', field.toFixed(2)); }
+  if (key === 'V'){ const r = RING.V; r.raw += dDeg; const idx = ((Math.round(r.raw/30) % 3)+3) % 3, snap = Math.round(r.raw/30)*30; r.ang = snap + (r.raw - snap)*.28; ringMarks('V');
+    if (idx !== variant[scene]){ variant[scene] = idx; tick(2400,.02,.06); buzz(8); hint(VAR[scene][idx] + ' · same ' + (scene==='birthday'?'table and candles':'leaf and contact frame')); $('#rV').setAttribute('aria-valuenow', idx+1); } }
+  if (key === 'T'){ const r = RING.T; r.ang += dDeg; ringMarks('T'); subject().jog(dDeg/360*2.0); events.push({ t: h, l: 'JOG ' + (dDeg>0?'+':'') + (dDeg/360*2).toFixed(2) }); if (events.length > 40) events.shift(); $('#rT').setAttribute('aria-valuenow', subject().q.toFixed(2)); }
+}
+function wire(id, key){
+  const el = $(id); let y0 = null;
+  el.addEventListener('pointerdown', e => { el.setPointerCapture(e.pointerId); y0 = e.clientY; ringDown = key; touched = true; if (key==='T'){ const h = host(); subject().hold(h); events.push({ t:h, l:'HOLD ' + (scene==='birthday'?'cake':'insect') }); hint('Hand on the time ring: ' + (scene==='birthday'?'cake':'insect') + ' follows your hand · ' + (scene==='birthday'?'children':'leaf') + (companion().held?' stay held':' keep going')); buzz(12); } e.preventDefault(); });
+  el.addEventListener('pointermove', e => { if (y0 === null) return; const dy = e.clientY - y0; y0 = e.clientY; const scale = $('#orb').getBoundingClientRect().height / 300; turn(key, dy/scale*.9); });
+  const up = () => { if (y0 === null) return; y0 = null; ringDown = null; if (key==='T'){ subject().release(host()); events.push({ t:host(), l:'RELEASE' }); hint('Released: ' + (scene==='birthday'?'cake':'insect') + ' carries on from where you left it'); } };
+  el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+  el.addEventListener('wheel', e => { e.preventDefault(); turn(key, e.deltaY*.25); }, { passive:false });
+  el.addEventListener('keydown', e => { const k = e.key; if (k==='ArrowUp'||k==='ArrowDown'||k==='ArrowLeft'||k==='ArrowRight'){ e.preventDefault(); const s = (k==='ArrowUp'||k==='ArrowRight') ? 1 : -1; if (key==='T'){ const h = host(); const was = subject().held; subject().hold(h); turn('T', s*(e.shiftKey?5:15)); if (!was) setTimeout(() => subject().release(host()), 350); } else turn(key, s*(key==='V'?30:(e.shiftKey?5:12))); } });
+}
+wire('#rF','F'); wire('#rV','V'); wire('#rT','T');
+function syncKey(){ const on = companion().held; $('#thumb').setAttribute('aria-checked', on); $('#led').setAttribute('fill', on ? '#f0b050' : '#3a3d40'); $('#led').setAttribute('opacity', on ? 1 : .8); $('#thumb .keycap').setAttribute('transform', on ? 'translate(0,2)' : ''); }
+function toggleHold(){ touched = true; const h = host(), c = companion(); if (c.held){ c.release(h); events.push({ t:h, l:'RELEASE' }); hint('Released: ' + c.n + ' carry on from their sampled time (no jump)'); } else { c.hold(h); events.push({ t:h, l:'HOLD ' + c.n }); hint('Held ' + c.n + ' at ' + c.q.toFixed(2) + ' s · everything else keeps going'); } tick(900,.05,.07); buzz(18); syncKey(); }
+$('#thumb').addEventListener('click', toggleHold);
+$('#thumb').addEventListener('keydown', e => { if (e.key===' '||e.key==='Enter'){ e.preventDefault(); toggleHold(); } });
+/* scene tabs */
+function setScene(s){ scene = s; $('#tabB').setAttribute('aria-pressed', s==='birthday'); $('#tabF').setAttribute('aria-pressed', s==='forest'); syncKey(); events.length = 0; hist.length = 0; hint(s==='birthday' ? 'Birthday: TIME jogs the cake · HOLD freezes the children' : 'Forest: TIME jogs the insect · HOLD freezes the leaf · FIELD reveals the chamber'); }
+$('#tabB').onclick = () => setScene('birthday'); $('#tabF').onclick = () => setScene('forest');
+/* visitor alert: click the doorway */
+cv.addEventListener('click', e => { const r = cv.getBoundingClientRect(), x = (e.clientX - r.left)/r.width*W, y = (e.clientY - r.top)/r.height*H; if (x > DOOR.x && y > DOOR.y && y < DOOR.y+DOOR.h){ alertOn = true; alertT = host(); hint('Visitor at the door: the doorway stays clear; the saved scene is untouched'); buzz(25); } });
+cv.style.cursor = 'default';
+syncKey(); hint('Both clocks run. At 2.00 s the children are held.');
+requestAnimationFrame(render);
+window.__orb={get field(){return field},get idx(){return variant[scene]},get scene(){return scene},VAR,off:()=>L.cake.t(host())-host(),cv};
+})();
+</script>
+<script>
+(function(){
+  const root=document.documentElement,tb=id=>document.getElementById(id);
+  let last='';
+  function frame(){
+    const o=window.__orb; if(o){
+      const f=o.field, idx=o.idx|0, cold=o.scene==='forest';
+      const wd=Math.round(112+f*26), wt=[560,710,860][idx]||800, sk=Math.max(-10,Math.min(10,-o.off()*5)).toFixed(1), bl=(f*1.2).toFixed(2);
+      const key=wd+'|'+wt+'|'+sk+'|'+bl+'|'+cold;
+      if(key!==last){ const wChanged=last.split('|').slice(0,2).join()!==[wd,wt].join(); last=key;
+        root.style.setProperty('--wd',wd);root.style.setProperty('--wt',wt);root.style.setProperty('--sk',sk+'deg');root.style.setProperty('--blur',bl+'px');
+        root.dataset.state=cold?'cold':'warm';
+        tb('tbState').innerHTML='<b>'+(f<.5?'SOLID':'GHOST')+'</b>'; tb('tbAp').innerHTML='f/<b>'+(1.4*Math.pow(2,f*3.5)).toFixed(1)+'</b>';
+        tb('tbVar').innerHTML='<b>'+String(o.VAR[o.scene][idx]).toUpperCase()+'</b>'; tb('tbLight').textContent=cold?'MOSS DAWN':'CANDLELIGHT'; tb('tbK').innerHTML='<b>'+(cold?5600:3300)+'</b>K';
+        if(wChanged&&window.VesperFit) VesperFit.refit(); }
+    }
+    requestAnimationFrame(frame);
+  }
+  frame();
+  tb('tbSnap').addEventListener('click',()=>{ const c=document.getElementById('scene'); c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='vesper-field-orb-snapshot.png'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); }); });
+})();
+</script>
+<script src="assets/site/vesper.js"></script>
+</body>
+</html>
