@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>CINEOSI-ORB · Multiplane Memory & Cutout Instrument</title>
-<meta name="description" content="Multiplane memory instrument: 25 segmented video cutouts from Stelline, Cineosis-Lab, and Secondhand-Motion across 6 depth planes, 24 hero cakes and memory objects, lived-in birthday table mess, Etch-A-Sketch dual-wheel piping, and accordion-bellows particle flight.">
+<title>CINEOSIS-ORB · Tizita Multiplane Memory & Cutout Instrument</title>
+<meta name="description" content="CINEOSIS-ORB: 12 soulful birthdays across time and space (Tizita anthology), 32 segmented video cutouts around the table and across 6 depth planes, live OLED optical reference monitor, Tizita x Stelline audio mixes, motion-coupled sound engine, Etch-A-Sketch piping, and accordion particle flight.">
 <style>
   html, body { margin: 0; height: 100%; background: #050605; color: #e8f2ee; overflow: hidden; user-select: none; -webkit-user-select: none; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -53,15 +53,19 @@
 <body>
 <div id="hudTop">
   <div class="pillBar" id="modePills">
+    <button class="pill amber" data-mode="TIZITA">0 TIZITA · 12 BIRTHDAYS</button>
     <button class="pill hot" data-mode="HERO">1 HERO</button>
-    <button class="pill" data-mode="CAST">2 CAST</button>
-    <button class="pill" data-mode="MESS">3 MESS</button>
+    <button class="pill" data-mode="CAST">2 CAST · TABLE</button>
+    <button class="pill" data-mode="MESS">3 MESS · PLACE</button>
     <button class="pill" data-mode="ETCH">4 ETCH</button>
     <button class="pill" data-mode="LIGHT">5 LIGHT</button>
     <button class="pill amber" data-mode="FLIGHT">6 FLIGHT</button>
   </div>
   <div class="pillBar">
-    <button class="pill" id="btnAddQuick">+ ADD</button>
+    <button class="pill" id="btnPlaceQuick">+ PLACE</button>
+    <button class="pill" id="btnAddQuick">+ ADD CUTOUT</button>
+    <button class="pill amber" id="btnMixToggle">MIX 1 · TIZITA × STELLINE</button>
+    <button class="pill" id="btnClipToggle">CLIP · WALK TO WORK</button>
     <button class="pill" id="btnStageOnly">STAGE ONLY</button>
     <button class="pill amber" id="btnPairTop">PHONE QR</button>
   </div>
@@ -80,7 +84,7 @@
 
 <div id="qrModal">
   <div id="qrCard">
-    <h3>CINEOSI-ORB · PHONE CONTROLLER</h3>
+    <h3>CINEOSIS-ORB · PHONE CONTROLLER</h3>
     <div class="roomCode" id="qrRoomTxt">····</div>
     <div id="qrBox"></div>
     <a id="qrUrl" href="#" target="_blank" rel="noopener">OPEN CONTROLLER LINK</a>
@@ -144,7 +148,7 @@ function mistify(mat) {
     Object.assign(sh.uniforms, MU);
     sh.vertexShader = 'varying vec3 vMW;\n' + sh.vertexShader.replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\n vMW = (modelMatrix * vec4(transformed, 1.0)).xyz;');
     sh.fragmentShader = 'uniform float uMist, uTime; varying vec3 vMW;\nfloat mh(vec3 p){ return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }\n' +
-      sh.fragmentShader.replace('void main() {', 'void main() {\n if (uMist > 0.001 && mh(floor(vMW * 520.0)) < uMist * 0.92) discard;');
+      sh.fragmentShader.replace('void main() {', 'void main() {\n float mThresh = clamp((uMist - 0.22) / 0.78, 0.0, 1.0);\n if (mThresh > 0.001 && mh(floor(vMW * 520.0)) < mThresh * 0.92) discard;');
   };
   mat.customProgramCacheKey = () => 'mist2' + (mat.alphaTest ? 'a' : '');
   return mat;
@@ -221,6 +225,13 @@ const FINISHES = [
 ];
 
 const CUTOUT_CLIPS = [
+  { id: 'stelline_walk', name: 'ANA · WALK UP TO WORK', file: 'assets/cutouts/stelline_walk.webp', frames: 8, fps: 6, aspect: 1.0, h: 0.74, plane: 3 },
+  { id: 'stelline_talk', name: 'ANA · UNTIDY DETAILS', file: 'assets/cutouts/stelline_talk.webp', frames: 8, fps: 6, aspect: 1.0, h: 0.68, plane: 2 },
+  { id: 'stelline_hands_orb', name: 'ANA · HANDS ON ORB', file: 'assets/cutouts/stelline_hands_orb.webp', frames: 8, fps: 8, aspect: 1.0, h: 0.44, plane: 0 },
+  { id: 'stelline_child_left', name: 'WEST SEAT · GIRL LAUGHING', file: 'assets/cutouts/stelline_child_left.webp', frames: 8, fps: 8, aspect: 1.0, h: 0.54, plane: 1 },
+  { id: 'stelline_child_center', name: 'NORTH SEAT · BIRTHDAY BOY', file: 'assets/cutouts/stelline_child_center.webp', frames: 8, fps: 8, aspect: 1.0, h: 0.52, plane: 1 },
+  { id: 'stelline_child_right', name: 'EAST SEAT · FRIEND SMILING', file: 'assets/cutouts/stelline_child_right.webp', frames: 8, fps: 8, aspect: 1.0, h: 0.56, plane: 1 },
+  { id: 'stelline_candle_face', name: 'CANDLELIGHT · WISH FACE', file: 'assets/cutouts/stelline_candle_face.webp', frames: 8, fps: 8, aspect: 1.0, h: 0.48, plane: 0 },
   { id: 'stelline_child1', name: 'CHILD 1 · LEFT TABLE', file: 'assets/cutouts/stelline_child1.webp', frames: 16, fps: 10, aspect: 1.377, h: 0.56, plane: 1 },
   { id: 'stelline_child2', name: 'CHILD 2 · CENTER TABLE', file: 'assets/cutouts/stelline_child2.webp', frames: 16, fps: 10, aspect: 1.377, h: 0.44, plane: 1 },
   { id: 'stelline_child3', name: 'CHILD 3 · RIGHT TABLE', file: 'assets/cutouts/stelline_child3.webp', frames: 16, fps: 10, aspect: 1.636, h: 0.64, plane: 1 },
@@ -263,6 +274,313 @@ const TABLE_STYLES = [
   ['NO TABLE · CONE', 0x000000, 0]
 ];
 
+/* =============================================================== 3B. TIZITA ANTHOLOGY: 12 BEST BIRTHDAYS ACROSS TIME & SPACE */
+const TIZITA_CHAPTERS = [
+  {
+    id: '2021_stelline',
+    title: '01 · 2021 STELLINE CHAMBER (6·10·21)',
+    subtitle: 'There is a bit of every artist in their work — untidy details around the hexagonal oak table.',
+    lyric: 'TIZITA · "Someone wrote my first winter in warm wax and seven small flames"',
+    clipIdx: 0,
+    hero: { preset: 0, finish: 0, sculpt: 0.0, candles: 7, lit: 1, scale: 1.0 },
+    table: { style: 0, width: 1.08 },
+    propCount: 9,
+    cutouts: [
+      { clip: 3, a: Math.PI - 0.72, plane: 1, face: 8, s: 1.02, speed: 1.0 },
+      { clip: 4, a: Math.PI,        plane: 1, face: 0, s: 1.05, speed: 1.0 },
+      { clip: 5, a: Math.PI + 0.72, plane: 1, face: -8, s: 1.02, speed: 1.0 },
+      { clip: 0, a: -0.52,          plane: 3, face: 12, s: 1.0, speed: 0.9 },
+      { clip: 6, a: 0.32,           plane: 0, face: -10, s: 0.92, speed: 1.0 }
+    ],
+    etch: { surface: 0, phrase: 2, x: 0, y: 0, col: 0, pts: [] },
+    light: { a: 34, h: 0.82, warm: 0.82, k: 1.48 },
+    bellows: 0.0
+  },
+  {
+    id: '1997_addis',
+    title: '02 · 1997 ADDIS ABABA COURTYARD (TIZITA LAMP)',
+    subtitle: 'Rain on corrugated tin, cassette tape hiss, honey-wine brass lantern, and cousins leaning into the candle glow.',
+    lyric: 'TIZITA · "Yesterday is a room we only enter when the tape begins to warble"',
+    clipIdx: 1,
+    hero: { preset: 20, finish: 7, sculpt: 0.12, candles: 9, lit: 1, scale: 1.08 },
+    table: { style: 1, width: 1.12 },
+    propCount: 12,
+    cutouts: [
+      { clip: 28, a: Math.PI - 0.85, plane: 1, face: 10, s: 1.05, speed: 1.0 },
+      { clip: 4,  a: Math.PI - 0.15, plane: 1, face: 0,  s: 1.0,  speed: 1.0 },
+      { clip: 29, a: Math.PI + 0.58, plane: 2, face: -6, s: 1.08, speed: 0.95 },
+      { clip: 1,  a: 0.65,           plane: 2, face: -14, s: 0.96, speed: 0.9 },
+      { clip: 22, a: -0.75,          plane: 4, face: 0,  s: 1.15, speed: 0.8 }
+    ],
+    etch: { surface: 2, phrase: 4, x: 0.1, y: -0.1, col: 2, pts: [] },
+    light: { a: -28, h: 0.68, warm: 0.94, k: 1.55 },
+    bellows: 0.08
+  },
+  {
+    id: '1974_tehran',
+    title: '03 · 1974 TEHRAN WINTER GREENHOUSE (GOLE YAKH)',
+    subtitle: 'Steam on glass panes while snow gathers outside; porcelain teacups and rosewater patisserie dome.',
+    lyric: 'TIZITA · "Winter pressed its forehead to the greenhouse glass and sang"',
+    clipIdx: 1,
+    hero: { preset: 2, finish: 3, sculpt: 0.08, candles: 5, lit: 1, scale: 1.04 },
+    table: { style: 4, width: 1.05 },
+    propCount: 10,
+    cutouts: [
+      { clip: 18, a: Math.PI - 0.68, plane: 1, face: 6,  s: 1.0, speed: 0.9 },
+      { clip: 11, a: Math.PI + 0.12, plane: 1, face: 0,  s: 1.04, speed: 1.0 },
+      { clip: 14, a: Math.PI + 0.82, plane: 2, face: -12, s: 0.98, speed: 0.85 },
+      { clip: 21, a: -0.45,          plane: 1, face: 15, s: 0.88, speed: 1.0 }
+    ],
+    etch: { surface: 0, phrase: 1, x: 0, y: 0, col: 0, pts: [] },
+    light: { a: 52, h: 0.95, warm: 0.72, k: 1.38 },
+    bellows: 0.05
+  },
+  {
+    id: '1986_brooklyn',
+    title: '04 · 1986 BROOKLYN KITCHEN POLAROID',
+    subtitle: 'Fluorescent hum turned off at 9 PM, sheet cake on birch formica, spilled grape soda, and flashbulbs.',
+    lyric: 'TIZITA · "Shake the Polaroid until the faces swim up from the dark"',
+    clipIdx: 2,
+    hero: { preset: 9, finish: 1, sculpt: -0.05, candles: 10, lit: 1, scale: 1.1 },
+    table: { style: 2, width: 1.15 },
+    propCount: 15,
+    cutouts: [
+      { clip: 7,  a: Math.PI - 0.78, plane: 1, face: 12, s: 1.0, speed: 1.1 },
+      { clip: 8,  a: Math.PI,        plane: 1, face: 0,  s: 1.02, speed: 1.1 },
+      { clip: 9,  a: Math.PI + 0.78, plane: 1, face: -12, s: 1.0, speed: 1.1 },
+      { clip: 17, a: 0.48,           plane: 1, face: -18, s: 0.95, speed: 1.0 }
+    ],
+    etch: { surface: 0, phrase: 1, x: 0, y: 0, col: 4, pts: [] },
+    light: { a: -45, h: 0.76, warm: 0.85, k: 1.5 },
+    bellows: 0.0
+  },
+  {
+    id: '1968_pawleys',
+    title: '05 · 1968 PAWLEYS ISLAND MARSH PORCH',
+    subtitle: 'Screen doorslam, salt wind through palmettos, half-melted birthday cake, and a guitar on the porch rail.',
+    lyric: 'TIZITA · "Salt air ate the frosting before anyone could count to ten"',
+    clipIdx: 1,
+    hero: { preset: 4, finish: 3, sculpt: 0.32, candles: 7, lit: 1, scale: 1.0 },
+    table: { style: 0, width: 1.18 },
+    propCount: 14,
+    cutouts: [
+      { clip: 29, a: Math.PI - 0.65, plane: 1, face: 5,  s: 1.06, speed: 0.95 },
+      { clip: 3,  a: Math.PI + 0.08, plane: 1, face: 0,  s: 1.0, speed: 1.0 },
+      { clip: 31, a: Math.PI + 0.85, plane: 3, face: -8, s: 1.15, speed: 0.8 },
+      { clip: 27, a: -0.38,          plane: 0, face: 10, s: 0.9, speed: 1.1 }
+    ],
+    etch: { surface: 2, phrase: 4, x: 0, y: 0, col: 1, pts: [] },
+    light: { a: 64, h: 0.64, warm: 0.92, k: 1.42 },
+    bellows: 0.12
+  },
+  {
+    id: '1991_tokyo',
+    title: '06 · 1991 TOKYO ROOFTOP LANTERN',
+    subtitle: 'Strawberry shortcake tower on dark slate above the train tracks; paper lanterns swaying in the dusk wind.',
+    lyric: 'TIZITA · "Every passing commuter train took one more wish down the line"',
+    clipIdx: 2,
+    hero: { preset: 7, finish: 2, sculpt: 0.0, candles: 6, lit: 1, scale: 1.06 },
+    table: { style: 3, width: 1.0 },
+    propCount: 8,
+    cutouts: [
+      { clip: 28, a: Math.PI - 0.92, plane: 1, face: 14, s: 1.0, speed: 1.0 },
+      { clip: 5,  a: Math.PI - 0.22, plane: 1, face: 4,  s: 1.02, speed: 1.0 },
+      { clip: 16, a: Math.PI + 0.55, plane: 2, face: -10, s: 0.98, speed: 0.9 },
+      { clip: 31, a: 0.15,           plane: 4, face: 0,  s: 1.2, speed: 0.7 }
+    ],
+    etch: { surface: 0, phrase: 2, x: 0, y: 0, col: 0, pts: [] },
+    light: { a: -18, h: 0.88, warm: 0.62, k: 1.46 },
+    bellows: 0.06
+  },
+  {
+    id: '1959_havana',
+    title: '07 · 1959 HAVANA COURTYARD AFTER RAIN',
+    subtitle: 'Croquembouche spun sugar glistening in the humid courtyard, lace tablecloth, and birds lifting at dusk.',
+    lyric: 'TIZITA · "Spun sugar holds the shape of the storm for one brief hour"',
+    clipIdx: 1,
+    hero: { preset: 8, finish: 0, sculpt: 0.14, candles: 5, lit: 1, scale: 1.08 },
+    table: { style: 4, width: 1.14 },
+    propCount: 11,
+    cutouts: [
+      { clip: 10, a: Math.PI - 0.70, plane: 1, face: 8,  s: 1.04, speed: 1.0 },
+      { clip: 11, a: Math.PI + 0.15, plane: 1, face: -5, s: 1.0, speed: 1.0 },
+      { clip: 22, a: Math.PI + 0.95, plane: 4, face: 0,  s: 1.22, speed: 0.95 },
+      { clip: 30, a: -0.55,          plane: 1, face: 12, s: 0.92, speed: 1.0 }
+    ],
+    etch: { surface: 2, phrase: 3, x: 0, y: 0, col: 2, pts: [] },
+    light: { a: 42, h: 0.74, warm: 0.88, k: 1.52 },
+    bellows: 0.10
+  },
+  {
+    id: '2003_berlin',
+    title: '08 · 2003 BERLIN U-BAHN ATTIC STUDIO',
+    subtitle: 'Twin-lens camera on the table surrounded by Super-8 film strips, chocolate ganache torte, and late-night laughter.',
+    lyric: 'TIZITA · "We Exposed the whole roll of film to a single matchstick"',
+    clipIdx: 0,
+    hero: { preset: 6, finish: 4, sculpt: 0.06, candles: 8, lit: 1, scale: 1.02 },
+    table: { style: 3, width: 1.06 },
+    propCount: 13,
+    cutouts: [
+      { clip: 14, a: Math.PI - 0.82, plane: 1, face: 10, s: 1.05, speed: 0.9 },
+      { clip: 15, a: Math.PI - 0.05, plane: 2, face: 0,  s: 1.02, speed: 0.9 },
+      { clip: 20, a: Math.PI + 0.68, plane: 1, face: -8, s: 0.96, speed: 1.0 },
+      { clip: 2,  a: 0.35,           plane: 0, face: -12, s: 0.94, speed: 1.0 }
+    ],
+    etch: { surface: 1, phrase: 5, x: 0, y: 0, col: 4, pts: [] },
+    light: { a: -60, h: 0.92, warm: 0.55, k: 1.40 },
+    bellows: 0.04
+  },
+  {
+    id: '2012_diner',
+    title: '09 · 2012 LATE-NIGHT HIGHWAY DINER BOOTH',
+    subtitle: '2 AM half-eaten bundt cake with four stubborn candles, crumpled napkins, and neon reflections on walnut.',
+    lyric: 'TIZITA · "At 2 AM the waitress brought four candles in a coffee saucer"',
+    clipIdx: 2,
+    hero: { preset: 5, finish: 0, sculpt: 0.18, candles: 4, lit: 1, scale: 0.98 },
+    table: { style: 1, width: 1.04 },
+    propCount: 16,
+    cutouts: [
+      { clip: 6,  a: Math.PI - 0.55, plane: 0, face: 8,  s: 1.04, speed: 1.0 },
+      { clip: 3,  a: Math.PI + 0.25, plane: 1, face: -6, s: 1.0,  speed: 1.0 },
+      { clip: 19, a: -0.75,          plane: 0, face: 18, s: 0.90, speed: 1.0 }
+    ],
+    etch: { surface: 2, phrase: 4, x: 0, y: 0, col: 5, pts: [] },
+    light: { a: 22, h: 0.58, warm: 0.90, k: 1.60 },
+    bellows: 0.0
+  },
+  {
+    id: '1981_gymnasium',
+    title: '10 · 1981 SCHOLASTIC FOLDING-TABLE BIRTHDAY',
+    subtitle: 'Luz Bench 13-candle turntable cake, paper plates, foil confetti, and three kids leaning in to blow out the wish.',
+    lyric: 'TIZITA · "Thirteen candles on a folding table — do not let the janitor turn the lights on"',
+    clipIdx: 2,
+    hero: { preset: 10, finish: 1, sculpt: 0.0, candles: 13, lit: 1, scale: 1.08 },
+    table: { style: 2, width: 1.20 },
+    propCount: 18,
+    cutouts: [
+      { clip: 11, a: Math.PI - 0.62, plane: 1, face: 6,  s: 1.06, speed: 1.05 },
+      { clip: 4,  a: Math.PI,        plane: 1, face: 0,  s: 1.04, speed: 1.05 },
+      { clip: 5,  a: Math.PI + 0.62, plane: 1, face: -6, s: 1.06, speed: 1.05 },
+      { clip: 24, a: 0.52,           plane: 2, face: -15, s: 0.96, speed: 1.0 }
+    ],
+    etch: { surface: 2, phrase: 1, x: 0, y: 0, col: 0, pts: [] },
+    light: { a: 15, h: 0.85, warm: 0.80, k: 1.48 },
+    bellows: 0.0
+  },
+  {
+    id: '2038_offworld',
+    title: '11 · 2038 OFF-WORLD CONSERVATORY DOME',
+    subtitle: 'Stelline Emerald Jewel Beetle & glass snowglobe under artificial snow; Ana walking up through the trees to work.',
+    lyric: 'TIZITA · "She built the forest first so she could walk through it to work"',
+    clipIdx: 0,
+    hero: { preset: 17, finish: 6, sculpt: 0.10, candles: 7, lit: 1, scale: 1.12 },
+    table: { style: 5, width: 1.0 },
+    propCount: 6,
+    cutouts: [
+      { clip: 0,  a: Math.PI - 0.45, plane: 2, face: 6,  s: 1.12, speed: 0.95 },
+      { clip: 1,  a: Math.PI + 0.35, plane: 1, face: -6, s: 1.06, speed: 0.95 },
+      { clip: 13, a: 0.25,           plane: 0, face: 0,  s: 0.95, speed: 1.1 },
+      { clip: 26, a: -0.65,          plane: 1, face: 12, s: 0.92, speed: 1.1 }
+    ],
+    etch: { surface: 3, phrase: 5, x: 0, y: 0, col: 4, pts: [] },
+    light: { a: -35, h: 1.05, warm: 0.42, k: 1.52 },
+    bellows: 0.24
+  },
+  {
+    id: '2049_first_winter',
+    title: '12 · 2049 FIRST WINTER OUTSIDE THE DOME',
+    subtitle: 'Carved wooden horse (6·10·21) dissolving into 32,000 snowflakes as the accordion opens into Tizita flight.',
+    lyric: 'TIZITA · "All the best memories are hers — drifting like snow on open hands"',
+    clipIdx: 1,
+    hero: { preset: 16, finish: 5, sculpt: 0.0, candles: 7, lit: 0, scale: 1.15 },
+    table: { style: 0, width: 1.08 },
+    propCount: 10,
+    cutouts: [
+      { clip: 0,  a: Math.PI - 0.80, plane: 2, face: 10, s: 1.08, speed: 0.9 },
+      { clip: 11, a: Math.PI,        plane: 1, face: 0,  s: 1.05, speed: 0.95 },
+      { clip: 24, a: Math.PI + 0.78, plane: 2, face: -10, s: 1.04, speed: 1.0 },
+      { clip: 6,  a: 0.18,           plane: 0, face: -6, s: 0.98, speed: 0.9 }
+    ],
+    etch: { surface: 0, phrase: 3, x: 0, y: 0, col: 2, pts: [] },
+    light: { a: 28, h: 0.90, warm: 0.68, k: 1.55 },
+    bellows: 0.62
+  }
+];
+
+/* =============================================================== 3C. DIEGETIC OLED VIDEO MONITOR & TIZITA × STELLINE AUDIO MIXES */
+const MONITOR_CLIPS = [
+  { id: 'walk',  label: 'CLIP 1 · ANA WALK TO WORK',    src: 'assets/clips/stelline_walk_to_work.mp4',      quote: '"Wait a moment... let me clear the forest projection."' },
+  { id: 'talk',  label: 'CLIP 2 · UNTIDY DETAILS',       src: 'assets/clips/stelline_how_memories_work.mp4', quote: '"If you supply the untidy details, the mind fills in the rest... feelings."' },
+  { id: 'bday',  label: 'CLIP 3 · BIRTHDAY SCENE CRAFT', src: 'assets/clips/stelline_birthday_craft.mp4',    quote: '"There is a bit of every artist in their work... make a wish."' },
+  { id: 'reel',  label: 'CLIP 4 · FULL CHAMBER REEL',    src: 'assets/clips/stelline_oled_reel.mp4',         quote: '"All the best memories are hers."' }
+];
+
+const AUDIO_MIXES = [
+  { id: 'mix0', label: 'MIX 0 · MOTION SYNTH ONLY',       src: '' },
+  { id: 'mix1', label: 'MIX 1 · TIZITA × STELLINE SOUL',  src: 'assets/audio/mix1_tizita_stelline_soul.mp3' },
+  { id: 'mix2', label: 'MIX 2 · CHAMBER & WALK DIALOGUE', src: 'assets/audio/mix2_stelline_dialogue_chamber.mp3' },
+  { id: 'mix3', label: 'MIX 3 · TIZITA FULL 3:30 ANTHEM', src: 'assets/audio/mix3_tizita_full_anthem.mp3' }
+];
+
+// Create hidden <video> for the Orb Top OLED Monitor and <audio> for the Tizita mixes
+const oledVideo = document.createElement('video');
+oledVideo.src = MONITOR_CLIPS[3].src;
+oledVideo.muted = true; oledVideo.loop = true; oledVideo.playsInline = true; oledVideo.crossOrigin = 'anonymous';
+oledVideo.addEventListener('loadedmetadata', () => { try { if (oledVideo.currentTime < 1) oledVideo.currentTime = 14.5; } catch (e) {} });
+oledVideo.play().catch(() => {});
+
+const mixAudio = document.createElement('audio');
+mixAudio.loop = true; mixAudio.crossOrigin = 'anonymous';
+let curMixIdx = 1, curClipIdx = 3, mixAnalyser = null, mixData = new Uint8Array(64), mixConnected = false;
+
+function ensureAudioGraph() {
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === 'suspended') AC.resume();
+    if (!mixAnalyser) {
+      mixAnalyser = AC.createAnalyser();
+      mixAnalyser.fftSize = 128;
+      mixAnalyser.smoothingTimeConstant = 0.78;
+      mixData = new Uint8Array(mixAnalyser.frequencyBinCount);
+      mixAnalyser.connect(AC.destination);
+    }
+    if (!mixConnected) {
+      const srcNode = AC.createMediaElementSource(mixAudio);
+      srcNode.connect(mixAnalyser);
+      mixConnected = true;
+    }
+  } catch (e) {}
+}
+
+function cycleAudioMix(forceIdx) {
+  ensureAudioGraph();
+  curMixIdx = forceIdx != null ? forceIdx : (curMixIdx + 1) % AUDIO_MIXES.length;
+  const m = AUDIO_MIXES[curMixIdx];
+  const btn = document.getElementById('btnMixToggle');
+  if (btn) { btn.textContent = m.label; btn.classList.toggle('hot', curMixIdx > 0); }
+  if (!m.src) {
+    mixAudio.pause();
+    say('AUDIO · MOTION-COUPLED SYNTH ONLY');
+  } else {
+    if (!mixAudio.src.endsWith(m.src)) mixAudio.src = m.src;
+    mixAudio.currentTime = 0;
+    mixAudio.play().catch(() => {});
+    say('PLAYING · ' + m.label);
+  }
+  oledDirty = true;
+}
+
+function cycleMonitorClip(forceIdx) {
+  curClipIdx = forceIdx != null ? forceIdx : (curClipIdx + 1) % MONITOR_CLIPS.length;
+  const c = MONITOR_CLIPS[curClipIdx];
+  oledVideo.src = c.src;
+  oledVideo.play().catch(() => {});
+  const btn = document.getElementById('btnClipToggle');
+  if (btn) btn.textContent = c.label;
+  say('OLED MONITOR · ' + c.label + ' · ' + c.quote);
+  oledDirty = true;
+}
+
 /* =============================================================== 4. SCENE DOCUMENT & STATE */
 function makeDefaultProps(count) {
   const arr = [];
@@ -298,14 +616,15 @@ let DOC = DOC0();
 const UNDO = [], REDO = [];
 let gestT = -9, dirty = { hero: true, table: true, props: true, etch: true };
 
-const MODES = ['HERO', 'CAST', 'MESS', 'ETCH', 'LIGHT', 'FLIGHT'];
+const MODES = ['TIZITA', 'HERO', 'CAST', 'MESS', 'ETCH', 'LIGHT', 'FLIGHT'];
 const S = {
   mode: 'HERO',
+  tizitaIdx: 0,
   castIdx: 0,
   propIdx: 0,
   lastRing: 0,
   hoverRing: -1,
-  msg: 'CINEOSI-ORB READY · SPIN RINGS OR PULL ACCORDION',
+  msg: 'CINEOSIS-ORB READY · 12 TIZITA BIRTHDAYS · SPIN RINGS OR PULL ACCORDION',
   msgT: 0,
   retT: 0,
   playing: false,
@@ -327,6 +646,32 @@ function snap(force) {
   gestT = NOW; UNDO.push(JSON.stringify(DOC)); if (UNDO.length > 80) UNDO.shift(); REDO.length = 0;
 }
 function say(m) { S.msg = m; S.msgT = NOW; oledDirty = true; }
+
+function loadTizitaChapter(idx, fromRemote) {
+  S.tizitaIdx = clamp(Math.round(idx), 0, TIZITA_CHAPTERS.length - 1);
+  const ch = TIZITA_CHAPTERS[S.tizitaIdx];
+  DOC.tizitaIdx = S.tizitaIdx;
+  DOC.hero = { ...ch.hero };
+  DOC.table = { ...ch.table };
+  DOC.props = makeDefaultProps(ch.propCount || 8);
+  DOC.cutouts = ch.cutouts.map(c => ({ ...c }));
+  DOC.etch = { ...ch.etch, pts: (ch.etch.pts || []).slice() };
+  DOC.light = { ...ch.light };
+  S.castIdx = 0; S.propIdx = 0;
+  dirty.hero = dirty.table = dirty.props = dirty.etch = true;
+  setBellows(ch.bellows || 0, true);
+  if (ch.clipIdx != null && curClipIdx !== ch.clipIdx) {
+    curClipIdx = ch.clipIdx;
+    oledVideo.src = MONITOR_CLIPS[curClipIdx].src;
+    oledVideo.play().catch(() => {});
+    const btn = document.getElementById('btnClipToggle');
+    if (btn) btn.textContent = MONITOR_CLIPS[curClipIdx].label;
+  }
+  motionNote(0.65, 0, 0.35);
+  say(ch.title + ' · ' + ch.subtitle);
+  oledDirty = true; drawDialLabels();
+  if (!fromRemote && window.REMOTE) window.REMOTE({ k: 'chapter', idx: S.tizitaIdx });
+}
 
 /* =============================================================== 5. PROCEDURAL & BENCH HERO BUILDER (24 PRESETS) */
 const bumpTex = (() => {
@@ -729,23 +1074,61 @@ function tick(kind, i) {
   if (navigator.vibrate) navigator.vibrate(kind === 'press' ? 12 : 5);
 }
 
+// Tizita scale frequencies (D minor / Tizita Minor-Major nostalgic intervals: D4, E4, F4, A4, Bb4, C#5, D5, E5, F5, A5)
+const TIZITA_SCALE = [293.66, 329.63, 349.23, 440.00, 466.16, 554.37, 587.33, 659.25, 698.46, 880.00];
+let lastMotionSndT = 0;
+
+function motionNote(normPos, pan, vel) {
+  try {
+    ensureAudioGraph();
+    const nowT = performance.now();
+    if (nowT - lastMotionSndT < 28) return;
+    lastMotionSndT = nowT;
+    const idx = clamp(Math.floor(clamp(normPos, 0, 0.999) * TIZITA_SCALE.length), 0, TIZITA_SCALE.length - 1);
+    const freq = TIZITA_SCALE[idx];
+    const t = AC.currentTime, dur = clamp(0.14 + Math.abs(vel || 0.2) * 0.18, 0.12, 0.36);
+    const o1 = AC.createOscillator(), o2 = AC.createOscillator(), flt = AC.createBiquadFilter(), g = AC.createGain();
+    o1.type = 'triangle'; o2.type = 'sine';
+    o1.frequency.setValueAtTime(freq, t);
+    o1.frequency.exponentialRampToValueAtTime(freq * (1 + clamp(vel || 0, -0.3, 0.3) * 0.06), t + dur);
+    o2.frequency.setValueAtTime(freq * 1.5, t); // 5th harmonic glass overtone
+    flt.type = 'lowpass';
+    flt.frequency.setValueAtTime(520 + Math.min(1, Math.abs(vel || 0.25)) * 2400 + DOC.bellows * 1200, t);
+    flt.Q.value = 3.2;
+    const amp = clamp(0.025 + Math.abs(vel || 0.2) * 0.065, 0.02, 0.09);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(amp, t + 0.018);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    let outNode = mixAnalyser || AC.destination;
+    if (AC.createStereoPanner) {
+      const panner = AC.createStereoPanner();
+      panner.pan.setValueAtTime(clamp(pan || 0, -1, 1), t);
+      g.connect(panner).connect(outNode);
+    } else {
+      g.connect(outNode);
+    }
+    o1.connect(flt); o2.connect(flt); flt.connect(g);
+    o1.start(t); o2.start(t); o1.stop(t + dur + 0.02); o2.stop(t + dur + 0.02);
+  } catch (e) {}
+}
+
 function accordionChord(bellows, vel) {
   try {
-    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
-    if (AC.state === 'suspended') AC.resume();
-    const notes = [220, 277.18, 329.63, 415.3, 493.88]; // A major 9th glass-reed chord
-    const t = AC.currentTime, dur = 0.22;
+    ensureAudioGraph();
+    const notes = [293.66, 349.23, 440.0, 466.16, 659.25]; // D Tizita 9th chord
+    const t = AC.currentTime, dur = 0.26;
+    const outNode = mixAnalyser || AC.destination;
     notes.forEach((freq, idx) => {
       const o = AC.createOscillator(), g = AC.createGain(), flt = AC.createBiquadFilter();
       o.type = idx % 2 === 0 ? 'triangle' : 'sine';
-      const fShift = freq * (1 + bellows * 0.25 + (vel || 0) * 0.05);
+      const fShift = freq * (1 + bellows * 0.12 + (vel || 0) * 0.03);
       o.frequency.setValueAtTime(fShift, t);
-      flt.type = 'lowpass'; flt.frequency.setValueAtTime(600 + bellows * 2200, t);
-      const amp = Math.min(0.06, 0.015 + Math.abs(vel || 0.2) * 0.04);
+      flt.type = 'lowpass'; flt.frequency.setValueAtTime(600 + bellows * 2400, t);
+      const amp = Math.min(0.055, 0.015 + Math.abs(vel || 0.2) * 0.038);
       g.gain.setValueAtTime(0.0001, t);
       g.gain.linearRampToValueAtTime(amp, t + 0.03);
       g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      o.connect(flt).connect(g).connect(AC.destination);
+      o.connect(flt).connect(g).connect(outNode);
       o.start(t); o.stop(t + dur + 0.02);
     });
   } catch (e) {}
@@ -760,6 +1143,15 @@ function rings() {
   // Accordion gear multiplier: expanding the bellows amplifies continuous scroll-wheel throws
   const gear = 1 + DOC.bellows * 1.15;
 
+  if (S.mode === 'TIZITA') {
+    return [
+      list('BIRTHDAY STORY', () => S.tizitaIdx || 0, v => loadTizitaChapter(v), TIZITA_CHAPTERS.map(c => c.title)),
+      list('SOUND MIX', () => curMixIdx, v => cycleAudioMix(v), AUDIO_MIXES.map(m => m.label)),
+      list('OLED FILM CLIP', () => curClipIdx, v => cycleMonitorClip(v), MONITOR_CLIPS.map(c => c.label)),
+      list('HERO OBJECT', () => H.preset, v => { H.preset = v; dirty.hero = true; }, HERO_PRESETS.map(p => p.name)),
+      num('TIZITA MIST', () => DOC.bellows, v => setBellows(v), 0, 1, 0.04, v => Math.round(v * 100) + '% MIST')
+    ];
+  }
   if (S.mode === 'HERO') {
     return [
       list('HERO OBJECT', () => H.preset, v => { H.preset = v; const P = HERO_PRESETS[v]; if (P.icing != null) H.finish = P.icing; if (P.candles != null) H.candles = P.candles; dirty.hero = true; }, HERO_PRESETS.map(p => p.name)),
@@ -774,7 +1166,7 @@ function rings() {
     S.castIdx = clamp(S.castIdx, 0, N - 1);
     const C = DOC.cutouts[S.castIdx] || { clip: 0, a: 0, plane: 1, face: 0, s: 1, speed: 1 };
     return [
-      list('PICK CUTOUT', () => S.castIdx, v => { S.castIdx = v; }, DOC.cutouts.map((c, i) => '#' + (i + 1) + ' ' + CUTOUT_CLIPS[c.clip].name.split('·')[0].trim())),
+      list('PICK CUTOUT', () => S.castIdx, v => { S.castIdx = v; }, DOC.cutouts.map((c, i) => '#' + (i + 1) + ' ' + CUTOUT_CLIPS[clamp(c.clip, 0, CUTOUT_CLIPS.length - 1)].name.split('·')[0].trim())),
       list('VIDEO CLIP', () => C.clip, v => { C.clip = v; C.plane = CUTOUT_CLIPS[v].plane; }, CUTOUT_CLIPS.map(c => c.name)),
       num('AROUND', () => C.a * 57.2958, v => { C.a = v / 57.2958; }, 0, 360, 5 * gear, v => Math.round(v) + '°', true),
       list('DEPTH PLANE', () => C.plane, v => { C.plane = v; }, PLANE_NAMES),
@@ -1034,6 +1426,7 @@ function turn(i, steps, fromRemote) {
   if (!r) { tick('dead'); return; }
   tick('ring', i); snap();
   r.set(r.v() + r.st * steps);
+  motionNote(v01(r), (i - 2) * 0.4, steps * 0.25);
   S.lastRing = i; S.retT = NOW; ORB.spin(i, steps); oledDirty = true;
   drawDialLabels();
   if (!fromRemote && window.REMOTE) window.REMOTE({ k: 'turn', i, steps });
@@ -1204,6 +1597,7 @@ const PAIR = (function () {
       else if (m.k === 'press') press(m.b, m.long, true);
       else if (m.k === 'mode') setMode(m.m, true);
       else if (m.k === 'bellows') setBellows(m.v, true);
+      else if (m.k === 'chapter') loadTizitaChapter(m.idx, true);
       else if (m.k === 'view') viewBy(m.dx, m.dy, m.dc, m.px, m.py, true);
     }
   }
@@ -1363,12 +1757,14 @@ R.domElement.addEventListener('pointermove', e => {
     if (rray.ray.intersectPlane(floorPlane, hitPt)) {
       const c = DOC.cutouts[rdrag.idx];
       if (c) {
+        const prevA = c.a;
         c.a = Math.atan2(hitPt.x, hitPt.z);
         const dist = Math.hypot(hitPt.x, hitPt.z);
-        // Snap to closest multiplane depth ring if dragged radially
         let bestP = c.plane, bestD = 99;
         PLANE_Z.forEach((pz, pi) => { const d = Math.abs(dist - pz); if (d < bestD) { bestD = d; bestP = pi; } });
-        c.plane = bestP; oledDirty = true; drawDialLabels();
+        c.plane = bestP;
+        motionNote(((c.a % TAU) + TAU) % TAU / TAU, clamp(hitPt.x / 1.2, -1, 1), (c.a - prevA) * 4.0);
+        oledDirty = true; drawDialLabels();
       }
     }
     return;
@@ -1396,7 +1792,18 @@ R.domElement.addEventListener('wheel', e => { e.preventDefault(); viewBy(0, 0, -
 document.querySelectorAll('#modePills .pill').forEach(b => {
   b.addEventListener('click', () => { setMode(b.dataset.mode); if (window.REMOTE) window.REMOTE({ k: 'mode', m: b.dataset.mode }); });
 });
-document.getElementById('btnAddQuick').addEventListener('click', () => press('ADD'));
+document.getElementById('btnAddQuick').addEventListener('click', () => { setMode('CAST', true); press('ADD'); });
+document.getElementById('btnPlaceQuick').addEventListener('click', () => {
+  snap(true);
+  const i = DOC.props.length;
+  DOC.props.push({ kind: i % PROP_KINDS.length, a: Math.random() * TAU, r: 0.22 + Math.random() * 0.30, rot: Math.random() * TAU, s: 0.92 + Math.random() * 0.22 });
+  S.propIdx = DOC.props.length - 1; dirty.props = true;
+  motionNote((i % 10) / 10, Math.sin(DOC.props[S.propIdx].a), 0.35);
+  say('PLACED ON TABLE · ' + PROP_KINDS[DOC.props[S.propIdx].kind] + ' (' + DOC.props.length + ' ITEMS)');
+  oledDirty = true; drawDialLabels();
+});
+document.getElementById('btnMixToggle').addEventListener('click', () => cycleAudioMix());
+document.getElementById('btnClipToggle').addEventListener('click', () => cycleMonitorClip());
 document.getElementById('btnStageOnly').addEventListener('click', () => {
   const on = document.body.classList.toggle('paired');
   const btn = document.getElementById('btnStageOnly');
@@ -1419,47 +1826,112 @@ addEventListener('keydown', e => {
 function drawOLED() {
   const W = OLED.width, H = OLED.height, x = ox;
   x.fillStyle = '#030605'; x.fillRect(0, 0, W, H);
-  x.strokeStyle = '#183832'; x.lineWidth = 4; x.strokeRect(6, 6, W - 12, H - 12);
+  x.strokeStyle = '#1d463f'; x.lineWidth = 4; x.strokeRect(6, 6, W - 12, H - 12);
   const CY = '#5ff0dc', AMB = '#f0b040', MID = '#8fe9dc';
 
-  x.textAlign = 'left'; x.font = '700 30px ui-monospace, Menlo, monospace';
+  // 1. LEFT OPTICAL MONITOR VIEWPORT (x: 18..438, y: 18..342): Real Stelline Film Clip + Cutout PiP
+  const vx = 18, vy = 18, vw = 420, vh = 236;
+  x.fillStyle = '#060c0a'; x.fillRect(vx, vy, vw, vh);
+  try {
+    const walkTex = baseCutoutTex['stelline_walk'] || getCutoutBaseTex(0, () => {});
+    if (oledVideo && oledVideo.readyState >= 2 && oledVideo.currentTime > 0.5) {
+      x.drawImage(oledVideo, vx, vy, vw, vh);
+    } else if (walkTex && walkTex.image) {
+      const fw = walkTex.image.width / 8, fh = walkTex.image.height, fi = Math.floor(NOW * 6) % 8;
+      x.drawImage(walkTex.image, fi * fw, 0, fw, fh, vx + 60, vy + 4, vw - 120, vh - 8);
+    }
+  } catch (e) {}
+  // Subtle optical scanline & crosshair overlay on the video monitor
+  x.fillStyle = 'rgba(4, 12, 10, 0.24)'; x.fillRect(vx, vy, vw, vh);
+  x.strokeStyle = '#5ff0dc'; x.lineWidth = 2; x.strokeRect(vx, vy, vw, vh);
+  // Draw active segmented cutout PiP thumbnail in bottom-right of video monitor
+  const activeCut = DOC.cutouts[S.castIdx] || DOC.cutouts[0];
+  if (activeCut) {
+    const cInfo = CUTOUT_CLIPS[clamp(activeCut.clip, 0, CUTOUT_CLIPS.length - 1)];
+    const bTex = baseCutoutTex[cInfo.id];
+    if (bTex && bTex.image) {
+      const pw = 92, ph = 92, px = vx + vw - pw - 8, py = vy + vh - ph - 8;
+      x.fillStyle = 'rgba(3, 8, 7, 0.82)'; x.fillRect(px, py, pw, ph);
+      const fw = bTex.image.width / (cInfo.frames || 1), fh = bTex.image.height;
+      const fIdx = Math.floor(NOW * (cInfo.fps || 8)) % (cInfo.frames || 1);
+      x.drawImage(bTex.image, fIdx * fw, 0, fw, fh, px + 4, py + 4, pw - 8, ph - 8);
+      x.strokeStyle = AMB; x.lineWidth = 1.5; x.strokeRect(px, py, pw, ph);
+    }
+  }
+  const clipInfo = MONITOR_CLIPS[curClipIdx] || MONITOR_CLIPS[0];
+  x.fillStyle = 'rgba(3, 7, 6, 0.78)'; x.fillRect(vx + 2, vy + 2, vw - 4, 28);
+  x.textAlign = 'left'; x.font = '700 17px ui-monospace, Menlo, monospace'; x.fillStyle = CY;
+  x.fillText(clipInfo.label, vx + 10, vy + 21);
+
+  // Caption under video monitor (y: 262..342)
+  const ch = TIZITA_CHAPTERS[S.tizitaIdx || 0];
+  x.fillStyle = '#071311'; x.fillRect(vx, 260, vw, 82);
+  x.strokeStyle = '#183832'; x.strokeRect(vx, 260, vw, 82);
+  x.font = '700 17px ui-monospace, Menlo, monospace'; x.fillStyle = AMB;
+  x.fillText(ch.title.slice(0, 38), vx + 10, 284);
+  x.font = '500 15px ui-monospace, Menlo, monospace'; x.fillStyle = '#d4f0ea';
+  x.fillText(clipInfo.quote.slice(0, 46), vx + 10, 308);
+  x.fillStyle = MID;
+  x.fillText(AUDIO_MIXES[curMixIdx].label, vx + 10, 330);
+
+  // 2. CENTER & RIGHT TELEMETRY + LIVE AUDIO WAVEFORM (x: 454..1580)
+  const rx0 = 454, rw = W - rx0 - 18;
+  const RS = rings();
+  x.textAlign = 'left'; x.font = '700 25px ui-monospace, Menlo, monospace';
   x.fillStyle = S.mode === 'FLIGHT' ? '#ff8a47' : AMB;
   const regName = DOC.bellows < 0.32 ? 'MATTER REGISTER' : DOC.bellows < 0.68 ? 'MULTIPLANE REGISTER' : 'FLIGHT & MIST REGISTER';
-  x.fillText('CINEOSI-ORB · ' + S.mode + ' · ' + regName, 34, 54);
+  x.fillText('CINEOSIS-ORB · ' + S.mode + ' · ' + regName, rx0, 44);
 
-  const RS = rings();
-  const heroTitle = S.mode === 'HERO' ? HERO_PRESETS[DOC.hero.preset].name
+  const heroTitle = S.mode === 'TIZITA' ? ch.title
+    : S.mode === 'HERO' ? HERO_PRESETS[DOC.hero.preset].name
     : S.mode === 'CAST' ? (CUTOUT_CLIPS[(DOC.cutouts[S.castIdx] || { clip: 0 }).clip].name)
     : S.mode === 'MESS' ? (DOC.props.length + ' TABLE PROPS · ' + TABLE_STYLES[DOC.table.style][0])
     : S.mode === 'ETCH' ? ('ETCH-A-SKETCH · ' + ETCH_PHRASES[DOC.etch.phrase])
     : S.mode === 'LIGHT' ? ('CAMERA ' + S.view.preset + ' · ' + Math.round(lerp(6500, 2200, DOC.light.warm)) + 'K')
     : ('BELLOWS ' + Math.round(DOC.bellows * 100) + '% · 32K PARTICLES');
-  x.font = '700 58px ui-monospace, Menlo, monospace'; x.fillStyle = '#eaf6f3';
-  x.fillText(heroTitle.slice(0, 34), 34, 132);
+  x.font = '700 34px ui-monospace, Menlo, monospace'; x.fillStyle = '#eaf6f3';
+  x.fillText(heroTitle.slice(0, 26), rx0, 92);
 
-  const r = RS[S.lastRing] || RS[0];
-  if (r) {
-    x.textAlign = 'right'; x.font = '600 26px ui-monospace, Menlo, monospace'; x.fillStyle = MID;
-    x.fillText('RING ' + (S.lastRing + 1) + ' · ' + r.n, W - 34, 54);
-    x.font = '700 58px ui-monospace, Menlo, monospace'; x.fillStyle = CY;
-    x.fillText(String(r.f(r.v())).slice(0, 20), W - 34, 132);
+  // Live Audio Spectrum / Motion Waveform Strip (x: 454..1120, y: 112..162)
+  if (mixAnalyser) { try { mixAnalyser.getByteFrequencyData(mixData); } catch (e) {} }
+  const nBars = 36, bw = 16, bx0 = rx0;
+  for (let b = 0; b < nBars; b++) {
+    const raw = mixAnalyser ? (mixData[b] / 255) : 0;
+    const synthPulse = Math.max(0, 1 - (performance.now() - lastMotionSndT) / 280) * (0.35 + 0.35 * Math.sin(NOW * 18 + b * 0.7));
+    const amp = clamp(Math.max(raw, synthPulse, 0.08 + 0.06 * Math.sin(NOW * 4 + b * 0.4)), 0.06, 1.0);
+    const bh = Math.round(amp * 44);
+    x.fillStyle = b % 3 === 0 ? AMB : CY;
+    x.fillRect(bx0 + b * (bw + 2), 160 - bh, bw, bh);
   }
 
-  // 5-Ring Summary Strip across the bottom of the OLED (never empty!)
-  const colW = (W - 68) / 5;
+  // Active Ring Readout on Top-Right
+  const r = RS[S.lastRing] || RS[0];
+  if (r) {
+    x.textAlign = 'right'; x.font = '600 22px ui-monospace, Menlo, monospace'; x.fillStyle = MID;
+    x.fillText('RING ' + (S.lastRing + 1) + ' · ' + r.n, W - 26, 44);
+    x.font = '700 34px ui-monospace, Menlo, monospace'; x.fillStyle = CY;
+    x.fillText(String(r.f(r.v())).slice(0, 15), W - 26, 92);
+  }
+
+  // 5-Ring Summary Strip across the right-bottom of the OLED (x: 454..1580, y: 174..292)
+  const colW = rw / 5;
   RS.forEach((ri, idx) => {
     if (!ri) return;
-    const cx = 34 + idx * colW + colW / 2, hot = idx === S.lastRing;
-    x.fillStyle = hot ? 'rgba(20,64,56,0.9)' : 'rgba(10,22,20,0.75)';
-    x.fillRect(34 + idx * colW + 4, 172, colW - 8, 112);
-    x.textAlign = 'center'; x.font = '600 21px ui-monospace, Menlo, monospace';
-    x.fillStyle = hot ? AMB : MID; x.fillText((idx + 1) + ' ' + ri.n, cx, 204);
-    x.font = '700 28px ui-monospace, Menlo, monospace'; x.fillStyle = '#fff';
-    x.fillText(String(ri.f(ri.v())).slice(0, 14), cx, 250);
+    const cx = rx0 + idx * colW + colW / 2, hot = idx === S.lastRing;
+    x.fillStyle = hot ? 'rgba(20,64,56,0.92)' : 'rgba(10,22,20,0.78)';
+    x.fillRect(rx0 + idx * colW + 3, 174, colW - 6, 114);
+    x.strokeStyle = hot ? CY : '#183832'; x.lineWidth = 2;
+    x.strokeRect(rx0 + idx * colW + 3, 174, colW - 6, 114);
+    x.textAlign = 'center'; x.font = '600 18px ui-monospace, Menlo, monospace';
+    x.fillStyle = hot ? AMB : MID; x.fillText((idx + 1) + ' ' + ri.n.slice(0, 12), cx, 204);
+    x.font = '700 24px ui-monospace, Menlo, monospace'; x.fillStyle = '#fff';
+    x.fillText(String(ri.f(ri.v())).slice(0, 12), cx, 252);
   });
 
-  x.textAlign = 'center'; x.font = '500 24px ui-monospace, Menlo, monospace'; x.fillStyle = CY;
-  x.fillText(S.msg || '', W / 2, 330);
+  // Bottom Lyric / Dialogue / Status Ticker (x: 454..1580, y: 328)
+  x.textAlign = 'left'; x.font = '600 21px ui-monospace, Menlo, monospace'; x.fillStyle = CY;
+  const bottomTxt = (NOW - S.msgT < 4.0 && S.msg) ? S.msg : ch.lyric;
+  x.fillText(bottomTxt.slice(0, 68), rx0, 328);
   oledTex.needsUpdate = true;
 }
 
@@ -1571,7 +2043,7 @@ function update(dt) {
   orbPitchV += ((0.18 - ORB.rotation.x) * 42 - orbPitchV * 9) * dt;
   ORB.rotation.x += orbPitchV * dt;
   drawDialLabels();
-  if (oledDirty) { drawOLED(); oledDirty = false; }
+  if (oledDirty || Math.floor(NOW * 15) !== Math.floor((NOW - dt) * 15)) { drawOLED(); oledDirty = false; }
 }
 
 function render() {
@@ -1592,9 +2064,10 @@ function loop(now) {
 }
 resize(); requestAnimationFrame(loop);
 
-window.CINEOSI = {
-  S, get DOC() { return DOC; }, setMode, setBellows, turn, scrub, press, viewBy, setView, rings,
-  HERO_PRESETS, CUTOUT_CLIPS, PROP_KINDS, PLANE_NAMES, PAIR,
+window.CINEOSIS = window.CINEOSI = {
+  S, get DOC() { return DOC; }, setMode, setBellows, loadTizitaChapter, cycleAudioMix, cycleMonitorClip, motionNote,
+  turn, scrub, press, viewBy, setView, rings,
+  TIZITA_CHAPTERS, AUDIO_MIXES, MONITOR_CLIPS, HERO_PRESETS, CUTOUT_CLIPS, PROP_KINDS, PLANE_NAMES, PAIR,
   advance(dt) { update(dt); render(); }
 };
 </script>
