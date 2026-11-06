@@ -28,12 +28,12 @@
     r = t <= 66 ? 255 : 329.698727446 * Math.pow(t - 60, -.1332047592); g = t <= 66 ? 99.4708025861 * Math.log(t) - 161.1195681661 : 288.1221695283 * Math.pow(t - 60, -.0755148492);
     b = t >= 66 ? 255 : t <= 19 ? 0 : 138.5177312231 * Math.log(t - 10) - 305.0447927307; const c = [r, g, b].map(v => clamp(v, 0, 255) / 255), m = Math.max(...c); return c.map(v => Math.pow(v / m, 2.2)); }
   /* ------------------------------------------------------------------ the synthetic party frame: geometry is fixed, cast once */
-  const FW = 64, FH = 36, CAM = [0, .85, 1.05], LOOK = [0, .45, 0], FOV = 38, CANDLE_P = [0, .6, 0], TY = .43;
+  const FW = 64, FH = 36, CAM = [0, .75, 1.1], LOOK = [0, .45, 0], FOV = 38, CANDLE_P = [0, .6, 0], TY = .43;
   const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]], dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2], nrm = a => { const l = Math.hypot(a[0], a[1], a[2]); return [a[0] / l, a[1] / l, a[2] / l]; };
   const crs = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
   let SCENE = null;
   function scene() { if (SCENE) return SCENE; const fw = nrm(sub(LOOK, CAM)), rt = nrm(crs(fw, [0, 1, 0])), up = crs(rt, fw), th = Math.tan(FOV * Math.PI / 360), asp = FW / FH;
-    const KIDS = [-45, 0, 45].map(a => [Math.sin(a * Math.PI / 180) * .47, -Math.cos(a * Math.PI / 180) * .47]);
+    const KIDS = [-45, 0, 45].map(a => [Math.sin(a * Math.PI / 180) * .37, -Math.cos(a * Math.PI / 180) * .37]);
     const px = []; for (let y = 0; y < FH; y++) for (let x = 0; x < FW; x++) { const u = ((x + .5) / FW * 2 - 1) * th * asp, v = (1 - (y + .5) / FH * 2) * th, d = nrm([fw[0] + rt[0] * u + up[0] * v, fw[1] + rt[1] * u + up[1] * v, fw[2] + rt[2] * u + up[2] * v]);
       let best = { t: 1e9 }; const hit = (t, n, alb, kind, em) => { if (t > 1e-4 && t < best.t) best = { t, n, alb, kind, em: em || 0 }; };
       // dome wall (sphere r 3.2 about the origin, seen from inside), with the thin band at y 0.86-0.9

@@ -3,8 +3,8 @@
    Every stroke is a 6-point polyline. Its points are made from the genome: a straight dash in the stroke's slot (the blank),
    bent toward the chord and then the median by the FORM genes, shaken by WOBBLE, then placed on the cake by the HAND genes
    (size, pitch, rotation, centre, slant, aspect, pressure). The flourish's 4 corners are their own genes (FLOURISH).
-   The genome does not hold one free number per control point: with the host's (1 + lambda) breeder a 132-number point genome
-   needed about 2000 generations to come close (measured with core/breed.js), so the points are derived from 25 genes instead.
+   The genome does not hold one free number per control point: on a toy problem with core/breed.js (1 + 6, careful strengths)
+   96 free genes needed 1599 generations and 132 did not arrive in 2000, so the points are derived from 24 genes instead.
    Fitness is measured against refs/inscription.json: stroke order and medians (font skeleton), the film's character centres,
    sizes, flourish corners and stroke width (frames 144.75-147.375 s), and the icing colour relative to the cake top.
    Units: metres; the module's origin is the cake-top centre (the host puts the group at the cake's 'top' anchor); +z faces the viewer.
