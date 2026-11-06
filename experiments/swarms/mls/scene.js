@@ -36,7 +36,7 @@
 
   const CANDLES = [];
   for (let k = 0; k < 7; k++) { const x = 300 - 104 * Math.cos((k + .5) * Math.PI / 7), y = 640 + (k % 2 ? 12 : -8); CANDLES.push({ x, y: y - 34, base: y }); }
-  const FLAME = [['wick', 'p', [0, 0]], ['tip', 'p', [0, -84]], ['sideL', 'p', [-8, -26]], ['sideR', 'p', [8, -26]], ['spineLo', 'l', [0, 0, 0, -34]], ['spineHi', 'l', [0, -34, 0, -64]]];
+  const FLAME = [['wick', 'p', [0, 0]], ['tip', 'p', [0, -84]], ['sideL', 'p', [-8, -26]], ['sideR', 'p', [8, -26]], ['crownL', 'p', [-5, -66]], ['crownR', 'p', [5, -66]], ['spineLo', 'l', [0, 0, 0, -34]], ['spineHi', 'l', [0, -34, 0, -64]]];
   const PAPER_N = 10, PAPER_LEN = 550, PAPER_Y = 960, SEG = PAPER_LEN / PAPER_N, PAPER_HALF = 18;
 
   function buildHandles() {

@@ -108,8 +108,8 @@
     "folded_triangles": 94
    },
    "flame": {
-    "min_jacobian": -0.124,
-    "folded_triangles": 755
+    "min_jacobian": -0.256,
+    "folded_triangles": 1617
    }
   },
   "similarity": {
@@ -122,7 +122,7 @@
     "folded_triangles": 0
    },
    "flame": {
-    "min_jacobian": -0.041,
+    "min_jacobian": -0.082,
     "folded_triangles": 40
    }
   },
@@ -136,8 +136,8 @@
     "folded_triangles": 0
    },
    "flame": {
-    "min_jacobian": -1.566,
-    "folded_triangles": 3149
+    "min_jacobian": -1.117,
+    "folded_triangles": 3005
    }
   }
  },
@@ -157,9 +157,9 @@
     "frames_with_contour_reversal_but_no_handle_reversal": 0
    },
    "flame": {
-    "max_contour_accel_px": 27.2,
+    "max_contour_accel_px": 27.1,
     "max_handle_accel_px": 25.05,
-    "ratio": 1.086,
+    "ratio": 1.082,
     "frames_with_contour_reversal_but_no_handle_reversal": 2
    }
   },
@@ -177,9 +177,9 @@
     "frames_with_contour_reversal_but_no_handle_reversal": 0
    },
    "flame": {
-    "max_contour_accel_px": 27.18,
+    "max_contour_accel_px": 27.03,
     "max_handle_accel_px": 25.05,
-    "ratio": 1.085,
+    "ratio": 1.079,
     "frames_with_contour_reversal_but_no_handle_reversal": 3
    }
   },
@@ -197,10 +197,10 @@
     "frames_with_contour_reversal_but_no_handle_reversal": 0
    },
    "flame": {
-    "max_contour_accel_px": 24.67,
+    "max_contour_accel_px": 24.46,
     "max_handle_accel_px": 25.05,
-    "ratio": 0.985,
-    "frames_with_contour_reversal_but_no_handle_reversal": 9
+    "ratio": 0.977,
+    "frames_with_contour_reversal_but_no_handle_reversal": 5
    }
   }
  },
@@ -234,18 +234,18 @@
   0.085
  ],
  "machine_rate_hz": 11.79,
- "solve_ms_per_world_frame": 2.53,
+ "solve_ms_per_world_frame": 2.67,
  "vertex_counts": {
   "face": 1628,
   "paper": 555,
   "flames": 833
  },
  "handles": {
-  "points": 63,
+  "points": 77,
   "lines": 32,
   "by_surface": {
    "face": 39,
-   "flame": 42,
+   "flame": 56,
    "paper": 14
   }
  },

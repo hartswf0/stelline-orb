@@ -129,7 +129,7 @@ function overlay(p, st, R, extra) {
       const [role, val] = G.ringRole(G.RINGS[1]); g.fillStyle = `rgba(200,210,206,${.8 * al})`; g.font = `500 ${Math.max(9, 11 * k)}px Oswald, sans-serif`; g.textAlign = 'center'; g.fillText(t, X(cx), Y(cy + r + 20)); g.fillStyle = `rgba(232,178,100,${.9 * al})`; g.fillText(val, X(cx), Y(cy + r + 34)); } }
   // the selected thing's handles, while it is being worked (the reticle): points as rings, segments as lines
   if (extra.marks) { const t = GAME.TARGETS[G.sel], al = clamp(1.6 - (st.t - G.lastWork) / 1.6, 0, 1) * dark; if (al > 0) {
-    const fn = SCENE.GROUPS[t] || (h => h.surf === 'flame' && /tip|side/.test(h.id)); g.strokeStyle = `rgba(225,232,229,${.75 * al})`; g.lineWidth = 1;
+    const fn = SCENE.GROUPS[t] || (h => h.surf === 'flame' && /tip|side|crown/.test(h.id)); g.strokeStyle = `rgba(225,232,229,${.75 * al})`; g.lineWidth = 1;
     G.H.filter(fn).forEach(h => { const q = R.S.T[h.id], sft = h.surf === 'face' ? R.far : R.near; if (h.kind === 'p') { g.beginPath(); g.arc(X(q[0] + sft), Y(q[1]), 3.2, 0, TAU); g.stroke(); } else { g.beginPath(); g.moveTo(X(q[0] + sft), Y(q[1])); g.lineTo(X(q[2] + sft), Y(q[3])); g.stroke(); } }); } }
   // label (comparison panels) and the game's state
   g.textAlign = 'left'; g.font = `500 ${p.w > 300 ? 13 : 10}px Oswald, sans-serif`;

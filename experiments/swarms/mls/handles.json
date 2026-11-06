@@ -500,6 +500,26 @@
    "anchor": false
   },
   {
+   "id": "f0.crownL",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    193.61,
+    532
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f0.crownR",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    203.61,
+    532
+   ],
+   "anchor": false
+  },
+  {
    "id": "f0.spineLo",
    "surface": "flame",
    "kind": "segment",
@@ -560,6 +580,26 @@
    "rest": [
     226.69,
     592
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f1.crownL",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    213.69,
+    552
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f1.crownR",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    223.69,
+    552
    ],
    "anchor": false
   },
@@ -628,6 +668,26 @@
    "anchor": false
   },
   {
+   "id": "f2.crownL",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    249.88,
+    532
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f2.crownR",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    259.88,
+    532
+   ],
+   "anchor": false
+  },
+  {
    "id": "f2.spineLo",
    "surface": "flame",
    "kind": "segment",
@@ -688,6 +748,26 @@
    "rest": [
     308,
     592
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f3.crownL",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    295,
+    552
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f3.crownR",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    305,
+    552
    ],
    "anchor": false
   },
@@ -756,6 +836,26 @@
    "anchor": false
   },
   {
+   "id": "f4.crownL",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    340.12,
+    532
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f4.crownR",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    350.12,
+    532
+   ],
+   "anchor": false
+  },
+  {
    "id": "f4.spineLo",
    "surface": "flame",
    "kind": "segment",
@@ -820,6 +920,26 @@
    "anchor": false
   },
   {
+   "id": "f5.crownL",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    376.31,
+    552
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f5.crownR",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    386.31,
+    552
+   ],
+   "anchor": false
+  },
+  {
    "id": "f5.spineLo",
    "surface": "flame",
    "kind": "segment",
@@ -880,6 +1000,26 @@
    "rest": [
     409.39,
     572
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f6.crownL",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    396.39,
+    532
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f6.crownR",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    406.39,
+    532
    ],
    "anchor": false
   },
