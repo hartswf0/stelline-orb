@@ -2,7 +2,7 @@
 Usage: python3 cake_patch.py VIDEO OUT_DIR"""
 import sys, json, numpy as np, cv2
 from PIL import Image
-V, OUT = sys.argv[1], sys.argv[2]; cap = cv2.VideoCapture(V); fps = cap.get(cv2.CAP_PROP_FPS); cap.set(cv2.CAP_PROP_POS_FRAMES, int(round(213.0 * fps))); ok, f = cap.read(); f = cv2.resize(f, (1280, 720))
+V, OUT = sys.argv[1], sys.argv[2]; cap = cv2.VideoCapture(V); fps = cap.get(cv2.CAP_PROP_FPS); cap.set(cv2.CAP_PROP_POS_FRAMES, int(round(213.8 * fps))); ok, f = cap.read(); f = cv2.resize(f, (1280, 720))
 yy, xx = np.mgrid[0:720, 0:1280].astype(np.float32)
 body = (((xx - 370) / 165) ** 2 + ((yy - 540) / 108) ** 2 < 1); shadow = (((xx - 370) / 205) ** 2 + ((yy - 608) / 50) ** 2 < 1); cand = (xx > 255) & (xx < 475) & (yy > 372) & (yy < 470)
 m = (body | shadow | cand).astype(np.uint8) * 255; m = cv2.dilate(m, np.ones((9, 9), np.uint8))

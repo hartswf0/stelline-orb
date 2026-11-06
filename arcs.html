@@ -31,9 +31,9 @@
   var ST = window.STAGE, T = ST.T, N = ST.nodes, C = ST.C, clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
   var TE = 5.5, TEND = 7.4, PAUSE = TE - .7;                      // the flame goes out at TE; Ana stops the party just before the breath
   var VARIANTS = [
-    { name: 'LOW', t: { r: 1.05, h: .72 }, drip: .3, gloss: .5, shells: 36, candles: 5, ch: .3, ring: .6, lean: 0 },
-    { name: 'TALL CANDLES', t: { r: .92, h: .95 }, drip: .5, gloss: .5, shells: 30, candles: 5, ch: 1.2, ring: .5, lean: 0 },
-    { name: 'HOMEMADE', t: { r: 1.0, h: .85 }, drip: .95, gloss: .1, shells: 18, candles: 4, ch: .55, ring: .6, lean: 1 }
+    { name: 'LOW', t: { r: 1.05, h: .62 }, drip: .3, gloss: .5, shells: 36, candles: 5, ch: .3, ring: .6, lean: 0 },
+    { name: 'TALL CANDLES', t: { r: 1.0, h: .78 }, drip: .5, gloss: .5, shells: 30, candles: 5, ch: .75, ring: .5, lean: 0 },
+    { name: 'HOMEMADE', t: { r: 1.02, h: .7 }, drip: .95, gloss: .1, shells: 18, candles: 4, ch: .55, ring: .6, lean: 1 }
   ];
   var PERF = [   // the six children of the film's wide shot, each a full-body clip placed at the shot's own coordinates. Two carry a timing arc.
     { id: 'left', name: 'LEFT', delay: 0 }, { id: 'small', name: 'SMALL', delay: 0 }, { id: 'back', name: 'BACK', delay: 0 },
@@ -48,10 +48,10 @@
   var PF = [], pfN = 0, pcv = document.createElement('canvas'); pcv.width = 960; pcv.height = 540; var pg = pcv.getContext('2d'), vtex = new T.CanvasTexture(pcv); vtex.encoding = T.sRGBEncoding; var pfLast = -1;
   for (var pi = 1; pi <= 41; pi++) (function (i) { var im = new Image(); im.onload = function () { pfN++; pfLast = -1; }; im.src = 'assets/plate/p_' + String(i).padStart(3, '0') + '.jpg'; PF[i - 1] = im; })(pi);
   var baseMesh = new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshBasicMaterial({ map: vtex })); baseMesh.renderOrder = -10; baseMesh.visible = false; ST.SETA.add(baseMesh);
-  var patch = null, patchMesh = new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshBasicMaterial({ transparent: true, depthTest: false, depthWrite: false })); patchMesh.renderOrder = -5; patchMesh.visible = false; ST.SETA.add(patchMesh);
+  var patch = null, patchMesh = new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshBasicMaterial({ alphaTest: .35, depthTest: false, depthWrite: false })); patchMesh.renderOrder = -5; patchMesh.visible = false; ST.SETA.add(patchMesh);
   fetch('assets/plate/patch.json').then(function (r) { return r.json(); }).then(function (j) { patch = j; new T.TextureLoader().load('assets/plate/patch.webp', function (tx) { tx.encoding = T.sRGBEncoding; patchMesh.material.map = tx; patchMesh.material.needsUpdate = true; }); });
   /* the plate: the six slabs laid on one plane behind the table, facing the camera, in the shot's own layout */
-  ST.scene.add(new T.AmbientLight(0x4a3418, .38));
+  ST.scene.add(new T.AmbientLight(0x4a3418, .45)); var warmFill = new T.PointLight(0xffa850, .6, 7, 1.6); warmFill.position.set(.2, 1.9, 2.6); ST.scene.add(warmFill); ST.scene.traverse(function (o) { if (o.isHemisphereLight) { o.color.setHex(0x4a3418); o.groundColor.setHex(0x120a04); o.intensity = .5; } if (o.isSpotLight) o.intensity = 0; });
   var tmpO = new T.PerspectiveCamera();
   function placePlate() {
     var yaw = C.yaw * Math.PI / 180, pit = C.pitch * Math.PI / 180, cp = Math.cos(pit), pos = new T.Vector3(C.tx + Math.sin(yaw) * cp * C.D, C.ty + Math.sin(pit) * C.D, C.tz + Math.cos(yaw) * cp * C.D), tg = new T.Vector3(C.tx, C.ty, C.tz);
@@ -82,9 +82,9 @@
   ];
   var FLOUR = [[0.2, -0.8], [3, -1.3], [6.5, -0.6], [10, -1.2], [14, -0.7], [18, -1.0]];
   var dotTex = (function () { var c = document.createElement('canvas'); c.width = 256; c.height = 128; var g = c.getContext('2d'); g.fillStyle = '#e9dfc4'; g.fillRect(0, 0, 256, 128); for (var y = 0; y < 5; y++) for (var x = 0; x < 12; x++) { var cx = x * 22 + (y % 2) * 11 + 8, cy = y * 26 + 14; g.fillStyle = 'rgba(40,24,14,.85)'; g.beginPath(); g.arc(cx, cy, 4.2, 0, 7); g.fill(); } var t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(2, 1); return t; })();
-  var dotMat = new T.MeshStandardMaterial({ map: dotTex, roughness: .85, color: 0xa89572 }), goldMat = new T.MeshStandardMaterial({ color: 0x8a6420, emissive: 0x0e0802, roughness: .7 });
+  var dotMat = new T.MeshStandardMaterial({ map: dotTex, roughness: .9, color: 0x6c5d42 }), goldMat = new T.MeshStandardMaterial({ color: 0x8a6420, emissive: 0x0e0802, roughness: .7 });
   var creamTex = (function () { var c = document.createElement('canvas'); c.width = c.height = 256; var g = c.getContext('2d'); g.fillStyle = '#d6c498'; g.fillRect(0, 0, 256, 256); for (var i = 0; i < 700; i++) { var a = Math.random(); g.fillStyle = a < .5 ? 'rgba(255,244,214,.35)' : 'rgba(120,92,52,.25)'; g.beginPath(); g.ellipse(Math.random() * 256, Math.random() * 256, 2 + Math.random() * 7, 1.5 + Math.random() * 4, Math.random() * 3, 0, 7); g.fill(); } var t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(2, 2); return t; })();
-  var creamMat = new T.MeshStandardMaterial({ map: creamTex, roughness: .9, color: 0xe0cfa6 });
+  var creamMat = new T.MeshStandardMaterial({ map: creamTex, roughness: .92, color: 0x9a8a64 });
   var insG = null, insMat = new T.MeshStandardMaterial({ color: 0xc8301e, roughness: .32 });
   function inscribe() {
     if (insG) { ST.cakeG.remove(insG); insG.traverse(function (o) { if (o.geometry) o.geometry.dispose(); }); insG = null; } if (ins <= 0) return;
@@ -167,7 +167,7 @@
       PERF.forEach(function (p) { var cd = cards[p.id], c = slabs[p.id], im = imgs[p.id]; if (!c || !im.naturalWidth) return; var ct = clamp(t - PAUSE + .6 - p.delay, 0, c.n / c.fps - .01), k = clamp(Math.floor(ct * c.fps), 0, c.n - 1);
         if (cd.cv.width !== c.w) { cd.cv.width = c.w; cd.cv.height = c.h; } cd.g.clearRect(0, 0, c.w, c.h); cd.g.filter = 'blur(.9px)'; cd.g.drawImage(im, (k % c.cols) * c.w, Math.floor(k / c.cols) * c.h, c.w, c.h, 0, 0, c.w, c.h); cd.tex.needsUpdate = true;
         cd.mesh.visible = view === 'ana' && plateReady && !p.cake && Math.abs(p.delay) > .04; cd.mat.color.setRGB(1, 1, 1); });
-      ST.flameSprites.forEach(function (f) { f.gl.material.opacity *= .3; });
+      ST.flameSprites.forEach(function (f) { f.gl.material.opacity = 0; });
       lastClear = clearEyes(); draw();
       document.getElementById('state').innerHTML = (view === 'ana' ? 'ANA, WORKING' : 'THE BIRTHDAY SEAT') + '<br>' + (held ? 'HELD' : out ? 'FLAME OUT' : 'PLAYING') + ' · ' + t.toFixed(1) + ' S<br>' + (sel === 'ver' ? 'ARC: CAKE · VERSION' : sel === 'ins' ? 'ARC: CAKE · SURFACE' : sel === 'tilt' ? 'ARC: CAKE · ORIENTATION' : 'ARC: ' + PERF.filter(function (p) { return p.id === sel; })[0].name);
     };
