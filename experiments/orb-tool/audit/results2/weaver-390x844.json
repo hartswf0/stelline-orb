@@ -6,7 +6,7 @@
   844
  ],
  "loadMs": 27314,
- "partial": true,
+ "partial": false,
  "scroll": {
   "docH": 844,
   "docW": 390,
@@ -137,9 +137,56 @@
    "visible100": false,
    "visible1s": false,
    "deviceChanged": true
+  },
+  {
+   "canvas": "",
+   "gx": 0,
+   "fy": 0.418,
+   "px": 22,
+   "py": 590,
+   "kind": "dragLeft",
+   "firstShotMs": 8966,
+   "d100": {
+    "mean": 1.89,
+    "changedFrac": 0.0023
+   },
+   "d1s": {
+    "mean": 2.36,
+    "changedFrac": 0.0146
+   },
+   "deviceDiff": {
+    "mean": 2.83,
+    "changedFrac": 0.0258
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": true
   }
  ],
  "autorow": {
   "canvas": 0.418
+ },
+ "budgetHit": "grid",
+ "gridSummary": {
+  "probes": 3,
+  "sceneChanged100": 1,
+  "sceneChanged1s": 1,
+  "deviceOnly": 2,
+  "nothing": 0,
+  "sound": 0
+ },
+ "tested": 0,
+ "noAuthority": [],
+ "authority100": 0,
+ "authority1s": 0,
+ "errorCount": 1,
+ "finalAudit": {
+  "audioStarts": 0,
+  "mediaPlays": 1,
+  "msgListeners": 0,
+  "keyListeners": 2,
+  "rafs": 0
  }
 }
