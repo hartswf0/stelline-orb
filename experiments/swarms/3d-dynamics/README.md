@@ -68,8 +68,17 @@ breath) is synthesized in `sound.js`.
 | wet icing flicked | consequence | drip 0.193 to 0.222 of side height |
 | the scene (30 and 60 fps) | whole cake | 3 layers, 200 ml, 24 beads, inscription, 7 candles; candles 1 and 3 fall at the flick and are pushed back; match 100 at the blow; seven out one by one over 0.53 s |
 
-`trace.json` is the proof run: per frame TUNED secondary energy, icing flow, LOOSE energy, at-rest flag; the events; and
-for each impulse the time until the whole cake is at rest again.
+`trace.json` is the proof run (855 frames, 289 sound events, match 100 at the blow): per frame TUNED secondary energy, icing
+flow, LOOSE energy, at-rest flag; the events; and for each impulse the time until the whole cake is next at rest. In the
+scene the next action usually comes before rest, so those times (1.0 to 19 s) measure the scene's pace, not a material's
+settle time; the per-material settle times are the test numbers above.
+
+`proof.mp4`: 28.5 s, 1280x720, 30 fps, with sound (device grains from `ana/device-sounds.wav`, making sounds synthesized).
+Recorded with Playwright on a fixed clock; frames 408 onward were re-recorded after an interrupted run (the game is
+deterministic; the earlier frames were re-simulated without drawing). Shows: memory on, three layers lowered (the second
+4 mm off centre), the pour and drips, a careful tilt toward her while the icing is wet, 24 beads, 生日快乐 stroke by stroke,
+the split view (LOOSE / TUNED / RIGID) while the cake levels and the seven candles go in, the stand turned 40 deg, the
+careless flick (TUNED loses candles 1 and 3, LOOSE all seven, RIGID none), the two pushed back, lighting, the blow.
 
 ## What failed and changed
 
@@ -88,6 +97,11 @@ for each impulse the time until the whole cake is at rest again.
   population of cakes.
 - The match score is this page's reading of the traced frame (height to width 0.40 +/- 0.06, a colour pair), not a pixel
   comparison with the film.
+- In the proof film the flames' lean under the breath is small at this frame size; the blow reads mostly as flames going
+  out one by one.
+- A thin vertical light line shows on the middle layer's front in single view (a rendering artefact, cause not found).
+- The match readout drops to 90 during the blow (the at-rest part of the score is false while she blows).
+- Recording is slow on this machine (software WebGL under heavy load, up to 2.5 s per split-view frame).
 - The magnesium flash and the memory's round spots are present but small; the split view (three cakes) is heavy on phones.
 
 Files: `index.html` (the game), `dyn.js`, `game.js`, `sound.js`, `tests.js` / `tests.json`, `record.js`, `trace.json`,

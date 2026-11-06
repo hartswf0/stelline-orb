@@ -126,7 +126,7 @@ function cap(B, ringStart, segs, center, uv, w, up) { const c = B.v(center, uv, 
 /* ------------------------------------------------------------------ the ornament region and its mask */
 function defineOrnament(G, kind) { const { D, info } = G, H = D.H;
   let verts = [], feather = [], core = new Set(), uvC, uvR;
-  if (kind === 'sleeve') { const arm = info.arms.L, cy = .2 * arm.a, half = .03 * H; // a badge on the outer sleeve cap, centred 20% down the upper arm, where shoulder and arm weights blend
+  if (kind === 'sleeve') { const arm = info.arms.L, cy = .42 * arm.a, half = .034 * H; // a badge on the outer upper sleeve, 42% down the upper arm (at 20% it sat on top of the shoulder cap, out of sight)
     const cu = .25, cv = (cy - arm.t0) / arm.len * .5, ru = half / arm.circ * .5, rv = half / arm.len * .5; uvC = [cu, cv]; uvR = [ru, rv];
     for (let i = 0; i < arm.rings; i++) for (let j = 0; j <= arm.segs; j++) { const k = arm.start + i * (arm.segs + 1) + j, u = G.uv[2 * k], v = G.uv[2 * k + 1], e = Math.hypot((u - cu) / ru, (v - cv) / rv);
       if (e <= 1.25) { core.add(k); verts.push(k); } else if (e < 2.6) feather.push([k, 1 - sstep(1.25, 2.6, e)]); } }

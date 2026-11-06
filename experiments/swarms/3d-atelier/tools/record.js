@@ -9,7 +9,7 @@ const out = process.argv[2] || '/tmp/rec', VW = +(process.argv[3] || 1280), VH =
   const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   const ctx = await b.newContext({ viewport: { width: VW, height: VH }, deviceScaleFactor: 1 }); const p = await ctx.newPage();
   const errs = []; p.on('pageerror', e => errs.push(String(e))); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
-  await p.goto('http://localhost:8771/experiments/swarms/3d-atelier/index.html?rec=1'); await p.waitForFunction(() => window.MM && MM.ready(), null, { timeout: 30000 });
+  await p.goto('http://localhost:8771/experiments/swarms/3d-atelier/index.html?rec=1' + (process.env.Q || '')); await p.waitForFunction(() => window.MM && MM.ready(), null, { timeout: 30000 });
   await p.evaluate(() => MM.advance(0));
   const geo = await p.evaluate(() => { const r = MM.devRect(), B = MM.BANDS(), T = MM.BTNS(); const band = k => B.find(b => b.ring === k); const deg = { scale: 5, knurl: 9, tri: 6 };
     return { ox: r.left, oy: r.top, rings: Object.fromEntries(['scale', 'knurl', 'tri'].map(k => { const b = band(k); return [k, { x: b.x + b.w / 2, y: b.cy, px: deg[k] / (57.3 * .9) * b.rad }]; })), sel: T.find(t => t.id === 'select'), hold: T.find(t => t.id === 'hold') }; });

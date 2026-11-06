@@ -1,9 +1,7 @@
 {
- "passed": 3544,
+ "passed": 3555,
  "failed": 0,
- "failures": [
-  "NOTE trace.json not found; trace checks skipped"
- ],
+ "failures": [],
  "edges": [
   {
    "from": "DOUGH",

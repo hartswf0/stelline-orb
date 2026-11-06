@@ -1,0 +1,91 @@
+{
+ "ran": "2026-11-06T08:38:02.664Z",
+ "pass": 18,
+ "fail": 0,
+ "results": [
+  {
+   "name": "every reservoir item has the record fields",
+   "ok": true
+  },
+  {
+   "name": "no item is marked CC0 without a confirmed check",
+   "ok": true,
+   "detail": "0 marked CC0 (none could be read)"
+  },
+  {
+   "name": "archive candidates are traceable to a 3d_package id and a .glb URL",
+   "ok": true,
+   "detail": "6 items stand for 3 archive records"
+  },
+  {
+   "name": "every unverified archive record is marked publish-blocked",
+   "ok": true
+  },
+  {
+   "name": "the folder holds no archive model or image file",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "stage audit: every layer traces to a reservoir record",
+   "ok": true,
+   "detail": "STAND:STAND-BOSHANLU-FOOT PLATE:PLATE-PORCELAIN-WANTED MOULD:MOULD-TIN-WANTED DECORATION:DECO-CHOC-ORANGE CANDLES:HOLDER-BRASS-WANTED INSCRIPTION:生日快乐"
+  },
+  {
+   "name": "the making happens in order: stand, plate, mould, batter, bake, unmould, icing, beads, inscription, candles, match, flames, blow, out",
+   "ok": true,
+   "detail": "set@3.5583 plate@5.6583 clank@7.8 pour@7.9 bake@9.2083 lift@9.7083 spread@11.3083 pipe@12.9917 written@18.1583 candle@19.6 match@21.9083 flame@22.5 blow@26.0083 puff@26.1083 done@26.9917"
+  },
+  {
+   "name": "seven candles set, seven lit, seven out, one at a time",
+   "ok": true
+  },
+  {
+   "name": "the inscription is written stroke by stroke (24 strokes) and the arc mark steps four times",
+   "ok": true
+  },
+  {
+   "name": "the blow puts the candles out 0.07 s apart (film)",
+   "ok": true,
+   "detail": "26.1083 26.175 26.2417 26.3167 26.3833 26.4583 26.525"
+  },
+  {
+   "name": "machine rate 11.8 steps/s (median interval 84.7 ms within 1 tick of the 120 Hz test clock)",
+   "ok": true,
+   "detail": "median 83.4 ms over 36 gaps"
+  },
+  {
+   "name": "fast rate 23.6 steps/s only when more than 6 detents behind",
+   "ok": true,
+   "detail": "no fast steps"
+  },
+  {
+   "name": "candle positions identical across cake swaps",
+   "ok": true,
+   "detail": "1 swap(s) in the scenario, max move 0 m"
+  },
+  {
+   "name": "under every mould form, no candle floats more than 3 mm above the cake (its holder covers that) or sinks more than 8 mm",
+   "ok": true,
+   "detail": "worst float 2.67 mm (dome, outer ring), worst sink 5.05 mm"
+  },
+  {
+   "name": "the decoration swap raises the match toward the target film cake",
+   "ok": true,
+   "detail": "DECO-MINT 0.633 -> DECO-CHOC-ORANGE 0.9 toward CHOCOLATE, ORANGE TOP"
+  },
+  {
+   "name": "the finished cake matches the target at 1.0",
+   "ok": true,
+   "detail": "match 1"
+  },
+  {
+   "name": "HOLD on MOULD before a plate is refused with a reason",
+   "ok": true
+  },
+  {
+   "name": "after the blow, HOLD starts the next cake toward the next film cake",
+   "ok": true
+  }
+ ]
+}

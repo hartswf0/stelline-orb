@@ -1,0 +1,3257 @@
+{
+ "note": "written by tests/ui.test.js: UI lineages for two scripted players on the stand-in parts (simulation, not the browser)",
+ "runs": {
+  "careful": [
+   {
+    "seed": 7,
+    "before": 0.499,
+    "after": 0.476,
+    "elite": "U65",
+    "ui": {
+     "perm": 1,
+     "roles": [
+      "VIEW",
+      "BIAS",
+      "STRENGTH"
+     ],
+     "map": {
+      "VIEW": "scale",
+      "BIAS": "knurl",
+      "STRENGTH": "tri"
+     },
+     "detent": 4,
+     "rate": 11.8,
+     "sigma0": 10,
+     "lambda": 3,
+     "layout": "RING",
+     "offer": "FILM ORDER",
+     "readout": "ALL PARTS"
+    },
+    "log": [
+     [
+      0,
+      "table",
+      "U0",
+      0.394,
+      0,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      1,
+      "cake",
+      "U4",
+      0.39792,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      2,
+      "inscription",
+      "U5",
+      0.6803,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      3,
+      "candles",
+      "U0",
+      0.45596,
+      0,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      4,
+      "people",
+      "U9",
+      0.51233,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      5,
+      "light",
+      "U12",
+      0.61518,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      6,
+      "table",
+      "U0",
+      0.48639,
+      0.09239,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      7,
+      "cake",
+      "U16",
+      0.4007,
+      0.00278,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      8,
+      "inscription",
+      "U17",
+      0.57226,
+      -0.10804,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      9,
+      "candles",
+      "U0",
+      0.57458,
+      0.11862,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      10,
+      "people",
+      "U21",
+      0.49041,
+      -0.02192,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      11,
+      "light",
+      "U24",
+      0.55125,
+      -0.06393,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      12,
+      "table",
+      "U0",
+      0.39806,
+      -0.04213,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      13,
+      "cake",
+      "U28",
+      0.42017,
+      0.02086,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      14,
+      "inscription",
+      "U29",
+      0.5094,
+      -0.11688,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      15,
+      "candles",
+      "U0",
+      0.60679,
+      0.09152,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      16,
+      "people",
+      "U33",
+      0.57936,
+      0.07799,
+      "NEW ELITE",
+      "U33"
+     ],
+     [
+      17,
+      "light",
+      "U36",
+      0.58625,
+      0.00304,
+      "ELITE KEPT",
+      "U33"
+     ],
+     [
+      18,
+      "table",
+      "U33",
+      0.40221,
+      -0.02394,
+      "NEW ELITE",
+      "U0"
+     ],
+     [
+      19,
+      "cake",
+      "U40",
+      0.39074,
+      -0.01552,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      20,
+      "inscription",
+      "U41",
+      0.41988,
+      -0.16744,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      21,
+      "candles",
+      "U0",
+      0.55229,
+      0.00651,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      22,
+      "people",
+      "U45",
+      0.45476,
+      -0.07261,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      23,
+      "light",
+      "U48",
+      0.60882,
+      0.02459,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      24,
+      "table",
+      "U0",
+      0.48203,
+      0.06187,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      25,
+      "cake",
+      "U52",
+      0.42118,
+      0.0188,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      26,
+      "inscription",
+      "U53",
+      0.46629,
+      -0.07917,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      27,
+      "candles",
+      "U0",
+      0.55967,
+      0.01227,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      28,
+      "people",
+      "U57",
+      0.48045,
+      -0.02876,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      29,
+      "light",
+      "U60",
+      0.58794,
+      -0.00244,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      30,
+      "table",
+      "U0",
+      0.38054,
+      -0.052,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      31,
+      "cake",
+      "U64",
+      0.39028,
+      -0.01586,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      32,
+      "inscription",
+      "U65",
+      0.62606,
+      0.09643,
+      "NEW ELITE",
+      "U65"
+     ],
+     [
+      33,
+      "candles",
+      "U65",
+      0.58296,
+      0.0331,
+      "ELITE RE-MEASURED",
+      "U65"
+     ],
+     [
+      34,
+      "people",
+      "U69",
+      0.51679,
+      0.01333,
+      "ELITE KEPT",
+      "U65"
+     ],
+     [
+      35,
+      "light",
+      "U72",
+      0.45928,
+      -0.13061,
+      "ELITE KEPT",
+      "U65"
+     ],
+     [
+      36,
+      "table",
+      "U65",
+      0.39276,
+      -0.03111,
+      "ELITE RE-MEASURED",
+      "U65"
+     ],
+     [
+      37,
+      "cake",
+      "U76",
+      0.41126,
+      0.00776,
+      "ELITE KEPT",
+      "U65"
+     ],
+     [
+      38,
+      "inscription",
+      "U77",
+      0.53782,
+      -0.00788,
+      "ELITE KEPT",
+      "U65"
+     ],
+     [
+      39,
+      "candles",
+      "U65",
+      0.6515,
+      0.09613,
+      "ELITE RE-MEASURED",
+      "U65"
+     ],
+     [
+      40,
+      "people",
+      "U81",
+      0.40607,
+      -0.09961,
+      "ELITE KEPT",
+      "U65"
+     ],
+     [
+      41,
+      "light",
+      "U84",
+      0.55892,
+      -0.0092,
+      "ELITE KEPT",
+      "U65"
+     ]
+    ]
+   },
+   {
+    "seed": 8,
+    "before": 0.499,
+    "after": 0.5177,
+    "elite": "U81",
+    "ui": {
+     "perm": 2,
+     "roles": [
+      "STRENGTH",
+      "VIEW",
+      "BIAS"
+     ],
+     "map": {
+      "STRENGTH": "scale",
+      "VIEW": "knurl",
+      "BIAS": "tri"
+     },
+     "detent": 9,
+     "rate": 5.9,
+     "sigma0": 7,
+     "lambda": 3,
+     "layout": "RING",
+     "offer": "FILM ORDER",
+     "readout": "SCORE AND BAR"
+    },
+    "log": [
+     [
+      0,
+      "table",
+      "U0",
+      0.394,
+      0,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      1,
+      "cake",
+      "U4",
+      0.42407,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      2,
+      "inscription",
+      "U5",
+      0.654,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      3,
+      "candles",
+      "U0",
+      0.45596,
+      0,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      4,
+      "people",
+      "U9",
+      0.51088,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      5,
+      "light",
+      "U12",
+      0.585,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      6,
+      "table",
+      "U0",
+      0.48639,
+      0.09239,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      7,
+      "cake",
+      "U16",
+      0.39454,
+      -0.02953,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      8,
+      "inscription",
+      "U17",
+      0.40549,
+      -0.24851,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      9,
+      "candles",
+      "U0",
+      0.57458,
+      0.11862,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      10,
+      "people",
+      "U21",
+      0.49713,
+      -0.01375,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      11,
+      "light",
+      "U24",
+      0.58097,
+      -0.00403,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      12,
+      "table",
+      "U0",
+      0.39806,
+      -0.04213,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      13,
+      "cake",
+      "U28",
+      0.54201,
+      0.1327,
+      "NEW ELITE",
+      "U28"
+     ],
+     [
+      14,
+      "inscription",
+      "U29",
+      0.50225,
+      -0.0275,
+      "ELITE KEPT",
+      "U28"
+     ],
+     [
+      15,
+      "candles",
+      "U28",
+      0.59937,
+      0.0841,
+      "ELITE RE-MEASURED",
+      "U28"
+     ],
+     [
+      16,
+      "people",
+      "U33",
+      0.58682,
+      0.08281,
+      "ELITE KEPT",
+      "U28"
+     ],
+     [
+      17,
+      "light",
+      "U36",
+      0.56245,
+      -0.02053,
+      "ELITE KEPT",
+      "U28"
+     ],
+     [
+      18,
+      "table",
+      "U28",
+      0.39373,
+      -0.03242,
+      "NEW ELITE",
+      "U33"
+     ],
+     [
+      19,
+      "cake",
+      "U40",
+      0.40867,
+      -0.04487,
+      "ELITE KEPT",
+      "U33"
+     ],
+     [
+      20,
+      "inscription",
+      "U41",
+      0.5504,
+      0.02982,
+      "ELITE KEPT",
+      "U33"
+     ],
+     [
+      21,
+      "candles",
+      "U33",
+      0.61368,
+      0.07038,
+      "ELITE RE-MEASURED",
+      "U33"
+     ],
+     [
+      22,
+      "people",
+      "U45",
+      0.5941,
+      0.06249,
+      "ELITE KEPT",
+      "U33"
+     ],
+     [
+      23,
+      "light",
+      "U48",
+      0.60208,
+      0.02594,
+      "ELITE KEPT",
+      "U33"
+     ],
+     [
+      24,
+      "table",
+      "U33",
+      0.53666,
+      0.11862,
+      "ELITE RE-MEASURED",
+      "U33"
+     ],
+     [
+      25,
+      "cake",
+      "U52",
+      0.42773,
+      -0.01459,
+      "ELITE KEPT",
+      "U33"
+     ],
+     [
+      26,
+      "inscription",
+      "U53",
+      0.49365,
+      -0.03439,
+      "ELITE KEPT",
+      "U33"
+     ],
+     [
+      27,
+      "candles",
+      "U33",
+      0.572,
+      0.0111,
+      "ELITE RE-MEASURED",
+      "U33"
+     ],
+     [
+      28,
+      "people",
+      "U57",
+      0.57347,
+      0.02624,
+      "ELITE KEPT",
+      "U33"
+     ],
+     [
+      29,
+      "light",
+      "U60",
+      0.58081,
+      -0.00181,
+      "ELITE KEPT",
+      "U33"
+     ],
+     [
+      30,
+      "table",
+      "U33",
+      0.40296,
+      -0.03881,
+      "NEW ELITE",
+      "U45"
+     ],
+     [
+      31,
+      "cake",
+      "U64",
+      0.43001,
+      -0.00939,
+      "ELITE KEPT",
+      "U45"
+     ],
+     [
+      32,
+      "inscription",
+      "U65",
+      0.61577,
+      0.09461,
+      "NEW ELITE",
+      "U65"
+     ],
+     [
+      33,
+      "candles",
+      "U65",
+      0.50737,
+      -0.05575,
+      "NEW ELITE",
+      "U45"
+     ],
+     [
+      34,
+      "people",
+      "U69",
+      0.50721,
+      -0.04527,
+      "ELITE KEPT",
+      "U45"
+     ],
+     [
+      35,
+      "light",
+      "U72",
+      0.52792,
+      -0.05434,
+      "ELITE KEPT",
+      "U45"
+     ],
+     [
+      36,
+      "table",
+      "U45",
+      0.39735,
+      -0.03795,
+      "NEW ELITE",
+      "U28"
+     ],
+     [
+      37,
+      "cake",
+      "U76",
+      0.41626,
+      -0.02158,
+      "ELITE KEPT",
+      "U28"
+     ],
+     [
+      38,
+      "inscription",
+      "U77",
+      0.55183,
+      0.0149,
+      "ELITE KEPT",
+      "U28"
+     ],
+     [
+      39,
+      "candles",
+      "U28",
+      0.54451,
+      -0.00932,
+      "NEW ELITE",
+      "U33"
+     ],
+     [
+      40,
+      "people",
+      "U81",
+      0.60795,
+      0.06301,
+      "NEW ELITE",
+      "U81"
+     ],
+     [
+      41,
+      "light",
+      "U84",
+      0.5685,
+      -0.0047,
+      "ELITE KEPT",
+      "U81"
+     ]
+    ]
+   },
+   {
+    "seed": 9,
+    "before": 0.499,
+    "after": 0.5178,
+    "elite": "U36",
+    "ui": {
+     "perm": 2,
+     "roles": [
+      "STRENGTH",
+      "VIEW",
+      "BIAS"
+     ],
+     "map": {
+      "STRENGTH": "scale",
+      "VIEW": "knurl",
+      "BIAS": "tri"
+     },
+     "detent": 7,
+     "rate": 5.9,
+     "sigma0": 8,
+     "lambda": 4,
+     "layout": "RING",
+     "offer": "NEAREST FIRST",
+     "readout": "SCORE AND BAR"
+    },
+    "log": [
+     [
+      0,
+      "table",
+      "U0",
+      0.394,
+      0,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      1,
+      "cake",
+      "U4",
+      0.40742,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      2,
+      "inscription",
+      "U5",
+      0.61383,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      3,
+      "candles",
+      "U0",
+      0.45596,
+      0,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      4,
+      "people",
+      "U9",
+      0.40127,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      5,
+      "light",
+      "U12",
+      0.51002,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      6,
+      "table",
+      "U0",
+      0.48639,
+      0.09239,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      7,
+      "cake",
+      "U16",
+      0.41844,
+      0.01102,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      8,
+      "inscription",
+      "U17",
+      0.58089,
+      -0.03294,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      9,
+      "candles",
+      "U0",
+      0.57458,
+      0.11862,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      10,
+      "people",
+      "U21",
+      0.52416,
+      0.12289,
+      "NEW ELITE",
+      "U21"
+     ],
+     [
+      11,
+      "light",
+      "U24",
+      0.50119,
+      -0.00883,
+      "ELITE KEPT",
+      "U21"
+     ],
+     [
+      12,
+      "table",
+      "U21",
+      0.47791,
+      0.03771,
+      "ELITE RE-MEASURED",
+      "U21"
+     ],
+     [
+      13,
+      "cake",
+      "U28",
+      0.42204,
+      0.00911,
+      "ELITE KEPT",
+      "U21"
+     ],
+     [
+      14,
+      "inscription",
+      "U29",
+      0.52989,
+      -0.06747,
+      "ELITE KEPT",
+      "U21"
+     ],
+     [
+      15,
+      "candles",
+      "U21",
+      0.53731,
+      0.02204,
+      "ELITE RE-MEASURED",
+      "U21"
+     ],
+     [
+      16,
+      "people",
+      "U33",
+      0.55554,
+      0.09283,
+      "NEW ELITE",
+      "U33"
+     ],
+     [
+      17,
+      "light",
+      "U36",
+      0.58887,
+      0.08326,
+      "ELITE KEPT",
+      "U33"
+     ],
+     [
+      18,
+      "table",
+      "U33",
+      0.41914,
+      -0.03363,
+      "NEW ELITE",
+      "U36"
+     ],
+     [
+      19,
+      "cake",
+      "U40",
+      0.4345,
+      0.01853,
+      "ELITE KEPT",
+      "U36"
+     ],
+     [
+      20,
+      "inscription",
+      "U41",
+      0.51167,
+      -0.0632,
+      "ELITE KEPT",
+      "U36"
+     ],
+     [
+      21,
+      "candles",
+      "U36",
+      0.62651,
+      0.10389,
+      "ELITE RE-MEASURED",
+      "U36"
+     ],
+     [
+      22,
+      "people",
+      "U45",
+      0.56295,
+      0.06929,
+      "ELITE KEPT",
+      "U36"
+     ],
+     [
+      23,
+      "light",
+      "U48",
+      0.60593,
+      0.07257,
+      "ELITE KEPT",
+      "U36"
+     ],
+     [
+      24,
+      "table",
+      "U36",
+      0.4206,
+      -0.02376,
+      "NEW ELITE",
+      "U48"
+     ],
+     [
+      25,
+      "cake",
+      "U52",
+      0.42638,
+      0.00578,
+      "ELITE KEPT",
+      "U48"
+     ],
+     [
+      26,
+      "inscription",
+      "U53",
+      0.48305,
+      -0.07602,
+      "ELITE KEPT",
+      "U48"
+     ],
+     [
+      27,
+      "candles",
+      "U48",
+      0.57632,
+      0.02773,
+      "NEW ELITE",
+      "U45"
+     ],
+     [
+      28,
+      "people",
+      "U57",
+      0.39927,
+      -0.11171,
+      "ELITE KEPT",
+      "U45"
+     ],
+     [
+      29,
+      "light",
+      "U60",
+      0.584,
+      0.0325,
+      "ELITE KEPT",
+      "U45"
+     ],
+     [
+      30,
+      "table",
+      "U45",
+      0.40178,
+      -0.03783,
+      "NEW ELITE",
+      "U21"
+     ],
+     [
+      31,
+      "cake",
+      "U64",
+      0.38765,
+      -0.03411,
+      "ELITE KEPT",
+      "U21"
+     ],
+     [
+      32,
+      "inscription",
+      "U65",
+      0.50826,
+      -0.03561,
+      "ELITE KEPT",
+      "U21"
+     ],
+     [
+      33,
+      "candles",
+      "U21",
+      0.52799,
+      -0.02615,
+      "NEW ELITE",
+      "U36"
+     ],
+     [
+      34,
+      "people",
+      "U69",
+      0.59616,
+      0.10752,
+      "NEW ELITE",
+      "U69"
+     ],
+     [
+      35,
+      "light",
+      "U72",
+      0.47162,
+      -0.08638,
+      "ELITE KEPT",
+      "U69"
+     ],
+     [
+      36,
+      "table",
+      "U69",
+      0.40522,
+      -0.02808,
+      "NEW ELITE",
+      "U36"
+     ],
+     [
+      37,
+      "cake",
+      "U76",
+      0.43966,
+      0.02359,
+      "ELITE KEPT",
+      "U36"
+     ],
+     [
+      38,
+      "inscription",
+      "U77",
+      0.55027,
+      0.01234,
+      "ELITE KEPT",
+      "U36"
+     ],
+     [
+      39,
+      "candles",
+      "U36",
+      0.61357,
+      0.06379,
+      "ELITE RE-MEASURED",
+      "U36"
+     ],
+     [
+      40,
+      "people",
+      "U81",
+      0.5534,
+      0.04684,
+      "ELITE KEPT",
+      "U36"
+     ],
+     [
+      41,
+      "light",
+      "U84",
+      0.48263,
+      -0.06098,
+      "ELITE KEPT",
+      "U36"
+     ]
+    ]
+   },
+   {
+    "seed": 10,
+    "before": 0.499,
+    "after": 0.5173,
+    "elite": "U40",
+    "ui": {
+     "perm": 0,
+     "roles": [
+      "VIEW",
+      "STRENGTH",
+      "BIAS"
+     ],
+     "map": {
+      "VIEW": "scale",
+      "STRENGTH": "knurl",
+      "BIAS": "tri"
+     },
+     "detent": 6,
+     "rate": 8.85,
+     "sigma0": 10,
+     "lambda": 3,
+     "layout": "RING",
+     "offer": "FILM ORDER",
+     "readout": "GENERATION"
+    },
+    "log": [
+     [
+      0,
+      "table",
+      "U0",
+      0.394,
+      0,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      1,
+      "cake",
+      "U4",
+      0.60434,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      2,
+      "inscription",
+      "U5",
+      0.64336,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      3,
+      "candles",
+      "U0",
+      0.45596,
+      0,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      4,
+      "people",
+      "U9",
+      0.5365,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      5,
+      "light",
+      "U12",
+      0.61518,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      6,
+      "table",
+      "U0",
+      0.48639,
+      0.09239,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      7,
+      "cake",
+      "U16",
+      0.43087,
+      -0.17347,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      8,
+      "inscription",
+      "U17",
+      0.55877,
+      -0.08459,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      9,
+      "candles",
+      "U0",
+      0.57458,
+      0.11862,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      10,
+      "people",
+      "U21",
+      0.47511,
+      -0.06139,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      11,
+      "light",
+      "U24",
+      0.50439,
+      -0.11079,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      12,
+      "table",
+      "U0",
+      0.39806,
+      -0.04213,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      13,
+      "cake",
+      "U28",
+      0.52699,
+      0.00938,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      14,
+      "inscription",
+      "U29",
+      0.55278,
+      -0.04828,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      15,
+      "candles",
+      "U0",
+      0.60679,
+      0.09152,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      16,
+      "people",
+      "U33",
+      0.53628,
+      0.03048,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      17,
+      "light",
+      "U36",
+      0.60425,
+      0.04446,
+      "NEW ELITE",
+      "U36"
+     ],
+     [
+      18,
+      "table",
+      "U36",
+      0.39078,
+      -0.03537,
+      "NEW ELITE",
+      "U0"
+     ],
+     [
+      19,
+      "cake",
+      "U40",
+      0.61892,
+      0.09819,
+      "NEW ELITE",
+      "U40"
+     ],
+     [
+      20,
+      "inscription",
+      "U41",
+      0.55466,
+      -0.03031,
+      "ELITE KEPT",
+      "U40"
+     ],
+     [
+      21,
+      "candles",
+      "U40",
+      0.6051,
+      0.05932,
+      "ELITE RE-MEASURED",
+      "U40"
+     ],
+     [
+      22,
+      "people",
+      "U45",
+      0.648,
+      0.13204,
+      "NEW ELITE",
+      "U45"
+     ],
+     [
+      23,
+      "light",
+      "U48",
+      0.60896,
+      0.03435,
+      "ELITE KEPT",
+      "U45"
+     ],
+     [
+      24,
+      "table",
+      "U45",
+      0.53531,
+      0.118,
+      "ELITE RE-MEASURED",
+      "U45"
+     ],
+     [
+      25,
+      "cake",
+      "U52",
+      0.42306,
+      -0.12222,
+      "ELITE KEPT",
+      "U45"
+     ],
+     [
+      26,
+      "inscription",
+      "U53",
+      0.59702,
+      0.01963,
+      "ELITE KEPT",
+      "U45"
+     ],
+     [
+      27,
+      "candles",
+      "U45",
+      0.57055,
+      0.00994,
+      "ELITE RE-MEASURED",
+      "U45"
+     ],
+     [
+      28,
+      "people",
+      "U57",
+      0.57516,
+      0.02619,
+      "ELITE KEPT",
+      "U45"
+     ],
+     [
+      29,
+      "light",
+      "U60",
+      0.6152,
+      0.03201,
+      "ELITE KEPT",
+      "U45"
+     ],
+     [
+      30,
+      "table",
+      "U45",
+      0.41972,
+      -0.02119,
+      "NEW ELITE",
+      "U40"
+     ],
+     [
+      31,
+      "cake",
+      "U64",
+      0.38418,
+      -0.13666,
+      "ELITE KEPT",
+      "U40"
+     ],
+     [
+      32,
+      "inscription",
+      "U65",
+      0.63558,
+      0.05426,
+      "ELITE KEPT",
+      "U40"
+     ],
+     [
+      33,
+      "candles",
+      "U40",
+      0.6239,
+      0.0613,
+      "ELITE RE-MEASURED",
+      "U40"
+     ],
+     [
+      34,
+      "people",
+      "U69",
+      0.53396,
+      -0.02025,
+      "ELITE KEPT",
+      "U40"
+     ],
+     [
+      35,
+      "light",
+      "U72",
+      0.43246,
+      -0.15714,
+      "ELITE KEPT",
+      "U40"
+     ],
+     [
+      36,
+      "table",
+      "U40",
+      0.54118,
+      0.1038,
+      "ELITE RE-MEASURED",
+      "U40"
+     ],
+     [
+      37,
+      "cake",
+      "U76",
+      0.39694,
+      -0.10112,
+      "ELITE KEPT",
+      "U40"
+     ],
+     [
+      38,
+      "inscription",
+      "U77",
+      0.54204,
+      -0.04832,
+      "ELITE KEPT",
+      "U40"
+     ],
+     [
+      39,
+      "candles",
+      "U40",
+      0.62288,
+      0.05007,
+      "ELITE RE-MEASURED",
+      "U40"
+     ],
+     [
+      40,
+      "people",
+      "U81",
+      0.4869,
+      -0.06393,
+      "ELITE KEPT",
+      "U40"
+     ],
+     [
+      41,
+      "light",
+      "U84",
+      0.55892,
+      -0.00449,
+      "ELITE KEPT",
+      "U40"
+     ]
+    ]
+   }
+  ],
+  "hasty": [
+   {
+    "seed": 7,
+    "before": 0.6833,
+    "after": 0.6864,
+    "elite": "U84",
+    "ui": {
+     "perm": 0,
+     "roles": [
+      "VIEW",
+      "STRENGTH",
+      "BIAS"
+     ],
+     "map": {
+      "VIEW": "scale",
+      "STRENGTH": "knurl",
+      "BIAS": "tri"
+     },
+     "detent": 5,
+     "rate": 5.9,
+     "sigma0": 11,
+     "lambda": 3,
+     "layout": "RING",
+     "offer": "NEAREST FIRST",
+     "readout": "ALL PARTS"
+    },
+    "log": [
+     [
+      0,
+      "table",
+      "U0",
+      0.65325,
+      0,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      1,
+      "cake",
+      "U4",
+      0.66956,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      2,
+      "inscription",
+      "U5",
+      0.65169,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      3,
+      "candles",
+      "U0",
+      0.84868,
+      0,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      4,
+      "people",
+      "U9",
+      0.66104,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      5,
+      "light",
+      "U12",
+      0.71767,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      6,
+      "table",
+      "U0",
+      0.63106,
+      -0.02219,
+      "NEW ELITE",
+      "U4"
+     ],
+     [
+      7,
+      "cake",
+      "U16",
+      0.65496,
+      -0.0146,
+      "ELITE KEPT",
+      "U4"
+     ],
+     [
+      8,
+      "inscription",
+      "U17",
+      0.68895,
+      0.03726,
+      "NEW ELITE",
+      "U17"
+     ],
+     [
+      9,
+      "candles",
+      "U17",
+      0.66401,
+      -0.18467,
+      "NEW ELITE",
+      "U4"
+     ],
+     [
+      10,
+      "people",
+      "U21",
+      0.63242,
+      -0.02862,
+      "ELITE KEPT",
+      "U4"
+     ],
+     [
+      11,
+      "light",
+      "U24",
+      0.81935,
+      0.10168,
+      "NEW ELITE",
+      "U24"
+     ],
+     [
+      12,
+      "table",
+      "U24",
+      0.67672,
+      0.03456,
+      "ELITE RE-MEASURED",
+      "U24"
+     ],
+     [
+      13,
+      "cake",
+      "U28",
+      0.64677,
+      -0.01549,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      14,
+      "inscription",
+      "U29",
+      0.6335,
+      -0.03682,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      15,
+      "candles",
+      "U24",
+      0.79594,
+      0.03959,
+      "ELITE RE-MEASURED",
+      "U24"
+     ],
+     [
+      16,
+      "people",
+      "U33",
+      0.67156,
+      0.02483,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      17,
+      "light",
+      "U36",
+      0.63594,
+      -0.13257,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      18,
+      "table",
+      "U24",
+      0.64194,
+      -0.01174,
+      "ELITE RE-MEASURED",
+      "U24"
+     ],
+     [
+      19,
+      "cake",
+      "U40",
+      0.63041,
+      -0.02669,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      20,
+      "inscription",
+      "U41",
+      0.61755,
+      -0.0405,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      21,
+      "candles",
+      "U24",
+      0.73639,
+      -0.03315,
+      "ELITE RE-MEASURED",
+      "U24"
+     ],
+     [
+      22,
+      "people",
+      "U45",
+      0.61709,
+      -0.03792,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      23,
+      "light",
+      "U48",
+      0.69864,
+      -0.02568,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      24,
+      "table",
+      "U24",
+      0.68389,
+      0.03315,
+      "ELITE RE-MEASURED",
+      "U24"
+     ],
+     [
+      25,
+      "cake",
+      "U52",
+      0.66984,
+      0.01941,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      26,
+      "inscription",
+      "U53",
+      0.68164,
+      0.03372,
+      "NEW ELITE",
+      "U53"
+     ],
+     [
+      27,
+      "candles",
+      "U53",
+      0.6943,
+      -0.06695,
+      "NEW ELITE",
+      "U24"
+     ],
+     [
+      28,
+      "people",
+      "U57",
+      0.61651,
+      -0.02902,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      29,
+      "light",
+      "U60",
+      0.67367,
+      -0.04423,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      30,
+      "table",
+      "U24",
+      0.63602,
+      -0.02135,
+      "NEW ELITE",
+      "U33"
+     ],
+     [
+      31,
+      "cake",
+      "U64",
+      0.66942,
+      0.01511,
+      "ELITE KEPT",
+      "U33"
+     ],
+     [
+      32,
+      "inscription",
+      "U65",
+      0.77769,
+      0.12302,
+      "NEW ELITE",
+      "U65"
+     ],
+     [
+      33,
+      "candles",
+      "U65",
+      0.73571,
+      -0.01215,
+      "ELITE RE-MEASURED",
+      "U65"
+     ],
+     [
+      34,
+      "people",
+      "U69",
+      0.67176,
+      0.03204,
+      "ELITE KEPT",
+      "U65"
+     ],
+     [
+      35,
+      "light",
+      "U72",
+      0.73719,
+      0.02814,
+      "ELITE KEPT",
+      "U65"
+     ],
+     [
+      36,
+      "table",
+      "U65",
+      0.64778,
+      -0.00603,
+      "ELITE RE-MEASURED",
+      "U65"
+     ],
+     [
+      37,
+      "cake",
+      "U76",
+      0.62,
+      -0.03683,
+      "ELITE KEPT",
+      "U65"
+     ],
+     [
+      38,
+      "inscription",
+      "U77",
+      0.69237,
+      0.0172,
+      "ELITE KEPT",
+      "U65"
+     ],
+     [
+      39,
+      "candles",
+      "U65",
+      0.75476,
+      0.00892,
+      "NEW ELITE",
+      "U69"
+     ],
+     [
+      40,
+      "people",
+      "U81",
+      0.65629,
+      0.01123,
+      "ELITE KEPT",
+      "U69"
+     ],
+     [
+      41,
+      "light",
+      "U84",
+      0.82263,
+      0.10889,
+      "NEW ELITE",
+      "U84"
+     ]
+    ]
+   },
+   {
+    "seed": 8,
+    "before": 0.6833,
+    "after": 0.6762,
+    "elite": "U84",
+    "ui": {
+     "perm": 3,
+     "roles": [
+      "STRENGTH",
+      "BIAS",
+      "VIEW"
+     ],
+     "map": {
+      "STRENGTH": "scale",
+      "BIAS": "knurl",
+      "VIEW": "tri"
+     },
+     "detent": 6,
+     "rate": 5.9,
+     "sigma0": 10,
+     "lambda": 3,
+     "layout": "ROW",
+     "offer": "WEAKEST FIRST",
+     "readout": "SCORE AND BAR"
+    },
+    "log": [
+     [
+      0,
+      "table",
+      "U0",
+      0.65325,
+      0,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      1,
+      "cake",
+      "U4",
+      0.64661,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      2,
+      "inscription",
+      "U5",
+      0.7542,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      3,
+      "candles",
+      "U0",
+      0.84868,
+      0,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      4,
+      "people",
+      "U9",
+      0.61642,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      5,
+      "light",
+      "U12",
+      0.71907,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      6,
+      "table",
+      "U0",
+      0.63106,
+      -0.02219,
+      "NEW ELITE",
+      "U4"
+     ],
+     [
+      7,
+      "cake",
+      "U16",
+      0.62597,
+      -0.02064,
+      "ELITE KEPT",
+      "U4"
+     ],
+     [
+      8,
+      "inscription",
+      "U17",
+      0.81975,
+      0.06555,
+      "NEW ELITE",
+      "U17"
+     ],
+     [
+      9,
+      "candles",
+      "U17",
+      0.77579,
+      -0.07289,
+      "NEW ELITE",
+      "U4"
+     ],
+     [
+      10,
+      "people",
+      "U21",
+      0.64151,
+      0.02509,
+      "NEW ELITE",
+      "U21"
+     ],
+     [
+      11,
+      "light",
+      "U24",
+      0.76881,
+      0.04974,
+      "NEW ELITE",
+      "U24"
+     ],
+     [
+      12,
+      "table",
+      "U24",
+      0.64441,
+      0.00226,
+      "ELITE RE-MEASURED",
+      "U24"
+     ],
+     [
+      13,
+      "cake",
+      "U28",
+      0.67502,
+      0.03873,
+      "NEW ELITE",
+      "U28"
+     ],
+     [
+      14,
+      "inscription",
+      "U29",
+      0.64755,
+      -0.13943,
+      "ELITE KEPT",
+      "U28"
+     ],
+     [
+      15,
+      "candles",
+      "U28",
+      0.7105,
+      -0.10174,
+      "NEW ELITE",
+      "U24"
+     ],
+     [
+      16,
+      "people",
+      "U33",
+      0.65767,
+      0.0287,
+      "NEW ELITE",
+      "U33"
+     ],
+     [
+      17,
+      "light",
+      "U36",
+      0.66988,
+      -0.07406,
+      "ELITE KEPT",
+      "U33"
+     ],
+     [
+      18,
+      "table",
+      "U33",
+      0.63742,
+      -0.00549,
+      "NEW ELITE",
+      "U24"
+     ],
+     [
+      19,
+      "cake",
+      "U40",
+      0.62914,
+      -0.02006,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      20,
+      "inscription",
+      "U41",
+      0.76412,
+      0.02362,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      21,
+      "candles",
+      "U24",
+      0.78504,
+      0.00672,
+      "NEW ELITE",
+      "U21"
+     ],
+     [
+      22,
+      "people",
+      "U45",
+      0.61887,
+      -0.01966,
+      "ELITE KEPT",
+      "U21"
+     ],
+     [
+      23,
+      "light",
+      "U48",
+      0.69185,
+      -0.0274,
+      "ELITE KEPT",
+      "U21"
+     ],
+     [
+      24,
+      "table",
+      "U21",
+      0.64885,
+      0.00731,
+      "NEW ELITE",
+      "U41"
+     ],
+     [
+      25,
+      "cake",
+      "U52",
+      0.66984,
+      0.02565,
+      "NEW ELITE",
+      "U52"
+     ],
+     [
+      26,
+      "inscription",
+      "U53",
+      0.68164,
+      -0.06476,
+      "ELITE KEPT",
+      "U52"
+     ],
+     [
+      27,
+      "candles",
+      "U52",
+      0.6943,
+      -0.0857,
+      "NEW ELITE",
+      "U41"
+     ],
+     [
+      28,
+      "people",
+      "U57",
+      0.67082,
+      0.0372,
+      "NEW ELITE",
+      "U57"
+     ],
+     [
+      29,
+      "light",
+      "U60",
+      0.67367,
+      -0.03873,
+      "ELITE KEPT",
+      "U57"
+     ],
+     [
+      30,
+      "table",
+      "U57",
+      0.66473,
+      0.02173,
+      "ELITE RE-MEASURED",
+      "U57"
+     ],
+     [
+      31,
+      "cake",
+      "U64",
+      0.66622,
+      0.0169,
+      "ELITE KEPT",
+      "U57"
+     ],
+     [
+      32,
+      "inscription",
+      "U65",
+      0.80301,
+      0.06956,
+      "NEW ELITE",
+      "U65"
+     ],
+     [
+      33,
+      "candles",
+      "U65",
+      0.5925,
+      -0.17036,
+      "NEW ELITE",
+      "U57"
+     ],
+     [
+      34,
+      "people",
+      "U69",
+      0.65201,
+      0.01095,
+      "ELITE KEPT",
+      "U57"
+     ],
+     [
+      35,
+      "light",
+      "U72",
+      0.77185,
+      0.06719,
+      "NEW ELITE",
+      "U72"
+     ],
+     [
+      36,
+      "table",
+      "U72",
+      0.6716,
+      0.02498,
+      "ELITE RE-MEASURED",
+      "U72"
+     ],
+     [
+      37,
+      "cake",
+      "U76",
+      0.64229,
+      -0.00984,
+      "ELITE KEPT",
+      "U72"
+     ],
+     [
+      38,
+      "inscription",
+      "U77",
+      0.67199,
+      -0.07305,
+      "ELITE KEPT",
+      "U72"
+     ],
+     [
+      39,
+      "candles",
+      "U72",
+      0.76676,
+      0.03229,
+      "ELITE RE-MEASURED",
+      "U72"
+     ],
+     [
+      40,
+      "people",
+      "U81",
+      0.64353,
+      0.00065,
+      "ELITE KEPT",
+      "U72"
+     ],
+     [
+      41,
+      "light",
+      "U84",
+      0.85498,
+      0.13912,
+      "NEW ELITE",
+      "U84"
+     ]
+    ]
+   },
+   {
+    "seed": 9,
+    "before": 0.6833,
+    "after": 0.7208,
+    "elite": "U84",
+    "ui": {
+     "perm": 1,
+     "roles": [
+      "VIEW",
+      "BIAS",
+      "STRENGTH"
+     ],
+     "map": {
+      "VIEW": "scale",
+      "BIAS": "knurl",
+      "STRENGTH": "tri"
+     },
+     "detent": 7,
+     "rate": 17.7,
+     "sigma0": 8,
+     "lambda": 9,
+     "layout": "ROW",
+     "offer": "FILM ORDER",
+     "readout": "ALL PARTS"
+    },
+    "log": [
+     [
+      0,
+      "table",
+      "U0",
+      0.65325,
+      0,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      1,
+      "cake",
+      "U4",
+      0.66636,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      2,
+      "inscription",
+      "U5",
+      0.62466,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      3,
+      "candles",
+      "U0",
+      0.84868,
+      0,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      4,
+      "people",
+      "U9",
+      0.65977,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      5,
+      "light",
+      "U12",
+      0.71907,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      6,
+      "table",
+      "U0",
+      0.63106,
+      -0.02219,
+      "NEW ELITE",
+      "U4"
+     ],
+     [
+      7,
+      "cake",
+      "U16",
+      0.65177,
+      -0.01459,
+      "ELITE KEPT",
+      "U4"
+     ],
+     [
+      8,
+      "inscription",
+      "U17",
+      0.7269,
+      0.10224,
+      "NEW ELITE",
+      "U17"
+     ],
+     [
+      9,
+      "candles",
+      "U17",
+      0.7855,
+      -0.06318,
+      "ELITE RE-MEASURED",
+      "U17"
+     ],
+     [
+      10,
+      "people",
+      "U21",
+      0.63364,
+      -0.02613,
+      "ELITE KEPT",
+      "U17"
+     ],
+     [
+      11,
+      "light",
+      "U24",
+      0.73881,
+      0.01974,
+      "NEW ELITE",
+      "U24"
+     ],
+     [
+      12,
+      "table",
+      "U24",
+      0.64316,
+      0.001,
+      "NEW ELITE",
+      "U17"
+     ],
+     [
+      13,
+      "cake",
+      "U28",
+      0.67502,
+      0.01595,
+      "ELITE KEPT",
+      "U17"
+     ],
+     [
+      14,
+      "inscription",
+      "U29",
+      0.64755,
+      -0.02823,
+      "ELITE KEPT",
+      "U17"
+     ],
+     [
+      15,
+      "candles",
+      "U17",
+      0.77197,
+      -0.04512,
+      "NEW ELITE",
+      "U28"
+     ],
+     [
+      16,
+      "people",
+      "U33",
+      0.6498,
+      0.0031,
+      "ELITE KEPT",
+      "U28"
+     ],
+     [
+      17,
+      "light",
+      "U36",
+      0.63501,
+      -0.09393,
+      "ELITE KEPT",
+      "U28"
+     ],
+     [
+      18,
+      "table",
+      "U28",
+      0.64188,
+      -0.00061,
+      "NEW ELITE",
+      "U24"
+     ],
+     [
+      19,
+      "cake",
+      "U40",
+      0.65754,
+      -0.00684,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      20,
+      "inscription",
+      "U41",
+      0.72523,
+      0.05886,
+      "NEW ELITE",
+      "U41"
+     ],
+     [
+      21,
+      "candles",
+      "U41",
+      0.7369,
+      -0.06515,
+      "NEW ELITE",
+      "U24"
+     ],
+     [
+      22,
+      "people",
+      "U45",
+      0.64364,
+      -0.0041,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      23,
+      "light",
+      "U48",
+      0.70067,
+      0.00304,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      24,
+      "table",
+      "U24",
+      0.69785,
+      0.05551,
+      "ELITE RE-MEASURED",
+      "U24"
+     ],
+     [
+      25,
+      "cake",
+      "U52",
+      0.66303,
+      0.00036,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      26,
+      "inscription",
+      "U53",
+      0.79095,
+      0.10987,
+      "NEW ELITE",
+      "U53"
+     ],
+     [
+      27,
+      "candles",
+      "U53",
+      0.78616,
+      0.0004,
+      "ELITE RE-MEASURED",
+      "U53"
+     ],
+     [
+      28,
+      "people",
+      "U57",
+      0.73975,
+      0.09304,
+      "NEW ELITE",
+      "U57"
+     ],
+     [
+      29,
+      "light",
+      "U60",
+      0.74085,
+      0.04246,
+      "ELITE KEPT",
+      "U57"
+     ],
+     [
+      30,
+      "table",
+      "U57",
+      0.69353,
+      0.04009,
+      "ELITE RE-MEASURED",
+      "U57"
+     ],
+     [
+      31,
+      "cake",
+      "U64",
+      0.67892,
+      0.01618,
+      "ELITE KEPT",
+      "U57"
+     ],
+     [
+      32,
+      "inscription",
+      "U65",
+      0.78061,
+      0.07755,
+      "NEW ELITE",
+      "U65"
+     ],
+     [
+      33,
+      "candles",
+      "U65",
+      0.70424,
+      -0.0816,
+      "NEW ELITE",
+      "U57"
+     ],
+     [
+      34,
+      "people",
+      "U69",
+      0.74093,
+      0.07561,
+      "NEW ELITE",
+      "U69"
+     ],
+     [
+      35,
+      "light",
+      "U72",
+      0.7586,
+      0.05172,
+      "ELITE KEPT",
+      "U69"
+     ],
+     [
+      36,
+      "table",
+      "U69",
+      0.70904,
+      0.04892,
+      "NEW ELITE",
+      "U57"
+     ],
+     [
+      37,
+      "cake",
+      "U76",
+      0.70335,
+      0.03791,
+      "ELITE KEPT",
+      "U57"
+     ],
+     [
+      38,
+      "inscription",
+      "U77",
+      0.67763,
+      -0.03835,
+      "ELITE KEPT",
+      "U57"
+     ],
+     [
+      39,
+      "candles",
+      "U57",
+      0.75386,
+      -0.01838,
+      "NEW ELITE",
+      "U69"
+     ],
+     [
+      40,
+      "people",
+      "U81",
+      0.73021,
+      0.05229,
+      "ELITE KEPT",
+      "U69"
+     ],
+     [
+      41,
+      "light",
+      "U84",
+      0.80554,
+      0.09004,
+      "NEW ELITE",
+      "U84"
+     ]
+    ]
+   },
+   {
+    "seed": 10,
+    "before": 0.6833,
+    "after": 0.717,
+    "elite": "U45",
+    "ui": {
+     "perm": 5,
+     "roles": [
+      "BIAS",
+      "STRENGTH",
+      "VIEW"
+     ],
+     "map": {
+      "BIAS": "scale",
+      "STRENGTH": "knurl",
+      "VIEW": "tri"
+     },
+     "detent": 7,
+     "rate": 14.75,
+     "sigma0": 11,
+     "lambda": 5,
+     "layout": "RING",
+     "offer": "NEAREST FIRST",
+     "readout": "SCORE AND BAR"
+    },
+    "log": [
+     [
+      0,
+      "table",
+      "U0",
+      0.65325,
+      0,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      1,
+      "cake",
+      "U4",
+      0.66971,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      2,
+      "inscription",
+      "U5",
+      0.80938,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      3,
+      "candles",
+      "U0",
+      0.84868,
+      0,
+      "ELITE RE-MEASURED",
+      "U0"
+     ],
+     [
+      4,
+      "people",
+      "U9",
+      0.65865,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      5,
+      "light",
+      "U12",
+      0.71767,
+      0,
+      "ELITE KEPT",
+      "U0"
+     ],
+     [
+      6,
+      "table",
+      "U0",
+      0.63106,
+      -0.02219,
+      "NEW ELITE",
+      "U4"
+     ],
+     [
+      7,
+      "cake",
+      "U16",
+      0.65496,
+      -0.01475,
+      "ELITE KEPT",
+      "U4"
+     ],
+     [
+      8,
+      "inscription",
+      "U17",
+      0.67407,
+      -0.13531,
+      "ELITE KEPT",
+      "U4"
+     ],
+     [
+      9,
+      "candles",
+      "U4",
+      0.66307,
+      -0.18561,
+      "NEW ELITE",
+      "U5"
+     ],
+     [
+      10,
+      "people",
+      "U21",
+      0.59456,
+      -0.06409,
+      "ELITE KEPT",
+      "U5"
+     ],
+     [
+      11,
+      "light",
+      "U24",
+      0.92106,
+      0.20339,
+      "NEW ELITE",
+      "U24"
+     ],
+     [
+      12,
+      "table",
+      "U24",
+      0.64588,
+      0.00372,
+      "ELITE RE-MEASURED",
+      "U24"
+     ],
+     [
+      13,
+      "cake",
+      "U28",
+      0.66118,
+      -0.00116,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      14,
+      "inscription",
+      "U29",
+      0.59019,
+      -0.15153,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      15,
+      "candles",
+      "U24",
+      0.83357,
+      0.07769,
+      "ELITE RE-MEASURED",
+      "U24"
+     ],
+     [
+      16,
+      "people",
+      "U33",
+      0.67392,
+      0.04731,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      17,
+      "light",
+      "U36",
+      0.71959,
+      -0.09978,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      18,
+      "table",
+      "U24",
+      0.69165,
+      0.04825,
+      "ELITE RE-MEASURED",
+      "U24"
+     ],
+     [
+      19,
+      "cake",
+      "U40",
+      0.62325,
+      -0.0387,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      20,
+      "inscription",
+      "U41",
+      0.72983,
+      0.03862,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      21,
+      "candles",
+      "U24",
+      0.78477,
+      0.003,
+      "ELITE RE-MEASURED",
+      "U24"
+     ],
+     [
+      22,
+      "people",
+      "U45",
+      0.68436,
+      0.04198,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      23,
+      "light",
+      "U48",
+      0.76187,
+      -0.02424,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      24,
+      "table",
+      "U24",
+      0.67694,
+      0.02148,
+      "ELITE RE-MEASURED",
+      "U24"
+     ],
+     [
+      25,
+      "cake",
+      "U52",
+      0.64838,
+      -0.0039,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      26,
+      "inscription",
+      "U53",
+      0.61198,
+      -0.08889,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      27,
+      "candles",
+      "U24",
+      0.76232,
+      -0.0202,
+      "ELITE RE-MEASURED",
+      "U24"
+     ],
+     [
+      28,
+      "people",
+      "U57",
+      0.65479,
+      0.00192,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      29,
+      "light",
+      "U60",
+      0.63342,
+      -0.14663,
+      "ELITE KEPT",
+      "U24"
+     ],
+     [
+      30,
+      "table",
+      "U24",
+      0.64202,
+      -0.01774,
+      "NEW ELITE",
+      "U33"
+     ],
+     [
+      31,
+      "cake",
+      "U64",
+      0.66662,
+      0.01512,
+      "ELITE KEPT",
+      "U33"
+     ],
+     [
+      32,
+      "inscription",
+      "U65",
+      0.76419,
+      0.0811,
+      "NEW ELITE",
+      "U65"
+     ],
+     [
+      33,
+      "candles",
+      "U65",
+      0.77538,
+      -0.0031,
+      "NEW ELITE",
+      "U33"
+     ],
+     [
+      34,
+      "people",
+      "U69",
+      0.64843,
+      -0.00483,
+      "ELITE KEPT",
+      "U33"
+     ],
+     [
+      35,
+      "light",
+      "U72",
+      0.67416,
+      -0.07656,
+      "ELITE KEPT",
+      "U33"
+     ],
+     [
+      36,
+      "table",
+      "U33",
+      0.65308,
+      -0.00372,
+      "NEW ELITE",
+      "U45"
+     ],
+     [
+      37,
+      "cake",
+      "U76",
+      0.65929,
+      0.00527,
+      "ELITE KEPT",
+      "U45"
+     ],
+     [
+      38,
+      "inscription",
+      "U77",
+      0.72881,
+      0.0322,
+      "ELITE KEPT",
+      "U45"
+     ],
+     [
+      39,
+      "candles",
+      "U45",
+      0.85036,
+      0.07239,
+      "ELITE RE-MEASURED",
+      "U45"
+     ],
+     [
+      40,
+      "people",
+      "U81",
+      0.67149,
+      0.01904,
+      "ELITE KEPT",
+      "U45"
+     ],
+     [
+      41,
+      "light",
+      "U84",
+      0.7681,
+      0.03014,
+      "ELITE KEPT",
+      "U45"
+     ]
+    ]
+   }
+  ]
+ }
+}

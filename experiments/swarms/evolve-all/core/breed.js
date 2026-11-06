@@ -13,15 +13,17 @@
   /* the first stage not yet passed (stages are ordered; a stage counts as passed only when every stage before it passes too) */
   function stageOf(mod, e) { for (let i = 0; i < mod.stages.length; i++) { const [, m, th] = mod.stages[i]; if (measure(e, m) < th) return i; } return mod.stages.length; }
   /* per-gene weights: no bias = every gene moves; a bias group = that group's genes fully, the rest at 0.2 */
-  function weights(mod, bias) { return mod.genes.map(g => !bias || bias === 'ALL' ? 1 : g[1] === bias ? 1 : .2); }
+  function weights(mod, bias, freeze) { return mod.genes.map(g => freeze && freeze.includes(g[1]) ? 0 : !bias || bias === 'ALL' ? 1 : g[1] === bias ? 1 : .2); }
+  /* the groups named by stages not yet reached: frozen, so (for example) colour does not wander while the shape is being found */
+  function laterGroups(mod, si) { const now = mod.stages.slice(0, si + 1).map(s => String(s[0]).toUpperCase()); return mod.stages.slice(si + 1).map(s => String(s[0]).toUpperCase()).filter(g => mod.groups.includes(g) && !now.includes(g)); }
   function sigmaFor(opts, group) { const s = opts.sigma; return typeof s === 'number' ? s : s && s[group] != null ? s[group] : .1; }
   /* a child is admissible when it keeps every stage already passed (opts.keep: [[measure, threshold], ...]) */
   function admissible(e, keep) { return !keep || keep.every(([m, th]) => measure(e, m) >= th); }
-  /* breed: opts { seed, gen, sigma (number or {group: s}), bias (group name or null), lambda, stage (index), keep } -> children + the elite.
+  /* breed: opts { seed, gen, sigma (number or {group: s}), bias (group name or null), lambda, stage (index), keep, freeze (true = groups of later stages, or a list) } -> children + the elite.
      Elitist: the parent survives unless an admissible child scores strictly higher on the stage's measure. Deterministic for the same inputs. */
   function breed(mod, parent, opts, refs) {
     opts = opts || {}; const lambda = Math.max(1, opts.lambda | 0 || 8), si = Math.min(opts.stage | 0, mod.stages.length - 1), m = mod.stages.length ? mod.stages[si][1] : 'fit';
-    const r = mulberry32(hash(opts.seed || 1, opts.gen || 0, mod.name)), w = weights(mod, opts.bias), pe = parent.e || mod.evaluate(parent.G, refs), ps = measure(pe, m), kids = [];
+    const r = mulberry32(hash(opts.seed || 1, opts.gen || 0, mod.name)), w = weights(mod, opts.bias, opts.freeze === true ? laterGroups(mod, si) : opts.freeze), pe = parent.e || mod.evaluate(parent.G, refs), ps = measure(pe, m), kids = [];
     for (let c = 0; c < lambda; c++) { const fine = c >= Math.ceil(lambda / 2) ? .35 : 1;     // half the brood at full strength, half fine
       const G = new Float64Array(mod.genes.length);
       mod.genes.forEach((g, i) => { const [, grp, lo, hi] = g, v = parent.G[i]; G[i] = w[i] ? clamp(v + sigmaFor(opts, grp) * w[i] * fine * (hi - lo) * gauss(r), lo, hi) : v; });
@@ -36,5 +38,5 @@
   function defaults(mod) { return Float64Array.from(mod.genes.map(g => g[4])); }
   function inBounds(mod, G) { return mod.genes.every((g, i) => G[i] >= g[2] - 1e-12 && G[i] <= g[3] + 1e-12 && Number.isFinite(G[i])); }
   function named(mod, G) { const o = {}; mod.genes.forEach((g, i) => o[g[0]] = G[i]); return o; }
-  return { mulberry32, hash, gauss, clamp, measure, stageOf, weights, admissible, breed, pick, blank, defaults, inBounds, named };
+  return { mulberry32, hash, gauss, clamp, measure, stageOf, weights, laterGroups, admissible, breed, pick, blank, defaults, inBounds, named };
 });

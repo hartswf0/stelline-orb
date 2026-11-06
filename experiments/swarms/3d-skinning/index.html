@@ -403,7 +403,7 @@ function runAnims() { if (!S.anims) return; S.anims = S.anims.filter(a => { cons
 /* =============================================================== STRESS VIEW: child 2 twice, linear blending alone (left) and corrected (right), through raise, fold, reach, twist */
 let STRESSKIDS = null;
 if (STRESS) { STRESSKIDS = [makeChild(Object.assign({}, RIG.SPECS[1], { ang: 0 }), 1, { naive: true }), makeChild(Object.assign({}, RIG.SPECS[1], { ang: 0 }), 1, {})];
-  STRESSKIDS.forEach((k, j) => { k.home = k.P = V(j ? -.42 : .42, 0, 0); k.arrive = 1; });
+  STRESSKIDS.forEach((k, j) => { k.home = k.P = V(0, 0, j ? -.36 : .36); k.arrive = 1; });
   [TABLE, CAKE, BOARD, SPAT, BAG, TAPER, BOX, STAND, cakeSpot].concat(LAYERS.map(L => L.m), CANDLES.map(C => C.g)).forEach(o => o.visible = false); }
 function stressPose(t) { const ph = (t % 12) / 12, seg = (a, b) => sst(a, b, ph); // raise 0-.25, fold .25-.5, reach .5-.75, twist .75-1
   const el = lerp(25, 160, seg(.02, .12)) * (1 - seg(.2, .27)) + lerp(25, 60, seg(.27, .33)) * (1 - seg(.45, .5)) + lerp(25, 95, seg(.52, .6)) * (1 - seg(.7, .75)) + 25 * seg(.75, .76);
@@ -423,7 +423,7 @@ function measureContacts(k) { const M = RIG.skinMats(k.G, k.sol.W); for (const s
     const key = `CHILD ${k.i + 1} ${s} ${c.key.replace(/ \d+$/, '')}`, e = TRACE.contacts[key] || (TRACE.contacts[key] = { n: 0, max: 0, sum: 0 }); e.n++; e.max = Math.max(e.max, d); e.sum += d; } }
 function step(dt) { NOW += dt; frameN++; runScene(); runAnims(); machine(dt);
   const yaw = S.yaw * PI / 180;
-  if (STRESS) { const D = 1.75, ya = yaw + 2.45; cam.position.set(Math.sin(ya) * D, 1.15, Math.cos(ya) * D); cam.lookAt(0, .82, 0); const sp = stressPose(NOW);
+  if (STRESS) { const D = Q.has('close') ? .62 : 1.55, ya = yaw + 1.75, cz = Q.has('close') ? -.36 : 0; cam.position.set(Math.sin(ya) * D, Q.has('close') ? .98 : 1.12, Math.cos(ya) * D + cz); cam.lookAt(0, Q.has('close') ? .88 : .86, cz); const sp = stressPose(NOW);
     STRESSKIDS.forEach((k, j) => { const f = frameOf({ P: V(0, 0, -1) }); poseKid(k, { pos: k.P, yaw: 0, arms: sp.arms, headPitch: .1 }, { naive: j === 0 }); });
     statusEl.innerHTML = `<b>${sp.lab}</b> &middot; LEFT: LINEAR BLENDING ALONE &middot; RIGHT: TWIST BONES, CORRECTIVE SHAPES, MASKED BADGE`; R.render(scene, cam); return; }
   // her eye: kneeling outside the ring of children, turned by the scale ring

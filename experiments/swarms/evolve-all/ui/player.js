@@ -29,14 +29,19 @@
       if (biasStage !== si) { biasStage = si; const wb = wantBias(style, mod, si); if (Math.round(ring.bias.ang / ui.detent) !== wb) turn('bias', wb); }
       const sig = UIG.sigmaOf(clamp(Math.round(ring.strength.ang / ui.detent), 0, 11)), bi = clamp(Math.round(ring.bias.ang / ui.detent), 0, mod.groups.length);
       const keep = mod.stages.slice(0, si).map(s => [s[1], s[2]]);
-      const res = BREED.breed(mod, P, { seed, gen: M.gens, sigma: sig, bias: bi ? mod.groups[bi - 1] : null, lambda: ui.lambda, stage: si, keep }, refs);
+      const res = BREED.breed(mod, P, { seed, gen: M.gens, sigma: sig, bias: bi ? mod.groups[bi - 1] : null, lambda: ui.lambda, stage: si, keep, freeze: true }, refs);
       M.moves++;   // the HOLD that bred it
       const reveal = ui.lambda / ui.rate; let n;
       if (style.waitsAll) { n = ui.lambda; M.idle += n * (style.compare[ui.layout] + Math.max(0, ui.rate - 12) * style.strain) + style.react; M.time += reveal; }
       else { n = Math.min(ui.lambda, 1 + Math.floor(style.react * ui.rate)); M.idle += Math.max(0, style.react - reveal); M.time += style.react; }
-      const pk = BREED.pick(P, res.kids, n, res.measure, keep); M.gens++; if (pk.bestIndex >= 0) M.accepted++;
-      P = pk.best; const ns = BREED.stageOf(mod, P.e); if (ns > si) M.stages += ns - si; si = Math.max(si, ns); }
+      // the player chooses: SELECT moves the highlight from the first variant onward (the parent is the last stop), HOLD keeps it
+      const target = chooseChild(style, res.kids.slice(0, n).map(k => k.score), res.parentScore, r); M.moves += target; M.gens++;
+      if (target < n) { M.accepted++; P = { G: res.kids[target].G, e: res.kids[target].e }; if (target !== bestOf(res.kids.slice(0, n).map(k => k.score))) M.offBest = (M.offBest || 0) + 1; } const ns = BREED.stageOf(mod, P.e); if (ns > si) M.stages += ns - si; si = Math.max(si, ns); }
     M.time += M.idle; M.passed = si >= mod.stages.length; M.fit = +P.e.fit.toFixed(4); return M; }
+  /* what the player's eye picks: the hint (the stage's measure per variant) read with the style's own error; index n = keep the parent */
+  function chooseChild(style, scores, parentScore, r) { const eye = style.name === 'HASTY' ? .015 : .004; let best = scores.length, bv = parentScore + eye * BREED.gauss(r);
+    scores.forEach((s, i) => { const v = s + eye * BREED.gauss(r); if (v > bv) { bv = v; best = i; } }); return best; }
+  const bestOf = a => a.reduce((b, v, i) => v > a[b] ? i : b, 0);
   /* the browser policy: given what the device shows, the next thing the scripted player does */
   function next(styleName, v) { const style = STYLES[styleName];
     if (v.phase === 'uichoice') return v.since > (style.name === 'HASTY' ? .5 : 1.4) ? (v.choiceIndex !== v.want ? { kind: 'select' } : { kind: 'hold' }) : { kind: 'wait' };
@@ -44,9 +49,13 @@
     if (v.making || v.turning) return { kind: 'wait' };
     const ws = wantStrength(style, v.ui, v.score, v.bar); if (v.strength !== ws) return { kind: 'turn', role: 'STRENGTH', goal: ws };
     const wb = wantBias(style, v.mod, v.stage); if (v.bias !== wb && v.biasStage !== v.stage) return { kind: 'turn', role: 'BIAS', goal: wb };
-    if (style.waitsAll) { if (v.revealing) return { kind: 'wait' }; return v.since > style.react + v.lambda * (style.compare[v.ui.layout] + Math.max(0, v.ui.rate - 12) * style.strain) ? { kind: 'hold' } : { kind: 'wait' }; }
-    return v.sinceHold > style.react ? { kind: 'hold' } : { kind: 'wait' }; }
+    if (!v.brood) return v.since > style.react ? { kind: 'hold' } : { kind: 'wait' };          // the first HOLD of a part breeds
+    const ready = style.waitsAll ? !v.revealing && v.since > style.react + v.lambda * (style.compare[v.ui.layout] + Math.max(0, v.ui.rate - 12) * style.strain) : v.sinceHold > style.react;
+    if (!ready) return { kind: 'wait' };
+    if (v.target == null) return { kind: 'decide', target: chooseChild(style, v.hints, v.parentScore, v.rng) };
+    if (v.hi !== v.target) return v.sinceSelect > (style.name === 'HASTY' ? .1 : .22) ? { kind: 'select' } : { kind: 'wait' };
+    return v.sinceSelect > (style.name === 'HASTY' ? .1 : .3) ? { kind: 'hold' } : { kind: 'wait' }; }
   /* which candidate the scripted player picks between parts: every third time it plays the elite again (a re-measurement), otherwise it explores one of the two new variants; elitism by measured play decides */
   const choose = (round, n) => round % 3 === 0 ? 0 : 1 + (round % Math.max(1, n - 1));
-  return { STYLES, wantStrength, wantBias, gestures, simulatePart, next, choose };
+  return { STYLES, wantStrength, wantBias, gestures, simulatePart, next, choose, chooseChild };
 });

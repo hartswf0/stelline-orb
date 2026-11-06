@@ -12,9 +12,10 @@ function hash(...xs) { let h = 2166136261; for (const x of xs) { h ^= (x | 0); h
 function gauss(r) { const u = Math.max(1e-9, r()), v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const measure = (e, m) => m === 'fit' ? e.fit : e.parts[m];
-function breed(mod, parent, o, refs) {   // o: { seed, gen, sigma, group, lambda }; the stage's group fully, earlier groups at 0.1, later frozen
+function breed(mod, parent, o, refs) {   // o: { seed, gen, sigma, group, lambda }; the stage's group fully, earlier groups with the same measure at 0.5, later frozen
   const r = mulberry32(hash(o.seed, o.gen, 2)), gi = mod.groups.indexOf(o.group), lam = o.lambda || 8, m = o.measure;
-  const w = mod.genes.map(g => g[1] === o.group ? 1 : mod.groups.indexOf(g[1]) < gi ? .1 : 0);
+  const sm = o.measure, gm = grp => (mod.stages.find(st => st[0] === grp) || [])[1];
+  const w = mod.genes.map(g => g[1] === o.group ? 1 : mod.groups.indexOf(g[1]) < gi && gm(g[1]) === sm ? .5 : 0);   // earlier groups judged on the same measure (BASE under FORM) move at half strength; the rest stay
   const pe = parent.e || mod.evaluate(parent.G, refs); let best = { G: parent.G, e: pe, score: measure(pe, m) }, bi = -1; const kids = [];
   for (let c = 0; c < lam; c++) { const G = Float64Array.from(parent.G, (v, i) => { const g = mod.genes[i]; return w[i] ? clamp(v + o.sigma * w[i] * (c < lam / 2 ? 1 : .35) * (g[3] - g[2]) * gauss(r), g[2], g[3]) : v; });
     const e = mod.evaluate(G, refs); kids.push({ G, e, score: measure(e, m) }); }
@@ -23,10 +24,10 @@ function breed(mod, parent, o, refs) {   // o: { seed, gen, sigma, group, lambda
   kids.forEach((k, i) => { if (k.score > best.score && keep.every(([, mm, th]) => measure(k.e, mm) >= th)) { best = k; bi = i; } });
   return { best, bestIndex: bi, kids, parentScore: measure(pe, m) };
 }
-// a simple player: works each stage in order until its bar is reached (strength 0.25 far from the bar, 0.08 near it)
+// a simple player: works each stage in order until its bar is reached (strength 0.25 far from the bar, 0.08 within 0.08 of it, 0.04 within 0.03)
 function play(refs, seed, cap) { let p = { G: M.blank() }; p.e = M.evaluate(p.G, refs); let gen = 0; const per = [];
-  for (const [grp, m, th] of M.stages) { let n = 0; while (measure(p.e, m) < th && n < cap) { const far = measure(p.e, m) < th - .08;
-      p = breed(M, p, { seed, gen: gen++, sigma: far ? .25 : .08, group: grp, measure: m }, refs).best; n++; } per.push(measure(p.e, m) >= th ? n : null); }
+  for (const [grp, m, th] of M.stages) { let n = 0; while (measure(p.e, m) < th && n < cap) { const gap = th - measure(p.e, m);
+      p = breed(M, p, { seed, gen: gen++, sigma: gap > .08 ? .25 : gap > .03 ? .08 : .04, group: grp, measure: m }, refs).best; n++; } per.push(measure(p.e, m) >= th ? n : null); }
   return { per, gen, p }; }
 /* ------------------------------------------------------------------ 1. contract shape */
 { const keys = ['name', 'genes', 'groups', 'stages', 'blank', 'evaluate', 'build', 'making', 'anchors'];
@@ -55,9 +56,9 @@ for (const { id } of M.targets(REFS)) { const R = M.select(REFS, id), runs = [31
 { const R = M.select(REFS, 'cream_table'), p = results.cream_table[0].p, g = M.named(p.G), ref = REFS.cakes.cream_table.top.lab;
   const old = M.srgb2lab(191, 136, 30);   // the icing the old evolver reached on this frame (sRGB 0.749, 0.533, 0.118)
   const dNew = Math.hypot(g.topL - ref[0], g.topA - ref[1], g.topB - ref[2]), dOld = Math.hypot(old[0] - ref[0], old[1] - ref[1], old[2] - ref[2]);
-  ok(dNew < 5 && dNew < dOld, `icing: evolved top for her cake at 155 s is sRGB ${M.colours(p.G).top} (dE ${dNew.toFixed(1)} from the measured top ${REFS.cakes.cream_table.top.srgb}); the old evolver's olive ${[191, 136, 30]} is dE ${dOld.toFixed(1)} away`);
+  ok(dNew < 4.9 && dNew < dOld, `icing: evolved top for her cake at 155 s is sRGB ${M.colours(p.G).top} (dE ${dNew.toFixed(1)} from the measured top ${REFS.cakes.cream_table.top.srgb}); the old evolver's olive ${[191, 136, 30]} is dE ${dOld.toFixed(1)} away`);
   const c = REFS.cakes.cream, pc = results.cream[0].p, gc = M.named(pc.G);
-  ok(Math.hypot(gc.topL - c.top.lab[0], gc.topA - c.top.lab[1], gc.topB - c.top.lab[2]) < 5, `icing: evolved top for the cream cake at 147 s is sRGB ${M.colours(pc.G).top} (measured ${c.top.srgb})`); }
+  ok(Math.hypot(gc.topL - c.top.lab[0], gc.topA - c.top.lab[1], gc.topB - c.top.lab[2]) < 4.9, `icing: evolved top for the cream cake at 147 s is sRGB ${M.colours(pc.G).top} (measured ${c.top.srgb})`); }
 /* ------------------------------------------------------------------ 7. build and anchors (real three.js r128 in node; no WebGL needed) */
 let THREE = null; try { THREE = require(path.join(__dirname, '..', '..', '..', '..', 'ana', 'assets', 'three.min.js')); } catch (e) { }
 if (!THREE) console.log('SKIP build tests: ana/assets/three.min.js not found');
@@ -72,6 +73,14 @@ else { const G = results.cream[0].p.G, A = M.anchors(G);
   ok(b0.isEmpty() || b0.max.y < .02, 'build t=0: nothing made yet (at most the board arriving)');
   let seats = true; for (let i = 0; i < 7; i++) { const c = A['candle' + i], r = Math.hypot(c[0], c[2]); if (r > A.rim[0] || Math.abs(c[1] - M.topY(G, r)) > 1e-9) seats = false; }
   ok(seats && A.inscription[2] > 0, 'anchors: seven candle seats inside the rim and on the top surface; inscription spot toward the viewer (+z)');
+  // decoration and frosting are real geometry: piped shells round the top rim, beads on the side, ripples in the coats
+  const shells = o1.children.filter(m => m.isInstancedMesh && m.count > 0 && m.visible), gc = M.named(G);
+  const spread = o => { let lo = 1e9, hi = -1e9; o.traverse(m => { if (m.isMesh && !m.isInstancedMesh && m.material && m.material.roughness === .5 && m.geometry.attributes.position.count > 500) { const P = m.geometry.attributes.position; for (let i = 0; i < P.count; i++) { const r = Math.hypot(P.getX(i), P.getZ(i)); if (r > .03 && r < .07) { const y = P.getY(i) - M.topY(G, r); lo = Math.min(lo, y); hi = Math.max(hi, y); } } } }); return hi - lo; };
+  const Gs = Float64Array.from(G); Gs[M.genes.findIndex(x => x[0] === 'frostTop')] = 0; const rip = spread(o1), flat = spread(M.build(THREE, Gs, { t: 1 }));
+  ok(shells.length >= 1 && shells.reduce((n, m) => n + m.count, 0) >= 20, `build cream t=1: ${shells.length} visible instanced decorations, ${shells.reduce((n, m) => n + m.count, 0)} pieces (piped top border: relief ${gc.border.toFixed(2)}; beads ${(gc.beads * 100).toFixed(0)}% of the side)`);
+  ok(rip > flat + .0002, `build cream t=1: the top coat is rippled frosting (height above the smooth surface spreads ${(rip * 1000).toFixed(2)} mm vs ${(flat * 1000).toFixed(2)} mm with frostTop 0; frostTop ${gc.frostTop.toFixed(2)})`);
   // dome: the top anchor rises with the dome
   const D = Float64Array.from(G); D[M.genes.findIndex(g => g[0] === 'dome')] = 1; ok(M.anchors(D).top[1] > A.top[1] + .05, 'anchors: a dome raises the top centre'); }
+{ let rows = []; for (const { id } of M.targets(REFS)) { const P = results[id][0].p.e.parts, t = REFS.cakes[id]; rows.push(`${id} tex top ${P.texTop.toFixed(1)}/${t.texture.top} side ${P.texSide.toFixed(1)}/${t.texture.side} rim ${P.rim.toFixed(1)}/${t.rimTop ? t.rimTop.energy : '-'}`); }
+  ok(M.targets(REFS).every(({ id }) => results[id][0].p.e.parts.frost > .5), 'frosting: predicted texture within reach of the measured texture for every reference (frost part > 0.5)'); console.log('      ' + rows.join('\n      ')); }
 console.log(fails ? fails + ' FAILED' : 'ALL PASS'); process.exit(fails ? 1 : 0);

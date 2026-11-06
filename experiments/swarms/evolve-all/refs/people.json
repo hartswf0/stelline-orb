@@ -61,6 +61,15 @@
    5
   ],
   "heightToTable": 1.786,
+  "heightNote": "INFERRED, the inverse of the table heightToChild (0.56)",
+  "headToHeight": 0.167,
+  "shouldersToHeight": 0.25,
+  "tiltDeg": 15,
+  "proportionNote": "INFERRED: a child of about seven is about six head-heights tall, shoulders about a quarter of the height; heads bent toward the cake about 15 degrees (the children look down at it at 155 s and 214 s)",
+  "leanDeg": 5,
+  "leanNote": "mean of the absolute screen lean of the two fully visible children at 155 s (6 and 4 degrees)",
+  "handsOnTable": 0.667,
+  "handsNote": "at 155 s two of the three children have their forearms on the table edge; the third is hidden behind the cake",
   "clothing214": [
    [
     129.4,

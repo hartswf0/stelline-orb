@@ -94,11 +94,11 @@ const flameTex = sprite([[0, 'rgba(255,252,232,1)'], [.25, 'rgba(255,206,96,.95)
 const haloTex = sprite([[0, 'rgba(255,190,110,.5)'], [.4, 'rgba(255,140,60,.12)'], [1, 'rgba(255,120,40,0)']], 64, 64);
 const stripe = (() => { const c = document.createElement('canvas'); c.width = 16; c.height = 64; const x = c.getContext('2d'); x.fillStyle = '#f2e9d6'; x.fillRect(0, 0, 16, 64); x.fillStyle = '#d4483e'; for (let y = -16; y < 80; y += 12) { x.beginPath(); x.moveTo(0, y); x.lineTo(16, y + 8); x.lineTo(16, y + 13); x.lineTo(0, y + 5); x.fill(); } const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; return t; })();
 // the writing: one canvas, icing colour underneath, 生日快乐 drawn stroke by stroke, then the flourish
-const INC = document.createElement('canvas'); INC.width = INC.height = 512; const inx = INC.getContext('2d'); const INT = new T.CanvasTexture(INC); INT.encoding = T.sRGBEncoding;
+const INC = document.createElement('canvas'); INC.width = INC.height = 512; const inx = INC.getContext('2d', { willReadFrequently: true });  /* a software canvas: uploads stay cheap */ const INT = new T.CanvasTexture(INC); INT.encoding = T.sRGBEncoding;
 const CHARS = ['生', '日', '快', '乐'], WSTEPS = 24; let icingHex = 0xeadbc0;
 // each character rendered once into its own canvas (system CJK fonts are slow to rasterise; doing it once keeps every stroke step cheap)
-const GLYPHS = CHARS.map(ch => { const c = document.createElement('canvas'); c.width = c.height = 112; const x = c.getContext('2d'); x.fillStyle = '#c4231c'; x.textAlign = 'center'; x.textBaseline = 'middle';
-  x.font = '700 84px "PingFang SC","Hiragino Sans GB","Noto Sans CJK SC","Noto Sans SC","Microsoft YaHei",sans-serif'; x.fillText(ch, 56, 58); return c; });
+const GLYPHS = CHARS.map(ch => { const c = document.createElement('canvas'); c.width = c.height = 112; const x = c.getContext('2d', { willReadFrequently: true }); x.fillStyle = '#c4231c'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.font = '700 84px "PingFang SC","Hiragino Sans GB","Noto Sans CJK SC","Noto Sans SC","Microsoft YaHei",sans-serif'; x.fillText(ch, 56, 58); x.getImageData(0, 0, 1, 1); return c; });
 function drawInscription(v) { inx.fillStyle = '#' + icingHex.toString(16).padStart(6, '0'); inx.fillRect(0, 0, 512, 512);
   // fine grain so the glaze reads as a surface
   for (let k = 0; k < 900; k++) { const x = (k * 97) % 512, y = (k * 211) % 512; inx.fillStyle = k % 2 ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.05)'; inx.fillRect(x, y, 3, 3); }
@@ -359,12 +359,13 @@ function resize() { const r = viewEl.getBoundingClientRect(); VW = r.width; VH =
   inset = VW >= 700 ? { x: VW / 2, y: 0, w: VW / 2, h: VH, split: true } : { x: VW * .6, y: VH * .52, w: VW * .4 - 6, h: VH * .48 - 6, split: false };
   naiveLab.style.left = (inset.x) + 'px'; naiveLab.style.width = (inset.w - 8) + 'px'; naiveLab.style.top = (inset.y + inset.h - 30) + 'px'; }
 addEventListener('resize', resize);
-function step(dt) { NOW += dt; runScene(); runAnims(); machine(dt); solveFrame();
+const PROF = {}; const pt = (k, f) => { const a = performance.now(); f(); PROF[k] = performance.now() - a; };
+function step(dt) { NOW += dt; pt('scene', () => { runScene(); runAnims(); }); pt('machine', () => machine(dt)); pt('solve', solveFrame);
   S.on = Math.min(1, S.on + dt / .6); S.flash = Math.max(0, S.flash - dt / .14); arcBlink -= dt; S.holdGlow = Math.max(0, (S.holdGlow || 0) - dt * 2);
   // the blow: out one by one
   if (S.blowAt && NOW > S.blowAt) { const k = Math.floor((NOW - S.blowAt) / .16); if (k + 1 > S.out && S.out < 7) { S.out = Math.min(7, k + 1); if (S.out === 7) { S.stage = STAGES.indexOf('DONE'); S.endAt = NOW; say('HAPPY BIRTHDAY'); sound({ k: 'wash', v: 1 }); TRACE.inputs.push([+NOW.toFixed(2), 'all out']); } } }
   if (S.offAt) { S.dark = clamp((NOW - S.offAt) / 1.0, 0, 1); if (S.dark >= 1 && NOW - S.offAt > 1.6) { reset(); } }
-  render(); }
+  pt('render', render); }
 function render() {
   const yaw = S.yaw * Math.PI / 180, D = .6; cam.position.set(Math.sin(yaw) * D, CY + .3, Math.cos(yaw) * D); cam.lookAt(0, CY + .035, 0);
   const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion);
@@ -407,5 +408,5 @@ function frame(now) { const dt = Math.min(.05, (now - last) / 1000); last = now;
 document.fonts && document.fonts.load('400 20px Oswald').then(() => drawDev());
 resize(); reset(); drawInscription(0);
 if (!REC) requestAnimationFrame(frame); else render();
-window.MM = { ready: () => WAVTRIED, advance: dt => { step(dt); if (S.stage > 2 && (S.dirty > 0 || S.anims)) TRACE.detail.length < 600 && TRACE.detail.push([+NOW.toFixed(2), +detailDistortion(TW[0]).toExponential(1), +detailDistortion(TW[1]).toFixed(4)]); }, press, handTurn, commit, select, renderAudio, traceOut, S, RINGS, STAGES, LAYER, tName, BANDS: () => BANDS, BTNS: () => BTNS, devRect: () => DC.getBoundingClientRect(), NOW: () => NOW, SOL, NAI, A, playScene, TW, SCRIPT };
+window.MM = { ready: () => WAVTRIED, advance: dt => { step(dt); if (S.stage > 2 && (S.dirty > 0 || S.anims)) TRACE.detail.length < 600 && TRACE.detail.push([+NOW.toFixed(2), +detailDistortion(TW[0]).toExponential(1), +detailDistortion(TW[1]).toFixed(4)]); }, press, handTurn, commit, select, renderAudio, traceOut, S, RINGS, STAGES, LAYER, tName, BANDS: () => BANDS, BTNS: () => BTNS, devRect: () => DC.getBoundingClientRect(), NOW: () => NOW, SOL, NAI, A, playScene, TW, SCRIPT, PROF };
 </script></body></html>

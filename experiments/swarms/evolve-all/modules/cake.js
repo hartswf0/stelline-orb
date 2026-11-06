@@ -16,6 +16,7 @@
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t, D2R = Math.PI / 180;
   const sst = (a, b, t) => { const x = clamp((t - a) / (b - a), 0, 1); return x * x * (3 - 2 * x); };
   const R0 = .12;                                   // body radius in scene units
+  const LAMBDA = .014;   // frosting ripple wavelength in scene units (1.4 cm); ripple amplitude = slope * LAMBDA / PI
   /* ------------------------------------------------------------------ genome: [key, group, min, max, default (= blank)] */
   const genes = [
     ['height', 'BASE', .06, .9, .06],      // body height / body diameter
@@ -26,16 +27,20 @@
     ['bevel', 'FORM', 0, .35, 0],          // rounded top edge
     ['sideL', 'SPONGE', 0, 100, 80], ['sideA', 'SPONGE', -30, 50, 3], ['sideB', 'SPONGE', -30, 80, 20],   // the side as seen (CIELAB)
     ['topL', 'ICING', 0, 100, 80], ['topA', 'ICING', -30, 50, 3], ['topB', 'ICING', -30, 80, 20],         // the icing on top as seen
+    ['frostTop', 'FROSTING', 0, 1, 0],       // frosting roughness of the top: surface slope of the ripples (0 = a smooth poured glaze)
+    ['frostSide', 'FROSTING', 0, 1, 0],       // frosting roughness of the side
     ['spread', 'ICING', 0, 1, 0],          // how far the icing runs down the side (fraction of the height); not measured
     ['fill', 'ICING', 0, 1, 0],            // filling between layers (thickness); not measured
     ['beads', 'DECORATION', 0, .6, 0],     // fraction of the side covered by beads
     ['beadL', 'DECORATION', 0, 100, 50], ['beadA', 'DECORATION', -30, 50, 0], ['beadB', 'DECORATION', -30, 80, 0],
+    ['border', 'DECORATION', 0, .4, 0],    // piped shell border round the top rim: relief (shell height / wavelength); 0 = none
+    ['foot', 'DECORATION', 0, 1, 0],       // piped border round the foot (shell size, 0 = none); not measured (the foot is in shadow in every frame)
   ];
-  const groups = ['BASE', 'FORM', 'SPONGE', 'ICING', 'DECORATION'];
+  const groups = ['BASE', 'FORM', 'SPONGE', 'ICING', 'FROSTING', 'DECORATION'];
   // a stage is passed when its measure (a key of evaluate().parts, or 'fit') reaches the threshold
-  const stages = [['BASE', 'iou', .75], ['FORM', 'iou', .82], ['SPONGE', 'side', .82], ['ICING', 'top', .85], ['DECORATION', 'beads', .75]];
-  const making = [['SET THE BOARD', 0, .08], ['SET THE SPONGE LAYERS', .08, .38], ['RAISE THE DOME', .38, .46],
-    ['POUR THE ICING', .46, .62], ['SPREAD THE ICING DOWN THE SIDE', .62, .78], ['PIPE THE BEADS', .78, 1]];
+  const stages = [['BASE', 'iou', .75], ['FORM', 'iou', .8], ['SPONGE', 'side', .82], ['ICING', 'top', .85], ['FROSTING', 'frost', .8], ['DECORATION', 'deco', .75]];
+  const making = [['SET THE BOARD', 0, .08], ['SET THE SPONGE LAYERS', .08, .36], ['RAISE THE DOME', .36, .44],
+    ['POUR THE ICING', .44, .58], ['SPREAD THE ICING DOWN THE SIDE', .58, .72], ['PIPE THE BORDERS', .72, .86], ['SET THE BEADS', .86, 1]];
   const IDX = {}; genes.forEach((g, i) => IDX[g[0]] = i);
   const named = G => { const o = {}; genes.forEach((g, i) => o[g[0]] = G[i]); return o; };
   const blank = () => Float64Array.from(genes.map(g => g[4]));
@@ -91,20 +96,29 @@
     const id = refs.target || refs.default; const t = refs.cakes[id]; if (!t) throw new Error('cake: no reference ' + id); return t; }
   function select(refs, id) { if (!refs.cakes[id]) throw new Error('cake: no reference ' + id); return Object.assign({}, refs, { target: id }); }
   const targets = refs => (refs.order || Object.keys(refs.cakes)).map(id => ({ id, t: refs.cakes[id].t, label: refs.cakes[id].label }));
-  /* ------------------------------------------------------------------ fitness: 0.4 silhouette + 0.2 top colour + 0.2 side colour + 0.2 beads */
-  const DE_SCALE = 30, W = { iou: .4, top: .2, side: .2, beads: .2 };
+  /* ------------------------------------------------------------------ fitness
+     0.3 silhouette + 0.2 top colour + 0.15 side colour + 0.1 beads + 0.15 frosting texture + 0.1 top border.
+     Texture is predicted from the genome by one shading rule: a surface whose ripples have slope s, seen at lightness L, shows a
+     band-pass lightness spread of about L * s. (Beads also add side texture in the frames; they are judged by their own term instead.) The prediction is compared with the
+     band-pass spread measured in the frame (refs texture, rimTop). The rule is not calibrated against rendered images. */
+  const DE_SCALE = 30, W = { iou: .3, top: .2, side: .15, beads: .1, frost: .15, border: .1 };
+  function predictTexture(g) {
+    return { top: g.topL * g.frostTop, side: g.sideL * g.frostSide, rim: g.topL * (.4 * g.frostTop + g.border) }; }
   function evaluate(G, refs) { const t = target(refs), g = named(G); let rm = cache.get(t); if (!rm) { rm = polyMask(t.outline); cache.set(t, rm); }
     const I = iou(maskOf(G, t.elevationDeg, t.rollDeg || 0), rm);
     const dTop = dE([g.topL, g.topA, g.topB], t.top.lab), dSide = dE([g.sideL, g.sideA, g.sideB], t.side.lab);
     const bf = t.beads.frac, dBead = t.beads.lab ? dE([g.beadL, g.beadA, g.beadB], t.beads.lab) : 0;
     const top = Math.exp(-dTop / DE_SCALE), side = Math.exp(-dSide / DE_SCALE);
-    const beads = .5 * Math.exp(-Math.abs(g.beads - bf) / .05) + .5 * Math.exp(-dBead / DE_SCALE);
-    const fit = W.iou * I + W.top * top + W.side * side + W.beads * beads;
-    return { fit, parts: { iou: I, top, side, beads, dETop: dTop, dESide: dSide, dEBead: dBead, beadFrac: g.beads } }; }
+    const beads = Math.sqrt(Math.exp(-Math.abs(g.beads - bf) / .05) * Math.exp(-dBead / DE_SCALE));   // geometric mean: neither the share nor the colour can be ignored
+    const P = predictTexture(g), tx = t.texture || {}, dT = tx.top != null ? Math.abs(P.top - tx.top) : 0, dS = tx.side != null ? Math.abs(P.side - tx.side) : 0;
+    const frost = Math.exp(-(dT + dS) / 5), border = t.rimTop ? Math.exp(-Math.abs(P.rim - t.rimTop.energy) / 3) : 1;
+    const fit = W.iou * I + W.top * top + W.side * side + W.beads * beads + W.frost * frost + W.border * border;
+    return { fit, parts: { iou: I, top, side, beads, frost, border, deco: .6 * beads + .4 * border,
+      dETop: dTop, dESide: dSide, dEBead: dBead, beadFrac: g.beads, texTop: P.top, texSide: P.side, rim: P.rim } }; }
   /* ------------------------------------------------------------------ anchors (scene units; origin = centre of the underside) */
   function anchors(G) { const s = shape(G), k = R0 / s.R, ty = surfaceY(s, 0) * k, o = {
       base: [0, 0, 0], baseRim: [s.Rb * k, 0, 0], bodyBase: [0, s.y0 * k, 0], bodyRim: [s.R * k, s.y0 * k, 0],
-      top: [0, ty, 0], widest: [Math.max(s.Rb, s.R, s.rt) * k, 0, 0], rim: [s.rr * k, s.yTop * k, 0], edge: [s.rt * k, (s.yTop - s.bev) * k, 0] };
+      top: [0, ty, 0], widest: [Math.max(s.Rb, s.R, s.rt) * k + s.g.frostSide * LAMBDA / Math.PI, 0, 0], rim: [s.rr * k, s.yTop * k, 0], edge: [s.rt * k, (s.yTop - s.bev) * k, 0] };
     const ri = .3 * s.rr; o.inscription = [0, surfaceY(s, ri) * k, ri * k];                     // toward the viewer (+z), the inscription's centre
     const rc = .62 * s.rr; for (let i = 0; i < 7; i++) { const a = Math.PI + (i - 3) * (2 * Math.PI / 7); o['candle' + i] = [Math.sin(a) * rc * k, surfaceY(s, rc) * k, Math.cos(a) * rc * k]; }
     return o; }
@@ -112,48 +126,70 @@
   const stepAt = t => { for (const m of making) if (t < m[2]) return m[0]; return making[making.length - 1][0]; };
   /* ------------------------------------------------------------------ the making on screen */
   function hashf(i) { let h = Math.imul(i + 1, 2654435761) ^ 0x5bd1e995; h = Math.imul(h ^ h >>> 15, 2246822519); h ^= h >>> 13; return ((h >>> 0) % 100000) / 100000; }
+  // frosting ripples: a fixed sum of waves, periodic round the cake; v in scene units (height on the side, radius on the top); value about -1..1
+  const RIP = [[9, 140], [17, 230], [29, 90], [41, 310], [6, 420]].map(([n, m], i) => [n, m, hashf(i + 31) * 6.283]);
+  const ripple = (a, v) => { let z = 0; for (const [n, m, ph] of RIP) z += Math.sin(a * n + v * m + ph); return z / 2.2; };
   function build(THREE, G, opts) { opts = opts || {}; const T = THREE, s = shape(G), g = s.g, k = R0 / s.R, grp = new T.Group(); grp.name = 'cake';
     const C = colours(G), tint = opts.tint || [1, 1, 1], lin = opts.linear !== false;
     // colours are as seen in the film (already under its warm candle light and grade). With an sRGB-encoded renderer the sRGB value is
     // converted to linear here; opts.tint (sRGB fractions of the scene light's colour) divides that light back out so a warm scene light does not warm the icing twice.
-    const col = c => { const k = new T.Color(clamp(c[0] / 255 / tint[0], 0, 1), clamp(c[1] / 255 / tint[1], 0, 1), clamp(c[2] / 255 / tint[2], 0, 1)); return lin && k.convertSRGBToLinear ? k.convertSRGBToLinear() : k; }, mat = (c, rough) => new T.MeshStandardMaterial({ color: col(c), roughness: rough, metalness: 0, side: T.DoubleSide });
-    const sponge = mat(C.side, .9), icing = mat(C.top, .55), beadM = mat(C.bead, .4), boardM = new T.MeshStandardMaterial({ color: new T.Color(.08, .07, .06), roughness: .6 });
-    const lathe = (pts, m) => new T.Mesh(new T.LatheGeometry(pts.map(p => new T.Vector2(Math.max(1e-5, p[0]) * k, p[1] * k)), 48), m);
-    const parts = { board: null, layers: [], fills: [], dome: null, pour: null, topIcing: null, sideIcing: null, beads: null };
+    const col = c => { const q = new T.Color(clamp(c[0] / 255 / tint[0], 0, 1), clamp(c[1] / 255 / tint[1], 0, 1), clamp(c[2] / 255 / tint[2], 0, 1)); return lin && q.convertSRGBToLinear ? q.convertSRGBToLinear() : q; };
+    const mat = (c, rough) => new T.MeshStandardMaterial({ color: col(c), roughness: rough, metalness: 0, side: T.DoubleSide });
+    const sponge = mat(C.side, .9), icing = mat(C.top, .5), beadM = mat(C.bead, .35), boardM = new T.MeshStandardMaterial({ color: new T.Color(.08, .07, .06), roughness: .6 });
+    const ampTop = g.frostTop * LAMBDA / Math.PI, ampSide = g.frostSide * LAMBDA / Math.PI;
+    // a lathe mesh; disp(a, x, y) -> [dr, dy] in scene units moves each vertex (radially / vertically) for the frosting
+    function lathe(pts, m, disp, seg) { const geo = new T.LatheGeometry(pts.map(p => new T.Vector2(Math.max(1e-5, p[0]) * k, p[1] * k)), seg || 64);
+      if (disp) { const P = geo.attributes.position; for (let i = 0; i < P.count; i++) { const x = P.getX(i), y = P.getY(i), z = P.getZ(i), r = Math.hypot(x, z); if (r < 1e-6) continue;
+          const a = Math.atan2(x, z), [dr, dy] = disp(a, r, y), f = (r + dr) / r; P.setXYZ(i, x * f, y + dy, z * f); } geo.computeVertexNormals(); }
+      return new T.Mesh(geo, m); }
+    const sideDisp = (a, r, y) => [ampSide * ripple(a, y), 0];
+    const topDisp = (a, r, y) => [0, ampTop * (.5 + .5 * ripple(a, r))];   // ripples stand up from the coat
+    const parts = { board: null, layers: [], fills: [], dome: null, pour: null, beads: null, shells: null, foot: null };
     // board
     if (s.hb > 1e-4) { parts.board = lathe([[0, 0], [s.Rb, 0], [s.Rb, s.hb], [0, s.hb]], boardM); grp.add(parts.board); }
-    // sponge layers (each a band of the tapered side with a flat lid), filling discs between them
-    const L = s.layers, bodyTop = s.yTop - s.bev, rAt = y => lerp(s.R, s.rt, (y - s.y0) / s.H);
-    for (let i = 0; i < L; i++) { const ya = s.y0 + s.H * i / L, yb = i === L - 1 ? bodyTop : s.y0 + s.H * (i + 1) / L, pts = [[0, ya], [rAt(ya), ya], [rAt(yb), yb]];
-      if (i === L - 1) for (let q = 1; q <= 5; q++) { const a = q / 5 * Math.PI / 2; pts.push([s.rr + s.bev * Math.cos(a), s.yTop - s.bev + s.bev * Math.sin(a)]); }
-      pts.push([0, i === L - 1 ? s.yTop : yb]); const m = lathe(pts, sponge); m.userData.rest = 0; parts.layers.push(m); grp.add(m);
-      if (i < L - 1 && g.fill > .02) { const th = (.004 + .02 * g.fill), yf = yb; const f = lathe([[0, yf - th / 2], [rAt(yf) + .004, yf - th / 2], [rAt(yf) + .004, yf + th / 2], [0, yf + th / 2]], icing); parts.fills.push(f); grp.add(f); } }
-    if (s.D > 1e-3) { const pts = []; for (let q = 0; q <= 10; q++) { const a = q / 10 * Math.PI / 2; pts.push([s.rr * Math.cos(a), s.yTop + s.D * Math.sin(a)]); } pts[0] = [s.rr, s.yTop]; parts.dome = lathe(pts, sponge); grp.add(parts.dome); }
+    // sponge layers (each a band of the tapered side with a flat lid), filling discs between them; the side carries the side frosting
+    const NL = s.layers, bodyTop = s.yTop - s.bev, rAt = y => lerp(s.R, s.rt, (y - s.y0) / s.H);
+    for (let i = 0; i < NL; i++) { const ya = s.y0 + s.H * i / NL, yb = i === NL - 1 ? bodyTop : s.y0 + s.H * (i + 1) / NL, pts = [[0, ya], [rAt(ya), ya]];
+      for (let q = 1; q <= 10; q++) { const y = lerp(ya, yb, q / 10); pts.push([rAt(y), y]); }
+      if (i === NL - 1) for (let q = 1; q <= 5; q++) { const a = q / 5 * Math.PI / 2; pts.push([s.rr + s.bev * Math.cos(a), s.yTop - s.bev + s.bev * Math.sin(a)]); }
+      pts.push([0, i === NL - 1 ? s.yTop : yb]); const m = lathe(pts, sponge, (a, r, y) => r > (s.rr - .01) * k ? sideDisp(a, r, y) : [0, 0], 96); parts.layers.push(m); grp.add(m);
+      if (i < NL - 1 && g.fill > .02) { const th = (.004 + .02 * g.fill), yf = yb; const f = lathe([[0, yf - th / 2], [rAt(yf) + .004, yf - th / 2], [rAt(yf) + .004, yf + th / 2], [0, yf + th / 2]], icing); parts.fills.push(f); grp.add(f); } }
+    if (s.D > 1e-3) { const pts = []; for (let q = 0; q <= 12; q++) { const a = q / 12 * Math.PI / 2; pts.push([s.rr * Math.cos(a), s.yTop + s.D * Math.sin(a)]); } parts.dome = lathe(pts, sponge, null, 64); grp.add(parts.dome); }
     // icing: a pour column, the top coat (rebuilt as it spreads), the side coat (rebuilt as it runs down)
     parts.pour = new T.Mesh(new T.CylinderGeometry(.006, .006, 1, 12), icing); grp.add(parts.pour);
     const top = new T.Group(); grp.add(top); const side = new T.Group(); grp.add(side);
     const coat = .003 / k;   // icing thickness in profile units
-    function topCoat(p) { top.clear(); if (p <= 0) return; const rmax = s.rt * p, pts = []; for (let q = 0; q <= 14; q++) { const r = rmax * (1 - q / 14); pts.push([r, surfaceY(s, Math.min(r, s.rt)) + coat]); }
-      pts[0] = [rmax, surfaceY(s, Math.min(rmax, s.rt)) + coat * .3]; top.add(lathe(pts, icing)); }
-    function sideCoat(p) { side.clear(); const depth = g.spread * s.H * p; if (depth < 1e-3) return; const ya = s.yTop - s.bev - depth, pts = [];
-      for (let q = 0; q <= 6; q++) { const y = lerp(ya, s.yTop - s.bev, q / 6); pts.push([rAt(clamp(y, s.y0, s.yTop)) + coat, y]); } side.add(lathe(pts, icing)); }
-    // beads: around the foot, around the top rim, then scattered on the side; piped one by one
-    const nb = Math.round(g.beads * 160); if (nb > 0) { const geo = new T.SphereGeometry(.0045, 8, 6); parts.beads = new T.InstancedMesh(geo, beadM, nb); parts.beads.userData.pos = [];
-      for (let i = 0; i < nb; i++) { let a, y, r; const ring = i % 3; if (ring === 0) { a = i / nb * 6 * Math.PI; y = s.y0 + .012 / k * 0 + .02; r = rAt(y); }
-        else if (ring === 1) { a = i / nb * 6 * Math.PI + .5; y = s.yTop - s.bev - .02; r = rAt(y); }
-        else { a = hashf(i) * Math.PI * 2; y = s.y0 + (.1 + .8 * hashf(i + 977)) * s.H; r = rAt(y); }
-        parts.beads.userData.pos.push([Math.sin(a) * (r + .004) * k, y * k, Math.cos(a) * (r + .004) * k]); }
+    const drop = o => o.traverse(m => { if (m.geometry) m.geometry.dispose(); });
+    function topCoat(p) { drop(top); top.clear(); if (p <= 0) return; const rmax = s.rt * p, pts = []; for (let q = 0; q <= 22; q++) { const r = rmax * (1 - q / 22); pts.push([r, surfaceY(s, Math.min(r, s.rt)) + coat]); }
+      pts[0] = [rmax, surfaceY(s, Math.min(rmax, s.rt)) + coat * .3]; top.add(lathe(pts, icing, topDisp, 96)); }
+    function sideCoat(p) { drop(side); side.clear(); const depth = g.spread * s.H * p; if (depth < 1e-3) return; const ya = s.yTop - s.bev - depth, pts = [];
+      for (let q = 0; q <= 16; q++) { const y = lerp(ya, s.yTop - s.bev, q / 16); pts.push([rAt(clamp(y, s.y0, s.yTop)) + coat, y]); } side.add(lathe(pts, icing, sideDisp, 96)); }
+    const m4 = new T.Matrix4(), q4 = new T.Quaternion(), v3 = new T.Vector3(), up = new T.Vector3(0, 1, 0);
+    // piped shells: elongated drops laid tangent to a ring (real geometry, icing colour)
+    function shellRing(r, y, spacing, len, hgt, wid) { const n = Math.max(8, Math.round(2 * Math.PI * r / spacing)), im = new T.InstancedMesh(new T.SphereGeometry(1, 10, 8), icing, n); im.userData.place = [];
+      for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2; im.userData.place.push({ a, x: Math.sin(a) * r, y, z: Math.cos(a) * r, sx: wid, sy: hgt, sz: len }); } return im; }
+    if (g.border > .005) { const sp = .009, h = clamp(g.border * sp * 1.2, .0012, .006); parts.shells = shellRing((s.rt - s.bev * .35) * k, s.yTop * k + coat * k * .5, sp, sp * .62, h, .0042); grp.add(parts.shells); }
+    if (g.foot > .05) { const sp = .01, sz = .0025 + .004 * g.foot; parts.foot = shellRing(s.R * k + sz * .5, s.y0 * k + sz * .6, sp, sp * .6, sz * .8, sz); grp.add(parts.foot); }
+    // beads: around the foot, around the top rim, then scattered on the side; set one by one
+    const sideArea = 2 * Math.PI * (s.R + s.rt) / 2 * k * s.H * k, nb = Math.round(g.beads * sideArea / (Math.PI * .0045 * .0045));   /* bead count from the covered share of the side */ if (nb > 0) { parts.beads = new T.InstancedMesh(new T.SphereGeometry(.0045, 8, 6), beadM, nb); parts.beads.userData.pos = [];
+      for (let i = 0; i < nb; i++) { let a, y; const ring = i % 3; if (ring === 0) { a = i / nb * 6 * Math.PI; y = s.y0 + .02; }
+        else if (ring === 1) { a = i / nb * 6 * Math.PI + .5; y = s.yTop - s.bev - .02; }
+        else { a = hashf(i) * Math.PI * 2; y = s.y0 + (.1 + .8 * hashf(i + 977)) * s.H; } const r = rAt(y) * k + .004 + ampSide;
+        parts.beads.userData.pos.push([Math.sin(a) * r, y * k, Math.cos(a) * r]); }
       grp.add(parts.beads); }
-    const m4 = new T.Matrix4();
+    function showShells(im, u) { if (!im) return; const n = im.count, show = Math.floor(n * u + 1e-9); im.visible = show > 0;
+      for (let i = 0; i < n; i++) { const p = im.userData.place[i], f = i < show ? 1 : 0; q4.setFromAxisAngle(up, p.a + Math.PI / 2); m4.compose(v3.set(p.x, p.y, p.z), q4, new T.Vector3(p.sx * f + 1e-6, p.sy * f + 1e-6, p.sz * f + 1e-6)); im.setMatrixAt(i, m4); }
+      im.instanceMatrix.needsUpdate = true; }
     function setT(t) { t = clamp(t, 0, 1); grp.userData.t = t; grp.userData.step = stepAt(t);
       if (parts.board) { const u = sst(0, .08, t); parts.board.visible = u > 0; parts.board.position.y = (1 - u) * .05; parts.board.scale.set(.6 + .4 * u, 1, .6 + .4 * u); }
-      const lw = .30 / L; parts.layers.forEach((m, i) => { const a = .08 + i * lw, u = sst(a, a + lw, t); m.visible = u > 0; m.position.y = (1 - u) * .12; });   // dropped in from above, settles
+      const lw = .28 / NL; parts.layers.forEach((m, i) => { const a = .08 + i * lw, u = sst(a, a + lw, t); m.visible = u > 0; m.position.y = (1 - u) * .12; });   // dropped in from above, settles
       parts.fills.forEach((f, i) => { const a = .08 + (i + 1) * lw, u = sst(a - lw * .5, a, t); f.visible = u > 0; f.scale.set(.3 + .7 * u, 1, .3 + .7 * u); });
-      if (parts.dome) { const u = sst(.38, .46, t); parts.dome.visible = u > 0; const y0 = s.yTop * k; parts.dome.scale.y = Math.max(.01, u); parts.dome.position.y = y0 * (1 - Math.max(.01, u)); }
-      const pu = sst(.46, .62, t); const pourOn = t > .46 && t < .62; parts.pour.visible = pourOn;
+      if (parts.dome) { const u = Math.max(.01, sst(.36, .44, t)); parts.dome.visible = t > .36; parts.dome.scale.y = u; parts.dome.position.y = s.yTop * k * (1 - u); }
+      const pu = sst(.44, .58, t), pourOn = t > .44 && t < .58; parts.pour.visible = pourOn;
       if (pourOn) { const yb = topY(G, 0), len = .25 * (1 - .6 * pu); parts.pour.scale.set(1, len, 1); parts.pour.position.y = yb + len / 2; }
-      topCoat(pu); sideCoat(sst(.62, .78, t));
-      if (parts.beads) { const n = parts.beads.count, show = Math.floor(n * sst(.78, 1, t) + 1e-9);
+      if (grp.userData.pu !== pu) { topCoat(pu); grp.userData.pu = pu; } const su = sst(.58, .72, t); if (grp.userData.su !== su) { sideCoat(su); grp.userData.su = su; }
+      showShells(parts.shells, sst(.72, .8, t)); showShells(parts.foot, sst(.8, .86, t));
+      if (parts.beads) { const n = parts.beads.count, show = Math.floor(n * sst(.86, 1, t) + 1e-9); parts.beads.visible = show > 0;
         for (let i = 0; i < n; i++) { const p = parts.beads.userData.pos[i], sc = i < show ? 1 : 0; m4.makeScale(sc, sc, sc).setPosition(p[0], p[1], p[2]); parts.beads.setMatrixAt(i, m4); }
         parts.beads.instanceMatrix.needsUpdate = true; } }
     grp.userData.setT = setT; grp.userData.anchors = anchors(G); grp.userData.making = making; setT(opts.t == null ? 1 : opts.t); return grp; }

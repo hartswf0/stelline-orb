@@ -49,16 +49,22 @@ knurl, triangle rings; SELECT; HOLD; info), redrawn with this game's roles. Labe
 ## Measured (labels: MEASURED = computed by code in this folder on this date; VIEWED = I looked at frames; NOT RUN)
 
 MEASURED, `node tests.js` (all transitions in the grammar, under all four pacings, every step):
-see `tests-result.json`. At the time of writing: 3544 passed, 0 failed. 11 morph transitions and 20 cut transitions.
+see `tests-result.json`. At the time of writing: 3555 passed, 0 failed (including the trace checks). 11 morph transitions and 20 cut transitions.
 0 flipped faces, 0 profile self-intersections (tolerance 0), smallest profile area 3.3e-3 m^2 (orientation never inverts).
 Worst volume change in one step 9.7% of the larger form (DOUGH > DOMED SPONGE, EVEN), limit 16%.
 Worst candle anchor move in one morph step 5.49 mm, limit 6 mm. Largest candle jump at a cut 17.4 mm (drum to dome),
 settled over 6 frames, 2.9 mm a frame. Identity proxy: under LINGER, a quarter of the way through its steps the surface has
 moved 0 to 1.7% of the way to the next key (mean vertex distance); this is a proxy only.
 
-MEASURED, the proof run (`trace.json`, `render.js`): RESULTS_PLACEHOLDER
+MEASURED, the proof run (`trace.json`, `render.js`): proof.mp4 is 29.97 s, 540 x 960, 30 fps, AAC sound
+(mean -20.6 dB, peak -1.0 dB). Path NOTHING > DOUGH > SPONGE DISC > LAYERED > ICED > MINT > RED-ORANGE (hard cut at 14.93 s) >
+BROWN DOME (silver decay at 17.23 s), then 7 candles (19.1 to 20.6 s), 24 inscription steps (21.7 to 23.5 s), the match and
+7 lit (24.4 to 26.0 s), the blow (26.6 s), 7 out by 27.8 s. 151 machine steps: 139 at 11.8/s, 12 at 23.6/s (the hand ran more
+than 6 ahead). 62 morph steps: 0 flips, 0 crossings, worst volume step 8.7%. Soundtrack: 302 grains cut from the real device
+recording, 136 synthesized making sounds. The per-frame candle move in the proof is 0 mm, but that measure is empty here: the
+candles are placed after the last change of form, so the proof never carries candles through a morph or a cut (the tests do).
 
-VIEWED: contact sheets of the scene at 1 to 29 s (scratch, not kept). The dough, the striped layers, the iced drum, mint with
+VIEWED: contact sheets of proof.mp4 every 1.5 s and at 5 fps through dough to sponge (scratch, not kept). The dough, the striped layers, the iced drum, mint with
 beads, red-orange, the brown dome with 生日快乐 legible from the default kneel, the candles lit, out.
 
 NOT RUN: the independent critic. This builder had no Agent tool; the coordinator runs it.
@@ -92,6 +98,11 @@ the next, and whether the rising and pouring fields read as making rather than a
 - The table was flooded by the candle light; light lowered and the table darkened toward the true-black dome.
 
 ## What is weak
+
+- The dough is pale cream on a pale board; in the proof it reads as a soft lump but with little contrast.
+- The silver decay flash whitens everything the memory draws (table and board too), so at 17.2 s the whole lower frame
+  goes grey for about 4 frames. Whether that reads as the film's decay or as a glitch is for the critic.
+- The proof never carries the candles through a change of form (see Measured), though the game allows it.
 
 - The brown dome, the film's chosen cake, is reached in the proof by a cut from red-orange (as in the film), not by
   metamorphosis; a player can reach it by morph (DOMED SPONGE or ICED to BROWN DOME), but the proof does not show that path.
