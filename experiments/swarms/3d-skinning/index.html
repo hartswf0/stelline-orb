@@ -97,7 +97,7 @@ const rim = new T.DirectionalLight(0x9fb4c8, .18); rim.position.set(-1.5, 2, -2)
 const candleLight = new T.PointLight(0xffa04a, 0, 2.6, 1.6); scene.add(candleLight);
 // the shared memory look (experiments/swarms/shared/look.js): grade, key and candle light, spot screen, bloom, grain, depth of field. ?plain=1 keeps this page's own lights.
 const LK = window.LOOK && !Q.has('plain') ? LOOK.apply(R, scene, cam, { target: V(0, .64, 0), room: false, shadows: false }) : null;
-if (LK) { key.visible = false; hemi.visible = false; candleLight.visible = false; rim.intensity = .06; }
+if (LK) { key.visible = false; hemi.visible = false; candleLight.visible = false; rim.intensity = .06; LK.set({ keyIntensity: 1.25 }); } // the genome's key (2.4) was tuned for a lone cake; four lit children at 1.2 m burned out to orange
 const tex = (w, h, fn) => { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; return t; };
 const spotTex = tex(128, 128, (x, w) => { const g = x.createRadialGradient(64, 64, 2, 64, 64, 63); g.addColorStop(0, 'rgba(255,236,206,.55)'); g.addColorStop(.55, 'rgba(255,220,180,.22)'); g.addColorStop(.86, 'rgba(255,214,170,.1)'); g.addColorStop(.97, 'rgba(255,230,200,.3)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, w, w); });
 function memorySpot(r) { const m = new T.Mesh(new T.CircleGeometry(r, 64), new T.MeshBasicMaterial({ map: spotTex, transparent: true, blending: T.AdditiveBlending, depthWrite: false, opacity: 0 })); m.rotation.x = -PI / 2; m.position.y = .004; scene.add(m); return m; }

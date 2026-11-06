@@ -50,7 +50,7 @@ const HUD = document.createElement('canvas'); viewEl.append(HUD); const hx = HUD
 const scene = new T.Scene(); scene.background = new T.Color(0x030404); scene.fog = new T.FogExp2(0x030404, .07);
 const cam = new T.PerspectiveCamera(30, 1, .02, 60);
 /* the memory's look (shared/look.js): dark dome, band of light, key, candle light, grade, bloom, grain, spot screen */
-const LK = LOOK.apply(R, scene, cam, { target: new T.Vector3(0, GEO.plateY + .06, 0), room: true });
+const LITE = /lite/.test(location.search), LK = LOOK.apply(R, scene, cam, { target: new T.Vector3(0, GEO.plateY + .06, 0), room: true, post: !LITE && !/nopost/.test(location.search), shadows: !LITE && !/noshadow/.test(location.search) });
 /* ============================================================ ONE CAKE PER PRESET (same hand, own physics) */
 const stripe = (() => { const c = document.createElement('canvas'); c.width = 16; c.height = 64; const x = c.getContext('2d'); x.fillStyle = '#f2e9d6'; x.fillRect(0, 0, 16, 64); x.fillStyle = '#d4483e'; for (let y = -16; y < 80; y += 12) { x.beginPath(); x.moveTo(0, y); x.lineTo(16, y + 8); x.lineTo(16, y + 13); x.lineTo(0, y + 5); x.fill(); } const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; return t; })();
 const radial = (stops, w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'), g = x.createRadialGradient(w / 2, h * .62, 1, w / 2, h * .55, h * .45); stops.forEach(([o, s]) => g.addColorStop(o, s)); x.fillStyle = g; x.fillRect(0, 0, w, h); return new T.CanvasTexture(c); };

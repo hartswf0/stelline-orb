@@ -199,11 +199,21 @@
   V.propose = (w, st, raw) => {
     const inner = raw.replace(/^\s*\S+\s*/, ''); if (!inner) return E('propose <command>, e.g. propose candles 7');
     let note = ''; const m = inner.match(/^(.*?)\s+(?:--|because)\s+(.*)$/); const body = m ? m[1] : inner; if (m) note = m[2];
-    const r = one(body, st); if (r.error) return r; if (!isOp(r) && !Array.isArray(r)) return E('only changes can be proposed');
+    const r = parse(body, st); if (r.error) return r; if (!isOp(r) && !Array.isArray(r)) return E('only changes can be proposed');
     const list = Array.isArray(r) ? r : [r];
     for (const o of list) if (['propose', 'accept', 'reject', 'amend', 'undo', 'redo', 'snapshot', 'load', 'reset'].includes(o.op)) return E(o.op + ' cannot be proposed');
     // several ops become several ghosts (the core proposes one op at a time)
-    return list.map(o => ({ op: 'propose', args: { op: o.op, args: o.args, note: note || body } })); };
+    let stage = st ? st.cake.stage : 0;
+    return list.map(turnable).flat().map(o => ({ op: 'propose', args: { op: o.op, args: o.args, note: note || body } }));
+    // a ghost the person can turn: the device's rings amend pending 'set' proposals on the path they work, so camera,
+    // making and scene changes are proposed as plain sets (turn becomes the absolute yaw it would reach)
+    function turnable(o) { const a = o.args || {};
+      if (o.op === 'camera') { const out = [];
+        if (a.turn != null) { let y = (st ? st.camera.yaw : 0) + a.turn; y = ((y + 180) % 360 + 360) % 360 - 180; out.push(set('camera.yaw', y)); }
+        for (const k of ['yaw', 'kneel', 'focus']) if (a[k] != null) out.push(set('camera.' + k, a[k])); return out; }
+      if (o.op === 'make') { stage = a.to != null ? a.to : Math.min(4, stage + 1); return [set('cake.stage', stage)]; }
+      if (o.op === 'look') return ['look', 'place', 'light'].filter(k => a[k] != null).map(k => set('scene.' + k, a[k]));
+      return [o]; } };
   V.set = (w, st, raw) => { const path = w[0]; if (!path || w.length < 2) return E('set <path> <value>, e.g. set camera.yaw 30');
     const v = raw.replace(/^\s*\S+\s+\S+\s*/, ''); return set(path, isNum(v) ? num(v) : v); };
   V.nudge = w => { if (!w[0] || !isNum(w[1])) return E('nudge <path> <by>, e.g. nudge cake.tilt 1'); return { op: 'nudge', args: { path: w[0], by: num(w[1]) } }; };
@@ -234,6 +244,7 @@
 
   // parse a line (possibly several commands separated by ';' or newlines)
   function parse(line, state) {
+    if (/^\s*(propose|suggest)\s/i.test(String(line))) return one(String(line).replace(/\n/g, ';'), state);   // 'propose a; b' proposes both
     const parts = String(line == null ? '' : line).split(/[;\n]/).map(s => s.trim()).filter(s => s && !s.startsWith('#') && !s.startsWith('//'));
     if (!parts.length) return E('empty line. Type help for the commands.');
     if (parts.length === 1) return one(parts[0], state);

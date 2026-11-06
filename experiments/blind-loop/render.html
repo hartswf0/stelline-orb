@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blind loop render</title>
+<style>html, body { margin: 0; background: #000; overflow: hidden; } canvas { display: block; }</style>
+</head>
+<body>
+<!-- One candidate of the blind loop, rendered at the film's framing (shot A ~146 s, shot B ~152-155 s) at 1280x720.
+     Built with the EVOLVE-ALL modules (cake, candles, inscription, table) and the shared look (swarms/shared/look.js).
+     render.js calls window.go(candidate) and screenshots the canvas. No film pixels on this page. -->
+<script src="../../ana/assets/three.min.js"></script>
+<script src="../swarms/shared/look.js"></script>
+<script src="../swarms/evolve-all/ui/relations.js"></script>
+<script src="../swarms/evolve-all/modules/cake.js"></script>
+<script src="../swarms/evolve-all/modules/candles.js"></script>
+<script src="../swarms/evolve-all/modules/inscription.js"></script>
+<script src="../swarms/evolve-all/modules/table.js"></script>
+<script>
+'use strict';
+const T = THREE, M = window.EVOMOD, W = 1280, H = 720;
+async function json(u) { const r = await fetch(u); return r.json(); }
+function vec(mod, o) { return Float64Array.from(mod.genes.map(g => o && o[g[0]] != null ? o[g[0]] : g[4])); }
+const BASE = {   // the framings in swarms/shared/look-test.html, set to land the cake where the film has it
+  A: { cam: [0.0, 1.235, 1.065], look: [0.215, 0.675, 0.0], fov: 30 },
+  B: { cam: [0.0, 0.735, 1.38], look: [-0.015, 0.665, 0.0], fov: 30 } };
+window.go = async function (C) {
+  const S = C.scene, refs = {};
+  for (const n of ['cake', 'candles', 'inscription', 'table']) refs[n] = await json('../swarms/evolve-all/refs/' + n + '.json');
+  refs.cake.target = S.shot === 'A' ? 'cream' : 'cream_table';
+  const R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); R.setPixelRatio(1); document.body.append(R.domElement);
+  const scene = new T.Scene(), cam = new T.PerspectiveCamera(30, W / H, 0.02, 40);
+  const P = {}; for (const n of ['cake', 'candles', 'inscription', 'table']) P[n] = { mod: M[n], G: vec(M[n], C[n]) };
+  // table
+  const tableTopY = S.shot === 'B' ? (REL.findA(M.table.anchors(P.table.G), ['topCentre']) || [0, 0.5, 0])[1] : 0.5;
+  if (S.shot === 'B') { const t = M.table.build(T, P.table.G, { t: 1 }); scene.add(t); }
+  // the cake: on the table (B) or in the air, tilted toward her (A)
+  const cakeHolder = new T.Group(); scene.add(cakeHolder);
+  const tint = [S.tintR, S.tintG, S.tintB];
+  const cake = M.cake.build(T, P.cake.G, { t: 1, tint, refs: refs.cake }); cakeHolder.add(cake);
+  cake.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+  const sup = REL.supportInfo('cake', M.cake, P.cake.G), A = M.cake.anchors(P.cake.G);
+  const topA = REL.findA(A, ['top']) || [0, 0.1, 0], insA = REL.findA(A, ['inscription']) || topA;
+  const ins = M.inscription.build(T, P.inscription.G, { t: 1, support: sup, refs: refs.inscription });
+  const ownI = REL.findA(M.inscription.anchors(P.inscription.G, { support: sup }), ['base']) || [0, 0, 0];
+  ins.position.set(insA[0] - ownI[0], insA[1] - ownI[1], insA[2] - ownI[2]); cake.add(ins);
+  const cand = M.candles.build(T, P.candles.G, { t: 1, support: sup, refs: refs.candles, time: S.time, blown: 0, light: false });
+  const ownC = REL.findA(M.candles.anchors(P.candles.G, { support: sup }), ['base']) || [0, 0, 0];
+  cand.position.set(topA[0] - ownC[0], topA[1] - ownC[1], topA[2] - ownC[2]); cake.add(cand);
+  cand.traverse(o => { if (o.isMesh && !(o.userData && o.userData.flame)) o.castShadow = true; if (S.modFlame < 0.5 && (/flame|halo/i.test(o.name || '') || (o.userData && o.userData.flame))) o.visible = false; });
+  // LOOK flame sprites at the wicks (they bloom)
+  const wa = M.candles.anchors(P.candles.G, { support: sup }), flames = [];
+  for (let k = 0; k < 12; k++) { const w = wa['wick' + k]; if (!w) continue; const p = new T.Vector3(w[0] + cand.position.x, w[1] + cand.position.y, w[2] + cand.position.z);
+    const f = new T.Sprite(LOOK.material('flame')); f.scale.set(0.011 * S.flameW, 0.022 * S.flameH, 1); f.position.copy(p).add(new T.Vector3(0, 0.009 * S.flameH, 0)); cake.add(f);
+    const hl = new T.Sprite(LOOK.material('halo')); hl.scale.set(0.05 * S.halo, 0.05 * S.halo, 1); hl.position.copy(f.position); cake.add(hl); flames.push(f); }
+  // pose
+  const r0 = 0.12;
+  if (S.shot === 'A') { cakeHolder.position.set(S.cx, 0.5 + S.lift, S.cz); cakeHolder.rotation.set(S.tiltX, S.yaw, S.tiltZ, 'YXZ'); cakeHolder.scale.setScalar(S.scale); }
+  else { cakeHolder.position.set(S.cx, tableTopY, S.cz); cakeHolder.rotation.set(0, S.yaw, 0); cakeHolder.scale.setScalar(S.scale); }
+  // camera
+  const b = BASE[S.shot], dy = S.shot === 'B' ? tableTopY - 0.5 : 0;
+  cam.position.set(b.cam[0] + S.camX, b.cam[1] + S.camY + dy, b.cam[2] + S.camZ); cam.fov = b.fov * S.fov; cam.updateProjectionMatrix();
+  cam.lookAt(new T.Vector3(b.look[0] + S.lookX, b.look[1] + S.lookY + dy, b.look[2]));
+  // the look
+  const target = cakeHolder.position.clone().add(new T.Vector3(0, 0.08, 0));
+  const Hd = LOOK.apply(R, scene, cam, { target, room: S.room > 0.5, genome: C.look });
+  if (Hd.room) Hd.room.position.y = S.bandY;
+  Hd.setSize(W, H); Hd.setCandles(flames); Hd.focus(target.clone().add(new T.Vector3(0, 0.03, 0)));
+  for (let i = 0; i < 3; i++) Hd.render(0.016, true);
+  return true;
+};
+window.READY = true;
+</script>
+</body>
+</html>
