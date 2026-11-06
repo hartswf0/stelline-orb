@@ -10,7 +10,7 @@ strength of 0.15 (target `cream`, seed 9). That was one run, made by hand.
 ```
 EVOMOD.cake / require('modules/cake.js')
 name 'cake'
-genes   21 genes [key, group, min, max, default]; the defaults are the blank genome
+genes   22 genes [key, group, min, max, default]; the defaults are the blank genome
 groups  BASE FORM SPONGE ICING FROSTING DECORATION
 stages  BASE shape>=0.5 | FORM shape>=0.7 | SPONGE side>=0.82 | ICING top>=0.85 | FROSTING frost>=0.8 | DECORATION deco>=0.75
 blank() -> Float64Array (a flat disc of raw dough, 6% as tall as it is wide)
@@ -95,7 +95,7 @@ The test player is a copy of the elitist (1+8) breeder. It works one stage at a 
 seeds pass.
 
 Final whole-match fit on seed 3125 is 0.85 to 0.89. Silhouette IoU is 0.80 (yellow_sponge) to 0.97 (chocolate_orange).
-Top dE is 2.3 to 4.7 and side dE is 1.5 to 5.0. Elitism held: no stage measure fell in 100 random-strength generations.
+Top dE is 2.3 to 4.7 and side dE is 1.5 to 5.5. Elitism held: no stage measure fell in 100 random-strength generations.
 Determinism held. `build` stands on its origin. Its top matches `anchors().top` within the 3 mm icing coat.
 
 ### What is weak

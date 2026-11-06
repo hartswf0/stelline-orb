@@ -98,7 +98,9 @@ async function loadModule(n, bust) { const ok = await loadScript('modules/' + n 
 function contractOK(m) { return m && Array.isArray(m.genes) && Array.isArray(m.stages) && typeof m.blank === 'function' && typeof m.evaluate === 'function' && typeof m.build === 'function' && typeof m.anchors === 'function'; }
 async function loadRefs(n) { try { const r = await fetch('refs/' + n + '.json'); REFS[n] = r.ok ? await r.json() : {}; } catch (e) { REFS[n] = {}; } }
 const findA = REL.findA;
-function anchorsOf(p) { try { return p.mod.anchors(p.G) || {}; } catch (e) { return {}; } }
+/* a module's anchors are local to its own origin; dependants get their support (as in build) so a surface drop is honoured. The holder sits at the
+   support's anchor, so local wick positions plus the candles' holder position are world positions on the cake top. */
+function anchorsOf(p) { const s = SUPPORT[p.name]; try { return p.mod.anchors(p.G, { support: s ? REL.supportInfo(s, P[s].mod, P[s].G) : null, refs: REFS[p.name] }) || {}; } catch (e) { return {}; } }
 function refsFor(n) { const s = SUPPORT[n], r = Object.assign({}, REFS[n] || {}); if (s) r.support = REL.supportInfo(s, P[s].mod, P[s].G); return r; }
 function evalPart(p) { try { p.e = p.mod.evaluate(p.G, refsFor(p.name)); } catch (e) { console.error(p.name, e); p.e = { fit: 0, parts: {} }; } }
 function scoreNow(p) { const st = p.mod.stages[Math.min(p.stage, p.mod.stages.length - 1)]; return BREED.measure(p.e, st[1]); }

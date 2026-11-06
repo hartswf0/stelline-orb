@@ -33,7 +33,7 @@
   const crs = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
   let SCENE = null;
   function scene() { if (SCENE) return SCENE; const fw = nrm(sub(LOOK, CAM)), rt = nrm(crs(fw, [0, 1, 0])), up = crs(rt, fw), th = Math.tan(FOV * Math.PI / 360), asp = FW / FH;
-    const KIDS = [-45, 0, 45].map(a => [Math.sin(a * Math.PI / 180) * .37, -Math.cos(a * Math.PI / 180) * .37]);
+    const KIDS = [-45, 0, 45].map(a => [Math.sin(a * Math.PI / 180) * .4, -Math.cos(a * Math.PI / 180) * .4]);
     const px = []; for (let y = 0; y < FH; y++) for (let x = 0; x < FW; x++) { const u = ((x + .5) / FW * 2 - 1) * th * asp, v = (1 - (y + .5) / FH * 2) * th, d = nrm([fw[0] + rt[0] * u + up[0] * v, fw[1] + rt[1] * u + up[1] * v, fw[2] + rt[2] * u + up[2] * v]);
       let best = { t: 1e9 }; const hit = (t, n, alb, kind, em) => { if (t > 1e-4 && t < best.t) best = { t, n, alb, kind, em: em || 0 }; };
       // dome wall (sphere r 3.2 about the origin, seen from inside), with the thin band at y 0.86-0.9
@@ -58,7 +58,7 @@
   /* ------------------------------------------------------------------ shade and grade one frame; returns sRGB 0..255 per pixel */
   function params(G) { const g = named(G), wb = [1 + .12 * g.warmth, 1, 1 - .3 * g.warmth];
     const kc = kelvinRGB(g.kelvin); kc[2] *= 1 - .8 * g.yellow;   // the flame reads more yellow than a black body (less blue)
-    return { candleRGB: kc, candleIntensity: g.candleI, candleRange: g.range, candleDecay: g.decay, ambient: g.amb, ambientRGB: [1 + .25 * g.ambWarm, 1, 1 - .45 * g.ambWarm].map(v => clamp(v, 0, 2)),
+    return { candleRGB: kc, candleIntensity: g.candleI, candleRange: g.range, candleDecay: g.decay, ambient: g.amb, ambientRGB: [1 + .3 * g.ambWarm, 1, 1 - .85 * g.ambWarm].map(v => clamp(v, 0, 2)),
       domeFalloff: g.domeFall, domeBand: g.bandI, exposure: g.exposure, blackPoint: g.black, gamma: g.gamma, warmth: g.warmth, whiteBalance: wb,
       spotDensity: g.spotDensity, spotSize: g.spotSize, spotDecay: g.spotDecay }; }
   function render(G) { const S = scene(), P = params(G), out = new Float64Array(S.px.length * 3), cc = P.candleRGB, ac = P.ambientRGB;
