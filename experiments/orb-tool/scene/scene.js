@@ -20,7 +20,7 @@
   const url = (rel, base) => new URL(rel, base || SRC).href;
   const DEPS = [['THREE', '../../../ana/assets/three.min.js'], ['LOOK', '../../swarms/shared/look.js'], ['HOLO', '../../swarms/shared/holo.js'],
     ['EVOMOD.cake', '../../swarms/evolve-all/modules/cake.js'], ['EVOMOD.inscription', '../../swarms/evolve-all/modules/inscription.js'],
-    ['EVOMOD.candles', '../../swarms/evolve-all/modules/candles.js'], ['EVOMOD.table', '../../swarms/evolve-all/modules/table.js'], ['SCENE_GENOMES', 'genomes.js']];
+    ['EVOMOD.candles', '../../swarms/evolve-all/modules/candles.js'], ['EVOMOD.table', '../../swarms/evolve-all/modules/table.js'], ['EVOMOD.people', '../../swarms/evolve-all/modules/people.js'], ['SCENE_GENOMES', 'genomes.js']];
   const REFS = { inscription: '../../swarms/evolve-all/refs/inscription.json', candles: '../../swarms/evolve-all/refs/candles.json' };
   const CUT = '../../../assets/cutouts/';
   const has = path => path.split('.').reduce((o, k) => o && o[k], root);
@@ -162,16 +162,15 @@
     const PEOPLE = {};   // id -> { obj, mesh, tex, kid, spots, mark, head, a }
     function personObj(p, i) {
       const kid = KIDS[i % KIDS.length], grp = new T.Group(), head = new T.Object3D(); let mesh, tex = null;
-      if (opts.figures === 'faceless') {   // soft rounded child seen from a distance: body, head under a hair mass, no features
-        const cl = new T.MeshStandardMaterial({ color: [0xcbb89a, 0x6b5a4a, 0xe8e2d8][i % 3], roughness: .9 }), hair = new T.MeshStandardMaterial({ color: [0x3a2614, 0xc9a66b, 0x1a120c][i % 3], roughness: .8 });
-        mesh = new T.Group(); const body = new T.Mesh(new T.CylinderGeometry(.09, .12, .42, 16), cl); body.position.y = .21; mesh.add(body);
-        const hd = new T.Mesh(new T.SphereGeometry(.075, 18, 14), new T.MeshStandardMaterial({ color: 0x8a6a52, roughness: .8 })); hd.position.y = .51; mesh.add(hd);
-        const hr = new T.Mesh(new T.SphereGeometry(.082, 18, 14, 0, TAU, 0, Math.PI * .62), hair); hr.position.y = .515; hr.rotation.x = -.5; mesh.add(hr);
-        mesh.position.y = TABLE_Y + kid.base - .05; head.position.y = TABLE_Y + kid.base + .5; }
+      if (opts.figures !== 'cutout') {   // the people module's evolved children (fit 0.996): soft rounded forms, no features, hair masses, hands on the table edge
+        const PG = GN.arr(M.people, Object.assign({}, GN.G.people, { count: 5 })), k = i % 5, q = M.people.pose(PG, {}).P[k], sc = TABLE_Y / M.people.DEFAULT_SUPPORT.y;
+        const all = M.people.build(T, PG, { t: 1, stagger: false }), child = all.getObjectByName('child' + k); all.remove(child); dispose(all);
+        mesh = new T.Group(); mesh.add(child); mesh.scale.setScalar(sc); mesh.position.set(-q.foot[0] * sc, 0, -q.foot[2] * sc); mesh.userData.face0 = Math.atan2(q.fwd[0], q.fwd[1]);
+        child.traverse(x => { if (x.isMesh) x.castShadow = true; }); head.position.set(q.head[0], q.head[1] + q.hd * .7, q.head[2]); mesh.add(head); }
       else { tex = KIDTEX[i % KIDS.length].clone(); if (tex.image) tex.needsUpdate = true; OWN.add(tex);
         mesh = new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshStandardMaterial({ map: tex, emissiveMap: tex, emissive: 0xffd4a6, emissiveIntensity: .14, color: 0xfff2e2, roughness: .66, transparent: true, alphaTest: .06, side: T.DoubleSide }));
         head.position.y = TABLE_Y + kid.base + kid.h * .86; }
-      grp.add(mesh, head); grp.position.set(p.x, 0, p.z); MEM.add(grp);
+      if (!head.parent) grp.add(head); grp.add(mesh); grp.position.set(p.x, 0, p.z); MEM.add(grp);
       const mark = H.childMark(scene, head, { camera: cam, auto: false, size: .05 });
       return { obj: grp, mesh, tex, kid, head, mark, spots: H.spots(grp, { auto: false, k: 0, cell: 150 }), a: 0 }; }
 
@@ -280,7 +279,7 @@
         const a = p.arrived / 10; P.a = a; P.spots.set(off ? 0 : a * offK); P.mark.show(a === 0 ? .01 : a); P.mark.alpha = off ? 0 : P.mark.alpha;
         if (P.tex && !P.tex.image) { const src = KIDTEX[i % KIDS.length]; if (src.image) { P.tex.image = src.image; P.tex.needsUpdate = true; } }
         if (P.tex) { const k = P.kid, fi = ((Math.floor(clock * k.fps) + p.offset + i * 5) % k.frames + k.frames) % k.frames; P.tex.offset.x = fi / k.frames; P.mesh.scale.set(k.h * (k.aspect || .7), k.h, 1); P.mesh.position.y = TABLE_Y + k.base + k.h / 2; }
-        P.mesh.rotation.y = Math.atan2(cam.position.x - P.obj.position.x, cam.position.z - P.obj.position.z); });
+        if (P.tex) P.mesh.rotation.y = Math.atan2(cam.position.x - P.obj.position.x, cam.position.z - P.obj.position.z); else P.obj.rotation.y = Math.atan2(-P.obj.position.x, -P.obj.position.z) - P.mesh.userData.face0; });
       Object.keys(PEOPLE).forEach(id => { if (!ids.has(id)) { const P = PEOPLE[id]; MEM.remove(P.obj); dispose(P.obj); P.mark.dispose(); P.spots.dispose(); delete PEOPLE[id]; } });
       // props
       const pids = new Set();
