@@ -33,7 +33,8 @@
   var VARIANTS = [
     { name: 'LOW', t: { r: 1.05, h: .62 }, drip: .3, gloss: .5, shells: 36, candles: 5, ch: .3, ring: .6, lean: 0 },
     { name: 'TALL CANDLES', t: { r: 1.0, h: .78 }, drip: .5, gloss: .5, shells: 30, candles: 5, ch: .75, ring: .5, lean: 0 },
-    { name: 'HOMEMADE', t: { r: 1.02, h: .7 }, drip: .95, gloss: .1, shells: 18, candles: 4, ch: .55, ring: .6, lean: 1 }
+    { name: 'HOMEMADE', t: { r: 1.02, h: .7 }, drip: .95, gloss: .1, shells: 18, candles: 4, ch: .55, ring: .6, lean: 1 },
+    { name: 'GENERATED', t: { r: 1.05, h: .62 }, drip: .3, gloss: .5, shells: 36, candles: 0, ch: .3, ring: .6, lean: 0, gen: true }
   ];
   var PERF = [   // the six children of the film's wide shot, each a full-body clip placed at the shot's own coordinates. Two carry a timing arc.
     { id: 'left', name: 'LEFT', delay: 0 }, { id: 'small', name: 'SMALL', delay: 0 }, { id: 'back', name: 'BACK', delay: 0 },
@@ -48,6 +49,11 @@
   var PF = [], pfN = 0, pcv = document.createElement('canvas'); pcv.width = 960; pcv.height = 540; var pg = pcv.getContext('2d'), vtex = new T.CanvasTexture(pcv); vtex.encoding = T.sRGBEncoding; var pfLast = -1;
   for (var pi = 1; pi <= 41; pi++) (function (i) { var im = new Image(); im.onload = function () { pfN++; pfLast = -1; }; im.src = 'assets/plate/p_' + String(i).padStart(3, '0') + '.jpg'; PF[i - 1] = im; })(pi);
   var baseMesh = new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshBasicMaterial({ map: vtex })); baseMesh.renderOrder = -10; baseMesh.visible = false; ST.SETA.add(baseMesh);
+  var genMesh = new T.Mesh(new T.BufferGeometry(), new T.MeshStandardMaterial({ roughness: .9, color: 0xc8b890 })); genMesh.visible = false; genMesh.castShadow = false; ST.SETA.add(genMesh);
+  Promise.all([fetch('assets/gen/cake_trellis.json').then(function (r) { return r.json(); }), fetch('assets/gen/cake_trellis.bin').then(function (r) { return r.arrayBuffer(); })]).then(function (r) { var m = r[0], buf = r[1], g = new T.BufferGeometry(), nv = m.v;
+    g.setAttribute('position', new T.BufferAttribute(new Float32Array(buf, 0, nv * 3), 3)); g.setAttribute('uv', new T.BufferAttribute(new Float32Array(buf, nv * 12, nv * 2), 2)); g.setIndex(new T.BufferAttribute(new Uint16Array(buf, nv * 20, m.i), 1)); g.computeVertexNormals();
+    var s = 2.1 / (m.max[0] - m.min[0]); genMesh.geometry = g; genMesh.scale.setScalar(s); genMesh.position.set(0, .09 - m.min[1] * s, 0);
+    new T.TextureLoader().load('assets/gen/cake_trellis.jpg', function (tx) { tx.encoding = T.sRGBEncoding; tx.flipY = false; genMesh.material.map = tx; genMesh.material.color.setHex(0xffffff); genMesh.material.needsUpdate = true; }); });
   var snuffInfo = null, snuffMesh = new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshBasicMaterial({ transparent: true, opacity: 0, depthTest: false, depthWrite: false })); snuffMesh.renderOrder = -4; snuffMesh.visible = false; ST.SETA.add(snuffMesh);
   fetch('assets/plate/snuff.json').then(function (r) { return r.json(); }).then(function (j) { snuffInfo = j; new T.TextureLoader().load('assets/plate/snuff.webp', function (tx) { tx.encoding = T.sRGBEncoding; snuffMesh.material.map = tx; snuffMesh.material.needsUpdate = true; }); });
   var patch = null, patchMesh = new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshBasicMaterial({ alphaTest: .35, depthTest: false, depthWrite: false })); patchMesh.renderOrder = -5; patchMesh.visible = false; ST.SETA.add(patchMesh);
@@ -70,9 +76,9 @@
     var g = 0; while (ST.S.history.length && g++ < 40) ST.undo(); var V = VARIANTS[v];
     N.tier1.p = { r: V.t.r, h: V.t.h }; N.icing.p = { t: .06, drip: V.drip, gloss: V.gloss }; N.border.p = { size: .11, count: V.shells }; N.candles.p = { n: 0, h: V.ch, ring: V.ring, rot: .4, rad: .042 };
     ['table', 'tier', 'icing', 'border'].forEach(function (s) { ST.place(s); }); for (var i = 0; i < V.candles; i++) ST.place('candle'); ST.place('flame');
-    N.tier1.body.material = dotMat; N.table.obj.material = goldMat; N.table.obj.scale.set(1.45, 1, 1.45); N.table.obj.position.x = 1.15; N.table.obj.rotation.y = Math.PI / 6; N.candles.p.rad = .042; N.flames.p = { s: .9, f: .9, lt: .45 }; N.candles.obj.traverse(function (o) { if (o.isMesh && o.geometry.type === 'CylinderGeometry' && o.geometry.parameters.radiusTop > .02) o.material = candleMat; }); ST.post.uniforms.exposure.value = .95; N.border.obj.castShadow = false; ST.keyLight.castShadow = false; dressTable(); ST.cakeG.traverse(function (o) { if (o.isMesh && o.material && o.material.color && o.material.map == null && o.material.roughness < .7) { o.material = creamMat; } }); ST.SETA.traverse(function (o) { if (o.geometry && (o.geometry.type === 'TorusGeometry' || (o.geometry.type === 'CircleGeometry' && o.geometry.parameters.radius === 30))) o.visible = false; });
+    N.tier1.body.material = dotMat; N.table.obj.material = goldMat; N.table.obj.scale.set(1.45, 1, 1.45); N.table.obj.position.x = 1.15; N.table.obj.rotation.y = Math.PI / 6; N.candles.p.rad = .042; N.flames.p = { s: .9, f: .9, lt: .45 }; if (N.candles.obj) N.candles.obj.traverse(function (o) { if (o.isMesh && o.geometry.type === 'CylinderGeometry' && o.geometry.parameters.radiusTop > .02) o.material = candleMat; }); ST.post.uniforms.exposure.value = .95; N.border.obj.castShadow = false; ST.keyLight.castShadow = false; dressTable(); ST.cakeG.traverse(function (o) { if (o.isMesh && o.material && o.material.color && o.material.map == null && o.material.roughness < .7) { o.material = creamMat; } }); ST.SETA.traverse(function (o) { if (o.geometry && (o.geometry.type === 'TorusGeometry' || (o.geometry.type === 'CircleGeometry' && o.geometry.parameters.radius === 30))) o.visible = false; });
     ST.instant(); if (V.lean) N.tier1.obj.scale.set(1.1, 1, .92); inscribe(); orient();
-    ST.cakeG.visible = !film; if (dressed) dressed.visible = !film; patchMesh.visible = !film && plateReady;
+    ST.cakeG.visible = !film && !VARIANTS[v].gen; genMesh.visible = !film && !!VARIANTS[v].gen; if (dressed) dressed.visible = !film; patchMesh.visible = !film && plateReady;
     if (t >= TE) N.flames.exists = false;
   }
 
@@ -121,9 +127,9 @@
     var ti = ST.topInfo(), ca = scr(2.9, ti.y + 2.4, 0.2), g = el('g', { 'class': (sel === 'ver' || sel === 'ins' || sel === 'tilt') ? 'sel' : '' }); ov.appendChild(g);
     var R = 86, a0 = -150, a1 = -30, mode = sel === 'ins' ? 'ins' : sel === 'tilt' ? 'tilt' : 'ver', cy2 = ca[1] + R * .6, pos = function (u, r) { var a = (a0 + (a1 - a0) * u) * Math.PI / 180; return [ca[0] + Math.cos(a) * r, cy2 + Math.sin(a) * r, a]; };
     g.appendChild(el('path', { d: arcPath(ca[0], cy2, R, a0, a1), 'class': 'a' })); g.appendChild(el('path', { d: arcPath(ca[0], cy2, R - 9, a0, a1), 'class': 'a', opacity: .25 }));
-    var marks = mode === 'ver' ? ['FILM'].concat(VARIANTS.map(function (V) { return V.name; })).map(function (n, i) { return [i / 3, n]; }) : mode === 'ins' ? [[.0, ''], ['生日快乐'.length ? .22 : 0, '生'], [.44, '日'], [.66, '快'], [.82, '乐'], [1, '~']] : [[0, '0'], [.5, '30'], [1, '60']];
+    var marks = mode === 'ver' ? ['FILM'].concat(VARIANTS.map(function (V) { return V.name; })).map(function (n, i) { return [i / VARIANTS.length, n]; }) : mode === 'ins' ? [[.0, ''], ['生日快乐'.length ? .22 : 0, '生'], [.44, '日'], [.66, '快'], [.82, '乐'], [1, '~']] : [[0, '0'], [.5, '30'], [1, '60']];
     marks.forEach(function (m, i) { var p = pos(m[0], R), q = pos(m[0], R + 9); g.appendChild(el('line', { x1: p[0], y1: p[1], x2: q[0], y2: q[1], 'class': 'n' })); if (m[1]) g.appendChild(el('text', { x: q[0] + Math.cos(q[2]) * 4, y: q[1] - 4, 'text-anchor': m[0] < .2 ? 'end' : m[0] > .8 ? 'start' : 'middle', opacity: .6 }, m[1])); });
-    var u = mode === 'ver' ? (film ? 0 : v + 1) / 3 : mode === 'ins' ? ins : tilt / 60, tp = pos(u, R), ti2 = pos(u, R - 9); g.appendChild(el('circle', { cx: tp[0], cy: tp[1], r: 4.5, fill: '#fff' })); g.appendChild(el('line', { x1: tp[0], y1: tp[1], x2: ti2[0], y2: ti2[1], stroke: '#fff', 'stroke-width': 2 }));
+    var u = mode === 'ver' ? (film ? 0 : v + 1) / VARIANTS.length : mode === 'ins' ? ins : tilt / 60, tp = pos(u, R), ti2 = pos(u, R - 9); g.appendChild(el('circle', { cx: tp[0], cy: tp[1], r: 4.5, fill: '#fff' })); g.appendChild(el('line', { x1: tp[0], y1: tp[1], x2: ti2[0], y2: ti2[1], stroke: '#fff', 'stroke-width': 2 }));
     var label = mode === 'ver' ? (film ? 'FILM' : VARIANTS[v].name) : mode === 'ins' ? '生日快乐 ' + Math.round(ins * 100) + '%' : Math.round(tilt) + '°';
     g.appendChild(el('text', { x: ca[0], y: cy2 + 20, 'text-anchor': 'middle', opacity: .95 }, label)); 
     // the arc over each child: when she reacts, against when the flame goes out
@@ -183,7 +189,7 @@
   /* the orb: one roll = one detent on the chosen arc */
   function roll(d) {
     touched();
-    if (sel === 'ver') { var d0 = film ? 0 : v + 1, nd = clamp(d0 + d, 0, 3); if (nd !== d0) { film = nd === 0; v = Math.max(0, nd - 1); cake(); } }
+    if (sel === 'ver') { var d0 = film ? 0 : v + 1, nd = clamp(d0 + d, 0, VARIANTS.length); if (nd !== d0) { film = nd === 0; v = Math.max(0, nd - 1); cake(); } }
     else if (sel === 'ins') { if (film) { film = false; cake(); } autoIns = 0; ins = clamp(ins + d * .035, 0, 1); inscribe(); }
     else if (sel === 'tilt') { if (film) { film = false; cake(); } tilt = clamp(tilt + d * 3, 0, 60); orient(); }
     else { var p = PERF.filter(function (q) { return q.id === sel; })[0]; p.delay = clamp(p.delay + d * .1, -1, 7); }
