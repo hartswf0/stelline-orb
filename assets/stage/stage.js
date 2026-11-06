@@ -469,6 +469,6 @@
     lastSeqApplied = m.q; if (m.k !== 'imu' && window.PAIR) PAIR.send({ k: 'ack', q: m.q, t: m.t });
     document.body.classList.add('paired');
   }
-  window.STAGE = { ring, key, spread, imu, shake, onmsg, ui, nodes, S, C, WR, place, undo, focusMarks, scene, SETA, cam, keyLight, post, T, tex, card, topInfo, start() { frame(); } };
+  window.STAGE = { ring, key, spread, imu, shake, onmsg, ui, nodes, S, C, WR, place, undo, focusMarks, scene, SETA, cam, keyLight, post, T, tex, card, topInfo, cakeG, flameSprites, instant() { Object.values(nodes).forEach(n => { if (n.grow != null) { n.grow = 1; if (n.obj) { if (n.kind === 'border') n.obj.count = n.p.count; else n.obj.scale.set(1, 1, 1); } } }); nodes.flames.lit = 1; }, start() { frame(); } };
   nodes.birthday.exists = true; afterSel();
 })();

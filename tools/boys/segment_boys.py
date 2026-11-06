@@ -21,6 +21,8 @@ CLIPS = [
  ('dark',  'dark_a',  179.6, 182.4, (1100, 340, 140, 190)),
  ('right', 'right_a', 179.3, 182.4, (900, 220, 120, 180)),
 ]
+if os.environ.get('CLIPS_JSON'):
+    J = json.load(open(os.environ['CLIPS_JSON'])); CLIPS = [tuple(c[:4]) + (tuple(c[4]),) for c in J['clips']]; GROUP = set(J.get('group', []))
 cap = cv2.VideoCapture(V); fps_src = cap.get(cv2.CAP_PROP_FPS); res = []
 def frame_at(t):
     cap.set(cv2.CAP_PROP_POS_FRAMES, int(round(t * fps_src))); ok, f = cap.read(); return f if ok else None
