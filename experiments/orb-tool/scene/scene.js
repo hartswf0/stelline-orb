@@ -53,13 +53,14 @@
     const focus = new T.Vector3(0, .6, 0);
     const LK = L.apply(R, scene, cam, { target: new T.Vector3(0, .58, 0), post: Q !== 'low', shadows: Q === 'high' });
     if (LK.pipeline && Q !== 'high') LK.pipeline.enabled.dof = false;
+    LK.set({ saturation: .78 });   // the first strip against 155 s read too saturated (orange where the film is olive-yellow)
     const G0 = Object.assign({}, LK.genome);
 
     /* ---------------------------------------------------------------- places (weaver.html's cinema set and lab, and a forest) */
     const PLACES = { dome: new T.Group(), room: new T.Group(), forest: new T.Group() }; Object.values(PLACES).forEach(g => scene.add(g));
     const basic = (c, o) => new T.MeshBasicMaterial(Object.assign({ color: c, toneMapped: false }, o || {}));
     (function dome(D) {
-      D.add(new T.Mesh(new T.SphereGeometry(7, 48, 24, 0, TAU, 0, Math.PI / 2), new T.MeshStandardMaterial({ color: 0x0b0d0c, roughness: 1, side: T.BackSide })));
+      D.add(new T.Mesh(new T.SphereGeometry(7, 48, 24, 0, TAU, 0, Math.PI / 2), new T.MeshStandardMaterial({ color: 0x0b0d0c, emissive: 0x070908, roughness: 1, side: T.BackSide })));
       const fl = new T.Mesh(new T.CircleGeometry(7, 72), new T.MeshStandardMaterial({ color: 0x020303, roughness: .8, metalness: 0 })); fl.rotation.x = -Math.PI / 2; fl.receiveShadow = true; D.add(fl);
       const ring = (r, w, y, c, o) => { const m = new T.Mesh(new T.TorusGeometry(r, w, 6, 240), basic(c, o)); m.rotation.x = Math.PI / 2; m.position.y = y; D.add(m); return m; };
       ring(6.65, .009, .62, 0xf2f7f3); ring(6.65, .05, .62, 0x9fb4ad, { transparent: true, opacity: .07, depthWrite: false, blending: T.AdditiveBlending }); ring(6.6, .03, .004, 0x8fa39c, { transparent: true, opacity: .035, depthWrite: false, blending: T.AdditiveBlending });
@@ -103,7 +104,7 @@
     for (let i = 0; i < DUST; i++) { const a = Math.random() * TAU, r = Math.sqrt(Math.random()) * 1.5; dp[i * 3] = Math.cos(a) * r; dp[i * 3 + 1] = Math.random() * 2.2; dp[i * 3 + 2] = Math.sin(a) * r; dseed[i] = Math.random() * 100; }
     const softTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'), g = x.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(.4, 'rgba(255,255,255,.45)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64); return new T.CanvasTexture(c); })();
     const dustGeo = new T.BufferGeometry(); dustGeo.setAttribute('position', new T.BufferAttribute(dp, 3));
-    const dust = new T.Points(dustGeo, new T.PointsMaterial({ color: 0xdfe8e4, map: softTex, size: .008, transparent: true, opacity: .45, blending: T.AdditiveBlending, depthWrite: false })); scene.add(dust);
+    const dust = new T.Points(dustGeo, new T.PointsMaterial({ color: 0xdfe8e4, map: softTex, size: .006, transparent: true, opacity: .22, blending: T.AdditiveBlending, depthWrite: false })); scene.add(dust);
 
     /* ---------------------------------------------------------------- the memory */
     const MEM = new T.Group(); scene.add(MEM);
@@ -166,7 +167,7 @@
         const PG = GN.arr(M.people, Object.assign({}, GN.G.people, { count: 5 })), k = i % 5, q = M.people.pose(PG, {}).P[k], sc = TABLE_Y / M.people.DEFAULT_SUPPORT.y;
         const all = M.people.build(T, PG, { t: 1, stagger: false }), child = all.getObjectByName('child' + k); all.remove(child); dispose(all);
         mesh = new T.Group(); mesh.add(child); mesh.scale.setScalar(sc); mesh.position.set(-q.foot[0] * sc, 0, -q.foot[2] * sc); mesh.userData.face0 = Math.atan2(q.fwd[0], q.fwd[1]);
-        child.traverse(x => { if (x.isMesh) x.castShadow = true; }); head.position.set(q.head[0], q.head[1] + q.hd * .7, q.head[2]); mesh.add(head); }
+        child.traverse(x => { if (x.isMesh) { x.castShadow = true; x.material.color.multiplyScalar(.55); } });   // the film's children are lit by the candles and fall into the dark head.position.set(q.head[0], q.head[1] + q.hd * .7, q.head[2]); mesh.add(head); }
       else { tex = KIDTEX[i % KIDS.length].clone(); if (tex.image) tex.needsUpdate = true; OWN.add(tex);
         mesh = new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshStandardMaterial({ map: tex, emissiveMap: tex, emissive: 0xffd4a6, emissiveIntensity: .14, color: 0xfff2e2, roughness: .66, transparent: true, alphaTest: .06, side: T.DoubleSide }));
         head.position.y = TABLE_Y + kid.base + kid.h * .86; }
