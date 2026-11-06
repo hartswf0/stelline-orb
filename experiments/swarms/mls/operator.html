@@ -18,20 +18,24 @@ td:last-child { white-space: nowrap; text-align: right; } a { color: var(--amber
 img { width: 100%; border: 1px solid var(--line); border-radius: 4px; }
 </style></head><body>
 <h1>THE BLOW</h1>
-<p class="dim">Swarm: MLS deformation (after Schaefer, McPhail &amp; Warren 2006). Revision r3 (after critic round 1), 2026-11-06. Not committed.</p>
+<p class="dim">Swarm: MLS deformation (after Schaefer, McPhail &amp; Warren 2006). Revision r4: the face was forked and branch B (sparse face, alpha 3) is promoted. 2026-11-06. Not committed.</p>
 
 <video src="proof.mp4" controls playsinline preload="metadata" poster=""></video>
-<p class="dim">Ten seconds, 30 fps, with sound. Left panel: your world (face similarity, flames affine, streamer rigid). The other three: the same inputs with one family on every surface. Below: the memory maker's device, played by the demonstration.</p>
+<p class="dim">Branch B. Ten seconds, 30 fps, with sound. Left panel: your world (face similarity, flames affine, streamer rigid). The other three: the same inputs with one family on every surface. Below: the memory maker's device, played by the demonstration.</p>
 <p><a href="index.html">Play it</a>: the device is the controller. SELECT picks the thing, the knurled ring sets its value, HOLD blows. She leans: aim about two detents to correct it.</p>
 
 <h2>CRITIC VERDICT</h2>
 <div class="v"><b class="amber">ROUND 1: INCONCLUSIVE, LEANING PASS.</b> "Filling the cheeks bends the whole plate, not the cheeks", and the three face families were nearly indistinguishable. <a href="critic-round1.md">critic-round1.md</a>.
 Round 2 has not been run on r3.</div>
 
-<h2>NEXT BLOCKING FAILURE</h2>
-<div class="v"><b class="red">The face families still differ by under 1 px on the cheek</b> (0.95 px measured; the critic asked for at least 4 px). Pinning the plate fixed the bowing (border 0.07 px, neck 0.24 px), and in every configuration tried, that locality made the families agree. The game's family choice now lives in the flames instead. Next: a sparse-handle face branch, then critic round 2.</div>
+<h2>THE FORK</h2>
+<div class="v"><b class="green">B PROMOTED (builder's judgement; not yet reviewed by a critic).</b> Branch B meets the round-1 repair condition: the plate border moves 0.00 px and the neck 0.06 px, and the cheek outline differs by 4.11 px between face families. The chosen similarity face has no folds, and the eyes and nose are intact. A's families differ by 0.95 px. Cause: at weight exponent 1 the pinned plate lines dominated every family's fit. <a href="fork.md">fork.md</a> &middot; <a href="fork.mp4">fork.mp4</a> &middot; <a href="dense.html">branch A (dense.html)</a></div>
+<a href="fork-strip.png"><img src="fork-strip.png" alt="The face in affine, similarity and rigid MLS: branch A above, branch B below"></a>
 
-<h2>MEASURED (tools/test.js, tests.json)</h2>
+<h2>NEXT BLOCKING FAILURE</h2>
+<div class="v"><b class="amber">Critic round 2 on B</b>: does the round similarity cheek read as filling at normal speed, and are the creases of affine and rigid visible in the comparison panels? Also open: a flame's smallest area ratio is 0.010 (floor 0.05), and one contour reversal frame, both during a flame's 0.11 s fade-out.</div>
+
+<h2>MEASURED, BRANCH A (r3; tools/test.js, tests.json). B: tests-sparse.json</h2>
 <table>
 <tr><td>Cheeks 100 %, purse 60 %: plate border / neck movement (chosen face family)</td><td class="green">0.07 / 0.24 px</td></tr>
 <tr><td>Cheek outline moves outward when the cheeks fill</td><td class="green">21 px</td></tr>
@@ -49,6 +53,6 @@ Round 2 has not been run on r3.</div>
 <a href="strip.png"><img src="strip.png" alt="Comparison strip: face, flames, streamer in affine, similarity and rigid MLS, and the face at three weight exponents"></a>
 
 <h2>LINKS</h2>
-<p class="links"><a href="index.html">game</a><a href="proof.mp4">proof.mp4</a><a href="strip.png">strip.png</a><a href="handles.json">handles.json</a><a href="tests.json">tests.json</a><a href="README.md">README</a><a href="critic-round1.md">critic round 1</a><a href="mls.js">solver</a><a href="scene.js">handles and poses</a><a href="game.js">game</a></p>
+<p class="links"><a href="index.html">game</a><a href="proof.mp4">proof.mp4</a><a href="strip.png">strip.png</a><a href="handles.json">handles.json</a><a href="tests.json">tests.json</a><a href="README.md">README</a><a href="critic-round1.md">critic round 1</a><a href="fork.md">fork</a><a href="fork.mp4">fork.mp4</a><a href="dense.html">dense.html (A)</a><a href="tests-sparse.json">tests (B)</a><a href="handles-sparse.json">handles (B)</a><a href="mls.js">solver</a><a href="scene.js">handles and poses</a><a href="game.js">game</a></p>
 <p class="dim">Rights: the face, flames, streamer and cake are drawn by code on this page. Device sounds are ana/device-sounds.wav (already in the repo). No film frames or film audio are used or published.</p>
 </body></html>

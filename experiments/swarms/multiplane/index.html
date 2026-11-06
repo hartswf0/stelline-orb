@@ -63,6 +63,10 @@ function floorTone(z) { const warm = Math.exp(-Math.pow((z - ZC) / 1.1, 2)); ret
 
 /* -------------------------------------------------------------- the cut pieces */
 const PLANES = [];
+// the memory's material: drawn surfaces are lit from the candles and carry the projection's round spots (fixed to the surface, so they move with its plane)
+const SPOT = (() => { const c = document.createElement('canvas'); c.width = c.height = 16; const x = c.getContext('2d'); x.fillStyle = '#4a4a4a'; x.fillRect(0, 0, 16, 16); const g = x.createRadialGradient(8, 8, 1, 8, 8, 7.5); g.addColorStop(0, '#fff'); g.addColorStop(.7, '#e8e8e8'); g.addColorStop(1, '#4a4a4a'); x.fillStyle = g; x.beginPath(); x.arc(8, 8, 7.5, 0, TAU); x.fill(); return c; })();
+let SPOTPAT = null;
+function spotted(c, pitch) { if (!SPOTPAT) SPOTPAT = c.createPattern(SPOT, 'repeat'); try { SPOTPAT.setTransform(new DOMMatrix().scale(pitch / 16)); } catch (e) { } c.save(); c.clip(); c.globalCompositeOperation = 'multiply'; c.fillStyle = SPOTPAT; c.fillRect(-10, -10, 20, 20); c.restore(); }
 function plane(p) { p.i = PLANES.length; p.x = p.x || 0; p.dy = 0; p.toff = 0; p.z0 = p.z; PLANES.push(p); return p; }
 const P = {};
 P.wall = plane({ id: 'wall', name: 'back wall and its band of light', z: 9, source: OWN, rights: 'own work',
@@ -76,21 +80,26 @@ FLOOR_Z.forEach((z, k) => plane({ id: 'floor' + k, name: 'floor strip at ' + z +
     const [r0, g0, b0] = floorTone(z), [r1, g1, b1] = floorTone(nz), g = c.createLinearGradient(0, 0, 0, yNext);
     g.addColorStop(0, `rgb(${r0 | 0},${g0 | 0},${b0 | 0})`); g.addColorStop(1, `rgb(${r1 | 0},${g1 | 0},${b1 | 0})`); c.fillStyle = g; c.fillRect(-9, -6, 18, 6);
     const r = rng(100 + k); c.fillStyle = 'rgba(190,200,196,.05)'; for (let i = 0; i < 120; i++) { const x = lerp(-8, 8, r()), y = yNext * r(), rr = (.01 + .02 * r()) * z / 3; c.beginPath(); c.arc(x, y, rr, 0, TAU); c.fill(); } } }));
-const KC = {};
+const KC = {}, CUT = {};
+// a cut-out frame with its alpha made solid: the film matte's soft interior (0-255) becomes opaque, only a 1-2 px edge stays soft
+function cutFrame(sheet, f, im, cw, ch) { const key = sheet + ':' + f; if (CUT[key]) return CUT[key]; const k = document.createElement('canvas'); k.width = Math.ceil(cw); k.height = Math.ceil(ch); const kx = k.getContext('2d', { willReadFrequently: true });
+  kx.drawImage(im, (f % KIDSHEETS[sheet].cols) * cw, Math.floor(f / KIDSHEETS[sheet].cols) * ch, cw, ch, 0, 0, cw, ch);
+  try { const d = kx.getImageData(0, 0, k.width, k.height); const a = d.data; for (let i = 3; i < a.length; i += 4) { const v = a[i]; if (v === 0) continue; const n = clamp((v - 48) * 3, 0, 255); if (n > 0 && v > 0) { const m = 255 / v; a[i - 3] = Math.min(255, a[i - 3] * (v < 255 ? Math.min(m, 1.6) : 1)); a[i - 2] = Math.min(255, a[i - 2] * (v < 255 ? Math.min(m, 1.6) : 1)); a[i - 1] = Math.min(255, a[i - 1] * (v < 255 ? Math.min(m, 1.6) : 1)); } a[i] = n; } kx.putImageData(d, 0, 0); } catch (e) { }
+  return CUT[key] = k; }
 function kidPlane(key, id, name, sheet, z, x, y0, h, t0, tint) { const S = KIDSHEETS[sheet], w = h * S.fw / S.fh;
   return P[key] = plane({ id, name, z, x, y0, h, w, sheet, kid: true, t0, source: 'ana/cut/film-child-' + sheet + '-blow.webp (' + S.frames + ' frames at ' + KID_FPS + ' fps)', rights: FILM_RIGHTS,
     frame(t) { return ((Math.floor((t + this.t0) * KID_FPS + this.toff) % S.frames) + S.frames) % S.frames; },
     faceAt() { return [this.x - w / 2 + S.face[0] * w, this.y0 + this.dy + h * (1 - S.face[1]), .1 * w]; },
     draw(c, o) { const im = IMG['k' + sheet]; if (!im) return; const f = this.frame(o.kt != null ? o.kt : o.t), cw = im.width / S.cols, ch = im.height / S.rows;
-      const k = KC[sheet] || (KC[sheet] = document.createElement('canvas')), kx = k.getContext('2d'); k.width = Math.ceil(cw); k.height = Math.ceil(ch); kx.drawImage(im, (f % S.cols) * cw, Math.floor(f / S.cols) * ch, cw, ch, 0, 0, cw, ch);
-      kx.globalCompositeOperation = 'destination-in'; const fg = kx.createLinearGradient(0, 0, 0, ch); fg.addColorStop(0, '#000'); fg.addColorStop(.66, '#000'); fg.addColorStop(.97, 'rgba(0,0,0,0)'); fg.addColorStop(1, 'rgba(0,0,0,0)'); kx.fillStyle = fg; kx.fillRect(0, 0, cw, ch); if (o.id) { kx.globalCompositeOperation = 'source-in'; kx.fillStyle = o.id; kx.fillRect(0, 0, cw, ch); } kx.globalCompositeOperation = 'source-over';
-      c.save(); c.translate(this.x - w / 2, this.y0 + this.dy + h); c.scale(1, -1); if (!o.id && tint) c.filter = tint; c.drawImage(k, 0, 0, cw, ch, 0, 0, w, h); c.restore();
+      let k = cutFrame(sheet, f, im, cw, ch);
+      if (o.id) { const q = KC.id || (KC.id = document.createElement('canvas')), qx = q.getContext('2d'); q.width = k.width; q.height = k.height; qx.drawImage(k, 0, 0); qx.globalCompositeOperation = 'source-in'; qx.fillStyle = o.id; qx.fillRect(0, 0, q.width, q.height); k = q; }
+      c.save(); c.translate(this.x - w / 2, this.y0 + this.dy + h); c.scale(1, -1); if (!o.id && tint) c.filter = tint; c.drawImage(k, 0, 0, k.width, k.height, 0, 0, w, h); c.restore();
     } }); }
-kidPlane('right', 'child3', 'far child, right (film child 3)', 3, 3.25, .30, .44, .62, 1.3, 'brightness(.8) sepia(.12)');
-kidPlane('left', 'child1', 'far child, left (film child 1)', 1, 3.1, -.30, .40, .62, 0, 'brightness(.88) sepia(.1)');
+kidPlane('right', 'child3', 'far child, right (film child 3)', 3, 3.15, .30, .50, .66, 1.3, 'brightness(.8) sepia(.12)');
+kidPlane('left', 'child1', 'far child, left (film child 1)', 1, 3.0, -.30, .50, .66, 0, 'brightness(.88) sepia(.1)');
 P.tabletop = plane({ id: 'tabletop', name: 'table top (far half)', z: 2.78, source: OWN, rights: 'own work',
-  draw(c, o) { c.beginPath(); c.moveTo(-.70, .705); c.lineTo(-.46, .745); c.lineTo(.46, .745); c.lineTo(.70, .705); c.lineTo(.70, .40); c.lineTo(-.70, .40); c.closePath();
-    if (o.id) { c.fillStyle = o.id; c.fill(); return; } const g = c.createRadialGradient(0, .74, .02, 0, .74, .8); g.addColorStop(0, '#efe2c2'); g.addColorStop(.5, '#a99877'); g.addColorStop(1, '#4a4235'); c.fillStyle = g; c.fill(); } });
+  draw(c, o) { c.beginPath(); c.moveTo(-1.0, .705); c.lineTo(-.62, .745); c.lineTo(.62, .745); c.lineTo(1.0, .705); c.lineTo(1.0, .40); c.lineTo(-1.0, .40); c.closePath();
+    if (o.id) { c.fillStyle = o.id; c.fill(); return; } const g = c.createRadialGradient(0, .74, .02, 0, .74, 1.0); g.addColorStop(0, '#e9d2a6'); g.addColorStop(.35, '#9c8058'); g.addColorStop(.75, '#3a2c1c'); g.addColorStop(1, '#120d08'); c.fillStyle = g; c.fill(); spotted(c, .016); } });
 const CAKE = { r: .17, y0: .70, h: .15 };
 P.cake = plane({ id: 'cake', name: 'cake', z: ZC, source: OWN + ' After the film\'s white cake with beads.', rights: 'own work',
   draw(c, o) { const { r, y0, h } = CAKE, top = y0 + h, ry = .022;
@@ -111,22 +120,31 @@ P.candles = plane({ id: 'candles', name: 'seven candles (on the cake, same depth
       c.save(); c.globalCompositeOperation = 'lighter'; const hg = c.createRadialGradient(x, fy, .002, x, fy, .07); hg.addColorStop(0, `rgba(255,190,110,${.42 * L})`); hg.addColorStop(.4, `rgba(255,140,60,${.10 * L})`); hg.addColorStop(1, 'rgba(255,120,40,0)'); c.fillStyle = hg; c.fillRect(x - .07, fy - .07, .14, .14);
       c.translate(x, fy); c.scale(1, fl); const fg = c.createRadialGradient(0, -.005, .001, 0, 0, .023); fg.addColorStop(0, 'rgba(255,252,232,1)'); fg.addColorStop(.4, 'rgba(255,206,96,.95)'); fg.addColorStop(1, 'rgba(255,110,30,0)'); c.fillStyle = fg; c.beginPath(); c.ellipse(0, 0, .011, .023, 0, 0, TAU); c.fill(); c.restore(); }); } });
 P.tablefront = plane({ id: 'tablefront', name: 'table lip and pedestal (near half)', z: 2.36, source: OWN, rights: 'own work',
-  draw(c, o) { c.beginPath(); c.moveTo(-.74, .72); c.lineTo(.74, .72); c.lineTo(.74, .64); c.lineTo(.07, .64); c.lineTo(.06, .06); c.lineTo(.16, .0); c.lineTo(-.16, 0); c.lineTo(-.06, .06); c.lineTo(-.07, .64); c.lineTo(-.74, .64); c.closePath();
-    if (o.id) { c.fillStyle = o.id; c.fill(); return; } c.fillStyle = '#17140f'; c.fill(); const g = c.createLinearGradient(0, .72, 0, .64); g.addColorStop(0, '#f2e6c8'); g.addColorStop(.25, '#cdbfa6'); g.addColorStop(1, '#3c362b'); c.fillStyle = g; c.fillRect(-.74, .64, 1.48, .08);
-    const sg = c.createLinearGradient(-.74, 0, .74, 0); sg.addColorStop(0, 'rgba(0,0,0,.55)'); sg.addColorStop(.5, 'rgba(0,0,0,0)'); sg.addColorStop(1, 'rgba(0,0,0,.55)'); c.fillStyle = sg; c.fillRect(-.74, .64, 1.48, .08); } });
+  draw(c, o) { c.beginPath(); c.moveTo(-1.04, .72); c.lineTo(1.04, .72); c.lineTo(1.04, .64); c.lineTo(.07, .64); c.lineTo(.06, .06); c.lineTo(.16, .0); c.lineTo(-.16, 0); c.lineTo(-.06, .06); c.lineTo(-.07, .64); c.lineTo(-1.04, .64); c.closePath();
+    if (o.id) { c.fillStyle = o.id; c.fill(); return; } c.save(); c.fillStyle = '#0d0a07'; c.fill(); c.restore();
+    c.save(); c.beginPath(); c.rect(-1.04, .64, 2.08, .08); const g = c.createRadialGradient(0, .72, .02, 0, .7, 1.0); g.addColorStop(0, '#dcc394'); g.addColorStop(.4, '#8d7250'); g.addColorStop(.8, '#2c2116'); g.addColorStop(1, '#0d0a07'); c.fillStyle = g; c.fill(); spotted(c, .014); c.restore(); } });
 kidPlane('near', 'child2', 'near child (film child 2)', 2, 1.95, .12, .50, .62, .6, 'brightness(1.05) sepia(.08)');
-P.bench = plane({ id: 'bench', name: 'chair back, near left', z: 1.32, x: -.42, blur: .8, source: OWN, rights: 'own work',
-  draw(c, o) { const x = this.x; c.beginPath(); c.rect(x - .2, .50, .4, .2); c.rect(x - .2, 0, .035, .52); c.rect(x + .165, 0, .035, .52);
-    if (o.id) { c.fillStyle = o.id; c.fill(); return; } c.fillStyle = '#21180f'; c.fill(); const g = c.createLinearGradient(0, .70, 0, .60); g.addColorStop(0, 'rgba(232,170,96,.7)'); g.addColorStop(.15, 'rgba(120,80,40,.25)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(x - .2, .60, .4, .10);
-    c.fillStyle = 'rgba(0,0,0,.35)'; for (let k = 1; k < 3; k++) c.fillRect(x - .2 + k * .133, .50, .006, .18); } });
+// her chair: she stands behind it; it travels with her, 10 cm nearer, and covers the cut at the foot of her card at every eye angle
+P.bench = plane({ id: 'bench', name: 'the near child\'s chair back (moves with her, 10 cm nearer)', z: 1.85, source: OWN, rights: 'own work', link: 'child2',
+  draw(c, o) { const x = this.x; c.beginPath(); c.moveTo(x - .40, .40); c.lineTo(x - .40, .70); c.quadraticCurveTo(x, .80, x + .40, .70); c.lineTo(x + .40, .40); c.closePath();
+    c.rect(x - .37, 0, .04, .41); c.rect(x + .33, 0, .04, .41);
+    if (o.id) { c.fillStyle = o.id; c.fill(); return; } const g = c.createLinearGradient(0, .78, 0, .40); g.addColorStop(0, '#b98a52'); g.addColorStop(.08, '#6e4a28'); g.addColorStop(.35, '#2a1a0e'); g.addColorStop(1, '#0b0705'); c.fillStyle = g; c.fill(); spotted(c, .012);
+    c.strokeStyle = 'rgba(255,214,150,.55)'; c.lineWidth = .006; c.beginPath(); c.moveTo(x - .39, .70); c.quadraticCurveTo(x, .795, x + .39, .70); c.stroke(); } });
+// paper lanterns hung at four depths: they fill the dark above the party and slide at their own speeds
+[[1.25, -.22, 1.38, .085], [2.15, .42, 1.52, .11], [3.6, -.62, 1.86, .14], [5.6, .95, 2.45, .2]].forEach(([z, x, y, r], k) => plane({ id: 'lantern' + (k + 1), name: 'paper lantern ' + (k + 1) + ' (hung at ' + z + ' m)', z, x, source: OWN, rights: 'own work',
+  draw(c, o) { if (o.id) { c.fillStyle = o.id; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); c.fillRect(x - .002 * z, y, .004 * z, 6); return; }
+    c.strokeStyle = 'rgba(150,140,120,.35)'; c.lineWidth = .003 * z; c.beginPath(); c.moveTo(x, y + r); c.lineTo(x, y + 6); c.stroke();
+    const g = c.createRadialGradient(x - r * .2, y - r * .25, r * .05, x, y, r); g.addColorStop(0, '#ffe3a8'); g.addColorStop(.55, '#d98a3c'); g.addColorStop(1, '#5a2d10'); c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill();
+    c.save(); c.beginPath(); c.arc(x, y, r, 0, TAU); spotted(c, r / 7); c.restore(); c.strokeStyle = 'rgba(60,30,10,.5)'; c.lineWidth = r * .04; for (let i = -2; i <= 2; i++) { c.beginPath(); c.ellipse(x, y, r, r * Math.abs(i) / 2.6, 0, 0, TAU); c.stroke(); }
+    c.save(); c.globalCompositeOperation = 'lighter'; const h = c.createRadialGradient(x, y, r * .6, x, y, r * 2.4); h.addColorStop(0, 'rgba(255,170,80,.16)'); h.addColorStop(1, 'rgba(255,140,60,0)'); c.fillStyle = h; c.fillRect(x - r * 2.4, y - r * 2.4, r * 4.8, r * 4.8); c.restore(); } }));
 P.string = plane({ id: 'string', name: 'balloon and its string', z: 1.02, blur: 1.2, source: OWN, rights: 'own work',
   draw(c, o) { const y = this.dy, col = o.id || '#b6332a'; c.strokeStyle = o.id || 'rgba(220,214,200,.75)'; c.lineWidth = .004; c.beginPath(); c.moveTo(-.30, 1.17 + y); c.bezierCurveTo(-.33, .95 + y, -.27, .70 + y * .5, -.31, .30); c.stroke();
     c.fillStyle = col; c.beginPath(); c.ellipse(-.29, 1.27 + y, .085, .105, .12, 0, TAU); c.fill(); if (o.id) return;
     const g = c.createRadialGradient(-.32, 1.31 + y, .005, -.29, 1.27 + y, .11); g.addColorStop(0, 'rgba(255,170,140,.55)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.beginPath(); c.ellipse(-.29, 1.27 + y, .085, .105, .12, 0, TAU); c.fill(); } });
 P.chair = plane({ id: 'chair', name: 'chair post, the nearest edge', z: .86, blur: 2.2, source: OWN, rights: 'own work',
   draw(c, o) { c.beginPath(); c.rect(-.62, -.2, .05, 1.05); c.rect(-.62, .62, .3, .045); c.rect(-.62, .45, .3, .03);
-    if (o.id) { c.fillStyle = o.id; c.fill(); return; } c.fillStyle = '#120d09'; c.fill(); c.fillStyle = 'rgba(214,150,84,.35)'; c.fillRect(-.575, -.2, .008, 1.05); c.fillRect(-.62, .66, .3, .006); } });
-function linkBench() { }
+    if (o.id) { c.fillStyle = o.id; c.fill(); return; } const g = c.createLinearGradient(-.62, 0, -.32, 0); g.addColorStop(0, '#0b0705'); g.addColorStop(1, '#3a2614'); c.fillStyle = g; c.fill(); spotted(c, .01); c.fillStyle = 'rgba(230,170,100,.4)'; c.fillRect(-.575, -.2, .008, 1.05); c.fillRect(-.62, .66, .3, .006); } });
+function linkBench() { P.bench.z = +(P.near.z - .10).toFixed(3); P.bench.x = P.near.x; }
 // painter's order, far to near, recomputed from the current depths (stable for equal depths: the cake, then its candles)
 let ORDER = [];
 function sortPlanes() { linkBench(); ORDER = PLANES.map((p, i) => i).sort((a, b) => (PLANES[b].z - PLANES[a].z) || (a - b)); }
@@ -141,9 +159,12 @@ function predictedShift(z, b0, b1) { return F * (b1 - b0) * (1 / ZC - 1 / z); }
 const cv = document.getElementById('cv'), cx = cv.getContext('2d');
 function drawPlane(c, p, b, t, id, kt) { const T = cardTransform(p.z, b); c.save(); c.translate(T.ox, T.oy); c.scale(T.s, -T.s); p.draw(c, { t, id, kt }); c.restore(); }
 function drawScene(c, b, t, opts) { opts = opts || {}; c.save(); const pad = opts.pad || 0; c.setTransform(opts.dpr || DPR, 0, 0, opts.dpr || DPR, pad, pad); c.fillStyle = '#000'; c.fillRect(-pad, -pad, W + 2 * pad, H + 2 * pad);
-  ORDER.forEach(i => { const p = PLANES[i]; if (opts.only != null && opts.only !== i) return; if (p.blur && !opts.noBlur) c.filter = `blur(${p.blur * W / 400}px)`; drawPlane(c, p, b, t, null, KT); c.filter = 'none'; });
+  ORDER.forEach(i => { const p = PLANES[i]; if (opts.only != null && opts.only !== i) return; if (p.hidden) return; if (p.blur && !opts.noBlur) c.filter = `blur(${p.blur * W / 400}px)`; drawPlane(c, p, b, t, null, KT); c.filter = 'none'; });
+  if (!opts.noPost) { c.save(); c.globalCompositeOperation = 'multiply'; const [u, v] = project(0, .9, ZC, b), g = c.createRadialGradient(u, v, F * .05, u, v, F * .95); g.addColorStop(0, '#fff6ea'); g.addColorStop(.45, '#c8b8a4'); g.addColorStop(1, '#2a2622'); c.fillStyle = g; c.fillRect(-pad, -pad, W + 2 * pad, H + 2 * pad);
+    if (!SCREENPAT) { const k = document.createElement('canvas'); k.width = k.height = 3; const kx = k.getContext('2d'); kx.fillStyle = '#d0d0d0'; kx.fillRect(0, 0, 3, 3); kx.fillStyle = '#fff'; kx.beginPath(); kx.arc(1.5, 1.5, 1.3, 0, TAU); kx.fill(); SCREENPAT = c.createPattern(k, 'repeat'); } c.fillStyle = SCREENPAT; c.fillRect(-pad, -pad, W + 2 * pad, H + 2 * pad); c.restore(); }
   if (G.dark > 0) { c.fillStyle = `rgba(0,0,0,${G.dark})`; c.fillRect(0, 0, W, H); }
   c.restore(); }
+let SCREENPAT = null;
 
 /* -------------------------------------------------------------- what can be seen: measured on masks drawn by the same code */
 const MC = document.createElement('canvas'), mx = MC.getContext('2d', { willReadFrequently: true });
@@ -347,7 +368,7 @@ layout(); reset(); requestAnimationFrame(loop);
 window.MP = { ready: false, PLANES, P, G, V, RINGS, EVENTS, TARGETS, get ORDER() { return ORDER; }, get FRAMES() { return FRAMES; }, ZC, PY, D, EYE, get F() { return F; }, get W() { return W; }, get H() { return H; },
   camB, predictedShift, project, sight, sortPlanes, reset, select, handTurn, toggleHold, playScene, STEP_HZ, YAW_PER_STEP,
   film(on) { FILM = on; FRAMES = []; EVENTS.length = 0; NOW = 0; }, step, layout, setKT(t) { KT = t; },
-  render(b, t, only, pad) { pad = pad || 0; const C = document.createElement('canvas'); C.width = W + 2 * pad; C.height = H + 2 * pad; const c = C.getContext('2d'); drawScene(c, b, t, { only, noBlur: true, dpr: 1, pad }); return c.getImageData(0, 0, C.width, C.height).data; },
+  render(b, t, only, pad, post, hide) { pad = pad || 0; const saveZ = (hide || []).map(id => { const p = PLANES.find(q => q.id === id); const z = p.z; p.hidden = true; return p; }); const C = document.createElement('canvas'); C.width = W + 2 * pad; C.height = H + 2 * pad; const c = C.getContext('2d'); drawScene(c, b, t, { only, noBlur: true, dpr: 1, pad, noPost: !post }); return c.getImageData(0, 0, C.width, C.height).data; },
   idColor, idComposite(b, t) { return Array.from(idPicture(b, t)); }, occluder(z, b, t) { return Array.from(occluder(z, b, t)); },
   masks(b, t) { return PLANES.map((p, i) => Array.from(maskOf(i, b, t))); },
   manifest() { return { title: 'Multiplane birthday: plane manifest', units: 'metres; depth is measured from the line the eye moves along; the eye trucks along x only', pivot: { depth: ZC, height: PY, note: 'the cake; a lens shift holds it still on screen' },

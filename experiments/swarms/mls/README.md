@@ -1,6 +1,28 @@
 # SCION // SCHAEFER, MCPHAIL & WARREN · MLS DEFORMATION · THE BLOW
 
-Revision r3 (after critic round 1). Not committed.
+Revision r4: the face was forked (fork.md), and **branch B (sparse face, weight exponent 3 on the face) is promoted to index.html**.
+Branch A (dense face, alpha 1) is dense.html. Everything below the fork section describes r3 = branch A unless it says B. Not committed.
+
+## The fork (r4), in short
+
+The cause of the critic's "families indistinguishable" gap was the weight exponent, not the handle count. At alpha 1 the long pinned
+plate lines dominate every family's fitted transform. Branch B gives the face 19 points and 5 segments (each cheek is a fixed inner
+point and a pushed outer point; 6 lip-contour points spread the mouth's opening) and solves the face at alpha 3.
+
+| | A dense, alpha 1 | B sparse, alpha 3 |
+|---|---|---|
+| plate border / neck movement (cheeks 100 %, purse 60 %) | 0.07 / 0.24 px | 0.00 / 0.06 px |
+| cheek outline, largest difference between face families | 0.95 px (fails) | **4.11 px** (passes) |
+| chosen face family: folds; smallest area ratio | 0; 0.035 | 0; **0.19** |
+| eyes / nose area ratio | 0.97 / 1.21 | 1.005 / 0.99 |
+| affine / rigid face folds | 0 / 0 | 170 / 173 (the visible reason to choose similarity) |
+| cheek disc growth: similarity / affine / rigid | 43 / 43 / 42 % | 69 / 51 / 52 % (the face family matters to the breath again) |
+| test checks passing (of 13) | 10 | 11 (the remaining 2 are the shared flame fade-out fails) |
+
+Files: fork.md, fork.json, fork-strip.png (the face in 3 families, A above B), and fork.mp4 (10 s, A left, B right, with B's sound).
+proof.mp4 is now B; proof-dense.mp4 is A. tests.json and handles.json are A; tests-sparse.json and handles-sparse.json are B
+(`FACE_SET=sparse node tools/test.js`). The improvement in viewer experience is judged by the builder only; critic round 2 has not run.
+
 
 ## Thesis
 
@@ -114,5 +136,5 @@ similarity flames mostly survive and the rigid flames all survive.*
 
 ## Files
 
-index.html, operator.html, proof.mp4, strip.png, handles.json, tests.json, proof-events.json, critic-round1.md, mls.js, scene.js,
+index.html (B), sparse.html (B), dense.html (A), operator.html, proof.mp4 (B), proof-dense.mp4 (A), fork.mp4, fork-strip.png, fork.md, fork.json, strip.png (A), handles.json / tests.json (A), handles-sparse.json / tests-sparse.json (B), proof-events.json, critic-round1.md, tools/fork.js, mls.js, scene.js,
 game.js, sound.js, textures.js, tools/test.js, tools/render.js (needs `python3 -m http.server 8765` at the repo root), tools/shot.js.

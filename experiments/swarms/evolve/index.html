@@ -119,7 +119,7 @@ const TARGETS = [].concat(E.groupsOf('head').map(g => ['head', g]), E.groupsOf('
 const SIG = k => .01 * Math.pow(40, (k - 1) / 11);    // knurl detent 1..12 -> mutation strength 0.010 .. 0.400
 const S = { target: 0, yaw: 35, dark: 0, offAt: 0, candlesAt: 0, lit: 0 };
 const POP = {}; let TRACE = [];
-function initPop() { ['head', 'cake'].forEach((k, i) => { const p = E.start(k, REF); POP[k] = { kind: k, parent: p, shown: p.G.slice(), from: p.G.slice(), morphT: 1, gen: 0, seed: SEED + i * 1000, matched: false, matchAt: 0, kids: [], flash: 0, last: p.fit }; }); TRACE = []; S.candlesAt = 0; S.lit = 0; FLAMES.forEach(f => f.lit = 0);
+function initPop() { ['head', 'cake'].forEach((k, i) => { const p = E.start(k, REF); POP[k] = { kind: k, knurl: 10, parent: p, shown: p.G.slice(), from: p.G.slice(), morphT: 1, gen: 0, seed: SEED + i * 1000, matched: false, matchAt: 0, kids: [], flash: 0, last: p.fit }; }); TRACE = []; S.candlesAt = 0; S.lit = 0; FLAMES.forEach(f => f.lit = 0);
   setHead(HEAD, POP.head.shown); setCake(CAKE, POP.cake.shown); }
 const kindNow = () => TARGETS[S.target][0], groupNow = () => TARGETS[S.target][1];
 /* the rings: what the hand sets (target, in detents) and what the machine has reached (applied) */
@@ -129,7 +129,9 @@ const RINGS = [
   { id: 'tri', ang: 0, target: 0, applied: 0, deg: 20, min: 0, max: 5, ix: 2 }];
 function geneIdx() { const k = kindNow(), g = groupNow(); return E.KIND[k].map((x, i) => i).filter(i => g === 'ALL' || E.KIND[k][i][1] === g); }
 function triRange() { return [0, geneIdx().length]; }
-function select(i, silent) { S.target = (i + TARGETS.length) % TARGETS.length; const t = RINGS[2]; t.target = t.applied = 0; t.ang = 0; if (!silent) sound({ k: 'select' }); toneNow(); }
+function select(i, silent) { const was = POP.head ? kindNow() : null; S.target = (i + TARGETS.length) % TARGETS.length; const t = RINGS[2];
+  if (POP.head && kindNow() !== was) { const kr = RINGS[1]; kr.target = kr.applied = POP[kindNow()].knurl; kr.ang = kr.target * kr.deg; }  /* the knurl takes up the selected form's own mutation strength */
+  t.target = t.applied = 0; t.ang = 0; if (!silent) sound({ k: 'select' }); toneNow(); }
 /* breeding: HOLD queues a generation; the machine reveals its eight variants one step at a time, then keeps the best (elitist: never worse) */
 const JOBS = []; let JOB = null;
 function queueGen() { JOBS.push({ kind: kindNow(), group: groupNow(), bias: RINGS[2].applied, sigma: SIG(RINGS[1].applied) }); }
@@ -151,7 +153,7 @@ function machine(dt) { stepClock += dt; const busy = RINGS.filter(r => r.target 
   if (!busy.length && !breeding) { stepClock = 0; return; }
   const fast = busy.some(r => Math.abs(r.target - r.applied) > 6) || JOBS.length >= 1 && JOB != null, period = fast ? 1 / 23.6 : 1 / 11.8;
   while (stepClock >= period) { stepClock -= period;
-    if (busy.length) { busy.forEach(r => { if (r.target === r.applied) return; r.applied += Math.sign(r.target - r.applied); if (r.id === 'scale') S.yaw = r.applied * 5; sound({ k: 'click', fast, ring: r.ix }); }); continue; }
+    if (busy.length) { busy.forEach(r => { if (r.target === r.applied) return; r.applied += Math.sign(r.target - r.applied); if (r.id === 'scale') S.yaw = r.applied * 5; if (r.id === 'knurl') POP[kindNow()].knurl = r.applied; sound({ k: 'click', fast, ring: r.ix }); }); continue; }
     if (!JOB && JOBS.length) startJob(); if (JOB) jobStep(fast); if (!JOB && !JOBS.length) break; } }
 /* candles: when both are grown, seven candles appear on her cake and light at the machine's pace */
 function candles(dt) { if (!S.candlesAt || NOW < S.candlesAt) return; const n = Math.min(7, Math.floor((NOW - S.candlesAt) * 11.8 / 3) + 1); while (S.lit < n) { FLAMES[S.lit].lit = 1; S.lit++; sound({ k: 'light' }); sound({ k: 'click', ring: 1 }); if (S.lit === 7) sound({ k: 'wash', v: 1 }); } }

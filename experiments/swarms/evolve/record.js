@@ -25,8 +25,8 @@ const out = process.argv[2] || '/tmp/evolve-rec', DUR = 20, URL = 'http://localh
   for (F = 0; F < N; F++) {
     const s = await st(); const busyPtr = pending.some(a => a[0] >= F);
     if (!busyPtr) {
-      const fit = phase === 'head' ? s.h : s.c, want = fit < .8 ? 10 : fit < .88 ? 8 : 7;     // the player's hand on the knurl: smaller steps as it gets close
-      if ((phase === 'head' || phase === 'cake') && want < knurlSet[phase]) { drag(geo.knurl, want - knurlSet[phase], 8); log.push([+(F / 30).toFixed(2), 'knurl', want]); knurlSet[phase] = want; }
+      const fit = phase === 'head' ? s.h : s.c, want = phase === 'head' ? (fit < .8 ? 10 : fit < .88 ? 8 : 7) : (fit < .7 ? 12 : fit < .8 ? 10 : 8);     // the player's hand on the knurl: smaller steps as it gets close
+      if ((phase === 'head' || phase === 'cake') && want !== knurlSet[phase]) { drag(geo.knurl, want - knurlSet[phase], 8); log.push([+(F / 30).toFixed(2), 'knurl', want]); knurlSet[phase] = want; }
       else if (phase === 'head' && s.hm) { phase = 'toCake'; nextHold = F + 24; log.push([+(F / 30).toFixed(2), 'head grown', +s.h.toFixed(4)]); }
       else if (phase === 'toCake' && F >= nextHold) { if (selects < 6) { tap(geo.sel, 2); selects++; nextHold = F + 5; log.push([+(F / 30).toFixed(2), 'select']); } else { phase = 'cake'; nextHold = F + 6; } }
       else if (phase === 'cake' && s.cm) { phase = 'done'; nextHold = F + 8; log.push([+(F / 30).toFixed(2), 'cake grown', +s.c.toFixed(4)]); }
