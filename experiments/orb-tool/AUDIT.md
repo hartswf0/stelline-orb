@@ -105,7 +105,7 @@ Scripts: experiments/orb-tool/audit/probe.js (generic controls + canvas row), pr
 | ana/index.html | no | 0 (canvas device) | — | — | — | 50 ms | MM |
 | cineosis-orb/index.html | no | 0 | — | — | — | 483 ms | FORGE |
 
-1280x800 static rows are appended to results2/static.json as the run completes.
+At 1280x800 (same file): the same pattern. film.html scrolls and has 27 of 30 visible text nodes under 12 px; stage.html 5 of 7 under 12 px (6.8 px smallest); studio.html 15 DOM controls, all under 44 px in one dimension; no page other than film.html scrolls at either size; no page threw its own console error at load (all console errors were the blocked fonts and MQTT relays). Frame time at 1280x800 under the same load: ana 183 ms; v5 8, maker 9, cineosis 14, studio 3, film 4, stage 3, weaver 2 frames in 15 s.
 
 ### M2. hand-orb-v5.html at 390x844, every ring and button pressed at its own place on the device (results2/v5input-390x844.json)
 
