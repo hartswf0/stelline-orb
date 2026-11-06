@@ -17,13 +17,13 @@ function shiftOf(A, B, W, H, maxS) { const g = d => { const o = new Float32Array
   fs.writeFileSync(path.join(DIR, 'planes.json'), JSON.stringify(await pg.evaluate(() => MP.manifest()), null, 1));
   // ---------- 1. parallax: each card's measured slide between two eye positions against F*db*(1/zc - 1/z)
   const configs = [{ name: 'start', set: {} }, { name: 'moved', set: { near: 1.4, left: 4.4, right: 2.9, string: 2.2 } }];
-  const rows = [];
+  const rows = []; // (G-dark overlay and the game text are not part of render)
   for (const cf of configs) {
     const info = await pg.evaluate(set => { MP.reset(); MP.setKT(0); for (const [k, z] of Object.entries(set)) MP.P[k].z = z; MP.sortPlanes(); return MP.PLANES.map(p => ({ id: p.id, z: p.z })); }, cf.set);
     const b0 = await pg.evaluate(() => MP.camB(-6)), b1 = await pg.evaluate(() => MP.camB(6));
     for (let i = 0; i < info.length; i++) { if (cf.name === 'moved' && !['child2', 'child1', 'child3', 'string'].includes(info[i].id)) continue;
-      const A = await pg.evaluate(([b, i]) => MP.render(b, 0, i), [b0, i]), B = await pg.evaluate(([b, i]) => MP.render(b, 0, i), [b1, i]);
-      const pred = F * (b1 - b0) * (1 / ZC - 1 / info[i].z), meas = shiftOf(A, B, W, H, Math.ceil(Math.abs(pred)) + 40);
+      const PAD = 560, A = await pg.evaluate(([b, i, p]) => MP.render(b, 0, i, p), [b0, i, PAD]), B = await pg.evaluate(([b, i, p]) => MP.render(b, 0, i, p), [b1, i, PAD]);   // rendered with a wide margin, so a card that leaves the phone's frame is still measured
+      const pred = F * (b1 - b0) * (1 / ZC - 1 / info[i].z), meas = shiftOf(A, B, W + 2 * PAD, H + 2 * PAD, Math.ceil(Math.abs(pred)) + 40);
       const err = meas - pred, tol = Math.max(1.0, .02 * Math.abs(pred)); rows.push({ config: cf.name, plane: info[i].id, depth: info[i].z, predictedPx: +pred.toFixed(2), measuredPx: +meas.toFixed(2), errorPx: +err.toFixed(2), ok: Math.abs(err) <= tol }); } }
   const worst = rows.reduce((m, r) => Math.abs(r.errorPx) > Math.abs(m.errorPx) ? r : m, rows[0]);
   // the law itself: measured slide divided by (1/zc - 1/z) should be one constant, F*db, for every card away from the pivot

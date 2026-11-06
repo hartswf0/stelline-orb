@@ -23,7 +23,7 @@ The device canvas from `ana/index.html` (rings, collars, SELECT, HOLD, SCENE, CL
 | HOLD | short press: blow, once all seven are lit (refused with a dull click before); long press: memory off | |
 
 Each detent the hand passes is a quiet click. The machine then steps every busy channel one detent at a time at 11.8
-steps/s (23.6 when more than six behind), one device click per step, and re-solves her body after every step. A candle
+steps/s (23.6 only when more than 15 detents behind), one device click per step, and re-solves her body after every step. A candle
 lights when the taper's flame comes within 1.5 cm of its wick in 3D, which needs the cake turned so that candle lies in her
 plane (a dashed line across the cake top shows that plane while the cake is selected).
 
@@ -32,9 +32,9 @@ plane (a dashed line across the cake top shows that plane while the cake is sele
 - **Points and lines.** 13 points in her plane (ankles, knees, hip, chest/shoulder, neck, head, near elbow, wrist, taper
   flame, far elbow, far wrist), 12 bones with fixed lengths (the last near bone is hand plus taper, 0.15 m).
 - **Hard constraints.** Bone lengths; ankles pinned (supported-on floor); knees in front of the ankle-hip line, elbows
-  below/behind the shoulder-wrist line (one bend each); elbow closing limit; knee bend limit; waist lean at most 50 degrees;
+  below/behind the shoulder-wrist line (one bend each); elbow closing limit; wrist bend at most about 55 degrees; knee bend limit; waist lean at most 50 degrees;
   contact (no point inside the table or cake); balance: centre of mass between heel and toe (aligned-with).
-- **Soft constraints.** The taper flame held-by the light pen; upright waist, neck and head; far arm hangs; knees nearly
+- **Soft constraints.** The taper flame held-by the light pen; weak upright waist; shoulder 0.47 m from the flame (comfort, keeps the elbow bent); hand in line with the forearm; neck and head halfway to upright; far arm hangs; knees nearly
   straight.
 - **Solver.** Sutherland-style relaxation (position projection, Gauss-Seidel). Tier 1: the pen joins the hard set and
   everything is solved around it; accepted if every hard residual falls below 1e-6 m, then refined. Tier 2 (only if tier 1
@@ -52,26 +52,25 @@ plane (a dashed line across the cake top shows that plane while the cake is sele
   machine step, a lighter tick when a constraint is met (pen reached, or a candle lit, with a short wash), a low comb grain
   when the goal becomes unreachable, the select chirp, a wash for the blow.
 
-## Measured (proof passage, `solver-trace.json`, 134 machine steps)
+## Measured (revision 2, after critic round 1; `solver-trace.json`, the whole scripted birthday, 224 machine steps)
 
-| event | time (s) |
+| event | time in birthday.mp4 (s) |
 |---|---|
-| reach goes past what she can do: UNSOLVABLE (ARM AT FULL LENGTH, BALANCE AT TOES, WAIST AT LIMIT) | 2.43 |
-| cake slid 31.5 cm toward her, turned 40 degrees; the pen is reachable again (tick) | 5.07 |
-| candle 0 lit | 6.30 |
-| candle 6 lit (cake turned under the held taper) | 7.27 |
-| candle 4 lit | 9.00 |
+| reach goes past what she can do: UNSOLVABLE (ARM AT FULL LENGTH, BALANCE AT TOES, WAIST AT LIMIT) | 2.77 |
+| cake slid toward her and turned; the pen is reachable again (tick) | 8.03 |
+| candles lit, in order 0, 6, 4, 2 (cake turned under the held taper), then 1, 5, 3 | 10.23, 11.47, 13.67, 15.77, 18.03, 21.07, 23.17 |
+| HOLD: she blows them out, all seven out | 26.4 to 27.23 |
 
-Worst hard residual over every step: 2e-8 m. Largest pen-to-flame residual while unreachable: 88 mm (shown on screen as the
-amber dimension line). Largest movement of any body point in one machine step: 3.4 cm. Elbow open angle 94 to 180 degrees.
-Waist lean up to 50 degrees (the limit).
+Worst hard residual over every step: 2e-8 m. Largest pen-to-flame residual while unreachable: 48 mm (drawn as the amber
+dimension line). Largest movement of any body point in one step: 3.5 cm. Elbow at the seven lit events: 112.6 to 114.2
+degrees. No tier-1 (reachable) step has a straight elbow; the largest tier-1 elbow is 166.6 degrees, at the edge of reach.
+All 224 steps ran at 11.8/s (23.6/s now only when a ring is more than 15 detents ahead).
 
-Unit tests (`node tests.js`, 22 passed, 0 failed; tolerances declared at the top of the file): hard constraints over a
-252-point pen sweep (worst 2e-8 m; 135 met, 117 unreachable); reachable wick met (0.0001 mm, elbow 122 degrees); unreachable
-pen reported with a 26 cm residual, hard set intact, a named limit, hand pointing toward the pen (cos 0.95); a 1 mm pen
-change moves no point more than 1.18 mm; proof passage: no step moves a point more than 3.44 cm, candles attached to 4e-17 m,
-cake stays on the top, at most 42 steps in any 2 s; HOLD refused before seven are lit, accepted after, all seven go out;
-deterministic trace; draw order honours all 21 behind relations.
+Unit tests (`node tests.js`, 25 passed, 0 failed; tolerances declared at the top of the file), including the critic's
+repair condition: elbow at every lit event in 100 to 165 degrees, a straight elbow only at tier 2, and 11.8/s dominating.
+Also: hard set over a 252-point pen sweep (137 met, 115 unreachable); unreachable pen reported with a residual, a named limit,
+the hand pointing toward it; a 1 mm pen change moves no point more than 1.11 mm; candles attached to 4e-17 m; cake stays on
+the top; HOLD refused before seven are lit; deterministic trace; draw order honours all 21 behind relations.
 
 ## Invariants (protected)
 
@@ -100,28 +99,44 @@ deterministic trace; draw order honours all 21 behind relations.
 
 ## Independent critic
 
-**Not run.** This builder had no tool to spawn a separate agent. The verdict is open. The critic should receive only the
-expected experience (above, "Thesis" and "The controller") and the outputs (`proof.mp4`, `index.html`), watch the film at
-normal speed, and return pass / reference stronger / inconclusive with exact frames, the largest gap, a falsifiable repair
-condition and strengths. Builder's own viewing of a 2 fps contact sheet only (not a critic): the reach, the stop at full
-reach with the dimension line, the slide, the return and the three lightings all read.
+Round 1 was run by the coordinator (this builder had no tool to spawn agents); the report is `critic-round1.md`.
+**Verdict: PASS**, with one believability gap: "The elbow does not bend believably. When a candle is reachable the arm still
+locks straight (elbow_deg 180, tier 1 solved) ... she reads as a folding mannequin." Also: on the phone she sat against the
+left edge with ~40% empty floor; the info panel said lean limit 75 while the solver used 50; most steps ran at 23.6/s.
+Repair condition: in a scripted run that lights all 7 candles, the elbow at every lit event is 100 to 165 degrees and 180
+appears only at tier 2. Preserve: the device as the only controller, the tier-2 stop with the visible gap and millimetre
+readout, candles brought into her plane by turning the cake, the sound map, the no-scroll phone layout.
+
+Repair (revision 2), at the cause:
+- Cause: nothing in the solver preferred a bent elbow, and the wrist was an unconstrained joint, so the solver either locked
+  the elbow or folded the hand at the wrist. Added a comfort term (the shoulder prefers 0.47 m from the flame, so the waist
+  and knees carry the reach), a soft preference for the hand in line with the forearm, and a hard wrist limit (about 55
+  degrees); she also stands 4 cm closer. Measured result above: lit elbows 113 to 114 degrees.
+- The neck and head now follow the spine halfway to upright instead of staying vertical; the skirt hangs between the thighs
+  and straight down instead of folding along the thighs.
+- Phone framing: a larger scale and the stage centred vertically on narrow screens.
+- Info panel reads the solver's own lean limit (50).
+- Fast stepping only beyond 15 detents behind; the script turns at about 14 detents a second.
+- The scripted run now lights all seven and ends with the blow: `birthday.mp4` (29 s). `proof.mp4` is its 0.6 to 10.6 s
+  window (reach, out of reach, cake brought in, first candle lit at 9.6 s of the clip).
+- Round 2 of the critic has not been run.
 
 ## What is weak, unknown, not done
 
-- The figure is small in a 1280 x 720 frame (about 380 px tall) and the cake smaller; the candle-lighting moments are hard to
-  see without the device readout.
+- The figure is small in a 1280 x 720 frame (about 380 px tall) and the cake smaller; the candle lightings are small.
 - At the 50 degree lean the paper cut-out reads stiff: the dress is one polygon, the neck bends visibly, and she does not
   bend her far arm or shift weight in a way a child would.
 - The reach is solved in her plane only; her hand cannot move in depth, so the game makes you turn the cake instead. That is
   a rule of this world, stated, not physics.
 - The arm can pass through lit candles' flames and through candles; candles are not obstacles.
-- Sound: the mix peaked at 1.07 before normalisation (overlapping washes); levels are not measured against the film.
-- The blow is not in the 10 s proof (lighting all seven takes about 40 s of play); it is tested in node and playable.
+- Sound: the mix peaks at 0.84; levels are not measured against the film.
+- The blow is not in the 10 s proof; it is in birthday.mp4 (29 s).
+- At the lit events she leans back a few degrees (lean -4) because the comfort term pushes the shoulder away when the wick is close.
 - Film reference clip (`memory.mp4`) was not inspected; forensic facts were taken from the brief. Not tested on a phone.
 
 ## Files
 
 `index.html` (the game), `solver.js` (scene, relations, solver, game), `proof-script.js` (the proof as ring turns),
 `tests.js`, `solver-trace.json`, `render.js` + `mix.js` (film: Playwright at a fixed 30 fps clock, grains mixed at the
-logged times, ffmpeg), `proof.mp4`, `operator.html`. Rerun: from the repo root, `python3 -m http.server 8731` then
+logged times, ffmpeg), `proof.mp4`, `birthday.mp4`, `critic-round1.md`, `operator.html`. Rerun: from the repo root, `python3 -m http.server 8731` then
 `node experiments/swarms/constraint/render.js`.
