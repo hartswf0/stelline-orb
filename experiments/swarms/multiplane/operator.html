@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Multiplane Operator</title>
+<style>
+:root { --bg: #050606; --ink: #d9e2de; --dim: #8a9792; --amber: #e8b264; --line: #1c201e; }
+* { box-sizing: border-box; } body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 -apple-system, Arial, sans-serif; }
+main { max-width: 680px; margin: 0 auto; padding: 16px; }
+h1 { font: 500 20px/1.2 Arial Narrow, Arial, sans-serif; letter-spacing: .08em; margin: 4px 0 2px; } h2 { font-size: 13px; letter-spacing: .12em; color: var(--amber); margin: 22px 0 6px; text-transform: uppercase; }
+.sub { color: var(--dim); margin: 0 0 14px; }
+a.play { display: block; text-align: center; padding: 16px; border: 1px solid var(--amber); color: var(--amber); text-decoration: none; letter-spacing: .14em; border-radius: 6px; font-weight: 600; }
+video { width: 100%; max-height: 70vh; background: #000; border: 1px solid var(--line); margin-top: 12px; }
+table { width: 100%; border-collapse: collapse; } td { padding: 6px 4px; border-bottom: 1px solid var(--line); vertical-align: top; } td:first-child { color: var(--dim); white-space: nowrap; padding-right: 10px; }
+.v { font-weight: 600; } ul { padding-left: 18px; margin: 4px 0; } a { color: var(--amber); }
+</style></head><body><main>
+<h1>MULTIPLANE BIRTHDAY</h1>
+<p class="sub">Swarm: multiplane parallax. The memory maker's device is the controller.</p>
+<a class="play" href="index.html">PLAY THE GAME</a>
+<video src="proof.mp4" controls playsinline preload="metadata"></video>
+<h2>Revision</h2>
+<table>
+<tr><td>Revision</td><td>r3 (2026-11-06): device controller, one-move depth puzzle, proof film 10 s.</td></tr>
+<tr><td>Accepted checkpoint</td><td>None yet. Not committed by this swarm (the coordinator commits).</td></tr>
+</table>
+<h2>Critic verdict</h2>
+<p class="v">Inconclusive: no independent critic has run.</p>
+<p>This builder had no tool for starting a separate agent, so no fresh critic watched the proof film. The builder's own viewing does not count as a verdict.</p>
+<h2>Next blocking failure</h2>
+<p>An independent critic must watch proof.mp4 at normal speed and return pass, reference stronger or inconclusive, with frames, the largest gap and a repair condition.</p>
+<h2>Measured (tests/run.js)</h2>
+<ul id="m"><li>See tests/results.json.</li></ul>
+<h2>Links</h2>
+<ul>
+<li><a href="index.html">index.html</a>: the game</li>
+<li><a href="proof.mp4">proof.mp4</a>: 10 s proof film with sound</li>
+<li><a href="planes.json">planes.json</a>: every plane, its depth, source and rights</li>
+<li><a href="trace.json">trace.json</a>: every frame and sound event of the proof</li>
+<li><a href="tests/results.json">tests/results.json</a>: invariant results</li>
+<li><a href="README.md">README.md</a></li>
+</ul>
+</main>
+<script>
+fetch('tests/results.json').then(r => r.json()).then(R => { const m = document.getElementById('m'); m.innerHTML = '';
+  Object.entries(R.tests).forEach(([k, v]) => { const li = document.createElement('li'); li.textContent = (v.pass ? 'PASS  ' : 'FAIL  ') + k.replace(/_/g, ' '); m.append(li); }); }).catch(() => { });
+</script></body></html>
