@@ -10,7 +10,7 @@ const { chromium } = require('playwright'), fs = require('fs'), path = require('
   p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
   const ok = (c, m) => { res.checks.push({ ok: !!c, m }); console.log((c ? 'PASS ' : 'FAIL ') + m); };
   await p.goto('http://localhost:8741/experiments/swarms/3d-metamorphosis/index.html?proof'); await p.waitForFunction(() => window.PG);
-  const adv = s => p.evaluate(n => { for (let i = 0; i < n; i++) PG.advance(1 / 30, i < n - 1); }, Math.round(s * 30));
+  const adv = s => p.evaluate(n => { for (let i = 0; i < n; i++) PG.advance(1 / 30, true); }, Math.round(s * 30));   // logic only; nothing in the test reads pixels
   await p.evaluate(() => PG.play()); let guard = 0;
   while (await p.evaluate(() => PG.S.cur !== 'BROWN_DOME') && guard++ < 60) await adv(.5);
   await adv(.4); await p.evaluate(() => PG.stop());

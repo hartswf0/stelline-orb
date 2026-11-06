@@ -44,8 +44,23 @@ const CAKE_V2 = { frostTop: 0.03, frostSide: 0.03 };
 const FRAME_V2 = { A: { fov: 1.12, lookY: 0.03 }, B: { lookY: 0.04, camZ: 0.12 } };
 function upgradeV2(G, r) { const o = clone(G); for (const k in SCENE_V2) if (o.scene[k] == null) o.scene[k] = SCENE_V2[k];
   o.scene.seed = Math.round(1 + r() * 998); Object.assign(o.look, LOOK_V2); Object.assign(o.cake, CAKE_V2); o.cake.topL = Math.max(o.cake.topL, 74); o.cake.topB = Math.min(o.cake.topB, 38); o.cake.sideL = o.cake.topL - 8; o.cake.sideB = o.cake.topB - 4; o.inscription.count = 0.875; o.scene.flameGain = SCENE_V2.flameGain; o.scene.flameH = Math.max(o.scene.flameH, 1); Object.assign(o.scene, FRAME_V2[o.scene.shot]); o.tool = 2; return o; }
+/* TOOL v3 (round 03): narrower ranges (form, palette, framing) and new genes; upgradeV3 clamps every genome into them */
+const V3R = { 'scene.lump': [0, 0.0015], 'scene.lop': [-0.002, 0.002], 'scene.ridge': [0, 0.0012], 'scene.rimW': [0.002, 0.005], 'scene.room': [0, 0.4],
+  'scene.scale': [0.9, 1.1], 'scene.camX': [-0.05, 0.05], 'scene.camY': [-0.05, 0.05], 'scene.camZ': [-0.05, 0.15], 'scene.lookX': [-0.04, 0.04], 'scene.lookY': [-0.02, 0.07], 'scene.fov': [0.95, 1.2],
+  'scene.tintR': [1.05, 1.2], 'scene.tintG': [0.95, 1.05], 'scene.tintB': [0.8, 0.95], 'scene.modFlame': [0, 0.4], 'scene.flameGain': [1.2, 2.0], 'scene.dots': [24, 50], 'scene.dotS': [0.004, 0.0065], 'scene.halo': [0, 0.6], 'scene.flameW': [0.7, 1.3], 'scene.flameH': [0.8, 1.4], 'scene.lean': [2, 12],
+  'scene.candleLen': [0.65, 0.9], 'scene.candleThick': [1.1, 1.6], 'scene.seam': [0, 1], 'scene.seamY': [0.35, 0.65], 'scene.tableR': [0.45, 0.7], 'scene.tiltX': [0, 0.5], 'scene.tiltZ': [-0.35, 0.05],
+  'cake.height': [0.45, 0.68], 'cake.dome': [0, 0.06], 'cake.bevel': [0, 0.06], 'cake.taper': [0.97, 1.03], 'cake.layers': [1, 2], 'cake.frostTop': [0, 0.04], 'cake.frostSide': [0, 0.04],
+  'cake.topL': [72, 86], 'cake.topA': [0, 6], 'cake.topB': [28, 45], 'cake.sideL': [62, 80], 'cake.sideA': [0, 6], 'cake.sideB': [24, 42],
+  'inscription.pressure': [0.0055, 0.008], 'inscription.r': [0.7, 0.9], 'inscription.g': [0.12, 0.3], 'inscription.b': [0.05, 0.2],
+  'look.wbR': [0.95, 1.15], 'look.wbB': [0.85, 1.05], 'look.saturation': [0.55, 0.8], 'look.exposure': [1.0, 1.6], 'look.contrast': [0.8, 1.0], 'look.tableTone': [0.06, 0.2], 'look.icingWarm': [0, 0.35],
+  'look.roughIcing': [0.35, 0.6], 'look.bumpIcing': [0.2, 0.8], 'look.keyHeight': [0.6, 1.0], 'look.keyForward': [0.8, 1.3], 'look.candleIntensity': [1.4, 3], 'look.keyKelvin': [2100, 2700] };
+const V3D = { scene: { modFlame: 0, flameGain: 1.6, lump: 0.0008, lop: 0.001, ridge: 0.0006, rimW: 0.0035, room: 0, halo: 0.3, flameW: 1, flameH: 1, candleLen: 0.78, candleThick: 1.3, seam: 1, seamY: 0.5, tableR: 0.55, insLift: 0.002 },
+  look: { tableTone: 0.12, keyHeight: 0.75, keyForward: 1.1, keyKelvin: 2300, candleIntensity: 2.0, candleDecay: 2.0, roughIcing: 0.45, bumpIcing: 0.5 } };
+function upgradeV3(G) { const o = clone(G); Object.assign(o.scene, V3D.scene); Object.assign(o.look, V3D.look);
+  for (const part of ['scene', 'cake', 'inscription', 'look']) for (const k in o[part]) { const rg = V3R[part + '.' + k]; if (rg && typeof o[part][k] === 'number') o[part][k] = clamp(o[part][k], rg[0], rg[1]); }
+  if (o.cake.layers != null) o.cake.layers = Math.round(o.cake.layers); o.tool = 3; return o; }
 const LOOK_SEED = { wbB: 0.95, wbR: 1.0, saturation: 0.72, flame: 2.2, halo: 0.6, tableTone: 0.22, keyIntensity: 1.6, grain: 0.04 };
-function rangeOf(part, key) { if (part === 'scene') return SCENE_R[key]; if (part === 'look') return LOOK_R[key]; const g = mods[part].genes.find(g => g[0] === key); return g && [g[2], g[3]]; }
+function rangeOf(part, key) { if (V3R[part + '.' + key]) return V3R[part + '.' + key]; if (part === 'scene') return SCENE_R[key]; if (part === 'look') return LOOK_R[key]; const g = mods[part].genes.find(g => g[0] === key); return g && [g[2], g[3]]; }
 const INT = { 'cake.layers': 1, 'candles.count': 1 };
 
 function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -133,7 +148,8 @@ async function next(scoresFile) {
   if (N >= 8) { console.log('STOP: 8 rounds'); return; }
   // select: elitist, keep top 2; 6 children biased to the named giveaways; keep both framings in the population
   const M = N + 1, r = mulberry32(1000 + M);
-  best.forEach(c => { if ((c.genome.tool || 1) < 2) c.genome = upgradeV2(c.genome, r); });
+  best.forEach(c => { if ((c.genome.tool || 1) < 2) c.genome = upgradeV2(c.genome, r); if (c.genome.tool < 3) c.genome = upgradeV3(c.genome); });
+  if (process.env.ELITES) { const want = process.env.ELITES.split(','); best.sort((a, b) => (want.includes(b.id) ? 1 : 0) - (want.includes(a.id) ? 1 : 0) || b.score - a.score); last.selection = 'coordinator: ' + want.join(', '); }
   const elite = best.slice(0, 2), kids = [];
   const pool = best.slice(0, 4), byShot = s => best.filter(c => c.genome.scene.shot === s);
   const need = { A: 4 - elite.filter(c => c.genome.scene.shot === 'A').length, B: 4 - elite.filter(c => c.genome.scene.shot === 'B').length };
@@ -147,4 +163,4 @@ async function next(scoresFile) {
 const [cmd, arg] = process.argv.slice(2);
 (cmd === 'init' ? init() : cmd === 'next' ? next(arg) : cmd === 'write' ? (async () => { const t = loadTrace(), rd = t.rounds.find(x => x.round === +arg); await writeRound(rd.round, rd.candidates, rd.tool); })() : Promise.resolve(console.log('usage: node maker.js init | next <scores.json> | write <NN>')))
   .catch(e => { console.error(e); process.exit(1); });
-module.exports = { mutate, steer, seedGenome, upgradeV2, mulberry32 };
+module.exports = { mutate, steer, seedGenome, upgradeV2, upgradeV3, mulberry32 };

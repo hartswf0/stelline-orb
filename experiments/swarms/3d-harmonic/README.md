@@ -30,7 +30,7 @@ The critic's verdict on r2 (critic-round1.md): the making and the game pass; the
 - **A second film cake.** The nozzle ratio at the COAT pass picks the recipe: 1:1 gives white cream, 2:1 gives chocolate with an orange glaze top. The chocolate recipe has its own targets: beads 18:1, shells 28:1, garland 5:1 at 0 degrees, and the same candles. Test 7 shows both cakes are reachable and each rejects the other's bead ring. The r3 proof plays the chocolate cake. The white path is covered by the node tests and still renders, but not by a video.
 - **Sound.** The piping bed is about 12 dB lower and narrow-band, and the spread bed is about 12 dB lower. The machine and hand clicks are louder.
   - Measured as 50 ms window levels (p10 / median / p95): r2 −34.5 / −21.2 / −15.7 dB, r3 −35.0 / −20.1 / −14.6 dB. The bed is lower, so more of the level now comes from the clicks. The spread between quiet and loud windows hardly changed, so this measure does not show a clear improvement. Listen before believing it.
-- **Rate burst found.** The r3 trace shows one 6-step window at 30 steps/s. Time banked at the slow rate was spent at the fast rate when a drag pulled the ring more than 6 behind. Fixed after recording (`stepClock` is capped). See test 6 below.
+- **Rate burst found.** The r3 trace shows one 6-step window at 30 steps/s. Time banked at the slow rate was spent at the fast rate when a drag pulled the ring more than 6 behind. Fixed after recording (`stepClock` is capped). The proof's trace.json still fails test 6 (30.0/s). The same scripted game re-run after the fix without screenshots (trace-fixed-rate.json, `TRACE=trace-fixed-rate.json node tests.js`) passes all 7 tests: fastest window 22.56/s, slow tails 11.5-12.5/s. The proof video predates the fix.
 - **FILM-BAR.md.** The shared look.js and holo.js did not exist when this round finished (experiments/swarms/shared/ was absent). Adoption is pending. This page keeps its own grade and ana's device and arc.
 
 ## Measured at r2 (kept for the record; r3 numbers are in the section above and in tests.json)
@@ -63,4 +63,4 @@ The critic's verdict on r2 (critic-round1.md): the making and the game pass; the
 - Each run of record.js plays the same scripted route. Sound is synthesized except for the device click grains.
 
 ## Files
-index.html, harmonic.js, tests.js, tests.json, trace.json, record.js (Playwright; serve the repo root on port 8779), proof.mp4 (gitignored), strip.jpg, operator.html.
+trace-fixed-rate.json (post-fix rerun), critic-round1.md, index.html, harmonic.js, tests.js, tests.json, trace.json, record.js (Playwright; serve the repo root on port 8779), proof.mp4 (gitignored), strip.jpg, operator.html.

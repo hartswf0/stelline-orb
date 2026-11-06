@@ -26,12 +26,12 @@
 <script src="../../../ana/assets/three.min.js"></script>
 <script src="scene.js"></script>
 <script>
-/* Bench: ?manual leaves the frame loop to the caller (tests call BENCH.frame(ms)); ?q=high|mid|low; ?faceless. */
+/* Bench: ?manual leaves the frame loop to the caller (tests call BENCH.frame(ms)); ?q=high|mid|low; ?cutout. */
 const Q = new URLSearchParams(location.search);
 const orb = window.ORB = CORE_BUS.createOrb(); const mach = CORE_MACHINE.create(orb);
 const view = document.getElementById('view'), msg = document.getElementById('msg');
 const cv = document.createElement('canvas'); view.prepend(cv);
-const h = SCENE.mount(cv, orb, { quality: Q.get('q') || undefined, preserve: Q.has('preserve'), figures: Q.has('faceless') ? 'faceless' : 'cutout', maxDpr: Q.has('dpr') ? +Q.get('dpr') : undefined });
+const h = SCENE.mount(cv, orb, { quality: Q.get('q') || undefined, preserve: Q.has('preserve'), figures: Q.has('cutout') ? 'cutout' : 'faceless', maxDpr: Q.has('dpr') ? +Q.get('dpr') : undefined });
 let last = 0; const step = now => { mach.tick(last ? Math.min(.1, (now - last) / 1000) : 0); last = now; h.frame(now); };
 window.BENCH = { orb, mach, h, frame: step, ready: h.ready };
 if (!Q.has('manual')) h.ready.then(() => { const loop = now => { step(now); requestAnimationFrame(loop); }; requestAnimationFrame(loop); });

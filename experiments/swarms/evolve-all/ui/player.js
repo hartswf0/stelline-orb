@@ -35,7 +35,7 @@
       if (style.waitsAll) { n = ui.lambda; M.idle += n * (style.compare[ui.layout] + Math.max(0, ui.rate - 12) * style.strain) + style.react; M.time += reveal; }
       else { n = Math.min(ui.lambda, 1 + Math.floor(style.react * ui.rate)); M.idle += Math.max(0, style.react - reveal); M.time += style.react; }
       // the player chooses: SELECT moves the highlight from the first variant onward (the parent is the last stop), HOLD keeps it
-      const target = chooseChild(style, res.kids.slice(0, n).map(k => k.ok === false ? -1 : k.score), res.parentScore, r);   // a variant that breaks a passed stage is shown as such and passed over M.moves += target; M.gens++;
+      const target = chooseChild(style, res.kids.slice(0, n).map(k => k.ok === false ? -1 : k.score), res.parentScore, r); M.moves += target; M.gens++;   // a variant that breaks a passed stage is shown as such and passed over
       if (target < n) { M.accepted++; P = { G: res.kids[target].G, e: res.kids[target].e }; if (target !== bestOf(res.kids.slice(0, n).map(k => k.score))) M.offBest = (M.offBest || 0) + 1; } const ns = BREED.advance(mod, P.e, si); if (ns > si) M.stages += ns - si; si = ns; }
     M.time += M.idle; M.passed = si >= mod.stages.length; M.fit = +P.e.fit.toFixed(4); return M; }
   /* what the player's eye picks: the hint (the stage's measure per variant) read with the style's own error; index n = keep the parent */

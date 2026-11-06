@@ -86,7 +86,16 @@ async function deviceHandle(page) {
     const rings = [0, 1, 2, 3].map(i => ({ mid: D.toPage(D.ringX(i), (D.BODY[0] + D.BODY[1]) / 2), step: D.toPage(D.ringX(i), (D.BODY[0] + D.BODY[1]) / 2 + 22)[1] - D.toPage(D.ringX(i), (D.BODY[0] + D.BODY[1]) / 2)[1] }));
     return { btn, rings }; }); }
 async function glide(page, x, y, ms) { const steps = Math.max(4, Math.round((ms || 300) / 16)); await page.mouse.move(x, y, { steps }); }
-async function tap(page, dev, id, long) { const [x, y] = dev.btn[id]; await glide(page, x, y, 220); await page.mouse.down(); await sleep(long ? 900 : 110); await page.mouse.up(); await sleep(180); }
+// a press: the finger glides there with the mouse, then pointerdown/pointerup are dispatched on the device canvas in one
+// task (a short press) or 900 ms apart (a long press). Under heavy CPU load a mouse down/up pair is processed late and
+// the device times it as a long press (it reads performance.now() in the handlers), so the pair is not left to the queue.
+async function tap(page, dev, id, long) { const [x, y] = dev.btn[id]; await glide(page, x, y, 220);
+  const fire = (type, x, y) => page.evaluate(({ type, x, y }) => { const cv = (window.ORB_DEVICE || window.DEVICE || window.ORB.device).cv;
+    const o = { clientX: x, clientY: y, pointerId: 1, pointerType: 'mouse', isPrimary: true, bubbles: true, cancelable: true, buttons: type === 'pointerdown' ? 1 : 0 };
+    if (type === 'tap') { cv.dispatchEvent(new PointerEvent('pointerdown', o)); window.dispatchEvent(new PointerEvent('pointerup', Object.assign({}, o, { buttons: 0 }))); }
+    else (type === 'pointerdown' ? cv : window).dispatchEvent(new PointerEvent(type, o)); }, { type, x, y });
+  if (!long) await fire('tap', x, y); else { await fire('pointerdown', x, y); await sleep(950); await fire('pointerup', x, y); }
+  await sleep(180); }
 // turn a ring by about n detents: drag up for +, down for -
 async function turnRing(page, dev, i, n) { const r = dev.rings[i]; const [x, y] = r.mid; await glide(page, x, y, 350); await page.mouse.down();
   const per = 54 * Math.sin(24 * Math.PI / 180); // device units per detent, as core/device.js

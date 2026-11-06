@@ -2,14 +2,14 @@
    three.js r128. The look is LOOK (experiments/swarms/shared/look.js: grade, candle warmth, bloom, grain, spot screen) and the
    hologram UI is HOLO (shared/holo.js: the segmented C arc with its stepping mark, the typing readout, the child marks, the round
    spots the memory switches on and off in). The made things are the evolve-all modules (cake, inscription, candles, table) built
-   from evolved genomes (scene/genomes.js) and the state; the children are the film's own cut-outs as in weaver.html, lit by the scene.
+   from evolved genomes (scene/genomes.js) and the state; the children are the people module's featureless children (opts.figures 'cutout' uses weaver.html's film cut-outs).
    The places follow weaver.html: the dome (cinema set: dark dome, its seams, the lit line where wall meets floor, the booth),
    the room (the lab: glass, ring lamp, haze cone, dust) and a forest.
 
    API
      SCENE.mount(canvas, bus, opts) -> handle { ready: Promise, frame(nowMs), resize(), dispose(), stats(), world }
         bus: anything with view() (or state()) and on(event, fn) — the core bus (window.ORB) or a scripted stand-in.
-        opts: { quality: 'high'|'mid'|'low', maxDpr, loop (run own requestAnimationFrame), figures: 'cutout'|'faceless',
+        opts: { quality: 'high'|'mid'|'low', maxDpr, loop (run own requestAnimationFrame), figures: 'faceless' (default: the people module's evolved featureless children) | 'cutout' (weaver.html's film cut-outs; they carry pieces of other cakes and tables),
                 preserve (preserveDrawingBuffer, for tests), base (URL the asset paths resolve against) }
      ORB_SCENE.create(container, ORB) -> { frame(nowMs), resize(), dispose() }   (the hook core/SCHEMA.md section 6 asks for)
    Every op has a visible consequence in the next frame: the machine's first step lands at once (core/machine.js), and the
@@ -158,7 +158,7 @@
     function buildTable(t) { const g = GN.arr(M.table, GN.G.table), top = M.table.top(g); const obj = M.table.build(T, g, { t: Math.max(.001, t) }); obj.position.y = TABLE_Y - top.y; obj.traverse(x => { if (x.isMesh) x.receiveShadow = true; }); return obj; }
 
     // the children: film cut-outs (weaver.html), lit by the candles; arrived 0..10 is how far she has come in (round spots), offset = frame offset of her performance
-    const KIDTEX = KIDS.map(k => { const t = new T.TextureLoader().load(url(CUT + k.file, opts.base), tt => { k.aspect = tt.image.width / k.frames / tt.image.height; }); t.encoding = T.sRGBEncoding; t.repeat.set(1 / k.frames, 1); return t; });
+    const KIDTEX = opts.figures !== 'cutout' ? [] : KIDS.map(k => { const t = new T.TextureLoader().load(url(CUT + k.file, opts.base), tt => { k.aspect = tt.image.width / k.frames / tt.image.height; }); t.encoding = T.sRGBEncoding; t.repeat.set(1 / k.frames, 1); return t; });
     const PEOPLE = {};   // id -> { obj, mesh, tex, kid, spots, mark, head, a }
     function personObj(p, i) {
       const kid = KIDS[i % KIDS.length], grp = new T.Group(), head = new T.Object3D(); let mesh, tex = null;
@@ -219,9 +219,9 @@
         if (!same(trial.candles, v.candles) && trial.candles.count) { const tmp = buildCandles(trial.candles.count, trial.candles.count); if (tmp) { TOP.add(tmp); g.add(ghostify(tmp)); TOP.remove(tmp); } }
         if (!same(trial.inscription, v.inscription)) { const tmp = buildInscription(trial.inscription.text, trial.inscription.written / 24); TOP.add(tmp); g.add(ghostify(tmp)); TOP.remove(tmp); }
         if (trial.table.up && !v.table.up) { const tmp = buildTable(1); MEM.add(tmp); g.add(ghostify(tmp)); MEM.remove(tmp); }
-        trial.people.forEach((q, i) => { const o = (v.people || []).find(x => x.id === q.id); if (o && same(o, q)) return; const kid = KIDS[i % KIDS.length];
-          const m = new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshBasicMaterial({ map: KIDTEX[i % KIDS.length], color: 0x9fe0ff, transparent: true, opacity: .3 + .04 * q.arrived, alphaTest: .05, blending: T.AdditiveBlending, depthWrite: false, toneMapped: false, side: T.DoubleSide }));
-          m.scale.set(kid.h * (kid.aspect || .7), kid.h, 1); m.position.set(q.x, TABLE_Y + kid.base + kid.h / 2, q.z); m.userData.billboard = true; g.add(m); });
+        trial.people.forEach((q, i) => { const o = (v.people || []).find(x => x.id === q.id); if (o && same(o, q)) return;
+          const body = new T.Mesh(new T.CylinderGeometry(.08, .11, .62, 16, 1, true), ghostMat), hd = new T.Mesh(new T.SphereGeometry(.07, 16, 12), ghostMat); body.userData.ownGeo = hd.userData.ownGeo = true;
+          body.position.set(q.x, .31 + .03 * q.arrived / 10, q.z); hd.position.set(q.x, .72, q.z); g.add(body, hd); });
         trial.props.forEach(q => { const o = (v.props || []).find(x => x.id === q.id); if (o && same(o, q)) return; const tmp = propObj(q); MEM.remove(tmp.obj); tmp.obj.position.set(q.x, TABLE_Y, q.z); tmp.obj.scale.setScalar(q.scale); g.add(ghostify(tmp.obj)); });
         if (!same(trial.camera, v.camera)) { const e = eyeFor(trial.camera, focusFor(trial)), eye = new T.Mesh(new T.SphereGeometry(.03, 12, 8), ghostMat); eye.position.copy(e); g.add(eye);
           const line = new T.Line(new T.BufferGeometry().setFromPoints([e, focusFor(trial)]), new T.LineBasicMaterial({ color: 0xa8dcff, transparent: true, opacity: .5, toneMapped: false })); g.add(line); }
