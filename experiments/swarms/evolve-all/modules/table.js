@@ -13,31 +13,30 @@
   const CANDLE = [1, .70, .22], GAIN = .8;  // reference candle tint and gain: how a surface albedo reads as an sRGB colour in the party frames
   /* [key, group, min, max, default(=blank)] */
   const genes = [
-    ['radius', 'FRAME', .04, .6, .05],     // top: centre to vertex (size belongs to FRAME; SHAPE is the form, measured scale-free)
-    ['sides', 'SHAPE', 3, 8, 4],           // rounded to an integer; the blank is a square post
-    ['stretch', 'SHAPE', .7, 1.6, 1],      // the top widened along x (the film's hexagon has long front and back edges)
-    ['yaw', 'SHAPE', -30, 30, 0],          // degrees; 0 = a vertex pointing right (+x)
-    ['warp', 'SHAPE', -.9, .9, 0],         // moves the vertices toward (+) or away from (-) the x axis: lengthens the front and back edges (the film's hexagon is not regular)
-    ['height', 'FRAME', .1, 1, .5],        // floor to top surface
-    ['thick', 'FRAME', .005, .25, .06],      // edge thickness (clamped below the height)
+    ['sides', 'SHAPE', 4, 6.5, 4],         // continuous: between integers the polygon morphs (a vertex splits); the blank is a square post
+    ['stretch', 'SHAPE', .8, 1.3, 1],      // the top widened along x
+    ['yaw', 'SHAPE', -20, 20, 0],          // degrees; 0 = a vertex pointing right (+x)
+    ['warp', 'SHAPE', 0, .9, 0],           // moves the vertices toward the x axis: lengthens the front and back edges (the film's hexagon is not regular)
+    ['radius', 'SIZE', .05, .5, .05],      // top: centre to vertex
+    ['height', 'SIZE', .25, .75, .5],      // floor to top surface
+    ['thick', 'SIZE', .008, .12, .12],     // edge thickness
+    ['foot', 'SIZE', 0, .4, 0],            // pedestal foot disc radius (legs = 1) or how far out the legs stand (legs 2-4), as a fraction of 0.4 m
     ['legs', 'BASE', 1, 4, 1],             // rounded: 1 = a central pedestal, 2-4 legs under the vertices
-    ['legW', 'BASE', .01, .12, .05],       // pedestal or leg radius
-    ['spread', 'BASE', 0, 1, 0],           // legs: how far out under the top (fraction of the inscribed radius)
-    ['foot', 'BASE', 0, .45, 0],           // pedestal foot disc radius
-    ['legLum', 'BASE', 0, 1, .5],          // leg/pedestal lightness (the film shows nothing under the top)
-    ['cloth', 'CLOTH', 0, 1, 0],           // 0 bare; above 0.1 a cloth covers the top and falls this fraction of the height
-    ['clothR', 'CLOTH', 0, 1, .9], ['clothG', 'CLOTH', 0, 1, .9], ['clothB', 'CLOTH', 0, 1, .9],
-    ['topR', 'COLOUR', 0, 1, .5], ['topG', 'COLOUR', 0, 1, .5], ['topB', 'COLOUR', 0, 1, .5],
+    ['legW', 'BASE', .02, .08, .05],       // pedestal or leg radius
+    ['cloth', 'COLOUR', 0, 1, 0],          // above 0.5 a cloth covers the top and falls (cloth - 0.5) / 0.5 of the height
+    ['clothR', 'COLOUR', .4, 1, .9], ['clothG', 'COLOUR', .4, 1, .9], ['clothB', 'COLOUR', .4, 1, .9],
+    ['topR', 'COLOUR', .2, 1, .5], ['topG', 'COLOUR', .2, 1, .5], ['topB', 'COLOUR', .1, .9, .5], ['legLum', 'COLOUR', 0, .6, .3],
   ];
-  const groups = ['SHAPE', 'FRAME', 'BASE', 'CLOTH', 'COLOUR'];
-  const stages = [['SHAPE', 'silhouette', .87], ['FRAME', 'proportion', .85], ['BASE', 'support', .95], ['COLOUR', 'palette', .85], ['WHOLE', 'fit', .88]];
+  const groups = ['SHAPE', 'SIZE', 'BASE', 'COLOUR'];
+  const stages = [['SHAPE', 'silhouette', .83], ['SIZE', 'frame', .85], ['COLOUR', 'palette', .82]];
   const making = [['legs rise', 0, .35], ['top set', .35, .65], ['colour', .65, .8], ['cloth falls', .8, 1]];
   const IDX = {}; genes.forEach((g, i) => IDX[g[0]] = i);
   const named = G => { const o = {}; genes.forEach((g, i) => o[g[0]] = G[i]); return o; };
   const blank = () => Float64Array.from(genes.map(g => g[4]));
   /* ------------------------------------------------------------------ the top as numbers */
-  function top(G) { const g = named(G), n = Math.round(g.sides), r = g.radius, h = g.height, th = Math.min(g.thick, h - .005);
-    const yaw = g.yaw * D2R, verts = []; for (let i = 0; i < n; i++) { const b = i / n * Math.PI * 2, a = yaw + b - g.warp * Math.sin(2 * b) / 2; verts.push([Math.cos(a) * r * g.stretch, Math.sin(a) * r]); }
+  function top(G) { const g = named(G), n0 = Math.floor(g.sides), f = g.sides - n0, n = f > 1e-9 ? n0 + 1 : n0, r = g.radius, h = g.height, th = Math.min(g.thick, h - .005);
+    // continuous in the number of sides: an n0-gon with its first vertex doubled morphs into an (n0+1)-gon as the gene goes from n0 to n0+1
+    const yaw = g.yaw * D2R, verts = []; for (let i = 0; i < n; i++) { const b = lerp(i < n0 ? i / n0 : 1, i / n, n > n0 ? f : 0) * Math.PI * 2, a = yaw + b - g.warp * Math.sin(2 * b) / 2; verts.push([Math.cos(a) * r * g.stretch, Math.sin(a) * r]); }
     let rIn = 1e9; for (let i = 0; i < n; i++) { const [x1, z1] = verts[i], [x2, z2] = verts[(i + 1) % n], L = Math.hypot(x2 - x1, z2 - z1); if (L > 1e-9) rIn = Math.min(rIn, Math.abs(x1 * z2 - x2 * z1) / L); }   // the smallest centre-to-edge distance
     return { y: h, thick: th, sides: n, rOut: r, rIn, stretch: g.stretch, yaw: g.yaw, verts }; }
   /* ------------------------------------------------------------------ silhouette: the top face projected from the film's camera elevation, normalised by its width */
@@ -57,29 +56,29 @@
       const u = l2 ? clamp(((p[0] - a[0]) * ex + (p[1] - a[1]) * ey) / l2, 0, 1) : 0; best = Math.min(best, Math.hypot(p[0] - a[0] - u * ex, p[1] - a[1] - u * ey)); } return best; }
   function chamfer(A, B) { const N = 120; let s = 0; boundary(A, N).forEach(p => s += segDist(p, B)); boundary(B, N).forEach(p => s += segDist(p, A)); return s / (2 * N); }   // mean boundary distance, both ways, in units of the top width
   function corners(poly, minDeg) { let c = 0; for (let i = 0; i < poly.length; i++) { const a = poly[(i + poly.length - 1) % poly.length], b = poly[i], d = poly[(i + 1) % poly.length];
-      const t1 = Math.atan2(b[1] - a[1], b[0] - a[0]), t2 = Math.atan2(d[1] - b[1], d[0] - b[0]); let dt = Math.abs(t2 - t1); if (dt > Math.PI) dt = 2 * Math.PI - dt; if (dt * 180 / Math.PI > minDeg) c++; } return c; }   // vertices that turn by more than minDeg on screen
+      const t1 = Math.atan2(b[1] - a[1], b[0] - a[0]), t2 = Math.atan2(d[1] - b[1], d[0] - b[0]); let dt = Math.abs(t2 - t1); if (dt > Math.PI) dt = 2 * Math.PI - dt; c += sstep(minDeg - 12, minDeg + 12, dt * 180 / Math.PI); } return c; }   // a soft count of the vertices that turn by more than about minDeg on screen
   const iou = (a, b) => { let i = 0, u = 0; for (let k = 0; k < a.length; k++) { if (a[k] && b[k]) i++; if (a[k] || b[k]) u++; } return u ? i / u : 0; };
   const logScore = (v, target, tol) => 1 / (1 + Math.pow(Math.log(Math.max(1e-6, v) / target) / tol, 2));   // Cauchy: never flat, so a far-off genome still has a slope
   /* ------------------------------------------------------------------ fitness */
   function evaluate(G, refs) { const t = R(refs), g = named(G), T = top(G), sc = screenTop(T, t.elevationDeg || 13);
     const IoU = iou(rasterPoly(sc.poly, ...GRID), refMask(t)), cham = chamfer(sc.poly, t.outline), nc = corners(sc.poly, 25), cs = 1 / (1 + .5 * Math.pow(nc - (t.corners || 6), 2));
-    const silhouette = Math.sqrt(IoU / (1 + Math.pow(cham / .02, 2))) * (.6 + .4 * cs);
+    const silhouette = Math.sqrt(IoU / (1 + Math.pow(cham / .02, 2)));   // the corner count (nc) is reported, not scored: it made the landscape step-shaped
     const width = sc.width, cakeToTop = 2 * CAKE_R / width, hToW = T.y / width, eToW = T.thick / width;
     const heightToWidth = t.heightToWidth || .613;
-    const edgeS = eToW <= t.edgeToWidth ? 1 : 1 / (1 + Math.pow((eToW - t.edgeToWidth) / .05, 2));
-    const proportion = (logScore(cakeToTop, t.cakeToTop, .25) + logScore(hToW, heightToWidth, .3) + edgeS) / 3;
+    const edgeS = eToW <= t.edgeToWidth ? 1 : 1 / (1 + Math.pow((eToW - t.edgeToWidth) / .08, 2));
+    const proportion = (logScore(cakeToTop, t.cakeToTop, .35) + logScore(hToW, heightToWidth, .4) + edgeS) / 3;
     // lit top colour: cloth colour when a cloth covers the top, else the top albedo; seen under the reference candle
-    const cl = g.cloth > .1, alb = cl ? [g.clothR, g.clothG, g.clothB] : [g.topR, g.topG, g.topB];
+    const cl = g.cloth > .5, alb = cl ? [g.clothR, g.clothG, g.clothB] : [g.topR, g.topG, g.topB];
     const seen = alb.map((a, k) => 255 * clamp(a * CANDLE[k] * GAIN, 0, 1)), tc = t.topColour;
-    const dc = Math.hypot(seen[0] - tc[0], seen[1] - tc[1], seen[2] - tc[2]) / 255, palette = 1 / (1 + Math.pow(dc / .05, 2));
+    const dc = Math.hypot(seen[0] - tc[0], seen[1] - tc[1], seen[2] - tc[2]) / 255, palette = 1 / (1 + Math.pow(dc / .1, 2));
     // support: it stands (pedestal foot or leg spread), the cake fits on the top, and the base stays as dark as the film's (nothing visible under the top)
-    const legs = Math.round(g.legs), stand = legs === 1 ? sstep(.2, .45, g.foot / Math.max(.01, T.rIn)) * sstep(.01, .03, g.legW) : sstep(.3, .6, g.spread) * sstep(.008, .02, g.legW);
+    const soft = (lo, hi, x) => .05 + .95 * sstep(lo, hi, x), legs = Math.round(g.legs), stand = legs === 1 ? soft(0, .45, g.foot / Math.max(.01, T.rIn)) : soft(0, .5, g.foot * .4 / Math.max(.01, T.rIn));
     const fits = .05 + .95 * sstep(.3, 1.5, T.rIn / CAKE_R);
-    const below = (cl ? g.cloth * lum(g.clothR, g.clothG, g.clothB) * 40 : 0) + g.legLum * 12 * (legs === 1 ? 1 : .6);   // predicted luma under the top
-    const dark = 1 / (1 + Math.pow(Math.max(0, below - (t.belowLuma || 2.8)) / 6, 2));
-    const support = stand * fits * dark;
-    const fit = .35 * silhouette + .25 * proportion + .15 * support + .25 * palette;
-    return { fit, parts: { silhouette, iou: IoU, chamfer: cham, corners: nc, proportion, support, palette, stand, fits, dark, cakeToTop, heightToWidth: hToW, edgeToWidth: eToW, seen } };
+    const below = (cl ? (g.cloth - .5) / .5 * lum(g.clothR, g.clothG, g.clothB) * 40 : 0) + g.legLum * 12 * (legs === 1 ? 1 : .6);   // predicted luma under the top
+    const dark = 1 / (1 + Math.pow(Math.max(0, below - (t.belowLuma || 2.8)) / 8, 2));
+    const support = stand * fits, frame = .5 * proportion + .5 * support;
+    const pal = palette * dark, fit = .35 * silhouette + .4 * frame + .25 * pal;
+    return { fit, parts: { frame, silhouette, iou: IoU, chamfer: cham, corners: nc, proportion, support, palette: pal, colourMatch: palette, stand, fits, dark, cakeToTop, heightToWidth: hToW, edgeToWidth: eToW, seen } };
   }
   function lum(r, g, b) { return .2126 * r + .7152 * g + .0722 * b; }
   /* ------------------------------------------------------------------ anchors: where other parts attach */
@@ -99,17 +98,17 @@
     const legH = Math.max(.001, T.y - T.thick), legs = Math.round(g.legs), LG = new THREE.Group(); LG.scale.y = Math.max(.001, legsP); root.add(LG);
     if (legs === 1) { const p = new THREE.Mesh(new THREE.CylinderGeometry(g.legW, g.legW * 1.15, legH, 24), legMat); p.position.y = legH / 2; LG.add(p);
       if (g.foot > .005) { const f = new THREE.Mesh(new THREE.CylinderGeometry(g.foot, g.foot, .015, 32), legMat); f.position.y = .0075; LG.add(f); } }
-    else for (let i = 0; i < legs; i++) { const v = T.verts[Math.round(i * T.sides / legs) % T.sides], k = g.spread * T.rIn / Math.hypot(v[0], v[1]);
+    else for (let i = 0; i < legs; i++) { const v = T.verts[Math.round(i * T.sides / legs) % T.sides], k = Math.min(.95 * T.rIn, g.foot * .4) / Math.hypot(v[0], v[1]);
       const l = new THREE.Mesh(new THREE.CylinderGeometry(g.legW, g.legW * .8, legH, 12), legMat); l.position.set(v[0] * k, legH / 2, v[1] * k); LG.add(l); }
     // the top is set: it comes down onto the legs
     if (topP > 0) { const shape = new THREE.Shape(T.verts.map(([x, z]) => new THREE.Vector2(x, -z)));
       const geo = new THREE.ExtrudeGeometry(shape, { depth: T.thick, bevelEnabled: false, curveSegments: 1 }); const m = new THREE.Mesh(geo, topMat); m.rotation.x = -Math.PI / 2;
       m.position.y = T.y - T.thick + (1 - topP) * (1 - topP) * .35; topMat.transparent = topP < 1; topMat.opacity = topP; m.name = 'top'; root.add(m); }
     // the cloth falls over the top and down the sides
-    if (g.cloth > .1 && clothP > 0) { const cm = new THREE.MeshStandardMaterial({ color: clothCol, roughness: .9, side: THREE.DoubleSide });
+    if (g.cloth > .5 && clothP > 0) { const cm = new THREE.MeshStandardMaterial({ color: clothCol, roughness: .9, side: THREE.DoubleSide });
       const sheet = new THREE.Mesh(new THREE.ExtrudeGeometry(new THREE.Shape(T.verts.map(([x, z]) => new THREE.Vector2(x * 1.02, -z * 1.02))), { depth: .004, bevelEnabled: false }), cm);
       sheet.rotation.x = -Math.PI / 2; sheet.position.y = T.y + .001; root.add(sheet);
-      const drop = g.cloth * T.y * clothP; if (drop > .002) { const sk = new THREE.Mesh(new THREE.CylinderGeometry(T.rOut * 1.02, T.rOut * 1.05, drop, T.sides, 1, true, Math.PI / 2 - g.yaw * D2R), cm);
+      const drop = (g.cloth - .5) / .5 * T.y * clothP; if (drop > .002) { const sk = new THREE.Mesh(new THREE.CylinderGeometry(T.rOut * 1.02, T.rOut * 1.05, drop, T.sides, 1, true, Math.PI / 2 - g.yaw * D2R), cm);
         sk.scale.x = g.stretch; sk.position.y = T.y - drop / 2; root.add(sk); } }
     root.userData = { module: 'table', t, top: { y: T.y, rIn: T.rIn, rOut: T.rOut, sides: T.sides, stretch: T.stretch, yaw: T.yaw } };
     return root; }

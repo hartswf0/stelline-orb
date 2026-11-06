@@ -1,12 +1,16 @@
 /* modules/people.js — EVOLVE-ALL evolver module: the children at the party, faceless.
-   No facial features of any kind: the head is a smooth form with a hair mass only; no face data is read or stored.
-   Genome: up to five figures (count 3-5), each with height, head size, shoulder width, posture (lean, head tilt, arm reach, arm lift,
-   hands together: hands toward the cake on the table edge / clapping / holding; a bent elbow reaches the hand), clothing (dress length, colour, party hat), hair mass (length, volume, tone),
-   and place around the table (angle, distance from the edge). Blank: three grey posts standing inside the table at the same spot.
-   Fitness (node-safe): support (feet on the floor, no interpenetration with the table or each other, the table edge within arm's reach),
-   placement (the far half of the table, spaced, close to the edge, as at 155 s and 214 s), posture (height to table, head and shoulder
-   proportions, lean, head tilt, hands on the table edge as two of the three children at 155 s), clothing and hair palette (refs/people.json).
-   The supporting table comes in refs.support ({y, rOut, sides, stretch, yaw, warp} or {verts}); table.top(G) gives it. Default: the film's table.
+   No facial features of any kind and no face data: a head is a smooth form under a hair mass (crown, back, fringe, side curtains),
+   bent toward the cake; the figures are meant to read as children at a distance or from behind.
+   Genome (22 genes, one group of children): PLACE (how many, the arc they stand on, its centre, distance from the edge),
+   FIGURE (height, head size, shoulders, how much the children differ, lean, head bend, share with hands on the table edge, free-hand lift,
+   hands together), CLOTHING (clothing lightness, spread light-to-dark across the group, warmth, share in dresses, party hats, hair length,
+   volume, tone, tone spread). Each child is derived from these by a fixed per-child offset table, so the group varies without a gene per child.
+   Blank: three grey posts standing at one spot inside the table.
+   Fitness (node-safe): place = support (feet on the floor, clear of the table and of each other, no hand inside the table) x placement
+   (the far half, spaced, close to the edge: 155 s and 214 s); figure (height to table, child proportions, lean, head bend, hands on the edge
+   for about two of three as at 155 s, the children differ); palette (clothing and hair as the candle shows them, matched by brightness
+   quantile; refs/people.json).
+   The table comes in refs.support ({y, rOut, sides, stretch, yaw, warp} or {y, verts}); table.top(G) gives it. Default: the film's table.
    Plain JS, UMD: node module.exports or window.EVOMOD.people. */
 (function (root, factory) { const M = factory(); if (typeof module === 'object' && module.exports) module.exports = M; else { root.EVOMOD = root.EVOMOD || {}; root.EVOMOD.people = M; } })(this, function () {
   'use strict';
@@ -14,131 +18,129 @@
   const sstep = (e0, e1, x) => { const t = clamp((x - e0) / (e1 - e0), 0, 1); return t * t * (3 - 2 * t); };
   const cauchy = (d, tol) => 1 / (1 + (d / tol) * (d / tol));
   const logScore = (v, target, tol) => cauchy(Math.log(Math.max(1e-6, v) / target), tol);
+  const mean = a => a.reduce((x, y) => x + y, 0) / a.length;
   const MAX = 5, CANDLE = [1, .70, .22], GAIN = .7, HAIR_DARK = [.05, .04, .025], HAIR_FAIR = [.8, .62, .34];
-  /* per-person genes: [key, group, min, max, blank] */
-  const PER = [
-    ['height', 'BODY', .4, 1.4, .6], ['head', 'BODY', .1, .25, .2], ['shoulders', 'BODY', .15, .4, .2],
-    ['lean', 'POSTURE', -15, 30, 0], ['tilt', 'POSTURE', -20, 45, 0], ['reach', 'POSTURE', 0, 1, 0], ['lift', 'POSTURE', 0, 1, 0], ['together', 'POSTURE', 0, 1, 0],
-    ['dress', 'CLOTHING', 0, 1, 0], ['clothR', 'CLOTHING', 0, 1, .5], ['clothG', 'CLOTHING', 0, 1, .5], ['clothB', 'CLOTHING', 0, 1, .5], ['hat', 'CLOTHING', 0, 1, 0],
-    ['hairLen', 'HAIR', 0, 1, 0], ['hairVol', 'HAIR', 0, 1, 0], ['hairTone', 'HAIR', 0, 1, .5],
-    ['angle', 'PLACE', -180, 180, 0], ['dist', 'PLACE', -.3, .5, -.1]];
-  const genes = [['count', 'PLACE', 3, 5, 3]];
-  for (let i = 0; i < MAX; i++) PER.forEach(([k, g, lo, hi, b]) => genes.push([k + i, g, lo, hi, b]));
-  const groups = ['PLACE', 'BODY', 'POSTURE', 'CLOTHING', 'HAIR'];
-  const stages = [['PLACE', 'support', .95], ['SPACING', 'placement', .9], ['BODY', 'body', .9], ['POSTURE', 'posture', .85], ['CLOTHING', 'cloth', .8], ['HAIR', 'hairAll', .85], ['WHOLE', 'fit', .88]];
-  const stageGroup = { PLACE: 'PLACE', SPACING: 'PLACE', BODY: 'BODY', POSTURE: 'POSTURE', CLOTHING: 'CLOTHING', HAIR: 'HAIR', WHOLE: null };   // which group a stage leans on (for the host's bias)
-  const making = [['legs rise from the floor', 0, .2], ['torso', .2, .4], ['arms', .4, .5], ['head', .5, .6], ['hair mass', .6, .75], ['clothing wraps on', .75, 1]];
+  /* [key, group, min, max, blank] */
+  const genes = [
+    ['count', 'PLACE', 3, 5, 3], ['arc', 'PLACE', 0, 170, 0], ['centre', 'PLACE', -40, 40, 0], ['dist', 'PLACE', -.2, .3, -.15],
+    ['height', 'FIGURE', .45, 1.1, .55], ['head', 'FIGURE', .14, .26, .2], ['shoulders', 'FIGURE', .16, .32, .2], ['variety', 'FIGURE', 0, 1, 0],
+    ['lean', 'FIGURE', -5, 25, 0], ['tilt', 'FIGURE', -10, 40, 0], ['onTable', 'FIGURE', 0, 1, 0], ['freeLift', 'FIGURE', 0, 1, 0], ['together', 'FIGURE', 0, 1, 0],
+    ['clothLum', 'CLOTHING', .1, 1, .5], ['clothSpread', 'CLOTHING', 0, 1, 0], ['clothWarm', 'CLOTHING', 0, 1, 0], ['dress', 'CLOTHING', 0, 1, 0], ['hat', 'CLOTHING', 0, 1, 0],
+    ['hairLen', 'CLOTHING', 0, 1, 0], ['hairVol', 'CLOTHING', 0, 1, 0], ['hairTone', 'CLOTHING', 0, 1, .5], ['hairSpread', 'CLOTHING', 0, 1, 0]];
+  const groups = ['PLACE', 'FIGURE', 'CLOTHING'];
+  const stages = [['PLACE', 'place', .8], ['FIGURE', 'figure', .8], ['CLOTHING', 'palette', .76]];
+  const making = [['legs rise from the floor', 0, .2], ['body', .2, .4], ['arms', .4, .5], ['head', .5, .6], ['hair mass', .6, .75], ['clothing wraps on', .75, 1]];
   const blank = () => Float64Array.from(genes.map(g => g[4]));
+  const named = G => { const o = {}; genes.forEach((g, i) => o[g[0]] = G[i]); return o; };
   const count = G => Math.round(clamp(G[0], 3, 5));
-  function person(G, i) { const o = {}, b = 1 + i * PER.length; PER.forEach(([k], j) => o[k] = G[b + j]); return o; }
+  /* fixed per-child offsets (-1..1): height, lightness rank, hair, bend, hip sway */
+  const OFF = [[.35, .9, -.6, .4, .5], [-.7, -.2, .8, -.3, -.4], [.9, -.9, -.1, .1, .2], [-.25, .45, .4, -.6, -.6], [.6, -.55, -.9, .7, .3]];
   /* ------------------------------------------------------------------ the table they stand at */
   const DEFAULT_SUPPORT = { y: .43, rOut: .33, sides: 6, stretch: 1.05, yaw: 0, warp: .3 };
   function supportOf(refs) { const s = (refs && refs.support) || DEFAULT_SUPPORT; if (s.verts) return s; const n = Math.round(s.sides || 6), verts = [];
     for (let i = 0; i < n; i++) { const b = i / n * Math.PI * 2, a = (s.yaw || 0) * D2R + b - (s.warp || 0) * Math.sin(2 * b) / 2; verts.push([Math.cos(a) * s.rOut * (s.stretch || 1), Math.sin(a) * s.rOut]); }
     return Object.assign({}, s, { verts }); }
-  function edgeAlong(S, dx, dz) { let best = 1e9; const V = S.verts;   // distance from the centre to the table edge along a horizontal direction
+  function edgeAlong(S, dx, dz) { let best = 1e9; const V = S.verts;
     for (let i = 0; i < V.length; i++) { const [x1, z1] = V[i], [x2, z2] = V[(i + 1) % V.length], ex = x2 - x1, ez = z2 - z1, den = dx * ez - dz * ex; if (Math.abs(den) < 1e-12) continue;
       const s = (x1 * ez - z1 * ex) / den, u = (x1 * dz - z1 * dx) / den; if (s > 0 && u >= -1e-9 && u <= 1 + 1e-9) best = Math.min(best, s); } return best; }
   function inside(S, x, z) { let ins = false; const V = S.verts; for (let i = 0, j = V.length - 1; i < V.length; j = i++) { const [xi, zi] = V[i], [xj, zj] = V[j]; if ((zi > z) !== (zj > z) && x < (xj - xi) * (z - zi) / (zj - zi) + xi) ins = !ins; } return ins; }
   function rimDist(S, x, z) { let best = 1e9; const V = S.verts; for (let i = 0; i < V.length; i++) { const a = V[i], b = V[(i + 1) % V.length], ex = b[0] - a[0], ez = b[1] - a[1], l2 = ex * ex + ez * ez;
       const u = l2 ? clamp(((x - a[0]) * ex + (z - a[1]) * ez) / l2, 0, 1) : 0; best = Math.min(best, Math.hypot(x - a[0] - u * ex, z - a[1] - u * ez)); } return best; }
+  /* ------------------------------------------------------------------ each child from the group genes */
+  function children(G) { const g = named(G), n = count(G), out = [];
+    for (let k = 0; k < n; k++) { const o = OFF[k], v = g.variety, u = n > 1 ? k / (n - 1) - .5 : 0;
+      const lum = clamp(g.clothLum * (1 + g.clothSpread * .85 * o[1]), .03, 1), warm = g.clothWarm;
+      out.push({ k, angle: g.centre + g.arc * u, dist: g.dist, height: g.height * (1 + v * .12 * o[0]), head: g.head, shoulders: g.shoulders,
+        lean: g.lean + v * 5 * o[3], tilt: g.tilt + v * 10 * o[3], sway: v * .03 * o[4], onTable: clamp(g.onTable * n - k, 0, 1), freeLift: g.freeLift, together: g.together,
+        cloth: [lum, lum * lerp(.95, .72, warm), lum * lerp(.9, .38, warm)], dress: clamp(g.dress * n - (n - 1 - k), 0, 1), hat: g.hat,
+        hairLen: clamp(g.hairLen + v * .3 * o[2], 0, 1), hairVol: g.hairVol, hairTone: clamp(g.hairTone + g.hairSpread * .6 * o[2], 0, 1) }); }
+    return out; }
   /* ------------------------------------------------------------------ the pose: every point the fitness, the build and the anchors share */
-  function pose(G, refs) { const S = supportOf(refs), n = count(G), P = [];
-    for (let i = 0; i < n; i++) { const p = person(G, i), H = p.height, hd = p.head * H, body = H - hd, legs = body * .56, torso = body * .38, neck = body * .06;
-      const a = p.angle * D2R, dx = Math.sin(a), dz = -Math.cos(a), e = edgeAlong(S, dx, dz), sw = p.shoulders * H / 2, rb = Math.max(.05, sw * .78), R = e + p.dist + rb;
-      const fx = -dx, fz = -dz, l = p.lean * D2R, ax = (v, s) => [v[0] + s * Math.sin(l) * fx, v[1] + s * Math.cos(l), v[2] + s * Math.sin(l) * fz];   // along the leaning body axis
-      const foot = [dx * R, 0, dz * R], hip = [foot[0], legs, foot[2]], chest = ax(hip, torso), shoulder = ax(hip, torso * .9), neckTop = ax(hip, torso + neck);
-      const ht = (p.lean + p.tilt) * D2R, head = [neckTop[0] + hd / 2 * Math.sin(ht) * fx, neckTop[1] + hd / 2 * Math.cos(ht), neckTop[2] + hd / 2 * Math.sin(ht) * fz];
-      // hands: placed directly (forward and up from the shoulder, in arm lengths) and reached with a bent elbow; never further than the arm
-      const armL = .42 * H, side = [fz, 0, -fx], elbows = [];
-      const hands = [-1, 1].map(sg => { const lat = sw * (1 - .92 * p.together) * sg, sh = [shoulder[0] + side[0] * sw * sg, shoulder[1], shoulder[2] + side[2] * sw * sg];
-        let f = p.reach * armL, u = lerp(-1, .6, p.lift) * armL, w = lat - sw * sg; const L = Math.hypot(f, u, w); if (L > armL) { f *= armL / L; u *= armL / L; w *= armL / L; }
-        const h = [sh[0] + side[0] * w + fx * f, sh[1] + u, sh[2] + side[2] * w + fz * f], d = Math.min(armL, Math.hypot(f, u, w)), bend = Math.sqrt(Math.max(0, armL * armL / 4 - d * d / 4));
-        elbows.push([(sh[0] + h[0]) / 2 + side[0] * sg * bend * .5, (sh[1] + h[1]) / 2 - bend * .85, (sh[2] + h[2]) / 2 + side[2] * sg * bend * .5]); return h; });
-      P.push({ i, p, H, hd, legs, torso, neck, sw, rb, R, a, dir: [dx, dz], fwd: [fx, fz], side, edge: e, foot, hip, chest, shoulder, neckTop, head, hands, elbows, armL }); }
+  function pose(G, refs) { const S = supportOf(refs), ty = S.y, P = [];
+    children(G).forEach(c => { const H = c.height, hd = c.head * H, body = H - hd, legs = body * .52, torso = body * .41, neck = body * .07;
+      const a = c.angle * D2R, dx = Math.sin(a), dz = -Math.cos(a), e = edgeAlong(S, dx, dz), sw = c.shoulders * H / 2, rb = Math.max(.05, sw * .8), R = e + c.dist + rb;
+      const fx = -dx, fz = -dz, side = [fz, 0, -fx], l = c.lean * D2R, ax = (v, s) => [v[0] + s * Math.sin(l) * fx, v[1] + s * Math.cos(l), v[2] + s * Math.sin(l) * fz];
+      const foot = [dx * R, 0, dz * R], hip = [foot[0] + side[0] * c.sway, legs, foot[2] + side[2] * c.sway], chest = ax(hip, torso), shoulder = ax(hip, torso * .88), neckTop = ax(hip, torso + neck);
+      const ht = (c.lean + c.tilt) * D2R, head = [neckTop[0] + hd / 2 * Math.sin(ht) * fx, neckTop[1] + hd / 2 * Math.cos(ht), neckTop[2] + hd / 2 * Math.sin(ht) * fz];
+      // hands: on the table edge in front (weight onTable), otherwise free: at the sides, lifted toward the chest, together (clapping/holding)
+      const armL = .42 * H, elbows = [], hands = [-1, 1].map(sg => { const sh = [shoulder[0] + side[0] * sw * sg, shoulder[1], shoulder[2] + side[2] * sw * sg];
+        const rim = [dx * (e - .09) + side[0] * sw * .9 * sg, ty + .03, dz * (e - .09) + side[2] * sw * .9 * sg];
+        const fl = c.freeLift, lat = sw * (1 - .9 * c.together) * sg, free = [shoulder[0] + side[0] * lat + fx * armL * .45 * fl, shoulder[1] - armL * lerp(.98, .35, fl), shoulder[2] + side[2] * lat + fz * armL * .45 * fl];
+        const ot = c.onTable; let h = free.map((v, j) => lerp(v, rim[j], j === 1 ? Math.sqrt(ot) : ot * ot));   /* the hand rises over the edge before it comes in over the top */ const d = [h[0] - sh[0], h[1] - sh[1], h[2] - sh[2]], L = Math.hypot(...d); if (L > armL) h = sh.map((v, j) => v + d[j] * armL / L);
+        const dd = Math.min(armL, L), bend = Math.sqrt(Math.max(0, armL * armL / 4 - dd * dd / 4));
+        elbows.push([(sh[0] + h[0]) / 2 + side[0] * sg * bend * .45, (sh[1] + h[1]) / 2 - bend * .8, (sh[2] + h[2]) / 2 + side[2] * sg * bend * .45]); return h; });
+      P.push({ i: c.k, c, H, hd, legs, torso, neck, sw, rb, R, a, dir: [dx, dz], fwd: [fx, fz], side, edge: e, foot, hip, chest, shoulder, neckTop, head, hands, elbows, armL }); });
     return { S, P }; }
   /* ------------------------------------------------------------------ fitness */
   function R_(refs) { return refs && refs.people ? refs.people : refs; }
   function evaluate(G, refs) { const r = R_(refs), { S, P } = pose(G, refs), n = P.length, ty = S.y;
-    // SUPPORT: feet on the floor; the body clear of the table where it is below the top; the figures clear of each other; the table edge within arm's reach
-    const feet = P.map(q => q.foot[1] === 0 ? 1 : 0), per = P.map(q => {
-      const s = clamp((ty - q.hip[1]) / Math.max(1e-6, q.torso * Math.cos(q.p.lean * D2R)), 0, 1), over = s * q.torso * Math.sin(q.p.lean * D2R);   // how far the body has come forward where it meets the table top height
-      const clear = (q.R - over) - q.edge - q.rb * .9;
-      const handsIn = q.hands.map(h => (h[1] < ty - .015 && inside(S, h[0], h[2])) ? Math.min(.2, rimDist(S, h[0], h[2])) : 0).reduce((a, b) => a + b, 0);   // a hand inside the table below its top
-      const reachable = Math.hypot(q.shoulder[0] - q.dir[0] * q.edge, q.shoulder[2] - q.dir[1] * q.edge) - q.armL;
-      return (.05 + .95 * sstep(-.15, .005, clear)) * cauchy(handsIn, .03) * (.3 + .7 * sstep(.2, -.02, reachable)); });
+    const per = P.map(q => { const s = clamp((ty - q.hip[1]) / Math.max(1e-6, q.torso * Math.cos(q.c.lean * D2R)), 0, 1), over = s * q.torso * Math.sin(q.c.lean * D2R);
+      const clear = (q.R - over) - q.edge - q.rb * .9, handsIn = q.hands.map(h => (h[1] < ty - .015 && inside(S, h[0], h[2])) ? Math.min(.2, rimDist(S, h[0], h[2])) : 0).reduce((a, b) => a + b, 0);
+      return (q.foot[1] === 0 ? 1 : 0) * (.05 + .95 * sstep(-.15, .005, clear)) * cauchy(handsIn, .04); });
     let sep = 1; for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) { const A = P[i], B = P[j], d = Math.hypot(A.foot[0] - B.foot[0], A.foot[2] - B.foot[2]); sep *= .1 + .9 * sstep(.4, 1, d / (A.rb + B.rb)); }
-    const mean = a => a.reduce((x, y) => x + y, 0) / a.length;
-    const support = mean(feet) * (.5 * mean(per) + .5 * Math.min(...per)) * Math.pow(sep, 1 / Math.max(1, n - 1));
-    // PLACEMENT: the far half (angle 0 = across the table from the camera), spaced, standing close to the edge
-    const ang = P.map(q => q.p.angle).sort((a, b) => a - b); let gap = 360; for (let i = 0; i < n; i++) gap = Math.min(gap, i ? ang[i] - ang[i - 1] : ang[0] + 360 - ang[n - 1]);
-    const arc = mean(P.map(q => cauchy(Math.max(0, Math.abs(q.p.angle) - 80), 25))), near = mean(P.map(q => cauchy(Math.max(0, q.p.dist - .12) + Math.max(0, -.0 - q.p.dist), .06)));
-    const placement = arc * near * cauchy(Math.max(0, 28 - gap), 10);
-    // POSTURE: children to the table (refs: 1.79 x the table height), head and shoulders as a child's, a slight lean in, head bent to the cake, hands on the edge for about two of three
-    const hTo = r.heightToTable || 1.786, body = mean(P.map(q => (logScore(q.H / ty, hTo, .12) + logScore(q.p.head, r.headToHeight || .167, .15) + logScore(q.p.shoulders, r.shouldersToHeight || .25, .2)) / 3));
-    const lean = mean(P.map(q => (cauchy(q.p.lean - (r.leanDeg || 5), 8) + cauchy(q.p.tilt - (r.tiltDeg || 15), 12)) / 2));
-    // a hand on the table: on its top (0.03 above), 0.04-0.2 inside the rim; the score falls off smoothly with the distance from there
-    const onT = P.map(q => Math.max(...q.hands.map(h => { const inT = (inside(S, h[0], h[2]) ? 1 : -1) * rimDist(S, h[0], h[2]), dIn = inT < .04 ? .04 - inT : inT > .2 ? inT - .2 : 0;
-      return cauchy(Math.hypot(dIn, h[1] - (ty + .03)), .04); })));
-    const kOn = Math.max(1, Math.round((r.handsOnTable || .67) * n)), handsFrac = onT.filter(v => v > .5).length / n;
-    const hands = onT.slice().sort((a, b) => b - a).slice(0, kOn).reduce((a, b) => a + b, 0) / kOn;   // the best-placed two thirds have their hands on the edge; the rest are free
-    const posture = .45 * body + .3 * lean + .25 * hands;
-    // PALETTE: clothing and hair as the candle shows them (refs: torso and hair boxes at 214 s and 155 s), matched by brightness quantile
-    const lit = (alb, g) => alb.map((v, k) => 255 * clamp(v * CANDLE[k] * g, 0, 1));
-    const cl = P.map(q => lit([q.p.clothR, q.p.clothG, q.p.clothB], GAIN)), hr = P.map(q => lit(HAIR_DARK.map((d, k) => lerp(d, HAIR_FAIR[k], q.p.hairTone)), GAIN * .6));
-    const refC = (r.clothing214 || []).concat((r.kids155 || []).filter(k => k.clothes).map(k => k.clothes)), refH = (r.hair214 || []).concat((r.kids155 || []).map(k => k.hair));
-    // the figures sorted by brightness against the film's colours sorted by brightness, at the same quantiles (a 1-D transport: smooth, no figure has to
-    // pass through a worse match to take the free colour)
-    const lumOf = c => .2126 * c[0] + .7152 * c[1] + .0722 * c[2];
+    const support = mean(per) * Math.pow(sep, 1 / Math.max(1, n - 1));
+    const ang = P.map(q => q.c.angle).sort((a, b) => a - b); let gap = 360; for (let i = 1; i < n; i++) gap = Math.min(gap, ang[i] - ang[i - 1]);
+    const arc = mean(P.map(q => cauchy(Math.max(0, Math.abs(q.c.angle) - 80), 25))), near = cauchy(Math.max(0, P[0].c.dist - .1) + Math.max(0, -P[0].c.dist), .06);
+    const placement = arc * near * cauchy(Math.max(0, 30 - gap), 12), place = support * placement;
+    const g = named(G), body = (logScore(g.height / ty, r.heightToTable || 1.786, .12) + logScore(g.head, r.headToHeight || .19, .15) + logScore(g.shoulders, r.shouldersToHeight || .25, .2)) / 3;
+    const lean = (cauchy(g.lean - (r.leanDeg || 5), 8) + cauchy(g.tilt - (r.tiltDeg || 15), 12)) / 2;
+    const onT = P.map(q => Math.max(...q.hands.map(h => { const inT = (inside(S, h[0], h[2]) ? 1 : -1) * rimDist(S, h[0], h[2]), dIn = inT < .03 ? .03 - inT : inT > .2 ? inT - .2 : 0;
+      return cauchy(Math.hypot(dIn, h[1] - (ty + .03)), .05); })));
+    const handsFrac = mean(onT), hands = cauchy(handsFrac - (r.handsOnTable || .67), .2);
+    const natural = cauchy(Math.abs(g.variety - .6), .4);   // children differ in height, bend and stance: identical figures read as mannequins
+    const figure = .4 * body + .25 * lean + .25 * hands + .1 * natural;
+    const lit = (alb, gn) => alb.map((v, k) => 255 * clamp(v * CANDLE[k] * gn, 0, 1)), lumOf = c => .2126 * c[0] + .7152 * c[1] + .0722 * c[2];
     const quant = (A, B) => { const a = A.slice().sort((x, y) => lumOf(x) - lumOf(y)), b = B.slice().sort((x, y) => lumOf(x) - lumOf(y)), M = b.length;
       return mean(a.map((c, k) => { const u = (k + .5) / a.length * M - .5, i0 = clamp(Math.floor(u), 0, M - 1), i1 = Math.min(M - 1, i0 + 1), f = clamp(u - i0, 0, 1), tg = b[i0].map((v, j) => lerp(v, b[i1][j], f));
         return Math.hypot(c[0] - tg[0], c[1] - tg[1], c[2] - tg[2]) / 255; })); };
-    const cloth = cauchy(quant(cl, refC), .05), hairC = cauchy(quant(hr, refH), .04), hairMass = mean(P.map(q => clamp(q.p.hairVol / .5, 0, 1))), hairAll = .6 * hairC + .4 * hairMass;
-    const hat = mean(P.map(q => q.p.hat > .5 ? 1 : 0));   // no party hats are seen in the film
-    const palette = (.5 * cloth + .5 * hairAll) * (1 - .3 * hat);
-    const fit = .25 * support + .2 * placement + .3 * posture + .25 * palette;
-    return { fit, parts: { support, placement, posture, palette, body, lean, hands, handsFrac, cloth, hair: hairC, hairMass, hairAll, hat, minGapDeg: gap, count: n } };
+    const refC = (r.clothing214 || []).concat((r.kids155 || []).filter(k => k.clothes).map(k => k.clothes)), refH = (r.hair214 || []).concat((r.kids155 || []).map(k => k.hair));
+    const cl = P.map(q => lit(q.c.cloth, GAIN)), hr = P.map(q => lit(HAIR_DARK.map((d, k) => lerp(d, HAIR_FAIR[k], q.c.hairTone)), GAIN * .6));
+    const cloth = cauchy(quant(cl, refC), .08), hairC = cauchy(quant(hr, refH), .06), hairMass = clamp(g.hairVol / .5, 0, 1) * (.5 + .5 * clamp(g.hairLen / .4, 0, 1));
+    const palette = (.5 * cloth + .3 * hairC + .2 * hairMass) * (1 - .3 * sstep(.4, .7, g.hat));   // no party hats are seen in the film
+    const fit = .3 * place + .4 * figure + .3 * palette;
+    return { fit, parts: { place, support, placement, figure, body, lean, hands, handsFrac, natural, palette, cloth, hair: hairC, hairMass, minGapDeg: gap, count: n } };
   }
-  /* ------------------------------------------------------------------ anchors */
   function anchors(G, refs) { const { P } = pose(G, refs), A = {}; P.forEach(q => { A['feet' + q.i] = q.foot.slice(); A['handL' + q.i] = q.hands[0].slice(); A['handR' + q.i] = q.hands[1].slice();
     A['headTop' + q.i] = [q.head[0], q.head[1] + q.hd / 2, q.head[2]]; A['chest' + q.i] = q.chest.slice(); }); return A; }
-  /* ------------------------------------------------------------------ build: soft rounded figures; opts.t = how far made (each figure grows from the floor up, then its clothing wraps on) */
-  function build(THREE, G, opts) { opts = opts || {}; const t = opts.t == null ? 1 : clamp(opts.t, 0, 1), { P } = pose(G, opts.refs), root = new THREE.Group(); root.name = 'people';
-    const clay = new THREE.Color(.5, .49, .47), skin = new THREE.Color(.62, .5, .42);
-    const V = (a) => new THREE.Vector3(a[0], a[1], a[2]);
+  /* ------------------------------------------------------------------ build: soft rounded children; opts.t = how far made; opts.refs or opts.support = the table */
+  function build(THREE, G, opts) { opts = opts || {}; const t = opts.t == null ? 1 : clamp(opts.t, 0, 1), { P } = pose(G, opts.refs || opts), root = new THREE.Group(); root.name = 'people';
+    const clay = new THREE.Color(.5, .49, .47), skin = new THREE.Color(.78, .6, .49), V = a => new THREE.Vector3(a[0], a[1], a[2]), UP = new THREE.Vector3(0, 1, 0);
     P.forEach((q, k) => { const tk = opts.stagger === false ? t : clamp(t * P.length - k, 0, 1), ph = (a, b) => clamp((tk - a) / (b - a), 0, 1); if (tk <= 0) return;
-      const p = q.p, g = new THREE.Group(); g.name = 'person' + k; root.add(g);
-      const wrap = ph(.75, 1), cloth = clay.clone().lerp(new THREE.Color(p.clothR, p.clothG, p.clothB), wrap);
-      const hairCol = new THREE.Color(...HAIR_DARK.map((d, j) => lerp(d, HAIR_FAIR[j], p.hairTone)));
-      const mClothes = new THREE.MeshStandardMaterial({ color: cloth, roughness: .85 }), mSkin = new THREE.MeshStandardMaterial({ color: clay.clone().lerp(skin, wrap), roughness: .7 });
-      const mLeg = new THREE.MeshStandardMaterial({ color: clay.clone().lerp(p.dress > .5 ? skin : new THREE.Color(p.clothR * .5, p.clothG * .5, p.clothB * .55), wrap), roughness: .85 });
-      const mHair = new THREE.MeshStandardMaterial({ color: hairCol, roughness: .9 });
-      const limb = (a, b, r0, r1, mat, f) => { const A = V(a), B = V(b), d = B.clone().sub(A), L = d.length() * f; if (L < 1e-4) return; const c = new THREE.Mesh(new THREE.CylinderGeometry(r1, r0, L, 12), mat);
-        c.position.copy(A).addScaledVector(d.normalize(), L / 2); c.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d); g.add(c);
-        const s = new THREE.Mesh(new THREE.SphereGeometry(r1, 12, 8), mat); s.position.copy(A).addScaledVector(d, L); g.add(s); };
-      // legs rise from the floor (a dress hides most of them)
-      const lp = ph(0, .2), side = q.side, hw = q.sw * .42;
-      [-1, 1].forEach(sg => { const f0 = [q.foot[0] + side[0] * hw * sg, 0, q.foot[2] + side[2] * hw * sg], h0 = [q.hip[0] + side[0] * hw * sg, q.hip[1], q.hip[2] + side[2] * hw * sg]; limb(f0, h0, q.sw * .2, q.sw * .17, mLeg, lp); });
-      // torso: a lathed rounded form along the leaning body axis
-      const tp = ph(.2, .4); if (tp > 0) { const prof = []; for (let s = 0; s <= 10; s++) { const u = s / 10, w = q.sw * (.82 + .18 * Math.sin(u * Math.PI * .9)) * (u > .92 ? .7 : 1); prof.push(new THREE.Vector2(Math.max(.002, w * Math.sin(Math.min(1, (u + .04) * 1.15) * Math.PI / 2 + (u > .85 ? (u - .85) * 6 : 0)) ), u * q.torso * tp)); }
-        const torso = new THREE.Mesh(new THREE.LatheGeometry(prof, 24), mClothes); torso.position.copy(V(q.hip)); torso.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), V(q.chest).sub(V(q.hip)).normalize()); torso.scale.z = .72; g.add(torso);
-        // the dress: a flared skirt from the hip down, wrapping on last
-        if (p.dress > .15) { const dl = q.legs * (.35 + .55 * p.dress) * wrap; if (dl > .003) { const sk = new THREE.Mesh(new THREE.CylinderGeometry(q.sw * .85, q.sw * (1.05 + .5 * p.dress), dl, 24, 1, true), mClothes); mClothes.side = THREE.DoubleSide; sk.position.set(q.hip[0], q.hip[1] - dl / 2 + .01, q.hip[2]); g.add(sk); } } }
-      // arms: toward the cake, clapping, or holding (hands together)
-      const ap = ph(.4, .5); if (ap > 0) q.hands.forEach((h, j) => { const sg = j ? 1 : -1, sh = [q.shoulder[0] + side[0] * q.sw * sg, q.shoulder[1], q.shoulder[2] + side[2] * q.sw * sg], el = q.elbows[j];
-        limb(sh, el, q.sw * .17, q.sw * .15, mClothes, Math.min(1, ap * 2)); if (ap > .5) limb(el, h, q.sw * .15, q.sw * .13, mSkin, (ap - .5) * 2); });
-      // head: a smooth form only, no features of any kind
-      const hp = ph(.5, .6); if (hp > 0) { const head = new THREE.Mesh(new THREE.SphereGeometry(q.hd / 2, 28, 20), mSkin); head.position.copy(V(q.head)); head.scale.set(hp * .92, hp, hp * .96); g.add(head);
-        limb(q.chest, q.neckTop, q.sw * .22, q.sw * .2, mSkin, hp); }
-      // hair mass: a cap over the crown and the back of the head, and a fall down the back for long hair
-      const hm = ph(.6, .75); if (hm > 0 && p.hairVol > .05) { const r = q.hd / 2 * (1.04 + .14 * p.hairVol), back = [-q.fwd[0], -q.fwd[1]];
-        const cap = new THREE.Mesh(new THREE.SphereGeometry(r, 28, 16, 0, Math.PI * 2, 0, Math.PI * (.42 + .1 * p.hairVol)), mHair); cap.position.copy(V(q.head)).add(new THREE.Vector3(back[0] * r * .12, r * .04, back[1] * r * .12)); cap.scale.setScalar(hm); g.add(cap);
-        const fall = q.hd * (.2 + 1.6 * p.hairLen) * hm; if (fall > .01) { const f = new THREE.Mesh(new THREE.CylinderGeometry(r * .9, r * (.8 + .4 * p.hairVol), fall, 20, 1, false, 0, Math.PI), mHair);
-          f.position.set(q.head[0] + back[0] * r * .35, q.head[1] - fall / 2 + r * .2, q.head[2] + back[1] * r * .35); f.rotation.y = Math.atan2(back[0], back[1]) - Math.PI / 2; g.add(f); } }
-      // party hat (a cone on the crown), last
-      if (p.hat > .5 && wrap > 0) { const hat = new THREE.Mesh(new THREE.ConeGeometry(q.hd * .28, q.hd * .7 * wrap, 18), mClothes); hat.position.set(q.head[0], q.head[1] + q.hd * (.45 + .35 * wrap), q.head[2]); g.add(hat); }
+      const c = q.c, g = new THREE.Group(); g.name = 'child' + k; root.add(g);
+      const wrap = ph(.75, 1), clothCol = clay.clone().lerp(new THREE.Color(...c.cloth), wrap), hairCol = new THREE.Color(...HAIR_DARK.map((d, j) => lerp(d, HAIR_FAIR[j], c.hairTone)));
+      const mCloth = new THREE.MeshStandardMaterial({ color: clothCol, roughness: .92, side: THREE.DoubleSide }), mSkin = new THREE.MeshStandardMaterial({ color: clay.clone().lerp(skin, wrap), roughness: .75 });
+      const mLeg = c.dress > .5 ? mSkin : new THREE.MeshStandardMaterial({ color: clay.clone().lerp(new THREE.Color(c.cloth[0] * .35, c.cloth[1] * .33, c.cloth[2] * .4), wrap), roughness: .9 });
+      const mHair = new THREE.MeshStandardMaterial({ color: hairCol, roughness: .95, side: THREE.DoubleSide }), mShoe = new THREE.MeshStandardMaterial({ color: new THREE.Color(.05, .045, .04), roughness: .7 });
+      const limb = (a, b, r0, r1, mat, f) => { const A = V(a), B = V(b), d = B.clone().sub(A), L = d.length() * f; if (L < 1e-4) return; d.normalize();
+        const m = new THREE.Mesh(new THREE.CylinderGeometry(r1, r0, L, 14, 1, true), mat); m.position.copy(A).addScaledVector(d, L / 2); m.quaternion.setFromUnitVectors(UP, d); g.add(m);
+        const s = new THREE.Mesh(new THREE.SphereGeometry(r1, 14, 10), mat); s.position.copy(A).addScaledVector(d, L); g.add(s);
+        const s0 = new THREE.Mesh(new THREE.SphereGeometry(r0, 14, 10), mat); s0.position.copy(A); g.add(s0); };
+      // legs rise from the floor; small dark shoes
+      const lp = ph(0, .2), side = q.side, hw = q.sw * .4;
+      [-1, 1].forEach(sg => { const f0 = [q.foot[0] + side[0] * hw * sg, .02, q.foot[2] + side[2] * hw * sg], h0 = [q.hip[0] + side[0] * hw * sg, q.hip[1], q.hip[2] + side[2] * hw * sg]; limb(f0, h0, q.sw * .19, q.sw * .23, mLeg, lp);
+        if (lp > 0) { const sh = new THREE.Mesh(new THREE.SphereGeometry(q.sw * .24, 12, 8), mShoe); sh.scale.set(1, .55, 1.5); sh.position.set(f0[0] + q.fwd[0] * q.sw * .12, .018, f0[2] + q.fwd[1] * q.sw * .12); sh.rotation.y = Math.atan2(q.fwd[0], q.fwd[1]); g.add(sh); } });
+      // body: one lathed garment along the leaning axis: shoulders, chest, waist, then a skirt flaring toward the knee (dress) or a short top over the hips
+      const bp = ph(.2, .4); if (bp > 0) { const hem = lerp(.08, .55, c.dress) * q.legs, top = q.torso, w = q.sw;
+        const pts = [[.02, -hem], [w * lerp(.95, 1.35, c.dress), -hem], [w * lerp(.92, 1.15, c.dress), -hem * .55], [w * .9, 0], [w * .82, top * .35], [w * .92, top * .7], [w * .95, top * .88], [w * .7, top * .98], [w * .3, top * 1.02], [.01, top * 1.03]];
+        const prof = pts.map(([x, y]) => new THREE.Vector2(x, (y + hem) * bp - hem));
+        const m = new THREE.Mesh(new THREE.LatheGeometry(prof, 28), mCloth); m.position.copy(V(q.hip)); m.quaternion.setFromUnitVectors(UP, V(q.chest).sub(V(q.hip)).normalize()); m.scale.z = .74; g.add(m); }
+      // arms: a soft sleeve to the elbow, the forearm, a small rounded hand
+      const ap = ph(.4, .5); if (ap > 0) q.hands.forEach((h, j) => { const sg = j ? 1 : -1, sh = [q.shoulder[0] + side[0] * q.sw * .92 * sg, q.shoulder[1], q.shoulder[2] + side[2] * q.sw * .92 * sg], el = q.elbows[j];
+        limb(sh, el, q.sw * .24, q.sw * .17, mCloth, Math.min(1, ap * 2)); if (ap > .5) { limb(el, h, q.sw * .14, q.sw * .12, mSkin, (ap - .5) * 2); const hd = new THREE.Mesh(new THREE.SphereGeometry(q.sw * .16, 10, 8), mSkin); hd.position.copy(V(h)); hd.scale.setScalar((ap - .5) * 2); g.add(hd); } });
+      // head: a smooth form, no features of any kind, bent toward the cake
+      const hp = ph(.5, .6); if (hp > 0) { limb(q.chest, q.neckTop, q.sw * .26, q.sw * .24, mSkin, hp);
+        const head = new THREE.Mesh(new THREE.SphereGeometry(q.hd / 2, 28, 20), mSkin); head.position.copy(V(q.head)); head.scale.set(hp * .9, hp * 1.04, hp * .95); head.name = 'head'; g.add(head); }
+      // hair mass: crown and back, a fringe over the brow, side curtains and a fall down the back for long hair
+      const hm = ph(.6, .75); if (hm > 0) { const r = q.hd / 2 * (1.06 + .14 * c.hairVol);
+        const hair = new THREE.Group(); hair.position.copy(V(q.head)); hair.rotation.y = Math.atan2(q.fwd[0], q.fwd[1]); hair.rotateX((c.lean + c.tilt) * D2R); hair.scale.setScalar(hm); hair.name = 'hair'; g.add(hair);
+        const cap = new THREE.Mesh(new THREE.SphereGeometry(r, 28, 18, 0, Math.PI * 2, 0, Math.PI * .56), mHair); cap.position.set(0, r * .06, -r * .06); hair.add(cap);
+        const nape = new THREE.Mesh(new THREE.SphereGeometry(r * 1.01, 24, 16, Math.PI * .6, Math.PI * .8, Math.PI * .3, Math.PI * .5), mHair); nape.position.z = -r * .04; hair.add(nape);   // the back of the head (local -z)
+        const fall = q.hd * (.15 + 1.5 * c.hairLen); if (fall > .02) { const f = new THREE.Mesh(new THREE.CylinderGeometry(r * .92, r * (.85 + .45 * c.hairVol), fall, 22, 1, true, Math.PI * .5, Math.PI), mHair);
+          f.position.set(0, -fall / 2 + r * .1, -r * .12); hair.add(f);
+          [-1, 1].forEach(sg => { const s = new THREE.Mesh(new THREE.CylinderGeometry(r * .3, r * (.28 + .2 * c.hairVol), fall * .8, 12, 1, true), mHair); s.position.set(sg * r * .8, -fall * .4 + r * .15, r * .05); hair.add(s); }); } }
+      if (c.hat > .5 && wrap > 0) { const hat = new THREE.Mesh(new THREE.ConeGeometry(q.hd * .26, q.hd * .7 * wrap, 18), mCloth); hat.position.set(q.head[0], q.head[1] + q.hd * (.45 + .35 * wrap), q.head[2]); g.add(hat); }
       g.userData = { index: k, made: tk };
     });
     root.userData = { module: 'people', t, count: P.length }; return root; }
-  return { name: 'people', genes, groups, stages, stageGroup, making, blank, evaluate, build, anchors, pose, person, count, supportOf, DEFAULT_SUPPORT, MAX };
+  return { name: 'people', genes, groups, stages, making, blank, evaluate, build, anchors, pose, children, count, supportOf, named, DEFAULT_SUPPORT, MAX };
 });

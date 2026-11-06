@@ -164,7 +164,7 @@
         } else { const r = .985 * R * Math.pow(u1, .42), ang = u1 * TAU * 5.5, ci = Math.min(NT - 1, Math.floor(r / dsT)); let wsum = 0; const ws = [];
           for (let da = -5; da <= 5; da++) for (let di = -1; di <= 1; di++) { const i = ci + di; if (i < 0 || i >= NT) continue; const a = ((Math.round(ang / dA) + da) % NA + NA) % NA, w = Math.exp(-da * da / 8 - di * di / 1.2); ws.push([a, i, w]); wsum += w; }
           ws.forEach(([a, i, w]) => { const area = dA * (i + .5) * dsT * dsT; I.h[a * NC + i] += dv * w / wsum / area; }); }
-        I.poured += dv; I.frozen = false; I.any = true; if (u1 >= 1) { I.pour = null; this.flash = 1; this.emit('poured', { vol: I.poured }); }   // the magnesium flash marks a change of the cake (never on a landing) }
+        I.poured += dv; I.frozen = false; I.any = true; if (u1 >= 1) { I.pour = null; this.flash = 1; this.emit('poured', { vol: I.poured }); } }   // the magnesium flash marks a change of the cake (never on a landing)
       if (!I.any) return;
       const th = this.theta, ps = this.psi, cf = R * 1e-3 * this.turn.v * this.turn.v / G;
       // driving accelerations (in g) seen in the plate frame

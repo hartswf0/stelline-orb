@@ -25,7 +25,7 @@ fs.mkdirSync(out, { recursive: true });
     const t = F / 30;
     while (si < geo.script.length && geo.script[si][0] <= t) { const s = geo.script[si++];
       if (s[1] === 'hold') { tap(geo.hold, 3); log.push([+t.toFixed(2), 'tap HOLD']); }
-      else if (s[1] === 'sel') { const st = await p.evaluate(() => ({ cur: MM.S.target })); const n = s[2] == null ? 1 : Math.max(0, s[2] - st.cur); for (let k = 0; k < n; k++) { const df = k * 4; const [x, y] = P(geo.sel.x, geo.sel.y); at(df, async () => { await p.mouse.move(x, y); await p.mouse.down(); }); at(df + 2, async () => { await p.mouse.up(); }); } log.push([+t.toFixed(2), 'tap SELECT x' + n]); }
+      else if (s[1] === 'sel') { const st = await p.evaluate(() => ({ cur: MM.S.target, len: MM.targets().length })); const n = s[2] == null ? 1 : ((s[2] - st.cur) % st.len + st.len) % st.len; /* SELECT only cycles forward */ for (let k = 0; k < n; k++) { const df = k * 4; const [x, y] = P(geo.sel.x, geo.sel.y); at(df, async () => { await p.mouse.move(x, y); await p.mouse.down(); }); at(df + 2, async () => { await p.mouse.up(); }); } log.push([+t.toFixed(2), 'tap SELECT x' + n]); }
       else if (s[1] === 'k' || s[1] === 't') { const ix = s[1] === 'k' ? 1 : 2, cur = await p.evaluate(i => MM.RINGS[i].target, ix); drag(geo[s[1]], s[2] - cur, Math.max(4, Math.round(s[3] * 30))); log.push([+t.toFixed(2), 'drag ' + (s[1] === 'k' ? 'KNURL' : 'TRIANGLE'), s[2] - cur]); } }
     for (const a of pending.filter(a => a[0] === F)) await a[1](); pending = pending.filter(a => a[0] > F);
     await p.evaluate(() => MM.advance(1 / 30));

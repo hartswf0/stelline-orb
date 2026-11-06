@@ -35,6 +35,8 @@ button.x { font: 500 12px 'Oswald', sans-serif; letter-spacing: .12em; color: va
 <p>Technique: each child is one three.js SkinnedMesh with 23 bones, vertex weights computed in <code>rig.js</code>, a forearm split over two twist bones, and six corrective shapes (elbows, shoulder raise, shoulder forward) baked from a dual-quaternion reference. The printed badge on child 2's left sleeve and the bow on child 1's dress are region-masked so they move as one piece. Measurements: <a href="operator.html">operator page</a>. Side-by-side stress test: <a href="?stress=1">stress view</a>.</p>
 <button class="x" id="infoClose">CLOSE</button></div>
 <script src="../../../ana/assets/three.min.js"></script>
+<script src="../shared/look.js"></script>
+<script src="../shared/holo.js"></script>
 <script src="rig.js"></script>
 <script>
 'use strict';
@@ -93,6 +95,9 @@ const hemi = new T.HemisphereLight(0x7d8a86, 0x080605, .22); scene.add(hemi);
 const key = new T.SpotLight(0xffe2c0, 1.1, 6, .55, .7, 1.4); key.position.set(.6, 3.2, 1.4); key.target.position.set(0, .5, 0); scene.add(key, key.target);
 const rim = new T.DirectionalLight(0x9fb4c8, .18); rim.position.set(-1.5, 2, -2); scene.add(rim);
 const candleLight = new T.PointLight(0xffa04a, 0, 2.6, 1.6); scene.add(candleLight);
+// the shared memory look (experiments/swarms/shared/look.js): grade, key and candle light, spot screen, bloom, grain, depth of field. ?plain=1 keeps this page's own lights.
+const LK = window.LOOK && !Q.has('plain') ? LOOK.apply(R, scene, cam, { target: V(0, .64, 0), room: false, shadows: false }) : null;
+if (LK) { key.visible = false; hemi.visible = false; candleLight.visible = false; rim.intensity = .06; }
 const tex = (w, h, fn) => { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; return t; };
 const spotTex = tex(128, 128, (x, w) => { const g = x.createRadialGradient(64, 64, 2, 64, 64, 63); g.addColorStop(0, 'rgba(255,236,206,.55)'); g.addColorStop(.55, 'rgba(255,220,180,.22)'); g.addColorStop(.86, 'rgba(255,214,170,.1)'); g.addColorStop(.97, 'rgba(255,230,200,.3)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, w, w); });
 function memorySpot(r) { const m = new T.Mesh(new T.CircleGeometry(r, 64), new T.MeshBasicMaterial({ map: spotTex, transparent: true, blending: T.AdditiveBlending, depthWrite: false, opacity: 0 })); m.rotation.x = -PI / 2; m.position.y = .004; scene.add(m); return m; }
@@ -305,7 +310,9 @@ function placeCandle(C) { C.g.visible = true; C.g.position.copy(cakeW(Math.cos(C
 
 /* =============================================================== THE HOLOGRAM UI: the arc beside the cake at candle height */
 function canvasSprite(w, h, sw, sh) { const c = document.createElement('canvas'); c.width = w; c.height = h; const t = new T.CanvasTexture(c); const s = new T.Sprite(new T.SpriteMaterial({ map: t, transparent: true, depthWrite: false, depthTest: false, opacity: 0 })); s.scale.set(sw, sh, 1); s.renderOrder = 5; scene.add(s); return { c, x: c.getContext('2d'), t, s }; }
-const ARC = canvasSprite(256, 384, .1, .15); const MARKS = [-23, -19, -9, -1, 6]; let arcMark = 0, arcAlpha = 0, lastWork = -9;
+const ARC = canvasSprite(256, 384, .1, .15);
+// the shared hologram (experiments/swarms/shared/holo.js): the segmented C arc and the typing readout, measured against the film's crops
+const HARC = window.HOLO && LK ? HOLO.arc(scene, V(0, .52 + .118 + .07, 0), { camera: cam, size: .13, offset: .26, auto: false }) : null, HREAD = window.HOLO && LK ? HOLO.readout(scene, V(0, .52 + .118 + .055, 0), { camera: cam, size: .13, offset: .14, auto: false, typeAuto: false }) : null; let harcMark = -1; const MARKS = [-23, -19, -9, -1, 6]; let arcMark = 0, arcAlpha = 0, lastWork = -9;
 function drawArc() { const { x, c } = ARC; x.clearRect(0, 0, c.width, c.height); const cx = 70, cy = 192, r = 140; x.strokeStyle = 'rgba(220,232,228,.55)'; x.lineWidth = 18;
   [[-78, -52], [-49, -20], [-17, 12], [15, 44], [47, 76]].forEach(([a, b]) => { x.beginPath(); x.arc(cx, cy, r, a * PI / 180, b * PI / 180); x.stroke(); });
   x.strokeStyle = 'rgba(245,250,248,.9)'; x.lineWidth = 20; x.beginPath(); x.arc(cx, cy, r, -80 * PI / 180, -70 * PI / 180); x.stroke();
@@ -317,9 +324,9 @@ const RINGS = [{ id: 'scale', ang: 0, target: 0, applied: 0, deg: 5, min: -36, m
 function select(i, silent) { if (STRESS) return; S.target = (i + 4) % 4; const k = KIDS[S.target], kn = RINGS[1], tr = RINGS[2]; kn.target = kn.applied = k.prog; kn.ang = k.prog * kn.deg; tr.target = tr.applied = k.reach; tr.ang = k.reach * tr.deg; if (!silent) sound({ k: 'select' }); lastWork = NOW; }
 let stepClock = 0;
 function machine(dt) { stepClock += dt; const busy = RINGS.filter(r => r.target !== r.applied);
-  if (!busy.length) { if (S.ens && !S.offAt) { const c = nextEnsemble(); if (c < 0) { S.ens = false; stepClock = 0; return; } const period = 1 / 11.8; while (stepClock >= period) { stepClock -= period; stepChild(c, 1); sound({ k: 'click', fast: false, ring: 1 }); lastWork = NOW; if (c === S.target) { RINGS[1].target = RINGS[1].applied = KIDS[c].prog; RINGS[1].ang = KIDS[c].prog * RINGS[1].deg; } } return; } stepClock = 0; return; }
+  if (!busy.length) { if (S.ens && !S.offAt) { const c = nextEnsemble(); if (c < 0) { S.ens = false; stepClock = 0; return; } const period = 1 / 11.8; while (stepClock >= period) { stepClock -= period; stepChild(c, 1); sound({ k: 'click', fast: false, ring: 1 }); lastWork = NOW; if (HREAD) HREAD.feed(4); if (c === S.target) { RINGS[1].target = RINGS[1].applied = KIDS[c].prog; RINGS[1].ang = KIDS[c].prog * RINGS[1].deg; } } return; } stepClock = 0; return; }
   const fast = busy.some(r => Math.abs(r.target - r.applied) > 6), period = fast ? 1 / 23.6 : 1 / 11.8;
-  while (stepClock >= period) { stepClock -= period; busy.forEach(r => { if (r.target === r.applied) return; r.applied += Math.sign(r.target - r.applied); applyStep(r); sound({ k: 'click', fast, ring: r.ix }); }); } }
+  while (stepClock >= period) { stepClock -= period; busy.forEach(r => { if (r.target === r.applied) return; r.applied += Math.sign(r.target - r.applied); applyStep(r); if (HREAD && r.id === 'knurl') HREAD.feed(4); sound({ k: 'click', fast, ring: r.ix }); }); } }
 function nextEnsemble() { for (const id of ORDER) { if (S.done.has(id)) continue; const c = ACTIONS.findIndex(L => L.some(a => a.id === id)); return limitOf(c) > KIDS[c].prog ? c : -1; } return -1; }
 function applyStep(r) { lastWork = NOW; const k = KIDS[S.target]; if (!k && r.id !== 'scale') return;
   if (r.id === 'scale') S.yaw = r.applied * 5;
@@ -414,7 +421,7 @@ function stressPose(t) { const ph = (t % 12) / 12, seg = (a, b) => sst(a, b, ph)
   return { lab, arms: { L: { dir: d, bend, pole: V(.15, -.25, -1), twist: tw } } }; }
 
 /* =============================================================== EVERY FRAME */
-function resize() { const r = viewEl.getBoundingClientRect(); R.setSize(r.width, r.height, false); cam.aspect = r.width / r.height; cam.fov = cam.aspect < 1 ? 2 * Math.atan(Math.tan(24 * PI / 180) / cam.aspect) * 180 / PI : 36; if (STRESS) cam.fov = cam.aspect < 1 ? 2 * Math.atan(Math.tan(22 * PI / 180) / cam.aspect) * 180 / PI : 32; cam.updateProjectionMatrix(); layoutDev(); }
+function resize() { const r = viewEl.getBoundingClientRect(); if (LK) LK.setSize(r.width, r.height); else R.setSize(r.width, r.height, false); cam.aspect = r.width / r.height; cam.fov = cam.aspect < 1 ? 2 * Math.atan(Math.tan(24 * PI / 180) / cam.aspect) * 180 / PI : 36; if (STRESS) cam.fov = cam.aspect < 1 ? 2 * Math.atan(Math.tan(22 * PI / 180) / cam.aspect) * 180 / PI : 32; cam.updateProjectionMatrix(); layoutDev(); }
 addEventListener('resize', resize);
 const statusEl = document.getElementById('status'), endEl = document.getElementById('end'); let frameN = 0;
 function poseKid(k, pose, opt) { const sol = RIG.solve(k.G, pose, opt); k.bones[0].position.copy(sol.rootPos); sol.q.forEach((q, i) => k.bones[i].quaternion.copy(q)); k.mesh.morphTargetInfluences.splice(0, 6, ...sol.morphW); k.sol = sol; k.pose = pose;
@@ -454,7 +461,8 @@ function step(dt) { NOW += dt; frameN++; runScene(); runAnims(); machine(dt);
   S.flash = Math.max(0, S.flash - dt / .22); FLASH.position.set(0, TY + .1, 0); FLASH.material.opacity = S.flash * .9; cakeMats.concat([boardMat]).forEach(m => { if (m.emissive) m.emissive.setRGB(S.flash * .55, S.flash * .58, S.flash * .62); });
   // the arc: beside the cake at candle height, its mark stepping through the selected child's action
   const k = KIDS[S.target], at = actionAt(S.target, k.disp); arcMark = Math.min(4, Math.floor(at.p * 5)); const right = V(1, 0, 0).applyQuaternion(cam.quaternion);
-  ARC.s.position.set(0, TY + TOPY + .07, 0).addScaledVector(right, .26); arcAlpha = lerp(arcAlpha, (NOW - lastWork < 2.2 ? 1 : .25) * (1 - S.dark), Math.min(1, dt * 6)); ARC.s.material.opacity = arcAlpha * .85; if (frameN % 2 === 0) drawArc();
+  ARC.s.position.set(0, TY + TOPY + .07, 0).addScaledVector(right, .26); arcAlpha = lerp(arcAlpha, (NOW - lastWork < 2.2 ? 1 : .25) * (1 - S.dark), Math.min(1, dt * 6)); ARC.s.material.opacity = arcAlpha * .85; if (frameN % 2 === 0 && !HARC) drawArc();
+  if (HARC) { ARC.s.material.opacity = 0; if (arcMark !== harcMark) { HARC.step(arcMark); harcMark = arcMark; } HARC.show(arcAlpha > .5 && !S.dark); HARC.update(dt, cam); HREAD.show(NOW - lastWork < 1.2 && !S.dark); HREAD.update(dt, cam); }
   if (S.offAt) S.dark = clamp((NOW - S.offAt) / 1.0, 0, 1);
   // status line: the generation, what was made, the nearest film cake
   const g = S.gens[S.gens.length - 1], near = nearestFilm(); const busyK = KIDS.find(q => { const x = actionAt(q.i, q.disp); return x.p > .01 && x.p < .99; }), now = busyK ? `NOW: CHILD ${busyK.i + 1}, ${actionAt(busyK.i, busyK.disp).a.label}` : '';
@@ -463,7 +471,8 @@ function step(dt) { NOW += dt; frameN++; runScene(); runAnims(); machine(dt);
   if (frameN % 15 === 0 && KIDS.length) sample();
   // sprites at zero opacity still cost a full rasterisation pass in software GL: hide them
   CANDLES.forEach(C => { C.f.visible = C.f.material.opacity > .004; C.hl.visible = C.hl.material.opacity > .004; }); FLASH.visible = FLASH.material.opacity > .004; taperFlame.visible = taperFlame.material.opacity > .004; ARC.s.visible = ARC.s.material.opacity > .004;
-  if (!NORENDER) { R.render(scene, cam); drawDev(); } }
+  if (LK) { LK.candlesLit(lit / 7); LK.setCandles(CANDLES.filter(C => C.lit && !C.out).map(C => C.f)); }
+  if (!NORENDER) { if (LK) LK.render(dt); else R.render(scene, cam); drawDev(); } }
 let NORENDER = false;
 function sample() { // the poses the tests re-skin offline: child 2 (badge) and child 1 (bow), with what is held
   const s = { t: +NOW.toFixed(3), kids: KIDS.map(k => ({ pos: k.P.toArray().map(v => +v.toFixed(5)), yaw: +k.pose.yaw.toFixed(5), lean: +k.pose.lean.toFixed(5), twist: +(k.pose.twist || 0).toFixed(5), headPitch: +(k.pose.headPitch || 0).toFixed(4), tiptoe: +(k.pose.tiptoe || 0).toFixed(4),

@@ -408,5 +408,5 @@ function frame(now) { const dt = Math.min(.05, (now - last) / 1000); last = now;
 document.fonts && document.fonts.load('400 20px Oswald').then(() => drawDev());
 resize(); reset(); drawInscription(0);
 if (!REC) requestAnimationFrame(frame); else render();
-window.MM = { ready: () => WAVTRIED, advance: dt => { step(dt); if (S.stage > 2 && (S.dirty > 0 || S.anims)) TRACE.detail.length < 600 && TRACE.detail.push([+NOW.toFixed(2), +detailDistortion(TW[0]).toExponential(1), +detailDistortion(TW[1]).toFixed(4)]); }, press, handTurn, commit, select, renderAudio, traceOut, S, RINGS, STAGES, LAYER, tName, BANDS: () => BANDS, BTNS: () => BTNS, devRect: () => DC.getBoundingClientRect(), NOW: () => NOW, SOL, NAI, A, playScene, TW, SCRIPT, PROF };
+window.MM = { ready: () => WAVTRIED, advance: dt => { step(dt); if (S.stage > 2 && (S.dirty > 0 || S.anims)) TRACE.detail.length < 600 && TRACE.detail.push([+NOW.toFixed(2), +detailDistortion(TW[0]).toExponential(1), +detailDistortion(TW[1]).toFixed(4)]); }, press, handTurn, commit, select, renderAudio, traceOut, S, RINGS, STAGES, LAYER, tName, BANDS: () => BANDS, BTNS: () => BTNS, devRect: () => DC.getBoundingClientRect(), NOW: () => NOW, SOL, NAI, A, playScene, TW, SCRIPT, PROF, targets };
 </script></body></html>

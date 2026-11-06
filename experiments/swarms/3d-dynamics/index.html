@@ -132,8 +132,8 @@ class View {
         V.f.position.copy(wick).addScaledVector(up, .013 * sz); V.f.scale.set(.015 * sz, .034 * sz * flick, 1); V.f.material.rotation = -Math.atan2(up.dot(right), up.y); V.f.material.opacity = .92; V.f.visible = true;
         V.hl.position.copy(wick).addScaledVector(up, .014); V.hl.scale.set(.06 * sz, .06 * sz, 1); V.hl.material.opacity = .7 * sz * flick; V.hl.visible = true; V.lastWick = wick.clone(); }
       else { V.f.visible = V.hl.visible = false; }
-      if (V.wasLit && !c.lit && V.lastWick) { V.smokeT = 0; V.smokeP = V.lastWick.clone(); } V.wasLit = c.lit;
-      if (V.smokeT >= 0) { V.smokeT += 1 / 30; const u = V.smokeT / 1.6; if (u >= 1) { V.smokeT = -1; V.sm.material.opacity = 0; } else { V.sm.position.copy(V.smokeP).add(new T.Vector3(Math.sin(u * 5 + k) * .006, u * .09, 0)); V.sm.scale.setScalar(.012 + u * .03); V.sm.material.opacity = .35 * (1 - u); } } });
+      if (V.wasLit && !c.lit && V.lastWick) { V.smokeT = 0; V.smokeT0 = game.t; V.smokeP = V.lastWick.clone(); } V.wasLit = c.lit;
+      if (V.smokeT >= 0) { V.smokeT = game.t - V.smokeT0;   /* on the game clock, not the frame count */ const u = V.smokeT / 1.6; if (u >= 1) { V.smokeT = -1; V.sm.material.opacity = 0; } else { V.sm.position.copy(V.smokeP).add(new T.Vector3(Math.sin(u * 5 + k) * .006, u * .09, 0)); V.sm.scale.setScalar(.012 + u * .03); V.sm.material.opacity = .35 * (1 - u); } } });
     // crown
     const cp = this.cpos, NP = GEO.crownN * 2; for (let i = 0; i < NP; i++) { const a = i / NP * TAU + .0, peak = i % 2 === 0, P = w.crown[Math.floor(i / 2) % GEO.crownN], P2 = w.crown[(Math.floor(i / 2) + 1) % GEO.crownN];
       const lr = peak ? P.r.x : (P.r.x + P2.r.x) / 2, lt = peak ? P.t.x : (P.t.x + P2.t.x) / 2, h = peak ? GEO.crownH : .013, cx = Math.cos(a), cz = Math.sin(a), rr = GEO.crownR;
@@ -234,16 +234,16 @@ function drawHUD(W, H, vps) { hx.clearRect(0, 0, W, H); hx.textBaseline = 'top';
 let VW = 0, VH = 0;
 function resize() { const r = viewEl.getBoundingClientRect(); VW = r.width; VH = r.height; R.setSize(VW, VH, false); const pr = Math.min(2, devicePixelRatio); HUD.width = VW * pr; HUD.height = VH * pr; hx.setTransform(pr, 0, 0, pr, 0, 0); layoutDev(); }
 addEventListener('resize', resize);
-function placeCam(aspect) { const needW = .44, needH = .40, t = Math.tan(cam.fov / 2 * Math.PI / 180), d = Math.max(needH / (2 * t), needW / (2 * t * aspect)), el = 22 * Math.PI / 180, c = new T.Vector3(0, GEO.plateY + .085, 0);
+function placeCam(aspect) { const needW = .44, needH = .40, t = Math.tan(cam.fov / 2 * Math.PI / 180), d = Math.max(needH / (2 * t), needW / (2 * t * aspect)), el = 28 * Math.PI / 180, c = new T.Vector3(0, GEO.plateY + .085, 0);
   cam.aspect = aspect; cam.position.set(0, c.y + Math.sin(el) * d, Math.cos(el) * d); cam.lookAt(c); cam.updateProjectionMatrix(); cam.updateMatrixWorld(); }
 function render() {
-  const names = game.split ? ['LOOSE', 'TUNED', 'RIGID'] : ['TUNED'], n = names.length, vps = names.map((name, i) => ({ name, x: Math.round(VW * i / n), w: Math.round(VW / n) }));
+  const names = game.split && VW >= 600 ? ['LOOSE', 'TUNED', 'RIGID'] : ['TUNED']   /* on a phone the split would leave each cake a third of the width: single view there */, n = names.length, vps = names.map((name, i) => ({ name, x: Math.round(VW * i / n), w: Math.round(VW / n) }));
   // the memory switching on and off, as round spots of light
   const since = game.t - game.onAt, dark = game.dark;
   R.setScissorTest(true); R.setClearColor(0x030404); R.setViewport(0, 0, VW, VH); R.setScissor(0, 0, VW, VH); R.clear();
   drawInscription(game.ins);
   const st = game.stage(); if (st !== arcMark && st <= 4) { arcMark = Math.min(4, st); arcBlink = .15; } arcBlink -= 1 / 30;
-  const working = game.phase === 'make' && game.t - game.lastWork < 2.6; arcAlpha = lerp(arcAlpha, working ? 1 : 0, .2);
+  const idle = game.t - game.lastWork; arcAlpha = game.phase === 'make' ? clamp(1 - (idle - 2.6) / .35, 0, 1) : 0;   // on the game clock
   vps.forEach(v => { Object.entries(VIEWS).forEach(([k, V]) => { V.G.visible = k === v.name; }); placeCam(v.w / VH); const V = VIEWS[v.name]; V.w = game.W[v.name]; V.update(cam);
     const w = game.W[v.name], lit = w.candles.filter(c => c.lit).length; candleLight.position.set(0, GEO.plateY + w.cakeTop() + .1, .03); candleLight.intensity = lit * .22 * (1 - dark);
     spot.intensity = (1.5 - lit * .14) * clamp(since / .8, 0, 1) * (1 - dark);
@@ -259,6 +259,6 @@ function frame(now) { const dt = Math.min(.05, (now - last) / 1000); last = now;
 resize();
 if (PROOF) { window.PG = { advance(dt) { game.advance(dt); render(); }, play() { game.play(); render(); }, game, ready: true,
     // where a candle is on screen (CSS px): base and tip, for the readability check
-    candleScreen(k) { const V = VIEWS.TUNED, g = V.candles[k].g; g.updateMatrixWorld(true); const vp = game.split ? { x: Math.round(VW / 3), w: Math.round(VW / 3) } : { x: 0, w: VW }; placeCam(vp.w / VH); const f = v => { const p = v.applyMatrix4(g.matrixWorld).project(cam); return [vp.x + (p.x + 1) / 2 * vp.w, (1 - p.y) / 2 * VH]; }; const a = f(new T.Vector3(0, 0, 0)), b = f(new T.Vector3(0, GEO.candleL, 0)); return { base: a, tip: b, len: Math.hypot(a[0] - b[0], a[1] - b[1]), state: game.main.candles[k].state }; } }; render(); }
+    candleScreen(k) { const V = VIEWS.TUNED, g = V.candles[k].g; g.updateMatrixWorld(true); const vp = game.split && VW >= 600 ? { x: Math.round(VW / 3), w: Math.round(VW / 3) } : { x: 0, w: VW }; placeCam(vp.w / VH); const f = v => { const p = v.applyMatrix4(g.matrixWorld).project(cam); return [vp.x + (p.x + 1) / 2 * vp.w, (1 - p.y) / 2 * VH]; }; const a = f(new T.Vector3(0, 0, 0)), b = f(new T.Vector3(0, GEO.candleL, 0)); return { base: a, tip: b, len: Math.hypot(a[0] - b[0], a[1] - b[1]), state: game.main.candles[k].state }; } }; render(); }
 else { render(); requestAnimationFrame(frame); }
 </script></body></html>
