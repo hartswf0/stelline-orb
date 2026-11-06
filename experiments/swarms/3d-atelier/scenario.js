@@ -9,14 +9,14 @@ const PLAY = [
   [6.0, 'turn', 'knurl', 1, .25], [6.6, 'turn', 'knurl', -1, .25], [7.2, 'hold'],                      // MOULD: the pot (dome), then the tin (drum); bake
   [10.8, 'turn', 'knurl', 1, .25], [11.3, 'hold'],                                                     // DECORATION: mint first
   [14.6, 'turn', 'knurl', -1, .25], [15.1, 'hold'],                                                    // evolve toward the target: chocolate with the orange top (silver decay swap)
-  [15.6, 'sel'], [15.9, 'turn', 'knurl', 24, 1.9],                                                     // INSCRIPTION: write 生日快乐 stroke by stroke
-  [18.4, 'sel'], [18.7, 'hold'],                                                                       // CANDLES: brass cups, seven set one by one
-  [21.3, 'hold'],                                                                                      // LIGHT: strike the match
-  [23.9, 'turn', 'scale', -3, .5],                                                                     // kneel back to face the cake
-  [24.6, 'hold']                                                                                       // BLOW
+  [15.6, 'sel'], [15.8, 'turn', 'tri', 8, .5], [16.1, 'turn', 'knurl', 24, 1.9], [18.4, 'turn', 'tri', -8, .5],                                                     // INSCRIPTION: write 生日快乐 stroke by stroke
+  [19.0, 'sel'], [19.3, 'hold'],                                                                       // CANDLES: brass cups, seven set one by one
+  [21.9, 'hold'],                                                                                      // LIGHT: strike the match
+  [24.5, 'turn', 'scale', -3, .5],                                                                     // kneel back to face the cake
+  [25.2, 'hold']                                                                                       // BLOW
 ];
 // one entry per detent passed, so the hand clicks are as the hand would make them
 function expand(list) { const out = []; list.forEach(a => { if (a[1] !== 'turn') { out.push(a); return; } const n = Math.abs(a[3]), s = Math.sign(a[3]); for (let i = 0; i < n; i++) out.push([+(a[0] + (i + .5) * a[4] / n).toFixed(4), 'turn', a[2], s]); });
   return out.sort((p, q) => p[0] - q[0]); }
-return { PLAY, expand, DURATION: 28 };
+return { PLAY, expand, DURATION: 29 };
 });

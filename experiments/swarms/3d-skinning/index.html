@@ -83,7 +83,7 @@ async function renderAudio(t0, t1) { const sr = 48000, a = new OfflineAudioConte
   const bytes = new Uint8Array(dv.buffer); let s = ''; for (let i = 0; i < bytes.length; i += 32768) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 32768)); return { b64: btoa(s), peak: pk }; }
 
 /* =============================================================== THE ROOM: black dome, a band of light where wall meets floor, a ring on the floor */
-const viewEl = document.getElementById('view'), R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: REC }); R.setPixelRatio(REC ? 1 : Math.min(2, devicePixelRatio)); R.outputEncoding = T.sRGBEncoding; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = 1.1; viewEl.prepend(R.domElement);
+const viewEl = document.getElementById('view'), R = new T.WebGLRenderer({ antialias: !REC || Q.has("aa"), preserveDrawingBuffer: REC }); R.setPixelRatio(REC ? 1 : Math.min(2, devicePixelRatio)); R.outputEncoding = T.sRGBEncoding; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = 1.1; viewEl.prepend(R.domElement);
 const scene = new T.Scene(); scene.background = new T.Color(0x020303); scene.fog = new T.FogExp2(0x020303, .09);
 const cam = new T.PerspectiveCamera(36, 1, .02, 60);
 { const fl = new T.Mesh(new T.CircleGeometry(9, 96), new T.MeshStandardMaterial({ color: 0x0a0b0b, roughness: .55, metalness: .2 })); fl.rotation.x = -PI / 2; scene.add(fl);

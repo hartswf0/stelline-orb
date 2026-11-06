@@ -1,0 +1,123 @@
+{
+ "provenance": {
+  "film": "Blade Runner 2049, the memory-maker scene (clip memory.mp4, 1280x720, 24 fps); frames stay in /home/claude/stelline-work/evolve-all-refs/tlp/",
+  "script": "/home/claude/stelline-work/evolve-all-refs/extract-tlp.py (outside the repo)",
+  "note": "derived numbers only; no picture, no face data"
+ },
+ "people": {
+  "kids155": [
+   {
+    "t": 155,
+    "side": -1,
+    "arms": "onTable",
+    "leanDeg": 6,
+    "clothes": [
+     38.8,
+     22.6,
+     7.0
+    ],
+    "hair": [
+     7.8,
+     8.2,
+     2.4
+    ],
+    "shoulderToCrown": 110,
+    "xOverTableHalf": -0.312
+   },
+   {
+    "t": 155,
+    "side": 0,
+    "arms": "hidden",
+    "leanDeg": 0,
+    "hair": [
+     25.0,
+     15.5,
+     4.6
+    ],
+    "shoulderToCrown": 108,
+    "xOverTableHalf": 0.155
+   },
+   {
+    "t": 155,
+    "side": 1,
+    "arms": "onTable",
+    "leanDeg": -4,
+    "clothes": [
+     157.8,
+     107.5,
+     32.4
+    ],
+    "hair": [
+     5.1,
+     5.8,
+     1.5
+    ],
+    "shoulderToCrown": 155,
+    "xOverTableHalf": 0.578
+   }
+  ],
+  "count": [
+   3,
+   5
+  ],
+  "heightToTable": 1.786,
+  "clothing214": [
+   [
+    129.4,
+    74.7,
+    13.8
+   ],
+   [
+    94.9,
+    56.2,
+    6.3
+   ],
+   [
+    32.1,
+    20.5,
+    6.0
+   ],
+   [
+    69.5,
+    41.2,
+    9.8
+   ],
+   [
+    19.2,
+    11.9,
+    4.9
+   ]
+  ],
+  "hair214": [
+   [
+    7.2,
+    6.6,
+    1.8
+   ],
+   [
+    27.5,
+    17.5,
+    6.3
+   ],
+   [
+    3.0,
+    4.2,
+    0.5
+   ],
+   [
+    8.9,
+    6.4,
+    1.4
+   ],
+   [
+    10.2,
+    9.6,
+    3.7
+   ]
+  ],
+  "paletteNote": "mean sRGB in hand-placed boxes on five torsos (below the neck) and five hair masses (crown or side of head) in the 214 s wide shot; no box touches a face",
+  "darkBehindFraction": 0.958,
+  "placementNote": "at 155 s three children stand behind the far edges of the table facing the cake; at 214 s six children ring the far half of the table, heads at 0.2-0.45 of frame height",
+  "behindLuma": 8.48
+ }
+}

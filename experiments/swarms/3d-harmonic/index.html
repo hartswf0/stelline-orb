@@ -218,7 +218,7 @@ function startRun(def, rec) { const run = { def, rec, done: 0, clock: 0, total: 
   if (def.id === 'SPONGE') { run.total = 48; LAYERS.forEach(l => { l.g.visible = true; }); }
   else if (def.id === 'COAT') { run.total = 24; coat.visible = true; coat.geometry.setDrawRange(0, 0); snd('spread', { dur: 24 / 23.6 + .2 }); }
   else if (def.id === 'INSCRIPTION') { const strokes = H.inscription(); run.strokes = strokes.map(s => { let len = 0; for (let i = 1; i < s.pts.length; i++) len += Math.hypot(s.pts[i].x - s.pts[i - 1].x, s.pts[i].z - s.pts[i - 1].z); const mm = M({ color: 0xc4231c, roughness: .4, emissive: 0x3a0806, emissiveIntensity: 1 }); mm.userData.red = true; const m = new T.Mesh(tubeGeo(s.pts, 7), mm); TUBES.add(m); return { s, m, n: 2 + Math.round(len / .02), pts: s.pts }; });
-    let a = 0; run.strokes.forEach(st => { st.a = a; a += st.n; }); run.total = a; S.tiltWant = 3; snd('sweep'); }
+    let a = 0; run.strokes.forEach(st => { st.a = a; a += st.n; }); run.total = a; S.tiltWant = 6; snd('sweep'); }
   else if (def.id === 'LIGHT') { run.total = 24; snd('match'); }
   else if (def.id === 'BLOW') { run.total = 7; run.timed = .11; snd('blow'); }
   else { // a patterned pass: its render path at 16 samples per click
@@ -347,8 +347,8 @@ const hud = document.getElementById('hud'); let hudKey = '';
 function drawHud() { const def = H.STAGES[Math.min(G.stage, H.STAGES.length - 1)], run = S.run; let a, b;
   if (S.over) { a = 'THE CANDLES ARE OUT'; b = `${G.passes.filter(p => p.ok).length} PASSES KEPT, ${G.passes.filter(p => !p.ok).length} DECAYED. HOLD DOWN TO SWITCH THE MEMORY OFF`; }
   else if (run) { a = run.def.id + (run.def.auto ? '' : ` · ${H.gearsKey(run.rec.gears ? run.rec.gears : G.gears).replace(/[tan](?=\d)/g, m => ({ t: 'T ', a: 'A ', n: 'N ' })[m])}`); b = run.def.say; }
-  else { a = def.id; b = def.auto ? `${def.say}. HOLD TO RUN THE MACHINE` : `${def.say}. SET THE GEARS TO THE AMBER SPOTS, THEN HOLD`; }
-  const k = a + b; if (k !== hudKey) { hudKey = k; hud.innerHTML = `<b>${a}</b><div class="l2">${b}</div><div class="l2">GOAL: ${H.REFERENCE.split(' (')[0]}</div>`; } }
+  else { a = def.id; b = def.auto ? `${def.say}. HOLD` : `${def.say}. MATCH THE AMBER SPOTS, THEN HOLD`; }
+  const k = a + b; if (k !== hudKey) { hudKey = k; hud.innerHTML = `<b>${a}</b> &nbsp;<span class="l2">GOAL: ${H.REFERENCE.split(' (')[0]}</span><div class="l2">${b}</div>`; } }
 let last = performance.now();
 function frame(dt) { NOW += dt; autoplay(); runAnims(); machine(dt); advanceRun(dt);
   // the memory switching on: round spots first, then the forms
@@ -357,9 +357,9 @@ function frame(dt) { NOW += dt; autoplay(); runAnims(); machine(dt); advanceRun(
   const form = clamp((S.on - .35) / .65, 0, 1) * vis; S.flash = Math.max(0, S.flash - dt / .14);
   mats.forEach(m => { m.opacity = form * (m.userData.op || 1); });
   [coatMat, spongeMat, fillMat].forEach(m => { m.emissive.setRGB(.11 + S.flash * .8, .1 + S.flash * .8, .08 + S.flash * .85); });
-  TUBES.children.forEach(m => { if (!m.material.userData.red) m.material.emissive.setRGB(.13 + S.flash * .8, .125 + S.flash * .8, .11 + S.flash * .85); });
+  TUBES.children.forEach(m => { if (!m.material.userData.red) m.material.emissive.setRGB(.17 + S.flash * .8, .165 + S.flash * .8, .15 + S.flash * .85); });
   // decays: the rejected pass flares silver and is gone
-  (S.decays || []).forEach(d => { const u = (NOW - d.t0) / .45; d.o.traverse(o => { if (o.material) { o.material.opacity = Math.max(0, 1 - u) * form; if (o.material.emissive) o.material.emissive.setRGB(.9 * (1 - u), .92 * (1 - u), .95 * (1 - u)); } }); if (u >= 1) { d.o.parent && d.o.parent.remove(d.o); d.gone = true; } });
+  (S.decays || []).forEach(d => { const u = (NOW - d.t0) / .6; d.o.traverse(o => { if (o.material) { o.material.opacity = Math.max(0, 1 - u) * form; if (o.material.emissive) o.material.emissive.setRGB(.9 * (1 - u), .92 * (1 - u), .95 * (1 - u)); } }); if (u >= 1) { d.o.parent && d.o.parent.remove(d.o); d.gone = true; } });
   if (S.decays) S.decays = S.decays.filter(d => !d.gone);
   // the turntable, the gears on the post (each at its own ratio, from the master shaft), and the idle nozzle
   if (!S.run) { thetaNow = (thetaNow % TAU); if (Math.abs(thetaNow) > 1e-4 && Math.abs(thetaNow - TAU) > 1e-4) thetaNow = lerp(thetaNow, Math.round(thetaNow / TAU) * TAU, Math.min(1, dt * 3)); }
@@ -382,7 +382,7 @@ function frame(dt) { NOW += dt; autoplay(); runAnims(); machine(dt); advanceRun(
   candleLight.position.set(0, CY + .2, 0); candleLight.intensity = lit * .3 * (.95 + Math.sin(NOW * 19) * .04) * form; key.intensity = (lit ? .55 : 1.1) * form + .05;
   // the arc and the scope: beside the cake, at candle height, open toward it
   const working = form > .5 && !S.over; arcAlpha = lerp(arcAlpha, working ? 1 : 0, Math.min(1, dt * 6)); arcBlink -= dt;
-  const cp = new T.Vector3(0, CY + .13, 0); ARC.s.position.copy(cp).addScaledVector(right, -.175); SCOPE.s.position.copy(cp).addScaledVector(right, -.1).add(new T.Vector3(0, .115, 0));
+  const cp = new T.Vector3(0, CY + .13, 0); ARC.s.position.copy(cp).addScaledVector(right, -.175); SCOPE.s.position.copy(cp).addScaledVector(right, -.105).add(new T.Vector3(0, .088, 0));
   ARC.s.material.opacity = arcAlpha * .9; SCOPE.s.material.opacity = (pattern ? 1 : 0) * arcAlpha * .9; if (arcAlpha > .01) drawArc();
   R.render(scene, cam); drawDev(); drawHud(); }
 function loop(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; frame(dt); requestAnimationFrame(loop); }
@@ -390,5 +390,5 @@ document.fonts && document.fonts.load('400 20px Oswald').then(() => drawDev());
 resize(); reset();
 if (!REC) requestAnimationFrame(loop);
 window.MM = { H, S, RINGS, get G() { return G; }, TRACE, LOG, plan, press, holdPress, select, handTurn, NOW: () => NOW, advance: dt => frame(dt), ready: () => true, devRect: () => DC.getBoundingClientRect(), BANDS: () => BANDS, BTNS: () => BTNS, renderAudio,
-  traceOut: () => ({ revision: 'r1', tolerance_m: H.TOL, reference: H.REFERENCE, inputs: TRACE.inputs, applied: TRACE.applied, passes: TRACE.passes, final: H.summary(G) }) };
+  traceOut: () => ({ revision: 'r2', tolerance_m: H.TOL, reference: H.REFERENCE, inputs: TRACE.inputs, applied: TRACE.applied, passes: TRACE.passes, final: H.summary(G) }) };
 </script></body></html>
