@@ -240,13 +240,13 @@ function drawOp() { if (!opOn) return; const g = W.girl, el = id => document.get
   const yes = b => b ? 'yes' : 'no', ana = Memory.anaPose(W.val.scale);
   el('opNow').innerHTML = `<span>state <b>${g.st}.${g.sub}</b> for ${(g.t - g.since).toFixed(1)} s</span><span>believes you are <b>${Memory.anaWords(g.wm && g.wm.anaH > 1.1 ? 0 : 4)}</b> (eye ${(g.wm ? g.wm.anaH : 0).toFixed(2)} m; true ${ana.h.toFixed(2)} m)</span><span>believes cake <b>${g.wm && g.wm.cakeH < .12 ? 'low' : 'held up'}</b></span><span>sees: you ${g.vis.ana ? g.vis.ana.toFixed(2) : 0}, cake ${g.vis.cake ? g.vis.cake.toFixed(2) : 0}, children ${g.vis.kids ? g.vis.kids.toFixed(2) : 0}</span><span>candles ${W.candles.reduce((a, b) => a + b, 0)} of 7</span>`;
   // utilities with guards
-  const cu = el('opU'), w = cu.clientWidth || 300; cu.width = w * 2; const x = cu.getContext('2d'); x.scale(2, 2); x.clearRect(0, 0, w, 120); x.font = '11px Arial';
+  const cu = el('opU'), w = cu.clientWidth || 300; cu.width = w * 2; cu.height = 240; cu.style.height = '120px'; const x = cu.getContext('2d'); x.scale(2, 2); x.clearRect(0, 0, w, 120); x.font = '11px Arial';
   Memory.STATES.forEach((s, i) => { const y = 6 + i * 18, u = g.u[s] || 0, ok = g.guards[s], allowed = s === g.st || Memory.ALLOWED[g.st].includes(s), bx = 74, bw = w - bx - 40, z = bx + bw * .4;
     x.fillStyle = s === g.st ? SCOL[s] : '#9aa6a2'; x.fillText(s, 4, y + 10); x.fillStyle = '#1b201f'; x.fillRect(bx, y, bw, 12); x.fillStyle = ok && allowed ? SCOL[s] : '#3a403e'; const v = clamp(u, -1, 1.5);
     x.fillRect(Math.min(z, z + v * bw * .4), y + 2, Math.abs(v) * bw * .4, 8); x.fillStyle = '#556'; x.fillRect(z, y - 1, 1, 14); x.fillStyle = '#9aa6a2'; x.fillText(u.toFixed(2), bx + bw + 4, y + 10);
     if (!ok || !allowed) { x.fillStyle = '#6f7c77'; x.fillText(!allowed ? 'not from here' : 'guard', bx + 4, y + 10); } });
   // drives over time with the state band
-  const cd = el('opD'), w2 = cd.clientWidth || 300; cd.width = w2 * 2; const d = cd.getContext('2d'); d.scale(2, 2); d.clearRect(0, 0, w2, 170);
+  const cd = el('opD'), w2 = cd.clientWidth || 300; cd.width = w2 * 2; cd.height = 340; cd.style.height = '170px'; const d = cd.getContext('2d'); d.scale(2, 2); d.clearRect(0, 0, w2, 170);
   const S = g.samples, span = opEnd ? Math.max(10, W.t) : 30, t1 = W.t, t0 = t1 - span, X = t => 4 + (t - t0) / span * (w2 - 8), Y = v => 150 - clamp(v, 0, 1.2) / 1.2 * 120;
   S.forEach((s, i) => { if (s.t < t0) return; d.fillStyle = SCOL[s.st]; d.fillRect(X(s.t), 156, Math.max(1, (w2 - 8) / span * .1 + .5), 10); });
   const DR = [['P', '#e0645a'], ['U', '#c98a5c'], ['F', '#ff9a8a'], ['M', '#b06ad0'], ['C', '#6fb6e0'], ['T', '#7fd3a2'], ['A', '#f2d16b']];

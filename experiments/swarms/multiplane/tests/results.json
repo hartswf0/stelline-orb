@@ -1,32 +1,33 @@
 {
- "when": "2026-11-06T06:46:52.135Z",
+ "when": "2026-11-06T06:53:29.746Z",
  "viewport": "390x780 css px, device scale 1",
  "tests": {
   "parallax_proportional_to_inverse_depth": {
    "pass": false,
    "planes": 28,
    "worstPlane": "chair",
-   "worstErrorPx": 992.15,
-   "worstPredictedPx": -782.65,
-   "constantFdb": 873.5,
-   "expectedFdb": 1005.7,
-   "maxRelativeSpread": 1.8303,
+   "worstErrorPx": 148.69,
+   "worstPredictedPx": -239.19,
+   "constantFdb": 325.5,
+   "expectedFdb": 307.4,
+   "eyeMoveM": 0.5435,
+   "maxRelativeSpread": 0.6427,
    "rows": [
     {
      "config": "start",
      "plane": "wall",
      "depth": 9,
-     "predictedPx": 275.08,
-     "measuredPx": 275.66,
-     "errorPx": 0.58,
+     "predictedPx": 84.07,
+     "measuredPx": 84.02,
+     "errorPx": -0.05,
      "ok": true
     },
     {
      "config": "start",
      "plane": "floor0",
      "depth": 9,
-     "predictedPx": 275.08,
-     "measuredPx": 275.04,
+     "predictedPx": 84.07,
+     "measuredPx": 84.03,
      "errorPx": -0.04,
      "ok": true
     },
@@ -34,135 +35,135 @@
      "config": "start",
      "plane": "floor1",
      "depth": 6.5,
-     "predictedPx": 232.09,
-     "measuredPx": 232.08,
-     "errorPx": -0.02,
+     "predictedPx": 70.93,
+     "measuredPx": 70.97,
+     "errorPx": 0.03,
      "ok": true
     },
     {
      "config": "start",
      "plane": "floor2",
      "depth": 5,
-     "predictedPx": 185.68,
-     "measuredPx": 185.93,
-     "errorPx": 0.26,
+     "predictedPx": 56.75,
+     "measuredPx": 56.16,
+     "errorPx": -0.59,
      "ok": true
     },
     {
      "config": "start",
      "plane": "floor3",
      "depth": 4,
-     "predictedPx": 135.39,
-     "measuredPx": 135.93,
-     "errorPx": 0.54,
+     "predictedPx": 41.38,
+     "measuredPx": 41.93,
+     "errorPx": 0.55,
      "ok": true
     },
     {
      "config": "start",
      "plane": "floor4",
      "depth": 3.3,
-     "predictedPx": 82.05,
-     "measuredPx": 82.01,
-     "errorPx": -0.05,
+     "predictedPx": 25.08,
+     "measuredPx": 24.17,
+     "errorPx": -0.91,
      "ok": true
     },
     {
      "config": "start",
      "plane": "floor5",
      "depth": 2.8,
-     "predictedPx": 27.63,
-     "measuredPx": 27.71,
-     "errorPx": 0.08,
+     "predictedPx": 8.44,
+     "measuredPx": 8.4,
+     "errorPx": -0.04,
      "ok": true
     },
     {
      "config": "start",
      "plane": "floor6",
      "depth": 2.4,
-     "predictedPx": -32.24,
-     "measuredPx": -32.01,
-     "errorPx": 0.22,
+     "predictedPx": -9.85,
+     "measuredPx": -9.99,
+     "errorPx": -0.14,
      "ok": true
     },
     {
      "config": "start",
      "plane": "floor7",
      "depth": 2.05,
-     "predictedPx": -103.78,
-     "measuredPx": -103.99,
-     "errorPx": -0.21,
+     "predictedPx": -31.72,
+     "measuredPx": -31.99,
+     "errorPx": -0.27,
      "ok": true
     },
     {
      "config": "start",
      "plane": "floor8",
      "depth": 1.75,
-     "predictedPx": -187.89,
-     "measuredPx": -228,
-     "errorPx": -40.11,
+     "predictedPx": -57.42,
+     "measuredPx": -98,
+     "errorPx": -40.58,
      "ok": false
     },
     {
      "config": "start",
      "plane": "floor9",
      "depth": 1.5,
-     "predictedPx": -283.67,
-     "measuredPx": -324,
-     "errorPx": -40.33,
+     "predictedPx": -86.7,
+     "measuredPx": -127,
+     "errorPx": -40.3,
      "ok": false
     },
     {
      "config": "start",
      "plane": "floor10",
      "depth": 1.3,
-     "predictedPx": -386.82,
-     "measuredPx": -427,
-     "errorPx": -40.18,
+     "predictedPx": -118.22,
+     "measuredPx": -159,
+     "errorPx": -40.78,
      "ok": false
     },
     {
      "config": "start",
      "plane": "floor11",
      "depth": 1.12,
-     "predictedPx": -511.16,
-     "measuredPx": -552,
-     "errorPx": -40.84,
+     "predictedPx": -156.22,
+     "measuredPx": -197,
+     "errorPx": -40.78,
      "ok": false
     },
     {
      "config": "start",
      "plane": "floor12",
      "depth": 1,
-     "predictedPx": -618.92,
-     "measuredPx": -659,
-     "errorPx": -40.08,
+     "predictedPx": -189.15,
+     "measuredPx": -230,
+     "errorPx": -40.85,
      "ok": false
     },
     {
      "config": "start",
      "plane": "child3",
      "depth": 3.25,
-     "predictedPx": 77.36,
-     "measuredPx": 77.27,
-     "errorPx": -0.09,
+     "predictedPx": 23.64,
+     "measuredPx": 23.75,
+     "errorPx": 0.1,
      "ok": true
     },
     {
      "config": "start",
      "plane": "child1",
      "depth": 3.1,
-     "predictedPx": 62.39,
-     "measuredPx": 62.3,
-     "errorPx": -0.09,
+     "predictedPx": 19.07,
+     "measuredPx": 19.03,
+     "errorPx": -0.04,
      "ok": true
     },
     {
      "config": "start",
      "plane": "tabletop",
      "depth": 2.78,
-     "predictedPx": 25.05,
-     "measuredPx": 25.05,
-     "errorPx": 0.01,
+     "predictedPx": 7.65,
+     "measuredPx": 7.82,
+     "errorPx": 0.16,
      "ok": true
     },
     {
@@ -187,62 +188,62 @@
      "config": "start",
      "plane": "tablefront",
      "depth": 2.36,
-     "predictedPx": -39.34,
-     "measuredPx": -39.72,
-     "errorPx": -0.38,
+     "predictedPx": -12.02,
+     "measuredPx": -12.01,
+     "errorPx": 0.02,
      "ok": true
     },
     {
      "config": "start",
      "plane": "child2",
      "depth": 1.95,
-     "predictedPx": -128.94,
-     "measuredPx": -128.97,
-     "errorPx": -0.03,
+     "predictedPx": -39.41,
+     "measuredPx": -39.33,
+     "errorPx": 0.08,
      "ok": true
     },
     {
      "config": "start",
      "plane": "bench",
      "depth": 1.32,
-     "predictedPx": -375.1,
-     "measuredPx": 270.5,
-     "errorPx": 645.6,
-     "ok": false
+     "predictedPx": -114.64,
+     "measuredPx": -114.57,
+     "errorPx": 0.06,
+     "ok": true
     },
     {
      "config": "start",
      "plane": "string",
      "depth": 1.02,
-     "predictedPx": -599.2,
-     "measuredPx": -371.5,
-     "errorPx": 227.7,
+     "predictedPx": -183.13,
+     "measuredPx": -163.5,
+     "errorPx": 19.63,
      "ok": false
     },
     {
      "config": "start",
      "plane": "chair",
      "depth": 0.86,
-     "predictedPx": -782.65,
-     "measuredPx": 209.5,
-     "errorPx": 992.15,
+     "predictedPx": -239.19,
+     "measuredPx": -90.5,
+     "errorPx": 148.69,
      "ok": false
     },
     {
      "config": "moved",
      "plane": "child3",
      "depth": 2.9,
-     "predictedPx": 40.02,
-     "measuredPx": 40.01,
-     "errorPx": -0.01,
+     "predictedPx": 12.23,
+     "measuredPx": 12.14,
+     "errorPx": -0.09,
      "ok": true
     },
     {
      "config": "moved",
      "plane": "child1",
      "depth": 4.4,
-     "predictedPx": 158.25,
-     "measuredPx": 158.13,
+     "predictedPx": 48.36,
+     "measuredPx": 48.24,
      "errorPx": -0.12,
      "ok": true
     },
@@ -250,18 +251,18 @@
      "config": "moved",
      "plane": "child2",
      "depth": 1.4,
-     "predictedPx": -331.56,
-     "measuredPx": -331.65,
-     "errorPx": -0.08,
+     "predictedPx": -101.33,
+     "measuredPx": -101.24,
+     "errorPx": 0.09,
      "ok": true
     },
     {
      "config": "moved",
      "plane": "string",
      "depth": 2.2,
-     "predictedPx": -70.33,
-     "measuredPx": -70.2,
-     "errorPx": 0.13,
+     "predictedPx": -21.49,
+     "measuredPx": -21.48,
+     "errorPx": 0.02,
      "ok": true
     }
    ]
@@ -296,7 +297,7 @@
     "k": "blow",
     "candles": 7,
     "faces": 3,
-    "t": 7.2336
+    "t": 6.8667
    },
    "proofEndPhase": "kept"
   },
@@ -304,28 +305,28 @@
    "pass": true,
    "trains": [
     {
-     "start": 0.7336,
+     "start": 0.4,
      "steps": 5,
      "perSecond": 12,
-     "firstDetent": 0.6669
+     "firstDetent": 0.3333
     },
     {
-     "start": 1.5336,
+     "start": 1.2,
      "steps": 17,
      "perSecond": 11.71,
-     "firstDetent": 0.6669
+     "firstDetent": 0.3333
     },
     {
-     "start": 3.8669,
+     "start": 3.5,
      "steps": 17,
      "perSecond": 11.71,
-     "firstDetent": 3.8002
+     "firstDetent": 3.4333
     },
     {
-     "start": 8.6002,
+     "start": 8.2333,
      "steps": 6,
      "perSecond": 11.54,
-     "firstDetent": 8.5336
+     "firstDetent": 8.1667
     }
    ],
    "note": "step times are the 30 fps frame on which each step fell, so a train rate carries up to 1/30 s error at each end"
@@ -338,7 +339,7 @@
    "maxChangeOfDegPerFrame": 0.196
   },
   "nearer_voices_faster_and_brighter": {
-   "pass": false,
+   "pass": true,
    "voiceDepths": [
     9,
     3.17,
@@ -348,12 +349,12 @@
     0.86
    ],
    "meanScreenSpeedPxPerS": [
-    123.5,
-    31.4,
-    2.1,
-    57.9,
-    218.7,
-    351.4
+    54.7,
+    155.1,
+    191.7,
+    252.5,
+    427.8,
+    572.4
    ],
    "bandCentreHz": [
     460,
@@ -364,14 +365,14 @@
     6098
    ],
    "audioRmsDb": {
-    "sweep_1_0_to_2_6s": "-16.782249",
-    "still_4_9_to_5_3s": "-17.833697",
-    "afterBlow_8_6_to_9_2s": "-16.998921"
+    "sweep_1_0_to_2_6s": "-16.022406",
+    "still_4_9_to_5_3s": "-33.567676",
+    "afterBlow_8_6_to_9_2s": "-18.946496"
    }
   }
  },
  "summary": {
-  "failed": 2,
-  "passed": 5
+  "failed": 1,
+  "passed": 6
  }
 }

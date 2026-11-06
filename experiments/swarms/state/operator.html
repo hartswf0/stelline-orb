@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Her Birthday Operator</title>
+<style>
+:root { --bg: #070808; --ink: #d9e2de; --dim: #7f8b87; --amber: #e8b264; --line: #1d2221; --red: #e0645a; --green: #7fd3a2; }
+* { box-sizing: border-box; } html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body { font: 15px/1.5 -apple-system, 'Segoe UI', Arial, sans-serif; padding: 16px; max-width: 760px; margin: 0 auto; }
+h1 { font: 600 18px/1.2 Arial Narrow, Arial, sans-serif; letter-spacing: .12em; color: var(--amber); margin: 4px 0 2px; } h2 { font-size: 12px; letter-spacing: .14em; color: var(--dim); margin: 22px 0 6px; font-weight: 600; }
+a { color: var(--ink); } .play { display: block; text-align: center; padding: 16px; margin: 14px 0; background: #16201b; border: 1px solid #2f4a3c; border-radius: 8px; color: var(--green); font-weight: 600; letter-spacing: .12em; text-decoration: none; font-size: 16px; }
+.k { display: grid; grid-template-columns: 9.5em 1fr; gap: 4px 10px; } .k div:nth-child(odd) { color: var(--dim); } .v { font-weight: 600; } .no { color: var(--red); } .ok { color: var(--green); }
+video, img { width: 100%; border-radius: 6px; background: #000; display: block; } .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; } @media (max-width: 560px) { .two { grid-template-columns: 1fr; } }
+ul { padding-left: 18px; margin: 4px 0; } li { margin: 3px 0; } .small { font-size: 13px; color: var(--dim); } code { font-size: 12.5px; }
+</style></head><body>
+<h1>HER BIRTHDAY · OPERATOR</h1>
+<div class="small">SCION // STATE MACHINES · swarm build in stelline-orb/experiments/swarms/state</div>
+<a class="play" href="index.html">PLAY THE BIRTHDAY</a>
+<div class="small">Tap SCENE (left collar) to watch the proof's own input played through the device, or play it yourself: SELECT picks ROOM, CAKE, CHILDREN or HER; drag a ring up or down. The (i) shows the machine.</div>
+<h2>STATUS</h2>
+<div class="k">
+<div>revision</div><div class="v">r1 · 2026-11-06 · uncommitted (the coordinator commits)</div>
+<div>critic verdict</div><div class="v no">NOT RUN. The builder had no tool to start a separate agent; no independent critic has watched the proof or played the page.</div>
+<div>next blocking failure</div><div class="v">Independent critic run on proof.mp4 and the page. Builder's own guess at the largest gap (not a verdict): when the cake is pushed at her it is held 54 cm up and reads as floating far away, not coming at her; and at phone size she is small and her face is a few pixels.</div>
+<div>tests</div><div class="v ok">23 of 23 pass (node test.js) · measured</div>
+<div>playtests</div><div class="v">Two scripted recordings (proof: mouse; phone: touch). No human playtests.</div>
+</div>
+<h2>THE PROOF (25 s, sound)</h2>
+<video src="proof.mp4" controls playsinline preload="metadata"></video>
+<div class="small">The cake pushed at her: she backs away, then turns her back. Ana calls: she stays turned, then sits and hides. Ana dims the room, brings the cake back slowly and lowers it, brings the three children in to sing, kneels. She peeks, looks, stands, comes, and blows on the last "you". End card from 21.7 s.</div>
+<h2>PHONE PLAYTEST (scripted, 390 x 844, touch)</h2>
+<video src="mobile-playtest.mp4" controls playsinline preload="metadata"></video>
+<div class="small">An impatient player: calls, then sets the right circumstances, then calls once more while she is coming. She stops and turns away, and comes again later.</div>
+<h2>STATE CHART</h2>
+<img src="state-chart.svg" alt="The girl's declared states, transitions with counts, and guards">
+<h2>ARTIFACTS</h2>
+<ul>
+<li><a href="index.html">index.html</a>: the game (three.js r128, Ana's device from ana/index.html)</li>
+<li><a href="memory.js">memory.js</a>: world, device and the girl's machine (no DOM; shared by game and tests)</li>
+<li><a href="scenarios.js">scenarios.js</a>: scripted player input as device actions</li>
+<li><a href="test.js">test.js</a>, <a href="coverage.json">coverage.json</a>: model-based tests and what they covered</li>
+<li><a href="traces.json">traces.json</a>: decision traces of six scenarios; <a href="proof-trace.json">proof-trace.json</a>, <a href="mobile-trace.json">mobile-trace.json</a>: traces from the recordings</li>
+<li><a href="state-chart.svg">state-chart.svg</a> (from <a href="chart.js">chart.js</a>), <a href="record.js">record.js</a>, <a href="README.md">README.md</a></li>
+</ul>
+</body></html>

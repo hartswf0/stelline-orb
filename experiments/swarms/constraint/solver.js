@@ -8,7 +8,8 @@
   const TT = 0.62, TW = 0.40, CAKE_R = 0.12, CAKE_H = 0.095, CANDLE_H = 0.07;
   const CAKE_RANGE = [-(TW - CAKE_R) - 0.0, TW - CAKE_R];   // supported-on table: the cake's footprint stays on the top
   const LEAN_MAX = 50;
-  const SLOW = 11.8, FAST = 23.6, FAR_STEPS = 6;
+  const SLOW = 11.8, FAST = 23.6, FAR_STEPS = 15;   // 23.6/s only when a ring is more than 15 detents ahead (critic round 1: 11.8/s should dominate)
+  const REACH_PREF = 0.47;   // shoulder to flame, elbow about 130 deg
   const TOL = { goal: 0.004, length: 1e-4, pin: 1e-9, side: 1e-4, contact: 1e-4, balance: 1e-4, attach: 1e-9, limit: 1e-4 };
 
   /* ------------------------------------------------------------- the figure: points and lines */
@@ -24,7 +25,7 @@
   const W = PTS.map(n => INVM[n]);
   const PM = PTS.map(() => 0); BONES.forEach(b => { PM[b.a] += b.m / 2; PM[b.b] += b.m / 2; });
   const MTOT = PM.reduce((s, v) => s + v, 0);
-  const ANKLE_N = [-0.60, 0.07], ANKLE_F = [-0.66, 0.07];
+  const ANKLE_N = [-0.56, 0.07], ANKLE_F = [-0.62, 0.07];
   const SUPPORT = () => [ANKLE_F[0] - 0.05, ANKLE_N[0] + 0.13];   // heel of the far shoe to the toe of the near shoe
   const BAL_SET = ['hip', 'kneeN', 'kneeF', 'chest', 'neck', 'head', 'elbowF', 'wristF'].map(n => I[n]);
   const BAL_M = BAL_SET.reduce((s, i) => s + PM[i], 0);
@@ -32,8 +33,8 @@
 
   function restPose() {
     const p = {
-      ankleN: ANKLE_N, ankleF: ANKLE_F, kneeN: [-0.59, 0.37], kneeF: [-0.65, 0.37], hip: [-0.625, 0.68], chest: [-0.625, 0.98], neck: [-0.625, 1.05], head: [-0.62, 1.15],
-      elbowN: [-0.635, 0.77], wristN: [-0.605, 0.583], tipN: [-0.59, 0.434], elbowF: [-0.64, 0.77], wristF: [-0.63, 0.58]
+      ankleN: ANKLE_N, ankleF: ANKLE_F, kneeN: [-0.55, 0.37], kneeF: [-0.61, 0.37], hip: [-0.585, 0.68], chest: [-0.585, 0.98], neck: [-0.585, 1.05], head: [-0.58, 1.15],
+      elbowN: [-0.595, 0.77], wristN: [-0.565, 0.583], tipN: [-0.55, 0.434], elbowF: [-0.60, 0.77], wristF: [-0.59, 0.58]
     };
     const P = PTS.map(n => p[n].slice());
     hardPass(P, { cakeX: 0 }, 400);
@@ -104,6 +105,7 @@
     if (c[1] - h[1] < minUp) { c[1] = h[1] + minUp; }
     if (c[0] - h[0] < -0.05) { c[0] = h[0] - 0.05; }
     projMinDist(P, I.chest, I.wristN, 0.14);   // elbow can close only so far
+    projMinDist(P, I.elbowN, I.tipN, 0.30);    // the wrist bends at most about 55 deg (the taper is held, not swung)
     projMinDist(P, I.chest, I.wristF, 0.14);
     projMinDist(P, I.ankleN, I.hip, 0.45); projMinDist(P, I.ankleF, I.hip, 0.45);   // knees bend only so far
   }
@@ -118,10 +120,16 @@
   function softPass(P, goal, light) {
     const pull = (i, t, a) => { P[i][0] += (t[0] - P[i][0]) * a; P[i][1] += (t[1] - P[i][1]) * a; };
     if (goal) pull(I.tipN, goal, 1);
-    const h = P[I.hip], c = P[I.chest], n = P[I.neck], f = light ? .1 : 1;
-    pull(I.chest, [h[0], h[1] + .30], .03 * f);               // prefer upright
-    pull(I.neck, [c[0] + .02, c[1] + .067], .25);          // neck and head carried upright, a little forward, whatever the waist does
-    pull(I.head, [P[I.neck][0] + .015, P[I.neck][1] + .099], .3);
+    const h = P[I.hip], c = P[I.chest], f = light ? .1 : 1;
+    pull(I.chest, [h[0], h[1] + .30], .012 * f);              // a weak preference for upright
+    // comfort (critic round 1): the shoulder prefers to sit REACH_PREF from the flame, so the waist and knees
+    // carry the reach and the elbow stays bent (about 130 deg) instead of locking straight
+    { const e0 = P[I.elbowN], t0 = P[I.tipN], ex = t0[0] - e0[0], ey = t0[1] - e0[1], el = Math.hypot(ex, ey) || 1; pull(I.wristN, [e0[0] + ex / el * .19, e0[1] + ey / el * .19], .15); }   // hand carried in line with the forearm
+    if (goal) { const t = P[I.tipN], dx = t[0] - c[0], dy = t[1] - c[1], d = Math.hypot(dx, dy) || 1, e = d - REACH_PREF; c[0] += dx / d * e * .12; c[1] += dy / d * e * .12; }
+    // neck and head follow the spine halfway toward upright (a child leaning keeps her face up, but not fully)
+    const sx = c[0] - h[0], sy = c[1] - h[1], sl = Math.hypot(sx, sy) || 1, ux = (sx / sl) * .5, uy = (sy / sl) * .5 + .5, ul = Math.hypot(ux, uy);
+    pull(I.neck, [c[0] + ux / ul * .07 + .01, c[1] + uy / ul * .07], .25);
+    pull(I.head, [P[I.neck][0] + ux / ul * .1 + .012, P[I.neck][1] + uy / ul * .1], .3);
     pull(I.elbowF, [c[0] - .01, c[1] - .20], .2); pull(I.wristF, [P[I.elbowF][0] + .02, P[I.elbowF][1] - .19], .2);   // far arm hangs
     [['kneeN', 'ankleN'], ['kneeF', 'ankleF']].forEach(([k, a]) => { const A = P[I[a]]; pull(I[k], [(A[0] + h[0]) / 2 + .012, (A[1] + h[1]) / 2], .04); });   // knees soft, nearly straight
     if (!goal) { pull(I.elbowN, [c[0] - .01, c[1] - .21], .2); pull(I.tipN, [c[0] + .035, c[1] - .475], .2); }
@@ -158,7 +166,7 @@
     const [lo, hi] = SUPPORT(), cx = com(P)[0], balance = Math.max(0, cx - hi, lo - cx);
     const h = P[I.hip], c = P[I.chest];
     const limit = Math.max(0, 0.30 * Math.cos(LEAN_MAX * Math.PI / 180) - (c[1] - h[1]), -0.05 - (c[0] - h[0]),
-      0.14 - len(sub(P[I.wristN], P[I.chest])), 0.14 - len(sub(P[I.wristF], P[I.chest])), 0.45 - len(sub(P[I.hip], P[I.ankleN])), 0.45 - len(sub(P[I.hip], P[I.ankleF])));
+      0.14 - len(sub(P[I.wristN], P[I.chest])), 0.14 - len(sub(P[I.wristF], P[I.chest])), 0.30 - len(sub(P[I.tipN], P[I.elbowN])), 0.45 - len(sub(P[I.hip], P[I.ankleN])), 0.45 - len(sub(P[I.hip], P[I.ankleF])));
     return { lenMax, lenName, pin, side, contact, balance, limit, hardMax: Math.max(lenMax, pin, side, contact, balance, limit), com: cx, support: [lo, hi] };
   }
   function elbowAngle(P) { const a = sub(P[I.chest], P[I.elbowN]), b = sub(P[I.wristN], P[I.elbowN]); return Math.acos(Math.max(-1, Math.min(1, (a[0] * b[0] + a[1] * b[1]) / (len(a) * len(b))))) * 180 / Math.PI; }
@@ -188,7 +196,7 @@
     opts = opts || {};
     const g = this; g.opts = opts; g.t = 0; g.clock = 0; g.events = []; g.trace = []; g.steps = 0;
     const st = opts.start || {};
-    g.ch = { view: ch(0), handX: ch(st.handX || 0), handY: ch(st.handY || 0), cakeX: ch(st.cakeX != null ? st.cakeX : 14), cakeTurn: ch(st.cakeTurn != null ? st.cakeTurn : 25) };
+    g.ch = { view: ch(0), handX: ch(st.handX != null ? st.handX : 18), handY: ch(st.handY != null ? st.handY : 9), cakeX: ch(st.cakeX != null ? st.cakeX : 14), cakeTurn: ch(st.cakeTurn != null ? st.cakeTurn : 25) };
     g.sel = 'HAND'; g.lit = CANDLES.map(() => false); g.phase = 'PLAY'; g.blowAt = 0; g.out = CANDLES.map(() => false);
     g.P = restPose(); g.status = 'SOLVED';
     // the start pose: solve from rest toward the starting pen point in small steps (not recorded)

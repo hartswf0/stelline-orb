@@ -3,7 +3,7 @@
      limb lengths 1e-4 · feet drift 1e-9 · joint sides 1e-4 · contact 1e-4 · balance 1e-4 · joint limits 1e-4
      goal met 4e-3 · light 1.5e-2 (3D) · per machine step, no point moves more than 0.05
      stability: a 1 mm change of the pen moves no point more than 10 mm */
-const S = require('./solver.js'), { SCRIPT } = require('./proof-script.js');
+const S = require('./solver.js'), { SCRIPT, DURATION } = require('./proof-script.js');
 let pass = 0, fail = 0; const out = [];
 function check(name, ok, detail) { (ok ? pass++ : fail++); out.push(`${ok ? 'PASS' : 'FAIL'}  ${name}${detail ? '  ' + detail : ''}`); }
 const T = S.TOL, len = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
@@ -40,21 +40,26 @@ const hardOK = r => r.lenMax <= T.length && r.pin <= T.pin && r.side <= T.side &
     for (const d of [[.001, 0], [-.001, 0], [0, .001], [0, -.001]]) { const Q = A.map(p => p.slice()); S.solve(Q, [g0[0] + d[0], g0[1] + d[1]], { cakeX: 0 }); Q.forEach((q, i) => { worst = Math.max(worst, len(q, A[i])); }); } }
   check('1 mm pen change: max point move <= 10 mm', worst <= 0.010, `${(worst * 1000).toFixed(2)} mm`); }
 
-// 5. the proof passage through the game: no teleporting, hard set holds every step, candles stay attached, cake stays on the table
+// 5. the whole scripted birthday through the game: no teleporting, hard set holds every step, candles stay attached, cake stays on the table
 { const g = new S.Game(); const anims = []; let i = 0, maxMove = 0, maxHard = 0, attachErr = 0, onTable = true, sawUns = false, sawLit = 0;
-  for (let f = 0; f < 300; f++) { const t = f / 30;
-    while (i < SCRIPT.length && SCRIPT[i][0] <= t + 1e-9) { const s = SCRIPT[i++]; if (s[1] === 'select') g.select(); if (s[1] === 'turn') anims.push({ ring: s[2], n: s[3], t0: s[0], dur: s[4], done: 0 }); }
+  for (let f = 0; f < DURATION * 30; f++) { const t = f / 30;
+    while (i < SCRIPT.length && SCRIPT[i][0] <= t + 1e-9) { const s = SCRIPT[i++]; if (s[1] === 'select') g.select(); if (s[1] === 'hold') g.hold(); if (s[1] === 'turn') anims.push({ ring: s[2], n: s[3], t0: s[0], dur: s[4], done: 0 }); }
     anims.forEach(a => { const u = Math.max(0, Math.min(1, (t - a.t0) / a.dur)), e = u < .5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2, want = Math.round(a.n * e); while (a.done !== want) { const d = Math.sign(want - a.done); g.turn(a.ring, d); a.done += d; } });
     g.tick(1 / 30);
     const cx = g.cakeX(), tr = g.cakeTurn(); S.CANDLES.forEach(c => { const w = S.wick(c.k, cx, tr), r = Math.hypot(w[0] - cx, w[2]); attachErr = Math.max(attachErr, Math.abs(r - c.r), Math.abs(w[1] - (S.TT + S.CAKE_H + S.CANDLE_H))); });
     if (Math.abs(cx) > S.TW - S.CAKE_R + 1e-12) onTable = false; }
   g.trace.forEach(x => { if (x.max_point_move != null) maxMove = Math.max(maxMove, x.max_point_move); if (x.hard_max != null) maxHard = Math.max(maxHard, x.hard_max); if (x.status === 'UNSOLVABLE') sawUns = true; });
   sawLit = g.lit.filter(Boolean).length;
-  check('proof passage: no body point moves more than 5 cm in one machine step', maxMove <= 0.05, `${(maxMove * 100).toFixed(2)} cm over ${g.steps} steps`);
-  check('proof passage: hard residual within 1e-4 m at every step', maxHard <= 1e-4, maxHard.toExponential(2));
+  check('scripted birthday: no body point moves more than 5 cm in one machine step', maxMove <= 0.05, `${(maxMove * 100).toFixed(2)} cm over ${g.steps} steps`);
+  check('scripted birthday: hard residual within 1e-4 m at every step', maxHard <= 1e-4, maxHard.toExponential(2));
   check('candles stay attached-to the cake (radius and height)', attachErr <= T.attach, attachErr.toExponential(2));
   check('cake stays supported-on the table top', onTable);
-  check('proof passage shows an unreachable state and lights candles', sawUns && sawLit >= 3, `unreachable seen ${sawUns}, lit ${sawLit}`);
+  check('scripted birthday shows an unreachable state, lights all seven, and ends blown out', sawUns && sawLit === 7 && g.phase === 'BLOWN', `unreachable seen ${sawUns}, lit ${sawLit}, phase ${g.phase}`);
+  // critic round 1 repair condition
+  const litSteps = g.trace.filter(x => x.lit && x.lit.length), litEl = litSteps.map(x => x.elbow_deg);
+  check('critic R1: elbow at every lit event between 100 and 165 deg', litEl.length === 7 && litEl.every(a => a >= 100 && a <= 165), litEl.join(', '));
+  const straightT1 = g.trace.filter(x => x.tier === 1 && x.elbow_deg >= 179.5).length; check('critic R1: a straight elbow (>= 179.5 deg) appears only at tier 2', straightT1 === 0, `${straightT1} tier-1 steps straight`);
+  const slowN = g.events.filter(e => e.kind === 'step').length, fastN = g.events.filter(e => e.kind === 'step-fast').length; check('critic R1: 11.8/s steps dominate', slowN > 3 * fastN, `${slowN} at 11.8/s, ${fastN} at 23.6/s`);
   const st = g.events.filter(e => /^step/.test(e.kind)).map(e => e.t); let most = 0; st.forEach(t0 => { most = Math.max(most, st.filter(t => t >= t0 && t < t0 + 2).length); });
   const slow = g.events.filter(e => e.kind === 'step').map(e => e.t); let mostSlow = 0; slow.forEach(t0 => { mostSlow = Math.max(mostSlow, slow.filter(t => t >= t0 && t < t0 + 0.5).length); });
   check('machine never exceeds 23.6 steps/s: at most 48 in any 2 s window (47.2 + one frame of rounding)', most <= 48, `${most} steps in the busiest 2 s`); }

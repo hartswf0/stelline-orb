@@ -72,7 +72,7 @@ let yawS = 0;   // the drawn yaw follows the stepped yaw with a short glide (one
 function proj(x, y, z) { const c = Math.cos(yawS), s = Math.sin(yawS), xr = x * c + z * s, zr = -x * s + z * c; return [OX + SC * xr, OY - SC * (y * Math.cos(PITCH) - zr * Math.sin(PITCH)), zr]; }
 function depthOf(x, z) { return -x * Math.sin(yawS) + z * Math.cos(yawS); }
 function layoutView() { const r = viewEl.getBoundingClientRect(); PR = Math.min(2, devicePixelRatio || 1); VW = r.width; VH = r.height; VC.width = VW * PR; VC.height = VH * PR; vx.setTransform(PR, 0, 0, PR, 0, 0);
-  SC = Math.min(VW / 1.42, VH / 1.36); OX = VW * .5 - SC * (-0.13); OY = VH * .5 + SC * 0.6; }
+  const narrow = VW < 640; SC = narrow ? Math.min(VW / 1.2, VH / 1.32) : Math.min(VW / 1.42, VH / 1.36); OX = VW * .5 - SC * (narrow ? -0.12 : -0.13); OY = VH * .5 + SC * .64 * Math.cos(PITCH); }
 // the head: one still from the archive cut of the second child (ana/cut/film-child-2-blow.webp, frame 0), cropped to the head
 const HEAD = new Image(); HEAD.src = '../../../ana/cut/film-child-2-blow.webp'; const HEADC = document.createElement('canvas'); let headReady = false;
 HEAD.onload = () => { const fw = HEAD.width / 7, fh = HEAD.height / 7; HEADC.width = 180; HEADC.height = 200; const x = HEADC.getContext('2d');
@@ -116,9 +116,9 @@ const DRAW = {
   'girl.farArm'() { const L = lightLevel() * .78; limb(GP('chest'), GP('elbowF'), SC * .05, SC * .044, warm('#d9a882', L)); limb(GP('elbowF'), GP('wristF'), SC * .044, SC * .036, warm('#d9a882', L)); },
   'girl.torso'() { const L = lightLevel(), c = G.P[SK.I.chest], h = G.P[SK.I.hip], kn = G.P[SK.I.kneeN], kf = G.P[SK.I.kneeF];
     const sx = c[0] - h[0], sy = c[1] - h[1], sl = Math.hypot(sx, sy), ux = sx / sl, uy = sy / sl, nx = -uy, ny = ux;
-    const tx = ((kn[0] + kf[0]) / 2 - h[0]), ty = ((kn[1] + kf[1]) / 2 - h[1]), tl = Math.hypot(tx, ty), dx = tx / tl, dy = ty / tl, hx = -dy, hy = dx;
+    const tx0 = ((kn[0] + kf[0]) / 2 - h[0]), ty0 = ((kn[1] + kf[1]) / 2 - h[1]), tl0 = Math.hypot(tx0, ty0), tx = tx0 / tl0 * .5, ty = ty0 / tl0 * .5 - .5, tl = Math.hypot(tx, ty), dx = tx / tl, dy = ty / tl, hx = -dy, hy = dx;   // the skirt hangs halfway between the thighs and straight down
     const P = [[c[0] + nx * .075 + ux * .02, c[1] + ny * .075 + uy * .02], [c[0] - nx * .075 + ux * .02, c[1] - ny * .075 + uy * .02], [h[0] - nx * .085, h[1] - ny * .085],
-      [h[0] + dx * .2 - nx * .15, h[1] + dy * .2 - ny * .15], [h[0] + dx * .215, h[1] + dy * .215], [h[0] + dx * .2 + nx * .15, h[1] + dy * .2 + ny * .15], [h[0] + nx * .085, h[1] + ny * .085]].map(p => proj(p[0], p[1], 0));
+      [h[0] + dx * .2 + hx * .14, h[1] + dy * .2 + hy * .14], [h[0] + dx * .215, h[1] + dy * .215], [h[0] + dx * .2 - hx * .14, h[1] + dy * .2 - hy * .14], [h[0] + nx * .085, h[1] + ny * .085]].map(p => proj(p[0], p[1], 0));
     vx.fillStyle = warm('#e9dcc0', L * .86); vx.beginPath(); P.forEach((p, i) => i ? vx.lineTo(p[0], p[1]) : vx.moveTo(p[0], p[1])); vx.closePath(); vx.fill();
     vx.strokeStyle = warm('#b9a37a', L * .8); vx.lineWidth = SC * .004; vx.beginPath(); vx.moveTo(P[2][0], P[2][1]); vx.lineTo(P[6][0], P[6][1]); vx.stroke();
     limb(GP('chest'), GP('neck'), SC * .045, SC * .04, warm('#e3b48c', L)); },
@@ -241,8 +241,8 @@ function fillInfo() { const r = G.last, T = SK.TOL, mm = v => (v * 1000).toFixed
   const rows = [['TAPER TO PEN', mm(r.goal), r.solved, 'met if under ' + mm(T.goal) + '; otherwise the hand stops at the edge of reach'], ['LIMB LENGTHS', mm(r.lenMax), r.lenMax <= T.length, 'worst ' + r.lenName + '; tolerance ' + mm(T.length)],
     ['FEET ON FLOOR', mm(r.pin), r.pin <= T.pin, 'supported-on floor, pinned'], ['ELBOW AND KNEE SIDES', mm(r.side), r.side <= T.side, 'elbow ' + r.elbowDeg.toFixed(0) + '° open; bends one way only'],
     ['CONTACT', mm(r.contact), r.contact <= T.contact, 'no part of her inside the table or cake'], ['BALANCE', mm(r.balance), r.balance <= T.balance, 'centre of mass ' + (r.com * 100).toFixed(1) + ' cm, feet ' + r.support.map(v => (v * 100).toFixed(0)).join(' to ') + ' cm'],
-    ['JOINT LIMITS', mm(r.limit), r.limit <= T.limit, 'waist lean ' + r.lean.toFixed(0) + '° (limit 75)'], ['SOLVE TIER', String(r.tier), true, r.tier === 1 ? 'goal held as a hard constraint and met' : 'goal unreachable: reach bisected toward it'],
-    ['LIMIT REACHED', r.binding.join(', ') || 'none', !r.binding.length, ''], ['MACHINE', G.steps + ' steps', true, 'one detent per step, 11.8/s (23.6/s when far)']];
+    ['JOINT LIMITS', mm(r.limit), r.limit <= T.limit, 'waist lean ' + r.lean.toFixed(0) + '° (limit ' + SK.LEAN_MAX + ')'], ['SOLVE TIER', String(r.tier), true, r.tier === 1 ? 'goal held as a hard constraint and met' : 'goal unreachable: reach bisected toward it'],
+    ['LIMIT REACHED', r.binding.join(', ') || 'none', !r.binding.length, ''], ['MACHINE', G.steps + ' steps', true, 'one detent per step, 11.8/s (23.6/s only when more than 15 detents behind)']];
   document.getElementById('res').innerHTML = rows.map(([a, b, ok, c]) => `<tr><td>${a}</td><td class="n ${ok ? 'ok' : 'bad'}">${b}</td><td>${c}</td></tr>`).join('');
   document.getElementById('rels').innerHTML = RELS.map(x => `${x.a} <b>${x.rel}</b> ${x.b}${x.hard === false ? ' (soft)' : ''}`).join('<br>') + '<br><br>draw order: ' + STAGE.join(' · '); }
 /* =============================================================== THE SCENE: the proof passage, played on the same rings */
@@ -250,7 +250,7 @@ let SCN = null;
 function playScene() { newGame(); SCN = { t0: NOW, i: 0, anims: [] }; }
 function stopScene() { SCN = null; }
 function runScene() { if (!SCN) return; const t = NOW - SCN.t0, S = PROOF_SCRIPT();
-  while (SCN.i < S.length && S[SCN.i][0] <= t + 1e-9) { const s = S[SCN.i++]; if (s[1] === 'select') { G.select(); syncRings(); } else if (s[1] === 'turn') SCN.anims.push({ ring: RINGS[RING_IX[s[2]]], n: s[3], t0: SCN.t0 + s[0], dur: s[4], done: 0 }); else if (s[1] === 'end') { SCN = null; return; } }
+  while (SCN.i < S.length && S[SCN.i][0] <= t + 1e-9) { const s = S[SCN.i++]; if (s[1] === 'select') { G.select(); syncRings(); } else if (s[1] === 'hold') G.hold(); else if (s[1] === 'turn') SCN.anims.push({ ring: RINGS[RING_IX[s[2]]], n: s[3], t0: SCN.t0 + s[0], dur: s[4], done: 0 }); else if (s[1] === 'end') { SCN = null; return; } }
   SCN.anims.forEach(a => { const u = clamp((NOW - a.t0) / a.dur, 0, 1), e = u < .5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2, want = Math.round(a.n * e); while (a.done !== want) { const d = Math.sign(want - a.done); handTurn(a.ring, d * a.ring.deg); a.done += d; } }); }
 function PROOF_SCRIPT() { return window.PROOF.SCRIPT; }
 /* =============================================================== EVERY FRAME */

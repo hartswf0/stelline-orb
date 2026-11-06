@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Blow Operator</title>
+<style>
+@font-face { font-family: 'Oswald'; src: url('../../../ana/assets/oswald-latin-500-normal.woff2') format('woff2'); font-weight: 500; }
+:root { --bg: #050606; --ink: #d9e2de; --dim: #8b9893; --amber: #e8b264; --red: #e0715f; --green: #7fd3a2; --line: #1c201e; }
+* { box-sizing: border-box; } html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body { font: 15px/1.5 -apple-system, 'Segoe UI', Arial, sans-serif; padding: 16px; max-width: 760px; margin: 0 auto; }
+h1, h2 { font-family: 'Oswald', 'Arial Narrow', sans-serif; font-weight: 500; letter-spacing: .08em; }
+h1 { font-size: 22px; margin: 4px 0 2px; color: var(--amber); } h2 { font-size: 14px; margin: 22px 0 6px; color: var(--ink); }
+p { margin: 6px 0; color: #b6c1bd; } .dim { color: var(--dim); font-size: 13px; }
+video { width: 100%; display: block; background: #000; border: 1px solid var(--line); border-radius: 4px; }
+.v { border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; margin: 8px 0; }
+.v b { font-family: 'Oswald', sans-serif; letter-spacing: .08em; font-weight: 500; } .red { color: var(--red); } .green { color: var(--green); } .amber { color: var(--amber); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; } td { padding: 6px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
+td:last-child { white-space: nowrap; text-align: right; } a { color: var(--amber); }
+.links a { display: inline-block; margin: 4px 14px 4px 0; }
+img { width: 100%; border: 1px solid var(--line); border-radius: 4px; }
+</style></head><body>
+<h1>THE BLOW</h1>
+<p class="dim">Swarm: MLS deformation (after Schaefer, McPhail &amp; Warren 2006). Revision r2, 2026-11-06. Not committed.</p>
+
+<video src="proof.mp4" controls playsinline preload="metadata" poster=""></video>
+<p class="dim">Ten seconds, 30 fps, with sound. Left panel: your world (face similarity, flames affine, streamer rigid). The other three: the same inputs with one family on every surface. Below: the memory maker's device, played by the demonstration.</p>
+<p><a href="index.html">Play it</a>: the device is the controller. SELECT picks the thing, the knurled ring sets its value, HOLD blows.</p>
+
+<h2>CRITIC VERDICT</h2>
+<div class="v"><b class="red">NOT RUN.</b> The builder's session has no tool for spawning agents, so no independent critic has watched this film. Nothing here has passed perceptual review.
+The builder's own viewing is not a verdict.</div>
+
+<h2>NEXT BLOCKING FAILURE</h2>
+<div class="v"><b class="amber">An independent critic must watch proof.mp4 at normal speed</b> and judge: do the cheeks read as filling and the lips as pursing; do the flames read as blown (bent away, streaming, then out) rather than swung; does the streamer read as paper wrapping the cake; do the three family columns differ visibly enough to make the choice legible. The critic brief is in README.md.</div>
+
+<h2>MEASURED (tools/test.js, tests.json)</h2>
+<table>
+<tr><td>Point handles land on their targets, all families</td><td class="green">0.000 px</td></tr>
+<tr><td>Line handles: segment samples off the target segment, worst family</td><td class="green">0.18 px</td></tr>
+<tr><td>Folded triangles, chosen family per surface (demo + 4 extreme states)</td><td class="green">0 / 0 / 0</td></tr>
+<tr><td>Same, the other families: face rigid / streamer affine / flames rigid</td><td class="red">7 / 94 / 2886</td></tr>
+<tr><td>Smallest triangle area ratio, flames affine (no fold, but close)</td><td class="amber">0.000x</td></tr>
+<tr><td>Contour reversals not caused by a handle, chosen families</td><td class="green">0</td></tr>
+<tr><td>Machine step rate</td><td class="green">11.79 /s</td></tr>
+<tr><td>Most candles one breath can put out: similarity / affine / rigid face</td><td>7 / 5 / 5</td></tr>
+<tr><td>Solve time, one world, all surfaces (3016 vertices, node)</td><td>~3-4 ms</td></tr>
+</table>
+
+<h2>THE SAME HANDLES, THREE FAMILIES</h2>
+<a href="strip.png"><img src="strip.png" alt="Comparison strip: face, flames, streamer in affine, similarity and rigid MLS, and the face at three weight exponents"></a>
+
+<h2>LINKS</h2>
+<p class="links"><a href="index.html">game</a><a href="proof.mp4">proof.mp4</a><a href="strip.png">strip.png</a><a href="handles.json">handles.json</a><a href="tests.json">tests.json</a><a href="README.md">README</a><a href="mls.js">solver</a><a href="scene.js">handles and poses</a><a href="game.js">game</a></p>
+<p class="dim">Rights: the face, flames, streamer and cake are drawn by code on this page. Device sounds are ana/device-sounds.wav (already in the repo). No film frames or film audio are used or published.</p>
+</body></html>

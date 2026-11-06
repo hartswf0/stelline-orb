@@ -100,7 +100,7 @@ function drawPanel(p, st, fam, extra) {
   gl.clearColor(.012, .015, .015, 1); gl.clear(gl.COLOR_BUFFER_BIT); gl.disable(gl.SCISSOR_TEST);
   XF = [2 / c.cw, -2 / c.ch, -1 - 2 * c.cx / c.cw, 1 + 2 * c.cy / c.ch];
   const S = extra.solved || solveWorld(st, fam, extra.alpha || 1), yaw = st.yaw || 0, near = yaw * .55, far = -yaw * 1.5;
-  const flick = .95 + .05 * SCENE.vnoise(st.t * 9), Lf = (.17 + .83 * light * flick) * dark, Lc = (.2 + .8 * light) * dark;
+  const flick = .95 + .05 * SCENE.vnoise(st.t * 9), Lf = (.34 + .66 * light * flick) * dark, Lc = (.24 + .76 * light) * dark;
   quad(0, 0, 600, 1000, TX.cake, ga(Lc, 1), false, near);
   st.flames.forEach((f, i) => { if (f.lit <= 0) return; const tip = S.T['f' + i + '.tip'], wk = S.T['f' + i + '.wick'], cx = (tip[0] + wk[0]) / 2, cy = (tip[1] + wk[1]) / 2, r = 120 * f.size; quad(cx - r, cy - r, 2 * r, 2 * r, TX.glow, ga(f.lit * dark * .9, f.lit * dark * .9), true, near); });
   draw(ME.face, S.face, TX.face, ga(Lf, dark), false, far);
