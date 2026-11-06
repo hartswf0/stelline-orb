@@ -92,12 +92,21 @@ window.go = async function (C) {
     x.fillStyle = g; x.beginPath(); x.moveTo(32, 8); x.bezierCurveTo(44, 50, 52, 80, 46, 100); x.bezierCurveTo(42, 118, 22, 118, 18, 100); x.bezierCurveTo(12, 80, 20, 50, 32, 8); x.fill();
     const b = x.createRadialGradient(32, 108, 0, 32, 108, 10); b.addColorStop(0, 'rgba(80,110,255,.8)'); b.addColorStop(1, 'rgba(80,110,255,0)'); x.globalCompositeOperation = 'lighter'; x.fillStyle = b; x.fillRect(16, 96, 32, 24);
     const t = new T.CanvasTexture(c); return t; })();
-  const H0 = (cg.height || .0485) * def('candleLen', .78), TH = (cg.thick || .0075) * .5 * def('candleThick', 1.3);
-  for (let k = 0; k < 7; k++) { const w = wa['wick' + k]; if (!w) continue; const g = new T.Group(); const h = H0 * (.85 + .3 * rnd()), sink = .003 + .008 * rnd();
+  const V4 = def('v4', 0) > .5;   // TOOL v4 (round 04): thin scattered candles, flames as a separate overlay, candle-only light
+  const H0 = V4 ? .045 * def('candleLen4', 1) : (cg.height || .0485) * def('candleLen', .78), TH = V4 ? .002 : (cg.thick || .0075) * .5 * def('candleThick', 1.3);
+  // v4 M17: seven seats scattered over the top (back half and sides, clear of the writing), at least 0.17 R apart; not a ring or a row
+  const seats = []; if (V4) { let guard = 0; while (seats.length < 7 && guard++ < 4000) { const rr = Math.sqrt(rnd()) * .74 * R0, a = rnd() * Math.PI * 2, x = Math.cos(a) * rr, z = Math.sin(a) * rr;
+      if (z > .12 * R0 && x > -.35 * R0) continue; if (seats.some(q => Math.hypot(q[0] - x, q[2] - z) < .17 * R0)) continue; seats.push([x, 0, z]); } }
+  const KINDS4 = [null, '#c9362a', null, '#4a6fc4', '#c9362a', null, '#4a6fc4'], flameSpots = [];
+  for (let k = 0; k < 7; k++) { const w = V4 ? seats[k] : wa['wick' + k]; if (!w) continue; const g = new T.Group(); const h = H0 * (V4 ? .7 + .5 * rnd() : .85 + .3 * rnd()), sink = .003 + .008 * rnd();
     g.position.set(w[0] + topA[0], topA[1] - sink + lop * w[0] / R0, w[2] + topA[2]); const ln = def('lean', 7) * Math.PI / 180; g.rotation.set((rnd() - .5) * 2 * ln, rnd() * 6.28, (rnd() - .5) * 2 * ln, 'YXZ');
-    const wax = LOOK.material('wax', { stripe: KINDS[k] }); const sh = new T.Mesh(new T.CylinderGeometry(TH * .95, TH, h, 12), wax); sh.position.y = h / 2; sh.castShadow = true; g.add(sh);
+    const kind = V4 ? KINDS4[k] : KINDS[k]; const wax = LOOK.material('wax', V4 && !kind ? { color: 0xf0d27a } : { stripe: kind }); const sh = new T.Mesh(new T.CylinderGeometry(TH * .95, TH, h, 12), wax); sh.position.y = h / 2; sh.castShadow = true; g.add(sh);
     const wk = new T.Mesh(new T.CylinderGeometry(.0005, .0005, .005, 4), new T.MeshBasicMaterial({ color: 0x120a06 })); wk.position.y = h + .0025; g.add(wk);
     const cr = new T.Mesh(new T.TorusGeometry(TH * 1.5, TH * .55, 6, 16), LOOK.material('icing', { color: 0xa88a58, seed: 21 })); cr.rotation.x = Math.PI / 2; cr.position.y = sink; cr.scale.z = .5; g.add(cr);   // v3 M11: a crater where it goes in
+    if (V4) { const fa = new T.Object3D(); fa.position.y = h + .002 + .0055; g.add(fa); const tip = new T.Object3D(); tip.position.y = h + .002 + .013 * S.flameH; g.add(tip);
+      const pl = new T.PointLight(0xffb468, def('wickLight', .35), .28, 2); pl.position.y = h + .008; g.add(pl);
+      flameSpots.push({ fa, tip, base: (() => { const o = new T.Object3D(); o.position.y = h + .002; g.add(o); return o; })(), rot: (rnd() - .5) * .3, gain: .85 + .3 * rnd() });
+      cake.add(g); flames.push(fa); continue; }
     const fm = new T.SpriteMaterial({ map: flameTex, blending: T.AdditiveBlending, depthWrite: false, transparent: true }); fm.color.setScalar(def('flameGain', 1.6));
     fm.rotation = (rnd() - .5) * .35; const f = new T.Sprite(fm); const fh = .013 * S.flameH * (.85 + .3 * rnd()); f.scale.set(fh * .42 * S.flameW, fh, 1); f.position.y = h + .002 + fh * .38; g.add(f);
     const hl = new T.Sprite(LOOK.material('halo')); hl.scale.set(.03 * Math.min(S.halo, .6), .03 * Math.min(S.halo, .6), 1); hl.position.copy(f.position); g.add(hl);
@@ -116,6 +125,19 @@ window.go = async function (C) {
   if (Hd.room) Hd.room.position.y = S.bandY;
   Hd.setSize(W, H); Hd.setCandles(flames); Hd.focus(target.clone().add(new T.Vector3(0, 0.03, 0)));
   for (let i = 0; i < 3; i++) Hd.render(0.016, true);
+  // v4 M18: the flames, drawn at full resolution on a transparent layer; maker.js lays it over the frame after the blur, before the grain or the codec
+  window.FLAMES = null;
+  if (flameSpots.length) { scene.updateMatrixWorld(true); const c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+    const scr = o => { const v = o.getWorldPosition(new T.Vector3()).project(cam); return [(v.x + 1) / 2 * W, (1 - v.y) / 2 * H]; };
+    for (const f of flameSpots) { const b = scr(f.base), t = scr(f.tip); const hp = Math.max(4, Math.hypot(t[0] - b[0], t[1] - b[1])), wp = hp * .36 * S.flameW;
+      x.save(); x.translate(b[0], b[1]); x.rotate(Math.atan2(t[0] - b[0], b[1] - t[1]) + f.rot);
+      const glow = x.createRadialGradient(0, -hp * .45, 0, 0, -hp * .45, hp * 1.6); glow.addColorStop(0, 'rgba(255,190,110,' + (.22 * f.gain) + ')'); glow.addColorStop(1, 'rgba(255,150,60,0)'); x.fillStyle = glow; x.fillRect(-hp * 2, -hp * 2.2, hp * 4, hp * 4);
+      x.beginPath(); x.moveTo(0, -hp); x.bezierCurveTo(wp * .5, -hp * .55, wp * .62, -hp * .2, wp * .45, -hp * .05); x.bezierCurveTo(wp * .3, hp * .05, -wp * .3, hp * .05, -wp * .45, -hp * .05); x.bezierCurveTo(-wp * .62, -hp * .2, -wp * .5, -hp * .55, 0, -hp); x.closePath();
+      const g = x.createRadialGradient(0, -hp * .3, 0, 0, -hp * .4, hp * .75); g.addColorStop(0, 'rgba(255,253,235,1)'); g.addColorStop(.35, 'rgba(255,236,160,1)'); g.addColorStop(.75, 'rgba(255,170,70,.9)'); g.addColorStop(1, 'rgba(240,110,30,.6)');
+      x.fillStyle = g; x.fill();
+      const bl = x.createRadialGradient(0, -hp * .06, 0, 0, -hp * .06, wp * .55); bl.addColorStop(0, 'rgba(90,120,255,.55)'); bl.addColorStop(1, 'rgba(90,120,255,0)'); x.globalCompositeOperation = 'lighter'; x.fillStyle = bl; x.fillRect(-wp, -hp * .3, wp * 2, hp * .4);
+      x.restore(); }
+    window.FLAMES = c.toDataURL('image/png'); }
   return true;
 };
 window.READY = true;

@@ -151,7 +151,7 @@
       if (!count || !REF.candles) return null; const g = GN.arr(M.candles, Object.assign({}, GN.G.candles, { count }));
       const obj = M.candles.build(T, g, { t: 1, blown: count - lit, refs: REF.candles }); obj.scale.setScalar(C.s); return obj; }
     // smoke from a candle that has gone out
-    const SMOKE = []; const smokeMat = new T.SpriteMaterial({ map: softTex, color: 0xb9b2a8, transparent: true, opacity: 0, depthWrite: false });
+    const SMOKE = []; const smokeMat = new T.SpriteMaterial({ map: softTex, color: 0x6d6760, transparent: true, opacity: 0, depthWrite: false });
     function smoke(at) { for (let j = 0; j < 3; j++) { const s = new T.Sprite(smokeMat.clone()); s.position.copy(at); s.scale.setScalar(.012); scene.add(s); SMOKE.push({ s, t: -j * .18, x: (Math.random() - .5) * .01 }); } }
 
     // the table: the module's evolved hexagonal table; table.up 0/1 raises it (its making: legs rise, the top comes down, colour)
@@ -343,10 +343,10 @@
       // flames flicker (stopped while held), dust drifts, smoke rises, pulses spread
       K.flames.forEach((fl, i) => { fl.scale.set(1, held ? 1 : 1 + .09 * Math.sin(clock * 13 + i * 1.7) + .05 * Math.sin(clock * 31 + i * 4.1), 1); fl.visible = !off; });
       if (!held) { const P = dustGeo.attributes.position; for (let i = 0; i < DUST; i += 3) { P.array[i * 3 + 1] += Math.sin(clock * .3 + dseed[i]) * .0004; P.array[i * 3] += Math.cos(clock * .2 + dseed[i]) * .0003; } P.needsUpdate = true; }
-      for (let i = SMOKE.length - 1; i >= 0; i--) { const s = SMOKE[i]; s.t += dt; const u = s.t / 1.8; if (u < 0) continue; s.s.position.y += dt * .07; s.s.position.x += s.x * dt; s.s.scale.setScalar(.012 + u * .05); s.s.material.opacity = .22 * Math.sin(Math.min(1, u) * Math.PI); if (u >= 1) { scene.remove(s.s); s.s.material.dispose(); SMOKE.splice(i, 1); } }
+      for (let i = SMOKE.length - 1; i >= 0; i--) { const s = SMOKE[i]; s.t += dt; const u = s.t / 1.8; if (u < 0) continue; s.s.position.y += dt * .07; s.s.position.x += s.x * dt; s.s.scale.setScalar(.012 + u * .05); s.s.material.opacity = .09 * Math.sin(Math.min(1, u) * Math.PI); if (u >= 1) { scene.remove(s.s); s.s.material.dispose(); SMOKE.splice(i, 1); } }
       for (let i = PULSES.length - 1; i >= 0; i--) { const p = PULSES[i]; p.t += dt; const u = p.t / .7; const r = p.m.userData.r * (1 + u * 1.6); p.m.scale.set(r, r, r); p.m.material.opacity = .5 * (1 - u) * (1 - u); if (u >= 1) { scene.remove(p.m); p.m.material.dispose(); PULSES.splice(i, 1); } }
       GHOST.children.forEach((g, i) => g.traverse(x => { if (x.userData.billboard) x.lookAt(cam.position); }));
-      ghostMat.opacity = .2 + .08 * Math.sin(now * .013) * Math.sin(now * .0071); ghostWire.opacity = .07 + .05 * Math.sin(now * .02);
+      ghostMat.opacity = .2 + .08 * Math.sin(clock * 13) * Math.sin(clock * 7.1); ghostWire.opacity = .07 + .05 * Math.sin(clock * 20);
       // the hologram UI and the spots
       arc.update(dt, cam); readout.update(dt, cam); Object.values(PEOPLE).forEach(P => P.mark.update(dt, cam));
       Object.values(parts).forEach(p => p.spots && p.spots.update(dt)); Object.values(PEOPLE).forEach(P => P.spots.update(dt)); Object.values(PROPS).forEach(P => P.spots.update(dt));

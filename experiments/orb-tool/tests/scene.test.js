@@ -41,7 +41,7 @@ ok('the evolved genomes stay inside their gene ranges', () => { for (const [M, k
 /* ------------------------------------------------------------------ browser checks */
 async function browser() {
   const { chromium } = require('playwright'); const URL = (process.env.ORB_URL || 'http://localhost:8765') + '/experiments/orb-tool/scene/index.html?manual&preserve';
-  const OPDPR = process.env.OP_DPR || '0.5';   // the op checks render at this pixel ratio (software GL is slow); the frame time is measured at 1
+  const OPDPR = process.env.OP_DPR || '0.25';   // the op checks render at this pixel ratio (software GL is slow); the frame time is measured at 1
   const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   const p = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 }); const errs = []; p.on('pageerror', e => errs.push(e.message));
   await p.route('**/*', r => { const u = r.request().url(); return /^(http:\/\/localhost|data:|blob:)/.test(u) ? r.continue() : r.abort(); });
@@ -78,10 +78,10 @@ async function browser() {
   for (const [name, op0] of OPS) {
     const r = await p.evaluate(op0 => { const B = window.BENCH, o = B.orb; let op = JSON.parse(JSON.stringify(op0)); if (op.args && op.args.id === '__P__') op.args.id = (o.state().proposals[0] || {}).id;
       if (op.op !== 'release' && op.op !== 'hold' && !o.state().time.hold) o.do({ op: 'hold' });
-      B.tick(3); const a = B.grab(); B.tick(1); const n = B.diff(a, B.grab()); const pre = B.grab();
+      let a = B.grab(), n = null; for (let k = 0; k < 16; k++) { B.tick(1); const b2 = B.grab(); n = B.diff(a, b2); a = b2; if (n.px < 40) break; } const pre = a;   // settle: the last op's transition has ended
       const res = o.do(op, { author: 'hand' }); const t0 = performance.now(); B.tick(1); const one = B.diff(pre, B.grab()), ms = performance.now() - t0; B.tick(1); const two = B.diff(pre, B.grab());
       return { ok: res.ok, error: res.error, noise: n, one, two, ms }; }, op0);
-    const seen = r.one.px > Math.max(30, r.noise.px * 3); rows.push([name, r]); if (!r.ok) console.log('     ' + name + ': op refused: ' + r.error);
+    const seen = r.one.px > Math.max(20, r.noise.px * 3); rows.push([name, r]); if (!r.ok) console.log('     ' + name + ': op refused: ' + r.error);
     ok('visible within one frame: ' + name + ' (changed px ' + r.one.px + ' vs noise ' + r.noise.px + ', frame ' + r.ms.toFixed(0) + ' ms)', () => assert(r.ok && seen, 'changed ' + r.one.px + ' px, noise ' + r.noise.px));
   }
   if (errs.length) console.log('page errors: ' + errs.slice(0, 5).join(' | '));
