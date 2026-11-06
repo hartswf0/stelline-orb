@@ -1,9 +1,8 @@
 /* evolve-core.js — the evolution itself, shared by the game (browser) and the tests (node). No three.js, no DOM.
-   A head and a cake are each a genome of numbers in [0,1]. A genome builds a mesh; the mesh is projected from the
+   The cake is a genome of numbers in [0,1]. A genome builds a mesh; the mesh is projected from the
    reference's camera and rasterised; fitness compares that picture with targets derived from two film frames (refs.json).
-   The head mesh is a sphere pushed into a face by smooth bumps, the same approach as Watson's head-evolution.html and
-   head3c.html (hartswf0/head-neuroglow): a subdivided ball, a jaw taper, gaussian cheek / brow / socket / nose / mouth terms.
-   Here the parameters are the genes and the evolution is scored against a reference instead of chosen by eye alone. */
+   The neuroglow slice contours drawn over the growing cake come from Watson's neuroglow_v3-plus.html (hartswf0/head-neuroglow),
+   and the parametric-genome-plus-breeding loop from his head-evolution.html; here the population is scored against a reference. */
 (function (root, factory) { if (typeof module === 'object' && module.exports) module.exports = factory(); else root.EVO = factory(); })(this, function () {
   'use strict';
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t;
@@ -13,45 +12,16 @@
   function hash(...xs) { let h = 2166136261; for (const x of xs) { h ^= (x | 0); h = Math.imul(h, 16777619); } return h >>> 0; }
   function gauss(r) { const u = Math.max(1e-9, r()), v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
   /* ------------------------------------------------------------------ genomes: [key, group, label, blank value] */
-  const HEAD_GENES = [
-    ['crW', 'SKULL', 'WIDTH', .5], ['crH', 'SKULL', 'HEIGHT', .2], ['crown', 'SKULL', 'CROWN', .0],
-    ['jawW', 'JAW', 'JAW WIDTH', 1], ['chin', 'JAW', 'CHIN LENGTH', 0], ['jawY', 'JAW', 'JAW LINE', .5],
-    ['cheekW', 'CHEEKS', 'CHEEK WIDTH', 0], ['cheekY', 'CHEEKS', 'CHEEK HEIGHT', .5], ['full', 'CHEEKS', 'FULLNESS', .5],
-    ['eyeY', 'EYES', 'EYE LINE', .5], ['eyeX', 'EYES', 'EYE SPACING', .5], ['eyeD', 'EYES', 'SOCKET DEPTH', 0],
-    ['noseY', 'NOSE AND MOUTH', 'NOSE LENGTH', .5], ['mouthY', 'NOSE AND MOUTH', 'MOUTH LINE', .5], ['relief', 'NOSE AND MOUTH', 'RELIEF', 0]];
   const CAKE_GENES = [
-    ['h', 'TIERS', 'HEIGHT', .25], ['tiers', 'TIERS', 'LAYERS', 0], ['plate', 'TIERS', 'BOARD', 0],
-    ['dome', 'DOME', 'DOME', 1], ['bevel', 'DOME', 'EDGE', 1], ['taper', 'DOME', 'TAPER', .5],
-    ['topR', 'ICING', 'ICING RED', .5], ['topG', 'ICING', 'ICING GREEN', .5], ['topB', 'ICING', 'ICING BLUE', .5], ['fill', 'ICING', 'FILLING', 0], ['beads', 'ICING', 'BEADS', 0],
-    ['sideR', 'COLOUR', 'SPONGE RED', .5], ['sideG', 'COLOUR', 'SPONGE GREEN', .5], ['sideB', 'COLOUR', 'SPONGE BLUE', .5], ['shade', 'COLOUR', 'LIGHT FALLOFF', .3]];
-  const KIND = { head: HEAD_GENES, cake: CAKE_GENES };
+    ['h', 'BASE', 'HEIGHT', 0], ['taper', 'BASE', 'TAPER', .5], ['plate', 'BASE', 'BOARD', 0],
+    ['tiers', 'FORM', 'LAYERS', 0], ['dome', 'FORM', 'DOME', 0], ['bevel', 'FORM', 'EDGE', .5],
+    ['sideR', 'SPONGE', 'SPONGE RED', .5], ['sideG', 'SPONGE', 'SPONGE GREEN', .5], ['sideB', 'SPONGE', 'SPONGE BLUE', .5], ['shade', 'SPONGE', 'LIGHT FALLOFF', .3],
+    ['topR', 'ICING', 'ICING RED', .5], ['topG', 'ICING', 'ICING GREEN', .5], ['topB', 'ICING', 'ICING BLUE', .5], ['fill', 'ICING', 'FILLING', 0],
+    ['beads', 'DECORATION', 'BEADS', 0]];
+  const KIND = { cake: CAKE_GENES };
   const groupsOf = kind => [...new Set(KIND[kind].map(g => g[1]))];
   const blank = kind => KIND[kind].map(g => g[3]);
   const named = (kind, G) => { const o = {}; KIND[kind].forEach((g, i) => o[g[0]] = G[i]); return o; };
-  /* ------------------------------------------------------------------ the head: a ball pushed into a face */
-  const HL = 40, HN = 56, HR = 10;   // latitude rings, meridians, radius
-  function headMesh(G) {
-    const g = named('head', G), P = new Float32Array((HL + 1) * (HN + 1) * 3);
-    const sx = lerp(.72, 1.12, g.crW), sy = lerp(.95, 1.45, g.crH), jawY = lerp(-6, 2, g.jawY) * sy;
-    const eyeY = lerp(-2, 5, g.eyeY), eyeX = lerp(2, 5, g.eyeX), noseY = eyeY - lerp(2, 7, g.noseY), mouthY = noseY - lerp(1.5, 5, g.mouthY), cheekY = lerp(-4, 3, g.cheekY);
-    let k = 0;
-    for (let i = 0; i <= HL; i++) { const th = i / HL * Math.PI; for (let j = 0; j <= HN; j++) { const ph = j / HN * Math.PI * 2;
-      let x = Math.sin(th) * Math.sin(ph) * HR, y = Math.cos(th) * HR, z = Math.sin(th) * Math.cos(ph) * HR;
-      x *= sx; y *= sy; z *= .95;
-      if (y > 0) { const u = y / (HR * sy); y *= 1 - g.crown * .22 * u * u; x *= 1 + g.crown * .08 * u; }       // a flatter, wider crown
-      const t = sstep(jawY, -HR * sy, y);                                                                        // below the jaw line: taper and lengthen
-      x *= lerp(1, lerp(.45, 1, g.jawW), t) * lerp(1, lerp(.85, 1.1, g.full), Math.sin(t * Math.PI)); z *= lerp(1, lerp(.8, 1, g.jawW), t);
-      y -= g.chin * 4.5 * Math.pow(t, 1.4);
-      const front = sstep(-2, 6, z);
-      x += Math.sign(x) * g.cheekW * 2.2 * Math.exp(-((y - cheekY) * (y - cheekY)) / 10) * sstep(-4, 4, z + 2);  // cheeks out
-      z -= g.eyeD * 2.6 * Math.exp(-((Math.abs(x) - eyeX) ** 2 + (y - eyeY) ** 2) / 2.6) * front;               // sockets
-      z += g.eyeD * 1.2 * Math.exp(-((Math.abs(x) - eyeX) ** 2 / 6 + (y - eyeY - 2) ** 2)) * front;              // brow
-      z += g.relief * 3.6 * Math.exp(-x * x * 1.1) * Math.exp(-((y - noseY) ** 2) / 1.6) * front;               // nose tip
-      z += g.relief * 1.6 * Math.exp(-x * x * 2) * sstep(eyeY, noseY, y) * sstep(noseY - 1, noseY, y) * front;  // bridge
-      const m = Math.exp(-(x * x / 5 + (y - mouthY) ** 2 / .9)) * front; z += g.relief * 1.3 * m - g.relief * 1.1 * Math.exp(-(x * x / 3 + (y - mouthY) ** 2 / .05)) * front;
-      P[k++] = x; P[k++] = y; P[k++] = z; } }
-    return { P, rows: HL + 1, cols: HN + 1, lm: { eyeL: [-eyeX, eyeY], eyeR: [eyeX, eyeY], nose: [0, noseY], mouth: [0, mouthY] }, vis: { eyes: clamp(g.eyeD / .55, 0, 1), nose: clamp(g.relief / .55, 0, 1) } };
-  }
   /* ------------------------------------------------------------------ the cake: a lathe profile, with layers, board, icing, beads */
   const CN = 64;
   function cakeProfile(G) {  // returns [r, y, part] from the bottom centre up to the top centre; radius 0.5 = the body
@@ -89,21 +59,10 @@
       for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > py) !== (yj > py) && px < (xj - xi) * (py - yi) / (yj - yi) + xi) ins = !ins; } m[y * gr.W + x] = ins ? 1 : 0; } } return m; }
   function iou(a, b) { let i = 0, u = 0; for (let k = 0; k < a.length; k++) { if (a[k] && b[k]) i++; if (a[k] || b[k]) u++; } return u ? i / u : 0; }
   /* ------------------------------------------------------------------ fitness */
-  const HEAD_GRID = [60, 50, -.6, .6, 0, 1], CAKE_GRID = [88, 48, -.55, .55, 0, .6];
-  const W_HEAD = { iou: .5, lm: .5, lmScale: .2 }, W_CAKE = { iou: .6, hist: .4, emdScale: .4 };
+  const CAKE_GRID = [88, 48, -.55, .55, 0, .6];
+  const W_CAKE = { iou: .6, hist: .4, emdScale: .4 };
   const cache = new WeakMap();
-  function refMask(ref, kind) { let c = cache.get(ref); if (!c) { c = {}; cache.set(ref, c); } if (!c[kind]) { const gr = grid(...(kind === 'head' ? HEAD_GRID : CAKE_GRID)); c[kind] = rasterPoly(ref[kind].outline, gr); } return c[kind]; }
-  function evalHead(G, ref) { const mesh = headMesh(G), S = project(mesh, 0), bb = bbox(S), s = bb.y1 - bb.y0, norm = { cx: (bb.x0 + bb.x1) / 2, top: bb.y0, s };
-    const gr = grid(...HEAD_GRID); rasterMesh(mesh, S, gr, norm); const I = iou(gr.m, refMask(ref, 'head'));
-    // landmarks: eyes, nose, mouth from the sculpted features (absent features count as the worst error); chin = lowest point of the silhouette
-    const nl = ([x, y]) => [(x - norm.cx) / s, (-y - norm.top) / s], L = mesh.lm, R = ref.head.landmarks;
-    let chinY = -1e9; for (let i = 0; i < S.length; i += 3) if (Math.abs(S[i]) < 1.5) chinY = Math.max(chinY, S[i + 1]);
-    const ours = { eyeL: nl(L.eyeL), eyeR: nl(L.eyeR), nose: nl(L.nose), mouth: nl(L.mouth), chin: [0, (chinY - norm.top) / s] };
-    const vis = { eyeL: mesh.vis.eyes, eyeR: mesh.vis.eyes, nose: mesh.vis.nose, mouth: mesh.vis.nose, chin: 1 };
-    let e = 0; const per = {}; for (const k in ours) { const d = Math.hypot(ours[k][0] - R[k][0], ours[k][1] - R[k][1]); const ek = lerp(1, Math.min(1, d / W_HEAD.lmScale), vis[k]); per[k] = +ek.toFixed(4); e += ek; } e /= 5;
-    const fit = 1 - (W_HEAD.iou * (1 - I) + W_HEAD.lm * e);
-    return { fit, iou: I, lm: e, per, ours, mask: gr.m, grid: HEAD_GRID };
-  }
+  function refMask(ref, kind) { let c = cache.get(ref); if (!c) { c = {}; cache.set(ref, c); } if (!c[kind]) { const gr = grid(...CAKE_GRID); c[kind] = rasterPoly(ref[kind].outline, gr); } return c[kind]; }
   const BINS = 6;
   const lightK = (g, lit) => .06 + 1.1 * Math.pow(lit, lerp(.6, 3, g.shade));   // how fast the candle light falls off round the side (gene LIGHT FALLOFF)
   function evalCake(G, ref) { const mesh = cakeMesh(G), S = project(mesh, ref.cake.elevationDeg), bb = bbox(S), s = bb.x1 - bb.x0, norm = { cx: (bb.x0 + bb.x1) / 2, top: bb.y0, s };
@@ -129,18 +88,26 @@
     const fit = 1 - (W_CAKE.iou * (1 - I) + W_CAKE.hist * hel);
     return { fit, iou: I, hist: hel, emd, helJ, mask: gr.m, grid: CAKE_GRID };
   }
-  const evaluate = (kind, G, ref) => kind === 'head' ? evalHead(G, ref) : evalCake(G, ref);
+  const evaluate = (kind, G, ref) => evalCake(G, ref);
   /* ------------------------------------------------------------------ one generation: lambda children around the parent, elitist (1 + lambda) */
-  const LAMBDA = 8, THRESH = { head: .93, cake: .86 };
-  function weights(kind, group, bias) { const gs = KIND[kind]; const inG = gs.map(g => group === 'ALL' || g[1] === group); const idx = gs.map((g, i) => i).filter(i => inG[i]);
-    return gs.map((g, i) => !inG[i] ? 0 : (bias > 0 && idx[(bias - 1) % idx.length] === i) ? 1.6 : bias > 0 ? .35 : 1); }
-  function breed(kind, parent, opts, ref) {   // opts: { seed, gen, sigma, group, bias }
-    const r = mulberry32(hash(opts.seed, opts.gen, kind === 'head' ? 1 : 2)), w = weights(kind, opts.group || 'ALL', opts.bias || 0), kids = [];
-    for (let c = 0; c < LAMBDA; c++) { const G = parent.G.map((v, i) => w[i] ? clamp(v + opts.sigma * w[i] * gauss(r) * (c < LAMBDA / 2 ? 1 : .35), 0, 1) : v); const e = evaluate(kind, G, ref); kids.push({ G, fit: e.fit, e }); }
-    let best = parent, bi = -1; kids.forEach((k, i) => { if (k.fit > best.fit) { best = k; bi = i; } });
-    return { kids, best: { G: best.G, fit: best.fit }, bestIndex: bi };
+  const LAMBDA = 8, THRESH = { cake: .86 };
+  // the making, in order: each evolved stage is set when the whole-cake match reaches its bar; then the hand-made stages
+  const STAGES = [['BASE', 'iou', .85], ['FORM', 'iou', .94], ['SPONGE', 'fit', .78], ['ICING', 'fit', .84], ['DECORATION', 'fit', .87]];
+  // which genes a generation may change: the selected stage's genes fully, the stages already made a little (so a later stage can refine an earlier one), later stages not at all
+  const ORDER = ['BASE', 'FORM', 'SPONGE', 'ICING', 'DECORATION'];
+  function weights(kind, group, bias) { const gs = KIND[kind], gi = ORDER.indexOf(group); const inG = gs.map(g => group === 'ALL' || g[1] === group); const idx = gs.map((g, i) => i).filter(i => inG[i]);
+    return gs.map((g, i) => { if (!inG[i]) return gi > 0 && ORDER.indexOf(g[1]) < gi ? .35 : 0; return (bias > 0 && idx[(bias - 1) % idx.length] === i) ? 1.6 : bias > 0 ? .35 : 1; }); }
+  // each stage is selected on its own measure: the shape stages on silhouette overlap alone (colour is not theirs to change), the colour stages on the whole match
+  const MEASURE = { BASE: 'iou', FORM: 'iou', SPONGE: 'fit', ICING: 'fit', DECORATION: 'fit', ALL: 'fit' };
+  const scoreOf = (e, m) => m === 'iou' ? e.iou : e.fit;
+  function breed(kind, parent, opts, ref) {   // opts: { seed, gen, sigma, group, bias }; elitist: the parent survives unless a child scores higher on the stage's measure
+    const r = mulberry32(hash(opts.seed, opts.gen, 2)), grp = opts.group || 'ALL', m = MEASURE[grp], w = weights(kind, grp, opts.bias || 0), kids = [];
+    const pe = evaluate(kind, parent.G, ref), ps = scoreOf(pe, m);
+    for (let c = 0; c < LAMBDA; c++) { const G = parent.G.map((v, i) => w[i] ? clamp(v + opts.sigma * w[i] * gauss(r) * (c < LAMBDA / 2 ? 1 : .35), 0, 1) : v); const e = evaluate(kind, G, ref); kids.push({ G, fit: e.fit, iou: e.iou, score: scoreOf(e, m), e }); }
+    let best = { G: parent.G, fit: pe.fit, iou: pe.iou, score: ps }, bi = -1; kids.forEach((k, i) => { if (k.score > best.score) { best = k; bi = i; } });
+    return { kids, best: { G: best.G, fit: best.fit, iou: best.iou, score: best.score }, bestIndex: bi, measure: m, parentScore: ps };
   }
-  function start(kind, ref) { const G = blank(kind); return { G, fit: evaluate(kind, G, ref).fit }; }
+  function start(kind, ref) { const G = blank(kind), e = evaluate(kind, G, ref); return { G, fit: e.fit, iou: e.iou }; }
   /* ------------------------------------------------------------------ slices, for the neuroglow look: where planes cut the mesh (line segments) */
   function slices(mesh, axis, count) { const { P, rows, cols } = mesh, ax = axis === 'x' ? 0 : axis === 'y' ? 1 : 2; let lo = 1e9, hi = -1e9;
     for (let i = ax; i < P.length; i += 3) { lo = Math.min(lo, P[i]); hi = Math.max(hi, P[i]); }
@@ -152,5 +119,5 @@
       for (const L of lev) { cut(a, d, b, L); cut(b, d, e, L); } }
     return new Float32Array(out); }
   function indices(rows, cols) { const I = []; for (let r = 0; r < rows - 1; r++) for (let c = 0; c < cols - 1; c++) { const a = r * cols + c, b = a + 1, d = a + cols, e = d + 1; I.push(a, d, b, b, d, e); } return I; }
-  return { lightK, KIND, groupsOf, blank, named, headMesh, cakeMesh, project, evaluate, breed, start, weights, slices, indices, mulberry32, hash, LAMBDA, THRESH, W_HEAD, W_CAKE, HEAD_GRID, CAKE_GRID };
+  return { lightK, KIND, groupsOf, blank, named, cakeMesh, project, evaluate, breed, start, weights, slices, indices, mulberry32, hash, LAMBDA, THRESH, STAGES, MEASURE, W_CAKE, CAKE_GRID };
 });

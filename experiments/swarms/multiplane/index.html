@@ -206,7 +206,7 @@ function soundEvent(A, e, t) { const k = e.k;
   else if (k === 'select') { for (let i = 0; i < 5; i++) grainAt(A, 'tick', t + i * .055, 1, .3, i); }
   else if (k === 'hold') grainAt(A, 'ratchet', t, 1, .6, e.n);
   else if (k === 'blow') blowAt(A, t); else if (k === 'out' || k === 'wash') washAt(A, t, e.v || 1); else if (k === 'miss') { grainAt(A, 'whirr', t, .8, .35, 0); } }
-function soundFrame(A, f, t) { A.voices.forEach((v, i) => { const z = f.vz[i], g = clamp(f.speed[i] / Math.max(1, W) * 2.6 * Math.pow(.95 / z, .8), 0, 1.4) * Math.sqrt(1000 / bandOf(z));   // a narrow band at a low centre passes less noise: level it by bandwidth so nearness, not pitch, sets loudness
+function soundFrame(A, f, t) { A.voices.forEach((v, i) => { const z = f.vz[i], g = clamp(f.speed[i] / Math.max(1, W) * .8 * Math.pow(.95 / z, .8), 0, 1.4) * 2.4 * Math.sqrt(1000 / bandOf(z));   // a narrow band at a low centre passes less noise: level it by bandwidth so nearness, not pitch, sets loudness
     v.g.gain.setTargetAtTime(g, t, .03); v.bp.frequency.setTargetAtTime(bandOf(z), t, .05); if (v.pan) v.pan.pan.setTargetAtTime(clamp(f.pan[i], -1, 1), t, .05); });
   const c = f.candles; A.candle.lp.frequency.setTargetAtTime(350 + 7600 * c * c, t, .04); A.candle.g.gain.setTargetAtTime((.05 + .09 * c) * f.lit, t, .05); }
 let AC = null, AUD = null;
