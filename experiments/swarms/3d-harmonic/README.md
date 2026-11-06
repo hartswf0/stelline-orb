@@ -19,6 +19,14 @@ The cake is the score. Each decoration is one closed harmonic figure: N beads, M
 ## Primitives (harmonic.js, shared by the page and the tests)
 `gearAngle(ri, ph, k, S)` is exact: `2π·((p·k) mod (q·S))/(q·S) + phase`, with the remainder taken in integers. `passRevs` is the lcm of the ratio denominators. `pass(def, gears, S)` gives the samples (centre, tube radius, contact normal) and the candle stops, which sit on an exact finer grid. `chamfer` is the pattern score: a symmetric mean nearest-neighbour distance in (x, y, z, 3r). `cakeSDF` is the coated cake with a rounded top edge. `newGame/setGear/commit` is a pure reducer: the page feeds it the values the machine reaches and the HOLDs.
 
+## r4: shared modules adopted, inscription cleared
+- **LOOK (../shared/look.js + look-genome.json).** It now supplies the room, the grade, the post pipeline (bloom, grain, depth of field, spot screen), the key and candle lights, and the materials for sponge, icing, chocolate, beads, red piping, wax, flame and halo. The page's own lights, room, warm emissive hacks and amber pool are gone. The cake parts switch on and off through `LOOK.reveal` (round spots), and a cake change through `LOOK.flash`. A rejected pass decays by the same pair. The machine (post, arm, gears, turntable) keeps plain materials and fades with the memory.
+- **HOLO (../shared/holo.js).** `HOLO.arc` replaces the page's own arc: exposure 1 under LOOK's grade, left of the cake at candle height, stepped by the same stage and character events, and updated by the page's clock (`auto: false`, so the virtual clock in recordings drives it).
+  - `HOLO.device` is **not** adopted. The device is still ana's ring barrel, with this game's gear mapping. HOLO's controller has generic targets and ranges; mapping the per-gear rational detent lists, the per-gear ranges (turntable stops at 4:1) and the ratio/phase labels onto it was more work than this round allowed. It is the next integration step.
+  - The page's own scope (the phase visualizer) stays, because HOLO has no equivalent.
+- **Inscription cleared.** The text moved 30 mm toward the reader. The candles now sit on an inner-loop limaçon (arm 1:1 at 90 degrees, ρ = 30 mm + 60 mm·cos), so all seven stand behind the words (all z ≤ 1.7 mm, text from z = 10 mm). The flourish moved to 71 mm, in front of the text, with 7 mm clear. Test 4: minimum candle gap 8.2 mm.
+- **Step rate.** The fix from r3 is in, and r4's proof is recorded with it (see the measured section).
+
 ## Round 1 critic repair (r3)
 The critic's verdict on r2 (critic-round1.md): the making and the game pass; the reference is stronger on the look. The repairs:
 - **Look.** The key light is now warm (0xff9a48). The hemisphere fill is warm and very low. The materials carry a warm emissive base. A round amber pool of light sits behind the memory. The projected spots stay on for the whole run, flickering, and flare on each stage change.
