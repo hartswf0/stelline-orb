@@ -19,7 +19,7 @@
     ['exposure', 'GRADE', .2, 4, 1], ['black', 'GRADE', 0, .2, 0], ['gamma', 'GRADE', 1.6, 3, 2.2], ['warmth', 'GRADE', -1, 1, 0],
     ['spotDensity', 'SPOT', 0, 1, .5], ['spotSize', 'SPOT', .2, 3, 1], ['spotDecay', 'SPOT', .05, 1.5, .35]];
   const groups = ['CANDLE', 'DOME', 'AMBIENT', 'GRADE', 'SPOT'];
-  const stages = [['CANDLE', 'hiC', .85], ['DOME', 'falloff', .8], ['AMBIENT', 'level', .8], ['GRADE', 'fit', .88]];
+  const stages = [['CANDLE', 'hiC', .85], ['DOME', 'falloff', .6], ['AMBIENT', 'level', .7], ['GRADE', 'fit', .72]];
   const making = [['dark', 0, .2], ['match struck', .2, .4], ['candle light grows', .4, .8], ['grade settles', .8, 1]];
   const blank = () => Float64Array.from(genes.map(g => g[4]));
   const named = G => { const o = {}; genes.forEach((g, i) => o[g[0]] = G[i]); return o; };
@@ -86,7 +86,7 @@
     const eRing = s.rings.reduce((a, v, k) => a + Math.abs(Math.log((v + 2) / (r.rings[k] + 2))), 0) / s.rings.length, falloff = cauchy(eRing, .18);
     const chroma = c => c ? [c[0] / Math.max(1, c[1]), c[2] / Math.max(1, c[1])] : [1, 1];   // red over green and blue over green: the warmth independent of the level
     const h = chroma(s.hiRGB), hr = chroma(r.hiRGB), d = chroma(s.shRGB), dr = chroma(r.shRGB);
-    const hiC = cauchy(Math.abs(h[0] - hr[0]) + Math.abs(h[1] - hr[1]), .12) * (s.hiRGB ? 1 : .5), shC = cauchy(Math.abs(d[0] - dr[0]) + Math.abs(d[1] - dr[1]), .12) * (s.shRGB ? 1 : .5), colour = hiC * (.5 + .5 * shC);
+    const hiC = cauchy(Math.abs(h[0] - hr[0]) + Math.abs(h[1] - hr[1]), .12) * (s.hiRGB ? 1 : .5), shC = cauchy(Math.abs(d[0] - dr[0]) + Math.abs(d[1] - dr[1]), .25) * (s.shRGB ? 1 : .5), colour = hiC * (.5 + .5 * shC);
     const fit = .35 * level + .35 * falloff + .3 * colour;
     return { fit, parts: { level, falloff, colour, hiC, shC, pct: s.pct, black: s.black, mean: s.mean, rings: s.rings, hiRGB: s.hiRGB, shRGB: s.shRGB } }; }
   /* ------------------------------------------------------------------ anchors: where the light sits (the candle flame centre the scene is lit from) */
