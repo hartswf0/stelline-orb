@@ -2,6 +2,12 @@
 
 Status: written while fal balance is exhausted. Nothing below has been generated yet.
 
+## 0. Standing rules (every video, every cake)
+
+1. **First-person POV of the Memory Maker, always.** The camera is Ana's eyes: her hands, the orb in them, the world she is making in front of her. No third-person or orbiting shots.
+2. **The same memory orb controller in every frame.** Refs 06/07/08, never redrawn; the real panel is composited over generated frames.
+3. **The same beats, in the same order, for every cake** (U1-U8 below). Cakes, kids and boys change; beats, timing and ring moves do not.
+
 ## 1. What references we already have (incl. archival birthdays)
 
 | Set | Where | Use |
