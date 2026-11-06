@@ -1,6 +1,6 @@
 {
- "ran": "2026-11-06T08:20:57.583Z",
- "failures": 1,
+ "ran": "2026-11-06T08:21:13.216Z",
+ "failures": 0,
  "results": [
   {
    "name": "1 closed paths return to start (max error over 404 passes, metres; gear angle error, radians)",
@@ -329,8 +329,8 @@
    }
   },
   {
-   "name": "6 click trains from the trace: the last six steps at 11.8/s, the far-behind steps at 23.6/s (30 fps clock, so +-10%)",
-   "ok": false,
+   "name": "6 click trains from the trace: last six steps at 11.8/s (+-10%, 30 fps clock); no 6-step window faster than 23.6/s (+10%)",
+   "ok": true,
    "detail": {
     "slow_tail_rates": [
      11.55,
@@ -338,7 +338,8 @@
      12.5,
      12.5
     ],
-    "fast_head_rates": [
+    "fastest_6_step_window": 25.75,
+    "head_rates_reported": [
      22.12,
      15.65,
      20

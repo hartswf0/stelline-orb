@@ -296,7 +296,7 @@ function updateSurface() { const s = currentSurface(), pos = geo.attributes.posi
     m4.compose(vS, q0, new T.Vector3(sc, sc, sc)); beads.setMatrixAt(k, m4); }); beads.instanceMatrix.needsUpdate = true; beads.visible = s.beads > .001;
   return s; }
 let lastCandle = null;
-function frame(dt) { NOW += dt; for (let i = LATER.length - 1; i >= 0; i--) if (NOW >= LATER[i][0]) { const f = LATER[i][1]; LATER.splice(i, 1); f(); }
+function frame(dt, quiet) { NOW += dt; for (let i = LATER.length - 1; i >= 0; i--) if (NOW >= LATER[i][0]) { const f = LATER[i][1]; LATER.splice(i, 1); f(); }
   runScene(); runAnims(); machine(dt);
   const s = surfDirty ? updateSurface() : currentSurface(); surfDirty = false;
   // her eye: kneeling, the cake a little below eye height, turned by the scale ring
@@ -337,11 +337,11 @@ function frame(dt) { NOW += dt; for (let i = LATER.length - 1; i >= 0; i--) if (
   else if (x === 'CANDLES') hint = 'SEVEN CANDLES'; else if (x === 'INSCRIPTION') hint = 'WRITE IT'; else if (x === 'MATCH') hint = 'LIGHT THEM'; else if (S.lit === 7 && S.insc === WSTEPS) hint = 'HOLD: SHE BLOWS'; else hint = S.lit === 7 ? 'WRITE ON THE BROWN DOME FIRST' : '';
   if (!S.reachedDome && S.cur && M.KEYS[S.cur].kind === 'film' && !(NOW - S.msgAt < 2.2) && !isKeyTarget(x)) hint = 'THE FILM WRITES ON THE BROWN DOME';
   hintEl.textContent = hint;
-  R.render(scene, cam); drawDev(); }
+  if (!quiet) { R.render(scene, cam); drawDev(); } }
 let last = performance.now();
 function loop(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; frame(dt); requestAnimationFrame(loop); }
 document.fonts && document.fonts.load('400 20px Oswald').then(() => drawDev());
 resize(); reset(); drawInscription(0);
-window.PG = { objs: { insc, cake, board, beads, table, cam, R, scene }, S, TR, SNDLOG, RINGS, SCRIPT, play() { reset(); TR.steps.length = TR.events.length = TR.frames.length = 0; SNDLOG.length = 0; NOW = 0; S.scene = { t0: 0, i: 0 }; }, advance(dt) { frame(dt); }, candidates, tgt, press, pressHold, pressSelect, handTurn, NOW: () => NOW };
+window.PG = { objs: { insc, cake, board, beads, table, cam, R, scene }, S, TR, SNDLOG, RINGS, SCRIPT, play() { reset(); TR.steps.length = TR.events.length = TR.frames.length = 0; SNDLOG.length = 0; NOW = 0; S.scene = { t0: 0, i: 0 }; }, advance(dt, quiet) { frame(dt, quiet); }, candidates, tgt, press, pressHold, pressSelect, handTurn, NOW: () => NOW };
 if (!PROOF) requestAnimationFrame(loop);
 </script></body></html>

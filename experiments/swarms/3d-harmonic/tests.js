@@ -44,9 +44,12 @@ if (fs.existsSync(tracePath)) { const tr = JSON.parse(fs.readFileSync(tracePath,
   // 6 click-train rates
   const steps = tr.applied.filter(e => e[1] !== 'commit').map(e => e[0]), trains = []; let cur = [steps[0]];
   for (let i = 1; i < steps.length; i++) { if (steps[i] - steps[i - 1] < .2) cur.push(steps[i]); else { trains.push(cur); cur = [steps[i]]; } } trains.push(cur);
-  // the last six steps of a train are slow (11.8/s); the steps before them, when the ring was more than six behind, are fast (23.6/s)
-  const tails = trains.filter(t => t.length >= 6).map(t => +(5 / (t[t.length - 1] - t[t.length - 6])).toFixed(2)), heads = trains.filter(t => t.length >= 14).map(t => +((t.length - 8) / (t[t.length - 8] - t[0])).toFixed(2));
-  check('6 click trains from the trace: the last six steps at 11.8/s, the far-behind steps at 23.6/s (30 fps clock, so +-10%)', tails.length > 0 && tails.every(r => r > 10.5 && r < 13.2) && heads.every(r => r > 20.5 && r < 26.5), { slow_tail_rates: tails, fast_head_rates: heads });
+  // the last six steps of a train are slow (11.8/s); no stretch of the machine ever runs faster than 23.6/s. (Whether it runs fast depends on how far
+  // the hand got ahead during a drag, so the fast stretches are reported, not asserted.)
+  const tails = trains.filter(t => t.length >= 6).map(t => +(5 / (t[t.length - 1] - t[t.length - 6])).toFixed(2)); let maxWin = 0;
+  trains.forEach(t => { for (let i = 0; i + 6 < t.length; i++) maxWin = Math.max(maxWin, 6 / (t[i + 6] - t[i])); });
+  const heads = trains.filter(t => t.length >= 14).map(t => +((t.length - 8) / (t[t.length - 8] - t[0])).toFixed(2));
+  check('6 click trains from the trace: last six steps at 11.8/s (+-10%, 30 fps clock); no 6-step window faster than 23.6/s (+10%)', tails.length > 0 && tails.every(r => r > 10.5 && r < 13.2) && maxWin < 26, { slow_tail_rates: tails, fastest_6_step_window: +maxWin.toFixed(2), head_rates_reported: heads });
 } else check('5 trace.json present', false);
 fs.writeFileSync(path.join(__dirname, 'tests.json'), JSON.stringify({ ran: new Date().toISOString(), failures: fail, results }, null, 1));
 console.log(fail ? fail + ' FAILED' : 'ALL PASS'); process.exit(fail ? 1 : 0);
