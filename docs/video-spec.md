@@ -67,3 +67,6 @@ Blocker: fal returns "User is locked. Exhausted balance" (top up at fal.ai/dashb
 ## 7. First test (U2, 5 s, `assets/units/U2-vidu/`)
 
 Endpoint `fal-ai/vidu/q1/reference-to-video` with refs 06, 07, 03 works (1920x1080, 5.4 s). `fal-ai/kling-video/v1.6/pro/elements` returned "downstream service error" with the same refs. Result: first-person hands, a chrome knurled barrel resembling the orb, cake appears from nothing in the dark with candles lit. Misses: the orb drifts down and away from her hands by the last second; the candles are already lit (the beat wants flames only at U7/U8); the barrel is camera-like, not yet the exact orb. Next: shorter 3 s units, "orb stays centred in both hands" in the prompt, 'candles unlit' and the real panel composited.
+
+### U2 on `fal-ai/veo3.1/reference-to-video` (refs 06, 07, 03; 8 s, 1280x720) — better than vidu
+First-person hands keep the knurled chrome orb centred for the whole clip, one hand turns the ring, the room is a long table with chairs, and the cake rises from nothing at the far end. Misses: candles are lit from the start (the beat wants them unlit until U7/U8), the table is longer than the film's, no tilt/frosting flicker. Veo is the endpoint to use for units; add "candles unlit" and keep refs 06/07/08.
