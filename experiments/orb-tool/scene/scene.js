@@ -20,7 +20,7 @@
   const url = (rel, base) => new URL(rel, base || SRC).href;
   const DEPS = [['THREE', '../../../ana/assets/three.min.js'], ['LOOK', '../../swarms/shared/look.js'], ['HOLO', '../../swarms/shared/holo.js'],
     ['EVOMOD.cake', '../../swarms/evolve-all/modules/cake.js'], ['EVOMOD.inscription', '../../swarms/evolve-all/modules/inscription.js'],
-    ['EVOMOD.candles', '../../swarms/evolve-all/modules/candles.js'], ['EVOMOD.table', '../../swarms/evolve-all/modules/table.js'], ['EVOMOD.people', '../../swarms/evolve-all/modules/people.js'], ['SCENE_GENOMES', 'genomes.js']];
+    ['EVOMOD.candles', '../../swarms/evolve-all/modules/candles.js'], ['EVOMOD.table', '../../swarms/evolve-all/modules/table.js'], ['EVOMOD.people', '../../swarms/evolve-all/modules/people.js'], ['SCENE_GENOMES', 'genomes.js'], ['SCENE_GHOST', 'ghost.js']];
   const REFS = { inscription: '../../swarms/evolve-all/refs/inscription.json', candles: '../../swarms/evolve-all/refs/candles.json' };
   const CUT = '../../../assets/cutouts/';
   const has = path => path.split('.').reduce((o, k) => o && o[k], root);
@@ -210,7 +210,7 @@
     function buildGhosts(v) {
       GHOST.children.slice().forEach(c => { GHOST.remove(c); c.traverse(x => { if (x.material && x.material !== ghostMat && x.material !== ghostWire) { if (x.material.map && OWN.has(x.material.map)) x.material.map.dispose(); x.material.dispose(); } if (x.isMesh && x.parent && x.userData.ownGeo) x.geometry.dispose(); }); });
       (v.proposals || []).forEach((p, pi) => {
-        let trial = null; if (CO && CS) { trial = CS.clone(v); try { if (CO.OPS[p.op](trial, CS.clone(p.args || {}), { author: p.author })) trial = null; } catch (e) { trial = null; } }
+        const trial = root.SCENE_GHOST.trialOf(CO, v, p);   // CORE_OPS.ghostState: a copy, never the committed state
         const g = new T.Group(); GHOST.add(g); const at = new T.Vector3(0, TABLE_Y + C.topY + .16 + pi * .04, 0);
         const lab = label((p.author || 'agent').replace(/^agent:/, '') + ': ' + (CO ? CO.label(p.op, p.args) : p.op) + (p.note ? ' (' + p.note + ')' : '')); g.add(lab);
         if (!trial) { lab.position.copy(at); return; }

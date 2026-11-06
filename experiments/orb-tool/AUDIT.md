@@ -128,7 +128,8 @@ The scene canvas is 390x219 (the film at 16:9); the device takes the other 625 p
 | ring 5 LIGHT | 0% | no |
 | scene: drag | 8.5% (swing) | — |
 | scene: tap | 0% | — |
-Summary: 13 of 22 finger inputs changed the scene; 16 changed the state. The selection rings (PART, FACET) change state with no visible consequence; TAKE / ANYTHING / OTHERWISE changed state with no visible change from the watch state they were pressed in.
+Summary: 13 of 22 finger inputs changed the scene; 16 changed the state.
+The same ops called through `CORE.turn/press` (results2/ops-v5scene-390x844.json) agree: PART and FACET rings 0%, ZERO 0% (nothing to reset), TAKE 0%, IMPRINT 0% outside BUILD, and in BUILD the MAKE ring on its first facet (table film skin, already at its end) and LIGHT 0%. Each ring op cost 0.2-0.9 ms inside the page. The selection rings (PART, FACET) change state with no visible consequence; TAKE / ANYTHING / OTHERWISE changed state with no visible change from the watch state they were pressed in.
 
 ### M3. maker.html at 390x844
 
