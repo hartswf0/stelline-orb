@@ -72,7 +72,7 @@ function rings() {
   if (window.REMOTE_RINGS) return window.REMOTE_RINGS(); const out = [null, null, null, null, null];
   if (S.add) { const SH = shelves(), si = clamp(S.add.s, 0, SH.length - 1), sh = SH[si]; S.add.s = si; S.add.i = clamp(S.add.i, 0, sh.items.length - 1);
     out[0] = list('SHELF', () => S.add.s, v => { S.add.s = v; S.add.i = 0; ghostDirty = true; }, SH.map(s => s.n)); out[1] = list(sh.n, () => S.add.i, v => { S.add.i = v; ghostDirty = true; }, sh.items.map(x => x.name)); return out; }
-  if (S.mode === 'VIEW') { const V = S.view, free = () => { if (V.preset !== 'FREE' && V.preset !== 'FLY') V.preset = 'FREE'; }, P = Object.keys(VIEWS);
+  if (S.mode === 'VIEW') { const V = S.view, free = () => { if (V.preset !== 'FREE' && V.preset !== 'FLY') { V.eyeHold = !!(VIEWS[V.preset] && VIEWS[V.preset].eye); V.preset = 'FREE'; } }, P = Object.keys(VIEWS);
     out[0] = list('CAMERA', () => P.indexOf(V.preset), v => setView(P[v]), P); out[1] = num('ORBIT', () => V.yaw, v => { free(); V.yaw = v; }, -Math.PI, Math.PI, 5 / 57.3, deg, true);
     out[2] = num('TILT', () => V.pitch, v => { free(); V.pitch = v; }, -.2, 1.5, 3 / 57.3, v => Math.round(v * 57.3) + '°'); out[3] = num('ZOOM', () => V.dist, v => { free(); V.dist = v; }, .25, 5, .05, v => v.toFixed(2) + ' M');
     out[4] = num('LENS', () => V.fov, v => V.fov = Math.round(v), 14, 70, 2, v => Math.round(12 / Math.tan(v * Math.PI / 360)) + ' MM'); return out; }
@@ -140,8 +140,8 @@ function scrub(i, frac) { if (window.REMOTE) { ORB.spin(i, frac); S.lastRing = i
   if (r.undoable) snap(); const b = Math.floor(r.v() / r.st); r.set(r.v() + r.st * frac * S.gain); if (Math.floor(r.v() / r.st) !== b) tick('ring', i); S.lastRing = i; S.retT = NOW; ORB.spin(i, frac); oledDirty = true; }
 /* the accordion: squeezing and stretching the orb sets how far every ring moves per click */
 function setSqueeze(v) { S.stretch = clamp(v, .7, 1.8); S.gain = Math.pow(2, (1.25 - S.stretch) / .275 * 2); setStretch(S.stretch); say(S.gain >= 1.5 ? 'SQUEEZED · COARSE ×' + S.gain.toFixed(1) : S.gain <= .7 ? 'STRETCHED · FINE ×' + S.gain.toFixed(2) : 'EVEN · ×' + S.gain.toFixed(1)); }
-function setView(p) { const V = S.view; V.preset = p; const P = VIEWS[p]; if (P) { const b = sceneBox(), sz = b ? b.getSize(new T.Vector3()).length() : .3; V.yaw = P.yaw; V.pitch = P.pitch; V.dist = P.eye ? P.dist : clamp(sz * .32 / Math.tan(P.fov * Math.PI / 360), .45, 4); V.fov = P.fov; V.pan.set(0, 0, 0); } say('CAMERA · ' + p); }
-function viewBy(dyaw, dpitch, dzoom, panx, pany) { if (window.REMOTE) return window.REMOTE({ k: 'view', dx: dyaw, dy: dpitch, dc: dzoom, px: panx, py: pany }); const V = S.view; if (V.preset !== 'FREE') { V.preset = 'FREE'; oledDirty = true; }
+function setView(p) { const V = S.view; V.preset = p; V.eyeHold = false; const P = VIEWS[p]; if (P) { const b = sceneBox(), sz = b ? b.getSize(new T.Vector3()).length() : .3; V.yaw = P.yaw; V.pitch = P.pitch; V.dist = P.eye ? P.dist : clamp(sz * .32 / Math.tan(P.fov * Math.PI / 360), .45, 4); V.fov = P.fov; V.pan.set(0, 0, 0); } say('CAMERA · ' + p); }
+function viewBy(dyaw, dpitch, dzoom, panx, pany) { if (window.REMOTE) return window.REMOTE({ k: 'view', dx: dyaw, dy: dpitch, dc: dzoom, px: panx, py: pany }); const V = S.view; if (V.preset !== 'FREE') { V.eyeHold = !!(VIEWS[V.preset] && VIEWS[V.preset].eye); V.preset = 'FREE'; oledDirty = true; }
   V.yaw += dyaw || 0; V.pitch = clamp(V.pitch + (dpitch || 0), -.2, 1.5); V.dist = clamp(V.dist * Math.exp(-(dzoom || 0)), .25, 5);
   if (panx || pany) { const r = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion), u = new T.Vector3(0, 1, 0).applyQuaternion(cam.quaternion); V.pan.addScaledVector(r, -(panx || 0) * V.dist).addScaledVector(u, (pany || 0) * V.dist); } }
 
@@ -304,7 +304,7 @@ function apply(dt) { const cd = DOC.candles;
   const lit = FLAMES.filter(f => !f.userData.sparkle).length; candleLight.position.set(0, cw.y + .15, 0); candleLight.intensity = lit ? (.25 + Math.min(lit, 12) * .12) * (.94 + Math.sin(NOW * 21) * .04 + Math.sin(NOW * 7) * .03) : 0;
   FLAMES.forEach((f, i) => { if (f.userData.sparkle) { const k = .7 + Math.random() * .6; f.scale.set(.05 * k, .05 * k, 1); f.material.rotation = Math.random() * TAU; return; } const k = 1 + Math.sin(NOW * 13 + i * 1.7) * .06 + Math.sin(NOW * 31 + i) * .04; f.scale.set(.016 * k, .034 * (2 - k), 1); });
   grade.uniforms.mist.value = DOC.room.mist; grade.uniforms.era.value = DOC.room.era || 0; buildPlace(DOC.room.place); scene.fog.density = .028 + DOC.room.mist * .09; }
-function placeCam(dt) { const V = S.view, P = VIEWS[V.preset], eye = P && P.eye, k = Math.min(1, (dt || 1) * 6); if (P && P.fly) V.yaw += (dt || 0) * .22;
+function placeCam(dt) { const V = S.view, P = VIEWS[V.preset], eye = (P && P.eye) || (V.preset === 'FREE' && V.eyeHold), k = Math.min(1, (dt || 1) * 6); if (P && P.fly) V.yaw += (dt || 0) * .22;
   let bc = new T.Vector3(0, TOP + .07, 0); if (!eye) { const b = sceneBox(); if (b) bc = b.getCenter(new T.Vector3()); } const tgt = (eye ? new T.Vector3(0, .69, 0) : bc).add(V.pan); if (P && P.fly) tgt.y += Math.sin(NOW * .5) * .05;
   CAM.yaw += (((V.yaw - CAM.yaw + Math.PI) % TAU + TAU) % TAU - Math.PI) * k; CAM.pitch += (V.pitch - CAM.pitch) * k; CAM.dist += (V.dist - CAM.dist) * k; CAM.fov += (V.fov - CAM.fov) * k; CAM.tgt.lerp(tgt, k);
   cam.position.set(CAM.tgt.x + Math.sin(CAM.yaw) * Math.cos(CAM.pitch) * CAM.dist, CAM.tgt.y + Math.sin(CAM.pitch) * CAM.dist, CAM.tgt.z + Math.cos(CAM.yaw) * Math.cos(CAM.pitch) * CAM.dist); cam.lookAt(CAM.tgt);

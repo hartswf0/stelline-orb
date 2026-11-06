@@ -22,11 +22,11 @@ const PLAN = [[3.4, 1, [1]], [9.4, 2, [2, 4, 3, 2]], [15.4, 3, [3]], [20.6, 4, [
     while (qi < Q.length && Q[qi].t <= t) { const q = Q[qi++];
       if (q.k === 'open') await p.evaluate(i => { FORGE.press('ADD'); FORGE.S.add.s = 0; FORGE.S.add.i = i; }, q.from);
       else if (q.k === 'turn') await p.evaluate(d => FORGE.turn(1, d), q.d);
-      else if (q.k === 'land') { await p.evaluate(() => FORGE.press('ADD')); await p.evaluate(() => FORGE.step(1 / 60)); await p.waitForTimeout(1400); cap = await p.evaluate(() => FORGE.DOC.title); drift = -drift; } }
+      else if (q.k === 'land') { await p.evaluate(() => FORGE.press('ADD')); await p.evaluate(() => FORGE.step(1 / 60)); await p.evaluate(() => FORGE.setView('EYE')); await p.waitForTimeout(1400); cap = await p.evaluate(() => FORGE.DOC.title); drift = -drift; } }
     const fsrc = t < 30 ? `/.feed/a${String(Math.floor(t * 30) + 1).padStart(4, '0')}.jpg` : t < 41 ? `/.feed/b${String(Math.floor((t - 30) * 30) + 1).padStart(4, '0')}.jpg` : null;
     await p.evaluate(([s, c]) => feed(s).then(() => { if (window.OLED_FEED) window.OLED_FEED.cap = c; }), [fsrc, cap]);
     const end = t > 56.6 ? Math.min(1, (t - 56.6) / 2) : 0;
-    const s = await p.evaluate(([dr, end]) => { FORGE.viewBy(.0016 * dr * (1 - end), end ? -.0012 : 0, .0007 + end * .0035); FORGE.advance(1 / 30);
+    const s = await p.evaluate(([dr, end]) => { FORGE.viewBy(.0012 * dr * (1 - end), end ? -.0008 : 0, .00025 + end * .0016); FORGE.advance(1 / 30);
       const V = FORGE.S.view; return { now: FORGE.now(), ang: RINGS.map(r => r.ang), yaw: V.yaw, pitch: V.pitch, dist: V.dist, flames: FORGE.flames(), add: !!FORGE.S.add, title: FORGE.DOC.title, era: FORGE.DOC.room.era || 0, place: FORGE.DOC.room.place }; }, [drift, end]);
     st.push(s); await p.screenshot({ path: OUT + 'f/' + String(f).padStart(5, '0') + '.jpg', type: 'jpeg', quality: 92 });
     if (f % 150 === 0) console.log('frame', f, s.title); }

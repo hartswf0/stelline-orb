@@ -11,8 +11,8 @@ from scipy.io import wavfile
 SR = 48000; rng = np.random.default_rng(11); W = '/home/claude/stelline-work/film2/'
 d = json.load(open(W + 'take.json')); st = d['st']; log = d['log']; nF = len(st); now0 = st[0]['now'] - 1 / 30
 # the edit: [film start, source, src start, length]
-A = (0.0, 'film', 128.0, 9.0); B = (9.0, 'take', 0.0, 30.0); C = (39.0, 'film', 152.0, 4.0); D = (43.0, 'take', 30.0, nF / 30 - 30.0)
-EDIT = [A, B, C, D]; TOT = D[0] + D[3]; L = int(TOT * SR)
+A1 = (0.0, 'film', 128.4, 5.6); A2 = (5.6, 'film', 137.5, 4.0); A = (0.0, 'film', 0, 9.6); B = (9.6, 'take', 0.0, 30.0); C = (39.6, 'film', 152.0, 4.0); D = (43.6, 'take', 30.0, nF / 30 - 30.0)
+EDIT = [A1, A2, B, C, D]; TOT = D[0] + D[3]; L = int(TOT * SR)
 def take2film(t): return B[0] + t if t < 30 else D[0] + (t - 30)
 def bp(x, lo, hi, o=2): return sosfilt(butter(o, [lo, hi], 'bandpass', fs=SR, output='sos'), x)
 def lp(x, f, o=2): return sosfilt(butter(o, f, 'lowpass', fs=SR, output='sos'), x)
@@ -39,7 +39,7 @@ def grain(kind, pitch=1.):
     g = GR[kind][rng.integers(len(GR[kind]))]; return resample(g, max(8, int(len(g) / pitch))) if pitch != 1 else g
 def norm1(x): return x / max(1e-9, np.abs(x).max())
 # ---- the real clips, with their own sound
-place(REAL, fades(film(A[2], A[3]), .02, .35), A[0]); place(REAL, fades(film(C[2], C[3]), .3, .3), C[0])
+place(REAL, fades(film(A1[2], A1[3] + .1), .02, .1), A1[0]); place(REAL, fades(film(A2[2], A2[3]), .1, .35), A2[0]); place(REAL, fades(film(C[2], C[3]), .3, .3), C[0])
 # ---- her voice under the orb: the same seconds the little screen shows
 place(VOICE, fades(film(192.0, 30.0), .6, .8), B[0]); place(VOICE, fades(film(256.0, 11.0), .5, 1.2), D[0])
 # ---- the rings: detent crossings from the logged angles
