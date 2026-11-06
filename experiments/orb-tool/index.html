@@ -9,21 +9,21 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --bg: #050605; --ink: #e6ebe9; --dim: #8b9693; --line: #252b29; --hand: #e0a15a; --agent: #38d6e0; --red: #e0332b; --devH: min(clamp(250px, 46dvh, 460px), calc(100vw * 334 / 400 + 6px)); }
+  :root { --bg: #050605; --ink: #e6ebe9; --dim: #8b9693; --line: #252b29; --hand: #e0a15a; --agent: #38d6e0; --red: #e0332b; --devH: min(clamp(260px, 47dvh, 480px), calc(100vw * 370 / 400 + 6px)); }
   html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); overflow: hidden; overscroll-behavior: none; -webkit-user-select: none; user-select: none; font: 12px/1.4 "IBM Plex Mono", ui-monospace, Menlo, monospace; }
   .app { position: fixed; inset: 0; display: flex; flex-direction: column; height: 100dvh; }
   #view { position: relative; flex: 1 1 auto; min-height: 0; background: #000; touch-action: none; overflow: hidden; }
-  #strip { flex: 0 0 34px; height: 34px; min-height: 0; overflow: hidden; position: relative; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #0a0c0b; touch-action: none; cursor: ew-resize; }
+  #strip { flex: 0 0 44px; height: 44px; min-height: 0; overflow: hidden; position: relative; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #0a0c0b; touch-action: none; cursor: ew-resize; }
   #strip canvas { width: 100%; height: 100%; display: block; }
   #dev { flex: 0 0 var(--devH); min-height: 0; display: block; width: 100%; height: var(--devH); touch-action: none; background: radial-gradient(120% 140% at 50% 0%, #1b1e1d 0%, #0b0c0c 55%, #050605 100%); }
   .tb { position: absolute; top: 8px; z-index: 3; display: flex; gap: 6px; }
   .tb.r { right: 8px; } .tb.l { left: 8px; }
-  button.x { font: 600 11px "IBM Plex Mono", monospace; letter-spacing: .06em; color: var(--ink); background: rgba(18,21,20,.82); border: 1px solid #2f3633; border-radius: 4px; padding: 6px 10px; cursor: pointer; min-height: 30px; }
+  button.x { font: 600 12px "IBM Plex Mono", monospace; letter-spacing: .06em; color: var(--ink); background: rgba(18,21,20,.82); border: 1px solid #2f3633; border-radius: 4px; padding: 6px 12px; cursor: pointer; min-height: 44px; min-width: 44px; }
   button.x:active { background: #252b29; }
   #drawer { position: fixed; left: 0; right: 0; bottom: 0; height: min(62dvh, 460px); z-index: 10; background: rgba(8,10,9,.97); border-top: 1px solid #2f3633; transform: translateY(102%); transition: transform .18s ease-out; display: flex; flex-direction: column; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); box-sizing: border-box; gap: 8px; }
   #drawer.on { transform: none; }
-  #drawer h2 { margin: 0; font: 700 11px "IBM Plex Mono", monospace; letter-spacing: .1em; color: var(--dim); display: flex; justify-content: space-between; align-items: center; }
-  #out { flex: 1; overflow: auto; white-space: pre-wrap; font-size: 11.5px; color: #c9d3d0; border: 1px solid var(--line); border-radius: 4px; padding: 8px; -webkit-user-select: text; user-select: text; }
+  #drawer h2 { margin: 0; font: 700 12px "IBM Plex Mono", monospace; letter-spacing: .1em; color: var(--dim); display: flex; justify-content: space-between; align-items: center; }
+  #out { flex: 1; overflow: auto; white-space: pre-wrap; font-size: 12.5px; color: #c9d3d0; border: 1px solid var(--line); border-radius: 4px; padding: 8px; -webkit-user-select: text; user-select: text; }
   #out .me { color: #fff; } #out .bad { color: #ff9a8a; } #out .ok { color: var(--agent); }
   #line { font: 600 14px "IBM Plex Mono", monospace; color: #fff; background: #111514; border: 1px solid #3a4440; border-radius: 4px; padding: 10px; outline: none; width: 100%; box-sizing: border-box; }
   #line:focus { border-color: var(--agent); }
@@ -49,7 +49,9 @@
 <input type="file" id="file" accept="application/json,.json">
 <script src="core/state.js"></script>
 <script src="core/ops.js"></script>
+<script src="core/tests.js"></script>
 <script src="core/bus.js"></script>
+<script src="core/governor.js"></script>
 <script src="core/machine.js"></script>
 <script src="core/devmap.js"></script>
 <script src="core/sound.js"></script>
@@ -61,7 +63,14 @@
 (function () {
   'use strict';
   const Q = new URLSearchParams(location.search), SND = CORE_SOUND, O = CORE_OPS;
-  const bus = CORE_BUS.createOrb(), machine = CORE_MACHINE.create(bus);
+  // AUDIT R1: never start empty. Open where the person left off (the saved session, replayed), else on the film's whole birthday.
+  // ?empty starts from nothing (the first detent of any ring then makes the first thing); ?fresh ignores the saved session.
+  const KEY = 'orb-tool-session'; let sess = null; if (!Q.has('fresh')) { try { sess = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { } }
+  if (sess && (!Array.isArray(sess.log) || !sess.initial || CORE_OPS.check(sess.initial))) sess = null;
+  const base = sess ? sess.initial : Q.has('empty') ? CORE_STATE.empty() : CORE_STATE.birthday();
+  const bus = CORE_BUS.createOrb({ state: base });
+  let restored = 0; if (sess) for (const r of sess.log) { if (bus.do(r.op === 'batch' ? r.args : { op: r.op, args: r.args }, { author: r.author, gesture: r.gesture }).ok) restored++; }
+  const machine = CORE_MACHINE.create(bus);
   const loadScript = src => new Promise(res => { const s = document.createElement('script'); s.src = src; s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s); });
   // ---- window.ORB: the agent's hands
   const API = window.ORB = {
@@ -72,7 +81,10 @@
     load: (j, meta) => bus.load(j, Object.assign({ author: 'agent:api' }, meta || {})),
     replay: log => CORE_BUS.replay(log).state(),
     device: null, machine, bus,
-    command: (line, author) => runLine(line, author || 'agent:console')
+    command: (line, author) => runLine(line, author || 'agent:console'),
+    tests: bus.tests, ledger: bus.ledger, initial: bus.initial, quality: 0,
+    // deterministic stepping for agents and tests (AUDIT R9): manual(true) stops the clock; advance(seconds) steps the machine and draws
+    manual: on => { manualClock = on !== false; return manualClock; }, advance: dt => { machine.tick(Math.max(0, +dt || 0)); paint(performance.now()); return bus.view(); }
   };
   // ---- the view: scene/ if it exists, else the core's stub
   const viewEl = document.getElementById('view'); let scene = null;
@@ -104,15 +116,11 @@
     device.say('PLAYING THE HISTORY. LONG REDO AGAIN TO STOP'); playing = setTimeout(next, 300); }
   API.playback = playback;
   // ---- the session survives the tab: written 1 s after the last change and when the tab hides; offered back on the next visit
-  const KEY = 'orb-tool-session'; let saveT = null, restoreBtn = null;
-  const persist = () => { saveT = null; try { if (bus.history().length) localStorage.setItem(KEY, JSON.stringify({ format: 'orb-session', v: 1, savedAt: Date.now(), log: bus.log().filter(r => r.ok && !r.same) })); } catch (e) { } };
-  bus.on('log', r => { if (!r.ok || r.same || restoring) return; if (restoreBtn) { restoreBtn.remove(); restoreBtn = null; } clearTimeout(saveT); saveT = setTimeout(persist, 1000); });
+  let saveT = null;
+  const persist = () => { saveT = null; try { localStorage.setItem(KEY, JSON.stringify({ format: 'orb-session', v: 1, savedAt: Date.now(), initial: bus.initial(), log: bus.log().filter(r => r.ok && !r.same) })); } catch (e) { } };
+  bus.on('log', r => { if (!r.ok || r.same) return; clearTimeout(saveT); saveT = setTimeout(persist, 1000); });
   addEventListener('visibilitychange', () => { if (document.hidden && saveT) { clearTimeout(saveT); persist(); } });
-  let restoring = false;
-  function restore(sess) { restoring = true; let n = 0; for (const r of sess.log) { const x = bus.do(r.op === 'batch' ? r.args : { op: r.op, args: r.args }, { author: r.author, gesture: r.gesture }); if (x.ok) n++; } restoring = false; machine.snap(); persist(); device.say('RESTORED ' + n + ' STEPS FROM THE LAST VISIT'); }
-  if (!Q.has('fresh')) { try { const sess = JSON.parse(localStorage.getItem(KEY) || 'null'); if (sess && sess.log && sess.log.length) {
-      restoreBtn = document.createElement('button'); restoreBtn.className = 'x'; restoreBtn.textContent = 'RESTORE ' + sess.log.length + ' STEPS'; restoreBtn.onclick = () => { restoreBtn.remove(); restoreBtn = null; restore(sess); };
-      document.querySelector('.tb.l').appendChild(restoreBtn); } } catch (e) { } }
+  machine.snap(); setTimeout(() => device.say(restored ? 'BACK WHERE YOU LEFT IT: ' + restored + ' STEPS RESTORED. UNDO GOES BACK THROUGH THEM' : Q.has('empty') ? 'AN EMPTY MEMORY: TURN ANY RING TO MAKE THE FIRST THING' : 'THE BIRTHDAY, WHOLE. TURN A RING TO CHANGE IT; SELECT CHANGES WHAT RINGS 3 AND 4 SET'), 50);
   // ---- a fault says so on the device instead of leaving a dead page
   addEventListener('error', e => { try { device.say('FAULT: ' + (e.message || 'error') + '. THE MEMORY IS KEPT; SAVE OR UNDO STILL WORK', true); } catch (er) { } });
   // ---- sounds follow the state, whoever changed it
@@ -128,15 +136,15 @@
     stripDirty = true; });
   // ---- the history strip: one cell per entry, hand warm, agent cyan; drag to scrub
   const stripEl = document.getElementById('strip'), sc = document.getElementById('stripCv'), sx = sc.getContext('2d'); let stripDirty = true, scrub = null;
-  function stripGeom() { const n = bus.history().length, w = sc.clientWidth, lab = Math.min(170, w * .42), cw = Math.max(3, Math.min(16, (w - lab - 16) / Math.max(1, n + 1))); return { n, w, lab, cw, x0: 8 }; }
+  function stripGeom() { const n = bus.history().length, w = sc.clientWidth, lab = Math.min(200, w * .5), cw = Math.max(3, Math.min(16, (w - lab - 16) / Math.max(1, n + 1))); return { n, w, lab, cw, x0: 8 }; }
   function drawStrip() { const dpr = Math.min(2, devicePixelRatio || 1), w = sc.clientWidth, h = sc.clientHeight; if (sc.width !== Math.round(w * dpr)) { sc.width = Math.round(w * dpr); sc.height = Math.round(h * dpr); }
     sx.setTransform(dpr, 0, 0, dpr, 0, 0); sx.clearRect(0, 0, w, h); const H = bus.history(), cur = bus.cursor(), G = stripGeom(), first = Math.max(0, H.length - Math.floor((w - G.lab - 16) / G.cw));
     for (let i = first; i < H.length; i++) { const x = G.x0 + (i - first) * G.cw, e = H[i], ag = /^agent/.test(e.author); sx.fillStyle = ag ? 'rgba(56,214,224,' + (i < cur ? .9 : .22) + ')' : 'rgba(224,161,90,' + (i < cur ? .9 : .22) + ')';
-      sx.fillRect(x, e.via ? 7 : 10, Math.max(2, G.cw - 2), e.via ? 20 : 14); }
+      sx.fillRect(x, e.via ? 8 : 12, Math.max(2, G.cw - 2), e.via ? 28 : 20); }
     for (const m of bus.raw().marks) { const x = G.x0 + (m.at + 1 - first) * G.cw - 2; if (x < G.x0) continue; sx.fillStyle = '#f4f4f2'; sx.beginPath(); sx.moveTo(x - 4, 1); sx.lineTo(x + 4, 1); sx.lineTo(x, 6); sx.fill(); }
     const cx = G.x0 + (cur - first) * G.cw - 1; sx.fillStyle = '#e0332b'; sx.fillRect(cx, 3, 2, h - 6);
-    const e = H[cur - 1]; sx.font = '600 10px "IBM Plex Mono", monospace'; sx.textAlign = 'right'; sx.fillStyle = '#c9d3d0';
-    let t = cur + '/' + H.length + (e ? '  ' + (e.author === 'hand' ? 'HAND' : e.author.toUpperCase()) + ': ' + e.label : '  EMPTY MEMORY'); while (t.length > 3 && sx.measureText(t).width > G.lab) t = t.slice(0, -2); sx.fillText(t, w - 8, h / 2 + 4);
+    const e = H[cur - 1]; sx.font = '600 12px "IBM Plex Mono", monospace'; sx.textAlign = 'right'; sx.fillStyle = '#c9d3d0';
+    let t = cur + '/' + H.length + (e ? '  ' + (e.author === 'hand' ? 'HAND' : e.author.toUpperCase()) + ': ' + e.label : '  THE START: ' + (bus.initial().cake.stage ? 'THE BIRTHDAY, WHOLE' : 'AN EMPTY MEMORY')); while (t.length > 3 && sx.measureText(t).width > G.lab) t = t.slice(0, -2); sx.fillText(t, w - 8, h / 2 + 4);
     stripDirty = false; API._strip = { first, cw: G.cw, x0: G.x0 }; }
   function stripAt(e) { const r = sc.getBoundingClientRect(), S2 = API._strip || { first: 0, cw: 8, x0: 8 }; return Math.max(0, Math.min(bus.history().length, S2.first + Math.round((e.clientX - r.left - S2.x0) / S2.cw))); }
   stripEl.addEventListener('pointerdown', e => { SND.wake(); scrub = true; stripEl.setPointerCapture(e.pointerId); bus.seek(stripAt(e)); });
@@ -170,11 +178,13 @@
     if (m.orb === 'do') result = bus.do(m.ops, { author }); else if (m.orb === 'propose') result = bus.propose(m.op, m.note, { author });
     else if (m.orb === 'command') result = runLine(String(m.line || ''), author); else if (m.orb === 'describe') result = bus.describe(); else if (m.orb === 'state') result = bus.state(); else if (m.orb === 'history') result = bus.history(); else return;
     try { ev.source && ev.source.postMessage({ orb: 'reply', id: m.id, result }, ev.origin === 'null' || !ev.origin ? '*' : ev.origin); } catch (e) { } });
-  // ---- every frame
-  let last = performance.now();
-  function frame(now) { const dt = Math.min(.1, (now - last) / 1000); last = now; machine.tick(dt);
-    if (scene) { try { scene.frame(now); } catch (e) { console.error(e); } }
-    device.draw(now); if (stripDirty || scrub) drawStrip(); requestAnimationFrame(frame); }
+  // ---- every frame, timed: two slow paints coarsen the drawing and the status line says so (AUDIT R6)
+  let last = performance.now(), manualClock = false; const gov = CORE_GOVERNOR.create();
+  function paint(now) { if (scene) { try { scene.frame(now); } catch (e) { console.error(e); } } device.draw(now); if (stripDirty || scrub) drawStrip(); }
+  function frame(now) { const dt = Math.min(.1, (now - last) / 1000); last = now; if (!manualClock) machine.tick(dt);
+    const t0 = performance.now(); paint(now); const g = gov.sample(performance.now() - t0);
+    if (g.changed) { API.quality = g.level; device.quality = g.level; try { scene && scene.setQuality && scene.setQuality(g.level); } catch (e) { } device.say(g.say, g.level > 0); }
+    requestAnimationFrame(frame); }
   addEventListener('resize', () => { scene && scene.resize && scene.resize(); stripDirty = true; });
   document.fonts && document.fonts.load('600 12px "IBM Plex Mono"').then(() => { stripDirty = true; });
   requestAnimationFrame(frame);

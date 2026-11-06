@@ -14,14 +14,14 @@
   FILM_CAKES.forEach(c => { c.source = 'film: the birthday memory, Blade Runner 2049 (cake swap as read in ana/index.html)'; });
   const FILM = { by: 'film', from: 'the birthday memory in Blade Runner 2049, as read in ana/index.html' };
   const clone = o => JSON.parse(JSON.stringify(o));
-  function person(i) { const a = [-0.5, 0, 0.5][i - 1] || 0; return { id: 'child-' + i, kind: 'child', arrived: 0, offset: 0, x: +(a * 0.85).toFixed(2), z: -0.55 + Math.abs(a) * 0.1 }; }
+  function person(i) { const a = [-0.5, 0, 0.5][i - 1] || 0; return { id: 'child-' + i, kind: 'child', arrived: 0, offset: 0, x: +(a * 0.85).toFixed(2), z: -0.55 + Math.abs(a) * 0.1, source: { by: 'core', from: "the film's three children (faceless figures), not yet arrived" } }; }
   function empty() {
     return {
       v: 1,
       scene: { place: 'dome', light: 6, look: 'film' },
       cake: { kind: -1, stage: 0, tilt: 0, genome: clone(FILM_CAKES[0].genome) },
       inscription: { text: '生日快乐', written: 0 },
-      candles: { count: 7, lit: 7 },
+      candles: { count: 7, lit: 7, source: { by: 'core', from: 'the seven candles of the film, the default' } },
       table: { up: 0 },
       people: [person(1), person(2), person(3)],
       props: [],

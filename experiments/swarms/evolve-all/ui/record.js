@@ -21,7 +21,7 @@ const URL = `http://localhost:8790/experiments/swarms/evolve-all/index.html?rec=
     await p.evaluate(k => MM.setLapse(k), L);
     for (let i = 0; i < 2 * L; i++) await p.evaluate(() => MM.stepOnly(1 / 30));
     await p.evaluate(() => MM.advance(0)); vts.push(await p.evaluate(() => MM.NOW()));
-    await p.screenshot({ path: path.join(out, String(F).padStart(5, '0') + '.jpg'), type: 'jpeg', quality: 88 });
+    await p.screenshot({ path: path.join(out, String(F).padStart(5, '0') + '.jpg'), type: 'jpeg', quality: 88, timeout: 240000 });
     if (F % 60 === 0) console.log('frame', F, JSON.stringify(s));
     if ((s.ended || s.off) && !endF) endF = F + 45; if (endF && F >= endF) break; }
   const n = vts.length, DUR = n / 15;

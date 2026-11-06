@@ -168,3 +168,65 @@ test('a ghost made of several steps is one proposal and shows only where it ends
   orb.do({ op: 'accept' }, H); assert.equal(orb.state().cake.kind, 3); assert.equal(orb.state().cake.stage, 1);
   assert.equal(orb.do({ op: 'propose', args: { ops: [{ op: 'undo' }] } }, A).ok, false); assert.ok(before);
 });
+
+// ---- AUDIT.md section R, one test each where the core can carry it
+test('R1 never start empty: the birthday start is whole, and from an empty start the first detent of any ring makes something', () => {
+  const b = S.birthday(); assert.equal(b.cake.stage, 4); assert.equal(b.cake.kind, 3); assert.equal(b.inscription.written, 24); assert.equal(b.candles.lit, 7); assert.equal(b.table.up, 1); assert.ok(b.people.every(p => p.arrived === 10));
+  for (const sel of S.SELECTIONS) for (let r = 2; r < 4; r++) { const orb = B.createOrb(); orb.do({ op: 'select', args: { target: sel } }, H);
+    const res = D.turn(orb, r, 1); assert.equal(res.ok, true, sel + ' ring ' + (r + 1)); assert.ok(!res.same, sel + ' ring ' + (r + 1) + ' changed something'); }
+  const orb = B.createOrb(); orb.do({ op: 'select', args: { target: 'inscription' } }, H); const res = D.turn(orb, 2, 1); assert.equal(orb.state().cake.stage, 4); assert.match(res.retarget, /made one/);
+});
+
+test('R2 every ring moves something visible: re-targets, and selecting frames the selection', () => {
+  const orb = B.createOrb({ state: S.birthday() });
+  for (const sel of S.SELECTIONS) { orb.do({ op: 'select', args: { target: sel } }, H);
+    for (let r = 0; r < 4; r++) { const a = D.turn(orb, r, 1), b = a.ok && !a.same ? a : D.turn(orb, r, -1); assert.ok(b.ok && !b.same, sel + ' ring ' + (r + 1)); } }
+  orb.do({ op: 'select', args: { target: 'child-2' } }, H); assert.equal(orb.state().camera.focus, 'child-2');
+  orb.do({ op: 'select', args: { target: 'candles' } }, H); assert.equal(orb.state().camera.focus, 'cake');
+  const e = B.createOrb(); e.do({ op: 'set', args: { path: 'cake.kind', value: 0 } }, H); e.do({ op: 'select', args: { target: 'child-1' } }, H);
+  D.turn(e, 3, 2); assert.equal(e.state().people[0].arrived, 2, 'her time with her absent brings her in');
+  e.do({ op: 'switchOff' }, H); D.turn(e, 0, 1); assert.equal(e.state().time.off, false, 'a ring on a dark memory switches it on');
+});
+
+test('R5 + R7 the device: no text under 13 units, touch targets of 44 px or more at 390 px wide', () => {
+  const vm = require('vm'), fs = require('fs'), path = require('path'), g = { CORE_STATE: S, CORE_OPS: O, CORE_DEVMAP: D };
+  g.window = g; vm.createContext(g); vm.runInContext(fs.readFileSync(path.join(__dirname, '../core/device.js'), 'utf8'), g);
+  const DV = g.CORE_DEVICE, scale = Math.min(390 / DV.DW, (390 * DV.DH / DV.DW + 6) / DV.DH) * .98;
+  assert.ok(DV.MINFONT * scale >= 12, 'smallest text ' + (DV.MINFONT * scale).toFixed(1) + ' px');
+  const src = fs.readFileSync(path.join(__dirname, '../core/device.js'), 'utf8'); const sizes = [...src.matchAll(/'(?:[0-9]{3} )?([0-9.]+)px /g)].map(m => +m[1]); assert.ok(sizes.every(px => px >= DV.MINFONT), 'fixed sizes ' + sizes);
+  assert.ok(DV.HIT * 2 * scale >= 44, 'button target ' + (DV.HIT * 2 * scale).toFixed(1) + ' px');
+  for (const [x0, x1] of DV.RINGS) assert.ok((x1 - x0) * scale >= 44);
+  const b = Object.values(DV.BTN); for (const p of b) for (const q of b) if (p !== q) assert.ok(Math.hypot(p.cx - q.cx, p.cy - q.cy) * scale >= 44, 'buttons too close');
+  const html = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8'); assert.match(html, /min-height: 44px/); assert.match(html, /#strip \{ flex: 0 0 44px/);
+});
+
+test('R6 the governor: two slow paints coarsen, it says so, good paints give the level back', () => {
+  const G = require('../core/governor.js').create({ fastFrames: 5 });
+  assert.equal(G.sample(50).changed, false); const r = G.sample(60); assert.equal(r.changed, true); assert.equal(r.level, 1); assert.match(r.say, /THINNED/);
+  G.sample(80); assert.equal(G.sample(80).level, 2); G.sample(90); G.sample(90); assert.equal(G.level, 2, 'no further than the last level');
+  let back; for (let k = 0; k < 5; k++) back = G.sample(10); assert.equal(back.level, 1); assert.equal(back.changed, true);
+});
+
+test('R8 the undo journal says what it brought back; replay from a non-empty start is exact', () => {
+  const orb = B.createOrb({ state: S.birthday() }); orb.do({ op: 'candles', args: { count: 3 } }, A); const u = orb.undo();
+  assert.match(u.label, /^undid candles 3; brought back candles\.count 7, candles\.lit 7$/);
+  orb.do({ op: 'blow' }, H); const sv = JSON.parse(JSON.stringify(orb.save()));
+  assert.equal(JSON.stringify(B.replay(sv).state()), JSON.stringify(orb.state()));
+});
+
+test('R10 every made thing names its source; the memory carries its tests; the ledger keeps proposals and answers', () => {
+  const orb = B.createOrb();
+  orb.do({ op: 'breed', args: { a: 1, b: 3, seed: 5 } }, A); assert.deepEqual(orb.state().cake.source, { by: 'agent:test', from: 'bred from mint x brown dome, seed 5' });
+  orb.do({ op: 'keep', args: { name: 'mint dome' } }, H); assert.match(orb.state().library[5].source, /^kept by hand from bred from mint x brown dome/);
+  orb.do({ op: 'set', args: { path: 'cake.kind', value: 3 } }, H); assert.match(orb.state().cake.source.from, /^brown dome \(film:/);
+  orb.do({ op: 'add', args: { kind: 'prop', propKind: 'balloon' } }, A); assert.equal(orb.state().props[0].source.by, 'agent:test');
+  D.turn(orb, 2, 0); orb.do({ op: 'select', args: { target: 'child-1' } }, H); D.turn(orb, 2, 10); assert.equal(orb.state().people[0].source.by, 'hand');
+  let t = orb.tests(); const by = n => t.find(x => x.name === n);
+  assert.equal(by('whole cake made').pass, true); assert.equal(by('no faces').pass, true); assert.equal(by('film-bar match').pass, false); assert.equal(by('film-bar match').value, null);
+  assert.equal(by('every made thing names its source').pass, true, by('every made thing names its source').value);
+  orb.do({ op: 'measure', args: { test: 'film-bar match', value: 0.72, note: 'strip at 146 s' } }, 'agent:critic' && { author: 'agent:critic' });
+  t = orb.tests(); assert.equal(by('film-bar match').pass, true); assert.match(by('film-bar match').note, /agent:critic/);
+  assert.ok(orb.save().tests.length === 4 && orb.save().tests.every(x => 'value' in x && 'bar' in x && 'pass' in x));
+  assert.ok(S.birthday().people.every(p => p.source && p.source.by === 'film'));
+  orb.propose({ op: 'candles', args: { count: 9 } }, 'nine', A); orb.do({ op: 'reject' }, H); assert.deepEqual(orb.ledger().map(r => r.op), ['propose', 'reject']);
+});
