@@ -46,12 +46,13 @@
     function fillOr(look, ghost, col, a) { if (ghost) { c.setLineDash([4, 3]); c.strokeStyle = 'rgba(56,214,224,.7)'; c.lineWidth = 1.2; c.stroke(); c.setLineDash([]); return; }
       if (look === 'holo') { c.strokeStyle = 'rgba(90,230,240,' + (.5 * (a == null ? 1 : a)) + ')'; c.lineWidth = 1; c.stroke(); return; } c.fillStyle = rgba(col, a); c.fill(); }
     // ---- the cake, by making stage and genome
-    function cake(v, look, glow, ghost, now) { const k = v.cake, st = Math.round(k.stage); if (st <= 0) return null;
+    function cake(v, look, glow, ghost, now) { const k = v.cake, st = Math.round(k.stage); if (st <= 0) return null; const geomOnly = ghost === 'geom';
       const g = k.genome, R = g.radius, Hh = st === 1 ? g.height * .8 : g.height, base = TABLE_Y, piv = [0, base + .05, 0], ang = k.tilt * 3 * Math.PI / 180, ax = norm([cam.rt[0], 0, cam.rt[2]]);
       const side = st === 1 ? SPONGE : hex(g.side), topc = st === 1 ? shade(SPONGE, 1.08) : hex(g.top), N = 48, lit = .55 + glow * .45;
       const W3 = (x, y, z) => P(rot([x, y, z], piv, ax, ang));
       const prof = g.form === 'dome' && st > 1 ? Array.from({ length: 8 }, (_, i) => { const a = i / 7 * Math.PI / 2; return [R * Math.cos(a) + .001, base + .02 + (Hh - .02) * Math.sin(a)]; }) : [[R, base], [R, base + Hh]];
       if (g.form === 'dome' && st > 1) prof.unshift([R, base]);
+      if (geomOnly) return { W3, topY: base + Hh, R };
       // side bands, back to front
       const quads = [];
       for (let j = 0; j < prof.length - 1; j++) for (let i = 0; i < N; i++) { const a0 = i / N * TAU, a1 = (i + 1) / N * TAU, am = (a0 + a1) / 2, [r0, y0] = prof[j], [r1, y1] = prof[j + 1];
@@ -95,8 +96,8 @@
     function figure(p, now, dt, v, look, glow, ghost, selected) { const a = ghost ? 1 : p.arrived / 10; if (a <= 0 && !ghost) return;
       if (!(p.id in clocks)) clocks[p.id] = Object.keys(clocks).length * .7; if (!v.time.hold && !ghost) clocks[p.id] += dt;
       const t = clocks[p.id] + p.offset / 11.73, bob = Math.sin(t * TAU * .55) * .012, lean = v.time.blown ? .05 * Math.max(0, Math.sin(Math.min(1, t % 3))) : Math.sin(t * TAU * .23) * .02;
-      const h = p.kind === 'child' ? 1.0 : .7, foot = P([p.x, 0, p.z]), head = P([p.x + lean * (-p.x), h + bob, p.z + lean * (-p.z) * 2]); if (!foot || !head) return;
-      const sc = cam.F / foot[2], bw = .2 * sc, hr = .085 * sc, alpha = ghost ? 1 : (p.arrived >= 10 ? 1 : a * .55);
+      const h = .84, foot = P([p.x, .3, p.z]), head = P([p.x + lean * (-p.x), h + bob, p.z + lean * (-p.z) * 2]); if (!foot || !head) return;
+      const sc = cam.F / foot[2], bw = .17 * sc, hr = .06 * sc, alpha = ghost ? 1 : (p.arrived >= 10 ? 1 : a * .55);
       const col = look === 'holo' ? null : shade([196, 170, 140], .35 + glow * .55);
       c.save(); c.globalAlpha = alpha;
       const sh = [head[0], head[1] + hr * 1.1]; c.beginPath(); c.moveTo(foot[0] - bw * .55, foot[1]); c.lineTo(sh[0] - bw * .5, sh[1] + hr * .6); c.quadraticCurveTo(sh[0], sh[1] - hr * .2, sh[0] + bw * .5, sh[1] + hr * .6); c.lineTo(foot[0] + bw * .55, foot[1]); c.closePath();
@@ -139,10 +140,11 @@
     function ghost(v, pr, now, look, glow) { const g = S.clone(v); g.proposals = []; let e; try { e = O.OPS[pr.op](g, S.clone(pr.args), { author: pr.author }); } catch (er) { e = 'x'; } if (e) return;
       const same = k => JSON.stringify(g[k]) === JSON.stringify(v[k]);
       if (!same('table')) table(g, g.table.up, look, true);
-      if (!same('cake') || !same('candles') || !same('inscription')) { const ck = cake(g, look, glow, true, now); if (ck) candles(g, ck, now, look, true); else if (g.cake.stage === 0 && v.cake.stage > 0) { const q = P([0, .6, 0]); if (q) { c.strokeStyle = 'rgba(56,214,224,.8)'; c.beginPath(); c.moveTo(q[0] - 12, q[1] - 12); c.lineTo(q[0] + 12, q[1] + 12); c.moveTo(q[0] + 12, q[1] - 12); c.lineTo(q[0] - 12, q[1] + 12); c.stroke(); } } }
+      if (!same('cake') || !same('inscription')) { const ck = cake(g, look, glow, true, now); if (!ck && g.cake.stage === 0 && v.cake.stage > 0) { if (g.cake.stage === 0 && v.cake.stage > 0) { const q = P([0, .6, 0]); if (q) { c.strokeStyle = 'rgba(56,214,224,.8)'; c.beginPath(); c.moveTo(q[0] - 12, q[1] - 12); c.lineTo(q[0] + 12, q[1] + 12); c.moveTo(q[0] + 12, q[1] - 12); c.lineTo(q[0] - 12, q[1] + 12); c.stroke(); } } }
+      if (!same('candles')) { const ck = cake(g, look, glow, 'geom', now); if (ck) candles(g, ck, now, look, true); }
       g.people.forEach(p => { const o = v.people.find(q => q.id === p.id); if (!o || JSON.stringify(o) !== JSON.stringify(p)) figure(p, now, 0, g, look, glow, true, false); });
       g.props.forEach(p => { const o = v.props.find(q => q.id === p.id); if (!o || JSON.stringify(o) !== JSON.stringify(p)) prop(p, look, true, false); });
-      if (!same('camera') || !same('scene') || !same('time')) { c.fillStyle = 'rgba(56,214,224,.9)'; c.font = '600 11px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText('PROPOSED: ' + O.label(pr.op, pr.args).toUpperCase(), W / 2, 20); } }
+      if (!same('camera') || !same('scene') || !same('time')) { c.fillStyle = 'rgba(56,214,224,.9)'; c.font = '600 11px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText('PROPOSED: ' + O.label(pr.op, pr.args).toUpperCase(), W / 2, H - 26); } }
     resize(); return { frame, resize, canvas: cv };
   }
   root.ORB_STUB_SCENE = { create };

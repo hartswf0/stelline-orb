@@ -12,10 +12,10 @@
   :root { --bg: #050605; --ink: #e6ebe9; --dim: #8b9693; --line: #252b29; --hand: #e0a15a; --agent: #38d6e0; --red: #e0332b; --devH: clamp(250px, 43dvh, 380px); }
   html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); overflow: hidden; overscroll-behavior: none; -webkit-user-select: none; user-select: none; font: 12px/1.4 "IBM Plex Mono", ui-monospace, Menlo, monospace; }
   .app { position: fixed; inset: 0; display: flex; flex-direction: column; height: 100dvh; }
-  #view { position: relative; flex: 1 1 auto; min-height: 120px; background: #000; touch-action: none; overflow: hidden; }
-  #strip { flex: 0 0 34px; position: relative; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #0a0c0b; touch-action: none; cursor: ew-resize; }
+  #view { position: relative; flex: 1 1 auto; min-height: 0; background: #000; touch-action: none; overflow: hidden; }
+  #strip { flex: 0 0 34px; height: 34px; min-height: 0; overflow: hidden; position: relative; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #0a0c0b; touch-action: none; cursor: ew-resize; }
   #strip canvas { width: 100%; height: 100%; display: block; }
-  #dev { flex: 0 0 var(--devH); display: block; width: 100%; height: var(--devH); touch-action: none; background: radial-gradient(120% 140% at 50% 0%, #1b1e1d 0%, #0b0c0c 55%, #050605 100%); }
+  #dev { flex: 0 0 var(--devH); min-height: 0; display: block; width: 100%; height: var(--devH); touch-action: none; background: radial-gradient(120% 140% at 50% 0%, #1b1e1d 0%, #0b0c0c 55%, #050605 100%); }
   .tb { position: absolute; top: 8px; z-index: 3; display: flex; gap: 6px; }
   .tb.r { right: 8px; } .tb.l { left: 8px; }
   button.x { font: 600 11px "IBM Plex Mono", monospace; letter-spacing: .06em; color: var(--ink); background: rgba(18,21,20,.82); border: 1px solid #2f3633; border-radius: 4px; padding: 6px 10px; cursor: pointer; min-height: 30px; }
