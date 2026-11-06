@@ -4,71 +4,82 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Party</title>
-<meta name="description" content="Each boy from the orphanage flashback, cut out of the film at his best moments, with a birthday of his own.">
+<meta name="description" content="Each boy from the orphanage flashback, cut out of the film at his best moments, standing behind a 3D birthday cake built for him.">
 <style>
   html,body{margin:0;height:100%;background:#000;color:#fff;overflow:hidden;font:400 11px/1.3 "Barlow Semi Condensed","DIN Alternate","Arial Narrow",Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;-webkit-user-select:none;user-select:none}
-  #stage{position:fixed;left:0;right:0;top:0;bottom:104px;display:flex;align-items:center;justify-content:center}
-  canvas#cv{max-width:100%;max-height:100%;aspect-ratio:16/9;width:100%;background:#000}
-  #boys{position:fixed;left:0;right:0;bottom:0;height:104px;display:flex;gap:10px;align-items:flex-end;justify-content:center;padding:0 14px 8px;overflow-x:auto}
+  #gl{position:fixed;left:0;top:0;width:100%;height:calc(100% - 104px);display:block}
+  #ret,#menu{display:none}
+  #boys{position:fixed;left:0;right:0;bottom:0;height:104px;display:flex;gap:10px;align-items:flex-end;justify-content:center;padding:0 14px 8px;overflow-x:auto;background:#000}
   .b{flex:0 0 auto;width:78px;height:92px;border:1px solid rgba(255,255,255,.28);background:#000 no-repeat;position:relative;padding:0;color:inherit;cursor:pointer}
   .b[aria-pressed=true]{border:2px solid #fff}
   .b span{position:absolute;left:0;right:0;bottom:2px;text-align:center;font-size:10px;text-shadow:0 0 4px #000,0 0 4px #000}
-  #cakes{position:fixed;right:12px;top:12px;display:flex;flex-direction:column;gap:6px;max-height:calc(100% - 130px);overflow-y:auto}
-  .c{width:64px;height:48px;border:1px solid rgba(255,255,255,.25);background:#000 no-repeat;padding:0;cursor:pointer}
-  .c[aria-pressed=true]{border:2px solid #fff}
   #cap{position:fixed;left:16px;top:12px;opacity:.8;pointer-events:none}
-  @media(max-width:700px){.c{width:46px;height:34px}.b{width:62px;height:76px}#boys{height:90px}#stage{bottom:90px}}
+  @media(max-width:700px){.b{width:62px;height:76px}#boys{height:90px}#gl{height:calc(100% - 90px)}}
 </style>
 </head>
 <body>
-<div id="stage"><canvas id="cv" width="1280" height="720"></canvas></div>
+<canvas id="gl"></canvas>
 <div id="cap"></div>
-<div id="cakes" aria-label="Cakes"></div>
+<div id="ret"><svg id="rsvg"><path id="rBand"/><path id="rWedge"/><g id="rTicks"></g><g id="rNotch"></g><rect id="rMark"/><path id="rInner"/><path id="rInner2"/><line id="rN1"/><line id="rN2"/><text id="rL1"></text><text id="rL2"></text><g id="rCode"></g></svg></div>
+<div id="menu"></div>
 <div id="boys" role="tablist" aria-label="Boys"></div>
+<script src="assets/three.min.js"></script>
+<script src="assets/stage/glyphs.js"></script>
+<script src="assets/stage/stage.js"></script>
 <script>
 (function () {
   'use strict';
-  var cv = document.getElementById('cv'), g = cv.getContext('2d'), W = 1280, H = 720, clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
+  var ST = window.STAGE, T = ST.T, N = ST.nodes, C = ST.C, clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
   var BOYS = [['hair', 'The boy at the furnace'], ['tall', 'The tall one'], ['small', 'The small one'], ['left', 'Left of the line'], ['right', 'Right of the line'], ['dark', 'At the back']];
-  var clips = {}, imgs = {}, cakes = [], cakeImg = {}, boy = 'hair', cakeIx = 0, T0 = performance.now(), ready = 0, need = 0;
-  function ld(src, cb) { var i = new Image(); need++; i.onload = function () { ready++; cb && cb(); }; i.src = src; return i; }
-  Promise.all([fetch('assets/boys/boys.json').then(function (r) { return r.json(); }), fetch('assets/bench/gallery.json').then(function (r) { return r.json(); })]).then(function (r) {
-    r[0].clips.forEach(function (c) { (clips[c.boy] = clips[c.boy] || []).push(c); imgs[c.id] = ld('assets/boys/' + c.id + '.webp'); });
-    cakes = r[1].items.filter(function (i) { return i.kind === 'cake'; }); cakes.forEach(function (c) { cakeImg[c.id] = ld('assets/bench/' + c.id + '.webp'); });
-    ['table', 'kids'].forEach(function (n) { imgs[n] = ld('assets/bench/' + n + '.webp'); }); ui(); requestAnimationFrame(frame);
+  // a cake of his own: how many tiers, how it is iced, how many candles
+  var CAKE = {
+    hair:  { tiers: 1, r: [1.45], h: [.8],  drip: .65, gloss: .35, shells: 40, candles: 5, ring: .55 },
+    tall:  { tiers: 2, r: [1.6, 1.05], h: [.7, .6], drip: .45, gloss: .55, shells: 48, candles: 8, ring: .6 },
+    small: { tiers: 1, r: [1.2], h: [.75], drip: .9, gloss: .25, shells: 34, candles: 3, ring: .5 },
+    left:  { tiers: 1, r: [1.7], h: [.6], drip: .3, gloss: .5, shells: 56, candles: 9, ring: .7 },
+    right: { tiers: 2, r: [1.75, 1.1], h: [.6, .55], drip: .7, gloss: .4, shells: 50, candles: 6, ring: .55 },
+    dark:  { tiers: 1, r: [1.1], h: [1.05], drip: .55, gloss: .6, shells: 38, candles: 7, ring: .5 }
+  };
+  var clips = {}, imgs = {}, boy = (location.hash || '').slice(1), T0 = performance.now(), building = 0;
+  if (!BOYS.some(function (b) { return b[0] === boy; })) boy = 'hair';
+  /* the boy: a cut-out card in the room, played from his clips, lit by the flames */
+  var bc = document.createElement('canvas'), bg = bc.getContext('2d'), btex = new T.CanvasTexture(bc); btex.encoding = T.sRGBEncoding;
+  var bmat = new T.MeshBasicMaterial({ map: btex, alphaTest: .4, side: T.DoubleSide, color: 0x181008 }), bmesh = new T.Mesh(new T.PlaneGeometry(1, 1), bmat); ST.SETA.add(bmesh); bmesh.visible = false;
+  Promise.all([fetch('assets/boys/boys.json').then(function (r) { return r.json(); })]).then(function (r) {
+    var need = 0, done = 0; r[0].clips.forEach(function (c) { (clips[c.boy] = clips[c.boy] || []).push(c); need++; var i = new Image(); i.onload = function () { if (++done === need) start(); }; i.src = 'assets/boys/' + c.id + '.webp'; imgs[c.id] = i; });
   });
   function ui() {
-    var bd = document.getElementById('boys'); BOYS.forEach(function (b, i) { var c = clips[b[0]]; if (!c) return; var cc = c.reduce(function (a, x) { return x.n > a.n ? x : a; }, c[0]), k = Math.floor(cc.n / 2);
-      var el = document.createElement('button'); el.className = 'b'; el.setAttribute('aria-pressed', b[0] === boy); el.setAttribute('aria-label', b[1]);
-      el.style.backgroundImage = 'url(assets/boys/' + cc.id + '.webp)'; var sc = 92 / cc.h; el.style.backgroundSize = (cc.w * cc.cols * sc) + 'px ' + (cc.h * Math.ceil(cc.n / cc.cols) * sc) + 'px'; el.style.backgroundPosition = (-(k % cc.cols) * cc.w * sc + (78 - cc.w * sc) / 2) + 'px ' + (-Math.floor(k / cc.cols) * cc.h * sc) + 'px'; el.style.backgroundOrigin = 'border-box';
+    var bd = document.getElementById('boys'); BOYS.forEach(function (b) { var c = clips[b[0]]; var cc = c.reduce(function (a, x) { return x.n > a.n ? x : a; }, c[0]), k = Math.floor(cc.n / 2);
+      var el = document.createElement('button'); el.className = 'b'; el.setAttribute('aria-pressed', b[0] === boy); el.setAttribute('aria-label', b[1]); el.dataset.boy = b[0];
+      el.style.backgroundImage = 'url(assets/boys/' + cc.id + '.webp)'; var sc = 92 / cc.h; el.style.backgroundSize = (cc.w * cc.cols * sc) + 'px ' + (cc.h * Math.ceil(cc.n / cc.cols) * sc) + 'px'; el.style.backgroundPosition = (-(k % cc.cols) * cc.w * sc + (78 - cc.w * sc) / 2) + 'px ' + (-Math.floor(k / cc.cols) * cc.h * sc) + 'px';
       el.innerHTML = '<span>' + b[1].replace('The ', '') + '</span>'; el.onclick = function () { pick(b[0]); }; bd.appendChild(el); });
-    var cd = document.getElementById('cakes'); cakes.forEach(function (c, i) { var el = document.createElement('button'); el.className = 'c'; el.setAttribute('aria-pressed', i === cakeIx); el.setAttribute('aria-label', c.title); el.style.backgroundImage = 'url(assets/bench/' + c.id + '.webp)'; el.style.backgroundSize = (c.n * 100) + '% 100%'; el.style.backgroundPosition = '0 0'; el.onclick = function () { cakeIx = i; mark(); }; cd.appendChild(el); });
-    mark();
   }
-  function mark() { [].forEach.call(document.querySelectorAll('.b'), function (e, i) { e.setAttribute('aria-pressed', BOYS[i][0] === boy); }); [].forEach.call(document.querySelectorAll('.c'), function (e, i) { e.setAttribute('aria-pressed', i === cakeIx); }); document.getElementById('cap').textContent = BOYS.filter(function (b) { return b[0] === boy; })[0][1]; try { location.replace('#' + boy); } catch (e) { } }
-  function pick(b) { boy = b; cakeIx = BOYS.findIndex(function (x) { return x[0] === b; }) % cakes.length; mark(); T0 = performance.now(); }
+  function mark() { [].forEach.call(document.querySelectorAll('.b'), function (e) { e.setAttribute('aria-pressed', e.dataset.boy === boy); }); document.getElementById('cap').textContent = BOYS.filter(function (b) { return b[0] === boy; })[0][1]; try { location.replace('#' + boy); } catch (e) { } }
+  /* the party builds itself: table, tiers, icing, shells, candles, then the flames catch */
+  function clear() { var g = 0; while (ST.S.history.length && g++ < 40) ST.undo(); }
+  function build() {
+    var my = ++building; clear(); var cfg = CAKE[boy]; N.tier1.p = { r: cfg.r[0], h: cfg.h[0] }; if (cfg.tiers > 1) N.tier2.p = { r: cfg.r[1], h: cfg.h[1] };
+    N.icing.p = { t: .06, drip: cfg.drip, gloss: cfg.gloss }; N.border.p = { size: .11, count: cfg.shells }; N.candles.p = { n: 0, h: .62, ring: cfg.ring, rot: 0 };
+    var steps = ['table', 'tier']; if (cfg.tiers > 1) steps.push('tier'); steps.push('icing', 'border'); for (var i = 0; i < cfg.candles; i++) steps.push('candle'); steps.push('flame');
+    steps.forEach(function (st, i) { setTimeout(function () { if (building === my) ST.place(st); }, 250 + i * (st === 'candle' ? 150 : 520)); });
+    // low, level with the candles, the way the film sees the table; focus on his face behind
+    Object.assign(C, { yaw: 0, pitch: 7, roll: 0, D: 9.4, ty: 1.6, tx: 0, tz: 0, focal: 42, stop: 2.8 }); C.sy = 0; C.sp = 7;
+  }
+  function pick(b) { boy = b; mark(); T0 = performance.now(); build(); }
   addEventListener('keydown', function (e) { var i = BOYS.findIndex(function (b) { return b[0] === boy; }); if (e.key === 'ArrowRight') pick(BOYS[(i + 1) % BOYS.length][0]); else if (e.key === 'ArrowLeft') pick(BOYS[(i + BOYS.length - 1) % BOYS.length][0]); });
-  var hs = (location.hash || '').slice(1); if (BOYS.some(function (b) { return b[0] === hs; })) boy = hs;
-  var off = document.createElement('canvas'); off.width = W; off.height = H; var ox = off.getContext('2d');
-  function flame(h) { return .5 + .28 * Math.sin(h * 13.1) + .14 * Math.sin(h * 7.3 + 1) + .08 * Math.sin(h * 29); }
-  function frame(now) {
-    requestAnimationFrame(frame); if (ready < need) return; var h = (now - T0) / 1000, fl = flame(h);
-    g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
-    g.save(); g.strokeStyle = 'rgba(255,255,255,.34)'; g.lineWidth = 2; g.beginPath(); g.ellipse(640, 640, 760, 360, 0, Math.PI * 1.12, Math.PI * 1.88); g.stroke(); g.restore();
-    var t = imgs.table; g.drawImage(t, 326, 472);
-    // the boy: his best moments, one after another, played back and forth so the cuts never show
-    var list = clips[boy] || [], total = list.reduce(function (a, c) { return a + c.n / c.fps; }, 0), tt = (h % (total * 2)); if (tt > total) tt = total * 2 - tt;
+  var cur = null;
+  window.__frameHook = function (dt, t) {
+    var list = clips[boy]; if (!list) return; var h = (performance.now() - T0) / 1000, total = list.reduce(function (a, c) { return a + c.n / c.fps; }, 0), tt = h % (total * 2); if (tt > total) tt = total * 2 - tt;
     var ci = 0, acc = 0; for (; ci < list.length - 1; ci++) { if (tt < acc + list[ci].n / list[ci].fps) break; acc += list[ci].n / list[ci].fps; }
-    var c = list[ci], k = clamp(Math.floor((tt - acc) * c.fps), 0, c.n - 1), im = imgs[c.id];
-    if (im) { var sc = 400 / c.h, dw = c.w * sc, dh = c.h * sc, bx = 650 - dw / 2, by = 560 - dh; ox.clearRect(0, 0, W, H);
-      ox.drawImage(im, (k % c.cols) * c.w, Math.floor(k / c.cols) * c.h, c.w, c.h, bx, by, dw, dh);
-      ox.globalCompositeOperation = 'source-atop'; var gr = ox.createRadialGradient(650, 520, 10, 650, 520, 380); gr.addColorStop(0, 'rgba(255,170,70,' + (.42 + .2 * fl) + ')'); gr.addColorStop(1, 'rgba(255,150,50,.06)'); ox.fillStyle = gr; ox.fillRect(0, 0, W, H);
-      ox.fillStyle = 'rgba(30,18,6,.28)'; ox.fillRect(0, 0, W, H); ox.globalCompositeOperation = 'source-over'; g.drawImage(off, 0, 0); }
-    var gl = g.createRadialGradient(650, 540, 10, 650, 540, 380); gl.addColorStop(0, 'rgba(255,160,60,' + (.22 + .12 * fl) + ')'); gl.addColorStop(1, 'rgba(255,160,60,0)'); g.save(); g.globalCompositeOperation = 'screen'; g.fillStyle = gl; g.fillRect(0, 0, W, H); g.restore();
-    g.save(); g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.ellipse(650, 560, 130, 22, 0, 0, 7); g.fill(); g.restore();
-    var ck = cakes[cakeIx], ci2 = cakeImg[ck.id]; if (ci2 && ci2.naturalWidth) { var fw = ci2.naturalWidth / ck.n, fh = ci2.naturalHeight, w = 230, hh = w * fh / fw, f = ((h / ck.period) % 1) * ck.n, a = Math.floor(f) % ck.n, b = (a + 1) % ck.n, m = f - Math.floor(f);
-      g.drawImage(ci2, a * fw, 0, fw, fh, 650 - w / 2, 578 - hh, w, hh); g.save(); g.globalAlpha = m; g.drawImage(ci2, b * fw, 0, fw, fh, 650 - w / 2, 578 - hh, w, hh); g.restore(); }
-  }
+    var c = list[ci], k = clamp(Math.floor((tt - acc) * c.fps), 0, c.n - 1), im = imgs[c.id]; if (!im || !im.naturalWidth) return;
+    if (bc.width !== c.w || bc.height !== c.h) { bc.width = c.w; bc.height = c.h; }
+    bg.clearRect(0, 0, c.w, c.h); bg.drawImage(im, (k % c.cols) * c.w, Math.floor(k / c.cols) * c.h, c.w, c.h, 0, 0, c.w, c.h); btex.needsUpdate = true;
+    var hh = 3.1, ww = hh * c.w / c.h; bmesh.scale.set(ww, hh, 1); bmesh.position.set(0, .62 + hh / 2, -1.7); bmesh.visible = true;
+    // flame light on his face: dark until the candles are lit
+    var lit = N.flames.exists ? (N.flames.lit || 0) : 0, ki = ST.keyLight.intensity, f = .06 + clamp(ki / 5, 0, 1.2) * .95; bmat.color.setRGB(f * 1.0, f * .8, f * .55);
+    ST.C.foff = 1.7;
+  };
+  function start() { ui(); mark(); ST.start(); build(); document.getElementById('gl').style.opacity = 1; }
 })();
 </script>
 </body>

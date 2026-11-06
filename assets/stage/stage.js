@@ -161,7 +161,7 @@
       const cyl = new T.Mesh(new T.CylinderGeometry(.04, .04, p.h, 14), M.candle); cyl.position.y = p.h / 2; cyl.castShadow = true; c.add(cyl);
       const wick = new T.Mesh(new T.CylinderGeometry(.006, .006, .06, 5), M.wick); wick.position.y = p.h + .03; c.add(wick);
       const fl = new T.Sprite(new T.SpriteMaterial({ map: flameTex, transparent: true, blending: T.AdditiveBlending, depthWrite: false, opacity: nodes.flames.exists ? 1 : 0 })); fl.scale.set(.22, .44, 1); fl.position.y = p.h + .22; c.add(fl); fl.userData.k = k;
-      const gl = new T.Sprite(new T.SpriteMaterial({ map: glowTex, transparent: true, blending: T.AdditiveBlending, depthWrite: false, opacity: nodes.flames.exists ? .9 : 0 })); gl.scale.set(1.3, 1.3, 1); gl.position.y = p.h + .2; c.add(gl);
+      const gl = new T.Sprite(new T.SpriteMaterial({ map: glowTex, transparent: true, blending: T.AdditiveBlending, depthWrite: false, opacity: nodes.flames.exists ? .9 : 0 })); gl.scale.set(.8, .8, 1); gl.position.y = p.h + .2; c.add(gl);
       flameSprites.push({ fl, gl, c }); g.add(c);
     }
     n.top = ti.y + p.h + .2;
@@ -452,6 +452,7 @@
     placeReticle();
     if (dirty || performance.now() - lastUI > 400) { dirty = false; lastUI = performance.now(); drawMenu(); sendUI(); }
     flushFx();
+    if (window.__frameHook) window.__frameHook(dt, tAcc);
   }
   /* ------------------------------------------------------------------ link */
   let lastSentUI = '';
@@ -468,6 +469,6 @@
     lastSeqApplied = m.q; if (m.k !== 'imu' && window.PAIR) PAIR.send({ k: 'ack', q: m.q, t: m.t });
     document.body.classList.add('paired');
   }
-  window.STAGE = { ring, key, spread, imu, shake, onmsg, ui, nodes, S, C, WR, place, undo, focusMarks, start() { frame(); } };
+  window.STAGE = { ring, key, spread, imu, shake, onmsg, ui, nodes, S, C, WR, place, undo, focusMarks, scene, SETA, cam, keyLight, post, T, tex, card, topInfo, start() { frame(); } };
   nodes.birthday.exists = true; afterSel();
 })();
