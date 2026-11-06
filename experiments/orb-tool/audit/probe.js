@@ -4,7 +4,8 @@
 const { chromium } = require('playwright');
 const fs = require('fs');
 const [, , URL0, NAME, W, H, OUT, MAXC] = process.argv;
-const VW = +W, VH = +H, MAX = +(MAXC || 60);
+const VW = +W, VH = +H, MAX = +(MAXC || 60); const T_START = Date.now(), BUDGET_MS = +(process.env.BUDGET_MS || 480000); const over = () => Date.now() - T_START > BUDGET_MS;
+let R_SAVE = null; const save = () => { if (R_SAVE) try { fs.writeFileSync(OUT + '/' + NAME + '-' + VW + 'x' + VH + '.json', JSON.stringify(R_SAVE, null, 1)); } catch (e) { } };
 
 const INIT = () => {
   window.__audit = { audioStarts: 0, mediaPlays: 0, msgListeners: 0, keyListeners: 0, rafs: 0 };
@@ -69,7 +70,7 @@ const LEGIBLE = () => {
   await page.waitForFunction(() => document.readyState === 'complete', null, { timeout: 90000 }).catch(e => errors.push('NOT COMPLETE after 90 s'));
   const loadMs = Date.now() - t0;
   await page.waitForTimeout(3000);
-  const R = { url: URL0, name: NAME, viewport: [VW, VH], loadMs };
+  const R = { url: URL0, name: NAME, viewport: [VW, VH], loadMs, partial: true }; R_SAVE = R;
   R.scroll = await page.evaluate(() => ({ docH: document.documentElement.scrollHeight, docW: document.documentElement.scrollWidth, vh: innerHeight, vw: innerWidth, overflowY: getComputedStyle(document.body).overflowY }));
   R.pageScrolls = R.scroll.docH > R.scroll.vh + 2; R.hScroll = R.scroll.docW > R.scroll.vw + 2;
   R.view = process.env.VIEWSEL ? await page.evaluate(sel => { const el = document.querySelector(sel); if (!el) return null; const r = el.getBoundingClientRect(); return { tag: el.tagName.toLowerCase(), id: el.id, x: Math.max(0, r.left), y: Math.max(0, r.top), w: Math.min(innerWidth, r.right) - Math.max(0, r.left), h: Math.min(innerHeight, r.bottom) - Math.max(0, r.top), sel }; }, process.env.VIEWSEL) : null;
@@ -98,7 +99,8 @@ const LEGIBLE = () => {
   const audit = async () => page.evaluate(() => Object.assign({}, window.__audit)).catch(() => ({}));
   const results = [];
   const startURL = page.url();
-  for (const c of controls.slice(0, MAX)) {
+  R.results = results; R.errors = errors;
+  for (const c of controls.slice(0, MAX)) { if (over()) { R.budgetHit = 'controls'; break; }
     const res = { id: c.id, tag: c.tag, type: c.type, label: c.label, box: [c.x, c.y, c.w, c.h], inView: c.inView, font: c.font };
     if (c.tag === 'a' && c.href && !/^#|^javascript:/.test(c.href)) { res.action = 'link (not followed)'; res.href = c.href; results.push(res); continue; }
     const a0 = await audit(); const before = await shot(); const errN = errors.length; const tA = Date.now();
@@ -124,18 +126,19 @@ const LEGIBLE = () => {
     // the page may have navigated or opened a modal; return to the page if so
     if (page.url() !== startURL && page.url().split('#')[0] !== startURL.split('#')[0]) { res.navigatedTo = page.url(); await page.goto(startURL, { waitUntil: 'commit' }).catch(() => { }); await page.waitForTimeout(1500); await page.evaluate(ENUM); }
     await page.keyboard.press('Escape').catch(() => { });
-    results.push(res);
+    results.push(res); save();
   }
   // canvas-drawn devices: a grid of taps and vertical drags over every large canvas that is not the view
   const canv = await page.evaluate(V => [...document.querySelectorAll('canvas')].map(c => { const r = c.getBoundingClientRect(); return { id: c.id, x: r.left, y: r.top, w: r.width, h: r.height }; })
     .filter(c => c.w * c.h > 8000 && c.y < innerHeight && !(Math.abs(c.x - V.x) < 2 && Math.abs(c.y - V.y) < 2 && Math.abs(c.w - V.w) < 2)), V);
-  const grid = [];
+  const grid = []; R.canvasGrid = grid;
   const GX = +(process.env.GX || 4), GY = +(process.env.GY || 3);
   for (const cv of canv) {
     const dclip = { x: Math.round(cv.x), y: Math.round(Math.max(0, cv.y)), width: Math.round(cv.w), height: Math.round(Math.min(cv.h, VH - Math.max(0, cv.y))) };
     const dshot = () => page.screenshot({ clip: dclip, type: 'png' }).catch(() => null);
     for (let gy = 0; gy < GY; gy++) for (let gx = 0; gx < GX; gx++) {
       const px = cv.x + cv.w * (gx + .5) / GX, py = Math.max(0, cv.y) + dclip.height * (gy + .5) / GY;
+      if (over()) { R.budgetHit = 'grid'; break; }
       for (const kind of (process.env.KINDS || 'tap,dragUp,dragLeft').split(',')) {
         const before = await shot(), dB = await dshot(); const a0 = await audit(); const errN = errors.length; const tA = Date.now();
         await page.mouse.move(px, py); await page.mouse.down();
@@ -145,7 +148,7 @@ const LEGIBLE = () => {
         const d100 = await diff(before, s100), d1 = await diff(before, s1), dd = await diff(dB, dA); const a1 = await audit();
         const r = { canvas: cv.id, gx, gy, px: Math.round(px), py: Math.round(py), kind, firstShotMs: t100, d100, d1s: d1, deviceDiff: dd, sound: (a1.audioStarts || 0) - (a0.audioStarts || 0), newErrors: errors.slice(errN) };
         r.visible100 = (d100 ? d100.changedFrac : 0) > Math.max(0.01, idle100 * 1.5 + 0.005); r.visible1s = (d1 ? d1.changedFrac : 0) > Math.max(0.01, idle1s * 1.5 + 0.005); r.deviceChanged = (dd ? dd.changedFrac : 0) > 0.01;
-        grid.push(r);
+        grid.push(r); save();
         if (page.url().split('#')[0] !== startURL.split('#')[0]) { r.navigatedTo = page.url(); await page.goto(startURL, { waitUntil: 'commit' }).catch(() => { }); await page.waitForTimeout(1500); }
       }
     }
@@ -158,7 +161,7 @@ const LEGIBLE = () => {
   R.noAuthority = results.filter(r => r.d100 && !r.authority).map(r => r.id + ' ' + r.tag + ' "' + r.label + '"');
   R.authority100 = results.filter(r => r.visible100).length; R.authority1s = results.filter(r => r.authority).length;
   R.errors = errors.slice(0, 40); R.errorCount = errors.length;
-  R.finalAudit = await audit();
+  R.finalAudit = await audit(); R.partial = false; R.errors = errors.slice(0, 40);
   fs.writeFileSync(OUT + '/' + NAME + '-' + VW + 'x' + VH + '.json', JSON.stringify(R, null, 1));
   console.log(NAME, VW + 'x' + VH, 'controls', R.controlCount, 'tested', R.tested, 'auth100', R.authority100, 'auth1s', R.authority1s, 'scroll', R.pageScrolls, 'errors', R.errorCount, 'idle', JSON.stringify(R.idleMax), 'view', R.view && (R.view.tag + '#' + R.view.id + ' ' + Math.round(R.view.w) + 'x' + Math.round(R.view.h)), 'grid', JSON.stringify(R.gridSummary));
   await browser.close();

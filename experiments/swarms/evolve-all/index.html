@@ -143,7 +143,7 @@ function hold() { const p = P[S.part]; sound({ k: 'hold' }); S.sinceHold = 0; p.
   // keep: the best among the variants shown so far
   // keep: the variant the player has highlighted (or the parent, the last stop of the highlight). The machine does not choose; the hint only informs.
   if (p.brood) { const b = p.brood, n = b.shown, hi = Math.min(b.hi, n), sc = b.kids.slice(0, n).map(k => k.score), fb = n ? sc.indexOf(Math.max(...sc)) : -1; p.metrics.gens++; p.gen++;
-    if (hi < n) { const k = b.kids[hi]; p.metrics.accepted++; p.G = k.G; p.e = k.e; p.flash = 1; sound({ k: 'flash' }); rebuild(p, 1); reattachDependents(p.name); if (hi !== fb) p.metrics.offBest = (p.metrics.offBest || 0) + 1; }
+    if (hi < n) { const k = b.kids[hi]; p.metrics.accepted++; p.G = k.G; p.e = k.e; p.flash = 1; sound({ k: 'flash' }); rebuild(p, 1); if (LOOKH && LOOK.flash) try { LOOK.flash(p.obj, 1); } catch (e) { } reattachDependents(p.name); if (hi !== fb) p.metrics.offBest = (p.metrics.offBest || 0) + 1; }
     TR.choices.push({ t: +NOW.toFixed(2), part: p.name, gen: p.gen, stage: String(p.mod.stages[Math.min(p.stage, p.mod.stages.length - 1)][0]), shown: n, of: b.kids.length, chose: hi < n ? hi : 'parent', fitnessBest: fb, chosenScore: +(hi < n ? sc[hi] : b.parentScore).toFixed(4), bestScore: fb >= 0 ? +sc[fb].toFixed(4) : null, parentScore: +b.parentScore.toFixed(4), notTheBest: hi < n && hi !== fb, by: STYLE || 'person' });
     TR.events.push([+NOW.toFixed(2), p.name, 'gen', p.gen, +scoreNow(p).toFixed(4), hi < n ? hi : -1, n, b.kids.length]); if (HOLOREAD) try { HOLOREAD.type(1); } catch (e) { }
     clearKids(p); p.brood = null; const ns = BREED.advance(p.mod, p.e, p.stage);
@@ -280,7 +280,7 @@ function scriptTick(dt) { if (!STYLE || S.ended || S.off) return; if (act) { act
   else if (a.kind === 'turn') { const ring = ringOf(a.role); if (a.role === 'BIAS') p.biasStage = p.stage; const g = PLAYER.gestures(PLAYER.STYLES[STYLE], ring.ang, a.goal, UI.detent, pg); if (!g.list.length) return; act = startGesture(ring, g.list.slice()); } }
 function startGesture(ring, queue) { const deg = queue.shift(); gestureStart(ring); return { ring, deg, from: ring.ang, u: 0, dur: PLAYER.STYLES[STYLE].turnTime, queue }; }
 /* =============================================================== EVERY FRAME */
-function resize() { const r = viewEl.getBoundingClientRect(); R.setSize(r.width, r.height, false); cam.aspect = r.width / r.height; cam.updateProjectionMatrix(); layoutDev(); }
+function resize() { const r = viewEl.getBoundingClientRect(); R.setSize(r.width, r.height, false); if (LOOKH && LOOKH.setSize) try { LOOKH.setSize(r.width, r.height); } catch (e) { } cam.aspect = r.width / r.height; cam.updateProjectionMatrix(); layoutDev(); }
 addEventListener('resize', resize);
 const ARC = (() => { const c = document.createElement('canvas'); c.width = 256; c.height = 384; const t = new T.CanvasTexture(c); const s = new T.Sprite(new T.SpriteMaterial({ map: t, transparent: true, depthWrite: false, depthTest: false, opacity: 0 })); s.renderOrder = 5; scene.add(s); return { c, x: c.getContext('2d'), t, s }; })();
 const MARKS = [-23, -19, -9, -1, 6]; let arcBlink = 0;
@@ -319,26 +319,32 @@ function step(dt) { NOW += dt; S.since += dt; S.sinceHold += dt; S.sinceSelect =
   // switching on (start) and off (long HOLD, or after the blow): round spots
   const on = clamp(NOW / 1.2, 0, 1); if (S.off) S.dark = clamp((NOW - S.off) / 1.0, 0, 1); else if (S.ended && NOW - S.endAt > 1.4) { S.off = NOW; sound({ k: 'off' }); }
   SPOTS.forEach((s, i) => { const k = S.off ? clamp((NOW - S.off) * 2 - i * .08, 0, 1) * (1 - clamp((NOW - S.off - .8) * 1.5, 0, 1)) : clamp(1 - Math.abs(on * 2 - 1 - i * .02), 0, 1) * (1 - on); s.m.material.opacity = k * .7; s.m.position.set(camT.x + s.x * camD, s.y * camD * .5 + camT.y * .5, camT.z + s.z * camD * .5); s.m.scale.setScalar(s.s * camD); });
+  if (LOOKH) { [key, hemi, rim, candleLight].forEach(l => l.intensity = 0); LOOKT.copy(P.cake.holder.position).add(new T.Vector3(0, .06, 0)); try { LOOKH.candlesLit && LOOKH.candlesLit(lit / 7); } catch (e) { } }
   const LP = lightParams(); R.toneMappingExposure = (LP && LP.exposure ? clamp(LP.exposure, .3, 2.5) : .9) * on * (1 - S.dark) + .001;
-  if (LP) { if (LP.candleRGB) candleLight.color.setRGB(LP.candleRGB[0], LP.candleRGB[1], LP.candleRGB[2]); if (LP.candleRange) candleLight.distance = LP.candleRange; if (LP.candleDecay) candleLight.decay = LP.candleDecay; if (LP.candleIntensity) candleLight.intensity *= clamp(LP.candleIntensity, 0, 4);
+  if (LOOKH && LOOKH.set) { const ex = +(1.1 * (LP && LP.exposure ? clamp(LP.exposure, .3, 2.5) : 1) * on * (1 - S.dark) + .001).toFixed(2); if (ex !== S.lookExp) { S.lookExp = ex; try { LOOKH.set({ exposure: ex }); } catch (e) { } } }   // LOOK grades without tone mapping: switching on and off goes through its exposure
+  if (LP && !LOOKH) { if (LP.candleRGB) candleLight.color.setRGB(LP.candleRGB[0], LP.candleRGB[1], LP.candleRGB[2]); if (LP.candleRange) candleLight.distance = LP.candleRange; if (LP.candleDecay) candleLight.decay = LP.candleDecay; if (LP.candleIntensity) candleLight.intensity *= clamp(LP.candleIntensity, 0, 4);
     if (LP.ambient != null) hemi.intensity = clamp(LP.ambient, 0, 1) * (1 - S.dark) * (lit ? .6 : 1); if (LP.ambientRGB) hemi.color.setRGB(LP.ambientRGB[0], LP.ambientRGB[1], LP.ambientRGB[2]); }
   capEl.textContent = S.caption || (S.phase === 'uichoice' ? 'THE INTERFACE EVOLVES — SELECT A UI, HOLD TO KEEP IT' : '');
   tagEl.innerHTML = `${LABEL[S.part]} ${P[S.part].real ? '' : '(STAND-IN)'} · GEN ${p.gen}<br>UI ${UIC.id} · ${UI.rate}/S · ${UI.lambda} ${UI.layout}${STYLE ? '<br>PLAYED BY THE ' + STYLE.toUpperCase() + ' SCRIPT' : ''}`;
   lapseEl.textContent = S.lapse > 1 ? 'TIME-LAPSE x' + S.lapse : ''; }
 let last = performance.now();
-function frame(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; step(dt); R.render(scene, cam); drawDev(); requestAnimationFrame(frame); }
+function render(dt) { if (LOOKH) { try { LOOKH.render(dt || 1 / 30); return; } catch (e) { console.error('LOOK render', e); LOOKH = null; [key, hemi, rim].forEach(l => l.userData.off = false); } } R.render(scene, cam); }
+function frame(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; step(dt); render(dt); drawDev(); requestAnimationFrame(frame); }
 /* the shared film look and hologram UI (experiments/swarms/shared/, FILM-BAR.md): used when present, the host's own otherwise.
    Adopted so far: LOOK.apply on the renderer/scene/camera and HOLO.arc for the stepping arc. Still to adopt when holo.js exists: HOLO.device in place of the barrel below. */
 let HOLOARC = null;
-async function loadShared() { if (await loadScript('../shared/look.js') && window.LOOK && LOOK.apply) { try { LOOK.apply(R, scene, cam, { memory: true }); TR.shared = (TR.shared || []).concat('look.js'); } catch (e) { console.error('LOOK', e); } }
+async function loadShared() { if (await loadScript('../shared/look.js') && window.LOOK && LOOK.apply) { try {
+      LOOKH = LOOK.apply(R, scene, cam, { target: LOOKT, candles: FL.map(f => f.f), room: false });
+      try { await LOOK.load('../shared/look-genome.json'); } catch (e) { }
+      [key, hemi, rim, candleLight].forEach(l => { l.userData.off = true; l.intensity = 0; }); TR.shared = (TR.shared || []).concat('look.js'); } catch (e) { console.error('LOOK', e); LOOKH = null; } }
   if (await loadScript('../shared/holo.js') && window.HOLO && HOLO.arc) { try { HOLOARC = HOLO.arc(scene, ARCANCHOR, { size: .2, camera: cam, auto: false }); ARC.s.visible = false; ARC.s.material.visible = false;
       if (HOLO.readout) HOLOREAD = HOLO.readout(scene, READANCHOR, { camera: cam, auto: false }); TR.shared = (TR.shared || []).concat('holo.js arc + readout'); } catch (e) { console.error('HOLO', e); HOLOARC = null; } } }
-const ARCANCHOR = new T.Vector3(), READANCHOR = new T.Vector3(); let HOLOREAD = null;
+const ARCANCHOR = new T.Vector3(), READANCHOR = new T.Vector3(); let HOLOREAD = null, LOOKH = null; const LOOKT = new T.Vector3(0, .55, 0);
 async function boot() { await Promise.all(PARTS.map(n => Promise.all([loadModule(n), loadRefs(n)])).concat([loadShared()])); PARTS.forEach(initPart); PARTS.forEach(n => reattachDependents(n)); PARTS.forEach(n => P[n].holder.position.copy(worldAnchor(n)));
   select('table', true); S.ready = true; resize(); if (document.fonts) document.fonts.load('400 20px Oswald').then(() => drawDev());
   if (!REC) { requestAnimationFrame(frame); setInterval(poll, 30000); } }
 /* real modules arriving while the page is open replace their stand-ins (the part restarts from its blank) */
 async function poll() { for (const n of PARTS) if (!P[n].real && await loadModule(n, true)) { await loadRefs(n); initPart(n); reattachDependents(n); TR.events.push([+NOW.toFixed(2), n, 'real module arrived']); } }
 boot();
-window.MM = { stepOnly: dt => step(dt), dev: () => drawDev(), info: () => ({ tris: R.info.render.triangles, calls: R.info.render.calls, programs: R.info.programs.length, geo: R.info.memory.geometries, tex: R.info.memory.textures }), ready: () => S.ready && WAVBYTES !== null, advance: dt => { const a = performance.now(); step(dt); const b = performance.now(); R.render(scene, cam); const c = performance.now(); drawDev(); const d = performance.now(); window.__T = [b - a, c - b, d - c]; }, S, P, UIL, get UI() { return UI; }, get UIC() { return UIC; }, renderAudio, traceOut, press, hold, RINGS, BANDS: () => BANDS, BTNS: () => BTNS, NOW: () => NOW, setLapse: k => { S.lapse = k; } };
+window.MM = { stepOnly: dt => step(dt), dev: () => drawDev(), info: () => ({ tris: R.info.render.triangles, calls: R.info.render.calls, programs: R.info.programs.length, geo: R.info.memory.geometries, tex: R.info.memory.textures }), ready: () => S.ready && WAVBYTES !== null, advance: dt => { const a = performance.now(); step(dt); const b = performance.now(); render(dt); const c = performance.now(); drawDev(); const d = performance.now(); window.__T = [b - a, c - b, d - c]; }, S, P, UIL, get UI() { return UI; }, get UIC() { return UIC; }, renderAudio, traceOut, press, hold, RINGS, BANDS: () => BANDS, BTNS: () => BTNS, NOW: () => NOW, setLapse: k => { S.lapse = k; } };
 </script></body></html>

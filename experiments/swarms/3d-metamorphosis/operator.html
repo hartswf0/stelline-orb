@@ -14,13 +14,13 @@ a.b { display: inline-block; padding: 10px 14px; border: 1px solid #2a302d; bord
 td { padding: 4px 6px; border-bottom: 1px solid var(--line); vertical-align: top; } table { border-collapse: collapse; width: 100%; }
 </style></head><body><main>
 <h1>CAKE METAMORPHOSIS &middot; OPERATOR</h1>
-<p>Revision 1, 2026-11-06 (uncommitted). SCION 7 // PETER FOLDES, drawn metamorphosis, in 3D. The cake is one surface (41 x 64 points) that every stage and every film cake shares.</p>
+<p>Revision 2, 2026-11-06, after critic round 1 (uncommitted). SCION 7 // PETER FOLDES, drawn metamorphosis, in 3D. The cake is one surface (41 x 64 points) that every stage and every film cake shares.</p>
 <video src="proof.mp4" controls playsinline preload="metadata"></video>
-<div class="row"><a class="b" href="index.html">PLAY THE GAME</a><a class="b" href="proof.mp4">PROOF FILM</a><a class="b" href="trace.json">TRACE</a><a class="b" href="tests-result.json">TEST RESULT</a><a class="b" href="README.md">README</a><a class="b" href="morph.js">MORPH.JS</a></div>
+<div class="row"><a class="b" href="index.html">PLAY THE GAME</a><a class="b" href="proof.mp4">PROOF FILM</a><a class="b" href="trace.json">TRACE</a><a class="b" href="tests-result.json">TEST RESULT</a><a class="b" href="tests-play.json">PLAY TEST</a><a class="b" href="critic-round1.md">CRITIC ROUND 1</a><a class="b" href="README.md">README</a><a class="b" href="morph.js">MORPH.JS</a></div>
 <h2>CRITIC VERDICT</h2>
-<p><span class="v">NOT RUN.</span> This builder had no tool to start an independent critic. The coordinator runs it, with the brief's expected experience and proof.mp4 only.</p>
+<p><span class="v">ROUND 1: INCONCLUSIVE, LEANING REFERENCE STRONGER</span> (<a href="critic-round1.md" style="color:inherit">critic-round1.md</a>). The proof passed; live play failed: turning on past seven candles ran into the match, lit reached 23, a TypeError, and the blow could not be reached. Repaired in revision 2; the critic's repair condition is now <code>tests-play.js</code> and passes 11 of 11. Round 2 not run.</p>
 <h2>NEXT BLOCKING FAILURE</h2>
-<p>The independent critic's verdict. Builder's own guess at the largest gap (from contact sheets of proof.mp4), for the critic to confirm or reject: the brown dome arrives by a cut from red-orange, so the film's chosen cake is reached by substitution, not by metamorphosis; and at phone size the cake's side is plain (no texture beyond vertex colour), so the in-betweens of the drum stages can read as a colour change more than a change of shape. Repair condition: a viewer shown proof.mp4 2.4 to 8.2 s can say what the cake was and what it was becoming at any paused frame.</p>
+<p>Round 2 of the critic on revision 2, including the FILM-BAR believability strip (this frame next to the film's frame at the same moment). Builder's guess at what gives it away: the shared LOOK table is a large bright orange hexagon that dominates the lower frame, and the cake's surface texture is one icing mottle for every stage (sponge reads as icing).</p>
 <h2>MEASURED</h2>
 <table id="m"><tr><td>Loading</td><td>tests-result.json and trace.json</td></tr></table>
 <h2>HOW TO PLAY</h2>
@@ -28,13 +28,14 @@ td { padding: 4px 6px; border-bottom: 1px solid var(--line); vertical-align: top
 <li>SELECT picks the next form this one can become. The knurled ring carries the change step by step; HOLD sets it.</li>
 <li>The triangle ring sets the pacing of the next change (EVEN, EASE, LINGER, LEAN); bigger changes and slower pacings get more steps.</li>
 <li>The film's cakes reach each other only by a cut (hard cut or silver decay); the ring at the cake's foot marks it.</li>
-<li>On the brown dome: CANDLES, INSCRIPTION, MATCH; then HOLD is the blow. SCENE plays one path; the (i) button shows live measurements.</li></ul>
+<li>On the brown dome: CANDLES, INSCRIPTION, MATCH. Each job stays selected until HOLD sets it; HOLD after the seventh flame is the blow. SCENE plays one path; the (i) button shows live measurements.</li></ul>
 <script>
-Promise.all([fetch('tests-result.json').then(r => r.json()), fetch('trace.json').then(r => r.json())]).then(([t, tr]) => { const s = tr.summary, u = t.summary;
+Promise.all([fetch('tests-result.json').then(r => r.json()), fetch('trace.json').then(r => r.json()), fetch('tests-play.json').then(r => r.json()).catch(() => null)]).then(([t, tr, pl]) => { const s = tr.summary, u = t.summary;
   const rows = [['Unit tests', `<span class="${t.failed ? 'bad' : 'ok'}">${t.passed} passed, ${t.failed} failed</span> (node tests.js)`],
+    ['Play test (critic round 1 scenario)', pl ? `<span class="${pl.failed ? 'bad' : 'ok'}">${pl.passed} passed, ${pl.failed} failed</span> (tests-play.js, mouse on the device at 390 x 844)` : 'not run'],
     ['Transitions tested', `${u.morph_edges} morphs and ${u.cut_edges} cuts, each under ${u.paces.length} pacings`],
     ['Flipped faces / profile crossings', `${u.flips} / ${u.crossings} over every tested step`], ['Worst volume change in one step', `${(u.worst_dV_rel * 100).toFixed(1)}% of the larger form (limit 16%), ${u.worst_dV_at}`],
-    ['Worst candle anchor move in one morph step', `${u.worst_candle_step_mm} mm (limit 6)`], ['Largest candle jump across a cut', `${u.worst_cut_candle_jump_mm} mm, settled over 6 frames`],
+    ['Worst candle anchor move in one morph step', `${u.worst_candle_step_mm} mm (limit 6)`], ['Largest candle jump across a cut', `${u.worst_cut_candle_jump_mm} mm, settled over 9 frames`],
     ['Proof path', s.path.join(' > ')], ['Proof length', `${s.duration_s} s`], ['Machine steps in the proof', `${s.machine_steps} (${s.at_11_8} at 11.8/s, ${s.at_23_6} at 23.6/s)`],
     ['Proof: worst candle move per frame', `${s.worst_candle_move_per_frame_mm} mm`], ['Proof: cuts', s.cuts.join('; ')]];
   document.getElementById('m').innerHTML = rows.map(([a, b]) => `<tr><td>${a}</td><td>${b}</td></tr>`).join(''); }).catch(() => { });

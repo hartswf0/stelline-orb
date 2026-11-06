@@ -162,8 +162,14 @@ ffmpeg -framerate 15 -i <frames-dir>/%05d.jpg -i <frames-dir>/audio.wav -r 30 -c
   - the UI-choice panel and the left-collar readout drawn over the barrel;
   - per-gesture move and reversal counts for the UI's fitness.
 - `HOLO.spots` is not adopted.
-- `../shared/look.js` did not exist at revision 2. It is loaded and `LOOK.apply` is called if it appears; that path is
-  untested.
+- `../shared/look.js` is adopted (revision 3). `LOOK.apply(renderer, scene, camera, {target, candles})` renders every frame
+  through `handle.render(dt)`, and the host's own lights are turned off. The key light follows the cake. `candlesLit` follows
+  the lit flames. Switching on and off, and the light part's exposure, go through `handle.set({exposure})`. Each keep calls
+  `LOOK.flash(part)`. Module materials are left as the modules make them; LOOK materials are not swapped in. At the time of
+  writing this ran only as a syntax check (see below).
+- The host keeps its own device (ana/index.html's barrel), not `HOLO.device`, so that the UI genome can set the ring roles,
+  the detent size and the rate, draw the choice panel and the readout, and count gestures and reversals for the UI's
+  fitness.
 - The light module's `params(G)` now sets the grade: exposure, candle colour, range, decay and strength, ambient level and
   tint.
 
