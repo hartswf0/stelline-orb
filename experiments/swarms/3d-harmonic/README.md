@@ -19,7 +19,21 @@ The cake is the score. Each decoration is one closed harmonic figure: N beads, M
 ## Primitives (harmonic.js, shared by the page and the tests)
 `gearAngle(ri, ph, k, S)` is exact: `2π·((p·k) mod (q·S))/(q·S) + phase`, with the remainder taken in integers. `passRevs` is the lcm of the ratio denominators. `pass(def, gears, S)` gives the samples (centre, tube radius, contact normal) and the candle stops, which sit on an exact finer grid. `chamfer` is the pattern score: a symmetric mean nearest-neighbour distance in (x, y, z, 3r). `cakeSDF` is the coated cake with a rounded top edge. `newGame/setGear/commit` is a pure reducer: the page feeds it the values the machine reaches and the HOLDs.
 
-## Measured (node tests.js → tests.json, r2; trace from the r2 proof run)
+## Round 1 critic repair (r3)
+The critic's verdict on r2 (critic-round1.md): the making and the game pass; the reference is stronger on the look. The repairs:
+- **Look.** The key light is now warm (0xff9a48). The hemisphere fill is warm and very low. The materials carry a warm emissive base. A round amber pool of light sits behind the memory. The projected spots stay on for the whole run, flickering, and flare on each stage change.
+  - Measured on the r3 proof: red/blue of non-black pixels in the cake region, every second from 5 to 23 s, is min 1.62, mean 2.87 (19 frames). r2 was 1.04-1.08, the bar is 1.5, the film is 3.8.
+  - The white recipe's still renders measure 1.74-1.81. Those are lower than chocolate because the cream is pale.
+- **Inscription.** Each glyph is piped 1.4x deeper (29 mm wide, 40 mm deep) to offset the kneeling view's foreshortening. The gaps are 5 mm, the tube is 2.6 mm, and the camera is about 24 degrees up (it was 17).
+  - Final frame of the r3 proof (26.7 s, scale at 20 degrees): red glyph runs measure 12-24 px tall at 432x768, the bar being 10. 生 and 日 are separated by a visible gap. The flourish underneath and two candles in front touch the 日 and 快 runs, so the gaps are not clean everywhere.
+- **Earned hint.** The amber target spots and the scope's target trace appear only after one of your passes at that stage has decayed. Before that, the scope shows only your own path and OFF BY x MM. The HUD no longer names the answer.
+- **A second film cake.** The nozzle ratio at the COAT pass picks the recipe: 1:1 gives white cream, 2:1 gives chocolate with an orange glaze top. The chocolate recipe has its own targets: beads 18:1, shells 28:1, garland 5:1 at 0 degrees, and the same candles. Test 7 shows both cakes are reachable and each rejects the other's bead ring. The r3 proof plays the chocolate cake. The white path is covered by the node tests and still renders, but not by a video.
+- **Sound.** The piping bed is about 12 dB lower and narrow-band, and the spread bed is about 12 dB lower. The machine and hand clicks are louder.
+  - Measured as 50 ms window levels (p10 / median / p95): r2 −34.5 / −21.2 / −15.7 dB, r3 −35.0 / −20.1 / −14.6 dB. The bed is lower, so more of the level now comes from the clicks. The spread between quiet and loud windows hardly changed, so this measure does not show a clear improvement. Listen before believing it.
+- **Rate burst found.** The r3 trace shows one 6-step window at 30 steps/s. Time banked at the slow rate was spent at the fast rate when a drag pulled the ring more than 6 behind. Fixed after recording (`stepClock` is capped). See test 6 below.
+- **FILM-BAR.md.** The shared look.js and holo.js did not exist when this round finished (experiments/swarms/shared/ was absent). Adoption is pending. This page keeps its own grade and ana's device and arc.
+
+## Measured at r2 (kept for the record; r3 numbers are in the section above and in tests.json)
 1. Exact periodicity: 404 passes (the stage targets plus 400 random gear settings). The closure error is 0 m and the gear angle error is 0 rad.
 2. Clearance: no tube cuts the cream. Over 1,017,392 samples and chord midpoints, including random gear settings and the inscription, the minimum of (signed distance − tube radius) is +0.000299 m (the 0.3 mm margin). The lowest point of the bead ring is 0.6 mm above the board.
 3. Discrimination: every target scores 0. Every one-detent error in a needed gear scores at least 0.98 mm, against a 0.8 mm tolerance. One exclusion: turntable phase on the 24-bead ring is a true symmetry.
@@ -40,10 +54,11 @@ The cake is the score. Each decoration is one closed harmonic figure: N beads, M
 - r1 to r2: the scope was moved off the HUD. The inscription tilt went from 9 to 18 degrees so the characters read while they are written. The decay lasts 0.6 s. The icing is a little brighter. The r1 proof is kept in /home/claude/stelline-work/harmonic/r1/.
 
 ## What is weak
-- The evolution has a single target. Every stage heads toward the sponge with white beads. The other film cakes (chocolate/orange, mint, red-orange, brown dome) cannot be reached, and the sponge profile and colours are not set by the player.
-- 生日快乐 is foreshortened to red marks once the cake levels at the kneeling view.
+- Two of the film's cakes are reachable (white sponge, chocolate with orange top). Mint, red-orange and the brown dome are not. The sponge profile is fixed.
+- 生日快乐 is legible level, but the flourish and the candles in front still touch some glyphs.
+- The look has its own grade; the shared film-evolved look.js has not been adopted. The R/B of 2.9 on chocolate and about 1.8 on white is still below the film's 3.8.
 - The beads are small at this distance and read partly as dots. The shells shade grey under the key light.
-- The game is a lock-matching puzzle: the amber spots give the answer away. The SCION A/B test of rational lock against detuned drift was not built.
+- Before the hint is earned, the game is hot-and-cold search on the distance readout. The candle count readout still leaks the nozzle count. The SCION A/B test of rational lock against detuned drift was not built.
 - There are no children or faces at all, which follows the brief. The table, children and blow performance from ana are left out. "The blow" is a HOLD, not a breath.
 - Each run of record.js plays the same scripted route. Sound is synthesized except for the device click grains.
 

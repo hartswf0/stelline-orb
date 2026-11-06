@@ -37,4 +37,4 @@ The critic's coordinator allowed changing the generator code. These changes are 
 - render.js: a frame that comes out near black (lost to the GPU when the disk was full) is rendered again, up to 3 tries.
 
 ### Round 02
-Elites: r01-A1 and r01-B1 (both 2; upgraded to tool v2). 6 children: per framing, crossover of the two best of that framing plus mutation (rate 0.18, step 0.07) raised on the genes named by the giveaways (STEER). Tool: EVOLVE-ALL modules + LOOK + the v2 hand layer in render.html.
+Elites: r01-A1 and r01-A3 (both 2; the sort kept the first two of the four tied at 2; upgraded to tool v2). Children: A1-A2 and B1-B4. Seen by eye before sending: several children drifted to off colours (pink, green, lavender) and one is very lumpy; left for the critic to select. 6 children: per framing, crossover of the two best of that framing plus mutation (rate 0.18, step 0.07) raised on the genes named by the giveaways (STEER). Tool: EVOLVE-ALL modules + LOOK + the v2 hand layer in render.html.

@@ -127,5 +127,30 @@ if (bridge && bridge.createServer) test('bridge: initialize, tools/list, tools/c
   const u = call('nosuch', {}); assert.strictEqual(u.error.code, -32601);
 });
 
-console.log('\n' + pass + ' passed, ' + fail + ' failed');
-process.exit(fail ? 1 : 0);
+test('proposals are turnable sets on ring paths, and a ring turn on the device amends the ghost', () => {
+  const DM = require(path.join(__dirname, '../core/devmap.js'));
+  const orb = BUS.createOrb();
+  run(orb, 'propose kneel 0.4; turn -20; make', 'agent:claude');
+  const ps = orb.state().proposals; assert.deepStrictEqual(ps.map(p => p.args.path), ['camera.kneel', 'camera.yaw', 'cake.stage']);
+  DM.turn(orb, 1, 2, { author: 'hand' }); assert.strictEqual(orb.state().proposals[0].args.value, 6, 'the KNEEL ring raised the ghost from 4 to 6');
+  DM.press(orb, 'accept', false); assert.strictEqual(orb.state().camera.kneel, 6);
+  DM.press(orb, 'accept', true); assert.strictEqual(orb.state().camera.yaw, 0, 'a long ACCEPT dismissed the turn');
+  assert.strictEqual(C.parse('propose table down', orb.state()).length, 0, 'a ghost that changes nothing is not proposed');
+});
+
+async function asyncTests() {
+  if (!bridge) return;
+  const orb = BUS.createOrb(); D.install(orb); const srv = bridge.createServer(orb, { commands: C });
+  const call = (name, args) => srv.handle({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name, arguments: args } });
+  try {
+    const r = call('orb_propose', { line: 'kneel 0.4', note: 'lower', author: 'agent:claude' }); const id = r.result.content[0].text.match(/proposed: (p\d+)/)[1];
+    const wait = call('orb_await_decision', { id, timeout_ms: 2000 });
+    setTimeout(() => { orb.do({ op: 'amend', args: { id, args: { value: 7 } } }, { author: 'hand' }); orb.do({ op: 'accept', args: { id } }, { author: 'hand' }); }, 50);
+    const t = (await wait).result.content[0].text; assert.ok(/accepted .* by the person/.test(t) && /turned it/.test(t), t);
+    const r2 = call('orb_propose', { line: 'turn 90' }); const id2 = r2.result.content[0].text.match(/proposed: (p\d+)/)[1];
+    setTimeout(() => orb.do({ op: 'reject', args: {} }, { author: 'hand' }), 30);
+    const t2 = (await call('orb_await_decision', { id: id2, timeout_ms: 2000 })).result.content[0].text; assert.ok(/dismissed/.test(t2), t2);
+    pass++; console.log('ok   bridge: orb_await_decision reports an adjusted accept and a dismissal');
+  } catch (e) { fail++; console.log('FAIL bridge await\n     ' + e.message); } }
+
+asyncTests().then(() => { console.log('\n' + pass + ' passed, ' + fail + ' failed'); process.exit(fail ? 1 : 0); });

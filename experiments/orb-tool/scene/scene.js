@@ -60,7 +60,7 @@
     const basic = (c, o) => new T.MeshBasicMaterial(Object.assign({ color: c, toneMapped: false }, o || {}));
     (function dome(D) {
       D.add(new T.Mesh(new T.SphereGeometry(7, 48, 24, 0, TAU, 0, Math.PI / 2), new T.MeshStandardMaterial({ color: 0x0b0d0c, roughness: 1, side: T.BackSide })));
-      const fl = new T.Mesh(new T.CircleGeometry(7, 72), new T.MeshStandardMaterial({ color: 0x040505, roughness: .6, metalness: .3 })); fl.rotation.x = -Math.PI / 2; fl.receiveShadow = true; D.add(fl);
+      const fl = new T.Mesh(new T.CircleGeometry(7, 72), new T.MeshStandardMaterial({ color: 0x040505, roughness: .7, metalness: 0 })); fl.rotation.x = -Math.PI / 2; fl.receiveShadow = true; D.add(fl);
       const ring = (r, w, y, c, o) => { const m = new T.Mesh(new T.TorusGeometry(r, w, 6, 240), basic(c, o)); m.rotation.x = Math.PI / 2; m.position.y = y; D.add(m); return m; };
       ring(6.65, .009, .62, 0xf2f7f3); ring(6.65, .05, .62, 0x9fb4ad, { transparent: true, opacity: .07, depthWrite: false, blending: T.AdditiveBlending }); ring(6.6, .03, .004, 0x8fa39c, { transparent: true, opacity: .035, depthWrite: false, blending: T.AdditiveBlending });
       const seam = new T.LineBasicMaterial({ color: 0x161a18, transparent: true, opacity: .5 });
