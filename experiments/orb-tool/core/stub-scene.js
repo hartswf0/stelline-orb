@@ -140,7 +140,7 @@
     function ghost(v, pr, now, look, glow) { const g = S.clone(v); g.proposals = []; let e; try { e = O.OPS[pr.op](g, S.clone(pr.args), { author: pr.author }); } catch (er) { e = 'x'; } if (e) return;
       const same = k => JSON.stringify(g[k]) === JSON.stringify(v[k]);
       if (!same('table')) table(g, g.table.up, look, true);
-      if (!same('cake') || !same('inscription')) { const ck = cake(g, look, glow, true, now); if (!ck && g.cake.stage === 0 && v.cake.stage > 0) { if (g.cake.stage === 0 && v.cake.stage > 0) { const q = P([0, .6, 0]); if (q) { c.strokeStyle = 'rgba(56,214,224,.8)'; c.beginPath(); c.moveTo(q[0] - 12, q[1] - 12); c.lineTo(q[0] + 12, q[1] + 12); c.moveTo(q[0] + 12, q[1] - 12); c.lineTo(q[0] - 12, q[1] + 12); c.stroke(); } } }
+      if (!same('cake') || !same('inscription')) { const ck = cake(g, look, glow, true, now); if (!ck && g.cake.stage === 0 && v.cake.stage > 0) { const q = P([0, .6, 0]); if (q) { c.strokeStyle = 'rgba(56,214,224,.8)'; c.beginPath(); c.moveTo(q[0] - 12, q[1] - 12); c.lineTo(q[0] + 12, q[1] + 12); c.moveTo(q[0] + 12, q[1] - 12); c.lineTo(q[0] - 12, q[1] + 12); c.stroke(); } } }
       if (!same('candles')) { const ck = cake(g, look, glow, 'geom', now); if (ck) candles(g, ck, now, look, true); }
       g.people.forEach(p => { const o = v.people.find(q => q.id === p.id); if (!o || JSON.stringify(o) !== JSON.stringify(p)) figure(p, now, 0, g, look, glow, true, false); });
       g.props.forEach(p => { const o = v.props.find(q => q.id === p.id); if (!o || JSON.stringify(o) !== JSON.stringify(p)) prop(p, look, true, false); });
