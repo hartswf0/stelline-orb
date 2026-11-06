@@ -22,14 +22,17 @@
 <div class="g" id="g1"></div>
 <h2>Versions as a game: the controller always shown, the assets being made</h2>
 <div class="g" id="g2"></div>
+<h2>Generated with the controller in frame (fal, Kling 2.1 image to video)</h2>
+<div class="g" id="g4"></div>
 <h2>Generated versions of the birthday frame</h2>
 <div class="g" id="g3"></div>
-<p style="opacity:.6;margin-top:16px;text-transform:none;letter-spacing:.02em">The controls in "with controls" are inferred from the footage, not read from it. Generated versions use Kling 2.1 image to video from the original frame.</p>
+<p style="opacity:.6;margin-top:16px;text-transform:none;letter-spacing:.02em">The controls in "with controls" are inferred from the footage, not read from it. Generated versions use Kling 2.1 image to video. The model redraws the controller panel as it goes, so the panel is not stable from frame to frame.</p>
 </main>
 <script>
 var S=[
  ['g1',[['flow/original-flow','The whole flow','The original footage, 2:17 to 2:50: the cake summoned, its looks, the tip, the lettering, the girls, her hands on the orb.'],['flow/original-flow-controls','With controls','The same flow with the orb below it: which ring and key the footage implies at each moment (inferred).']]],
  ['g2',[['flow/game-arcs-film-plate','Arcs on the film plate','The film\'s own shot with the cake arc, lettering, tilt, a retimed child and the flame-out.'],['flow/game-stage-pad','Stage and pad','The cake built from nothing with the pad in view: scene graph, pen, focus pull, tilt.'],['flow/game-tall-cake','Tall cake','A two-step build with nine candles, lettering, and the camera turning round.'],['flow/game-forest-focus','Forest and focus','The forest plate, the reveal and the focus pull, pad in view.']]],
+ ['g4',[['generated/gen-C-from-nothing','From nothing','A table appears and a cake builds itself layer by layer, with the controller panel below. Start frame: our stage and pad.'],['generated/gen-D-candles','Candles light','Candles ignite one by one, warm light spreads, the panel below keeps turning. Start frame: our stage and pad.'],['generated/gen-A-summon','Summon, original','Start frame: the original with the orb panel. The cake rises and red letters form.'],['generated/gen-B-lettering','Lettering and tilt, original','Start frame: the original at the lettering, with the panel. The cake tips as the candles burn.']]],
  ['g3',[['versions/v0_original','V0 · Original','The film, 4 s.'],['versions/v1_blowout','V1 · Blow-out','Breath, flames bend and go out, smoke, the light falls.'],['versions/v2_pushin','V2 · Push-in','Slow push toward the cake and the birthday girl.'],['versions/v3_hologram','V3 · Hologram','Edges like mist, the faces turn toward the cake.']]]];
 S.forEach(function(s){var g=document.getElementById(s[0]);s[1].forEach(function(v){var f=document.createElement('figure');f.innerHTML='<video src="assets/'+v[0]+'.mp4" poster="assets/'+v[0]+'.jpg" controls loop muted playsinline preload="metadata"></video><figcaption><b>'+v[1]+'</b><span>'+v[2]+'</span></figcaption>';g.appendChild(f)})});
 [].forEach.call(document.querySelectorAll('video'),function(v){v.addEventListener('mouseenter',function(){v.play().catch(function(){})});v.addEventListener('mouseleave',function(){v.pause()})});
