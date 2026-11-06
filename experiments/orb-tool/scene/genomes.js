@@ -14,7 +14,9 @@
     people: { count: 3.482, arc: 93.7882, centre: 4.4722, dist: 0.0682, height: 0.7679, head: 0.167, shoulders: 0.2499, variety: 0.5999, lean: 4.9981, tilt: 15.0114, onTable: 0.6277, freeLift: 0.1431, together: 0.047, clothLum: 0.4656, clothSpread: 0.8735, clothWarm: 0.3802, dress: 0.6682, hat: 0.0838, hairLen: 0.737, hairVol: 0.6172, hairTone: 0.075, hairSpread: 0.3908 },
     cakeFinish: null   // filled below from the cake climb
   };
-  G.cakeFinish = { taper: 0.98, board: 0, bevel: 0.14, frostTop: 0.32, frostSide: 0.22, spread: 0.9, fill: 0.5, border: 0.22, foot: 0.45, beadL: 86, beadA: 1, beadB: 10 };
+  // climbed (reference 'cream', fit 0.971): frostTop 0.099, frostSide 0.219, spread 0.717, fill 0.228, border 0.032, foot 0, dome 0.19, layers 2.1.
+  // Kept as climbed except border and foot, raised so the DECORATED stage has a visible piped border (the film's 155 s cake shows one).
+  G.cakeFinish = { taper: 1.0, board: 0, bevel: 0.05, frostTop: 0.099, frostSide: 0.219, spread: 0.717, fill: 0.228, border: 0.12, foot: 0.3, beadL: 88, beadA: 1, beadB: 9 };
   // a genome array for a module from a named object (genes not named keep the module's blank)
   function arr(M, named) { const g = M.blank(); M.genes.forEach((d, i) => { if (named && named[d[0]] != null) g[i] = Math.max(d[2], Math.min(d[3], named[d[0]])); }); return g; }
   const API = { G, arr };

@@ -32,10 +32,11 @@ const lookSrc = fs.readFileSync(path.join(HERE, '..', 'swarms', 'shared', 'look.
 const LOOK_G = JSON.parse(lookSrc.match(/const GENOME = (\{[^;]*\});/)[1]), LOOK_R = JSON.parse(lookSrc.match(/const RANGES = (\{[^;]*\});/)[1].replace(/(\w+):\[/g, '"$1":['));
 const SCENE_R = { tiltX: [-0.3, 0.7], tiltZ: [-0.5, 0.3], yaw: [-3.14, 3.14], lift: [-0.05, 0.2], cx: [-0.1, 0.1], cz: [-0.1, 0.1], scale: [0.7, 1.4],
   camX: [-0.15, 0.15], camY: [-0.15, 0.15], camZ: [-0.2, 0.2], lookX: [-0.1, 0.1], lookY: [-0.1, 0.1], fov: [0.8, 1.25],
-  tintR: [0.3, 1.6], tintG: [0.3, 1.6], tintB: [0.3, 1.6], flameW: [0.5, 2], flameH: [0.5, 2], halo: [0, 2.5], modFlame: [0, 1], room: [0, 1], bandY: [-0.3, 0.3], time: [0, 10] };
+  tintR: [0.3, 1.6], tintG: [0.3, 1.6], tintB: [0.3, 1.6], flameW: [0.5, 2], flameH: [0.5, 2], halo: [0, 2.5], modFlame: [0, 1], room: [0, 1], bandY: [-0.3, 1.0], time: [0, 10], insLift: [0, 0.008] };
 const SCENE_A = { shot: 'A', tiltX: 0.12, tiltZ: -0.15, yaw: 0.4, lift: 0.06, cx: 0, cz: 0, scale: 1, camX: 0, camY: 0, camZ: 0, lookX: 0, lookY: 0, fov: 1,
-  tintR: 1, tintG: 1, tintB: 1, flameW: 1, flameH: 1, halo: 1, modFlame: 0.7, room: 0.8, bandY: 0, time: 2 };
-const SCENE_B = Object.assign({}, SCENE_A, { shot: 'B', tiltX: 0, tiltZ: 0, yaw: 0, lift: 0 });
+  tintR: 1.2, tintG: 1, tintB: 0.8, flameW: 0.7, flameH: 0.8, halo: 0.4, modFlame: 0.3, room: 0.8, bandY: 0.45, time: 2, insLift: 0.003 };
+const SCENE_B = Object.assign({}, SCENE_A, { shot: 'B', tiltX: 0, tiltZ: 0, yaw: 0, lift: 0, scale: 0.9, camZ: 0.08, bandY: 0.25 });
+const LOOK_SEED = { wbB: 0.95, flame: 2.2, halo: 0.6, tableTone: 0.4, keyIntensity: 1.8 };
 function rangeOf(part, key) { if (part === 'scene') return SCENE_R[key]; if (part === 'look') return LOOK_R[key]; const g = mods[part].genes.find(g => g[0] === key); return g && [g[2], g[3]]; }
 const INT = { 'cake.layers': 1, 'candles.count': 1 };
 
@@ -45,7 +46,7 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const clone = o => JSON.parse(JSON.stringify(o));
 
 function seedGenome(shot) { const S = JSON.parse(fs.readFileSync(path.join(HERE, 'seeds.json'), 'utf8'));
-  return { scene: clone(shot === 'A' ? SCENE_A : SCENE_B), cake: clone(shot === 'A' ? S.cakeA : S.cakeB), candles: clone(S.candles), inscription: clone(S.inscription), table: clone(S.table), look: clone(LOOK_G) }; }
+  return { scene: clone(shot === 'A' ? SCENE_A : SCENE_B), cake: clone(shot === 'A' ? S.cakeA : S.cakeB), candles: clone(S.candles), inscription: clone(S.inscription), table: clone(S.table), look: Object.assign(clone(LOOK_G), LOOK_SEED) }; }
 
 /* mutate: rate = share of genes touched, sigma = step as a share of the gene's range; focus = { 'part' or 'part.key': weight } raises rate and sigma there */
 function mutate(G, r, rate, sigma, focus) { const o = clone(G); focus = focus || {};

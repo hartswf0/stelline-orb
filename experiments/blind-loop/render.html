@@ -43,7 +43,7 @@ window.go = async function (C) {
   const sup = REL.supportInfo('cake', M.cake, P.cake.G), A = M.cake.anchors(P.cake.G);
   const topA = REL.findA(A, ['top']) || [0, 0.1, 0], insA = REL.findA(A, ['inscription']) || topA;
   const ins = M.inscription.build(T, P.inscription.G, { t: 1, support: sup, refs: refs.inscription });
-  const insH = new T.Group(); insH.position.set(insA[0], insA[1], insA[2]); insH.add(ins); cake.add(insH);   // base anchor is the origin
+  const insH = new T.Group(); insH.position.set(insA[0], insA[1] + (S.insLift || 0), insA[2]); insH.add(ins); cake.add(insH);   // base anchor is the origin
   const cand = M.candles.build(T, P.candles.G, { t: 1, support: sup, refs: refs.candles, time: S.time, blown: 0, light: false });
   const candH = new T.Group(); candH.position.set(topA[0], topA[1], topA[2]); candH.add(cand); cake.add(candH);
   cand.traverse(o => { if (o.isMesh && !(o.userData && o.userData.flame)) o.castShadow = true; if (S.modFlame < 0.5 && (/flame|halo/i.test(o.name || '') || (o.userData && o.userData.flame))) o.visible = false; });

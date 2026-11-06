@@ -49,17 +49,23 @@
       const made = now.proposals.filter(p => !before.includes(p.id)).map(p => p.id);
       const said = (Array.isArray(r) ? r : [r]).map(o => C.say ? C.say(o, st) : o.op).join('; ');
       return text((res.same ? 'no change: ' : 'done: ') + said + (made.length ? '\nproposed: ' + made.join(', ') : '') + '\n\n' + orb.describe().split('\n')[0]); }
+    // every proposal ever seen, with its last args, so a decision can be reported after the ghost is gone
+    const seen = {};
+    const watch = st => { for (const p of st.proposals) seen[p.id] = { op: p.op, args: JSON.parse(JSON.stringify(p.args)), first: seen[p.id] ? seen[p.id].first : JSON.stringify(p.args) }; };
+    watch(orb.state()); orb.on('change', st => watch(st));
     function awaitDecision(id, timeout) {
       timeout = Math.max(0, Math.min(120000, timeout == null ? 30000 : timeout));
       const pending = () => orb.state().proposals.some(p => p.id === id);
-      if (!orb.state().proposals.some(p => p.id === id) && !orb.history().some(h => h.via === id)) return Promise.resolve(text('no proposal ' + id + ' is pending', true));
+      if (!seen[id]) return Promise.resolve(text('no proposal ' + id + ' was ever made', true));
+      const what = () => { const p = seen[id], st = orb.state(); return C.say ? C.say({ op: p.op, args: p.args }, st) : p.op + ' ' + JSON.stringify(p.args); };
+      const amended = () => JSON.stringify(seen[id].args) !== seen[id].first ? ' (the person turned it from ' + seen[id].first + ' to ' + JSON.stringify(seen[id].args) + ')' : '';
       return new Promise(resolve => {
         let off = null, timer = null;
         const finish = () => { if (off) off(); if (timer) clearTimeout(timer);
           const h = orb.history().slice(0, orb.cursor()).reverse().find(e => e.via === id);
-          if (h) resolve(text('accepted ' + id + ' by ' + (h.author === 'hand' ? 'the person' : h.author) + ': ' + h.label));
+          if (h) resolve(text('accepted ' + id + ' by ' + (h.author === 'hand' ? 'the person' : h.author) + ': ' + what() + amended()));
           else if (pending()) resolve(text('no answer yet: ' + id + ' is still pending'));
-          else resolve(text('dismissed ' + id)); };
+          else resolve(text('dismissed ' + id + ': ' + what() + ' (or undone)')); };
         if (!pending()) return finish();
         off = orb.on('change', () => { if (!pending()) finish(); });
         timer = setTimeout(finish, timeout); }); }

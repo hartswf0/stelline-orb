@@ -79,7 +79,11 @@
   (async () => {
     if (!Q.has('stub')) { if (!window.THREE) await loadScript('../../ana/assets/three.min.js'); if (await loadScript('scene/scene.js') && window.ORB_SCENE) { try { scene = window.ORB_SCENE.create(viewEl, API); } catch (e) { console.error(e); scene = null; } } }
     API.renderer = scene ? 'scene' : 'stub'; if (!scene) scene = ORB_STUB_SCENE.create(viewEl, API);
-    if (!Q.has('nocmd')) await loadScript('agent/commands.js');
+    // the agent side, when its files exist: the command language, the richer describe, the pull-up console
+    if (!Q.has('nocmd')) { await loadScript('agent/commands.js'); await loadScript('agent/describe.js'); await loadScript('agent/console.js');
+      try { if (window.ORB_DESCRIBE && ORB_DESCRIBE.install) ORB_DESCRIBE.install(API); } catch (e) { console.error(e); }
+      try { if (window.ORB_CONSOLE && window.ORB_COMMANDS) window.ORB_CONSOLE_INSTANCE = ORB_CONSOLE.mount(API, { parent: document.body, author: 'hand', focus: false }); } catch (e) { console.error(e); window.ORB_CONSOLE_INSTANCE = null; } }
+    API.ready = true;
   })();
   // ---- the device
   const devCv = document.getElementById('dev');
@@ -112,7 +116,7 @@
   stripEl.addEventListener('pointerup', () => { scrub = null; }); stripEl.addEventListener('pointercancel', () => { scrub = null; });
   // ---- the command line (agent/commands.js when present, else JSON ops and a few words)
   const drawer = document.getElementById('drawer'), out = document.getElementById('out'), line = document.getElementById('line');
-  function openAsk() { drawer.classList.add('on'); setTimeout(() => line.focus(), 60); if (!out.childNodes.length) print('Type a command and press Enter. Ops go to the same bus as the device and land in the history with author agent:console. "help" lists commands.', ''); }
+  function openAsk() { const con = window.ORB_CONSOLE_INSTANCE; if (con) { con.toggle ? con.toggle() : con.open(); return; } drawer.classList.add('on'); setTimeout(() => line.focus(), 60); if (!out.childNodes.length) print('Type a command and press Enter. Ops go to the same bus as the device and land in the history with author agent:console. "help" lists commands.', ''); }
   function print(t, cls) { const d = document.createElement('div'); d.textContent = t; if (cls) d.className = cls; out.appendChild(d); out.scrollTop = out.scrollHeight; }
   function fallbackParse(l) { l = l.trim(); if (!l) return { error: 'empty' }; if (l[0] === '{' || l[0] === '[') { try { return JSON.parse(l); } catch (e) { return { error: 'bad JSON' }; } }
     const w = l.split(/\s+/); if (w[0] === 'describe') return { describe: true }; if (w[0] === 'help') return { help: 'Commands (fallback, agent/commands.js not loaded): JSON ops, set <path> <value>, nudge <path> <by>, undo, redo, accept, reject, hold, release, blow, make, reset, describe. Ops: ' + O.NAMES.join(', ') };

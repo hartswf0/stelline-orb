@@ -18,7 +18,7 @@
     // ---- the camera: kneeling around the memory
     function setCam(v) { const a = v.camera.yaw * Math.PI / 180, D = 1.05, ey = 0.6 + (10 - v.camera.kneel) * 0.085;
       const f = v.camera.focus === 'cake' ? [0, 0.56, 0] : (() => { const q = v.people.concat(v.props).find(p => p.id === v.camera.focus); return q ? [q.x * .6, 0.6, q.z * .6] : [0, 0.56, 0]; })();
-      focusPt = focusPt.map((x, i) => lerp(x, f[i], .12));
+      focusPt = focusPt.map((x, i) => Math.abs(x - f[i]) < 1e-4 ? f[i] : lerp(x, f[i], .12));
       const e = [Math.sin(a) * D, ey, Math.cos(a) * D], fw = norm(sub(focusPt, e)), rt = norm(cross(fw, [0, 1, 0])), up = cross(rt, fw);
       cam = { e, fw, rt, up, F: Math.min(W, H * 1.3) * 1.25 }; }
     const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]], dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2], cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]], norm = a => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; };
@@ -113,7 +113,9 @@
     function bracket(x, y, w, h) { const k = Math.min(10, w / 4, h / 4), f = clamp(1 - (performance.now() - changeAt) / 400, 0, 1); c.strokeStyle = 'rgba(224,51,43,' + (.55 + f * .45) + ')'; c.lineWidth = 1.5 + f * 1.5;
       c.beginPath(); c.moveTo(x, y + k); c.lineTo(x, y); c.lineTo(x + k, y); c.moveTo(x + w - k, y); c.lineTo(x + w, y); c.lineTo(x + w, y + k); c.moveTo(x, y + h - k); c.lineTo(x, y + h); c.lineTo(x + k, y + h); c.moveTo(x + w - k, y + h); c.lineTo(x + w, y + h); c.lineTo(x + w, y + h - k); c.stroke(); }
     // ---- one frame
-    function frame(now) { if (!W) resize(); const dt = Math.min(.05, (now - last) / 1000); last = now;
+    function frame(now) { if (!W) resize(); const dt0 = Math.min(.05, (now - last) / 1000); last = now;
+      // window.__orbStill (for probes): the flames and performances stand still, so only inputs change the picture
+      const still = !!root.__orbStill, dt = still ? 0 : dt0; if (still) now = 0;
       const v = orb.view(), look = v.scene.look, light = v.scene.light; setCam(v);
       c.setTransform(dpr, 0, 0, dpr, 0, 0); room(v, look, light);
       const glow = clamp(light / 10, 0, 1);
@@ -133,9 +135,9 @@
       for (const pr of v.proposals) ghost(v, pr, now, look, glow);
       // the light level and switching off
       if (light < 10) { c.fillStyle = 'rgba(0,0,0,' + ((10 - light) / 16) + ')'; c.fillRect(0, 0, W, H); }
-      off = clamp(off + (v.time.off ? dt : -dt * 2), 0, 1); if (off > 0) { c.fillStyle = 'rgba(0,0,0,' + off + ')'; c.fillRect(0, 0, W, H); }
+      off = clamp(off + (v.time.off ? dt0 : -dt0 * 2), 0, 1); if (off > 0) { c.fillStyle = 'rgba(0,0,0,' + off + ')'; c.fillRect(0, 0, W, H); }
       if (v.time.off && off >= 1) { c.fillStyle = 'rgba(200,210,206,.35)'; c.font = '11px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText('THE MEMORY IS OFF', W / 2, H / 2); }
-      if (v.time.hold) { c.fillStyle = 'rgba(240,176,64,.9)'; c.font = '600 11px ui-monospace,monospace'; c.textAlign = 'left'; c.fillText('HELD', 10, 18); }
+      if (v.time.hold) { c.strokeStyle = 'rgba(240,176,64,.8)'; c.lineWidth = 2; c.strokeRect(3, 3, W - 6, H - 6); c.fillStyle = 'rgba(240,176,64,.95)'; c.font = '600 11px ui-monospace,monospace'; c.textAlign = 'left'; c.fillText('HELD: EVERY PERFORMANCE STOPPED', 10, H - 26); }
       c.fillStyle = 'rgba(200,210,206,.4)'; c.font = '10px ui-monospace,monospace'; c.textAlign = 'right'; c.fillText('STUB RENDERER', W - 8, H - 8); }
     function ghost(v, pr, now, look, glow) { const g = S.clone(v); g.proposals = []; let e; try { e = O.OPS[pr.op](g, S.clone(pr.args), { author: pr.author }); } catch (er) { e = 'x'; } if (e) return;
       const same = k => JSON.stringify(g[k]) === JSON.stringify(v[k]);

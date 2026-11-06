@@ -64,7 +64,7 @@ async function prepare(page) {
     window.__con = window.ORB_CONSOLE_INSTANCE || window.__con || ORB_CONSOLE.mount(ORB, { focus: false });
     window.__lat = []; ORB.on('step', () => { if (window.__sent != null) { window.__lat.push(performance.now() - window.__sent); window.__sent = null; } });
     try { window.CORE_SOUND && CORE_SOUND.wake(); } catch (e) { }
-    return { device: !!(window.ORB_DEVICE || window.DEVICE), scene: !!window.ORB_SCENE, sound: !!window.CORE_SOUND, shellConsole: !!window.ORB_CONSOLE_INSTANCE }; }); }
+    return { device: !!(window.ORB_DEVICE || window.DEVICE || (window.ORB && window.ORB.device)), scene: !!window.ORB_SCENE, sound: !!window.CORE_SOUND, shellConsole: !!window.ORB_CONSOLE_INSTANCE }; }); }
 
 // one JSON-RPC call through the bridge, as an outside agent would make it; the line is also written in the drawer
 let rpcId = 0;
@@ -80,7 +80,7 @@ async function call(page, name, args, show) {
 
 // ---- the scripted hand: real pointer events on the device canvas ----
 async function deviceHandle(page) {
-  return page.evaluate(() => { const D = window.ORB_DEVICE || window.DEVICE; if (!D || !D.toPage) return null;
+  return page.evaluate(() => { const D = window.ORB_DEVICE || window.DEVICE || (window.ORB && window.ORB.device); if (!D || !D.toPage) return null;
     const btn = {}; for (const k in D.BTN) btn[k] = D.toPage(D.BTN[k].cx, D.BTN[k].cy);
     const rings = [0, 1, 2, 3].map(i => ({ mid: D.toPage(D.ringX(i), (D.BODY[0] + D.BODY[1]) / 2), step: D.toPage(D.ringX(i), (D.BODY[0] + D.BODY[1]) / 2 + 22)[1] - D.toPage(D.ringX(i), (D.BODY[0] + D.BODY[1]) / 2)[1] }));
     return { btn, rings }; }); }
@@ -88,9 +88,9 @@ async function glide(page, x, y, ms) { const steps = Math.max(4, Math.round((ms 
 async function tap(page, dev, id, long) { const [x, y] = dev.btn[id]; await glide(page, x, y, 350); await page.mouse.down(); await sleep(long ? 900 : 110); await page.mouse.up(); await sleep(250); }
 // turn a ring by about n detents: drag up for +, down for -
 async function turnRing(page, dev, i, n) { const r = dev.rings[i]; const [x, y] = r.mid; await glide(page, x, y, 350); await page.mouse.down();
-  const per = 20.5; // device units per detent (54 sin 24deg) scaled below
-  const scale = await page.evaluate(() => { const D = window.ORB_DEVICE || window.DEVICE; return D.M.s / D.M.dpr; });
-  const dy = -n * per * scale; const steps = Math.max(6, Math.abs(n) * 5);
+  const per = 54 * Math.sin(24 * Math.PI / 180); // device units per detent, as core/device.js
+  const scale = await page.evaluate(() => { const D = window.ORB_DEVICE || window.DEVICE || (window.ORB && window.ORB.device); return D.M.s / D.M.dpr; });
+  const dy = -(n + 0.4 * Math.sign(n)) * per * scale; const steps = Math.max(6, Math.abs(n) * 5);
   for (let k = 1; k <= steps; k++) { await page.mouse.move(x, y + dy * k / steps); await sleep(28); }
   await page.mouse.up(); await sleep(300); }
 

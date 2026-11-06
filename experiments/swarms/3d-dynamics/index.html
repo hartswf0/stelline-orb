@@ -72,7 +72,7 @@ class View {
     this.w = world; const G = this.G = new T.Group(); scene.add(G);
     this.piv = new T.Group(); this.piv.position.y = GEO.plateY; G.add(this.piv); this.yaw = new T.Group(); this.piv.add(this.yaw);
     const Y = this.yaw, std = (c, o) => new T.MeshStandardMaterial(Object.assign({ color: c, roughness: .7 }, o || {}));
-    this.mats = { sponge: LOOK.material('chocolate', { color: 0x4a2a18, seed: 2, repeat: [3, 1] }), fill: LOOK.material('icing', { seed: 7 }), ice: LOOK.material('icing', { color: 0xe08a3c, seed: 5, repeat: [1.5, 1.5] }), bead: LOOK.material('bead'), plate: LOOK.material('board'), crown: std(0xe8c062, { roughness: .4, metalness: .25, side: T.DoubleSide }) }; this.mats.ice.side = T.DoubleSide;
+    this.mats = { sponge: LOOK.material('chocolate', { color: 0x2c170c, seed: 2, repeat: [3, 1] }), fill: LOOK.material('icing', { seed: 7 }), ice: LOOK.material('icing', { color: 0xe08a3c, seed: 5, repeat: [1.5, 1.5] }), bead: LOOK.material('bead'), plate: LOOK.material('board'), crown: std(0xe8c062, { roughness: .4, metalness: .25, side: T.DoubleSide }) }; this.mats.ice.side = T.DoubleSide;
     const plate = new T.Mesh(new T.CylinderGeometry(GEO.plateR, GEO.plateR - .004, .008, 72), this.mats.plate); plate.position.y = -.004; Y.add(plate);
     this.layerMeshes = []; for (let i = 0; i < 3; i++) { const g = new T.Group(), m = new T.Mesh(new T.CylinderGeometry(GEO.R, GEO.R, GEO.layerH, 72, 1, false, Math.PI), this.mats.sponge), f = new T.Mesh(new T.CylinderGeometry(GEO.R + .0006, GEO.R + .0006, .0035, 72, 1, false, Math.PI), this.mats.fill); f.position.y = GEO.layerH / 2 - .002; g.add(m, f); g.visible = false; Y.add(g); this.layerMeshes.push(g); }
     this.ghostMat = std(0x3e2215, { transparent: true, opacity: .35, roughness: .9 }); this.ghost = new T.Mesh(new T.CylinderGeometry(GEO.R, GEO.R, GEO.layerH, 72), this.ghostMat); this.ghost.visible = false; Y.add(this.ghost);
@@ -236,7 +236,7 @@ function render() {
   vps.forEach(v => { Object.entries(VIEWS).forEach(([k, V]) => { V.G.visible = k === v.name; }); placeCam(v.w / VH); const V = VIEWS[v.name]; V.w = game.W[v.name]; V.update(cam);
     const w = game.W[v.name], lit = w.candles.filter(c => c.lit).length; LOOK.reveal(V.G, onK); LK.candlesLit(lit / 7); LK.setCandles(V.candles.filter((q, k) => w.candles[k].lit).map(q => q.f));
     const nar = v.w / VH < 1; ARCA.set(0, GEO.plateY + w.cakeTop() + .045, 0); ARC.object.scale.multiplyScalar(1); ARC.show(arcAlpha > .5 && v.name === 'TUNED'); ARC.update(dt, cam); if (n > 1 && v.name !== 'TUNED') ARC.object.visible = false;
-    if (n === 1) { LK.render(dt); } else { R.setScissorTest(true); R.setViewport(v.x, 0, v.w, VH); R.setScissor(v.x, 0, v.w, VH); R.render(scene, cam); R.setScissorTest(false); }
+    if (n === 1) { R.setScissorTest(false); R.setViewport(0, 0, VW, VH); LK.render(dt); } else { R.setScissorTest(true); R.setViewport(v.x, 0, v.w, VH); R.setScissor(v.x, 0, v.w, VH); R.render(scene, cam); R.setScissorTest(false); }
     });
   drawHUD(VW, VH, vps); drawDev();
   viewEl.style.opacity = 1 - dark * .92;

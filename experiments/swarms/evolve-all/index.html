@@ -145,7 +145,7 @@ function hold() { const p = P[S.part]; sound({ k: 'hold' }); S.sinceHold = 0; p.
   if (p.brood) { const b = p.brood, n = b.shown, hi = Math.min(b.hi, n), sc = b.kids.slice(0, n).map(k => k.score), fb = n ? sc.indexOf(Math.max(...sc)) : -1; p.metrics.gens++; p.gen++;
     if (hi < n) { const k = b.kids[hi]; p.metrics.accepted++; p.G = k.G; p.e = k.e; p.flash = 1; sound({ k: 'flash' }); rebuild(p, 1); reattachDependents(p.name); if (hi !== fb) p.metrics.offBest = (p.metrics.offBest || 0) + 1; }
     TR.choices.push({ t: +NOW.toFixed(2), part: p.name, gen: p.gen, stage: String(p.mod.stages[Math.min(p.stage, p.mod.stages.length - 1)][0]), shown: n, of: b.kids.length, chose: hi < n ? hi : 'parent', fitnessBest: fb, chosenScore: +(hi < n ? sc[hi] : b.parentScore).toFixed(4), bestScore: fb >= 0 ? +sc[fb].toFixed(4) : null, parentScore: +b.parentScore.toFixed(4), notTheBest: hi < n && hi !== fb, by: STYLE || 'person' });
-    TR.events.push([+NOW.toFixed(2), p.name, 'gen', p.gen, +scoreNow(p).toFixed(4), hi < n ? hi : -1, n, b.kids.length]);
+    TR.events.push([+NOW.toFixed(2), p.name, 'gen', p.gen, +scoreNow(p).toFixed(4), hi < n ? hi : -1, n, b.kids.length]); if (HOLOREAD) try { HOLOREAD.type(1); } catch (e) { }
     clearKids(p); p.brood = null; const ns = BREED.advance(p.mod, p.e, p.stage);
     if (ns > p.stage) { for (let s = p.stage; s < ns; s++) p.passGens.push(p.gen); p.metrics.stages += ns - p.stage; p.stage = ns; stagePassed(p); return; }
     if (BUDGET && p.gen >= BUDGET) { p.forced = p.mod.stages.length - p.stage; TR.events.push([+NOW.toFixed(2), p.name, 'budget spent: made as it stands', p.stage]); p.stage = p.mod.stages.length; stagePassed(p); return; } }
@@ -189,6 +189,8 @@ const roundParts = o => { const r = {}; for (const k in (o || {})) if (typeof o[
 function chooseUI() { const c = choice.cands[choice.i]; sound({ k: 'ui' }); applyUI(c.U, c); choice = null; S.phase = 'evolve'; S.uiRounds++; select(offerNext(), true); }
 function offerNext() { const open = PARTS.filter(n => !P[n].done); if (!open.length) return S.part; if (UI.offer === 'WEAKEST FIRST') return open.slice().sort((a, b) => P[a].e.fit - P[b].e.fit)[0];
   if (UI.offer === 'NEAREST FIRST') return open.slice().sort((a, b) => P[b].stage / P[b].mod.stages.length - P[a].stage / P[a].mod.stages.length || P[b].e.fit - P[a].e.fit)[0]; return open[0]; }
+/* the light part's genome sets the grade (modules/light.js params(G)): exposure, candle colour, range, decay and strength, ambient level and tint */
+function lightParams() { const q = P.light; if (!q || !q.mod.params || !(q.t0 || q.made)) return null; try { const v = q.mod.params(q.G); return v && typeof v === 'object' ? v : null; } catch (e) { return null; } }
 function select(n, silent) { const p = P[S.part]; if (p.brood) { clearKids(p); p.brood = null; } S.part = n; const q = P[n]; if (!q.t0) q.t0 = NOW; q.metrics.moves += silent ? 0 : 1; if (!silent) sound({ k: 'select' }); VAL.BIAS = 0; setStrengthStart(); S.since = 0; }
 /* =============================================================== THE BIRTHDAY'S END: candles lit one per machine step, then blown out one by one */
 const FL = []; const flameTex = (() => { const c = document.createElement('canvas'); c.width = 32; c.height = 64; const x = c.getContext('2d'), g = x.createRadialGradient(16, 40, 1, 16, 35, 29); [[0, 'rgba(255,252,232,1)'], [.25, 'rgba(255,206,96,.95)'], [.6, 'rgba(255,120,30,.3)'], [1, 'rgba(255,90,20,0)']].forEach(([o, s]) => g.addColorStop(o, s)); x.fillStyle = g; x.fillRect(0, 0, 32, 64); return new T.CanvasTexture(c); })();
@@ -308,7 +310,8 @@ function step(dt) { NOW += dt; S.since += dt; S.sinceHold += dt; S.sinceSelect =
   const yaw = S.yaw * Math.PI / 180; cam.position.set(camT.x + Math.sin(yaw) * camD, camT.y + camD * .32 + .05, camT.z + Math.cos(yaw) * camD); cam.lookAt(camT);
   SPOT.position.set(P.cake.holder.position.x, .003, P.cake.holder.position.z); SPOT.scale.setScalar(.45 + .2 * Math.sin(NOW * .3));
   // the arc beside the part being worked, its mark stepping with the stages passed
-  const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion); ARC.s.position.copy(camT).addScaledVector(right, camD * .32); ARC.s.scale.set(camD * .1, camD * .15, 1); ARC.s.material.opacity = (S.phase === 'evolve' ? .8 : 0) * (1 - S.dark); if (HOLOARC) { try { const k = Math.round(p.stage / p.mod.stages.length * 4); if (HOLOARC.k !== k) { HOLOARC.k = k; HOLOARC.step(k); } if (HOLOARC.object) HOLOARC.object.position.copy(ARC.s.position); } catch (e) { HOLOARC = null; } } else drawArc(Math.round(p.stage / p.mod.stages.length * 4));
+  const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion); ARC.s.position.copy(camT).addScaledVector(right, camD * .32); ARC.s.scale.set(camD * .1, camD * .15, 1); ARC.s.material.opacity = (S.phase === 'evolve' ? .8 : 0) * (1 - S.dark); if (HOLOARC) { try { const k = Math.round(p.stage / p.mod.stages.length * 4); if (HOLOARC.k !== k) { HOLOARC.k = k; HOLOARC.step(k); } ARCANCHOR.copy(camT); HOLOARC.side = 1; HOLOARC.show(S.phase === 'evolve' && S.dark < 1); HOLOARC.update(dt, cam);
+      if (HOLOREAD) { READANCHOR.copy(camT).addScaledVector(right, camD * .14).add(new T.Vector3(0, -camD * .02, 0)); HOLOREAD.show(S.phase === 'evolve'); HOLOREAD.update(dt, cam); } } catch (e) { console.error(e); HOLOARC = null; } } else drawArc(Math.round(p.stage / p.mod.stages.length * 4));
   // flames at the wicks; candlelight
   const W = wicks(); let lit = 0; FL.forEach((f, i) => { if (i >= W.length) { f.f.material.opacity = 0; return; } const w = W[i]; f.f.position.copy(w).add(new T.Vector3(0, .014, 0)); const fl = .92 + Math.sin(NOW * 23 + f.ph) * .05 + Math.sin(NOW * 7.1 + f.ph) * .04; f.f.material.opacity = f.lit * (1 - S.dark); f.f.scale.y = .034 * fl; lit += f.lit; });
   candleLight.position.copy(P.cake.holder.position).add(new T.Vector3(0, .22, 0)); candleLight.intensity = lit * .3 * (.95 + Math.sin(NOW * 19) * .04) * (1 - S.dark);
@@ -316,7 +319,9 @@ function step(dt) { NOW += dt; S.since += dt; S.sinceHold += dt; S.sinceSelect =
   // switching on (start) and off (long HOLD, or after the blow): round spots
   const on = clamp(NOW / 1.2, 0, 1); if (S.off) S.dark = clamp((NOW - S.off) / 1.0, 0, 1); else if (S.ended && NOW - S.endAt > 1.4) { S.off = NOW; sound({ k: 'off' }); }
   SPOTS.forEach((s, i) => { const k = S.off ? clamp((NOW - S.off) * 2 - i * .08, 0, 1) * (1 - clamp((NOW - S.off - .8) * 1.5, 0, 1)) : clamp(1 - Math.abs(on * 2 - 1 - i * .02), 0, 1) * (1 - on); s.m.material.opacity = k * .7; s.m.position.set(camT.x + s.x * camD, s.y * camD * .5 + camT.y * .5, camT.z + s.z * camD * .5); s.m.scale.setScalar(s.s * camD); });
-  R.toneMappingExposure = .9 * on * (1 - S.dark) + .001;
+  const LP = lightParams(); R.toneMappingExposure = (LP && LP.exposure ? clamp(LP.exposure, .3, 2.5) : .9) * on * (1 - S.dark) + .001;
+  if (LP) { if (LP.candleRGB) candleLight.color.setRGB(LP.candleRGB[0], LP.candleRGB[1], LP.candleRGB[2]); if (LP.candleRange) candleLight.distance = LP.candleRange; if (LP.candleDecay) candleLight.decay = LP.candleDecay; if (LP.candleIntensity) candleLight.intensity *= clamp(LP.candleIntensity, 0, 4);
+    if (LP.ambient != null) hemi.intensity = clamp(LP.ambient, 0, 1) * (1 - S.dark) * (lit ? .6 : 1); if (LP.ambientRGB) hemi.color.setRGB(LP.ambientRGB[0], LP.ambientRGB[1], LP.ambientRGB[2]); }
   capEl.textContent = S.caption || (S.phase === 'uichoice' ? 'THE INTERFACE EVOLVES — SELECT A UI, HOLD TO KEEP IT' : '');
   tagEl.innerHTML = `${LABEL[S.part]} ${P[S.part].real ? '' : '(STAND-IN)'} · GEN ${p.gen}<br>UI ${UIC.id} · ${UI.rate}/S · ${UI.lambda} ${UI.layout}${STYLE ? '<br>PLAYED BY THE ' + STYLE.toUpperCase() + ' SCRIPT' : ''}`;
   lapseEl.textContent = S.lapse > 1 ? 'TIME-LAPSE x' + S.lapse : ''; }
@@ -326,7 +331,9 @@ function frame(now) { const dt = Math.min(.05, (now - last) / 1000); last = now;
    Adopted so far: LOOK.apply on the renderer/scene/camera and HOLO.arc for the stepping arc. Still to adopt when holo.js exists: HOLO.device in place of the barrel below. */
 let HOLOARC = null;
 async function loadShared() { if (await loadScript('../shared/look.js') && window.LOOK && LOOK.apply) { try { LOOK.apply(R, scene, cam, { memory: true }); TR.shared = (TR.shared || []).concat('look.js'); } catch (e) { console.error('LOOK', e); } }
-  if (await loadScript('../shared/holo.js') && window.HOLO && HOLO.arc) { try { HOLOARC = HOLO.arc(scene, new T.Vector3(0, .6, 0), {}); ARC.s.visible = false; TR.shared = (TR.shared || []).concat('holo.js arc'); } catch (e) { console.error('HOLO', e); HOLOARC = null; } } }
+  if (await loadScript('../shared/holo.js') && window.HOLO && HOLO.arc) { try { HOLOARC = HOLO.arc(scene, ARCANCHOR, { size: .2, camera: cam, auto: false }); ARC.s.visible = false; ARC.s.material.visible = false;
+      if (HOLO.readout) HOLOREAD = HOLO.readout(scene, READANCHOR, { camera: cam, auto: false }); TR.shared = (TR.shared || []).concat('holo.js arc + readout'); } catch (e) { console.error('HOLO', e); HOLOARC = null; } } }
+const ARCANCHOR = new T.Vector3(), READANCHOR = new T.Vector3(); let HOLOREAD = null;
 async function boot() { await Promise.all(PARTS.map(n => Promise.all([loadModule(n), loadRefs(n)])).concat([loadShared()])); PARTS.forEach(initPart); PARTS.forEach(n => reattachDependents(n)); PARTS.forEach(n => P[n].holder.position.copy(worldAnchor(n)));
   select('table', true); S.ready = true; resize(); if (document.fonts) document.fonts.load('400 20px Oswald').then(() => drawDev());
   if (!REC) { requestAnimationFrame(frame); setInterval(poll, 30000); } }

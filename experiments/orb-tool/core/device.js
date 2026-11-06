@@ -6,11 +6,11 @@
 (function (root) {
   'use strict';
   const S = root.CORE_STATE, DM = root.CORE_DEVMAP;
-  const DW = 400, DH = 316, BODY = [62, 170], RW = 80, RG = 6, RX0 = 32, LONG = 650;
+  const DW = 400, DH = 334, BODY = [62, 170], RW = 80, RG = 6, RX0 = 32, LONG = 650;
   const RINGS = [0, 1, 2, 3].map(i => [RX0 + i * (RW + RG), RX0 + i * (RW + RG) + RW]);
   const BROWS = [['select', 'hold', 'make', 'accept', 'ask'], ['undo', 'redo', 'keep', 'breed', 'save']];
   const LAB = {}; for (const side of ['left', 'right']) DM.BUTTONS[side].forEach(([k, l]) => { LAB[k] = l; });
-  const BTN = {}; BROWS.forEach((row, r) => row.forEach((k, i) => { BTN[k] = { cx: 44 + i * 78, cy: 238 + r * 50, r: 17, lab: LAB[k] }; }));
+  const BTN = {}; BROWS.forEach((row, r) => row.forEach((k, i) => { BTN[k] = { cx: 44 + i * 78, cy: 238 + r * 58, r: 17, lab: LAB[k] }; }));
   const lerp = (a, b, t) => a + (b - a) * t, mix = (c1, c2, t) => c1.map((v, i) => Math.round(lerp(v, c2[i], t))), rgb = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a == null ? 1 : a})`;
   const FONT = '"IBM Plex Mono", ui-monospace, Menlo, monospace';
   function create(cv, orb, opts) {

@@ -5,7 +5,7 @@ const { chromium } = require('playwright'), fs = require('fs'), path = require('
 const SOUND = require('./sound.js'), HERE = __dirname, FR = process.env.FRAMES_DIR || '/tmp/dyn3d-frames', FPS = 30, W = 1280, H = 720, DUR = 28.5, SR = 48000;
 (async () => {
   const START = +(process.env.START || 0); if (!START) fs.rmSync(FR, { recursive: true, force: true }); fs.mkdirSync(FR, { recursive: true });   // START: resume after an interrupted run (the game is deterministic; earlier frames are re-simulated without drawing)
-  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: W, height: H } }); const errs = []; p.on('pageerror', e => errs.push(e.message));
+  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: W, height: H } }); p.setDefaultTimeout(300000); const errs = []; p.on('pageerror', e => errs.push(e.message));
   await p.goto('http://localhost:8762/experiments/swarms/3d-dynamics/index.html?proof'); await p.waitForFunction(() => window.PG); await p.evaluate(() => document.fonts.ready); await p.evaluate(() => PG.play());
   const N = Math.round(DUR * FPS), t0 = Date.now();
   if (START) await p.evaluate(n => { for (let i = 0; i < n - 4; i++) game.advance(1 / 30); for (let i = Math.max(0, n - 4); i < n; i++) PG.advance(1 / 30); }, START);
