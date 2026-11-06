@@ -193,7 +193,7 @@ const FL = []; const flameTex = (() => { const c = document.createElement('canva
 for (let k = 0; k < 7; k++) { const f = new T.Sprite(new T.SpriteMaterial({ map: flameTex, blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0 })); f.scale.set(.016, .034, 1); scene.add(f); FL.push({ f, lit: 0, ph: k * 1.7 }); }
 function wicks() { const p = P.candles, A = anchorsOf(p), out = []; Object.keys(A).filter(k => /wick/i.test(k)).forEach(k => { const v = A[k]; if (Array.isArray(v) && typeof v[0] === 'number') out.push(v); else if (Array.isArray(v)) v.forEach(w => Array.isArray(w) && out.push(w)); });
   if (!out.length) for (let k = 0; k < 7; k++) { const a = k / 7 * TAU + .3, r = k % 2 ? .052 : .088; out.push([Math.cos(a) * r, .075, Math.sin(a) * r]); } return out.slice(0, 7).map(w => p.holder.position.clone().add(new T.Vector3(w[0], w[1], w[2]))); }
-function lightStep() { if (S.lit < 7) { FL[S.lit].lit = 1; S.lit++; sound({ k: 'strike' }); S.caption = 'LIGHTING CANDLE ' + S.lit; } else { S.phase = 'lit'; S.since = 0; S.caption = 'HOLD: BLOW'; } }
+function lightStep() { if (S.lit < Math.min(7, wicks().length)) { FL[S.lit].lit = 1; S.lit++; sound({ k: 'strike' }); S.caption = 'LIGHTING CANDLE ' + S.lit; } else { S.phase = 'lit'; S.since = 0; S.caption = 'HOLD: BLOW'; } }
 let blowClock = 0; function blowStep() { blowClock++; if (blowClock % 2) return; const k = FL.findIndex(f => f.lit); if (k < 0) { S.phase = 'out'; S.ended = true; S.caption = ''; S.endAt = NOW; return; } FL[k].lit = 0; sound({ k: 'puff' }); }
 function switchOff() { S.off = NOW; sound({ k: 'off' }); }
 /* =============================================================== THE DEVICE (ana/index.html's barrel), the rings' roles read from the UI genome */
@@ -308,7 +308,7 @@ function step(dt) { NOW += dt; S.since += dt; S.sinceHold += dt; S.sinceSelect =
   // the arc beside the part being worked, its mark stepping with the stages passed
   const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion); ARC.s.position.copy(camT).addScaledVector(right, camD * .32); ARC.s.scale.set(camD * .1, camD * .15, 1); ARC.s.material.opacity = (S.phase === 'evolve' ? .8 : 0) * (1 - S.dark); drawArc(Math.round(p.stage / p.mod.stages.length * 4));
   // flames at the wicks; candlelight
-  const W = wicks(); let lit = 0; FL.forEach((f, i) => { const w = W[i % W.length]; f.f.position.copy(w).add(new T.Vector3(0, .014, 0)); const fl = .92 + Math.sin(NOW * 23 + f.ph) * .05 + Math.sin(NOW * 7.1 + f.ph) * .04; f.f.material.opacity = f.lit * (1 - S.dark); f.f.scale.y = .034 * fl; lit += f.lit; });
+  const W = wicks(); let lit = 0; FL.forEach((f, i) => { if (i >= W.length) { f.f.material.opacity = 0; return; } const w = W[i]; f.f.position.copy(w).add(new T.Vector3(0, .014, 0)); const fl = .92 + Math.sin(NOW * 23 + f.ph) * .05 + Math.sin(NOW * 7.1 + f.ph) * .04; f.f.material.opacity = f.lit * (1 - S.dark); f.f.scale.y = .034 * fl; lit += f.lit; });
   candleLight.position.copy(P.cake.holder.position).add(new T.Vector3(0, .22, 0)); candleLight.intensity = lit * .3 * (.95 + Math.sin(NOW * 19) * .04) * (1 - S.dark);
   key.intensity = .8 * (1 - S.dark) * (P.light.made ? .35 : 1) * (lit ? .5 : 1); hemi.intensity = .12 * (1 - S.dark) * (lit ? .4 : 1);
   // switching on (start) and off (long HOLD, or after the blow): round spots
