@@ -32,3 +32,9 @@ Open: whether the lettering is freehand piping, typed text, or a prepared inscri
 - V moves the camera to the birthday girl's seat, and the same take is read from there.
 
 What the footage does not give us: the candles going out (the clip cuts away), the third girl, and any label on an arc.
+
+## Plate-based build (arcs.html, latest)
+
+The default view of `arcs.html` is the film's own wide shot (213.15-216.55 s, 41 frames at 960x540 in `assets/plate/`) used as the base plate, so the table, the wall band, the horizon and the lit adult at right are film pixels. The six children are full-body cut-outs (`assets/slabs/`) laid over it; they appear only when a child's timing arc moves away from zero, so the retimed child replaces the original at her new time (the original shows through at her edges as a ghost).
+The cake arc has a FILM detent (the plate's own cake) and three 3D cakes. A clean-plate patch (`assets/plate/patch.webp`, made by `tools/boys/cake_patch.py`) covers the film's cake when a 3D cake is selected. Lettering and tilt work on the 3D cakes only.
+Known: the 3D cakes look wrong against the plate (proportions and cool grey shading); that is the next thing to fix.
