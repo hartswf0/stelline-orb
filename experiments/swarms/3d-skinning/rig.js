@@ -271,9 +271,9 @@ function armMetrics(G, P, s) { const arm = G.info.arms[s], a = arm.a, b = arm.b,
   return { elbowVol: zoneVolume(G, P, arm, e0, e1), foreVol: zoneVolume(G, P, arm, f0, f1), shoulderVol: zoneVolume(G, P, arm, s0, s1), foreMinRing: minA }; }
 
 const SPECS = [
-  { name: 'CHILD 1', role: 'the birthday child', H: 1.02, dress: true, shortSleeve: true, hair: 'bun', ornament: 'bow', ang: -42, colors: { top: 0xc9566a, skin: 0xd9a27c, hair: 0x3a2416, shoes: 0x7a2630, socks: 0xf2ece4, legs: 0xf2ece4 } },
-  { name: 'CHILD 2', role: 'carries the layers', H: 1.2, bulky: true, hair: 'short', ornament: 'sleeve', ang: 44, colors: { top: 0x2f6f8f, skin: 0xc68a62, hair: 0x18120e, shoes: 0x2a2a2a, socks: 0xdddddd, legs: 0x2b3140 } },
-  { name: 'CHILD 3', role: 'ices, pipes and writes', H: 1.1, hair: 'pigtails', ang: -102, colors: { top: 0x5d8a45, skin: 0xe0b090, hair: 0x7a4a22, shoes: 0x5a3a2a, socks: 0xdcd2c4, legs: 0x6a4a3a } },
-  { name: 'CHILD 4', role: 'places and lights the candles', H: 1.15, hair: 'cap', ang: 100, colors: { top: 0xc0502e, skin: 0xa8714e, hair: 0x120c0a, cap: 0x24305a, shoes: 0x303030, socks: 0xd8d8d8, legs: 0x3a3f2c } }];
+  { name: 'CHILD 1', role: 'the birthday child', H: 1.02, dress: true, shortSleeve: true, hair: 'bun', ornament: 'bow', ang: -48, colors: { top: 0xc9566a, skin: 0xd9a27c, hair: 0x3a2416, shoes: 0x7a2630, socks: 0xf2ece4, legs: 0xf2ece4 } },
+  { name: 'CHILD 2', role: 'carries the layers', H: 1.2, bulky: true, hair: 'short', ornament: 'sleeve', ang: 50, colors: { top: 0x2f6f8f, skin: 0xc68a62, hair: 0x18120e, shoes: 0x2a2a2a, socks: 0xdddddd, legs: 0x2b3140 } },
+  { name: 'CHILD 3', role: 'ices, pipes and writes', H: 1.1, hair: 'pigtails', ang: -112, colors: { top: 0x5d8a45, skin: 0xe0b090, hair: 0x7a4a22, shoes: 0x5a3a2a, socks: 0xdcd2c4, legs: 0x6a4a3a } },
+  { name: 'CHILD 4', role: 'places and lights the candles', H: 1.15, hair: 'cap', ang: 110, colors: { top: 0xc0502e, skin: 0xa8714e, hair: 0x120c0a, cap: 0x24305a, shoes: 0x303030, socks: 0xd8d8d8, legs: 0x3a3f2c } }];
 return { SPECS, BONES, PARENT, BI, MORPHS, KEY, dims, buildChild, solve, world, skinMats, skinVertex, skinAll, armMetrics, ornamentMetrics, ringArea, ringPts, zoneVolume, morphWeights, V };
 });

@@ -93,6 +93,10 @@
   "flameToLength": 0.3676,
   "flameWidthToHeight": 0.4098,
   "stripeTurns": 8,
+  "wickToLength": 0.1,
+  "wickNote": "dark gap between shaft top and flame on candles A and C, about 4-5 px of a 44 px shaft; rough",
+  "flicker": 0.08,
+  "flickerNote": "coefficient of variation of the bright flame-core height (luma > 185) over 64 registered frames 144.75-147.375 s, four flames: 0.093, 0.053, 0.099, 0.071 (includes registration jitter, so an upper bound)",
   "note": "147.375 s: mean shaft length 44.3 px over a top diameter of 268 px, divided by cos(elevation 37 deg) for foreshortening; 155.0 s: shaft 43 px over cake width 217 px (camera about 7 deg above). Thickness and flame read on both frames. Stripe turns counted on candle B (about 8-9 visible bands)"
  },
  "colours": {
@@ -102,9 +106,9 @@
    57
   ],
   "red": [
-   153,
-   89,
-   33
+   129,
+   62,
+   1
   ],
   "blue": [
    176,
@@ -121,7 +125,7 @@
    145,
    69
   ],
-  "note": "film medians under the warm grade (sRGB 0-255). blue: the bluest decile of bright pixels on candle C; under the grade the blue stripe reads as a cool off-white",
+  "note": "film medians under the warm grade (sRGB 0-255). red: the reddest decile of bright pixels on candles B and E (stripes are 1-2 px wide, so plain medians mix in the white); blue: the bluest decile of bright pixels on candle C; under the grade the blue stripe reads as a cool off-white",
   "rel": {
    "cream": [
     0.9474,
@@ -129,9 +133,9 @@
     0.8261
    ],
    "red": [
-    0.8053,
-    0.6138,
-    0.4783
+    0.6789,
+    0.4276,
+    0.0145
    ],
    "blue": [
     0.9263,

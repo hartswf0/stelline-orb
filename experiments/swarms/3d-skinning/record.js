@@ -6,7 +6,7 @@
    then:  ffmpeg -framerate 30 -i <dir>/%05d.jpg -i <dir>/audio.wav -c:v libx264 -crf 20 -pix_fmt yuv420p -c:a aac -shortest proof.mp4 */
 'use strict';
 const { chromium } = require('playwright'), fs = require('fs'), path = require('path');
-const out = process.argv[2] || '/tmp/skin-rec', URL = 'http://localhost:8790/experiments/swarms/3d-skinning/index.html?rec=1'; fs.mkdirSync(out, { recursive: true });
+const DRY = !!process.env.DRY, out = process.argv[2] || '/tmp/skin-rec', URL = 'http://localhost:8790/experiments/swarms/3d-skinning/index.html?rec=1'; fs.mkdirSync(out, { recursive: true });
 (async () => {
   const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   const p = await b.newPage({ viewport: { width: 432, height: 768 }, deviceScaleFactor: 1 }); p.setDefaultTimeout(0); const errs = [];
@@ -37,13 +37,15 @@ const out = process.argv[2] || '/tmp/skin-rec', URL = 'http://localhost:8790/exp
         else if (what === 'select') busyUntil = F + tap(geo.sel, 2) + 4; else if (what === 'hold') busyUntil = F + tap(geo.hold, 3) + 3;
         log.push([+(F / 30).toFixed(2), what, arg == null ? '' : arg]); step++; } }
     for (const a of pending.filter(a => a[0] === F)) await a[1](); pending = pending.filter(a => a[0] > F);
+    if (step >= PLAN.length && !pending.length) { F++; break; }
+    if (DRY) { await p.evaluate(() => MM.skip(1 / 30)); continue; }
     await p.evaluate(() => MM.advance(1 / 30));
     await p.screenshot({ path: path.join(out, String(F).padStart(5, '0') + '.jpg'), type: 'jpeg', quality: 88 });
     if (step >= PLAN.length && !pending.length) { F++; break; }
     if (F % 60 === 0) console.error('frame', F, JSON.stringify(await st()));
   }
-  const DUR = F / 30; const au = await p.evaluate(d => MM.renderAudio(0, d), DUR); fs.writeFileSync(path.join(out, 'audio.wav'), Buffer.from(au.b64, 'base64'));
+  const DUR = F / 30; const au = DRY ? {} : await p.evaluate(d => MM.renderAudio(0, d), DUR); if (!DRY) fs.writeFileSync(path.join(out, 'audio.wav'), Buffer.from(au.b64, 'base64'));
   const tr = await p.evaluate(() => MM.traceOut()); tr.source = 'record.js: the game played through the device with mouse input on a virtual clock, ' + DUR.toFixed(2) + ' s, 432x768'; tr.inputs = log; tr.frames = F;
-  fs.writeFileSync(path.join(__dirname, 'trace.json'), JSON.stringify(tr, null, 1));
+  if (!DRY) fs.writeFileSync(path.join(__dirname, 'trace.json'), JSON.stringify(tr, null, 1));
   console.log(JSON.stringify({ frames: F, dur: DUR, gens: tr.gens.length, lit: tr.lit, out: tr.out, peak: au.peak, errors: errs, inputs: log }));
   await b.close(); })();

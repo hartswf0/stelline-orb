@@ -1,6 +1,6 @@
 /* modules/table.js — EVOLVE-ALL evolver module: the party table.
    The film's table (155 s, 214 s): a pale, bare, hexagonal top lit by the candles, a thin edge, nothing visible underneath.
-   Genome: top radius, number of sides, stretch, orientation, height, edge thickness, legs/pedestal, cloth, colours. Blank: a round post.
+   Genome: top radius, number of sides, stretch, orientation, height, edge thickness, legs/pedestal, cloth, colours. Blank: a square post.
    Fitness (node-safe): top silhouette IoU against the traced outline (refs/table.json), proportions (cake to top width, height to width,
    edge to width), lit top colour, and support (it stands, the cake fits, the base stays dark).
    Units: the memory's scene units (ana/index.html: cake radius 0.12). Plain JS, UMD: node module.exports or window.EVOMOD.table. */
@@ -13,13 +13,13 @@
   const CANDLE = [1, .70, .22], GAIN = .8;  // reference candle tint and gain: how a surface albedo reads as an sRGB colour in the party frames
   /* [key, group, min, max, default(=blank)] */
   const genes = [
-    ['radius', 'SHAPE', .04, .6, .05],     // top: centre to vertex
-    ['sides', 'SHAPE', 3, 12, 12],         // rounded to an integer; 12 reads as a round post
+    ['radius', 'FRAME', .04, .6, .05],     // top: centre to vertex (size belongs to FRAME; SHAPE is the form, measured scale-free)
+    ['sides', 'SHAPE', 3, 8, 4],           // rounded to an integer; the blank is a square post
     ['stretch', 'SHAPE', .7, 1.6, 1],      // the top widened along x (the film's hexagon has long front and back edges)
     ['yaw', 'SHAPE', -30, 30, 0],          // degrees; 0 = a vertex pointing right (+x)
-    ['warp', 'SHAPE', -.6, .6, 0],         // moves the vertices toward (+) or away from (-) the x axis: lengthens the front and back edges (the film's hexagon is not regular)
+    ['warp', 'SHAPE', -.9, .9, 0],         // moves the vertices toward (+) or away from (-) the x axis: lengthens the front and back edges (the film's hexagon is not regular)
     ['height', 'FRAME', .1, 1, .5],        // floor to top surface
-    ['thick', 'FRAME', .005, .4, .4],      // edge thickness (clamped below the height)
+    ['thick', 'FRAME', .005, .25, .06],      // edge thickness (clamped below the height)
     ['legs', 'BASE', 1, 4, 1],             // rounded: 1 = a central pedestal, 2-4 legs under the vertices
     ['legW', 'BASE', .01, .12, .05],       // pedestal or leg radius
     ['spread', 'BASE', 0, 1, 0],           // legs: how far out under the top (fraction of the inscribed radius)
@@ -30,7 +30,7 @@
     ['topR', 'COLOUR', 0, 1, .5], ['topG', 'COLOUR', 0, 1, .5], ['topB', 'COLOUR', 0, 1, .5],
   ];
   const groups = ['SHAPE', 'FRAME', 'BASE', 'CLOTH', 'COLOUR'];
-  const stages = [['SHAPE', 'silhouette', .85], ['FRAME', 'proportion', .85], ['BASE', 'support', .95], ['COLOUR', 'palette', .85], ['WHOLE', 'fit', .88]];
+  const stages = [['SHAPE', 'silhouette', .87], ['FRAME', 'proportion', .85], ['BASE', 'support', .95], ['COLOUR', 'palette', .85], ['WHOLE', 'fit', .88]];
   const making = [['legs rise', 0, .35], ['top set', .35, .65], ['colour', .65, .8], ['cloth falls', .8, 1]];
   const IDX = {}; genes.forEach((g, i) => IDX[g[0]] = i);
   const named = G => { const o = {}; genes.forEach((g, i) => o[g[0]] = G[i]); return o; };
@@ -56,15 +56,18 @@
   function segDist(p, poly) { let best = 1e9; for (let i = 0; i < poly.length; i++) { const a = poly[i], b = poly[(i + 1) % poly.length], ex = b[0] - a[0], ey = b[1] - a[1], l2 = ex * ex + ey * ey;
       const u = l2 ? clamp(((p[0] - a[0]) * ex + (p[1] - a[1]) * ey) / l2, 0, 1) : 0; best = Math.min(best, Math.hypot(p[0] - a[0] - u * ex, p[1] - a[1] - u * ey)); } return best; }
   function chamfer(A, B) { const N = 120; let s = 0; boundary(A, N).forEach(p => s += segDist(p, B)); boundary(B, N).forEach(p => s += segDist(p, A)); return s / (2 * N); }   // mean boundary distance, both ways, in units of the top width
+  function corners(poly, minDeg) { let c = 0; for (let i = 0; i < poly.length; i++) { const a = poly[(i + poly.length - 1) % poly.length], b = poly[i], d = poly[(i + 1) % poly.length];
+      const t1 = Math.atan2(b[1] - a[1], b[0] - a[0]), t2 = Math.atan2(d[1] - b[1], d[0] - b[0]); let dt = Math.abs(t2 - t1); if (dt > Math.PI) dt = 2 * Math.PI - dt; if (dt * 180 / Math.PI > minDeg) c++; } return c; }   // vertices that turn by more than minDeg on screen
   const iou = (a, b) => { let i = 0, u = 0; for (let k = 0; k < a.length; k++) { if (a[k] && b[k]) i++; if (a[k] || b[k]) u++; } return u ? i / u : 0; };
   const logScore = (v, target, tol) => 1 / (1 + Math.pow(Math.log(Math.max(1e-6, v) / target) / tol, 2));   // Cauchy: never flat, so a far-off genome still has a slope
   /* ------------------------------------------------------------------ fitness */
   function evaluate(G, refs) { const t = R(refs), g = named(G), T = top(G), sc = screenTop(T, t.elevationDeg || 13);
-    const IoU = iou(rasterPoly(sc.poly, ...GRID), refMask(t)), cham = chamfer(sc.poly, t.outline), silhouette = Math.sqrt(IoU / (1 + Math.pow(cham / .02, 2)));
+    const IoU = iou(rasterPoly(sc.poly, ...GRID), refMask(t)), cham = chamfer(sc.poly, t.outline), nc = corners(sc.poly, 25), cs = 1 / (1 + .5 * Math.pow(nc - (t.corners || 6), 2));
+    const silhouette = Math.sqrt(IoU / (1 + Math.pow(cham / .02, 2))) * (.6 + .4 * cs);
     const width = sc.width, cakeToTop = 2 * CAKE_R / width, hToW = T.y / width, eToW = T.thick / width;
     const heightToWidth = t.heightToWidth || .613;
-    const edgeS = eToW <= t.edgeToWidth ? 1 : 1 / (1 + Math.pow((eToW - t.edgeToWidth) / .02, 2));
-    const proportion = Math.pow(logScore(cakeToTop, t.cakeToTop, .12) * logScore(hToW, heightToWidth, .15), .5) * edgeS;
+    const edgeS = eToW <= t.edgeToWidth ? 1 : 1 / (1 + Math.pow((eToW - t.edgeToWidth) / .05, 2));
+    const proportion = (logScore(cakeToTop, t.cakeToTop, .25) + logScore(hToW, heightToWidth, .3) + edgeS) / 3;
     // lit top colour: cloth colour when a cloth covers the top, else the top albedo; seen under the reference candle
     const cl = g.cloth > .1, alb = cl ? [g.clothR, g.clothG, g.clothB] : [g.topR, g.topG, g.topB];
     const seen = alb.map((a, k) => 255 * clamp(a * CANDLE[k] * GAIN, 0, 1)), tc = t.topColour;
@@ -76,7 +79,7 @@
     const dark = 1 / (1 + Math.pow(Math.max(0, below - (t.belowLuma || 2.8)) / 6, 2));
     const support = stand * fits * dark;
     const fit = .35 * silhouette + .25 * proportion + .15 * support + .25 * palette;
-    return { fit, parts: { silhouette, iou: IoU, chamfer: cham, proportion, support, palette, stand, fits, dark, cakeToTop, heightToWidth: hToW, edgeToWidth: eToW, seen } };
+    return { fit, parts: { silhouette, iou: IoU, chamfer: cham, corners: nc, proportion, support, palette, stand, fits, dark, cakeToTop, heightToWidth: hToW, edgeToWidth: eToW, seen } };
   }
   function lum(r, g, b) { return .2126 * r + .7152 * g + .0722 * b; }
   /* ------------------------------------------------------------------ anchors: where other parts attach */

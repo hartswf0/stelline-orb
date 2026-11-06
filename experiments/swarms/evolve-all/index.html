@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Evolve All</title>
+<style>
+@font-face { font-family: 'Oswald'; src: url('../../../ana/assets/oswald-latin-400-normal.woff2') format('woff2'); font-weight: 400; }
+@font-face { font-family: 'Oswald'; src: url('../../../ana/assets/oswald-latin-500-normal.woff2') format('woff2'); font-weight: 500; }
+:root { --bg: #030404; --ink: #d9e2de; --dim: #6f7c77; --amber: #e8b264; }
+* { box-sizing: border-box; } html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); overflow: hidden; }
+body { font: 13px/1.4 'Oswald', 'Arial Narrow', sans-serif; letter-spacing: .06em; -webkit-user-select: none; user-select: none; }
+.app { height: 100dvh; display: grid; grid-template-rows: minmax(0, 1fr) clamp(210px, 36vh, 330px); }
+#view { position: relative; overflow: hidden; } #view canvas { display: block; width: 100%; height: 100%; }
+#cap { position: absolute; left: 12px; right: 12px; bottom: 8px; text-align: center; color: rgba(232,178,100,.9); font-size: 12px; letter-spacing: .14em; pointer-events: none; text-shadow: 0 0 6px #000; }
+#tag { position: absolute; left: 12px; top: 10px; color: rgba(160,172,168,.8); font-size: 11px; letter-spacing: .12em; pointer-events: none; line-height: 1.5; }
+#lapse { position: absolute; right: 12px; top: 10px; color: rgba(232,178,100,.85); font-size: 11px; letter-spacing: .14em; pointer-events: none; }
+#dev { position: relative; background: radial-gradient(120% 140% at 50% 0%, #121413 0%, #070807 60%, #030303 100%); border-top: 1px solid #161918; touch-action: none; }
+#dev canvas { display: block; width: 100%; height: 100%; }
+#info { position: absolute; inset: 0; background: rgba(3, 4, 4, .96); display: none; overflow: auto; padding: 16px 16px 30px; font: 13px/1.5 -apple-system, Arial, sans-serif; letter-spacing: 0; z-index: 5; }
+#info.on { display: block; } #info h3 { font: 500 15px 'Oswald', sans-serif; letter-spacing: .1em; margin: 0 0 8px; color: var(--amber); }
+#info p, #info li { max-width: 760px; color: #a9b4b0; } #info pre { white-space: pre-wrap; color: #b9c4c0; font-size: 11px; }
+#info button { font: 500 12px 'Oswald', sans-serif; letter-spacing: .1em; background: #1a1d1c; color: var(--ink); border: 1px solid #333; padding: 6px 12px; margin: 4px 6px 4px 0; }
+</style></head><body>
+<div class="app"><div id="view"><div id="tag"></div><div id="lapse"></div><div id="cap"></div></div><div id="dev"></div></div>
+<div id="info"><h3>EVOLVE ALL: OPERATOR</h3>
+<p>Every part of the birthday memory is grown from a primitive by breeding; the device that breeds them is a genome too, bred from how you play. SELECT picks the part, HOLD keeps the best variant and breeds the next generation, long HOLD switches the memory off. The ring under each label does what the label says; the labels move when the interface evolves.</p>
+<button id="dl">SAVE THE TRACE</button><button id="infoClose">CLOSE</button><pre id="infoBody"></pre></div>
+<script src="../../../ana/assets/three.min.js"></script>
+<script src="core/breed.js"></script><script src="ui/standins.js"></script><script src="ui/uigenome.js"></script><script src="ui/player.js"></script>
+<script>
+'use strict';
+const T = THREE, TAU = Math.PI * 2, clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t;
+const Q = new URLSearchParams(location.search), REC = Q.has('rec'), SEED = +(Q.get('seed') || 2049), STYLE = Q.get('player') || null;
+const PARTS = ['table', 'cake', 'inscription', 'candles', 'people', 'light'], LABEL = { table: 'TABLE', cake: 'CAKE', inscription: 'INSCRIPTION', candles: 'CANDLES', people: 'PEOPLE', light: 'LIGHT' };
+const SUPPORT = { table: null, cake: 'table', inscription: 'cake', candles: 'cake', people: 'table', light: null };
+const ATTACH = { cake: ['top', 'topCentre', 'topCenter', 'tableTop', 'surface', 'centre', 'center'], inscription: ['inscription', 'writing', 'top', 'topCentre', 'topCenter', 'surface', 'centre'],
+  candles: ['candles', 'top', 'topCentre', 'topCenter', 'surface', 'centre'], people: ['floor', 'ground', 'base'] };
+let NOW = 0;
+/* =============================================================== SOUND (as ../evolve): the device's grains if present, the sounds of making; every event logged for the offline render */
+const SPR = { click: [[0, .065], [.115, .065], [.23, .065], [.345, .065], [.46, .065], [.575, .065], [.69, .065], [.805, .065], [.92, .065]], ratchet: [[1.035, .05], [1.135, .05], [1.235, .05], [1.335, .05]], tick: [[1.435, .04], [1.525, .04]], comb: [[1.615, .37]], whirr: [[2.035, .62]] };
+let AC = null, BUF = null, WAVBYTES = null; const LOG = [];
+fetch('../../../ana/device-sounds.wav').then(r => r.ok ? r.arrayBuffer() : null).then(b => { WAVBYTES = b || new ArrayBuffer(0); }).catch(() => { WAVBYTES = new ArrayBuffer(0); });
+let RND = 1; const rnd = () => { RND = (RND * 16807) % 2147483647; return RND / 2147483647; };
+function ac() { if (REC) return null; if (!AC) { AC = new (window.AudioContext || window.webkitAudioContext)(); if (WAVBYTES && WAVBYTES.byteLength) AC.decodeAudioData(WAVBYTES.slice(0)).then(b => BUF = b).catch(() => { }); } if (AC.state === 'suspended') AC.resume(); return AC; }
+function noiseBuf(a, len) { const b = a.createBuffer(1, Math.max(1, Math.floor(a.sampleRate * len)), a.sampleRate), d = b.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = rnd() * 2 - 1; return b; }
+function env(g, t, pk, at, dur) { g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(pk, t + at); g.gain.exponentialRampToValueAtTime(.0005, t + dur); }
+function nz(a, out, t, len, type, f0, f1, q, pk, at) { const s = a.createBufferSource(); s.buffer = noiseBuf(a, len); const f = a.createBiquadFilter(); f.type = type; f.Q.value = q || 1; f.frequency.setValueAtTime(f0, t); if (f1) f.frequency.linearRampToValueAtTime(f1, t + len); const g = a.createGain(); env(g, t, pk, at || .01, len); s.connect(f).connect(g).connect(out); s.start(t); }
+function osc(a, out, t, f0, f1, len, pk, type) { const o = a.createOscillator(), g = a.createGain(); o.type = type || 'sine'; o.frequency.setValueAtTime(f0, t); if (f1) o.frequency.exponentialRampToValueAtTime(f1, t + len); env(g, t, pk, .005, len); o.connect(g).connect(out); o.start(t); o.stop(t + len + .05); }
+function grain(a, out, buf, t, kind, rate, vol) { if (buf) { const set = SPR[kind], [o, d] = set[Math.floor(rnd() * set.length)], s = a.createBufferSource(); s.buffer = buf; s.playbackRate.value = rate; const g = a.createGain(); g.gain.value = vol; s.connect(g).connect(out); s.start(t, o, d); return; }
+  nz(a, out, t, .04, 'bandpass', kind === 'tick' ? 6000 : 2600 * rate, 0, 2.2, vol, .002); }
+const fitHz = f => 196 * Math.pow(2, clamp((f - .4) / .55, 0, 1) * 2);
+function play(a, out, buf, t, e) { const k = e.k;
+  if (k === 'click') grain(a, out, buf, t, e.fast ? 'ratchet' : 'click', 1 + (e.ring || 0) * .045 + (rnd() - .5) * .02, .65);
+  else if (k === 'hand') grain(a, out, buf, t, 'click', 1.25 + (e.ring || 0) * .03, .22);
+  else if (k === 'kid') { grain(a, out, buf, t, 'click', .92 + (rnd() - .5) * .02, .55); osc(a, out, t, fitHz(e.f) * 2, 0, .12, .014); }
+  else if (k === 'select') { for (let i = 0; i < 5; i++) osc(a, out, t + i * .055, 12000, 0, .03, .025); }
+  else if (k === 'hold') grain(a, out, buf, t, 'click', .85, .6);
+  else if (k === 'flash') { nz(a, out, t, .5, 'highpass', 2200, 0, 1, .12, .03); if (buf) grain(a, out, buf, t, 'comb', 1, .15); }
+  else if (k === 'stage') { osc(a, out, t, 140, 60, .25, .2); [0, .09, .18].forEach((d, i) => osc(a, out, t + d, fitHz(e.f || .8) * [1, 1.5, 2][i], 0, 1.1, .03)); }
+  else if (k === 'make') { const p = e.part;   // the sounds of making, one per machine step of the making
+    if (p === 'table') osc(a, out, t, 220, 110, .09, .08, 'triangle');
+    else if (p === 'cake') nz(a, out, t, .1, 'bandpass', 900, 1400, 3, .07, .02);
+    else if (p === 'inscription') nz(a, out, t, .08, 'bandpass', 2400, 3200, 4, .05, .01);
+    else if (p === 'candles') { nz(a, out, t, .05, 'bandpass', 1300, 0, 2, .08, .003); grain(a, out, buf, t + .02, 'tick', 1, .2); }
+    else if (p === 'people') nz(a, out, t, .07, 'lowpass', 500, 0, 1, .1, .005);
+    else osc(a, out, t, 110, 0, .12, .02, 'sawtooth'); }
+  else if (k === 'reattach') nz(a, out, t, .35, 'bandpass', 600, 1800, 2, .05, .05);
+  else if (k === 'ui') { osc(a, out, t, 1320, 0, .08, .03); osc(a, out, t + .09, 1760, 0, .1, .03); }
+  else if (k === 'strike') { nz(a, out, t, .14, 'highpass', 3000, 1200, 1, .18, .005); nz(a, out, t + .1, .5, 'lowpass', 700, 300, 1, .06, .05); }
+  else if (k === 'puff') nz(a, out, t, .12, 'bandpass', 3200, 1400, 1, .09, .01);
+  else if (k === 'blow') nz(a, out, t, 1.1, 'lowpass', 1500, 500, 1, .18, .05);
+  else if (k === 'off') nz(a, out, t, .7, 'highpass', 2200, 0, 1, .2, .06); }
+function sound(e) { e.t = NOW; LOG.push(e); const a = ac(); if (!a) return; try { play(a, a.destination, BUF, a.currentTime + .005, e); } catch (x) { } }
+/* offline render for the proof: map maps a virtual time to an output time (or null to drop), so a time-lapse keeps its sound in step */
+async function renderAudio(dur, map) { const sr = 48000, a = new OfflineAudioContext(2, Math.ceil(dur * sr), sr); let buf = null; if (WAVBYTES && WAVBYTES.byteLength) buf = await a.decodeAudioData(WAVBYTES.slice(0)); RND = 1;
+  const seen = {}; LOG.forEach(e => { const ot = map ? map(e.t) : e.t; if (ot == null || ot < 0 || ot > dur) return; const key = e.k + ':' + Math.round(ot * 30); seen[key] = (seen[key] || 0) + 1; if (seen[key] > 2) return; play(a, a.destination, buf, ot + .001, e); });
+  const r = await a.startRendering(), L0 = r.getChannelData(0), R0 = r.getChannelData(1), n = L0.length, dv = new DataView(new ArrayBuffer(44 + n * 4));
+  const ws = (o, s) => { for (let i = 0; i < s.length; i++) dv.setUint8(o + i, s.charCodeAt(i)); }; ws(0, 'RIFF'); dv.setUint32(4, 36 + n * 4, true); ws(8, 'WAVEfmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 2, true); dv.setUint32(24, sr, true); dv.setUint32(28, sr * 4, true); dv.setUint16(32, 4, true); dv.setUint16(34, 16, true); ws(36, 'data'); dv.setUint32(40, n * 4, true);
+  let pk = 0; for (let i = 0; i < n; i++) pk = Math.max(pk, Math.abs(L0[i]), Math.abs(R0[i])); const gain = pk > .95 ? .95 / pk : 1;
+  for (let i = 0; i < n; i++) { dv.setInt16(44 + i * 4, clamp(L0[i] * gain, -1, 1) * 32767, true); dv.setInt16(46 + i * 4, clamp(R0[i] * gain, -1, 1) * 32767, true); }
+  const bytes = new Uint8Array(dv.buffer); let s = ''; for (let i = 0; i < bytes.length; i += 32768) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 32768)); return { b64: btoa(s), peak: pk }; }
+/* =============================================================== THE ROOM (ana/index.html): true black, a dark dome, a band of light where wall meets floor, round projected spots */
+const viewEl = document.getElementById('view'), R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: REC }); R.setPixelRatio(REC ? 1 : Math.min(2, devicePixelRatio)); R.outputEncoding = T.sRGBEncoding; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = 1.1; viewEl.prepend(R.domElement);
+const scene = new T.Scene(); scene.background = new T.Color(0x030404); scene.fog = new T.FogExp2(0x030404, .05);
+const cam = new T.PerspectiveCamera(34, 1, .02, 60);
+{ const fl = new T.Mesh(new T.CircleGeometry(9, 96), new T.MeshStandardMaterial({ color: 0x050606, roughness: .95 })); fl.rotation.x = -Math.PI / 2; scene.add(fl);
+  const dome = new T.Mesh(new T.SphereGeometry(8, 48, 24, 0, TAU, 0, Math.PI / 2), new T.MeshBasicMaterial({ color: 0x050707, side: T.BackSide })); scene.add(dome);
+  const band = new T.Mesh(new T.TorusGeometry(7.5, .012, 6, 256), new T.MeshBasicMaterial({ color: 0xdfe8e4 })); band.rotation.x = Math.PI / 2; band.position.y = .42; scene.add(band);
+  const glow = new T.Mesh(new T.TorusGeometry(7.5, .09, 6, 256), new T.MeshBasicMaterial({ color: 0x7e8f89, transparent: true, opacity: .12 })); glow.rotation.x = Math.PI / 2; glow.position.y = .42; scene.add(glow); }
+const spotTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'), g = x.createRadialGradient(64, 64, 2, 64, 64, 64); g.addColorStop(0, 'rgba(255,236,200,.55)'); g.addColorStop(.55, 'rgba(255,220,170,.25)'); g.addColorStop(.85, 'rgba(255,210,160,.06)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, 128, 128); return new T.CanvasTexture(c); })();
+const SPOT = new T.Mesh(new T.CircleGeometry(1, 64), new T.MeshBasicMaterial({ map: spotTex, transparent: true, blending: T.AdditiveBlending, depthWrite: false })); SPOT.rotation.x = -Math.PI / 2; SPOT.position.y = .003; scene.add(SPOT);
+const hemi = new T.HemisphereLight(0x8a9692, 0x0a0806, .22); scene.add(hemi); const key = new T.SpotLight(0xfff0dc, 1.4, 5, .45, .6, 1.2); key.position.set(.35, 2.1, .9); key.target.position.set(0, .5, 0); scene.add(key, key.target);
+const rim = new T.DirectionalLight(0x9fb8b2, .3); rim.position.set(-1, .6, -1.2); scene.add(rim);
+const candleLight = new T.PointLight(0xffa04a, 0, 2.6, 1.6); scene.add(candleLight);
+/* the switching spots: the memory comes on and goes off as round spots of light */
+const SPOTS = []; for (let i = 0; i < 9; i++) { const m = new T.Sprite(new T.SpriteMaterial({ map: spotTex, transparent: true, blending: T.AdditiveBlending, depthWrite: false, opacity: 0 })); scene.add(m); SPOTS.push({ m, x: (rnd() - .5) * 1.4, y: .2 + rnd() * .8, z: (rnd() - .5) * 1.0, s: .15 + rnd() * .35 }); }
+/* =============================================================== THE PARTS: each an evolver module (real if its file exists, the stand-in otherwise) */
+const P = {}; const REFS = {};
+PARTS.forEach(n => { const h = new T.Group(); scene.add(h); P[n] = { name: n, mod: STANDINS[n], real: false, holder: h, obj: null, kidsG: new T.Group(), G: null, e: null, stage: 0, gen: 0, done: false, made: false, brood: null, mats: [], flash: 0, size: .3, want: new T.Vector3(), metrics: UIG.blankMetrics(), passGens: [] }; scene.add(P[n].kidsG); });
+function loadScript(src) { return new Promise(res => { const s = document.createElement('script'); s.src = src; s.onload = () => res(true); s.onerror = () => { s.remove(); res(false); }; document.head.append(s); }); }
+async function loadModule(n, bust) { const ok = await loadScript('modules/' + n + '.js' + (bust ? '?v=' + Date.now() : '')); const m = ok && window.EVOMOD && window.EVOMOD[n];
+  if (m && contractOK(m)) { P[n].mod = m; P[n].real = true; return true; } return false; }
+function contractOK(m) { return m && Array.isArray(m.genes) && Array.isArray(m.stages) && typeof m.blank === 'function' && typeof m.evaluate === 'function' && typeof m.build === 'function' && typeof m.anchors === 'function'; }
+async function loadRefs(n) { try { const r = await fetch('refs/' + n + '.json'); REFS[n] = r.ok ? await r.json() : {}; } catch (e) { REFS[n] = {}; } }
+const findA = (A, names) => { if (!A) return null; for (const k of names) if (Array.isArray(A[k]) && A[k].length >= 3 && typeof A[k][0] === 'number') return A[k]; return null; };
+function anchorsOf(p) { try { return p.mod.anchors(p.G) || {}; } catch (e) { return {}; } }
+function refsFor(n) { const s = SUPPORT[n], r = Object.assign({}, REFS[n] || {}); if (s) { const A = anchorsOf(P[s]); r.support = Object.assign({ part: s }, A); } return r; }
+function evalPart(p) { try { p.e = p.mod.evaluate(p.G, refsFor(p.name)); } catch (e) { console.error(p.name, e); p.e = { fit: 0, parts: {} }; } }
+function scoreNow(p) { const st = p.mod.stages[Math.min(p.stage, p.mod.stages.length - 1)]; return BREED.measure(p.e, st[1]); }
+function initPart(n) { const p = P[n]; p.G = BREED.blank(p.mod); p.stage = 0; p.gen = 0; p.done = false; p.made = false; p.brood = null; p.passGens = []; evalPart(p); p.stage = BREED.stageOf(p.mod, p.e); rebuild(p, 1); }
+/* where a part sits: on its support's anchor, minus its own base anchor */
+function worldAnchor(n) { const s = SUPPORT[n]; if (!s) return new T.Vector3(); const A = anchorsOf(P[s]), a = findA(A, ATTACH[n]) || [0, 0, 0]; const own = findA(anchorsOf(P[n]), ['base', 'bottom', 'origin']) || [0, 0, 0];
+  return P[s].want.clone().add(new T.Vector3(a[0] - own[0], a[1] - own[1], a[2] - own[2])); }
+function disposeTree(o) { o.traverse(c => { if (c.geometry) c.geometry.dispose(); const ms = c.material ? (Array.isArray(c.material) ? c.material : [c.material]) : []; ms.forEach(m => { if (m.map) m.map.dispose(); m.dispose(); }); }); }
+function hideFlames(o) { o.traverse(c => { if (/flame|halo|glow/i.test(c.name || '') || (c.userData && c.userData.flame)) c.visible = false; }); }
+function buildObj(p, G, t) { let o; try { o = p.mod.build(T, G, { t, support: SUPPORT[p.name] ? anchorsOf(P[SUPPORT[p.name]]) : null, refs: REFS[p.name] }); } catch (e) { console.error('build', p.name, e); o = new T.Group(); } hideFlames(o); return o; }
+function rebuild(p, t) { if (p.obj) { p.holder.remove(p.obj); disposeTree(p.obj); } p.obj = buildObj(p, p.G, t); p.holder.add(p.obj); p.mats = []; p.obj.traverse(c => { if (c.material && c.material.emissive) p.mats.push(c.material); });
+  if (t >= 1) { const b = new T.Box3().setFromObject(p.obj); if (!b.isEmpty()) { const s = b.getSize(new T.Vector3()); p.size = clamp(Math.max(s.x, s.y, s.z), .08, 2.5); p.box = b; } } }
+/* =============================================================== THE UI GENOME in use */
+const UIL = UIG.lineage(SEED); let UIC = { U: UIL.elite.U, id: UIL.elite.id, elite: true }, UI = UIG.decode(UIC.U), choice = null;
+/* =============================================================== THE STATE */
+const S = { part: 'table', phase: 'evolve', since: 0, sinceHold: 0, lapse: 0, off: 0, dark: 0, lit: 0, blowAt: 0, ended: false, made: null, caption: '', memory: 1, ready: false, uiRounds: 0 };
+const TR = { seed: SEED, style: STYLE, started: new Date().toISOString(), modules: {}, parts: [], ui: UIL.log, events: [] };
+const RINGS = [{ id: 'scale', ix: 0, ang: 0, target: 0, applied: 0 }, { id: 'knurl', ix: 1, ang: 0, target: 0, applied: 0 }, { id: 'tri', ix: 2, ang: 0, target: 0, applied: 0 }];
+const roleOf = r => UI.roles[r.ix], ringOf = role => RINGS[UIG.RINGS.indexOf(UI.map[role])];
+function roleRange(role) { const p = P[S.part]; return role === 'VIEW' ? [-36, 36] : role === 'STRENGTH' ? [0, 11] : [0, p.mod.groups.length]; }
+const VAL = { VIEW: 0, STRENGTH: 9, BIAS: 0 };   // the value each role holds, whichever ring carries it
+function applyUI(U, cand) { UIC = cand || { U, id: '?' }; UI = UIG.decode(U); RINGS.forEach(r => { const v = VAL[roleOf(r)]; r.target = r.applied = v; r.ang = v * UI.detent; }); }
+function setStrengthStart() { VAL.STRENGTH = UI.sigma0; applyUI(UIC.U, UIC); }
+/* the machine: rings step to where the hand left them, at the UI's rate (twice that, capped at 23.6/s, when far behind); variants and making step on the same clock */
+let stepClock = 0;
+function machineBusy() { return RINGS.some(r => r.target !== r.applied) || (P[S.part].brood && P[S.part].brood.shown < P[S.part].brood.kids.length) || !!S.made || S.phase === 'light' || S.phase === 'blow'; }
+function machine(dt) { stepClock += dt; if (!machineBusy()) { stepClock = Math.min(stepClock, 1 / UI.rate); return; }
+  const fast = RINGS.some(r => Math.abs(r.target - r.applied) > 6), period = 1 / Math.min(23.6, fast ? UI.rate * 2 : UI.rate);
+  while (stepClock >= period) { stepClock -= period; let any = false;
+    RINGS.forEach(r => { if (r.target === r.applied) return; r.applied += Math.sign(r.target - r.applied); VAL[roleOf(r)] = r.applied; sound({ k: 'click', fast, ring: r.ix }); any = true; if (roleOf(r) === 'VIEW') S.yawT = r.applied * 5; });
+    if (any) continue;
+    if (S.made) { makeStep(); continue; }
+    const p = P[S.part]; if (p.brood && p.brood.shown < p.brood.kids.length) { const k = p.brood.kids[p.brood.shown++]; showKid(p, p.brood.shown - 1); sound({ k: 'kid', f: k.score }); continue; }
+    if (S.phase === 'light') { lightStep(); continue; } if (S.phase === 'blow') { blowStep(); continue; } } }
+/* =============================================================== BREEDING through the device */
+function bias(p) { const b = clamp(VAL.BIAS, 0, p.mod.groups.length); return b ? p.mod.groups[b - 1] : null; }
+function keepOf(p) { return p.mod.stages.slice(0, Math.min(p.stage, p.mod.stages.length)).map(s => [s[1], s[2]]); }
+function hold() { const p = P[S.part]; sound({ k: 'hold' }); S.sinceHold = 0; p.metrics.moves++;
+  if (S.phase === 'uichoice') { chooseUI(); return; } if (S.phase === 'ready') { S.phase = 'light'; S.lit = 0; return; } if (S.phase === 'lit') { S.phase = 'blow'; S.blowN = 0; sound({ k: 'blow' }); return; } if (S.phase !== 'evolve' || S.made) return;
+  // keep: the best among the variants shown so far
+  if (p.brood) { const b = p.brood, si = Math.min(p.stage, p.mod.stages.length - 1), pk = BREED.pick({ G: p.G, e: p.e }, b.kids, b.shown, b.measure, keepOf(p)); p.metrics.gens++; p.gen++;
+    if (pk.bestIndex >= 0) { p.metrics.accepted++; p.G = pk.best.G; p.e = pk.best.e; p.flash = 1; sound({ k: 'flash' }); rebuild(p, 1); reattachDependents(p.name); }
+    TR.events.push([+NOW.toFixed(2), p.name, 'gen', p.gen, +scoreNow(p).toFixed(4), pk.bestIndex, b.shown, b.kids.length]);
+    clearKids(p); p.brood = null; const ns = Math.max(p.stage, BREED.stageOf(p.mod, p.e));
+    if (ns > p.stage) { for (let s = p.stage; s < ns; s++) p.passGens.push(p.gen); p.metrics.stages += ns - p.stage; p.stage = ns; stagePassed(p); return; } }
+  breedNext(p); }
+function breedNext(p) { const si = Math.min(p.stage, p.mod.stages.length - 1);
+  const res = BREED.breed(p.mod, { G: p.G, e: p.e }, { seed: SEED, gen: p.gen + 1000 * S.memory, sigma: UIG.sigmaOf(VAL.STRENGTH), bias: bias(p), lambda: UI.lambda, stage: si, keep: keepOf(p) }, refsFor(p.name));
+  p.brood = { kids: res.kids, shown: 0, measure: res.measure, objs: [] }; }
+/* variants: small 3D versions around the part, laid out as the UI genome says */
+function kidSpot(p, i, n) { const c = p.holder.position.clone(); const yaw = (S.yaw || 0) * Math.PI / 180, R0 = Math.max(.12, p.size * .85), h = (p.box ? (p.box.max.y + p.box.min.y) / 2 - p.holder.position.y : p.size * .4);
+  if (UI.layout === 'RING') { const a = yaw + Math.PI + (i + .5) / n * TAU; return c.add(new T.Vector3(Math.sin(a) * R0, h, Math.cos(a) * R0)); }
+  const right = new T.Vector3(Math.cos(yaw), 0, -Math.sin(yaw)), fwd = new T.Vector3(Math.sin(yaw), 0, Math.cos(yaw)), u = n > 1 ? i / (n - 1) - .5 : 0;
+  if (UI.layout === 'ROW') return c.add(right.multiplyScalar(u * R0 * 2.2)).add(fwd.multiplyScalar(R0 * .55)).add(new T.Vector3(0, h + p.size * .55, 0));
+  const a = u * 2.2; return c.add(right.multiplyScalar(Math.sin(a) * R0 * 1.1)).add(fwd.multiplyScalar(Math.cos(a) * R0 * .6)).add(new T.Vector3(0, h + p.size * .5, 0)); }
+function showKid(p, i) { const k = p.brood.kids[i], o = buildObj(p, k.G, 1), g = new T.Group(); g.add(o); const sc = p.name === 'light' ? .001 : .32; g.scale.setScalar(sc); g.position.copy(kidSpot(p, i, p.brood.kids.length));
+  if (p.name === 'light') { const m = new T.Mesh(new T.SphereGeometry(.03, 16, 12), new T.MeshBasicMaterial({ color: new T.Color().setHSL(.08, .6, .3 + .5 * k.score) })); m.position.copy(g.position); p.kidsG.add(m); p.brood.objs.push(m); disposeTree(o); return; }
+  o.traverse(c => { if (c.isLight) c.intensity = 0; if (c.material) { const ms = Array.isArray(c.material) ? c.material : [c.material]; ms.forEach(m => { m.transparent = true; m.opacity = (m.opacity == null ? 1 : m.opacity) * .85; }); } });
+  g.userData.born = NOW; g.userData.score = k.score; p.kidsG.add(g); p.brood.objs.push(g); }
+function clearKids(p) { while (p.kidsG.children.length) { const c = p.kidsG.children.pop(); disposeTree(c); } }
+/* dependants re-attach when a support changes: they glide to the new anchor; their fitness to the support is re-measured */
+function reattachDependents(n) { PARTS.forEach(d => { if (SUPPORT[d] !== n) return; const q = P[d]; evalPart(q); const w = worldAnchor(d); if (w.distanceTo(q.want) > .004) { sound({ k: 'reattach' }); q.glide = 1; } q.want.copy(w); if (d !== 'inscription') rebuild(q, q.made ? 1 : 1); reattachDependents(d); }); }
+/* =============================================================== MAKING: when a part passes a stage it is built again on screen from nothing, build(THREE,G,{t}); the last stage makes it whole */
+function stagePassed(p) { const last = p.stage >= p.mod.stages.length; sound({ k: 'stage', f: p.e.fit }); arcBlink = .15;
+  TR.events.push([+NOW.toFixed(2), p.name, 'stage', p.stage, p.gen, +p.e.fit.toFixed(4)]); S.made = { p, i: 0, n: last ? 40 : 14, last }; }
+function makeStep() { const m = S.made, p = m.p; m.i++; const t = m.i / m.n; rebuild(p, t); sound({ k: 'make', part: p.name });
+  const mk = (p.mod.making || []).find(s => t >= s[1] && t <= s[2] + 1e-9); S.caption = LABEL[p.name] + (mk ? ' — ' + String(mk[0]).toUpperCase() : '');
+  if (m.i >= m.n) { S.made = null; S.caption = ''; rebuild(p, 1); reattachDependents(p.name); if (m.last) partDone(p); } }
+function partDone(p) { p.done = true; p.made = true; const M = Object.assign({}, p.metrics); M.gensPerStage = +(M.gens / Math.max(1, M.stages)).toFixed(2); M.idle = +M.idle.toFixed(2); M.time = +(NOW - p.t0).toFixed(2);
+  TR.parts.push({ memory: S.memory, part: p.name, real: p.real, ui: UIC.id, gens: p.gen, passGens: p.passGens, fit: +p.e.fit.toFixed(4), parts: roundParts(p.e.parts), metrics: M });
+  // the UI that bred this part is scored from this play, then the next UI is chosen on the device
+  const outcome = UIG.record(UIL, UIC, M, { part: p.name, memory: S.memory, style: STYLE || 'person' }); S.uiOutcome = outcome;
+  if (PARTS.every(n => P[n].done)) { S.phase = 'ready'; S.since = 0; S.caption = 'HOLD: LIGHT THE CANDLES'; return; }
+  const cands = UIG.candidates(UIL, 3); choice = { cands, i: 0 }; S.phase = 'uichoice'; S.since = 0; sound({ k: 'ui' }); }
+const roundParts = o => { const r = {}; for (const k in (o || {})) if (typeof o[k] === 'number') r[k] = +o[k].toFixed(4); return r; };
+function chooseUI() { const c = choice.cands[choice.i]; sound({ k: 'ui' }); applyUI(c.U, c); choice = null; S.phase = 'evolve'; S.uiRounds++; select(offerNext(), true); }
+function offerNext() { const open = PARTS.filter(n => !P[n].done); if (!open.length) return S.part; if (UI.offer === 'WEAKEST FIRST') return open.slice().sort((a, b) => P[a].e.fit - P[b].e.fit)[0];
+  if (UI.offer === 'NEAREST FIRST') return open.slice().sort((a, b) => P[b].stage / P[b].mod.stages.length - P[a].stage / P[a].mod.stages.length || P[b].e.fit - P[a].e.fit)[0]; return open[0]; }
+function select(n, silent) { const p = P[S.part]; if (p.brood) { clearKids(p); p.brood = null; } S.part = n; const q = P[n]; if (!q.t0) q.t0 = NOW; q.metrics.moves += silent ? 0 : 1; if (!silent) sound({ k: 'select' }); VAL.BIAS = 0; setStrengthStart(); S.since = 0; }
+/* =============================================================== THE BIRTHDAY'S END: candles lit one per machine step, then blown out one by one */
+const FL = []; const flameTex = (() => { const c = document.createElement('canvas'); c.width = 32; c.height = 64; const x = c.getContext('2d'), g = x.createRadialGradient(16, 40, 1, 16, 35, 29); [[0, 'rgba(255,252,232,1)'], [.25, 'rgba(255,206,96,.95)'], [.6, 'rgba(255,120,30,.3)'], [1, 'rgba(255,90,20,0)']].forEach(([o, s]) => g.addColorStop(o, s)); x.fillStyle = g; x.fillRect(0, 0, 32, 64); return new T.CanvasTexture(c); })();
+for (let k = 0; k < 7; k++) { const f = new T.Sprite(new T.SpriteMaterial({ map: flameTex, blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0 })); f.scale.set(.016, .034, 1); scene.add(f); FL.push({ f, lit: 0, ph: k * 1.7 }); }
+function wicks() { const p = P.candles, A = anchorsOf(p), out = []; Object.keys(A).filter(k => /wick/i.test(k)).forEach(k => { const v = A[k]; if (Array.isArray(v) && typeof v[0] === 'number') out.push(v); else if (Array.isArray(v)) v.forEach(w => Array.isArray(w) && out.push(w)); });
+  if (!out.length) for (let k = 0; k < 7; k++) { const a = k / 7 * TAU + .3, r = k % 2 ? .052 : .088; out.push([Math.cos(a) * r, .075, Math.sin(a) * r]); } return out.slice(0, 7).map(w => p.holder.position.clone().add(new T.Vector3(w[0], w[1], w[2]))); }
+function lightStep() { if (S.lit < 7) { FL[S.lit].lit = 1; S.lit++; sound({ k: 'strike' }); S.caption = 'LIGHTING CANDLE ' + S.lit; } else { S.phase = 'lit'; S.since = 0; S.caption = 'HOLD: BLOW'; } }
+let blowClock = 0; function blowStep() { blowClock++; if (blowClock % 2) return; const k = FL.findIndex(f => f.lit); if (k < 0) { S.phase = 'out'; S.ended = true; S.caption = ''; S.endAt = NOW; return; } FL[k].lit = 0; sound({ k: 'puff' }); }
+function switchOff() { S.off = NOW; sound({ k: 'off' }); }
+/* =============================================================== THE DEVICE (ana/index.html's barrel), the rings' roles read from the UI genome */
+const devEl = document.getElementById('dev'), DC = document.createElement('canvas'); devEl.append(DC); const dx = DC.getContext('2d'); let DW = 0, DH = 0, BANDS = [], BTNS = [];
+function layoutDev() { const r = devEl.getBoundingClientRect(), pr = REC ? 1 : Math.min(2, devicePixelRatio); DW = r.width; DH = r.height; DC.width = DW * pr; DC.height = DH * pr; dx.setTransform(pr, 0, 0, pr, 0, 0);
+  const L = Math.min(DW - 24, 980), x0 = (DW - L) / 2, cy = DH * .5, rad = Math.min(DH * .26, L * .13); const w = f => f * L;
+  let x = x0; const seg = (kind, f, extra) => { const b = Object.assign({ kind, x, w: w(f), cy, rad }, extra || {}); x += w(f); return b; };
+  BANDS = [seg('collarL', .16), seg('scale', .18, { ring: RINGS[0] }), seg('redline', .04), seg('knurl', .14, { ring: RINGS[1] }), seg('tri', .18, { ring: RINGS[2] }), seg('chrome', .06), seg('collarR', .24)];
+  const cr = BANDS[6]; BTNS = [{ id: 'select', x: cr.x + cr.w * .3, y: cy - rad * .45, r: rad * .24 }, { id: 'hold', x: cr.x + cr.w * .3, y: cy + rad * .5, r: rad * .28 }, { id: 'info', x: cr.x + cr.w * .86, y: cy - rad * .95, r: rad * .13 }]; }
+function cylShade(b, base, hi) { const g = dx.createLinearGradient(0, b.cy - b.rad, 0, b.cy + b.rad); g.addColorStop(0, '#0b0c0c'); g.addColorStop(.18, base); g.addColorStop(.42, hi); g.addColorStop(.62, base); g.addColorStop(1, '#070807'); return g; }
+function marksOn(b, list) { list.forEach(([a, fn]) => { const th = (a - b.ring.ang) * Math.PI / 180, c = Math.cos(th); if (c <= .05) return; fn(b.cy - Math.sin(th) * b.rad * .92, c); }); }
+function fitText(s, x, y, w, px, col, wt) { let f = px; dx.font = `${wt || 500} ${f}px Oswald, sans-serif`; while (dx.measureText(s).width > w && f > 7) { f -= 1; dx.font = `${wt || 500} ${f}px Oswald, sans-serif`; } dx.fillStyle = col; dx.fillText(s, x, y); }
+function roleText(role) { const p = P[S.part]; if (role === 'VIEW') return ['WHERE YOU KNEEL', `${(((S.yawT || 0) % 360) + 360) % 360}°`];
+  if (role === 'STRENGTH') return ['MUTATION', UIG.sigmaOf(VAL.STRENGTH).toFixed(3)]; const g = bias(p); return ['LEAN TOWARD', g ? String(g).toUpperCase() : 'ALL TRAITS']; }
+function drawDev() { dx.clearRect(0, 0, DW, DH); const p = P[S.part];
+  BANDS.forEach(b => { const top = b.cy - b.rad, h = b.rad * 2;
+    if (b.kind === 'collarL' || b.kind === 'collarR') { dx.fillStyle = cylShade(b, '#262b2a', '#5d6664'); dx.fillRect(b.x, top + h * .04, b.w, h * .92); }
+    else if (b.kind === 'scale') { dx.fillStyle = cylShade(b, '#1e2322', '#59615f'); dx.fillRect(b.x, top, b.w, h); for (let a = 0; a < 360; a += 5) marksOn(b, [[-a, (y, c) => { dx.fillStyle = `rgba(200,210,206,${.3 * c})`; dx.fillRect(b.x + b.w * .8, y - .5, b.w * (a % 15 ? .08 : .16), 1); }]]);
+      dx.textAlign = 'center'; dx.textBaseline = 'middle'; marksOn(b, [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map(a => [-a, (y, c) => { dx.save(); dx.translate(b.x + b.w * .42, y); dx.scale(1, c); dx.fillStyle = `rgba(232,238,236,${.3 + .6 * c})`; dx.font = `400 ${Math.round(b.rad * .22)}px Oswald, sans-serif`; dx.fillText(String(a).padStart(2, '0'), 0, 0); dx.restore(); }])); }
+    else if (b.kind === 'redline') { dx.fillStyle = cylShade(b, '#2a302e', '#78817e'); dx.fillRect(b.x, top, b.w, h); dx.fillStyle = '#c2453a'; for (let k = -2; k <= 2; k++) { const y = b.cy - Math.sin(k * .5) * b.rad * .9; dx.fillRect(b.x + b.w * .2, y - 1, b.w * .6, 2); } }
+    else if (b.kind === 'knurl') { dx.fillStyle = cylShade(b, '#2b3130', '#7c8683'); dx.fillRect(b.x, top, b.w, h); for (let a = 0; a < 360; a += 4) marksOn(b, [[a, (y, c) => { dx.fillStyle = `rgba(8,9,9,${.55 * c})`; dx.fillRect(b.x + 3, y - 1.2 * c, b.w - 6, 2.4 * c); }]]); }
+    else if (b.kind === 'tri') { dx.fillStyle = cylShade(b, '#4b5452', '#bcc5c2'); dx.fillRect(b.x, top, b.w, h);
+      for (let a = 0; a < 360; a += 12) marksOn(b, [[a, (y, c) => { const s = b.rad * .07 * c; dx.fillStyle = 'rgba(10,11,11,.85)'; [[.32, 1], [.68, 1.4]].forEach(([fx, k]) => { dx.beginPath(); dx.moveTo(b.x + b.w * fx - s * k, y); dx.lineTo(b.x + b.w * fx + s * k * .6, y - s * k * .8); dx.lineTo(b.x + b.w * fx + s * k * .6, y + s * k * .8); dx.fill(); }); }]]); }
+    else if (b.kind === 'chrome') { const g = dx.createLinearGradient(b.x, 0, b.x + b.w, 0); g.addColorStop(0, '#d8dfdc'); g.addColorStop(.5, '#7d8784'); g.addColorStop(1, '#eef3f1'); dx.fillStyle = g; dx.fillRect(b.x, top + h * .02, b.w, h * .96); }
+    if (b.ring) { const busy = b.ring.target !== b.ring.applied; dx.fillStyle = busy ? 'rgba(232,178,100,.9)' : 'rgba(200,210,206,.35)'; dx.fillRect(b.x + 4, top - 7, b.w - 8, 2);
+      const role = roleOf(b.ring), [lab, val] = roleText(role); dx.textAlign = 'center'; dx.textBaseline = 'alphabetic'; fitText(lab, b.x + b.w / 2, top + h + 15, b.w - 2, 11, 'rgba(130,140,136,.95)'); fitText(val, b.x + b.w / 2, top + h + 30, b.w - 2, 13, 'rgba(225,232,229,.95)');
+      fitText(role, b.x + b.w / 2, top - 12, b.w - 2, 10, b.ring.changed > NOW ? 'rgba(232,178,100,.95)' : 'rgba(110,120,116,.9)'); } });
+  BTNS.forEach(bt => { const g = dx.createRadialGradient(bt.x - bt.r * .3, bt.y - bt.r * .3, 1, bt.x, bt.y, bt.r); g.addColorStop(0, '#e8eeec'); g.addColorStop(.6, '#8f9996'); g.addColorStop(1, '#3a403e'); dx.fillStyle = g; dx.beginPath(); dx.arc(bt.x, bt.y, bt.r, 0, TAU); dx.fill();
+    dx.fillStyle = 'rgba(15,16,16,.85)'; if (bt.id === 'info') { dx.fillRect(bt.x - 1, bt.y - bt.r * .1, 2, bt.r * .6); dx.fillRect(bt.x - 1, bt.y - bt.r * .5, 2, 2); }
+    const lab = { select: 'SELECT', hold: 'HOLD' }[bt.id]; if (lab) { dx.font = `500 ${Math.round(Math.max(9, bt.r * .5))}px Oswald, sans-serif`; dx.textAlign = 'center';
+      if (bt.id === 'select') { const w = dx.measureText(lab).width + 10; dx.fillStyle = '#b8352c'; dx.fillRect(bt.x - w / 2, bt.y - bt.r - 18, w, 14); dx.fillStyle = '#f4e9e3'; dx.fillText(lab, bt.x, bt.y - bt.r - 7); }
+      else { dx.fillStyle = 'rgba(160,170,166,.85)'; dx.fillText(lab, bt.x, bt.y + bt.r + 13); } } });
+  // right collar: what SELECT has picked, and what HOLD will do
+  const cr = BANDS[6], tx = cr.x + cr.w * .56; dx.textAlign = 'left'; const holdSays = S.phase === 'uichoice' ? 'KEEP THIS UI' : S.phase === 'ready' ? 'LIGHT' : S.phase === 'lit' ? 'BLOW' : S.made ? 'MAKING' : 'KEEP + BREED';
+  fitText(S.phase === 'uichoice' ? 'INTERFACE' : LABEL[S.part], tx, cr.cy - cr.rad * .25, cr.w * .44, 13, 'rgba(232,178,100,.95)'); fitText(holdSays, tx, cr.cy + cr.rad * .2, cr.w * .44, 10, 'rgba(150,160,156,.9)'); fitText('UI ' + UIC.id, tx, cr.cy + cr.rad * .62, cr.w * .44, 10, 'rgba(110,120,116,.9)');
+  // left collar: the readout, laid out as the UI genome says
+  const cl = BANDS[0], lx = cl.x + 6, lw = cl.w - 12; let y = cl.cy - cl.rad * .62; const st = p.mod.stages[Math.min(p.stage, p.mod.stages.length - 1)], sc = scoreNow(p);
+  const bar = (yy, v, th, col) => { dx.fillStyle = 'rgba(0,0,0,.5)'; dx.fillRect(lx, yy, lw, 4); dx.fillStyle = col; dx.fillRect(lx, yy, lw * clamp(v, 0, 1), 4); if (th != null) { dx.fillStyle = '#e9efec'; dx.fillRect(lx + lw * th - 1, yy - 2, 2, 8); } };
+  if (UI.readout === 'SCORE AND BAR') { fitText(p.stage >= p.mod.stages.length ? 'MADE' : String(st[0]).toUpperCase(), lx, y, lw, 11, 'rgba(225,232,229,.95)'); y += 10; bar(y, sc, st[2], 'rgba(232,178,100,.9)'); y += 16; fitText(sc.toFixed(3) + ' / ' + st[2], lx, y, lw, 10, 'rgba(150,160,156,.9)'); y += 14; fitText('STAGE ' + Math.min(p.stage + 1, p.mod.stages.length) + ' OF ' + p.mod.stages.length, lx, y, lw, 10, 'rgba(110,120,116,.9)'); }
+  else if (UI.readout === 'GENERATION') { fitText('GEN ' + p.gen, lx, y, lw, 13, 'rgba(225,232,229,.95)'); y += 15; fitText('KEPT ' + p.metrics.accepted, lx, y, lw, 10, 'rgba(150,160,156,.9)'); y += 13; fitText('STAGE ' + Math.min(p.stage + 1, p.mod.stages.length) + '/' + p.mod.stages.length, lx, y, lw, 10, 'rgba(150,160,156,.9)'); y += 13; fitText('MATCH ' + p.e.fit.toFixed(2), lx, y, lw, 10, 'rgba(110,120,116,.9)'); }
+  else { PARTS.forEach(n => { const q = P[n]; fitText(LABEL[n].slice(0, 5), lx, y + 3, lw * .45, 8, n === S.part ? 'rgba(232,178,100,.95)' : 'rgba(130,140,136,.9)'); dx.fillStyle = 'rgba(0,0,0,.5)'; dx.fillRect(lx + lw * .5, y - 3, lw * .5, 4); dx.fillStyle = q.done ? '#c9d2cf' : 'rgba(232,178,100,.8)'; dx.fillRect(lx + lw * .5, y - 3, lw * .5 * (q.done ? 1 : q.stage / q.mod.stages.length), 4); y += 10; }); }
+  // the UI choice between parts: the candidates side by side over the barrel; SELECT moves, HOLD keeps
+  if (S.phase === 'uichoice' && choice) { const x0 = BANDS[1].x - 2, x1 = BANDS[5].x + BANDS[5].w, w = (x1 - x0) / choice.cands.length, top = 6, hh = DH - 12;
+    dx.fillStyle = 'rgba(3,4,4,.9)'; dx.fillRect(x0, top, x1 - x0, hh);
+    choice.cands.forEach((c, i) => { const u = UIG.decode(c.U), cx = x0 + i * w + 6, cw = w - 12; let yy = top + 16; const on = i === choice.i;
+      dx.strokeStyle = on ? 'rgba(232,178,100,.95)' : 'rgba(80,90,86,.6)'; dx.lineWidth = on ? 2 : 1; dx.strokeRect(x0 + i * w + 2, top + 3, w - 4, hh - 6); dx.textAlign = 'left';
+      fitText((c.elite ? 'KEPT ' : 'NEW ') + c.id, cx, yy, cw, 12, on ? 'rgba(232,178,100,.95)' : 'rgba(200,210,206,.9)'); yy += 15;
+      [u.roles.map((r, k) => ['SC', 'KN', 'TR'][k] + ' ' + r).join('  '), u.rate + ' STEPS/S', 'DETENT ' + u.detent + '°', u.lambda + ' VARIANTS ' + u.layout, 'NEXT: ' + u.offer, 'SHOWS ' + u.readout].forEach(s => { fitText(s, cx, yy, cw, 10, 'rgba(170,180,176,.92)'); yy += 13; });
+      if (c.elite) { const f = UIL.elite.fit; fitText('MEASURED ' + (f == null ? '—' : (f >= 0 ? '+' : '') + f.toFixed(3)), cx, yy, cw, 9, 'rgba(120,130,126,.9)'); } });
+    dx.textAlign = 'left'; fitText(S.uiOutcome || '', BANDS[0].x + 4, top + 14, BANDS[0].w - 8, 9, 'rgba(232,178,100,.9)'); } }
+/* hand on the rings: each detent passed is a quiet click; a gesture is counted as one move, a gesture against the last on the same ring as a reversal */
+let drag = null;
+function handTurn(ring, dDeg) { const role = roleOf(ring), lim = roleRange(role), before = Math.round(ring.ang / UI.detent);
+  ring.ang = clamp(ring.ang + dDeg, lim[0] * UI.detent, lim[1] * UI.detent); const after = Math.round(ring.ang / UI.detent); if (after !== before) { sound({ k: 'hand', ring: ring.ix }); ring.target = clamp(after, lim[0], lim[1]); if (drag) drag.moved = true; } }
+function gestureStart(ring) { drag = { ring, y0: 0, moved: false, a0: ring.ang }; }
+function gestureEnd() { if (!drag) return; const r = drag.ring, d = r.ang - drag.a0; if (drag.moved) { const p = P[S.part]; p.metrics.moves++; if (r.lastSign && Math.sign(d) && Math.sign(d) !== r.lastSign) p.metrics.reversals++; r.lastSign = Math.sign(d) || r.lastSign; } drag = null; }
+DC.addEventListener('pointerdown', e => { ac(); if (S.script) S.script = null; const r = DC.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+  const bt = BTNS.find(b => Math.hypot(b.x - x, b.y - y) < b.r + 8); if (bt) { press(bt.id); return; }
+  const band = BANDS.find(b => b.ring && x >= b.x && x <= b.x + b.w && Math.abs(y - b.cy) < b.rad * 1.2); if (band && S.phase === 'evolve') { gestureStart(band.ring); drag.y = y; drag.band = band; DC.setPointerCapture(e.pointerId); } });
+DC.addEventListener('pointermove', e => { if (!drag || !drag.band) return; const y = e.clientY - DC.getBoundingClientRect().top, d = y - drag.y; drag.y = y; handTurn(drag.ring, -d / drag.band.rad * 57.3 * .9); });
+DC.addEventListener('pointerup', () => gestureEnd()); DC.addEventListener('pointercancel', () => gestureEnd());
+let wheelT = 0; DC.addEventListener('wheel', e => { e.preventDefault(); ac(); const r = DC.getBoundingClientRect(), x = e.clientX - r.left; const band = BANDS.find(b => b.ring && x >= b.x && x <= b.x + b.w); if (!band || S.phase !== 'evolve') return;
+  if (!drag || drag.ring !== band.ring) { gestureEnd(); gestureStart(band.ring); } handTurn(band.ring, -Math.sign(e.deltaY) * UI.detent); wheelT = NOW; }, { passive: false });
+let holdDown = -1;
+function press(id) { if (id === 'select') { if (S.phase === 'uichoice') { choice.i = (choice.i + 1) % choice.cands.length; sound({ k: 'select' }); P[S.part].metrics.moves++; } else if (S.phase === 'evolve' && !S.made) { const open = PARTS; select(open[(open.indexOf(S.part) + 1) % open.length]); } }
+  else if (id === 'hold') { holdDown = NOW; const up = () => { removeEventListener('pointerup', up); if (NOW - holdDown > .7) switchOff(); else hold(); holdDown = -1; }; addEventListener('pointerup', up); }
+  else if (id === 'info') { document.getElementById('infoBody').textContent = JSON.stringify(opView(), null, 1); document.getElementById('info').classList.add('on'); } }
+document.getElementById('infoClose').onclick = () => document.getElementById('info').classList.remove('on');
+document.getElementById('dl').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(traceOut(), null, 1)], { type: 'application/json' })); a.download = 'evolve-all-trace.json'; a.click(); };
+function opView() { return { part: S.part, phase: S.phase, ui: UI, uiId: UIC.id, uiElite: UIL.elite.id, uiEliteFit: UIL.elite.fit, modules: PARTS.map(n => [n, P[n].real ? 'REAL' : 'STAND-IN', 'stage ' + P[n].stage + '/' + P[n].mod.stages.length, 'gen ' + P[n].gen, 'fit ' + (P[n].e ? P[n].e.fit.toFixed(3) : '')]), metrics: P[S.part].metrics }; }
+function traceOut() { TR.modules = Object.fromEntries(PARTS.map(n => [n, P[n].real ? 'real modules/' + n + '.js' : 'stand-in ui/standins.js'])); TR.uiFinal = { elite: UIL.elite.id, fit: UIL.elite.fit, ui: UIG.decode(UIL.elite.U), pool: UIL.pool.map(q => [q.id, q.fit, q.n]) }; TR.durationVirtual = +NOW.toFixed(2); return TR; }
+/* =============================================================== THE SCRIPTED PLAYER (?player=careful|hasty): the same policy as ui/player.js, acting through the device's own input functions */
+const PR = BREED.mulberry32(SEED * 7 + 1), pg = () => BREED.gauss(PR); let act = null;
+function scriptTick(dt) { if (!STYLE || S.ended || S.off) return; if (act) { act.u += dt / act.dur; const want = act.from + act.deg * Math.min(1, act.u); handTurn(act.ring, want - act.ring.ang); if (act.u >= 1) { gestureEnd(); act = act.queue.length ? startGesture(act.ring, act.queue) : null; } return; }
+  const p = P[S.part], si = Math.min(p.stage, p.mod.stages.length - 1);
+  const v = { phase: S.phase, since: S.since, sinceHold: S.sinceHold, choiceIndex: choice ? choice.i : 0, want: PLAYER.choose(UIL.round, choice ? choice.cands.length : 3), making: !!S.made, turning: RINGS.some(r => r.target !== r.applied),
+    ui: UI, score: scoreNow(p), bar: p.mod.stages[si][2], strength: VAL.STRENGTH, bias: VAL.BIAS, biasStage: p.biasStage, mod: p.mod, stage: p.stage, revealing: p.brood && p.brood.shown < p.brood.kids.length, lambda: UI.lambda };
+  if (S.phase === 'lit' && S.since > 1.2) { hold(); return; }
+  const a = PLAYER.next(STYLE, v); if (a.kind === 'hold') hold(); else if (a.kind === 'select') press('select');
+  else if (a.kind === 'turn') { const ring = ringOf(a.role); if (a.role === 'BIAS') p.biasStage = p.stage; const g = PLAYER.gestures(PLAYER.STYLES[STYLE], ring.ang, a.goal, UI.detent, pg); if (!g.list.length) return; act = startGesture(ring, g.list.slice()); } }
+function startGesture(ring, queue) { const deg = queue.shift(); gestureStart(ring); return { ring, deg, from: ring.ang, u: 0, dur: PLAYER.STYLES[STYLE].turnTime, queue }; }
+/* =============================================================== EVERY FRAME */
+function resize() { const r = viewEl.getBoundingClientRect(); R.setSize(r.width, r.height, false); cam.aspect = r.width / r.height; cam.updateProjectionMatrix(); layoutDev(); }
+addEventListener('resize', resize);
+const ARC = (() => { const c = document.createElement('canvas'); c.width = 256; c.height = 384; const t = new T.CanvasTexture(c); const s = new T.Sprite(new T.SpriteMaterial({ map: t, transparent: true, depthWrite: false, depthTest: false, opacity: 0 })); s.renderOrder = 5; scene.add(s); return { c, x: c.getContext('2d'), t, s }; })();
+const MARKS = [-23, -19, -9, -1, 6]; let arcBlink = 0;
+function drawArc(k) { const { x, c } = ARC; x.clearRect(0, 0, c.width, c.height); const cx = 70, cy = 192, r = 140; x.strokeStyle = 'rgba(220,232,228,.55)'; x.lineWidth = 18;
+  [[-78, -52], [-49, -20], [-17, 12], [15, 44], [47, 76]].forEach(([a, b]) => { x.beginPath(); x.arc(cx, cy, r, a * Math.PI / 180, b * Math.PI / 180); x.stroke(); });
+  if (arcBlink <= 0) { const a = MARKS[clamp(k, 0, 4)] * Math.PI / 180, mx = cx + Math.cos(a) * r, my = cy + Math.sin(a) * r; x.fillStyle = 'rgba(255,255,255,.95)'; x.fillRect(mx - 9, my - 6, 18, 12); x.strokeStyle = 'rgba(230,240,236,.8)'; x.lineWidth = 2; x.beginPath(); x.moveTo(mx + 10, my); x.lineTo(mx + 46, my); x.stroke(); }
+  ARC.t.needsUpdate = true; }
+const camT = new T.Vector3(0, .5, 0), camP = new T.Vector3(0, .8, 2); let camD = 1.6;
+const capEl = document.getElementById('cap'), tagEl = document.getElementById('tag'), lapseEl = document.getElementById('lapse');
+function step(dt) { NOW += dt; S.since += dt; S.sinceHold += dt; arcBlink -= dt;
+  if (wheelT && NOW - wheelT > .3 && drag && !drag.band) { gestureEnd(); wheelT = 0; }
+  scriptTick(dt); machine(dt);
+  const p = P[S.part]; if (S.phase === 'evolve' && !machineBusy() && !drag && !act) p.metrics.idle += dt;
+  S.yaw = lerp(S.yaw || 0, S.yawT || 0, Math.min(1, dt * 6));
+  // parts glide to their anchors (smooth, not stepped)
+  PARTS.forEach(n => { const q = P[n]; q.want.copy(worldAnchor(n)); q.holder.position.lerp(q.want, Math.min(1, dt * (q.glide ? 4 : 30))); if (q.glide && q.holder.position.distanceTo(q.want) < .002) q.glide = 0;
+    q.flash = Math.max(0, q.flash - dt / .14); q.mats.forEach(m => m.emissive && m.emissive.setScalar(q.flash * .9)); });
+  // variants rise in and hover
+  if (p.brood) p.kidsG.children.forEach((g, i) => { if (g.userData.born == null) return; const u = clamp((NOW - g.userData.born) / .2, 0, 1); g.position.y += Math.sin(NOW * 2 + i) * .0002; g.scale.setScalar(.32 * u); });
+  // the camera: kneeling, turned by the VIEW role, framing the part being worked (the cake at the end)
+  const focus = S.phase === 'evolve' || S.phase === 'uichoice' ? p : P.cake, fb = focus.box, fc = fb ? new T.Vector3((fb.min.x + fb.max.x) / 2, (fb.min.y + fb.max.y) / 2, (fb.min.z + fb.max.z) / 2).sub(focus.holder.position).add(focus.holder.position) : focus.holder.position.clone();
+  const end = !(S.phase === 'evolve' || S.phase === 'uichoice'); const dist = end ? .8 : clamp(focus.size * (focus.name === 'light' ? 1.2 : 2.6) + .35, .55, 3.2); camD = lerp(camD, dist, Math.min(1, dt * 2)); camT.lerp(end ? P.cake.holder.position.clone().add(new T.Vector3(0, .08, 0)) : fc, Math.min(1, dt * 3));
+  const yaw = S.yaw * Math.PI / 180; cam.position.set(camT.x + Math.sin(yaw) * camD, camT.y + camD * .32 + .05, camT.z + Math.cos(yaw) * camD); cam.lookAt(camT);
+  SPOT.position.set(P.cake.holder.position.x, .003, P.cake.holder.position.z); SPOT.scale.setScalar(.45 + .2 * Math.sin(NOW * .3));
+  // the arc beside the part being worked, its mark stepping with the stages passed
+  const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion); ARC.s.position.copy(camT).addScaledVector(right, camD * .32); ARC.s.scale.set(camD * .1, camD * .15, 1); ARC.s.material.opacity = (S.phase === 'evolve' ? .8 : 0) * (1 - S.dark); drawArc(Math.round(p.stage / p.mod.stages.length * 4));
+  // flames at the wicks; candlelight
+  const W = wicks(); let lit = 0; FL.forEach((f, i) => { const w = W[i % W.length]; f.f.position.copy(w).add(new T.Vector3(0, .014, 0)); const fl = .92 + Math.sin(NOW * 23 + f.ph) * .05 + Math.sin(NOW * 7.1 + f.ph) * .04; f.f.material.opacity = f.lit * (1 - S.dark); f.f.scale.y = .034 * fl; lit += f.lit; });
+  candleLight.position.copy(P.cake.holder.position).add(new T.Vector3(0, .22, 0)); candleLight.intensity = lit * .3 * (.95 + Math.sin(NOW * 19) * .04) * (1 - S.dark);
+  key.intensity = 1.4 * (1 - S.dark) * (P.light.made ? .5 : 1); hemi.intensity = .22 * (1 - S.dark) * (lit ? .4 : 1);
+  // switching on (start) and off (long HOLD, or after the blow): round spots
+  const on = clamp(NOW / 1.2, 0, 1); if (S.off) S.dark = clamp((NOW - S.off) / 1.0, 0, 1); else if (S.ended && NOW - S.endAt > 1.4) { S.off = NOW; sound({ k: 'off' }); }
+  SPOTS.forEach((s, i) => { const k = S.off ? clamp((NOW - S.off) * 2 - i * .08, 0, 1) * (1 - clamp((NOW - S.off - .8) * 1.5, 0, 1)) : clamp(1 - Math.abs(on * 2 - 1 - i * .02), 0, 1) * (1 - on); s.m.material.opacity = k * .7; s.m.position.set(camT.x + s.x * camD, s.y * camD * .5 + camT.y * .5, camT.z + s.z * camD * .5); s.m.scale.setScalar(s.s * camD); });
+  R.toneMappingExposure = 1.1 * on * (1 - S.dark) + .001;
+  capEl.textContent = S.caption || (S.phase === 'uichoice' ? 'THE INTERFACE EVOLVES — SELECT A UI, HOLD TO KEEP IT' : '');
+  tagEl.innerHTML = `${LABEL[S.part]} ${P[S.part].real ? '' : '(STAND-IN)'} · GEN ${p.gen}<br>UI ${UIC.id} · ${UI.rate}/S · ${UI.lambda} ${UI.layout}${STYLE ? '<br>PLAYED BY THE ' + STYLE.toUpperCase() + ' SCRIPT' : ''}`;
+  lapseEl.textContent = S.lapse > 1 ? 'TIME-LAPSE x' + S.lapse : ''; }
+let last = performance.now();
+function frame(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; step(dt); R.render(scene, cam); drawDev(); requestAnimationFrame(frame); }
+async function boot() { await Promise.all(PARTS.map(n => Promise.all([loadModule(n), loadRefs(n)]))); PARTS.forEach(initPart); PARTS.forEach(n => reattachDependents(n)); PARTS.forEach(n => P[n].holder.position.copy(worldAnchor(n)));
+  select('table', true); S.ready = true; resize(); if (document.fonts) document.fonts.load('400 20px Oswald').then(() => drawDev());
+  if (!REC) { requestAnimationFrame(frame); setInterval(poll, 30000); } }
+/* real modules arriving while the page is open replace their stand-ins (the part restarts from its blank) */
+async function poll() { for (const n of PARTS) if (!P[n].real && await loadModule(n, true)) { await loadRefs(n); initPart(n); reattachDependents(n); TR.events.push([+NOW.toFixed(2), n, 'real module arrived']); } }
+boot();
+window.MM = { ready: () => S.ready && WAVBYTES !== null, advance: dt => { step(dt); R.render(scene, cam); drawDev(); }, S, P, UIL, get UI() { return UI; }, get UIC() { return UIC; }, renderAudio, traceOut, press, hold, RINGS, BANDS: () => BANDS, BTNS: () => BTNS, NOW: () => NOW, setLapse: k => { S.lapse = k; } };
+</script></body></html>
