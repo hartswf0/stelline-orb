@@ -1,10 +1,11 @@
 /* modules/inscription.js — 生日快乐 and the film's Z flourish, piped in icing on the cake top. EVOLVE-ALL module (CONTRACT.md).
    Stroke model: 21 strokes (makemeahanzi / hanzi-writer-data medians, in their standard order) plus the flourish's 3 bars = 24 strokes.
    Every stroke is a 6-point polyline. Its points are made from the genome: a straight dash in the stroke's slot (the blank),
-   bent toward the chord and then the median by the FORM genes, shaken by WOBBLE, then placed on the cake by the HAND genes
-   (size, pitch, rotation, centre, slant, aspect, pressure). The flourish's 4 corners are their own genes (FLOURISH).
+   bent toward the chord and then the median by FORM (form, curve, wobble), sized by HAND (size, pitch, pressure), placed on the top
+   by PLACE (cx, cz, rot). The flourish's corners are FLOURISH (span, drop, back, bottom bar). Six stages of 2-4 genes each, so a player
+   choosing among 8 variants passes each in about 8-25 generations (tests/inscription.test.js prints the measured counts).
    The genome does not hold one free number per control point: on a toy problem with core/breed.js (1 + 6, careful strengths)
-   96 free genes needed 1599 generations and 132 did not arrive in 2000, so the points are derived from 24 genes instead.
+   96 free genes needed 1599 generations and 132 did not arrive in 2000, so the points are derived from 18 genes instead.
    Fitness is measured against refs/inscription.json: stroke order and medians (font skeleton), the film's character centres,
    sizes, flourish corners and stroke width (frames 144.75-147.375 s), and the icing colour relative to the cake top.
    Units: metres; the module's origin is the cake-top centre (the host puts the group at the cake's 'top' anchor); +z faces the viewer.

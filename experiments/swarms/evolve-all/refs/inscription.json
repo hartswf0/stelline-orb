@@ -6,7 +6,8 @@
   "timing": "per-part ink fraction over time; windows = 10% ink times, measured. Inside one character the film is too small (characters are about 30 px wide) to separate strokes: stroke timing inside a character is NOT measured, it is shared by median length",
   "ellipse": "cake-top ellipse on 147.375 s read by hand from a 2x grid: centre (413.5, 404) px, semi-axes 134 x 80 px, tilt 10 deg; cake-top coords u (right), v (toward camera), both in units of the top radius R; estimated error about 0.08 R",
   "strokes": "stroke medians and stroke order from hanzi-writer-data 2.0.1 (npm), derived from Make Me a Hanzi (Arphic PL KaitiM/UKai fonts), Arphic Public License; resampled to 6 points; em box -0.5..0.5, y down. Noto Sans/Serif CJK are installed but carry outlines, not skeletons or order, so they were not used",
-  "note": "numbers only; no picture"
+  "note": "numbers only; no picture",
+  "license": "refs/ARPHICPL.TXT (Arphic Public License, shipped with the stroke data)"
  },
  "chars": [
   "生",
