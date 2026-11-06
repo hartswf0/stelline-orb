@@ -40,18 +40,18 @@ const SONG = (() => { const G4 = 392, A4 = 440, B4 = 493.88, C5 = 523.25, D5 = 5
 
 /* ------------------------------------------------------------------ THE GIRL: declared states, sub-states, transitions, guards, action windows */
 const STATES = ['watch', 'approach', 'retreat', 'hide', 'refuse', 'blow'];
-const SUBS = { watch: ['look'], approach: ['walk', 'slow', 'arrive'], retreat: ['back'], hide: ['lower', 'hidden', 'peek'], refuse: ['turn', 'sulk', 'glance'], blow: ['inhale', 'blow', 'after'] };
+const SUBS = { watch: ['look'], approach: ['walk', 'pause', 'slow', 'arrive'], retreat: ['back'], hide: ['lower', 'hidden', 'peek'], refuse: ['turn', 'sulk', 'glance'], blow: ['inhale', 'blow', 'after'] };
 const ALLOWED = { watch: ['approach', 'retreat', 'hide', 'refuse', 'blow'], approach: ['watch', 'retreat', 'refuse', 'blow'], retreat: ['watch', 'refuse', 'hide'],
   hide: ['watch', 'refuse', 'retreat'], refuse: ['watch', 'hide', 'retreat'], blow: ['watch', 'refuse'] };
 const GUARDS = { approach: 'has seen the cake low and still for 1.5 s; candles lit; fear < 0.35; pressure < 0.15',
-  blow: 'at the table, cake low within reach, candles lit, quiet for 1.5 s, fear < 0.3', retreat: 'room behind her (not at the wall)',
+  blow: 'at the table, cake low within reach, candles lit, quiet for 1.5 s + 3 s x memory of being pushed, fear < 0.3', retreat: 'room behind her (not at the wall)',
   watch: 'always', hide: 'always', refuse: 'always' };
 const DWELL = { watch: 0.8, approach: 1.0, retreat: 0.7, hide: 2.2, refuse: 1.6, blow: 0 };
 const DANGER = { retreat: 1, refuse: 1 }, HYST = 0.12;
 const WINDOW = { inhale: 0.8, blow: 1.1, after: 1.3 };   // the blow's action window; only the inhale can be cut short (by pressure)
 /* tuned constants (tune.js searches some of these; the proof uses the values here) */
 const K = { callBase: 0.45, callPer: 0.06, clickP: 0.032, pushGain: 2.4, pDecay: 1.4, uTc: 1.6, uRise: 4.5, fRise: 0.35, fFall: 2.6, fFallSing: 0.7,
-  trustGain: 0.32, trustErode: 0.7, memStep: 0.14, peekC: 0.36 };
+  trustGain: 0.32, trustErode: 0.7, memStep: 0.14, peekC: 0.36, forgive: 0.004 };
 
 function createGirl(seed) {
   const g = { t: 0, st: 'watch', sub: 'look', since: 0, subSince: 0, rnd: rng(seed || 7),
@@ -71,7 +71,7 @@ function createWorld(opts) { opts = opts || {};
   const d = Math.hypot(W.girl.x, W.girl.z); W.cake.dirx = W.girl.x / d; W.cake.dirz = W.girl.z / d;
   cakeTarget(W); W.cake.x = W.cake.tx; W.cake.z = W.cake.tz; W.cake.y = W.cake.ty; select(W, 1, true); return W; }
 function ev(W, k, a) { const e = Object.assign({ t: +W.t.toFixed(4), k }, a || {}); W.events.push(e); W.log.push(e); }
-function cakeTarget(W) { const c = W.cake; c.tx = c.dirx * W.val.CAKE_k * 0.14; c.tz = c.dirz * W.val.CAKE_k * 0.14; c.ty = GEO.tableTop + W.val.CAKE_t * 0.09; }
+function cakeTarget(W) { const c = W.cake; c.tx = c.dirx * W.val.CAKE_k * 0.14; c.tz = c.dirz * W.val.CAKE_k * 0.14; c.ty = GEO.tableTop + W.val.CAKE_t * 0.06; }
 function select(W, i, silent) { W.sel = ((i % TARGETS.length) + TARGETS.length) % TARGETS.length;
   ['knurl', 'tri'].forEach(r => { const s = slot(W, r), v = s ? W.val[s] : 0; W.rings[r].target = W.rings[r].applied = v; }); if (!silent) ev(W, 'select', { to: TARGETS[W.sel] }); }
 /* a hand detent on a ring: the hand sets where the machine must go */
@@ -109,7 +109,8 @@ function stepWorld(W, dt) { dt = dt || DT; W.t += dt;
     if (W.songBeat >= SONG.len) { W.songBeat -= SONG.len; W.songRound++; } }
   const inCue = singing && W.songBeat >= SONG.last - 1 && W.songBeat < SONG.last + 3; W.cue = inCue ? 1 : W.cue * Math.exp(-dt / 0.5);
   // switching off: dark, then the memory starts again empty-handed (she starts again too)
-  if (W.offAt) { W.off = clamp((W.t - W.offAt) / 1.0); if (W.t - W.offAt > 1.6) { const keepLog = W.log, t = W.t; Object.assign(W, createWorld({ seed: 7, keepEvents: W.keep })); W.t = t; W.log = keepLog; ev(W, 'restart'); } return; }
+  if (W.offAt) { W.off = clamp((W.t - W.offAt) / 1.0); if (W.ended) return;   // switched off after her birthday: the memory has ended and stays dark until CLEAR or SCENE
+    if (W.t - W.offAt > 1.6) { const keepLog = W.log, t = W.t; Object.assign(W, createWorld({ seed: 7, keepEvents: W.keep })); W.t = t; W.log = keepLog; ev(W, 'restart'); } return; }
   const ana = anaPose(W.val.scale);
   const world = { t: W.t, ana, cake: { x: c.x, z: c.z, y: c.y, vx: c.vx, vz: c.vz }, lit: W.candles.reduce((a, b) => a + b, 0), L: W.val.ROOM_k / 8,
     kids: present, kidsArriving: W.kids.reduce((a, b) => a + b, 0), singing, cue: W.cue, sel: TARGETS[W.sel] };
@@ -144,7 +145,7 @@ function stepGirl(g, w, dt, W) { g.t = w.t; const out = (k, a) => ev(W, k, Objec
   const standing = clamp((wm.anaH - 0.85) / 0.6);
   const looming = clamp((wm.cakeH - 0.2) / 0.5) * clamp((1.6 - wm.cakeD) / 1.0);
   const Ut = 0.5 * standing + 0.3 * w.L + 0.4 * looming; g.U = ease(g.U, Ut, Ut > g.U ? K.uRise : K.uTc, dt);
-  const Ft = clamp(0.9 * g.P + 0.7 * g.U + 0.3 * g.M * Math.min(1, g.P * 4)); g.F = ease(g.F, Ft, Ft > g.F ? K.fRise : (w.singing ? K.fFallSing : K.fFall), dt);
+  const Ft = clamp(0.9 * g.P + 0.7 * g.U + 0.3 * g.M * Math.min(1, g.P * 4) + 0.15 * g.M); g.F = ease(g.F, Ft, Ft > g.F ? K.fRise : (w.singing ? K.fFallSing : K.fFall), dt);
   const cakeLow = wm.cakeH < 0.12; g.cakeStill = g.push > 0.05 ? 0 : g.cakeStill + dt;
   g.A = (w.lit / 7) * (1 - 0.7 * w.L) * (0.4 + 0.6 * (cakeLow ? 1 : 0));
   g.C *= Math.exp(-dt / 5);
@@ -154,7 +155,8 @@ function stepGirl(g, w, dt, W) { g.t = w.t; const out = (k, a) => ev(W, k, Objec
   if (wm.cakeH < prevH) g.C += 1.0 * (prevH - wm.cakeH);
   g.C = clamp(Math.max(g.C, 0.25 * g.A, w.singing ? 0.35 : 0), 0, 1.2);
   const inv = 0.35 * (1 - standing) + 0.35 * (w.singing ? Math.min(1, 0.5 + w.kids / 6) : 0) + 0.25 * (cakeLow ? 1 : 0) + 0.2 * (1 - w.L) + 0.15 * clamp((g.quiet - 3) / 3);
-  g.T = clamp(g.T + (K.trustGain * inv * Math.pow(1 - g.F, 2) * (1 - 0.5 * g.M) - K.trustErode * g.P - 0.1 * looming) * dt);
+  g.T = clamp(g.T + (K.trustGain * inv * Math.pow(1 - g.F, 2) * (1 - 0.8 * g.M) - K.trustErode * g.P - 0.1 * looming) * dt);
+  g.M = Math.max(0, g.M - K.forgive * inv * dt);   // being pressed is remembered; good circumstances forgive it only slowly
   /* UTILITIES and GUARDS */
   const away = threatAngle(g, w) + Math.PI, bx = g.x + Math.cos(away) * 0.5, bz = g.z + Math.sin(away) * 0.5;
   const rb = clamp((GEO.roomR - Math.hypot(bx, bz)) / 0.5) * (Math.hypot(bx, bz) > GEO.tableR + 0.2 ? 1 : 0);
@@ -164,13 +166,13 @@ function stepGirl(g, w, dt, W) { g.t = w.t; const out = (k, a) => ev(W, k, Objec
     retreat: (1.6 * g.push + 0.3 * g.P) * (0.5 + g.F) * rb,
     refuse: 1.3 * g.P * (0.5 + g.F) + 0.9 * g.M * g.P + 0.3 * g.push * (1 - rb),
     hide: 0.95 * (g.U - 0.3) + 0.45 * g.F * (1 - clamp(g.P * 2)),
-    approach: 2.2 * (g.T - 0.55) + 0.5 * g.A + 0.2 * g.C - 2 * g.F,
+    approach: 2.2 * (g.T - 0.55 - 0.2 * g.M) + 0.5 * g.A + 0.2 * g.C - 2 * g.F,
     blow: 1.8 * (g.T - 0.45) + 1.0 * w.cue + 0.4 * g.A + 0.3 * clamp(g.atTableFor / 6) - 2 * g.F };
   if (g.st === 'refuse') u.refuse += 0.15 + 0.3 * g.F; if (g.st === 'hide') u.hide += 0.15 + 0.25 * g.F;
   const inA = g.st === 'approach';
   const G = g.guards = { watch: true, hide: true, refuse: true, retreat: rb > 0.05,
     approach: cakeLow && g.cakeStill > (inA ? 0.3 : 1.5) && w.lit > 0 && g.F < (inA ? 0.45 : 0.35) && g.P < (inA ? 0.2 : 0.15),
-    blow: atTable && dC < 0.75 && w.lit > 0 && cakeLow && g.quiet > 1.5 && g.F < 0.3 };
+    blow: atTable && dC < 0.75 && w.lit > 0 && cakeLow && g.quiet > 1.5 + 3 * g.M && g.F < 0.3 };
   /* DECIDE (from the declared state only) */
   const prev = g.st, prevSub = g.sub;
   if (g.st === 'blow') blowWindow(g, w, out); else { const nx = decide(g); if (nx !== g.st) enter(g, nx, w, out); }
@@ -187,7 +189,7 @@ function decide(g) { const u = g.u, G = g.guards, cur = g.st, age = g.t - g.sinc
   let best = cur, bu = G[cur] ? u[cur] + HYST : -Infinity; const locked = G[cur] && age < DWELL[cur];
   for (const s of ALLOWED[cur]) { if (!G[s]) continue; const v = u[s]; if (locked && !(DANGER[s] && !DANGER[cur] && v > u[cur] + 0.25)) continue; if (v > bu) { bu = v; best = s; } }
   if (bu === -Infinity) best = 'watch'; return best; }
-function enter(g, s, w, out) { g.st = s; g.since = g.t; g.sub = SUBS[s][0]; g.subSince = g.t;
+function enter(g, s, w, out) { if (s === 'approach') g.paused = 0; g.st = s; g.since = g.t; g.sub = SUBS[s][0]; g.subSince = g.t;
   if (s === 'refuse') out('hum'); else if (s === 'retreat') out('gasp'); else if (s === 'hide') out('rustle'); else if (s === 'blow') { g.blowStart = g.t; out('inhale'); }
   else if (s === 'approach') out('breath'); }
 function setSub(g, s, out) { if (g.sub === s) return; g.sub = s; g.subSince = g.t; if (s === 'peek') out('breath', { soft: 1 }); if (s === 'blow') out('blow'); if (s === 'after') out('giggle'); if (s === 'arrive') out('breath'); }
@@ -203,7 +205,10 @@ function subStates(g, w, out) { const age = g.t - g.subSince;
   if (g.st === 'hide') { if (g.sub === 'lower' && age > 0.8) setSub(g, 'hidden', out);
     else if (g.sub === 'hidden' && ((g.C > K.peekC && g.t - g.peekAt > 1.6) || (g.C > 0.2 && g.t - g.peekAt > 6)) && age > 0.6) { setSub(g, 'peek', out); g.peekAt = g.t; g.peekN = (g.peekN || 0) + 1; }
     else if (g.sub === 'peek' && age > 1.3) setSub(g, 'hidden', out); }
-  if (g.st === 'approach') { const d = Math.hypot(g.x, g.z) - GEO.reach; setSub(g, d < 0.04 && g.speed < 0.06 ? 'arrive' : d < 0.3 ? 'slow' : 'walk', out); } }
+  if (g.st === 'approach') { const d = Math.hypot(g.x, g.z) - GEO.reach, short = 0.3 + 0.35 * g.M;
+    if (g.sub === 'walk' && g.M > 0.25 && !g.paused && d < short) { setSub(g, 'pause', out); g.paused = g.t; g.pauseFor = 1.0 + 2.5 * g.M; }   // wary: stops short and looks back at Ana
+    else if (g.sub === 'pause') { if (age > g.pauseFor) setSub(g, 'slow', out); }
+    else setSub(g, d < 0.04 && g.speed < 0.06 ? 'arrive' : d < 0.3 ? 'slow' : 'walk', out); } }
 
 /* ------------------------------------------------------------------ BODY: posture follows state and drives; position only by walking */
 function body(g, w, dt, out) {
@@ -217,11 +222,12 @@ function body(g, w, dt, out) {
   switch (g.st) {
     case 'watch': if (Math.abs(wrap(toCake - g.th)) > 0.7 || g.after) thT = toCake; hdT = 0.15 * g.F; crossT = g.after ? 0 : 0.3 * g.F; break;
     case 'approach': { const r = Math.hypot(g.x, g.z), tx = g.x / r * GEO.reach, tz = g.z / r * GEO.reach, d = r - GEO.reach; thT = ang(g.x, g.z, tx, tz);
-      vT = d < 0.02 ? 0 : d < 0.3 ? 0.2 : 0.45; psiT = clamp(wrap(toCake - g.th), -1.3, 1.3); tabT = g.sub === 'arrive' ? 1 : 0; break; }
+      vT = d < 0.02 || g.sub === 'pause' ? 0 : d < 0.3 ? 0.2 : 0.45; psiT = g.sub === 'pause' ? clamp(wrap(ang(g.x, g.z, w.ana.x, w.ana.z) - g.th), -1.9, 1.9) : clamp(wrap(toCake - g.th), -1.3, 1.3);
+      tabT = g.sub === 'arrive' ? 1 : 0; crossT = g.sub === 'pause' ? 0.6 : 0; hdT = g.sub === 'pause' ? 0.2 : 0; break; }
     case 'retreat': thT = th; vT = 0.38; back = true; psiT = clamp(wrap(th - g.th), -1.3, 1.3); hdT = 0.1; break;
     case 'hide': sitT = 1; hugT = 1; hdT = g.sub === 'peek' ? 0.15 : 1; psiT = g.sub === 'peek' ? clamp(wrap((w.singing && g.peekN % 2 ? ang(g.x, g.z, 0, -0.58) : ang(g.x, g.z, w.ana.x, w.ana.z)) - g.th), -1.9, 1.9) : 0; break;
     case 'refuse': thT = th + Math.PI; crossT = 1; hdT = g.sub === 'glance' ? 0.05 : 0.55; psiT = g.sub === 'glance' ? clamp(wrap(th - g.th), -1.9, 1.9) : 0; break;
-    case 'blow': thT = toCake; tabT = 1; leanT = g.sub === 'after' ? 0.2 : 1; inhT = g.sub === 'inhale' ? 1 : 0; mouthT = g.sub === 'blow' ? 1 : 0; psiT = clamp(wrap(toCake - g.th), -1, 1); break; }
+    case 'blow': thT = toCake; tabT = 1; leanT = g.sub === 'after' ? 0.2 : g.sub === 'inhale' ? -0.35 : 1.2; inhT = g.sub === 'inhale' ? 1 : 0; mouthT = g.sub === 'blow' ? 1 : 0; psiT = clamp(wrap(toCake - g.th), -1, 1); break; }
   // rising before anything else: a seated child cannot turn or walk
   g.sit = toward(g.sit, sitT, 1 / 0.65, dt); const standing = g.sit < 0.25;
   if (standing) { const dth = wrap(thT - g.th), rate = g.st === 'refuse' ? 4.2 : 3.0; g.th = wrap(g.th + clamp(dth, -rate * dt, rate * dt)); }
@@ -232,7 +238,7 @@ function body(g, w, dt, out) {
     const moved = Math.hypot(nx - g.x, nz - g.z); g.x = nx; g.z = nz; const l0 = g.leg; g.leg += (back ? -1 : 1) * moved / 0.2 * Math.PI;
     if (Math.floor(l0 / Math.PI) !== Math.floor(g.leg / Math.PI)) out('step', { soft: g.st === 'approach' && g.sub === 'slow' ? 1 : 0 }); }
   g.psi = ease(g.psi, psiT, 0.12, dt); g.headDown = ease(g.headDown, hdT, 0.25, dt); g.cross = ease(g.cross, crossT, 0.25, dt); g.hug = ease(g.hug, hugT, 0.2, dt);
-  g.tableHands = ease(g.tableHands, tabT, 0.25, dt); g.together = ease(g.together, togT, 0.3, dt); g.lean = ease(g.lean, leanT, 0.3, dt);
+  g.tableHands = ease(g.tableHands, tabT, 0.25, dt); g.together = ease(g.together, togT, 0.3, dt); g.lean = ease(g.lean, leanT, 0.18, dt);
   g.inhale = ease(g.inhale, inhT, 0.3, dt); g.mouth = ease(g.mouth, mouthT, 0.06, dt); g.smile = ease(g.smile, g.after ? 1 : 0, 0.4, dt); g.crouch = ease(g.crouch, g.F, 0.4, dt);
 }
 /* the girl's puffs put the candles out, one by one */

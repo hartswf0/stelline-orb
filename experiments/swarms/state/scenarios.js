@@ -5,13 +5,14 @@
 (function (root, factory) { const S = factory(); if (typeof module === 'object' && module.exports) module.exports = S; else root.Scenarios = S; })(this, function () {
 const S = {
   /* the proof: the obedient things first (push the cake, call her), then the circumstances changed one by one, then waiting */
-  earned: { dur: 24, script: [
+  earned: { dur: 27, script: [
     [0.5, { ring: 'knurl', to: 6, dur: 0.3 }],                 // CAKE selected at start: push the cake at her, fast
     [1.8, { sel: 'HER' }], [2.1, { ring: 'knurl', to: 3, dur: 0.3 }], [3.3, { ring: 'knurl', to: 0, dur: 0.3 }],   // call her, then stop
     [3.9, { sel: 'ROOM' }], [4.1, { ring: 'knurl', to: 1, dur: 0.8 }],        // dim the room
     [5.0, { sel: 'CAKE' }], [5.2, { ring: 'knurl', to: 0, dur: 0.9 }], [6.2, { ring: 'tri', to: 0, dur: 0.9 }],   // bring the cake back, slowly; lower it
     [7.2, { sel: 'CHILDREN' }], [7.4, { ring: 'knurl', to: 3, dur: 0.5 }],     // the children in, singing
-    [8.0, { ring: 'scale', to: 4, dur: 0.8 }] ] },                            // kneel to her height; then wait
+    [8.0, { ring: 'scale', to: 4, dur: 0.8 }],                                // kneel to her height; then wait
+    [23.0, { long: 1 }] ] },                                                  // after her birthday: a long HOLD ends the memory (then the end card)
   /* obedient default: the player only calls, and calls again */
   callOnly: { dur: 60, script: [[0.5, { sel: 'HER' }], [0.8, { ring: 'knurl', to: 3, dur: 0.2 }], [10, { ring: 'knurl', to: 6, dur: 0.3 }], [30, { ring: 'knurl', to: 0, dur: 0.3 }], [31, { ring: 'knurl', to: 6, dur: 0.3 }]] },
   /* calling her while every other circumstance is right */
@@ -22,11 +23,11 @@ const S = {
   /* waiting: no input at all */
   waitOnly: { dur: 60, script: [] },
   /* the impatient player (the mobile playtest): calls, pushes, then does the right things but calls again while she comes */
-  impatient: { dur: 34, script: [
+  impatient: { dur: 32, script: [
     [0.5, { sel: 'HER' }], [0.8, { ring: 'knurl', to: 2, dur: 0.2 }], [2.5, { ring: 'knurl', to: 0, dur: 0.2 }],
     [3.0, { sel: 'CAKE' }], [3.2, { ring: 'tri', to: 0, dur: 0.6 }], [4.0, { sel: 'ROOM' }], [4.2, { ring: 'knurl', to: 1, dur: 0.8 }],
     [5.2, { sel: 'CHILDREN' }], [5.4, { ring: 'knurl', to: 3, dur: 0.5 }], [6.0, { ring: 'scale', to: 4, dur: 0.8 }],
-    [13.0, { sel: 'HER' }], [13.2, { ring: 'knurl', to: 1, dur: 0.1 }], [13.6, { ring: 'knurl', to: 0, dur: 0.1 }] ] }
+    [13.0, { sel: 'HER' }], [13.2, { ring: 'knurl', to: 1, dur: 0.1 }], [13.6, { ring: 'knurl', to: 0, dur: 0.1 }], [27.5, { long: 1 }] ] }
 };
 /* expand to one entry per detent: [time, kind, arg] */
 function expand(script, startSel) { const out = []; let sel = startSel == null ? 1 : startSel; const T = ['ROOM', 'CAKE', 'CHILDREN', 'HER']; const pos = { scale: 0 };

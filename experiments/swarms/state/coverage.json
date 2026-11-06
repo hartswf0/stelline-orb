@@ -2,23 +2,23 @@
  "runs": 200,
  "seconds": 80,
  "transitionsTaken": {
-  "watch>hide": 139,
-  "hide>refuse": 97,
-  "refuse>watch": 210,
-  "watch>approach": 191,
-  "approach>blow": 145,
-  "blow>watch": 145,
-  "watch>retreat": 126,
-  "retreat>refuse": 142,
-  "watch>refuse": 108,
-  "hide>watch": 85,
-  "refuse>hide": 93,
-  "approach>watch": 40,
-  "hide>retreat": 13,
-  "refuse>retreat": 5,
-  "retreat>watch": 1,
+  "watch>hide": 140,
+  "hide>refuse": 67,
+  "refuse>watch": 165,
+  "watch>approach": 172,
+  "approach>watch": 35,
+  "watch>retreat": 116,
+  "retreat>refuse": 127,
+  "watch>refuse": 91,
+  "hide>watch": 97,
+  "approach>blow": 122,
+  "blow>watch": 117,
+  "refuse>hide": 72,
+  "watch>blow": 10,
+  "hide>retreat": 8,
+  "refuse>retreat": 7,
   "blow>refuse": 13,
-  "watch>blow": 14
+  "retreat>watch": 2
  },
  "notTaken": [
   "approach>retreat",
@@ -30,14 +30,14 @@
   "hide",
   "refuse",
   "approach",
-  "blow",
-  "retreat"
+  "retreat",
+  "blow"
  ],
  "snapshots": 400,
  "exitsBy": {
-  "invite": 218,
-  "call": 75,
-  "wait": 107
+  "invite": 245,
+  "call": 60,
+  "wait": 95
  },
  "results": [
   {
@@ -73,27 +73,27 @@
   {
    "name": "earned: dim + children singing + cake back and low + kneeling + waiting produces approach, then blow, all 7 candles out",
    "ok": true,
-   "detail": "approach 13.933 s, blow 17.133 s, candles out by 18.70 s"
+   "detail": "approach 14.833 s, blow 18.033 s, candles out by 19.60 s"
   },
   {
    "name": "earned: approach chosen after the last input (no input caused it directly)",
    "ok": true,
-   "detail": "last input 8.8 s, approach 13.933 s"
+   "detail": "last input 8.8 s, approach 14.833 s"
   },
   {
    "name": "impatient: a call during approach makes her leave approach for refusal",
    "ok": true,
-   "detail": "approach.slow -> refuse.turn at 13.433 s"
+   "detail": "approach.walk -> refuse.turn at 13.433 s"
   },
   {
    "name": "impatient: she comes again later (refusal is not absorbing)",
    "ok": true,
-   "detail": "approach again at 16.7 s"
+   "detail": "approach again at 16.8 s"
   },
   {
    "name": "blow-interrupt: calling during the inhale cuts the blow short into refusal, candles stay lit",
    "ok": true,
-   "detail": "blow.inhale -> refuse.turn at 17.533 s; candles lit 7"
+   "detail": "blow.inhale -> refuse.turn at 18.433 s; candles lit 7"
   },
   {
    "name": "state-conditioned: with approach the best utility, watch -> approach but hide -> watch and refuse -> watch (approach is not declared from hide or refuse)",
@@ -137,7 +137,7 @@
   {
    "name": "declared: every transition taken in 200 random runs x 80 s is in the declared table",
    "ok": true,
-   "detail": "1567 transitions taken, 0 undeclared"
+   "detail": "1361 transitions taken, 0 undeclared"
   },
   {
    "name": "locomotion continuity: position moves only by walking (max 0.5 m/s), body turn <= 4.2 rad/s, sit changes <= 1/0.65 per s",
@@ -147,7 +147,17 @@
   {
    "name": "no unintended absorbing state: each of 400 sampled moments leaves its state under wait, invite or call within 40 s",
    "ok": true,
-   "detail": "left by wait 107, invite 218, call 75; stuck 0"
+   "detail": "left by wait 95, invite 245, call 60; stuck 0"
+  },
+  {
+   "name": "lasting cost (critic r1): after 6 s of calling at 6/6 and a 112 cm cake push, time from setup to approach >= 2x fresh",
+   "ok": true,
+   "detail": "fresh 3.53 s, pressed 21.70 s (x6.14)"
+  },
+  {
+   "name": "lasting cost (critic r1): after being pressed she stops short and looks back at Ana before she blows; fresh she does not",
+   "ok": true,
+   "detail": "pressed: pause 22.70 s, blow 27.77 s; fresh: pause null, blow 8.90 s"
   }
  ]
 }

@@ -87,10 +87,21 @@ snaps.forEach((sn, i) => { const st0 = sn.girl.st; let left = null;
   if (left) exitsBy[left]++; else absorbing.push({ i, st: st0, sub: sn.girl.sub, t: sn.t, val: sn.val, after: sn.girl.after }); if (process.env.DUMP) fs.writeFileSync('/tmp/claude-0/-home-claude/5dcbf124-08aa-5357-a87a-ec1f490e8f81/scratchpad/stuck.json', JSON.stringify(sn)); });
 check(`no unintended absorbing state: each of ${snaps.length} sampled moments leaves its state under wait, invite or call within 40 s`, absorbing.length === 0, `left by wait ${exitsBy.wait}, invite ${exitsBy.invite}, call ${exitsBy.call}; stuck ${absorbing.length}${absorbing.length ? ' e.g. ' + JSON.stringify(absorbing[0]) : ''}`);
 
+/* 10 · critic round 1 repair condition: being pressed has a lasting cost. Seed 7. Fresh: the setup at once. Pressed: first call 6/6 for 6 s and push the cake to 112 cm, then the same setup.
+   Time from the end of the setup to approach must be at least 2x the fresh time, and she must visibly differ: stop short and look back at Ana before she blows. */
+function setup(W) { setVal(W, 'ROOM', 'knurl', 1); setVal(W, 'CAKE', 'knurl', 0); setVal(W, 'CAKE', 'tri', 0); setVal(W, 'CHILDREN', 'knurl', 3); setVal(W, 'HER', 'knurl', 0); setVal(W, 'x', 'scale', 4); }
+function repairRun(pressed) { const W = M.createWorld({ seed: 7 }); for (let i = 0; i < 15; i++) M.step(W);
+  if (pressed) { setVal(W, 'HER', 'knurl', 6); const t0 = W.t; while (W.t - t0 < 6) M.step(W); setVal(W, 'HER', 'knurl', 0); setVal(W, 'CAKE', 'knurl', 8); for (let i = 0; i < 30; i++) M.step(W); }
+  const before = W.girl.trans.length; setup(W); const ts = W.t; let ap = null, pause = null, blow = null; while (W.t - ts < 120 && !blow) { M.step(W); const g = W.girl;
+    for (let k = before; k < g.trans.length; k++) { const t = g.trans[k]; if (!ap && t.to.startsWith('approach')) ap = t.t - ts; if (!pause && t.to === 'approach.pause') pause = t.t - ts; if (!blow && t.to.startsWith('blow')) blow = t.t - ts; } }
+  return { W, ap, pause, blow, M: W.girl.M, trace: W.girl.trans.slice(before) }; }
+const fresh = repairRun(false), pressed = repairRun(true);
+check('lasting cost (critic r1): after 6 s of calling at 6/6 and a 112 cm cake push, time from setup to approach >= 2x fresh', fresh.ap && pressed.ap && pressed.ap >= 2 * fresh.ap, `fresh ${fresh.ap && fresh.ap.toFixed(2)} s, pressed ${pressed.ap && pressed.ap.toFixed(2)} s (x${(pressed.ap / fresh.ap).toFixed(2)})`);
+check('lasting cost (critic r1): after being pressed she stops short and looks back at Ana before she blows; fresh she does not', pressed.pause != null && pressed.blow != null && pressed.pause < pressed.blow && fresh.pause == null, `pressed: pause ${pressed.pause && pressed.pause.toFixed(2)} s, blow ${pressed.blow && pressed.blow.toFixed(2)} s; fresh: pause ${fresh.pause}, blow ${fresh.blow && fresh.blow.toFixed(2)} s`);
 /* write the traces and coverage */
 const pick = W => ({ transitions: W.girl.trans, samples: W.girl.samples.filter((s, i) => i % 2 === 0), inputs: W.log.filter(e => ['hand', 'select', 'hold', 'off', 'call'].includes(e.k)), candles: W.candles, ended: W.ended });
 const traces = { note: 'Decision traces of the birthday girl, run headless in node through memory.js with the scripted device input in scenarios.js (seed 7). Each transition carries every utility, the guards, the drives and what she believed she had seen at that tick. Samples every 0.2 s.',
-  K: M.K, earned: pick(earnedW), impatient: pick(impW), callOnly: pick(run(S.callOnly.script, S.callOnly.dur)), callInGoodRoom: pick(run(S.callInGoodRoom.script, S.callInGoodRoom.dur)), pushOnly: pick(run(S.pushOnly.script, S.pushOnly.dur)), waitOnly: pick(run([], 60)) };
+  K: M.K, earned: pick(earnedW), impatient: pick(impW), callOnly: pick(run(S.callOnly.script, S.callOnly.dur)), callInGoodRoom: pick(run(S.callInGoodRoom.script, S.callInGoodRoom.dur)), pushOnly: pick(run(S.pushOnly.script, S.pushOnly.dur)), waitOnly: pick(run([], 60)), repairFresh: { transitions: fresh.trace }, repairPressed: { transitions: pressed.trace } };
 fs.writeFileSync(path.join(__dirname, 'traces.json'), JSON.stringify(traces));
 fs.writeFileSync(path.join(__dirname, 'coverage.json'), JSON.stringify({ runs: 200, seconds: 80, transitionsTaken: covered, notTaken, reached: [...reached], snapshots: snaps.length, exitsBy, results }, null, 1));
 console.log(`\n${results.length - fails}/${results.length} passed`); process.exit(fails ? 1 : 0);
