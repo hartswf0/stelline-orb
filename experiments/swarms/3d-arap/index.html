@@ -342,7 +342,7 @@ function opPanel() { const t = traceOut(); document.getElementById('opBody').inn
 /* =============================================================== THE SCENE: the brown dome made start to finish through the same rings */
 // [time, ring|'sel'|'hold', detents or count, seconds]; plan from plan.json (DOME), turned into hand moves
 const SCRIPT = [[.6, 'k', 20, 1.2], [2.6, 'sel'], [2.9, 'k', 12, .8], [4.2, 'hold'],
-  [4.8, 'sel'], [5.0, 't', 2, .4], [5.8, 'sel'], [6.0, 't', 3, .4], [6.8, 'sel', 1], [7.1, 'k', 3, .3], [8.0, 'hold'],
+  [4.8, 'sel'], [5.0, 't', 2, .4], [5.8, 'sel'], [6.0, 't', 3, .4], [6.6, 'sel', 1], [7.2, 'k', 3, .3], [8.0, 'hold'],
   [8.6, 'k', 16, 1], [10.3, 'hold'], [10.8, 'k', 24, 1], [13.0, 'hold'], [13.5, 'k', 24, 1.2], [15.7, 'sel', 1], [15.9, 't', 8, .6], [17.0, 'hold'],
   [17.5, 'k', 7, .6], [18.4, 'hold'], [18.9, 'k', 7, .6], [19.9, 'hold'], [20.9, 'hold'], [25, 'end']];
 function playScene() { reset(); S.scene = { t0: NOW, i: 0 }; }

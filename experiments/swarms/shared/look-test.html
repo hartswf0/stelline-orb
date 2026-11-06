@@ -74,9 +74,9 @@ function cakeA() { const g = new T.Group(), r = 0.12, h = 0.1;
   const icing = LOOK.material('icing', { speckle: 1, seed: 3, repeat: [3, 1] }), icTop = LOOK.material('icing', { seed: 5, repeat: [1.5, 1.5] }), bead = LOOK.material('bead');
   const side = new T.Mesh(new T.CylinderGeometry(r, r * 1.01, h, 96, 1, true), icing); side.position.y = h / 2; g.add(tag(side, 'side'));
   const prof = []; for (let k = 0; k <= 12; k++) { const u = k / 12; prof.push(new T.Vector2(r * (1 - u), h + 0.006 * Math.sin(Math.min(1, u * 3) * Math.PI / 2) + 0.004 * u)); }
-  const top = new T.Mesh(new T.LatheGeometry(prof.reverse(), 96), icTop); g.add(tag(top, 'top'));
+  const top = new T.Mesh(new T.LatheGeometry(prof.reverse(), 96), icTop); top.material.side = T.DoubleSide; g.add(tag(top, 'top'));
   const rim = new T.Mesh(new T.TorusGeometry(r - 0.004, 0.008, 10, 96), icing); rim.rotation.x = Math.PI / 2; rim.position.y = h + 0.002; g.add(tag(rim, 'top'));
-  beads(g, bead, r + 0.002, i => 0.015 + (i % 3) * 0.03, 45, 0.0045, 'side', true);
+  beads(g, LOOK.material('chocolate', { color: 0x2a1a10, seed: 6 }), r + 0.002, i => 0.015 + (i % 3) * 0.03, 45, 0.0045, 'side', true); beads(g, bead, r - 0.004, h + 0.006, 64, 0.0055, 'top', true);
   // the inscription in red piping (stroke blocks, no film pixels)
   const cv = document.createElement('canvas'); cv.width = cv.height = 256; const x = cv.getContext('2d'); x.translate(128, 150); x.rotate(-0.1); x.fillStyle = '#c2271c';
   x.font = '600 34px "Noto Sans CJK SC","PingFang SC",sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('生日快乐', 0, 0);
