@@ -319,6 +319,7 @@ function step(dt) { NOW += dt; S.since += dt; S.sinceHold += dt; S.sinceSelect =
   // switching on (start) and off (long HOLD, or after the blow): round spots
   const on = clamp(NOW / 1.2, 0, 1); if (S.off) S.dark = clamp((NOW - S.off) / 1.0, 0, 1); else if (S.ended && NOW - S.endAt > 1.4) { S.off = NOW; sound({ k: 'off' }); }
   SPOTS.forEach((s, i) => { const k = S.off ? clamp((NOW - S.off) * 2 - i * .08, 0, 1) * (1 - clamp((NOW - S.off - .8) * 1.5, 0, 1)) : clamp(1 - Math.abs(on * 2 - 1 - i * .02), 0, 1) * (1 - on); s.m.material.opacity = k * .7; s.m.position.set(camT.x + s.x * camD, s.y * camD * .5 + camT.y * .5, camT.z + s.z * camD * .5); s.m.scale.setScalar(s.s * camD); });
+  SPOT.visible = !LOOKH;   // LOOK lights the floor itself
   if (LOOKH) { [key, hemi, rim, candleLight].forEach(l => l.intensity = 0); LOOKT.copy(P.cake.holder.position).add(new T.Vector3(0, .06, 0)); try { LOOKH.candlesLit && LOOKH.candlesLit(lit / 7); } catch (e) { } }
   const LP = lightParams(); R.toneMappingExposure = (LP && LP.exposure ? clamp(LP.exposure, .3, 2.5) : .9) * on * (1 - S.dark) + .001;
   if (LOOKH && LOOKH.set) { const ex = +(1.1 * (LP && LP.exposure ? clamp(LP.exposure, .3, 2.5) : 1) * on * (1 - S.dark) + .001).toFixed(2); if (ex !== S.lookExp) { S.lookExp = ex; try { LOOKH.set({ exposure: ex }); } catch (e) { } } }   // LOOK grades without tone mapping: switching on and off goes through its exposure
