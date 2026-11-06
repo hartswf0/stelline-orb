@@ -124,35 +124,35 @@ Both choose with SELECT. The scripted chooser between UIs plays the elite every 
   Plain elitist auto-breeding (8 children, sigma 0.1) does a little better: the cake passed all its stages in about 110-150
   generations, but the table passed 2/5 in 300. These are the module versions as of about 03:50; their owners were still
   working.
-- `proof.mp4` and `trace.json` (revision 3, Nov 6, about 07:00) come from one recorded run: `ui/record.js`, CAREFUL script,
-  budget 150 generations per part, real modules, `shared/look.js` and the `holo.js` arc and readout. The film is 52.8 s with
-  sound, from 689 s of virtual play.
-  - Generations at which each stage passed:
-
-    | Part | Generations to each stage |
-    |---|---|
-    | table | 4, 12, 28 (3/3) |
-    | light | 15, 28, 44 (3/3) |
-    | people | 9, 24, 78 (3/3) |
-    | candles | 8, 20, 29, 63, 91, 110, 121, 140 (8/8) |
-    | inscription | 11, 26, 66, 70, 83, 131 (6/6) |
-    | cake | 4, 13, 25, 35, 44 (5/6) |
-
-  - The cake did not pass DECORATION and was made as it stood at 150 generations.
-  - The player made 571 choices; 36 of them kept a variant that was not the fitness best.
-  - The UI changed between parts: U0, U2, U3 (new elite after the light), U3, U7, U10.
-- **Believability strip (FILM-BAR.md), run by the host owner, not an independent critic: FAIL.** The strip is film 146.0 s
-  and 155.3 s next to proof frame 745; the frames are in /home/claude/stelline-work/evolve-all-strip/, outside the repo.
-  What gives it away, in order:
-  1. Overexposed: the frame is a flat warm wash, where the film has a black surround with light falling off from the
-     candles.
-  2. The camera is far too close: the cake fills the frame, and the table edge and hexagon are not seen.
-  3. The people are towering faceless mannequin blocks, where the film shows children at the cake's height.
-  4. The cake is an orange dome on a dark band, where the film's cake is cream-frosted with beads.
-  5. The flames are not visible.
-  6. The inscription is not visible from this angle.
-- The earlier proof (revision 1, 41.6 s) is replaced. Before revision 3 the recording was black for a while: a code comment
-  had swallowed the line that adds the WebGL canvas to the page. Fixed.
+- `proof.mp4` and `trace.json`: revision 4 (Nov 6, about 07:20).
+  - The run: CAREFUL script, budget 300 generations per part, look.js plus the holo.js arc and readout. The film is 55.7 s
+    with sound, from 881 s of virtual play.
+  - Stages passed: table 3/3 (28 generations), light 3/3 (44), people 3/3 (75), candles 8/8 (168), inscription 6/6 (123).
+    The cake reached 5/6 by generation 44 and never passed DECORATION in 300 generations.
+  - The player made 738 choices; 39 kept a variant that was not the fitness best.
+- **Revision 4 fixes:**
+  - **Overexposure.**
+    - Cause found by rendering the same end frame three ways: with LOOK and the light part's exposure, with LOOK alone, and
+      without LOOK. All three were washed out, so the exposure product was not the main cause. The main cause was the light
+      module's own lamps: `build()` returns a PointLight (intensity 2.9, range x4) and a hemisphere light, which added to
+      LOOK's (or the host's) lights.
+    - Fix: the light part's lamps are switched off in the scene. Under LOOK, the light part's `params()` are not applied
+      either, because LOOK's grade was evolved against the film.
+    - The host's own dome and glow are hidden under LOOK. The surround is now black.
+  - **Flames.** They show as small glows once the light no longer floods the frame. They are still too small and faint
+    against the film.
+  - **People.** Each child is scaled about its own feet so that heads stand about 1.75 x the table height above the floor;
+    this run used 0.915. This is a host correction, recorded in the trace as `hostScale`; the people module's fitness does
+    not see it. LOOK's depth of field is focused on the cake.
+  - **End shot.** It now frames the whole table from a little above its top, as at 155 s.
+  - **Cake budget.** Raised to 300. It was not enough: with the player choosing, the cake's DECORATION stage was not passed.
+- **Believability strip, revision 4, run by the host owner: FAIL** (film 155.3 s against proof frame 805; frames in
+  /home/claude/stelline-work/evolve-all-strip/). What still gives it away:
+  1. The cake is an orange dome, not cream frosting with beads; DECORATION was not reached.
+  2. The flames are hardly visible.
+  3. The table top is flat-lit and white, where in the film the top is lit from the candles and falls off.
+  4. Four doll-like children with identical bobbed hair, where the film has three.
+  5. No band of light on the wall.
 
 ## The proof film
 
