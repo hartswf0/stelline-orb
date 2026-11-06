@@ -117,13 +117,14 @@ function setArcMark(m) { m = clamp(m, 0, 4); if (m !== arcMark) { arcMark = m; H
 function readStep() { HREAD.feed(9); }
 /* =============================================================== THE GAME STATE */
 const OPS = { CANDLES: 'CANDLES', INSCRIPTION: 'INSCRIPTION', MATCH: 'MATCH' };
-const S = { cur: null, path: [], reachedDome: false, target: 0, step: 0, N: 12, pace: 1, insc: 0, placed: 0, lit: 0, blowAt: 0, ended: false, offAt: 0, cutCount: 0, surf: null, msg: '', msgAt: -9, scene: null, yaw: 0 };
+const S = { cur: null, path: [], reachedDome: false, target: 0, step: 0, N: 12, pace: 1, insc: 0, placed: 0, lit: 0, blowAt: 0, ended: false, offAt: 0, cutCount: 0, surf: null, msg: '', msgAt: -9, scene: null, yaw: 0, done: {}, tilt: 0 };
 const TR = { steps: [], events: [], frames: [] };
 const ev = (kind, o) => TR.events.push(Object.assign({ t: +NOW.toFixed(3), kind }, o || {}));
 function label(c) { return M.KEYS[c] ? M.KEYS[c].label : c; }
 function candidates() { if (!S.cur) return ['DOUGH']; if (S.ended) return [];
   const keys = Object.keys(M.EDGES[S.cur] || {}), ops = [];
-  if (M.KEYS[S.cur].kind === 'film') { if (S.placed < 7) ops.push('CANDLES'); if (S.reachedDome && S.insc < WSTEPS) ops.push('INSCRIPTION'); if (S.placed === 7 && S.lit < 7) ops.push('MATCH'); }
+  // a job stays in the ring until HOLD finishes it, so the ring never moves on under a turning hand
+  if (M.KEYS[S.cur].kind === 'film') { if (!S.done.CANDLES) ops.push('CANDLES'); if (S.reachedDome && !S.done.INSCRIPTION) ops.push('INSCRIPTION'); if (S.done.CANDLES && !S.done.MATCH) ops.push('MATCH'); }
   return ops.concat(keys); }
 function tgt() { const c = candidates(); return c[S.target % Math.max(1, c.length)]; }
 function isKeyTarget(x) { return !!M.KEYS[x]; }
@@ -136,7 +137,7 @@ function select(i, silent) { const c = candidates(); if (!c.length) return; S.ta
   k.target = k.applied = valueFor(x); k.ang = k.target * k.deg; if (!silent) play('select'); lastWork = NOW; ev('select', { target: x }); }
 function pressSelect() { if (S.ended) { play('refuse'); return; } if (midChange() || RINGS[1].target !== RINGS[1].applied) { play('refuse'); say(S.step >= S.N ? 'HOLD TO SET IT' : 'TURN THE KNURL BACK TO CHOOSE ANOTHER'); return; } select(S.target + 1); }
 /* the surface now: the committed form, or the in-between toward the selected form */
-const OUT = { R: new Float64Array(NV), Y: new Float64Array(NV), C: new Float64Array(NV * 3) }; let surfDirty = true, presenceT = 0, flashT = 0, settleT = 1;
+const OUT = { R: new Float64Array(NV), Y: new Float64Array(NV), C: new Float64Array(NV * 3) }; let surfDirty = true, presenceT = 0, presNow = 0, flashT = 0, settleT = 1;
 function currentSurface() { const x = tgt(); if (!S.cur) return M.key('DOUGH'); if (isKeyTarget(x) && S.step > 0) return M.between(S.cur, x, S.step, S.N, S.pace, OUT); return M.key(S.cur); }
 let lastVol = null, lastNormals = null;
 function applyStep(r) { lastWork = NOW; const x = tgt();
@@ -153,24 +154,25 @@ function applyStep(r) { lastWork = NOW; const x = tgt();
     if (lastNormals && field !== 'CUT') for (let q = 0; q < nn.length; q++) { const u = lastNormals[q], v = nn[q]; if (u && v && u[0] * v[0] + u[1] * v[1] + u[2] * v[2] < 0) flips++; }
     TR.steps.push({ t: +NOW.toFixed(3), kind: field === 'CUT' ? 'cut' : 'morph', from: S.cur, to: x, step: S.step, N: S.N, pace: M.PACES[S.pace].name, field, V_ml: +(V * 1e6).toFixed(1), dV_rel: lastVol == null ? 0 : +(Math.abs(V - lastVol) / Vm).toFixed(4), flips, crossings: pc.crossings, minArea: +pc.minArea.toExponential(3) });
     lastVol = V; lastNormals = nn; return; }
-  if (x === 'INSCRIPTION') { const was = S.insc; S.insc = r.applied; drawInscription(S.insc); readStep(); setArcMark(Math.min(4, Math.floor(S.insc / 5))); if (S.insc > was) { play('pipe', { k: S.insc, vol: .55 }); ev('stroke', { n: S.insc }); } TR.steps.push({ t: +NOW.toFixed(3), kind: 'stroke', n: S.insc }); if (S.insc === WSTEPS) { ev('inscribed'); afterOp(); } return; }
-  if (x === 'CANDLES') { const was = S.placed; S.placed = r.applied; CANDLES.forEach((c, k) => { const want = k < S.placed; if (want && !c.placed) { c.placed = true; c.placeAt = NOW; ev('candle', { k }); } if (!want && c.placed) { c.placed = false; } });
-    TR.steps.push({ t: +NOW.toFixed(3), kind: 'candle', n: S.placed }); if (S.placed > was) play('candle', { vol: .7 }); if (S.placed === 7) afterOp(); return; }
-  if (x === 'MATCH') { const was = S.lit; S.lit = Math.max(S.lit, r.applied); if (was === 0 && S.lit > 0) { play('strike', { vol: .8 }); ev('strike'); } for (let k = was; k < S.lit; k++) { CANDLES[k].lit = true; ev('lit', { k }); play('flare', { vol: .6 }); }
-    TR.steps.push({ t: +NOW.toFixed(3), kind: 'lit', n: S.lit }); if (S.lit === 7) afterOp(); }
+  if (x === 'INSCRIPTION') { const was = S.insc; S.insc = clamp(r.applied, 0, WSTEPS); drawInscription(S.insc); readStep(); setArcMark(Math.min(4, Math.floor(S.insc / 5))); if (S.insc > was) { play('pipe', { k: S.insc, vol: .55 }); ev('stroke', { n: S.insc }); } TR.steps.push({ t: +NOW.toFixed(3), kind: 'stroke', n: S.insc }); if (S.insc === WSTEPS && was < WSTEPS) { ev('inscribed'); S.tiltOff = true; } return; }
+  if (x === 'CANDLES') { const was = S.placed; S.placed = clamp(r.applied, 0, 7); CANDLES.forEach((c, k) => { const want = k < S.placed; if (want && !c.placed) { c.placed = true; c.placeAt = NOW; ev('candle', { k }); } if (!want && c.placed) { c.placed = false; } });
+    TR.steps.push({ t: +NOW.toFixed(3), kind: 'candle', n: S.placed }); if (S.placed > was) play('candle', { vol: .7 }); return; }
+  if (x === 'MATCH') { const was = S.lit; S.lit = clamp(Math.max(S.lit, r.applied), 0, 7); if (was === 0 && S.lit > 0) { play('strike', { vol: .8 }); ev('strike'); } for (let k = was; k < S.lit; k++) { CANDLES[k].lit = true; ev('lit', { k }); play('flare', { vol: .6 }); }
+    TR.steps.push({ t: +NOW.toFixed(3), kind: 'lit', n: S.lit }); }
 }
-function afterOp() { setTimeout0(() => { if (RINGS[1].target === RINGS[1].applied) select(0, true); }); }
 const LATER = []; function setTimeout0(f) { LATER.push([NOW + .5, f]); }
 function commit() { const x = tgt(); if (!isKeyTarget(x) || S.step < S.N) return false;
   const from = S.cur; S.cur = x; S.path.push(x); if (x === 'BROWN_DOME') S.reachedDome = true; ev('commit', { key: x, from, pace: M.PACES[S.pace].name, N: S.N });
   play('tier', { vol: .8 }); flashT = Math.max(flashT, .25); lastVol = null; lastNormals = null; surfDirty = true; select(0, true); return true; }
 function pressHold() { if (S.ended) { play('refuse'); return; }
   if (commit()) return;
-  if (S.lit === 7 && S.insc === WSTEPS && !S.blowAt) { S.blowAt = NOW + .35; play('blow', { vol: .9 }); ev('blow'); return; }
-  play('refuse'); const x = tgt(); say(isKeyTarget(x) ? `TURN THE KNURL TO THE END TO MAKE ${label(x)}` : S.lit === 7 ? 'WRITE THE INSCRIPTION FIRST' : `TURN THE KNURL FOR ${label(x)}`); }
+  const x0 = tgt(), full = x0 && !isKeyTarget(x0) && valueFor(x0) >= rangeFor(x0)[1] && RINGS[1].target === RINGS[1].applied;
+  if (S.lit === 7 && S.done.INSCRIPTION && !S.blowAt && (x0 === 'MATCH' || S.done.MATCH)) { S.done.MATCH = true; S.blowAt = NOW + .35; play('blow', { vol: .9 }); ev('blow'); return; }
+  if (full) { S.done[x0] = true; ev('done', { job: x0 }); play('tier', { vol: .4 }); lastWork = NOW; select(0, true); if (x0 === 'MATCH') say('WRITE THE INSCRIPTION, THEN HOLD'); return; }
+  play('refuse'); const x = tgt(); say(isKeyTarget(x) ? `TURN THE KNURL TO THE END TO MAKE ${label(x)}` : `TURN THE KNURL TO THE END: ${label(x)}`); }
 function switchOff() { S.offAt = NOW; play('wash', { vol: 1.2 }); ev('off'); }
-function reset() { Object.assign(S, { cur: null, path: [], reachedDome: false, target: 0, step: 0, N: 12, pace: 1, insc: 0, placed: 0, lit: 0, blowAt: 0, ended: false, offAt: 0, cutCount: 0, msg: '' });
-  presenceT = 0; U_.uPresence.value = 0; flashT = 0; drawInscription(0); readLines = []; arcMark = 0; lastVol = null; lastNormals = null; surfDirty = true;
+function reset() { Object.assign(S, { cur: null, path: [], reachedDome: false, target: 0, step: 0, N: 12, pace: 1, insc: 0, placed: 0, lit: 0, blowAt: 0, ended: false, offAt: 0, cutCount: 0, msg: '', done: {}, tilt: 0, tiltOff: false });
+  presenceT = 0; presNow = 0; flashT = 0; drawInscription(0); HREAD.clear(); arcMark = -1; lastVol = null; lastNormals = null; surfDirty = true;
   CANDLES.forEach(c => { c.placed = false; c.lit = false; c.out = 0; c.hold = null; c.g.visible = false; }); MATCH.visible = false;
   RINGS.forEach(r => { r.target = r.applied = 0; r.ang = 0; }); RINGS[2].target = RINGS[2].applied = 1; RINGS[2].ang = RINGS[2].deg; S.yaw = 0; select(0, true); }
 /* =============================================================== THE RINGS and the machine (after ana/index.html): the hand sets detents, the machine steps at 11.8/s */
@@ -251,8 +253,8 @@ function buildScript() { const A = []; let t = .6; const turn = (ring, n, dur) =
   morph('DOUGH'); morph('SPONGE'); morph('LAYERED');
   A.push([t, 'turn', 'tri', 1, .3]); t += .45; pace = 2; morph('ICED');
   A.push([t, 'turn', 'scale', 5, .5]); morph('MINT'); morph('RED_ORANGE'); morph('BROWN_DOME');
-  sel('CANDLES'); for (let k = 0; k < 7; k++) { A.push([t, 'turn', 'knurl', 1, .12]); t += .26; } t += .3;
-  A.push([t, 'turn', 'scale', -9, .8]); sel('INSCRIPTION'); turn('knurl', 24, 1.8);
+  sel('CANDLES'); for (let k = 0; k < 7; k++) { A.push([t, 'turn', 'knurl', 1, .12]); t += .26; } t += .2; hold(.4);
+  A.push([t, 'turn', 'scale', -9, .8]); sel('INSCRIPTION'); turn('knurl', 24, 1.8); hold(.6);
   sel('MATCH'); for (let k = 0; k < 7; k++) { A.push([t, 'turn', 'knurl', 1, .1]); t += .27; } t += .4;
   hold(3.0); A.push([t, 'end']); return { A, dur: t }; }
 const SCRIPT = buildScript();
@@ -266,14 +268,14 @@ function runScene() { const sc = S.scene; if (!sc) return; const t = NOW - sc.t0
   if (S.wantSel && NOW >= S.selNext) { if (tgt() === S.wantSel) S.wantSel = null; else { pressSelect(); S.selNext = NOW + .1; } } }
 function runAnims() { if (!S.anims) return; S.anims = S.anims.filter(a => { const u = clamp((NOW - a.t0) / a.dur, 0, 1), e = u < .5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2; handTurn(a.r, lerp(a.from, a.to, e) - a.r.ang); return u < 1; }); }
 /* =============================================================== EVERY FRAME */
-function resize() { const r = viewEl.getBoundingClientRect(); R.setSize(r.width, r.height, false); cam.aspect = r.width / r.height; cam.updateProjectionMatrix(); layoutDev(); U_.uSpot.value = 5 * R.getPixelRatio(); }
+function resize() { const r = viewEl.getBoundingClientRect(); LK.setSize(r.width, r.height); cam.aspect = r.width / r.height; cam.updateProjectionMatrix(); layoutDev(); }
 addEventListener('resize', resize);
 const pathEl = document.getElementById('path'), hintEl = document.getElementById('hint'); const m4 = new T.Matrix4(), q0 = new T.Quaternion(), vS = new T.Vector3();
 function updateSurface() { const s = currentSurface(), pos = geo.attributes.position.array, col = geo.attributes.color.array;
-  for (let k = 0; k < NV; k++) { const j = k % NT; pos[k * 3] = s.R[k] * COS[j]; pos[k * 3 + 1] = s.Y[k]; pos[k * 3 + 2] = s.R[k] * SIN[j]; col[k * 3] = s.C[k * 3]; col[k * 3 + 1] = s.C[k * 3 + 1]; col[k * 3 + 2] = s.C[k * 3 + 2]; }
+  for (let i = 0; i < NU; i++) for (let j = 0; j <= NT; j++) { const k = i * NT + (j % NT), q = i * NC + j; pos[q * 3] = s.R[k] * COS[j]; pos[q * 3 + 1] = s.Y[k]; pos[q * 3 + 2] = s.R[k] * SIN[j]; col[q * 3] = s.C[k * 3]; col[q * 3 + 1] = s.C[k * 3 + 1]; col[q * 3 + 2] = s.C[k * 3 + 2]; }
   geo.attributes.position.needsUpdate = geo.attributes.color.needsUpdate = true; geo.computeVertexNormals(); geo.computeBoundingSphere();
   const ip = igeo.attributes.position.array, iu = igeo.attributes.uv.array; for (let i = 0; i < CAPN; i++) for (let j = 0; j < NT; j++) { const k = (i + M.ROW_RIM) * NT + j, q = i * NT + j;
-    ip[q * 3] = s.R[k] * COS[j]; ip[q * 3 + 1] = s.Y[k] + .0007; ip[q * 3 + 2] = s.R[k] * SIN[j]; iu[q * 2] = .5 + ip[q * 3] / .25; iu[q * 2 + 1] = .5 + ip[q * 3 + 2] / .25; }
+    ip[q * 3] = s.R[k] * COS[j]; ip[q * 3 + 1] = s.Y[k] + .0007; ip[q * 3 + 2] = s.R[k] * SIN[j]; iu[q * 2] = .5 + ip[q * 3] / .25; iu[q * 2 + 1] = .5 - ip[q * 3 + 2] / .25; }
   igeo.attributes.position.needsUpdate = igeo.attributes.uv.needsUpdate = true; igeo.computeVertexNormals(); igeo.computeBoundingSphere();
   // beads: grow out of the side, staggered by index
   const wantWhite = !!s.beadsWhite; if (wantWhite !== beadsWhiteNow) { M.BEADS.forEach((b, k) => beads.setColorAt(k, wantWhite ? new T.Color(0xf7f3ea) : BEADC[b.c])); beads.instanceColor.needsUpdate = true; beadsWhiteNow = wantWhite; }
@@ -285,48 +287,50 @@ function frame(dt, quiet) { NOW += dt; for (let i = LATER.length - 1; i >= 0; i-
   runScene(); runAnims(); machine(dt);
   const s = surfDirty ? updateSurface() : currentSurface(); surfDirty = false;
   // her eye: kneeling, the cake a little below eye height, turned by the scale ring
-  const yaw = S.yaw * Math.PI / 180, D = .92; cam.position.set(Math.sin(yaw) * D, CY + .5, Math.cos(yaw) * D); cam.lookAt(0, CY + .055, 0);
+  // the distance is chosen so the cake (left edge -0.13 m) and the arc (right edge about +0.27 m) both fit the frame's width
+  const yaw = S.yaw * Math.PI / 180, hw = Math.tan(15 * Math.PI / 180) * cam.aspect, D = Math.max(.95, .21 / (hw * .92)), sx = .06, el = .5 / .92;
+  cam.position.set(Math.sin(yaw) * D + Math.cos(yaw) * sx, CY + .06 + el * D * .8, Math.cos(yaw) * D - Math.sin(yaw) * sx); cam.lookAt(Math.cos(yaw) * sx, CY + .055, -Math.sin(yaw) * sx);
   const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion);
   // presence: the memory switches on through round spots; off the same way
   let pres = presenceT; if (S.cur) pres = 1.25; if (S.offAt) { const u = clamp((NOW - S.offAt) / 1.1, 0, 1); pres *= 1 - u; if (u >= 1 && NOW - S.offAt > 1.5) { const keep = S.scene; reset(); S.scene = keep; } }
-  U_.uPresence.value = lerp(U_.uPresence.value, pres, Math.min(1, dt * 10));
-  flashT = Math.max(0, flashT - dt / .125); U_.uFlash.value = flashT * flashT * .9;  // a 3-frame silver decay
-  const lit = CANDLES.filter(c => c.lit && !c.out).length; U_.uSelf.value = .2 + .08 * (lit ? 0 : 1);
-  workLight.intensity = U_.uPresence.value / 1.25 * (S.ended ? .5 : 1.1) * (lit ? .6 : 1); workLight.target.position.set(0, CY, 0);
-  floorSpot.material.opacity = (S.cur ? .12 : clamp(presenceT, 0, 1) * .6 * (1 + .2 * Math.sin(NOW * 9))) * (1 - (S.offAt ? clamp((NOW - S.offAt) / 1.1, 0, 1) : 0));
+  presNow = lerp(presNow, pres, Math.min(1, dt * 10)); const pk = clamp(presNow / 1.25, 0, 1); LOOK.reveal(BODY, pk); LOOK.reveal(TABLE, pk);
+  flashT = Math.max(0, flashT - dt / .125); LOOK.flash(BODY, flashT * flashT * .9);  // a 3-frame silver decay, on the cake only
+  const lit = CANDLES.filter(c => c.lit && !c.out).length; LK.setCandles(CANDLES.filter(c => c.lit && !c.out).map(c => c.f)); LK.candlesLit(lit / 7);
+  // the tilt toward Ana: a smooth move (no clicks) once the brown dome is on its way, level again after the inscription's flourish
+  const tiltWant = !S.tiltOff && ((S.cur === 'BROWN_DOME') || (tgt() === 'BROWN_DOME' && S.step > 0)) ? 1 : 0; if (tiltWant !== S.tilt) { S.tilt = tiltWant; play('sweep', { vol: .6 }); ev(tiltWant ? 'tilt' : 'level'); }
+  BODY.quaternion.slerp(new T.Quaternion().setFromAxisAngle(right, S.tilt * 9 * Math.PI / 180), Math.min(1, dt * 2.2));
+  floorSpot.material.opacity = (S.cur ? .06 : clamp(presenceT, 0, 1) * .6 * (1 + .2 * Math.sin(NOW * 9))) * (1 - (S.offAt ? clamp((NOW - S.offAt) / 1.1, 0, 1) : 0));
   // the discontinuity marker: brightening toward a cut's middle step
   const x = tgt(), cutting = S.cur && isKeyTarget(x) && M.EDGES[S.cur][x] === 'CUT' && S.step > 0; cutRing.material.opacity = cutting ? (S.step < S.N / 2 ? .25 + .6 * S.step / (S.N / 2) : .35) : Math.max(0, cutRing.material.opacity - dt * 2); cutRing.material.opacity = Math.max(cutRing.material.opacity, flashT * .9);
-  // candles: stand on their anchors; across a cut they are held, then settle over 6 frames (0.2 s)
-  settleT = Math.min(1, settleT + dt / .2); let move = 0;
+  // candles: stand on their anchors; across a cut they are held, then settle over 9 frames (0.3 s)
+  settleT = Math.min(1, settleT + dt / .3); let move = 0;
   CANDLES.forEach((c, k) => { const p = M.at(s, c.a.u, c.a.th), want = new T.Vector3(p[0], p[1] - .004, p[2]);
     const base = c.hold && settleT < 1 ? c.hold.clone().lerp(want, settleT * settleT * (3 - 2 * settleT)) : want; if (settleT >= 1) c.hold = null;
     if (c.pos.lengthSq() && c.g.visible) move = Math.max(move, base.distanceTo(c.pos)); c.pos.copy(base);
-    const drop = c.placed ? clamp((NOW - c.placeAt) / .22, 0, 1) : 0; c.g.visible = c.placed && U_.uPresence.value > .05; c.g.position.copy(base); c.g.position.y += (1 - drop * drop) * .07;
-    const on = c.lit && !c.out ? 1 : 0, fl = .92 + Math.sin(NOW * 23 + c.ph) * .05 + Math.sin(NOW * 7.1 + c.ph) * .04; const pr = clamp(U_.uPresence.value / 1.25, 0, 1);
+    const drop = c.placed ? clamp((NOW - c.placeAt) / .22, 0, 1) : 0; c.g.visible = c.placed && pk > .05; c.g.position.copy(base); c.g.position.y += (1 - drop * drop) * .07;
+    const on = c.lit && !c.out ? 1 : 0, fl = .92 + Math.sin(NOW * 23 + c.ph) * .05 + Math.sin(NOW * 7.1 + c.ph) * .04; const pr = pk;
     c.f.material.opacity = on * pr; c.hl.material.opacity = on * .9 * fl * pr; c.f.scale.y = .034 * fl;
     const so = c.out ? clamp(1 - (NOW - c.out) / 1.6, 0, 1) : 0; c.sm.material.opacity = so * .8; c.sm.position.y = .09 + (1 - so) * .06; c.sm.scale.setScalar(.015 + (1 - so) * .03); });
   TR.frames.push({ t: +NOW.toFixed(3), candleMove: +move.toFixed(5) }); if (!PROOF && TR.frames.length > 4000) TR.frames.splice(0, 1000);
-  candleLight.position.set(0, CY + .2, 0); candleLight.intensity = lit * .09 * (.95 + Math.sin(NOW * 19) * .04) * clamp(U_.uPresence.value / 1.25, 0, 1);
   // the match: at the next wick while the match is selected
-  const matching = x === 'MATCH' || (S.lit > 0 && S.lit < 7), wasVis = MATCH.visible; MATCH.visible = matching && S.lit < 7; if (MATCH.visible) { if (!wasVis) MATCH.position.copy(CANDLES[Math.min(6, S.lit)].g.position).add(BODY.position).add(new T.Vector3(.09, .16, .06)); const c = CANDLES[Math.min(6, S.lit)], tp = c.g.position.clone().add(BODY.position); const w = tp.clone().add(new T.Vector3(.012, .1, .01)); MATCH.position.lerp(w, Math.min(1, dt * 14)); MATCH.userData.f.material.opacity = S.lit > 0 || RINGS[1].applied > 0 ? 1 : 0; }
+  const matching = x === 'MATCH' || (S.lit > 0 && S.lit < 7), wasVis = MATCH.visible; MATCH.visible = matching && S.lit < 7; if (MATCH.visible) { if (!wasVis) MATCH.position.copy(CANDLES[Math.min(6, S.lit)].g.getWorldPosition(new T.Vector3())).add(new T.Vector3(.09, .16, .06)); const c = CANDLES[Math.min(6, S.lit)], tp = c.g.getWorldPosition(new T.Vector3()); const w = tp.clone().add(new T.Vector3(.012, .1, .01)); MATCH.position.lerp(w, Math.min(1, dt * 14)); MATCH.userData.f.material.opacity = S.lit > 0 || RINGS[1].applied > 0 ? 1 : 0; }
   // the blow: the seven out one by one
   if (S.blowAt && NOW > S.blowAt) { const k = Math.floor((NOW - S.blowAt) / .14); CANDLES.forEach((c, i) => { if (i <= k && !c.out) { c.out = NOW; play('out', { vol: .5 }); ev('out', { k: i }); if (CANDLES.every(q => q.out)) { S.ended = true; ev('end', { path: S.path }); } } }); }
   // the arc beside the cake at candle height, while the cake is being worked
-  const working = S.cur && NOW - lastWork < 2.6 && !S.ended; arcAlpha = lerp(arcAlpha, working ? 1 : 0, Math.min(1, dt * 6)); arcBlink -= dt;
-  const cp = new T.Vector3(0, CY + .085, 0); ARC.s.position.copy(cp).addScaledVector(right, .24); READ.s.position.copy(cp).addScaledVector(right, .13).add(new T.Vector3(0, -.012, 0));
-  ARC.s.material.opacity = arcAlpha * .9; READ.s.material.opacity = arcAlpha * .8; if (arcAlpha > .01) { drawArc(); drawRead(); }
+  const working = !!S.cur && NOW - lastWork < 2.6 && !S.ended; if (working !== arcOn) { arcOn = working; HARC.show(working); HREAD.show(working); }
+  HARC.update(dt, cam); HREAD.update(dt, cam);
   // words: the path so far, and what to do next
   pathEl.innerHTML = ['NOTHING'].concat(S.path.map(label)).map((p, i, a) => i === a.length - 1 ? `<b>${p}</b>` : p).join(' &gt; ');
-  let hint; if (S.ended) hint = 'THE CANDLES ARE OUT'; else if (S.blowAt) hint = 'SHE BLOWS'; else if (S.lit === 7 && S.insc === WSTEPS) hint = 'HOLD: SHE BLOWS'; else if (NOW - S.msgAt < 2.2) hint = S.msg; else if (!S.cur) hint = S.step ? 'THE MEMORY IS COMING ON. TURN ON, THEN HOLD' : 'TURN THE KNURLED RING TO BEGIN';
+  let hint; if (S.ended) hint = 'THE CANDLES ARE OUT'; else if (S.blowAt) hint = 'SHE BLOWS'; else if (S.lit === 7 && S.insc === WSTEPS) hint = S.done.INSCRIPTION ? 'HOLD: SHE BLOWS' : 'WRITE THE INSCRIPTION, THEN HOLD'; else if (NOW - S.msgAt < 2.2) hint = S.msg; else if (!S.cur) hint = S.step ? 'THE MEMORY IS COMING ON. TURN ON, THEN HOLD' : 'TURN THE KNURLED RING TO BEGIN';
   else if (isKeyTarget(x)) hint = S.step >= S.N ? `HOLD TO SET ${label(x)}` : M.EDGES[S.cur][x] === 'CUT' ? `A CUT TO ${label(x)}` : `${label(S.cur)} BECOMING ${label(x)}`;
-  else if (x === 'CANDLES') hint = 'SEVEN CANDLES'; else if (x === 'INSCRIPTION') hint = 'WRITE IT'; else if (x === 'MATCH') hint = 'LIGHT THEM'; else if (S.lit === 7 && S.insc === WSTEPS) hint = 'HOLD: SHE BLOWS'; else hint = S.lit === 7 ? 'WRITE ON THE BROWN DOME FIRST' : '';
+  else if (x === 'CANDLES') hint = S.placed === 7 ? 'HOLD TO SET THE CANDLES' : 'SEVEN CANDLES'; else if (x === 'INSCRIPTION') hint = S.insc === WSTEPS ? 'HOLD: THE INSCRIPTION IS WRITTEN' : 'WRITE IT'; else if (x === 'MATCH') hint = 'LIGHT THEM'; else if (S.lit === 7 && S.insc === WSTEPS) hint = 'HOLD: SHE BLOWS'; else hint = S.lit === 7 ? 'WRITE ON THE BROWN DOME FIRST' : '';
   if (!S.reachedDome && S.cur && M.KEYS[S.cur].kind === 'film' && !(NOW - S.msgAt < 2.2) && !isKeyTarget(x)) hint = 'THE FILM WRITES ON THE BROWN DOME';
   hintEl.textContent = hint;
-  if (!quiet) { R.render(scene, cam); drawDev(); } }
+  if (!quiet) { LK.render(dt); drawDev(); } }
 let last = performance.now();
 function loop(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; frame(dt); requestAnimationFrame(loop); }
 document.fonts && document.fonts.load('400 20px Oswald').then(() => drawDev());
 resize(); reset(); drawInscription(0);
-window.PG = { objs: { insc, cake, board, beads, table, cam, R, scene }, S, TR, SNDLOG, RINGS, SCRIPT, play() { reset(); TR.steps.length = TR.events.length = TR.frames.length = 0; SNDLOG.length = 0; NOW = 0; S.scene = { t0: 0, i: 0 }; }, advance(dt, quiet) { frame(dt, quiet); }, candidates, tgt, press, pressHold, pressSelect, handTurn, NOW: () => NOW };
+window.PG = { objs: { insc, cake, board, beads, TABLE, cam, R, scene, BODY, HARC }, S, TR, SNDLOG, RINGS, SCRIPT, play() { reset(); TR.steps.length = TR.events.length = TR.frames.length = 0; SNDLOG.length = 0; NOW = 0; S.scene = { t0: 0, i: 0 }; }, advance(dt, quiet) { frame(dt, quiet); }, candidates, tgt, press, pressHold, pressSelect, handTurn, NOW: () => NOW };
 if (!PROOF) requestAnimationFrame(loop);
 </script></body></html>

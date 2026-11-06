@@ -40,6 +40,8 @@
       case 'wash': { // the memory changes state (arrival, a cut, a silver decay)
         n = Math.round(.6 * sr); x = new Float32Array(n).map(() => R()); hp(x, 2200, sr); for (let i = 0; i < n; i++) { const t = i / sr; x[i] *= .22 * v * (t < .06 ? t / .06 : Math.exp(-(t - .06) / .12)); } return x; }
       case 'select': { n = Math.round(.3 * sr); x = new Float32Array(n); for (let k = 0; k < 5; k++) { const b = Math.round(k * .055 * sr); for (let i = 0; i < .03 * sr && b + i < n; i++) { const t = i / sr, a = t < .004 ? t / .004 : 1 - (t - .004) / .026; x[b + i] += Math.sin(2 * Math.PI * 12000 * t) * .03 * a; } } return x; }
+      case 'sweep': { // the cake tilting toward her: a rising high sweep (as in ana/index.html)
+        n = Math.round(1.6 * sr); x = new Float32Array(n); [0, .18, .36].forEach((d, k) => { let ph = 0; for (let i = Math.round(d * sr); i < n; i++) { const t = i / sr - d; if (t > 1.1) break; const f = (6000 + k * 300) * Math.pow((11500 + k * 200) / (6000 + k * 300), t / 1.1); ph += 2 * Math.PI * f / sr; const a = t < .08 ? t / .08 : 1 - (t - .08) / 1.02; x[i] += Math.sin(ph) * .025 * a * v; } }); return x; }
       case 'refuse': { n = Math.round(.12 * sr); x = new Float32Array(n); for (let i = 0; i < n; i++) { const t = i / sr; x[i] = Math.sin(2 * Math.PI * 330 * t) * .08 * Math.exp(-t / .04) * v; } return x; }
     }
     return new Float32Array(1);
