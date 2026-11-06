@@ -1,0 +1,1299 @@
+{
+ "revision": "r1",
+ "history": [
+  {
+   "t": 2.85,
+   "gen": 1,
+   "slot": "STAND",
+   "id": "STAND-BOSHANLU-FOOT",
+   "size": 1,
+   "turn": 0,
+   "swap": false,
+   "match": 0
+  },
+  {
+   "t": 5.017,
+   "gen": 1,
+   "slot": "PLATE",
+   "id": "PLATE-PORCELAIN-WANTED",
+   "size": 1.08,
+   "turn": 30,
+   "swap": false,
+   "match": 0
+  },
+  {
+   "t": 7.317,
+   "gen": 1,
+   "slot": "MOULD",
+   "id": "MOULD-TIN-WANTED",
+   "size": 1,
+   "turn": 0,
+   "swap": false,
+   "match": 0.3
+  },
+  {
+   "t": 11.417,
+   "gen": 1,
+   "slot": "DECORATION",
+   "id": "DECO-MINT",
+   "size": 1,
+   "turn": 0,
+   "swap": false,
+   "match": 0.633
+  },
+  {
+   "t": 15.217,
+   "gen": 1,
+   "slot": "DECORATION",
+   "id": "DECO-CHOC-ORANGE",
+   "size": 1,
+   "turn": 0,
+   "swap": true,
+   "match": 0.9
+  },
+  {
+   "t": 18.2,
+   "gen": 1,
+   "slot": "INSCRIPTION",
+   "id": "生日快乐",
+   "match": 0.95
+  },
+  {
+   "t": 19.45,
+   "gen": 1,
+   "slot": "CANDLES",
+   "id": "HOLDER-BRASS-WANTED",
+   "size": 1,
+   "turn": 0,
+   "swap": false,
+   "match": 0.95
+  },
+  {
+   "t": 24.442,
+   "gen": 1,
+   "slot": "LIGHT",
+   "id": "seven lit",
+   "match": 1
+  },
+  {
+   "t": 27.108,
+   "gen": 1,
+   "slot": "BLOW",
+   "id": "seven out",
+   "match": 1
+  }
+ ],
+ "events": [
+  {
+   "t": 0.7417,
+   "k": "preview",
+   "slot": "STAND",
+   "id": "STAND-FANGYI-FOOTRING"
+  },
+  {
+   "t": 1.3417,
+   "k": "preview",
+   "slot": "STAND",
+   "id": "STAND-GLASS-WANTED"
+  },
+  {
+   "t": 1.9083,
+   "k": "preview",
+   "slot": "STAND",
+   "id": "STAND-FANGYI-FOOTRING"
+  },
+  {
+   "t": 2.1083,
+   "k": "preview",
+   "slot": "STAND",
+   "id": "STAND-BOSHANLU-FOOT"
+  },
+  {
+   "t": 2.85,
+   "k": "hold"
+  },
+  {
+   "t": 2.85,
+   "k": "place",
+   "slot": "STAND",
+   "id": "STAND-BOSHANLU-FOOT",
+   "swap": false
+  },
+  {
+   "t": 2.85,
+   "k": "begin",
+   "op": "STAND"
+  },
+  {
+   "t": 3.7083,
+   "k": "set",
+   "what": "stand"
+  },
+  {
+   "t": 3.8583,
+   "k": "end",
+   "op": "STAND"
+  },
+  {
+   "t": 3.8583,
+   "k": "select",
+   "target": "PLATE"
+  },
+  {
+   "t": 4.1417,
+   "k": "preview",
+   "slot": "PLATE",
+   "id": "PLATE-PORCELAIN-WANTED"
+  },
+  {
+   "t": 5.0167,
+   "k": "hold"
+  },
+  {
+   "t": 5.0167,
+   "k": "place",
+   "slot": "PLATE",
+   "id": "PLATE-PORCELAIN-WANTED",
+   "swap": false
+  },
+  {
+   "t": 5.0167,
+   "k": "begin",
+   "op": "PLATE"
+  },
+  {
+   "t": 5.775,
+   "k": "plate"
+  },
+  {
+   "t": 5.925,
+   "k": "end",
+   "op": "PLATE"
+  },
+  {
+   "t": 5.925,
+   "k": "select",
+   "target": "MOULD"
+  },
+  {
+   "t": 6.2417,
+   "k": "preview",
+   "slot": "MOULD",
+   "id": "MOULD-COLONOWARE-DOME"
+  },
+  {
+   "t": 6.8417,
+   "k": "preview",
+   "slot": "MOULD",
+   "id": "MOULD-TIN-WANTED"
+  },
+  {
+   "t": 7.3167,
+   "k": "hold"
+  },
+  {
+   "t": 7.3167,
+   "k": "place",
+   "slot": "MOULD",
+   "id": "MOULD-TIN-WANTED",
+   "swap": false
+  },
+  {
+   "t": 7.3167,
+   "k": "begin",
+   "op": "MOULD"
+  },
+  {
+   "t": 7.9167,
+   "k": "clank"
+  },
+  {
+   "t": 8.0167,
+   "k": "pour"
+  },
+  {
+   "t": 9.325,
+   "k": "bake"
+  },
+  {
+   "t": 9.825,
+   "k": "lift"
+  },
+  {
+   "t": 10.625,
+   "k": "end",
+   "op": "MOULD"
+  },
+  {
+   "t": 10.625,
+   "k": "select",
+   "target": "DECORATION"
+  },
+  {
+   "t": 11.0417,
+   "k": "preview",
+   "slot": "DECORATION",
+   "id": "DECO-MINT"
+  },
+  {
+   "t": 11.4167,
+   "k": "hold"
+  },
+  {
+   "t": 11.4167,
+   "k": "place",
+   "slot": "DECORATION",
+   "id": "DECO-MINT",
+   "swap": false
+  },
+  {
+   "t": 11.4167,
+   "k": "begin",
+   "op": "DECORATION"
+  },
+  {
+   "t": 11.425,
+   "k": "spread"
+  },
+  {
+   "t": 13.1083,
+   "k": "pipe",
+   "i": 0
+  },
+  {
+   "t": 13.1917,
+   "k": "pipe",
+   "i": 1
+  },
+  {
+   "t": 13.275,
+   "k": "pipe",
+   "i": 2
+  },
+  {
+   "t": 13.3667,
+   "k": "pipe",
+   "i": 3
+  },
+  {
+   "t": 13.45,
+   "k": "pipe",
+   "i": 4
+  },
+  {
+   "t": 13.5333,
+   "k": "pipe",
+   "i": 5
+  },
+  {
+   "t": 13.6167,
+   "k": "pipe",
+   "i": 6
+  },
+  {
+   "t": 13.7083,
+   "k": "pipe",
+   "i": 7
+  },
+  {
+   "t": 13.7917,
+   "k": "pipe",
+   "i": 8
+  },
+  {
+   "t": 13.875,
+   "k": "pipe",
+   "i": 9
+  },
+  {
+   "t": 13.9667,
+   "k": "pipe",
+   "i": 10
+  },
+  {
+   "t": 14.05,
+   "k": "pipe",
+   "i": 11
+  },
+  {
+   "t": 14.1333,
+   "k": "pipe",
+   "i": 12
+  },
+  {
+   "t": 14.2167,
+   "k": "pipe",
+   "i": 13
+  },
+  {
+   "t": 14.425,
+   "k": "end",
+   "op": "DECORATION"
+  },
+  {
+   "t": 14.8417,
+   "k": "preview",
+   "slot": "DECORATION",
+   "id": "DECO-CHOC-ORANGE"
+  },
+  {
+   "t": 15.2167,
+   "k": "hold"
+  },
+  {
+   "t": 15.2167,
+   "k": "place",
+   "slot": "DECORATION",
+   "id": "DECO-CHOC-ORANGE",
+   "swap": true
+  },
+  {
+   "t": 15.2167,
+   "k": "decay",
+   "slot": "DECORATION"
+  },
+  {
+   "t": 15.6167,
+   "k": "select",
+   "target": "INSCRIPTION"
+  },
+  {
+   "t": 15.9417,
+   "k": "tilt"
+  },
+  {
+   "t": 16.025,
+   "k": "tilt"
+  },
+  {
+   "t": 16.1083,
+   "k": "tilt"
+  },
+  {
+   "t": 16.1917,
+   "k": "stroke",
+   "n": 1
+  },
+  {
+   "t": 16.1917,
+   "k": "tilt"
+  },
+  {
+   "t": 16.275,
+   "k": "stroke",
+   "n": 2
+  },
+  {
+   "t": 16.275,
+   "k": "tilt"
+  },
+  {
+   "t": 16.3667,
+   "k": "stroke",
+   "n": 3
+  },
+  {
+   "t": 16.3667,
+   "k": "tilt"
+  },
+  {
+   "t": 16.45,
+   "k": "stroke",
+   "n": 4
+  },
+  {
+   "t": 16.45,
+   "k": "tilt"
+  },
+  {
+   "t": 16.5333,
+   "k": "stroke",
+   "n": 5
+  },
+  {
+   "t": 16.5333,
+   "k": "arcmark",
+   "mark": 1
+  },
+  {
+   "t": 16.5333,
+   "k": "tilt"
+  },
+  {
+   "t": 16.675,
+   "k": "stroke",
+   "n": 6
+  },
+  {
+   "t": 16.7583,
+   "k": "stroke",
+   "n": 7
+  },
+  {
+   "t": 16.8417,
+   "k": "stroke",
+   "n": 8
+  },
+  {
+   "t": 16.925,
+   "k": "stroke",
+   "n": 9
+  },
+  {
+   "t": 17.0083,
+   "k": "stroke",
+   "n": 10
+  },
+  {
+   "t": 17.0083,
+   "k": "arcmark",
+   "mark": 2
+  },
+  {
+   "t": 17.1,
+   "k": "stroke",
+   "n": 11
+  },
+  {
+   "t": 17.1833,
+   "k": "stroke",
+   "n": 12
+  },
+  {
+   "t": 17.2667,
+   "k": "stroke",
+   "n": 13
+  },
+  {
+   "t": 17.35,
+   "k": "stroke",
+   "n": 14
+  },
+  {
+   "t": 17.4333,
+   "k": "stroke",
+   "n": 15
+  },
+  {
+   "t": 17.4333,
+   "k": "arcmark",
+   "mark": 3
+  },
+  {
+   "t": 17.5167,
+   "k": "stroke",
+   "n": 16
+  },
+  {
+   "t": 17.6083,
+   "k": "stroke",
+   "n": 17
+  },
+  {
+   "t": 17.6917,
+   "k": "stroke",
+   "n": 18
+  },
+  {
+   "t": 17.775,
+   "k": "stroke",
+   "n": 19
+  },
+  {
+   "t": 17.8583,
+   "k": "stroke",
+   "n": 20
+  },
+  {
+   "t": 17.8583,
+   "k": "arcmark",
+   "mark": 4
+  },
+  {
+   "t": 17.9417,
+   "k": "stroke",
+   "n": 21
+  },
+  {
+   "t": 18.025,
+   "k": "stroke",
+   "n": 22
+  },
+  {
+   "t": 18.1167,
+   "k": "stroke",
+   "n": 23
+  },
+  {
+   "t": 18.2,
+   "k": "stroke",
+   "n": 24
+  },
+  {
+   "t": 18.2,
+   "k": "written"
+  },
+  {
+   "t": 18.5417,
+   "k": "tilt"
+  },
+  {
+   "t": 18.625,
+   "k": "tilt"
+  },
+  {
+   "t": 18.7083,
+   "k": "tilt"
+  },
+  {
+   "t": 18.7917,
+   "k": "tilt"
+  },
+  {
+   "t": 18.875,
+   "k": "tilt"
+  },
+  {
+   "t": 18.9667,
+   "k": "tilt"
+  },
+  {
+   "t": 19.0167,
+   "k": "select",
+   "target": "CANDLES"
+  },
+  {
+   "t": 19.45,
+   "k": "hold"
+  },
+  {
+   "t": 19.45,
+   "k": "place",
+   "slot": "CANDLES",
+   "id": "HOLDER-BRASS-WANTED",
+   "swap": false
+  },
+  {
+   "t": 19.45,
+   "k": "begin",
+   "op": "CANDLES"
+  },
+  {
+   "t": 19.75,
+   "k": "candle",
+   "i": 1
+  },
+  {
+   "t": 20.05,
+   "k": "candle",
+   "i": 2
+  },
+  {
+   "t": 20.3583,
+   "k": "candle",
+   "i": 3
+  },
+  {
+   "t": 20.6583,
+   "k": "candle",
+   "i": 4
+  },
+  {
+   "t": 20.9583,
+   "k": "candle",
+   "i": 5
+  },
+  {
+   "t": 21.2583,
+   "k": "candle",
+   "i": 6
+  },
+  {
+   "t": 21.5583,
+   "k": "candle",
+   "i": 7
+  },
+  {
+   "t": 21.7583,
+   "k": "end",
+   "op": "CANDLES"
+  },
+  {
+   "t": 21.7583,
+   "k": "select",
+   "target": "LIGHT"
+  },
+  {
+   "t": 22.0167,
+   "k": "hold"
+  },
+  {
+   "t": 22.0167,
+   "k": "begin",
+   "op": "LIGHT"
+  },
+  {
+   "t": 22.025,
+   "k": "match"
+  },
+  {
+   "t": 22.6167,
+   "k": "flame",
+   "i": 1
+  },
+  {
+   "t": 22.8833,
+   "k": "flame",
+   "i": 2
+  },
+  {
+   "t": 23.1417,
+   "k": "flame",
+   "i": 3
+  },
+  {
+   "t": 23.4,
+   "k": "flame",
+   "i": 4
+  },
+  {
+   "t": 23.6583,
+   "k": "flame",
+   "i": 5
+  },
+  {
+   "t": 23.925,
+   "k": "flame",
+   "i": 6
+  },
+  {
+   "t": 24.1833,
+   "k": "flame",
+   "i": 7
+  },
+  {
+   "t": 24.4417,
+   "k": "end",
+   "op": "LIGHT"
+  },
+  {
+   "t": 25.3167,
+   "k": "hold"
+  },
+  {
+   "t": 25.3167,
+   "k": "begin",
+   "op": "BLOW"
+  },
+  {
+   "t": 25.425,
+   "k": "inhale"
+  },
+  {
+   "t": 26.125,
+   "k": "blow"
+  },
+  {
+   "t": 26.225,
+   "k": "puff",
+   "i": 1
+  },
+  {
+   "t": 26.2917,
+   "k": "puff",
+   "i": 2
+  },
+  {
+   "t": 26.3583,
+   "k": "puff",
+   "i": 3
+  },
+  {
+   "t": 26.4333,
+   "k": "puff",
+   "i": 4
+  },
+  {
+   "t": 26.5,
+   "k": "puff",
+   "i": 5
+  },
+  {
+   "t": 26.575,
+   "k": "puff",
+   "i": 6
+  },
+  {
+   "t": 26.6417,
+   "k": "puff",
+   "i": 7
+  },
+  {
+   "t": 27.1083,
+   "k": "end",
+   "op": "BLOW"
+  },
+  {
+   "t": 27.1083,
+   "k": "done",
+   "match": 1
+  }
+ ],
+ "machineSteps": 55,
+ "medianStepInterval": {
+  "slow": 0.08340000000000103,
+  "fast": null
+ },
+ "stageAudit": [
+  {
+   "layer": "STAND",
+   "id": "STAND-BOSHANLU-FOOT",
+   "institution_id": "3d_package:ce850625-2cf1-4c6f-9086-0d5845d9a664",
+   "title": "Lidded incense burner (xianglu) with geometric decoration and narrative scenes",
+   "rights": "UNVERIFIED",
+   "cc0": false,
+   "rendered_as": "procedural stand-in",
+   "crop": "foot and stem only, below the bowl",
+   "size": 1,
+   "turn_deg": 0
+  },
+  {
+   "layer": "PLATE",
+   "id": "PLATE-PORCELAIN-WANTED",
+   "institution_id": null,
+   "title": null,
+   "rights": "NOT FOUND",
+   "cc0": false,
+   "rendered_as": "procedural stand-in",
+   "crop": "whole object",
+   "size": 1.08,
+   "turn_deg": 30
+  },
+  {
+   "layer": "MOULD",
+   "id": "MOULD-TIN-WANTED",
+   "institution_id": null,
+   "title": null,
+   "rights": "NOT FOUND",
+   "cc0": false,
+   "rendered_as": "procedural stand-in",
+   "crop": "whole object",
+   "size": 1,
+   "turn_deg": 0
+  },
+  {
+   "layer": "DECORATION",
+   "id": "DECO-CHOC-ORANGE",
+   "institution_id": null,
+   "title": "palette read from the film, cake 1",
+   "rights": "DERIVED NUMBERS",
+   "cc0": false,
+   "rendered_as": "procedural stand-in",
+   "crop": "colour numbers",
+   "size": 1,
+   "turn_deg": 0
+  },
+  {
+   "layer": "CANDLES",
+   "id": "HOLDER-BRASS-WANTED",
+   "institution_id": null,
+   "title": null,
+   "rights": "NOT FOUND",
+   "cc0": false,
+   "rendered_as": "procedural stand-in",
+   "crop": "cup only",
+   "size": 1,
+   "turn_deg": 0
+  },
+  {
+   "layer": "INSCRIPTION",
+   "id": "生日快乐",
+   "institution_id": null,
+   "title": "four characters drawn stroke by stroke",
+   "rights": "ORIGINAL",
+   "cc0": false,
+   "rendered_as": "canvas text"
+  }
+ ],
+ "layout": {
+  "tableTop": 0.5,
+  "standTop": 0.585,
+  "plateTop": 0.5979599999999999,
+  "cakeBase": 0.5979599999999999,
+  "candleBase": 0.6979599999999999,
+  "candles": [
+   [
+    0.08406961104305333,
+    0.6979599999999999,
+    0.02600577818619788
+   ],
+   [
+    0.018958968966082526,
+    0.6979599999999999,
+    0.048420630889561105
+   ],
+   [
+    -0.0440610073983778,
+    0.6979599999999999,
+    0.07617498032188846
+   ],
+   [
+    -0.05142539206086799,
+    0.6979599999999999,
+    0.0077090240229237324
+   ],
+   [
+    -0.06446061800836712,
+    0.6979599999999999,
+    -0.05990683371685884
+   ],
+   [
+    0.00392748357482542,
+    0.6979599999999999,
+    -0.05185146934050641
+   ],
+   [
+    0.07274868124362394,
+    0.6979599999999999,
+    -0.04951393114380637
+   ]
+  ]
+ },
+ "final": {
+  "phase": "done",
+  "make": {
+   "stand": 1,
+   "plate": 1,
+   "mouldIn": 1,
+   "batter": 1,
+   "bake": 1,
+   "lift": 1,
+   "icing": 1,
+   "topDisc": 1,
+   "beads": 1,
+   "holders": 7,
+   "lit": 7,
+   "out": 7,
+   "blowing": 1
+  },
+  "ins": 24,
+  "match": 1,
+  "toward": "CHOCOLATE, ORANGE TOP"
+ },
+ "recording": {
+  "viewport": {
+   "width": 1280,
+   "height": 720
+  },
+  "input": "Playwright mouse events on the device canvas (drags on rings, presses on SELECT and HOLD)",
+  "frames": 870,
+  "fps": 30,
+  "inputLog": [
+   [
+    0.633,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    1.233,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    1.8,
+    "turn",
+    "knurl",
+    -1
+   ],
+   [
+    2,
+    "turn",
+    "knurl",
+    -1
+   ],
+   [
+    2.1,
+    "turn",
+    "scale",
+    1
+   ],
+   [
+    2.267,
+    "turn",
+    "scale",
+    1
+   ],
+   [
+    2.433,
+    "turn",
+    "scale",
+    1
+   ],
+   [
+    2.7,
+    "hold",
+    "",
+    ""
+   ],
+   [
+    4.033,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    4.4,
+    "turn",
+    "tri",
+    1
+   ],
+   [
+    4.533,
+    "turn",
+    "tri",
+    1
+   ],
+   [
+    4.9,
+    "hold",
+    "",
+    ""
+   ],
+   [
+    6.133,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    6.733,
+    "turn",
+    "knurl",
+    -1
+   ],
+   [
+    7.2,
+    "hold",
+    "",
+    ""
+   ],
+   [
+    10.933,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    11.3,
+    "hold",
+    "",
+    ""
+   ],
+   [
+    14.733,
+    "turn",
+    "knurl",
+    -1
+   ],
+   [
+    15.1,
+    "hold",
+    "",
+    ""
+   ],
+   [
+    15.6,
+    "sel",
+    "",
+    ""
+   ],
+   [
+    15.833,
+    "turn",
+    "tri",
+    1
+   ],
+   [
+    15.9,
+    "turn",
+    "tri",
+    1
+   ],
+   [
+    15.967,
+    "turn",
+    "tri",
+    1
+   ],
+   [
+    16.033,
+    "turn",
+    "tri",
+    1
+   ],
+   [
+    16.1,
+    "turn",
+    "tri",
+    1
+   ],
+   [
+    16.167,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    16.167,
+    "turn",
+    "tri",
+    1
+   ],
+   [
+    16.233,
+    "turn",
+    "tri",
+    1
+   ],
+   [
+    16.233,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    16.3,
+    "turn",
+    "tri",
+    1
+   ],
+   [
+    16.3,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    16.4,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    16.467,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    16.567,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    16.633,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    16.7,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    16.8,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    16.867,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    16.933,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    17.033,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    17.1,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    17.2,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    17.267,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    17.333,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    17.433,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    17.5,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    17.567,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    17.667,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    17.733,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    17.833,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    17.9,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    17.967,
+    "turn",
+    "knurl",
+    1
+   ],
+   [
+    18.433,
+    "turn",
+    "tri",
+    -1
+   ],
+   [
+    18.5,
+    "turn",
+    "tri",
+    -1
+   ],
+   [
+    18.567,
+    "turn",
+    "tri",
+    -1
+   ],
+   [
+    18.633,
+    "turn",
+    "tri",
+    -1
+   ],
+   [
+    18.7,
+    "turn",
+    "tri",
+    -1
+   ],
+   [
+    18.767,
+    "turn",
+    "tri",
+    -1
+   ],
+   [
+    18.833,
+    "turn",
+    "tri",
+    -1
+   ],
+   [
+    18.9,
+    "turn",
+    "tri",
+    -1
+   ],
+   [
+    19,
+    "sel",
+    "",
+    ""
+   ],
+   [
+    19.3,
+    "hold",
+    "",
+    ""
+   ],
+   [
+    21.9,
+    "hold",
+    "",
+    ""
+   ],
+   [
+    24.6,
+    "turn",
+    "scale",
+    -1
+   ],
+   [
+    24.767,
+    "turn",
+    "scale",
+    -1
+   ],
+   [
+    24.933,
+    "turn",
+    "scale",
+    -1
+   ],
+   [
+    25.2,
+    "hold",
+    "",
+    ""
+   ]
+  ],
+  "audioPeak": 1.1854830980300903,
+  "deviceGrains": true,
+  "pageErrors": []
+ }
+}

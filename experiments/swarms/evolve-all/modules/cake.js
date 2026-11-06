@@ -7,8 +7,11 @@
      the bead genes against the measured beads. The old fitness pooled every pixel of the cake into one sRGB histogram; the dark
      side (about 90% of the pixels at 7 degrees) and the film's crushed blue channel pulled the icing to olive (see docs/cake.md).
    - Colour genes are CIELAB (L, a, b), so a mutation step is about the same visible change everywhere.
+   - Frosting and piping are genes, geometry and fitness terms (after critic round 1): ripple slopes of the top and side coats
+     (displaced meshes), a piped shell border round the top rim and one round the foot (instanced shells), beads on the side;
+     the slopes are matched to band-pass texture measured in the frames.
    - build(THREE, G, {t}) makes the cake on screen from the table up: board, sponge layers, filling, dome, icing poured then
-     spread down the side, beads piped one by one. anchors(G) gives base, top centre, rim, the inscription spot and seven candle seats.
+     spread down the side, borders piped, beads set one by one. anchors(G) gives base, top centre, rim, the inscription spot and seven candle seats.
    Units: scene units of ana/index.html (cake body radius 0.12); origin = centre of the cake's underside (sits on the table top).
    Breeding is not here (core/breed.js). Plain JS, UMD: node module.exports, browser window.EVOMOD.cake. */
 (function (root, factory) { const M = factory(); if (typeof module === 'object' && module.exports) module.exports = M; else { root.EVOMOD = root.EVOMOD || {}; root.EVOMOD.cake = M; } })(this, function () {
@@ -16,7 +19,11 @@
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t, D2R = Math.PI / 180;
   const sst = (a, b, t) => { const x = clamp((t - a) / (b - a), 0, 1); return x * x * (3 - 2 * x); };
   const R0 = .12;                                   // body radius in scene units
-  const LAMBDA = .014;   // frosting ripple wavelength in scene units (1.4 cm); ripple amplitude = slope * LAMBDA / PI
+  const LAMBDA = .01;   // frosting ripple wavelength in scene units (1 cm); ripple amplitude = FROST_GAIN * slope * LAMBDA / PI
+  // FROST_GAIN: the slope genes are matched to the frames through an uncalibrated shading rule (see evaluate); under the memory's
+  // light a ripple of the matched slope barely shows in a render, so the built ripples are three times taller. A render-side
+  // calibration (render the built cake from the reference camera and measure it like the frame) has not been done.
+  const FROST_GAIN = 3;
   /* ------------------------------------------------------------------ genome: [key, group, min, max, default (= blank)] */
   const genes = [
     ['height', 'BASE', .06, .9, .06],      // body height / body diameter
@@ -124,7 +131,7 @@
   /* ------------------------------------------------------------------ anchors (scene units; origin = centre of the underside) */
   function anchors(G) { const s = shape(G), k = R0 / s.R, ty = surfaceY(s, 0) * k, o = {
       base: [0, 0, 0], baseRim: [s.Rb * k, 0, 0], bodyBase: [0, s.y0 * k, 0], bodyRim: [s.R * k, s.y0 * k, 0],
-      top: [0, ty, 0], widest: [Math.max(s.Rb, s.R, s.rt) * k + s.g.frostSide * LAMBDA / Math.PI, 0, 0], rim: [s.rr * k, s.yTop * k, 0], edge: [s.rt * k, (s.yTop - s.bev) * k, 0] };
+      top: [0, ty, 0], widest: [Math.max(s.Rb, s.R, s.rt) * k + FROST_GAIN * s.g.frostSide * LAMBDA / Math.PI, 0, 0], rim: [s.rr * k, s.yTop * k, 0], edge: [s.rt * k, (s.yTop - s.bev) * k, 0] };
     const ri = .3 * s.rr; o.inscription = [0, surfaceY(s, ri) * k, ri * k];                     // toward the viewer (+z), the inscription's centre
     const rc = .62 * s.rr; for (let i = 0; i < 7; i++) { const a = Math.PI + (i - 3) * (2 * Math.PI / 7); o['candle' + i] = [Math.sin(a) * rc * k, surfaceY(s, rc) * k, Math.cos(a) * rc * k]; }
     return o; }
@@ -133,7 +140,10 @@
   /* ------------------------------------------------------------------ the making on screen */
   function hashf(i) { let h = Math.imul(i + 1, 2654435761) ^ 0x5bd1e995; h = Math.imul(h ^ h >>> 15, 2246822519); h ^= h >>> 13; return ((h >>> 0) % 100000) / 100000; }
   // frosting ripples: a fixed sum of waves, periodic round the cake; v in scene units (height on the side, radius on the top); value about -1..1
-  const RIP = [[9, 140], [17, 230], [29, 90], [41, 310], [6, 420]].map(([n, m], i) => [n, m, hashf(i + 31) * 6.283]);
+  const RIP = [[13, 200], [23, 330], [37, 130], [53, 450], [8, 600]].map(([n, m], i) => [n, m, hashf(i + 31) * 6.283]);
+  // the top: plane waves in x, z (no pole artefact where the lathe closes); wavelengths about LAMBDA
+  const RIPXZ = [0, 1, 2, 3, 4, 5].map(i => { const d = i * 1.07 + hashf(i + 71), kk = 2 * Math.PI / (.01 * (.7 + .6 * hashf(i + 91))); return [Math.cos(d) * kk, Math.sin(d) * kk, hashf(i + 53) * 6.283]; });
+  const rippleXZ = (x, z) => { let q = 0; for (const [kx, kz, ph] of RIPXZ) q += Math.sin(kx * x + kz * z + ph); return q / 2.4; };
   const ripple = (a, v) => { let z = 0; for (const [n, m, ph] of RIP) z += Math.sin(a * n + v * m + ph); return z / 2.2; };
   function build(THREE, G, opts) { opts = opts || {}; const T = THREE, s = shape(G), g = s.g, k = R0 / s.R, grp = new T.Group(); grp.name = 'cake';
     const C = colours(G), tint = opts.tint || [1, 1, 1], lin = opts.linear !== false;
@@ -143,14 +153,14 @@
     const mat = (c, rough) => new T.MeshStandardMaterial({ color: col(c), roughness: rough, metalness: 0, side: T.DoubleSide });
     const sponge = mat(C.side, .9), icing = mat(C.top, .5), sideIcing = mat(C.side, .55),   /* the side coat takes the side's measured colour: in the frames an iced side is seen in shadow */
       beadM = mat(C.bead, .35), boardM = new T.MeshStandardMaterial({ color: new T.Color(.08, .07, .06), roughness: .6 });
-    const ampTop = g.frostTop * LAMBDA / Math.PI, ampSide = g.frostSide * LAMBDA / Math.PI;
+    const ampTop = FROST_GAIN * g.frostTop * LAMBDA / Math.PI, ampSide = FROST_GAIN * g.frostSide * LAMBDA / Math.PI;
     // a lathe mesh; disp(a, x, y) -> [dr, dy] in scene units moves each vertex (radially / vertically) for the frosting
     function lathe(pts, m, disp, seg) { const geo = new T.LatheGeometry(pts.map(p => new T.Vector2(Math.max(1e-5, p[0]) * k, p[1] * k)), seg || 64);
       if (disp) { const P = geo.attributes.position; for (let i = 0; i < P.count; i++) { const x = P.getX(i), y = P.getY(i), z = P.getZ(i), r = Math.hypot(x, z); if (r < 1e-6) continue;
           const a = Math.atan2(x, z), [dr, dy] = disp(a, r, y), f = (r + dr) / r; P.setXYZ(i, x * f, y + dy, z * f); } geo.computeVertexNormals(); }
       return new T.Mesh(geo, m); }
     const sideDisp = (a, r, y) => [ampSide * ripple(a, y), 0];
-    const topDisp = (a, r, y) => [0, ampTop * (.5 + .5 * ripple(a, r))];   // ripples stand up from the coat
+    const topDisp = (a, r, y) => [0, ampTop * (.5 + .5 * rippleXZ(Math.sin(a) * r, Math.cos(a) * r))];   // ripples stand up from the coat
     const parts = { board: null, layers: [], fills: [], dome: null, pour: null, beads: null, shells: null, foot: null };
     // board
     if (s.hb > 1e-4) { parts.board = lathe([[0, 0], [s.Rb, 0], [s.Rb, s.hb], [0, s.hb]], boardM); grp.add(parts.board); }
@@ -167,8 +177,8 @@
     const top = new T.Group(); grp.add(top); const side = new T.Group(); grp.add(side);
     const coat = .003 / k;   // icing thickness in profile units
     const drop = o => o.traverse(m => { if (m.geometry) m.geometry.dispose(); });
-    function topCoat(p) { drop(top); top.clear(); if (p <= 0) return; const rmax = s.rt * p, pts = []; for (let q = 0; q <= 22; q++) { const r = rmax * (1 - q / 22); pts.push([r, surfaceY(s, Math.min(r, s.rt)) + coat]); }
-      pts[0] = [rmax, surfaceY(s, Math.min(rmax, s.rt)) + coat * .3]; top.add(lathe(pts, icing, topDisp, 96)); }
+    function topCoat(p) { drop(top); top.clear(); if (p <= 0) return; const rmax = s.rt * p, pts = []; for (let q = 0; q <= 40; q++) { const r = rmax * (1 - q / 40); pts.push([r, surfaceY(s, Math.min(r, s.rt)) + coat]); }
+      pts[0] = [rmax, surfaceY(s, Math.min(rmax, s.rt)) + coat * .3]; top.add(lathe(pts, icing, topDisp, 160)); }
     function sideCoat(p) { drop(side); side.clear(); const depth = g.spread * s.H * p; if (depth < 1e-3) return; const ya = s.yTop - s.bev - depth, pts = [];
       for (let q = 0; q <= 16; q++) { const y = lerp(ya, s.yTop - s.bev, q / 16); pts.push([rAt(clamp(y, s.y0, s.yTop)) + coat, y]); } side.add(lathe(pts, sideIcing, sideDisp, 96)); }
     const m4 = new T.Matrix4(), q4 = new T.Quaternion(), v3 = new T.Vector3(), up = new T.Vector3(0, 1, 0);

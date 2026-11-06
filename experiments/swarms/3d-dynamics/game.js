@@ -99,15 +99,15 @@
         else if (a === 'fix') { const k = this.main.candles.findIndex(q => q.state === 'fallen' || q.state === 'falling'); if (k >= 0) { const n = k + 1 - this.rings[1].target; if (n) this.turnBy('knurl', n, Math.max(.1, Math.abs(n) / 14)); const at = Math.abs(n) / 11.8 + .35; sc.s.splice(sc.i, 0, [t + at, 'hold'], [t + at + .45, 'fix']); sc.s.sort((p, q) => p[0] - q[0]); } } } }
   }
   // The scene: the whole cake made on the rings, in the film's order (layers, icing, beads, inscription while tilted toward her, level, candles, light, blow).
-  // [time s, action, arg, arg, duration]. The split view (left collar) runs from 11.6 to 19.2 s so the three presets are seen answering the same hand.
+  // [time s, action, arg, arg, duration]. The split view (left collar) runs from 17.7 to 19.5 s, around the careless flick, so the three presets are seen answering the same hand.
   const SCRIPT = [
     [.6, 'hold'], [1.35, 'turn', 'knurl', 1, .12], [1.75, 'hold'], [2.5, 'turn', 'knurl', -1, .12], [2.9, 'hold'],
     [3.7, 'sel', 'POUR'], [3.9, 'turn', 'knurl', 10, .7], [5.05, 'hold'], [5.3, 'tilt', 5, 1.6],
     [6.9, 'sel', 'BEADS'], [7.05, 'turn', 'knurl', 24, 1.3], [8.95, 'hold'], [9.3, 'sel', 'WRITE'], [9.45, 'turn', 'knurl', 24, 1.7],
-    [11.6, 'split'], [11.8, 'tilt', 0, 1.1], [12.3, 'sel', 'CANDLES'],
+    [11.8, 'tilt', 0, 1.1], [12.3, 'sel', 'CANDLES'],
     [12.5, 'hold'], [12.85, 'turn', 'knurl', 1, .08], [13.05, 'hold'], [13.4, 'turn', 'knurl', 1, .08], [13.6, 'hold'], [13.95, 'turn', 'knurl', 1, .08], [14.15, 'hold'],
     [14.5, 'turn', 'knurl', 1, .08], [14.7, 'hold'], [15.05, 'turn', 'knurl', 1, .08], [15.25, 'hold'], [15.6, 'turn', 'knurl', 1, .08], [15.8, 'hold'],
-    [16.5, 'turn', 'scale', 8, .65], [18.1, 'tilt', 6, .12], [18.24, 'tilt', 0, .14], [19.5, 'split'], [19.8, 'fix'],
+    [16.5, 'turn', 'scale', 8, .65], [17.7, 'split'], [18.1, 'tilt', 6, .12], [18.24, 'tilt', 0, .14], [19.5, 'split'], [19.8, 'fix'],
     [22.2, 'sel', 'LIGHT'], [22.4, 'turn', 'knurl', 7, .5], [25.4, 'hold'], [28.6, 'end']];
   const API = { Game, SCRIPT, TARGETS, REF, POUR_ML, OFFSET_MM, TILT_PER, YAW_PER, WSTEPS };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.GAME = API;

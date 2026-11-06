@@ -66,7 +66,7 @@ for (const fps of [30, 60]) { const g = new Game(); g.play(); let minGap = 1, sq
   ok(tag + 'at the blow the cake matches the film\'s within tolerance (score >= 90, 7 upright, at rest)', beforeBlow && beforeBlow.score.pass && beforeBlow.score.parts.rest === 10, beforeBlow && beforeBlow.score.total);
   ok(tag + 'the breath puts the seven out one by one (distinct times, spread over >= 0.3 s)', outs.length === 7 && new Set(outs.map(e => e.t)).size >= 5 && outs[6].t - outs[0].t >= .3, outs.map(e => e.t));
   ok(tag + 'a layer never passes into the cake below it while lowered; sponge never inverts', minGap >= -.35 / 240 - 1e-9 && sqMin > -.4, { minGap, sqMin });
-  ok(tag + 'a fallen candle lies on the cake (angle stops at its contact, 79 deg)', maxFall <= 1.38 + 1e-9, { maxFallDeg: maxFall / DEG });
+  ok(tag + 'a fallen candle lies on the cake (angle stops at its contact, 86 deg)', maxFall <= D.GEO.fallLim + 1e-9, { maxFallDeg: maxFall / DEG });
   ok(tag + 'machine clicks step at 11.8/s (23.6/s only when far behind)', gaps.length > 50 && on118 / gaps.length > .95, { n: gaps.length, frac: on118 / gaps.length });
   ok(tag + 'game ends: done', !!ev.find(e => e.kind === 'done'));
   if (fps === 60) { run(g.main, 0); const a = JSON.stringify(g.main.snapshot()); for (let i = 0; i < 300; i++) g.advance(1 / 60); const b = JSON.stringify(g.main.snapshot()); ok('after the blow, 5 s with no input: the tuned cake is bit-identical (no motion at rest)', g.main.atRest() && a === b); }

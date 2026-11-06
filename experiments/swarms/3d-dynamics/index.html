@@ -30,13 +30,14 @@ button.x { font: 500 12px 'Oswald', sans-serif; letter-spacing: .12em; color: va
 <tr><td>LEFT COLLAR</td><td>Top: play the scene. Middle: SPLIT, the same hand on three damping presets side by side (LOOSE, TUNED, RIGID). Bottom: clear.</td></tr>
 <tr><td>MATCH</td><td>Score against the film's cake: three aligned layers, icing coverage without run-off, height to width near 0.40 (traced from the film), 24 beads, the inscription, seven upright candles, level, everything at rest. 90 and seven upright candles to pass.</td></tr>
 </table>
-<button class="x" id="infoClose">CLOSE</button><a class="x" href="operator.html" style="text-decoration:none;display:inline-block">OPERATOR PAGE</a></div>
+<button class="x" id="paperBtn">PAPER CROWN AND STREAMERS: OFF</button><button class="x" id="infoClose">CLOSE</button><a class="x" href="operator.html" style="text-decoration:none;display:inline-block">OPERATOR PAGE</a></div>
 <script src="../../../ana/assets/three.min.js"></script>
+<script src="../shared/look.js"></script><script src="../shared/holo.js"></script>
 <script src="dyn.js"></script><script src="game.js"></script><script src="sound.js"></script>
 <script>
 'use strict';
 const T = THREE, TAU = Math.PI * 2, clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t, GEO = DYN.GEO, ICE = DYN.ICE;
-const PROOF = /proof/.test(location.search);
+const PROOF = /proof/.test(location.search); let PAPER = /paper/.test(location.search), SPLIT_OK = true;   // the paper crown and streamers (not in the film) only on request
 const game = new GAME.Game(); window.game = game;
 /* ============================================================ SOUND */
 let AC = null, GR = null, played = 0;
@@ -44,20 +45,12 @@ function ac() { if (PROOF) return null; if (!AC) { AC = new (window.AudioContext
 function playLog() { if (!AC) { played = game.log.length; return; } while (played < game.log.length) { const ev = game.log[played++]; const y = SOUND.render(ev, 48000, GR); if (!y.length) continue;
   const b = AC.createBuffer(1, y.length, 48000); b.copyToChannel(y, 0); const s = AC.createBufferSource(); s.buffer = b; s.connect(AC.destination); s.start(); } }
 /* ============================================================ THE ROOM */
-const viewEl = document.getElementById('view'), R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: PROOF }); R.setPixelRatio(Math.min(2, devicePixelRatio)); R.outputEncoding = T.sRGBEncoding; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = 1.1; viewEl.append(R.domElement); R.autoClear = false;
+const viewEl = document.getElementById('view'), R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: PROOF }); R.setPixelRatio(Math.min(2, devicePixelRatio)); R.outputEncoding = T.sRGBEncoding; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = 1.1; viewEl.append(R.domElement); 
 const HUD = document.createElement('canvas'); viewEl.append(HUD); const hx = HUD.getContext('2d');
 const scene = new T.Scene(); scene.background = new T.Color(0x030404); scene.fog = new T.FogExp2(0x030404, .07);
 const cam = new T.PerspectiveCamera(30, 1, .02, 60);
-{ const fl = new T.Mesh(new T.CircleGeometry(9, 96), new T.MeshStandardMaterial({ color: 0x0b0c0c, roughness: .55, metalness: .2 })); fl.rotation.x = -Math.PI / 2; scene.add(fl);
-  const band = new T.Mesh(new T.TorusGeometry(7.5, .012, 6, 256), new T.MeshBasicMaterial({ color: 0xdfe8e4 })); band.rotation.x = Math.PI / 2; band.position.y = .42; scene.add(band);
-  const glow = new T.Mesh(new T.TorusGeometry(7.5, .09, 6, 256), new T.MeshBasicMaterial({ color: 0x7e8f89, transparent: true, opacity: .12 })); glow.rotation.x = Math.PI / 2; glow.position.y = .42; scene.add(glow);
-  const tb = new T.Mesh(new T.CylinderGeometry(.36, .36, .03, 6), new T.MeshStandardMaterial({ color: 0x3a2814, roughness: .65 })); tb.position.y = GEO.tableY - .015; scene.add(tb);
-  const leg = new T.Mesh(new T.CylinderGeometry(.05, .07, GEO.tableY - .03, 16), new T.MeshStandardMaterial({ color: 0x1a1612, roughness: .8 })); leg.position.y = (GEO.tableY - .03) / 2; scene.add(leg);
-  const sb = new T.Mesh(new T.CylinderGeometry(.07, .085, .008, 48), new T.MeshStandardMaterial({ color: 0xbfc6c4, roughness: .25, metalness: .8 })); sb.position.y = GEO.tableY + .004; scene.add(sb);
-  const st = new T.Mesh(new T.CylinderGeometry(.016, .022, GEO.plateY - GEO.tableY - .012, 24), sb.material); st.position.y = (GEO.plateY + GEO.tableY - .012) / 2; scene.add(st); }
-scene.add(new T.HemisphereLight(0x6c7a76, 0x050403, .07));
-const spot = new T.SpotLight(0xffe2c0, 1.5, 3, .26, .6, 1.4); spot.position.set(.15, 1.75, .55); spot.target.position.set(0, GEO.plateY, 0); scene.add(spot, spot.target);   // the memory's round pool of light
-const candleLight = new T.PointLight(0xffa04a, 0, 2.5, 1.6); scene.add(candleLight);
+/* the memory's look (shared/look.js): dark dome, band of light, key, candle light, grade, bloom, grain, spot screen */
+const LK = LOOK.apply(R, scene, cam, { target: new T.Vector3(0, GEO.plateY + .06, 0), room: true });
 /* ============================================================ ONE CAKE PER PRESET (same hand, own physics) */
 const stripe = (() => { const c = document.createElement('canvas'); c.width = 16; c.height = 64; const x = c.getContext('2d'); x.fillStyle = '#f2e9d6'; x.fillRect(0, 0, 16, 64); x.fillStyle = '#d4483e'; for (let y = -16; y < 80; y += 12) { x.beginPath(); x.moveTo(0, y); x.lineTo(16, y + 8); x.lineTo(16, y + 13); x.lineTo(0, y + 5); x.fill(); } const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; return t; })();
 const radial = (stops, w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'), g = x.createRadialGradient(w / 2, h * .62, 1, w / 2, h * .55, h * .45); stops.forEach(([o, s]) => g.addColorStop(o, s)); x.fillStyle = g; x.fillRect(0, 0, w, h); return new T.CanvasTexture(c); };
@@ -79,7 +72,7 @@ class View {
     this.w = world; const G = this.G = new T.Group(); scene.add(G);
     this.piv = new T.Group(); this.piv.position.y = GEO.plateY; G.add(this.piv); this.yaw = new T.Group(); this.piv.add(this.yaw);
     const Y = this.yaw, std = (c, o) => new T.MeshStandardMaterial(Object.assign({ color: c, roughness: .7 }, o || {}));
-    this.mats = { sponge: std(0x3e2215, { roughness: .9 }), fill: std(0xe7d6b6, { roughness: .8 }), ice: std(0xc2501a, { roughness: .3, side: T.DoubleSide }), bead: std(0xf4ecdc, { roughness: .45 }), plate: std(0xd8dcda, { roughness: .2, metalness: .7 }), crown: std(0xe8c062, { roughness: .4, metalness: .25, side: T.DoubleSide }) };
+    this.mats = { sponge: LOOK.material('chocolate', { color: 0x4a2a18, seed: 2, repeat: [3, 1] }), fill: LOOK.material('icing', { seed: 7 }), ice: LOOK.material('icing', { color: 0xe08a3c, seed: 5, repeat: [1.5, 1.5] }), bead: LOOK.material('bead'), plate: LOOK.material('board'), crown: std(0xe8c062, { roughness: .4, metalness: .25, side: T.DoubleSide }) }; this.mats.ice.side = T.DoubleSide;
     const plate = new T.Mesh(new T.CylinderGeometry(GEO.plateR, GEO.plateR - .004, .008, 72), this.mats.plate); plate.position.y = -.004; Y.add(plate);
     this.layerMeshes = []; for (let i = 0; i < 3; i++) { const g = new T.Group(), m = new T.Mesh(new T.CylinderGeometry(GEO.R, GEO.R, GEO.layerH, 72, 1, false, Math.PI), this.mats.sponge), f = new T.Mesh(new T.CylinderGeometry(GEO.R + .0006, GEO.R + .0006, .0035, 72, 1, false, Math.PI), this.mats.fill); f.position.y = GEO.layerH / 2 - .002; g.add(m, f); g.visible = false; Y.add(g); this.layerMeshes.push(g); }
     this.ghostMat = std(0x3e2215, { transparent: true, opacity: .35, roughness: .9 }); this.ghost = new T.Mesh(new T.CylinderGeometry(GEO.R, GEO.R, GEO.layerH, 72), this.ghostMat); this.ghost.visible = false; Y.add(this.ghost);
@@ -89,15 +82,15 @@ class View {
     ig.setIndex(idx); this.ice = new T.Mesh(ig, this.mats.ice); this.ice.visible = false; Y.add(this.ice);
     this.beads = new T.InstancedMesh(new T.SphereGeometry(.0058, 12, 8), this.mats.bead, GEO.beadN); this.beads.count = 0; Y.add(this.beads);
     this.insc = new T.Mesh(new T.CircleGeometry(.082, 48), new T.MeshBasicMaterial({ map: INT, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 })); this.insc.rotation.x = -Math.PI / 2; this.insc.visible = false; Y.add(this.insc);
-    this.candles = this.w.candles.map(c => { const g = new T.Group(), m = new T.Mesh(new T.CylinderGeometry(.0028, .0028, GEO.candleL, 10), new T.MeshStandardMaterial({ map: stripe, roughness: .5, emissive: 0x3a302a, emissiveMap: stripe })); m.position.y = GEO.candleL / 2; g.add(m); g.visible = false; Y.add(g);
-      const f = new T.Sprite(new T.SpriteMaterial({ map: flameTex, blending: T.AdditiveBlending, depthWrite: false, transparent: true })), hl = new T.Sprite(new T.SpriteMaterial({ map: haloTex, blending: T.AdditiveBlending, depthWrite: false, transparent: true }));
+    this.candles = this.w.candles.map(c => { const g = new T.Group(), m = new T.Mesh(new T.CylinderGeometry(.0028, .0028, GEO.candleL, 10), (() => { const m = LOOK.material('wax'); m.map = stripe; m.emissiveMap = stripe; return m; })()); m.position.y = GEO.candleL / 2; g.add(m); g.visible = false; Y.add(g);
+      const f = new T.Sprite(LOOK.material('flame')), hl = new T.Sprite(LOOK.material('halo'));
       const sm = new T.Sprite(new T.SpriteMaterial({ map: smokeTex, transparent: true, depthWrite: false, opacity: 0 })); G.add(f, hl, sm); return { g, f, hl, sm, smokeT: -1, smokeP: null, wasLit: false }; });
     // the paper crown: a zigzag band standing on the plate
     const cg = new T.BufferGeometry(); this.cpos = new Float32Array(GEO.crownN * 2 * 2 * 3 + 6); cg.setAttribute('position', new T.BufferAttribute(this.cpos, 3)); const ci = []; const NP = GEO.crownN * 2;
-    for (let i = 0; i < NP; i++) { const a = i * 2, b = ((i + 1) % NP) * 2; ci.push(a, b, a + 1, a + 1, b, b + 1); } cg.setIndex(ci); this.crownMesh = new T.Mesh(cg, this.mats.crown); Y.add(this.crownMesh);
+    for (let i = 0; i < NP; i++) { const a = i * 2, b = ((i + 1) % NP) * 2; ci.push(a, b, a + 1, a + 1, b, b + 1); } cg.setIndex(ci); this.crownMesh = new T.Mesh(cg, this.mats.crown); this.crownMesh.visible = PAPER; Y.add(this.crownMesh);
     // streamers (world space)
     const cols = [0xd8443a, 0xe9c64a, 0x4a9ad8, 0xf2efe6]; this.str = this.w.streamers.map((s, i) => { const g = new T.BufferGeometry(), p = new Float32Array(s.pts.length * 2 * 3); g.setAttribute('position', new T.BufferAttribute(p, 3)); const id = []; for (let k = 0; k < s.pts.length - 1; k++) { const a = k * 2; id.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); } g.setIndex(id);
-      const m = new T.Mesh(g, new T.MeshStandardMaterial({ color: cols[i % 4], roughness: .7, side: T.DoubleSide })); G.add(m); return { m, p }; });
+      const m = new T.Mesh(g, new T.MeshStandardMaterial({ color: cols[i % 4], roughness: .7, side: T.DoubleSide })); m.visible = PAPER; G.add(m); return { m, p }; });
   }
   iceH(a, i) { return this.w.ice.h[(((a % ICE.NA) + ICE.NA) % ICE.NA) * ICE.NC + i]; }
   update(c3) {
@@ -126,7 +119,7 @@ class View {
     // candles and flames
     const right = new T.Vector3(1, 0, 0).applyQuaternion(c3.quaternion);
     w.candles.forEach((c, k) => { const V = this.candles[k], g = V.g; g.visible = c.state !== 'none';
-      if (g.visible) { const push = c.state === 'pushing' ? (1 - c.push) * (1 - c.push) : 0; g.position.set(GEO.candleR(k) * Math.cos(GEO.candleA(k)), top - GEO.candleDepth + push * .07, GEO.candleR(k) * Math.sin(GEO.candleA(k)));
+      if (g.visible) { const push = c.state === 'pushing' ? (1 - c.push) * (1 - c.push) : 0, lift = c.fall ? (c.fall.lift || 0) * (GEO.candleDepth + .004) : 0; g.position.set(GEO.candleR(k) * Math.cos(GEO.candleA(k)), top - GEO.candleDepth + push * .07 + lift, GEO.candleR(k) * Math.sin(GEO.candleA(k)));
         const l = Math.hypot(c.lx.x, c.lz.x); if (l > 1e-9) g.quaternion.setFromAxisAngle(new T.Vector3(c.lx.x / l, 0, c.lz.x / l), l); else g.quaternion.identity(); }
       const fl = c.flame, sz = c.lit ? Math.max(0, fl.size.x) : Math.max(0, fl.size.x) * Math.max(0, fl.out / .5);
       if (g.visible && sz > .01) { g.updateMatrixWorld(true); const wick = new T.Vector3(0, GEO.candleL, 0).applyMatrix4(g.matrixWorld); let up;
@@ -135,8 +128,8 @@ class View {
         V.f.position.copy(wick).addScaledVector(up, .013 * sz); V.f.scale.set(.015 * sz, .034 * sz * flick, 1); V.f.material.rotation = -Math.atan2(up.dot(right), up.y); V.f.material.opacity = .92; V.f.visible = true;
         V.hl.position.copy(wick).addScaledVector(up, .014); V.hl.scale.set(.06 * sz, .06 * sz, 1); V.hl.material.opacity = .7 * sz * flick; V.hl.visible = true; V.lastWick = wick.clone(); }
       else { V.f.visible = V.hl.visible = false; }
-      if (V.wasLit && !c.lit && V.lastWick) { V.smokeT = 0; V.smokeP = V.lastWick.clone(); } V.wasLit = c.lit;
-      if (V.smokeT >= 0) { V.smokeT += 1 / 30; const u = V.smokeT / 1.6; if (u >= 1) { V.smokeT = -1; V.sm.material.opacity = 0; } else { V.sm.position.copy(V.smokeP).add(new T.Vector3(Math.sin(u * 5 + k) * .006, u * .09, 0)); V.sm.scale.setScalar(.012 + u * .03); V.sm.material.opacity = .35 * (1 - u); } } });
+      if (V.wasLit && !c.lit && V.lastWick) { V.smokeT = 0; V.smokeT0 = game.t; V.smokeP = V.lastWick.clone(); } V.wasLit = c.lit;
+      if (V.smokeT >= 0) { V.smokeT = game.t - V.smokeT0;   /* on the game clock, not the frame count */ const u = V.smokeT / 1.6; if (u >= 1) { V.smokeT = -1; V.sm.material.opacity = 0; } else { V.sm.position.copy(V.smokeP).add(new T.Vector3(Math.sin(u * 5 + k) * .006, u * .09, 0)); V.sm.scale.setScalar(.012 + u * .03); V.sm.material.opacity = .35 * (1 - u); } } });
     // crown
     const cp = this.cpos, NP = GEO.crownN * 2; for (let i = 0; i < NP; i++) { const a = i / NP * TAU + .0, peak = i % 2 === 0, P = w.crown[Math.floor(i / 2) % GEO.crownN], P2 = w.crown[(Math.floor(i / 2) + 1) % GEO.crownN];
       const lr = peak ? P.r.x : (P.r.x + P2.r.x) / 2, lt = peak ? P.t.x : (P.t.x + P2.t.x) / 2, h = peak ? GEO.crownH : .013, cx = Math.cos(a), cz = Math.sin(a), rr = GEO.crownR;
@@ -147,20 +140,13 @@ class View {
       S.m.geometry.attributes.position.needsUpdate = true; S.m.geometry.computeVertexNormals(); S.m.geometry.computeBoundingSphere(); });
     // the magnesium flash on a change: silver, decaying in about 3 frames
     const lit = w.candles.filter(c => c.lit).length, gl = .05 + .05 * lit / 7;
-    Object.values(this.mats).forEach(m => { m.emissive.setRGB(m.color.r * gl + flash * .55, m.color.g * gl + flash * .58, m.color.b * gl + flash * .62); });
+    LOOK.flash(this.G, flash);   // the magnesium flash (shared/look.js)
     this.ice.geometry.computeBoundingSphere();
   }
 }
 const VIEWS = { LOOSE: new View(game.W.LOOSE), TUNED: new View(game.W.TUNED), RIGID: new View(game.W.RIGID) };
 /* ============================================================ MEMORY SPOTS, THE ARC */
-const SPOTS = Array.from({ length: 9 }, (_, i) => { const s = new T.Sprite(new T.SpriteMaterial({ map: spotTex, blending: T.AdditiveBlending, depthWrite: false, depthTest: false, transparent: true, opacity: 0 })); s.renderOrder = 6; scene.add(s); return { s, a: i * 2.39, r: .05 + (i % 3) * .07, y: .02 + (i % 4) * .05, d: i * .07 }; });
-function canvasSprite(w, h, sw, sh) { const c = document.createElement('canvas'); c.width = w; c.height = h; const t = new T.CanvasTexture(c); const s = new T.Sprite(new T.SpriteMaterial({ map: t, transparent: true, depthWrite: false, depthTest: false, opacity: 0 })); s.scale.set(sw, sh, 1); s.renderOrder = 5; scene.add(s); return { c, x: c.getContext('2d'), t, s }; }
-const ARC = canvasSprite(256, 384, .085, .1275); const MARKS = [-23, -19, -9, -1, 6]; let arcMark = 0, arcAlpha = 0, arcBlink = 0;
-function drawArc() { const { x, c } = ARC; x.clearRect(0, 0, c.width, c.height); const cx = 70, cy = 192, r = 140; x.strokeStyle = 'rgba(220,232,228,.55)'; x.lineWidth = 18;
-  [[-78, -52], [-49, -20], [-17, 12], [15, 44], [47, 76]].forEach(([a, b]) => { x.beginPath(); x.arc(cx, cy, r, a * Math.PI / 180, b * Math.PI / 180); x.stroke(); });
-  x.strokeStyle = 'rgba(245,250,248,.9)'; x.lineWidth = 20; x.beginPath(); x.arc(cx, cy, r, -80 * Math.PI / 180, -70 * Math.PI / 180); x.stroke();
-  if (arcBlink <= 0) { const a = MARKS[arcMark] * Math.PI / 180, mx = cx + Math.cos(a) * r, my = cy + Math.sin(a) * r; x.fillStyle = 'rgba(255,255,255,.95)'; x.fillRect(mx - 9, my - 6, 18, 12); x.strokeStyle = 'rgba(230,240,236,.8)'; x.lineWidth = 2; x.beginPath(); x.moveTo(mx + 10, my); x.lineTo(mx + 46, my); x.stroke(); for (let k = 0; k < 4; k++) x.fillRect(mx + 50 + k * 9, my - 1, 4, 2); }
-  ARC.t.needsUpdate = true; }
+const ARCA = new T.Vector3(), ARC = HOLO.arc(scene, ARCA, { size: .085 }); let arcMark = 0, arcAlpha = 0, lastT = 0;   // the hologram arc (shared/holo.js)
 /* ============================================================ THE DEVICE (from ana/index.html) */
 const devEl = document.getElementById('dev'), DC = document.createElement('canvas'); devEl.append(DC); const dx = DC.getContext('2d'); let DW = 0, DH = 0, BANDS = [], BTNS = [];
 function layoutDev() { const r = devEl.getBoundingClientRect(), pr = Math.min(2, devicePixelRatio); DW = r.width; DH = r.height; DC.width = DW * pr; DC.height = DH * pr; dx.setTransform(pr, 0, 0, pr, 0, 0);
@@ -173,7 +159,7 @@ function marksOn(b, list) { list.forEach(([a, fn]) => { const th = (a - b.ring.a
 const SCALE_NUMS = [[0, '00'], [18, '18'], [35, '35'], [60, '60'], [90, '90'], [120, '120'], [150, '150'], [180, '180'], [220, '220'], [255, '255'], [280, '280'], [300, '300'], [330, '330']];
 function fitText(s, x, y, w, px, col) { let f = px; dx.font = `500 ${f}px Oswald, sans-serif`; while (dx.measureText(s).width > w && f > 7) { f -= 1; dx.font = `500 ${f}px Oswald, sans-serif`; } dx.fillStyle = col; dx.fillText(s, x, y); }
 function ringRole(r) { const T_ = game.T, m = game.main; if (r.id === 'scale') return ['TURN', `${((r.applied * GAME.YAW_PER) % 360 + 360) % 360}°`];
-  if (r.id === 'tri') return ['TILT', `${Math.round(m.theta * 180 / Math.PI)}°`];
+  if (r.id === 'tri') return ['TILT', `${Math.round(r.ang / r.deg * GAME.TILT_PER)}°`];
   if (T_ === 'LAYER') return ['LAYER OFFSET', `${game.offset > 0 ? '+' : ''}${game.offset * GAME.OFFSET_MM} MM`]; if (T_ === 'POUR') return ['ICING', `${game.amount * GAME.POUR_ML} ML`];
   if (T_ === 'BEADS') return ['BEADS TO PIPE', `${game.count}`]; if (T_ === 'WRITE') return ['INSCRIPTION', `${Math.min(5, Math.ceil(game.ins / 5))} OF 5 MARKS`]; if (T_ === 'CANDLES') return ['CANDLE SLOT', `${game.slot} OF 7`]; return ['LIT', `${game.litCount()} OF 7`]; }
 function drawDev() { dx.clearRect(0, 0, DW, DH);
@@ -212,6 +198,7 @@ DC.addEventListener('wheel', e => { e.preventDefault(); ac(); const r = DC.getBo
 function press(id) { if (id === 'select') { game.scene = null; game.select(game.target + 1); }
   else if (id === 'hold') { holdDown = game.t; const up = () => { removeEventListener('pointerup', up); const long = game.t - holdDown > .7; holdDown = -1; if (!long) game.scene = null; game.hold(long); }; addEventListener('pointerup', up); }
   else if (id === 'play') { game.play(); played = game.log.length; } else if (id === 'clear') { game.reset(); played = 0; } else if (id === 'split') game.toggleSplit(); else if (id === 'info') document.getElementById('info').classList.add('on'); }
+document.getElementById('paperBtn').onclick = e => { PAPER = !PAPER; e.target.textContent = 'PAPER CROWN AND STREAMERS: ' + (PAPER ? 'ON' : 'OFF'); Object.values(VIEWS).forEach(V => { V.crownMesh.visible = PAPER; V.str.forEach(q => q.m.visible = PAPER); }); };
 document.getElementById('infoClose').onclick = () => document.getElementById('info').classList.remove('on');
 addEventListener('keydown', e => { if (e.key === 's') press('split'); });
 /* ============================================================ HUD (plain labels over the view) */
@@ -234,31 +221,31 @@ function drawHUD(W, H, vps) { hx.clearRect(0, 0, W, H); hx.textBaseline = 'top';
     if (v.x > 0) { hx.fillStyle = 'rgba(60,66,64,.9)'; hx.fillRect(v.x, 50, 1, H - 50); } }); }
 /* ============================================================ EVERY FRAME */
 let VW = 0, VH = 0;
-function resize() { const r = viewEl.getBoundingClientRect(); VW = r.width; VH = r.height; R.setSize(VW, VH, false); const pr = Math.min(2, devicePixelRatio); HUD.width = VW * pr; HUD.height = VH * pr; hx.setTransform(pr, 0, 0, pr, 0, 0); layoutDev(); }
+function resize() { const r = viewEl.getBoundingClientRect(); VW = r.width; VH = r.height; LK.setSize(VW, VH); const pr = Math.min(2, devicePixelRatio); HUD.width = VW * pr; HUD.height = VH * pr; hx.setTransform(pr, 0, 0, pr, 0, 0); layoutDev(); }
 addEventListener('resize', resize);
-function placeCam(aspect) { const needW = .44, needH = .40, t = Math.tan(cam.fov / 2 * Math.PI / 180), d = Math.max(needH / (2 * t), needW / (2 * t * aspect)), el = 12 * Math.PI / 180, c = new T.Vector3(0, GEO.plateY + .085, 0);
+function placeCam(aspect) { const needW = .44, needH = .40, t = Math.tan(cam.fov / 2 * Math.PI / 180), d = Math.max(needH / (2 * t), needW / (2 * t * aspect)), el = 28 * Math.PI / 180, c = new T.Vector3(0, GEO.plateY + .085, 0);
   cam.aspect = aspect; cam.position.set(0, c.y + Math.sin(el) * d, Math.cos(el) * d); cam.lookAt(c); cam.updateProjectionMatrix(); cam.updateMatrixWorld(); }
 function render() {
-  const names = game.split ? ['LOOSE', 'TUNED', 'RIGID'] : ['TUNED'], n = names.length, vps = names.map((name, i) => ({ name, x: Math.round(VW * i / n), w: Math.round(VW / n) }));
+  const names = game.split && VW >= 600 ? ['LOOSE', 'TUNED', 'RIGID'] : ['TUNED']   /* on a phone the split would leave each cake a third of the width: single view there */, n = names.length, vps = names.map((name, i) => ({ name, x: Math.round(VW * i / n), w: Math.round(VW / n) }));
   // the memory switching on and off, as round spots of light
   const since = game.t - game.onAt, dark = game.dark;
-  R.setScissorTest(true); R.setClearColor(0x030404); R.setViewport(0, 0, VW, VH); R.setScissor(0, 0, VW, VH); R.clear();
+  const dt = clamp(game.t - lastT, 0, .1); lastT = game.t; const onK = clamp(since / .9, 0, 1) * (1 - dark);
   drawInscription(game.ins);
-  const st = game.stage(); if (st !== arcMark && st <= 4) { arcMark = Math.min(4, st); arcBlink = .15; } arcBlink -= 1 / 30;
-  const working = game.phase === 'make' && game.t - game.lastWork < 2.6; arcAlpha = lerp(arcAlpha, working ? 1 : 0, .2);
+  const st = Math.min(4, game.stage()); if (st !== arcMark) { arcMark = st; ARC.step(st); }
+  const idle = game.t - game.lastWork; arcAlpha = game.phase === 'make' ? clamp(1 - (idle - 2.6) / .35, 0, 1) : 0;   // on the game clock
   vps.forEach(v => { Object.entries(VIEWS).forEach(([k, V]) => { V.G.visible = k === v.name; }); placeCam(v.w / VH); const V = VIEWS[v.name]; V.w = game.W[v.name]; V.update(cam);
-    const w = game.W[v.name], lit = w.candles.filter(c => c.lit).length; candleLight.position.set(0, GEO.plateY + w.cakeTop() + .1, .03); candleLight.intensity = lit * .22 * (1 - dark);
-    spot.intensity = (1.5 - lit * .14) * clamp(since / .8, 0, 1) * (1 - dark);
-    const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion); ARC.s.visible = v.name === 'TUNED'; ARC.s.position.set(0, GEO.plateY + w.cakeTop() + .045, 0).addScaledVector(right, .2); ARC.s.material.opacity = arcAlpha * .85 * (1 - dark); if (arcAlpha > .01) drawArc();
-    SPOTS.forEach(sp => { const u = (since - sp.d) / .7, off = dark > 0 ? dark : 0; const o = u > 0 && u < 1 ? Math.sin(Math.PI * u) : 0; sp.s.position.set(Math.cos(sp.a) * sp.r, GEO.plateY + sp.y, Math.sin(sp.a) * sp.r * .6); sp.s.scale.setScalar(.05 + .07 * clamp(u, 0, 1)); sp.s.material.opacity = (o * .32 + off * Math.sin(Math.PI * off) * .32); });
-    R.setViewport(v.x, 0, v.w, VH); R.setScissor(v.x, 0, v.w, VH); R.render(scene, cam);
-    if (dark > 0) { /* dim the cake materials by the switch-off */ } });
-  R.setScissorTest(false); drawHUD(VW, VH, vps); drawDev();
+    const w = game.W[v.name], lit = w.candles.filter(c => c.lit).length; LOOK.reveal(V.G, onK); LK.candlesLit(lit / 7); LK.setCandles(V.candles.filter((q, k) => w.candles[k].lit).map(q => q.f));
+    const nar = v.w / VH < 1; ARCA.set(0, GEO.plateY + w.cakeTop() + .045, 0); ARC.object.scale.multiplyScalar(1); ARC.show(arcAlpha > .5 && v.name === 'TUNED'); ARC.update(dt, cam); if (n > 1 && v.name !== 'TUNED') ARC.object.visible = false;
+    if (n === 1) { LK.render(dt); } else { R.setScissorTest(true); R.setViewport(v.x, 0, v.w, VH); R.setScissor(v.x, 0, v.w, VH); R.render(scene, cam); R.setScissorTest(false); }
+    });
+  drawHUD(VW, VH, vps); drawDev();
   viewEl.style.opacity = 1 - dark * .92;
 }
 let last = performance.now();
 function frame(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; game.advance(dt); playLog(); render(); requestAnimationFrame(frame); }
 resize();
-if (PROOF) { window.PG = { advance(dt) { game.advance(dt); render(); }, play() { game.play(); render(); }, game, ready: true }; render(); }
+if (PROOF) { window.PG = { advance(dt) { game.advance(dt); render(); }, play() { game.play(); render(); }, game, ready: true,
+    // where a candle is on screen (CSS px): base and tip, for the readability check
+    candleScreen(k) { const V = VIEWS.TUNED, g = V.candles[k].g; g.updateMatrixWorld(true); const vp = game.split && VW >= 600 ? { x: Math.round(VW / 3), w: Math.round(VW / 3) } : { x: 0, w: VW }; placeCam(vp.w / VH); const f = v => { const p = v.applyMatrix4(g.matrixWorld).project(cam); return [vp.x + (p.x + 1) / 2 * vp.w, (1 - p.y) / 2 * VH]; }; const a = f(new T.Vector3(0, 0, 0)), b = f(new T.Vector3(0, GEO.candleL, 0)); return { base: a, tip: b, len: Math.hypot(a[0] - b[0], a[1] - b[1]), state: game.main.candles[k].state }; } }; render(); }
 else { render(); requestAnimationFrame(frame); }
 </script></body></html>

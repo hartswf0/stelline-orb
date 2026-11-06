@@ -15,20 +15,21 @@
   'use strict';
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t, sst = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
   const soft = (e, s, reach) =>   // reach: how many scales out the straight slope runs (set so it spans the gene's range)
-    { const x = e / s; return .5 * Math.exp(-x * x) + .5 * Math.max(0, 1 - x / (reach || 4)); };   // as modules/inscription.js
+    { const x = Math.max(0, e / s - 1); return .5 * Math.exp(-x * x) + .5 * Math.max(0, 1 - x / (reach || 4)); };   // s = the tolerance: 1 anywhere within it (so a stage once passed is not lost to the small side mutations of later stages), then a Gaussian and a straight slope
   const D2R = Math.PI / 180, R_DEFAULT = .12, TOP_DEFAULT = [.95, .87, .72];
   /* ------------------------------------------------------------------ genes: [key, group, min, max, default] (default = the film's candles, roughly) */
   const genes = [
     ['count', 'COUNT', 1, 12, 7],
-    ['ring', 'PLACING', 0, .1, .065], ['arc', 'PLACING', 0, 270, 167], ['mid', 'PLACING', -200, 20, -105.6], ['jitter', 'PLACING', 0, .4, .15], ['depth', 'PLACING', -.008, .02, .005],
-    ['height', 'SHAFT', .005, .08, .0485], ['thick', 'SHAFT', .002, .015, .0075], ['striped', 'SHAFT', 0, 1, .43], ['turns', 'SHAFT', 0, 12, 8], ['cool', 'SHAFT', 0, 1, .33],
+    ['ring', 'PLACING', 0, .1, .065], ['arc', 'PLACING', 0, 270, 167], ['mid', 'PLACING', -200, 20, -105.6], ['jitter', 'PLACING', 0, .4, .15],
+    ['height', 'SHAFT', .005, .08, .0485], ['thick', 'SHAFT', .002, .015, .0075], ['depth', 'SHAFT', -.008, .02, .005],
+    ['striped', 'STRIPES', 0, 1, .43], ['turns', 'STRIPES', 0, 12, 8], ['cool', 'STRIPES', 0, 1, .33],
     ['cr', 'CREAM', 0, 1, .9], ['cg', 'CREAM', 0, 1, .82], ['cb', 'CREAM', 0, 1, .59], ['sr', 'RED', 0, 1, .65], ['sg', 'RED', 0, 1, .37], ['sb', 'RED', 0, 1, .01],
-    ['br', 'BLUE', 0, 1, .88], ['bg', 'BLUE', 0, 1, .86], ['bb', 'BLUE', 0, 1, 1],
-    ['wick', 'FLAME', 0, .25, .1], ['flame', 'FLAME', 0, .8, .37], ['fw', 'FLAME', .2, .8, .41], ['lean', 'FLAME', -20, 20, 0], ['flicker', 'FLAME', 0, .3, .08]];   // ranges: plausible birthday candles, so one mutation step is about one tolerance
-  const groups = ['COUNT', 'PLACING', 'SHAFT', 'CREAM', 'RED', 'BLUE', 'FLAME'];   // the three colours are three groups (a 9-gene colour group bred too slowly)
+    ['br', 'CREAM', 0, 1, .88], ['bg', 'CREAM', 0, 1, .86], ['bb', 'CREAM', 0, 1, 1],
+    ['wick', 'FLAME', 0, .25, .1], ['flame', 'FLAME', 0, .8, .37], ['fw', 'FLAME', .2, .8, .41], ['lean', 'FLICKER', -20, 20, 0], ['flicker', 'FLICKER', 0, .3, .08]];   // ranges: plausible birthday candles, so one mutation step is about one tolerance
+  const groups = ['COUNT', 'PLACING', 'SHAFT', 'STRIPES', 'CREAM', 'RED', 'FLAME', 'FLICKER'];   // CREAM holds the shaft colour and the pale blue stripe (under the film's grade the blue stripe is a cool off-white)   // groups of 1-5 genes, one stage each, so a stage passes in about 8-25 generations
   const named = G => { const o = {}; genes.forEach((g, i) => o[g[0]] = G[i]); return o; };
   const BLANK = { count: 1, ring: 0, arc: 0, mid: 0, jitter: 0, depth: 0, height: .012, thick: .006, striped: 0, turns: 0, cool: 0,
-    cr: .9, cg: .9, cb: .9, sr: .9, sg: .9, sb: .9, br: .9, bg: .9, bb: .9, wick: 0, flame: 0, fw: .5, lean: 0, flicker: .25 };   // one plain white stub in the middle, unlit, no wick
+    cr: .9, cg: .9, cb: .9, sr: .6, sg: .6, sb: .6, br: .9, bg: .9, bb: .9, wick: 0, flame: 0, fw: .5, lean: 0, flicker: .25 };   // one plain white stub in the middle, unlit, no wick
   function blank() { return Float64Array.from(genes.map(g => BLANK[g[0]])); }
   /* ------------------------------------------------------------------ references and support */
   function refOf(refs) { const r = refs && (refs.bases ? refs : refs.candles && refs.candles.bases ? refs.candles : null); if (r || BUNDLED) return r || BUNDLED;
@@ -51,7 +52,7 @@
     return { g, n, list: out };
   }
   /* ------------------------------------------------------------------ fitness */
-  const W = { count: .1, placing: .3, shaft: .2, colour: .2, flame: .2 }, CS = .15;   // colour tolerance (RGB 0..1): the film colours are graded and blurred
+  const W = { count: .1, placing: .3, shaft: .1, stripes: .1, colour: .2, flame: .12, flicker: .08 }, CS = .1;   // colour tolerance (RGB 0..1): the film colours are graded and blurred
   function evaluate(G, refs) {
     const ref = refOf(refs), sup = supportOf(refs), R = sup.R, L = layout(G), g = L.g, n = L.n, P = ref.proportions;
     const count = Math.max(0, 1 - Math.abs(n - ref.count) / 6);
@@ -61,29 +62,31 @@
     const chamfer = (d1 / F.length + d2 / M.length) / 2;   // an arc with a zigzag cannot copy the film's loose two rows: the best is 0.13 R
     // and where the group as a whole stands (the mean of the bases): this keeps the arc's centre direction measurable even when the arc is wide
     const fm = [F.reduce((a, f) => a + f[0], 0) / F.length, F.reduce((a, f) => a + f[1], 0) / F.length], mmc = [M.reduce((a, m) => a + m[0], 0) / M.length, M.reduce((a, m) => a + m[1], 0) / M.length];
-    const where = .7 * soft(chamfer, .2) + .3 * soft(Math.hypot(mmc[0] - fm[0], mmc[1] - fm[1]), .1, 8);
+    const where = .7 * soft(chamfer, .12, 6) + .3 * soft(Math.hypot(mmc[0] - fm[0], mmc[1] - fm[1]), .06, 12);
     // SUPPORT: each base inside the rim (with its own half-thickness), pushed in at least 2 mm, never more than half its height
-    let support = 0; L.list.forEach(c => { const edge = clamp(1 - (c.r + g.thick / 2 - .95 * R) / (.05 * R), 0, 1);
-      const inn = clamp((g.depth + .003) / .005, 0, 1), sunk = clamp(1 - (g.depth - .5 * g.height) / (.25 * g.height), 0, 1); support += edge * inn * sunk; }); support /= n;
-    const placing = where * support;
+    // (edge belongs to PLACING; seat, how deep, to SHAFT, whose genes set it)
+    let edge = 0; L.list.forEach(c => { edge += clamp(1 - (c.r + g.thick / 2 - .95 * R) / (.05 * R), 0, 1); }); edge /= n;
+    const seat = clamp((g.depth + .003) / .005, 0, 1) * clamp(1 - (g.depth - .5 * g.height) / (.25 * g.height), 0, 1), support = edge * seat;
+    const placing = where * edge;
     // SHAFT: length to cake diameter, thickness to length, how many striped, spiral turns, how many of the striped are blue
     const kinds = ref.kinds, ns = Math.round(clamp(g.striped, 0, 1) * n), nStripF = kinds.red + kinds.blue;
-    const sp = { length: soft(Math.abs(Math.log(g.height / (2 * R) / P.lengthToDiameter)), .15, 20), thick: soft(Math.abs(Math.log(g.thick / g.height / P.thickToLength)), .2, 15),
-      striped: soft(Math.abs(g.striped - nStripF / ref.count), .12, 8), turns: soft(Math.abs(g.turns - P.stripeTurns), 2, 6), blue: soft(Math.abs(g.cool - kinds.blue / nStripF), .2, 5) };
-    const shaft = (sp.length + sp.thick + sp.striped + sp.turns + sp.blue) / 5;
+    const sp = { length: soft(Math.abs(Math.log(g.height / (2 * R) / P.lengthToDiameter)), .08, 35), thick: soft(Math.abs(Math.log(g.thick / g.height / P.thickToLength)), .12, 25),
+      striped: soft(Math.abs(g.striped - nStripF / ref.count), .07, 14), turns: soft(Math.abs(g.turns - P.stripeTurns), 1, 12), blue: soft(Math.abs(g.cool - kinds.blue / nStripF), .15, 7) };
+    const shaft = (sp.length + sp.thick) / 2 * seat, stripes = (sp.striped + sp.turns + sp.blue) / 3;
     // COLOUR: each against the cake top as the film shows it (colour / cake top, per channel), times this cake's top colour
     const rel = ref.colours.rel, tgt = k => rel[k].map((v, i) => clamp(v * sup.col[i], 0, 1));
     const cc = { cream: soft(Math.hypot(g.cr - tgt('cream')[0], g.cg - tgt('cream')[1], g.cb - tgt('cream')[2]), CS, 1.5 / CS),
       red: soft(Math.hypot(g.sr - tgt('red')[0], g.sg - tgt('red')[1], g.sb - tgt('red')[2]), CS, 1.5 / CS), blue: soft(Math.hypot(g.br - tgt('blue')[0], g.bg - tgt('blue')[1], g.bb - tgt('blue')[2]), CS, 1.5 / CS) };
     const colour = Math.cbrt(cc.cream * cc.red * cc.blue);   // geometric mean: the worst colour leads
     // FLAME: wick, flame height and width to the shaft, lean (flames stand up in still air), flicker
-    const fp = { wick: soft(Math.abs(g.wick - P.wickToLength), .05, 5), height: soft(Math.abs(Math.log(Math.max(.01, g.flame) / P.flameToLength)), .15, 25),
-      width: soft(Math.abs(Math.log(g.fw / P.flameWidthToHeight)), .2, 8), lean: soft(Math.abs(g.lean), 8, 4), flicker: soft(Math.abs(g.flicker - P.flicker), .05, 6) };
-    const flame = (fp.wick + fp.height + fp.width + fp.lean + fp.flicker) / 5;
-    const fit = (W.count * count + W.placing * placing + W.shaft * shaft + W.colour * colour + W.flame * flame) * (.5 + .5 * support);
-    return { fit, parts: { count, n, placing, where, chamferR: chamfer, support, shaft, shaftParts: sp, colour, cream: cc.cream, red: cc.red, blue: cc.blue, flame, flameParts: fp } };
+    const fp = { wick: soft(Math.abs(g.wick - P.wickToLength), .04, 6), height: soft(Math.abs(Math.log(Math.max(.01, g.flame) / P.flameToLength)), .12, 35),
+      width: soft(Math.abs(Math.log(g.fw / P.flameWidthToHeight)), .15, 10), lean: soft(Math.abs(g.lean), 4, 5), flicker: soft(Math.abs(g.flicker - P.flicker), .03, 10) };
+    const flame = (fp.wick + fp.height + fp.width) / 3, flicker = (fp.lean + fp.flicker) / 2;
+    const fit = (W.count * count + W.placing * placing + W.shaft * shaft + W.stripes * stripes + W.colour * colour + W.flame * flame + W.flicker * flicker) * (.5 + .5 * support);
+    return { fit, parts: { count, n, placing, where, chamferR: chamfer, support, edge, seat, shaft, stripes, shaftParts: sp, colour, cream: cc.cream, red: cc.red, blue: cc.blue, pale: Math.sqrt(cc.cream * cc.blue), flame, flicker, flameParts: fp } };
   }
-  const stages = [['COUNT', 'count', .99], ['PLACING', 'placing', .65], ['SHAFT', 'shaft', .8], ['CREAM', 'cream', .8], ['RED', 'red', .8], ['BLUE', 'blue', .8], ['FLAME', 'flame', .8]];
+  const BAR = .9;   // every stage bar after COUNT; set from measured convergence (tests/candles.test.js prints the generations per stage)
+  const stages = [['COUNT', 'count', .99], ['PLACING', 'placing', BAR], ['SHAFT', 'shaft', BAR], ['STRIPES', 'stripes', BAR], ['CREAM', 'pale', BAR], ['RED', 'red', BAR], ['FLAME', 'flame', BAR], ['FLICKER', 'flicker', BAR]];
   // place 1..7 (first half of t), then light 1..7 (second half); with another count the candles share the same two halves evenly
   const making = []; for (let k = 0; k < 7; k++) making.push([`PLACE CANDLE ${k + 1}`, +(k / 14).toFixed(4), +((k + 1) / 14).toFixed(4)]);
   for (let k = 0; k < 7; k++) making.push([`LIGHT CANDLE ${k + 1}`, +(.5 + k / 14).toFixed(4), +(.5 + (k + 1) / 14).toFixed(4)]);

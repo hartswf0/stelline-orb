@@ -1,5 +1,5 @@
 {
- "when": "2026-11-06T08:20:47.641Z",
+ "when": "2026-11-06T09:07:41.952Z",
  "fails": 1,
  "results": [
   {
@@ -74,12 +74,12 @@
    "pass": true,
    "measured": {
     "corrected": [
-     1.085,
-     1.127,
-     1.111,
-     1.041,
-     0.951,
-     0.966
+     0.943,
+     0.991,
+     1.006,
+     0.912,
+     0.965,
+     0.967
     ],
     "naive": [
      0.85,
@@ -99,8 +99,8 @@
    "measured": {
     "min": 1,
     "max": 1,
-    "naiveMin": 0.7321,
-    "naiveMax": 1.3063
+    "naiveMin": 0.9944,
+    "naiveMax": 1.0321
    },
    "tolerance": "|area-1| <= 0.02",
    "note": ""
@@ -110,7 +110,7 @@
    "pass": true,
    "measured": {
     "max": 0,
-    "naiveMax": 0.1796
+    "naiveMax": 0.021
    },
    "tolerance": "<= 0.02",
    "note": ""
@@ -119,11 +119,11 @@
    "name": "fabric ring round the badge (feather band) total area",
    "pass": true,
    "measured": {
-    "min": 0.924,
-    "max": 1.265,
+    "min": 0.907,
+    "max": 1.108,
     "worstTriangle": [
      0.07,
-     3.92
+     2.58
     ]
    },
    "tolerance": "0.75 - 1.35 (where the badge's strain goes)",
@@ -149,10 +149,146 @@
    "note": ""
   },
   {
-   "name": "trace.json present",
+   "name": "hands touch what they hold (palm vertex to grip point), proof run",
+   "pass": true,
+   "measured": {
+    "contactsMeasured": 48,
+    "max_m": 0.005,
+    "worst": {
+     "t": 14.933,
+     "child": 3,
+     "hand": "R",
+     "holding": "piping bag",
+     "d": 0.005
+    }
+   },
+   "tolerance": "< 0.010 m",
+   "note": ""
+  },
+  {
+   "name": "dress bow area/shape held through the proof run (child 1)",
+   "pass": true,
+   "measured": {
+    "samples": 55,
+    "areaMin": 1,
+    "areaMax": 1,
+    "shapeMax": 0
+   },
+   "tolerance": "|area-1| <= 0.02, shape <= 0.02",
+   "note": ""
+  },
+  {
+   "name": "sleeve badge area/shape held through the proof run (child 2)",
+   "pass": true,
+   "measured": {
+    "samples": 55,
+    "areaMin": 1,
+    "areaMax": 1,
+    "shapeMax": 0
+   },
+   "tolerance": "|area-1| <= 0.02, shape <= 0.02",
+   "note": ""
+  },
+  {
+   "name": "the whole cake is made, in order, by the children",
+   "pass": true,
+   "measured": [
+    "board",
+    "layer1",
+    "layer2",
+    "iceTop",
+    "iceSide",
+    "beads",
+    "write",
+    "candles",
+    "light",
+    "blow"
+   ],
+   "tolerance": "board..blow, all ten",
+   "note": ""
+  },
+  {
+   "name": "seven candles lit, then all seven out",
+   "pass": true,
+   "measured": {
+    "lit": 7,
+    "out": 7,
+    "beads": 28
+   },
+   "tolerance": "7 and 7",
+   "note": ""
+  },
+  {
+   "name": "page-side contact log (measured live in the page)",
    "pass": false,
-   "measured": "missing",
-   "tolerance": "run record.js first",
+   "measured": {
+    "CHILD 1 L board": {
+     "frames": 14,
+     "max_m": 0.00135,
+     "mean_m": 0.00091
+    },
+    "CHILD 1 R board": {
+     "frames": 14,
+     "max_m": 0.00135,
+     "mean_m": 0.00091
+    },
+    "CHILD 2 L layer1": {
+     "frames": 20,
+     "max_m": 0.00153,
+     "mean_m": 0.00053
+    },
+    "CHILD 2 R layer1": {
+     "frames": 20,
+     "max_m": 0.00153,
+     "mean_m": 0.00059
+    },
+    "CHILD 2 L layer2": {
+     "frames": 19,
+     "max_m": 0.0102,
+     "mean_m": 0.00228
+    },
+    "CHILD 2 R layer2": {
+     "frames": 19,
+     "max_m": 0.0102,
+     "mean_m": 0.00323
+    },
+    "CHILD 3 R spatula": {
+     "frames": 51,
+     "max_m": 0.00397,
+     "mean_m": 0.00172
+    },
+    "CHILD 3 L turntable rim": {
+     "frames": 87,
+     "max_m": 0.00028,
+     "mean_m": 0.00015
+    },
+    "CHILD 3 R piping bag": {
+     "frames": 54,
+     "max_m": 0.00515,
+     "mean_m": 0.00317
+    },
+    "CHILD 4 R candle": {
+     "frames": 25,
+     "max_m": 0.00389,
+     "mean_m": 0.00118
+    },
+    "CHILD 4 R taper": {
+     "frames": 31,
+     "max_m": 0.00132,
+     "mean_m": 0.00095
+    },
+    "CHILD 1 L table edge": {
+     "frames": 13,
+     "max_m": 0.00096,
+     "mean_m": 0.00094
+    },
+    "CHILD 1 R table edge": {
+     "frames": 13,
+     "max_m": 0.00096,
+     "mean_m": 0.00094
+    }
+   },
+   "tolerance": "< 0.010 m each",
    "note": ""
   }
  ],
@@ -161,7 +297,7 @@
    "pose": "raise 150",
    "corrected": {
     "elbow": 1,
-    "shoulder": 1.085,
+    "shoulder": 0.943,
     "forearm": 1,
     "minRing": 1
    },
@@ -174,20 +310,20 @@
    "badge": {
     "area": 1,
     "shape": 0,
-    "band": 1.178,
-    "bandMin": 0.16,
-    "bandMax": 3.4
+    "band": 1.066,
+    "bandMin": 0.39,
+    "bandMax": 2.21
    },
    "badgeNaive": {
-    "area": 1.1647,
-    "shape": 0.1485
+    "area": 1.021,
+    "shape": 0.0193
    }
   },
   {
    "pose": "raise 120 + forward",
    "corrected": {
     "elbow": 1.005,
-    "shoulder": 1.127,
+    "shoulder": 0.991,
     "forearm": 1,
     "minRing": 1
    },
@@ -200,20 +336,20 @@
    "badge": {
     "area": 1,
     "shape": 0,
-    "band": 1.058,
-    "bandMin": 0.09,
-    "bandMax": 2.55
+    "band": 0.979,
+    "bandMin": 0.08,
+    "bandMax": 1.39
    },
    "badgeNaive": {
-    "area": 0.9338,
-    "shape": 0.1343
+    "area": 1.007,
+    "shape": 0.0163
    }
   },
   {
    "pose": "raise 90",
    "corrected": {
     "elbow": 1.001,
-    "shoulder": 1.111,
+    "shoulder": 1.006,
     "forearm": 1,
     "minRing": 1
    },
@@ -226,20 +362,20 @@
    "badge": {
     "area": 1,
     "shape": 0,
-    "band": 0.924,
-    "bandMin": 0.08,
-    "bandMax": 1.56
+    "band": 0.907,
+    "bandMin": 0.07,
+    "bandMax": 1.17
    },
    "badgeNaive": {
-    "area": 0.7321,
-    "shape": 0.1128
+    "area": 0.9944,
+    "shape": 0.0118
    }
   },
   {
    "pose": "forward 140",
    "corrected": {
     "elbow": 1.001,
-    "shoulder": 1.041,
+    "shoulder": 0.912,
     "forearm": 1,
     "minRing": 1
    },
@@ -252,20 +388,20 @@
    "badge": {
     "area": 1,
     "shape": 0,
-    "band": 1.265,
-    "bandMin": 0.2,
-    "bandMax": 3.92
+    "band": 1.108,
+    "bandMin": 0.29,
+    "bandMax": 2.58
    },
    "badgeNaive": {
-    "area": 1.3063,
-    "shape": 0.1796
+    "area": 1.0321,
+    "shape": 0.021
    }
   },
   {
    "pose": "fold (elbow 150)",
    "corrected": {
     "elbow": 0.945,
-    "shoulder": 0.966,
+    "shoulder": 0.967,
     "forearm": 1,
     "minRing": 1
    },
@@ -278,20 +414,20 @@
    "badge": {
     "area": 1,
     "shape": 0,
-    "band": 1.011,
-    "bandMin": 0.09,
-    "bandMax": 2.37
+    "band": 1.006,
+    "bandMin": 0.11,
+    "bandMax": 2.08
    },
    "badgeNaive": {
-    "area": 0.9244,
-    "shape": 0.0872
+    "area": 1.0096,
+    "shape": 0.0075
    }
   },
   {
    "pose": "reach",
    "corrected": {
     "elbow": 1.003,
-    "shoulder": 0.951,
+    "shoulder": 0.965,
     "forearm": 1,
     "minRing": 1
    },
@@ -304,13 +440,13 @@
    "badge": {
     "area": 1,
     "shape": 0,
-    "band": 1.064,
-    "bandMin": 0.07,
-    "bandMax": 2.78
+    "band": 1.039,
+    "bandMin": 0.16,
+    "bandMax": 2.55
    },
    "badgeNaive": {
-    "area": 0.9709,
-    "shape": 0.1052
+    "area": 1.0164,
+    "shape": 0.0099
    }
   },
   {
@@ -331,8 +467,8 @@
     "area": 1,
     "shape": 0,
     "band": 1,
-    "bandMin": 1,
-    "bandMax": 1
+    "bandMin": 0.88,
+    "bandMax": 1.12
    },
    "badgeNaive": {
     "area": 1,
@@ -357,8 +493,8 @@
     "area": 1,
     "shape": 0,
     "band": 1,
-    "bandMin": 1,
-    "bandMax": 1
+    "bandMin": 0.89,
+    "bandMax": 1.12
    },
    "badgeNaive": {
     "area": 1,
@@ -383,8 +519,8 @@
     "area": 1,
     "shape": 0,
     "band": 1,
-    "bandMin": 1,
-    "bandMax": 1
+    "bandMin": 0.98,
+    "bandMax": 1.02
    },
    "badgeNaive": {
     "area": 1,

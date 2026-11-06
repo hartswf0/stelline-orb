@@ -30,15 +30,19 @@
   // kinds: 'side' (path on the cream wall), 'top' (on the top), 'candles' (stops where the nozzle comes down), auto stages run without a pattern
   const STAGES = [
     { id: 'SPONGE', auto: true, revs: 2, say: 'TWO SPONGE LAYERS RISE ON THE TURNTABLE' },
-    { id: 'COAT', auto: true, revs: 1, say: 'THE CREAM COAT IS SPREAD AS THE CAKE TURNS' },
-    { id: 'BASE BEADS', kind: 'side', y0: 0.0058, A: 0, e: 0, r0: 0.0052, prof: 'bead', need: ['t', 'n'], target: { t: [R11, 0], a: [R11, 0], n: [27, 0] }, say: 'A RING OF BEADS AT THE FOOT' },
-    { id: 'TOP SHELLS', kind: 'top', rho0: 0.106, A: 0, e: 0.0045, r0: 0.0036, prof: 'shell', need: ['t', 'n'], target: { t: [R11, 0], a: [R11, 0], n: [30, 0] }, say: 'SHELLS AROUND THE TOP EDGE' },
-    { id: 'SIDE LATTICE', kind: 'side', y0: 0.047, A: 0.016, e: 0, r0: 0.0021, prof: 'const', need: ['t', 'a'], target: { t: [R11, 0], a: [19, 6], n: [R11, 0] }, say: 'A CROSSING GARLAND ROUND THE SIDE' },
+    { id: 'COAT', auto: true, revs: 1, say: 'THE COAT IS SPREAD AS THE CAKE TURNS. NOZZLE 1:1 SPREADS WHITE CREAM, 2:1 CHOCOLATE WITH AN ORANGE TOP' },
+    { id: 'BASE BEADS', kind: 'side', y0: 0.0058, A: 0, e: 0, r0: 0.0052, prof: 'bead', need: ['t', 'n'], target: { t: [R11, 0], a: [R11, 0], n: [27, 0] }, choc: { t: [R11, 0], a: [R11, 0], n: [26, 0] }, say: 'A RING OF BEADS AT THE FOOT' },
+    { id: 'TOP SHELLS', kind: 'top', rho0: 0.106, A: 0, e: 0.0045, r0: 0.0036, prof: 'shell', need: ['t', 'n'], target: { t: [R11, 0], a: [R11, 0], n: [30, 0] }, choc: { t: [R11, 0], a: [R11, 0], n: [28, 0] }, say: 'SHELLS AROUND THE TOP EDGE' },
+    { id: 'SIDE LATTICE', kind: 'side', y0: 0.047, A: 0.016, e: 0, r0: 0.0021, prof: 'const', need: ['t', 'a'], target: { t: [R11, 0], a: [19, 6], n: [R11, 0] }, choc: { t: [R11, 0], a: [17, 0], n: [R11, 0] }, say: 'A GARLAND ROUND THE SIDE' },
     { id: 'INSCRIPTION', auto: true, say: '生日快乐, STROKE BY STROKE, THEN THE FLOURISH' },
     { id: 'CANDLES', kind: 'candles', rhoC: 0.074, A: 0.018, need: ['t', 'a', 'n'], target: { t: [R11, 0], a: [R11, 6], n: [20, 0] }, say: 'SEVEN CANDLES SET WHERE THE NOZZLE COMES DOWN' },
     { id: 'LIGHT', auto: true, revs: 1, say: 'THE CANDLES LIT AS THEY PASS THE MATCH' },
     { id: 'BLOW', auto: true, say: 'BLOW THEM OUT' }];
-  const REFERENCE = 'SPONGE, WHITE BEADS (the cake on the table, film 2:35)';
+  // the two film cakes the machine can head toward; the nozzle ratio at the COAT pass picks one
+  const RECIPES = { white: { name: 'SPONGE, WHITE BEADS', film: 'the cake on the table, film 2:35' }, choc: { name: 'CHOCOLATE, ORANGE TOP', film: 'the first cake, film 2:16' } };
+  const CHOC_NOZZLE = 11;   // 2:1
+  const recipeOf = g => g.n.ri === CHOC_NOZZLE ? 'choc' : 'white';
+  const REFERENCE = RECIPES.white.name + ' (' + RECIPES.white.film + ')';
   // tube radius profile along a pass: beads swell and pinch with the nozzle; shells pulse with its orbit
   function tubeR(def, nu) { if (def.prof === 'bead') { const s = Math.abs(Math.cos(nu / 2)); return def.r0 * (0.3 + 0.7 * Math.sqrt(s)); }
     if (def.prof === 'shell') return def.r0 * (0.62 + 0.38 * Math.cos(nu)); return def.r0; }
@@ -63,9 +67,10 @@
   // the pattern score: symmetric mean nearest-neighbour distance in (x, y, z, 3 r); for candles, between the stop sets
   function chamfer(A, B) { const W = 3; const one = (P, Q) => { let sum = 0; for (const p of P) { let m = Infinity; for (const q of Q) { const d = (p.x - q.x) ** 2 + (p.y - q.y) ** 2 + (p.z - q.z) ** 2 + (W * (p.r - q.r)) ** 2; if (d < m) m = d; } sum += Math.sqrt(m); } return sum / P.length; };
     if (!A.length || !B.length) return Infinity; return (one(A, B) + one(B, A)) / 2; }
-  const TOL = 0.0008;   // 0.8 mm mean deviation; set below the smallest one-detent-off distance measured in tests.js
-  function targetGears(def, g) { const t = {}; GEARS.forEach(id => { t[id] = { ri: def.target[id][0], ph: def.target[id][1] }; }); return t; }
-  function score(def, g) { const S = 240; const P = pass(def, g, S), T = pass(def, targetGears(def, g), S);
+  const TOL = 0.0007;   // 0.7 mm mean deviation; set below the smallest one-detent-off distance measured in tests.js
+  const targetOf = (def, recipe) => (recipe === 'choc' && def.choc) || def.target;
+  function targetGears(def, recipe) { const t = {}, tg = targetOf(def, recipe); GEARS.forEach(id => { t[id] = { ri: tg[id][0], ph: tg[id][1] }; }); return t; }
+  function score(def, g, recipe) { const S = 240; const P = pass(def, g, S), T = pass(def, targetGears(def, recipe), S);
     if (def.kind === 'candles') { const d = chamfer(P.stops, T.stops); return { dist: d, ok: P.stops.length === T.stops.length && d <= TOL, count: P.stops.length, want: T.stops.length, P, T }; }
     // a pass longer than the target's repeats the same closed figure; compare one figure each: dedupe by comparing over the shorter of the two
     const d = chamfer(P.pts.slice(0, P.N), T.pts.slice(0, T.N)); return { dist: d, ok: d <= TOL, P, T }; }
@@ -75,29 +80,29 @@
     '日': [[[.24, .1], [.24, .92]], [[.24, .1], [.76, .1], [.76, .92]], [[.24, .5], [.76, .5]], [[.24, .9], [.76, .9]]],
     '快': [[[.1, .34], [.14, .5]], [[.32, .3], [.27, .42]], [[.21, .06], [.21, .94]], [[.46, .3], [.82, .3], [.82, .52]], [[.38, .52], [.95, .52]], [[.64, .08], [.62, .6], [.42, .93]], [[.67, .62], [.95, .93]]],
     '乐': [[[.8, .07], [.32, .2]], [[.33, .2], [.29, .52], [.86, .52]], [[.57, .3], [.57, .92], [.48, .84]], [[.38, .64], [.25, .82]], [[.72, .64], [.84, .82]]] };
-  const TEXT = { chars: ['生', '日', '快', '乐'], size: 0.031, gap: 0.003, z0: 0, r: 0.0024 };
+  const TEXT = { chars: ['生', '日', '快', '乐'], size: 0.029, depth: 0.04, gap: 0.005, z0: 0, r: 0.0026 };   // each glyph is piped 1.4x deep so it survives the kneeling view's foreshortening
   // strokes in the cake frame on the top surface: the reader kneels at +z, so the glyph's down is +z
   function inscription() { const out = []; const w = TEXT.chars.length * TEXT.size + (TEXT.chars.length - 1) * TEXT.gap, x0 = -w / 2;
     TEXT.chars.forEach((ch, i) => { GLYPHS[ch].forEach((st, j) => { const pts = []; for (let s = 0; s < st.length - 1; s++) { const [a, b] = [st[s], st[s + 1]], n = Math.max(2, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) * 14));
-      for (let k = (s ? 1 : 0); k <= n; k++) { const u = k / n; pts.push({ x: x0 + i * (TEXT.size + TEXT.gap) + (a[0] + (b[0] - a[0]) * u) * TEXT.size, y: CAKE.Hc + TEXT.r + MARGIN, z: TEXT.z0 - TEXT.size / 2 + (a[1] + (b[1] - a[1]) * u) * TEXT.size, r: TEXT.r, nx: 0, ny: 1, nz: 0 }); } }
+      for (let k = (s ? 1 : 0); k <= n; k++) { const u = k / n; pts.push({ x: x0 + i * (TEXT.size + TEXT.gap) + (a[0] + (b[0] - a[0]) * u) * TEXT.size, y: CAKE.Hc + TEXT.r + MARGIN, z: TEXT.z0 - TEXT.depth / 2 + (a[1] + (b[1] - a[1]) * u) * TEXT.depth, r: TEXT.r, nx: 0, ny: 1, nz: 0 }); } }
       out.push({ ch, stroke: j + 1, pts }); }); });
     // the flourish: a 3:2 harmonic scroll under the words, closing nothing, but its own phases exact
-    const fl = []; const n = 60; for (let k = 0; k <= n; k++) { const u = k / n; fl.push({ x: -0.052 + 0.104 * u, y: CAKE.Hc + TEXT.r + MARGIN, z: 0.026 + 0.0042 * Math.sin(TAU * 1.5 * u) - 0.0026 * Math.sin(TAU * 1.0 * u), r: TEXT.r * (0.75 + 0.25 * Math.sin(Math.PI * u)), nx: 0, ny: 1, nz: 0 }); }
+    const fl = []; const n = 60; for (let k = 0; k <= n; k++) { const u = k / n; fl.push({ x: -0.046 + 0.092 * u, y: CAKE.Hc + TEXT.r + MARGIN, z: 0.0315 + 0.0032 * Math.sin(TAU * 1.5 * u) - 0.0018 * Math.sin(TAU * 1.0 * u), r: TEXT.r * (0.75 + 0.25 * Math.sin(Math.PI * u)), nx: 0, ny: 1, nz: 0 }); }
     out.push({ ch: 'flourish', stroke: 1, pts: fl }); return out; }
   // ------------------------------------------------------------------ the cake's surface: signed distance to the coated cake (flat bottom on the board, rounded top edge)
   function cakeSDF(x, y, z) { const rho = Math.hypot(x, z), b = CAKE.bevel, Rc = CAKE.Rc, Hc = CAKE.Hc;
     if (y > Hc - b && rho > Rc - b) return Math.hypot(Math.max(0, rho - (Rc - b)), Math.max(0, y - (Hc - b))) - b + (rho - (Rc - b) < 0 || y - (Hc - b) < 0 ? 0 : 0);
     const dx = rho - Rc, dy = Math.max(y - Hc, -y); if (dx > 0 && dy > 0) return Math.hypot(dx, dy); return Math.max(dx, dy); }
   // ------------------------------------------------------------------ the game: a pure reducer. The page feeds it the values the machine has reached and the HOLD commits; the trace replays it.
-  function newGame() { const g = {}; GEARS.forEach(id => { g[id] = { ri: R11, ph: 0 }; }); return { stage: 0, gears: g, passes: [], over: false }; }
+  function newGame() { const g = {}; GEARS.forEach(id => { g[id] = { ri: R11, ph: 0 }; }); return { stage: 0, gears: g, passes: [], over: false, recipe: 'white' }; }
   function setGear(G, id, ri, ph) { G.gears[id] = { ri: Math.max(RANGE[id][0], Math.min(RANGE[id][1], ri)), ph: Math.max(-12, Math.min(12, ph)) }; }
   function gearsKey(g) { return GEARS.map(id => id + ratioText(g[id].ri) + '@' + g[id].ph * 15).join(' '); }
   function hashPts(pts) { let h = 2166136261 >>> 0; for (const p of pts) for (const v of [p.x, p.y, p.z, p.r]) { const q = Math.round(v * 1e7); h = Math.imul(h ^ (q & 0xffff), 16777619) >>> 0; h = Math.imul(h ^ (q >>> 16 & 0xffff), 16777619) >>> 0; } return h.toString(16); }
   function commit(G) { if (G.over) return null; const def = STAGES[G.stage], rec = { stage: G.stage, id: def.id, gears: JSON.parse(JSON.stringify(G.gears)), key: gearsKey(G.gears) };
-    if (def.auto) { rec.ok = true; rec.auto = true; } else { const sc = score(def, G.gears); rec.dist = sc.dist; rec.ok = sc.ok; rec.L = sc.P.L; rec.closeErr = sc.P.closeErr; rec.hash = hashPts(def.kind === 'candles' ? sc.P.stops : sc.P.pts);
+    if (def.auto) { rec.ok = true; rec.auto = true; if (def.id === 'COAT') { G.recipe = recipeOf(G.gears); rec.recipe = G.recipe; } } else { const sc = score(def, G.gears, G.recipe); rec.dist = sc.dist; rec.ok = sc.ok; rec.L = sc.P.L; rec.closeErr = sc.P.closeErr; rec.hash = hashPts(def.kind === 'candles' ? sc.P.stops : sc.P.pts);
       if (sc.count != null) { rec.count = sc.count; rec.want = sc.want; } }
     G.passes.push(rec); if (rec.ok) { G.stage++; if (G.stage >= STAGES.length) G.over = true; } return rec; }
-  function summary(G) { return { stage: G.stage, over: G.over, passes: G.passes.map(p => [p.id, p.key, p.ok, p.dist == null ? null : +p.dist.toFixed(6), p.hash || null]) }; }
-  const API = { RANGE, TAU, CAKE, MARGIN, STEPS_PER_REV, PHASE_DET, RATIOS, R11, GEARS, GEAR_NAMES, STAGES, REFERENCE, TOL, TEXT, ratioOf, ratioText, gearAngle, passRevs, tubeR, sampleAt, pass, chamfer, score, targetGears, inscription, cakeSDF, newGame, setGear, commit, gearsKey, hashPts, summary };
+  function summary(G) { return { stage: G.stage, over: G.over, recipe: G.recipe, passes: G.passes.map(p => [p.id, p.key, p.ok, p.dist == null ? null : +p.dist.toFixed(6), p.hash || null]) }; }
+  const API = { RECIPES, CHOC_NOZZLE, recipeOf, targetOf, RANGE, TAU, CAKE, MARGIN, STEPS_PER_REV, PHASE_DET, RATIOS, R11, GEARS, GEAR_NAMES, STAGES, REFERENCE, TOL, TEXT, ratioOf, ratioText, gearAngle, passRevs, tubeR, sampleAt, pass, chamfer, score, targetGears, inscription, cakeSDF, newGame, setGear, commit, gearsKey, hashPts, summary };
   if (typeof module === 'object' && module.exports) module.exports = API; else root.HARM = API;
 })(this);

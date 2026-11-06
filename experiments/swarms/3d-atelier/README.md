@@ -105,7 +105,23 @@ the same `play()`.
 | a mould before a plate is refused | pass |
 | after the blow HOLD starts cake 2 toward MINT, keeping stand and plate | pass |
 
-PROOF_RESULTS
+**proof.mp4** (29.0 s, 1280x720, 30 fps, AAC sound; recorded 2026-11-06 by `tools/record.js` with Playwright mouse drags on
+the rings and presses on SELECT and HOLD; the WebGL canvas at 0.75 pixel ratio, no antialiasing). From `trace.json` of that
+run (0 page errors, device grains from ana/device-sounds.wav loaded):
+
+| making event | time in proof.mp4 (s) |
+|---|---|
+| stand placed (bronze foot; after drawing the footring and the glass stand) / set down | 2.85 / 3.71 |
+| plate placed (porcelain, size 1.08) / set | 5.02 / 5.78 |
+| tin mould clanks down / batter poured / baked / mould lifted | 7.92 / 8.02 / 9.33 / 9.83 |
+| mint icing spread, beads piped | 11.43 |
+| swapped to chocolate with the orange top (silver decay; match 0.63 to 0.90) | 15.22 |
+| 生日快乐 finished (cake tilted 24 degrees toward the viewer while written) | 18.20 |
+| brass cups and candles set one by one | 19.45 onward |
+| match struck / seven lit | 22.03 / 24.44 |
+| blow / seven out | 26.13 / 27.11 |
+
+Machine: 55 steps, median interval 83.4 ms. Audio peak before normalization 1.19 (normalized to 0.95).
 
 ## What failed and changed
 
@@ -127,7 +143,9 @@ PROOF_RESULTS
 - Getty open-content images (planned as textures) were not reached at all.
 - The stand-ins are simple lathe and box forms; they read as stand, plate, tin, beads, but not as the specific historical
   objects named in their records.
-- The mobile layout works (390 x 844 still checked) but the right collar's labels are tight at that width.
+- The mobile layout was checked once at 390 x 844 before the camera was refitted for portrait; not re-checked since. The right collar's labels are tight at that width.
+- Not yet measured against the film (FILM-BAR.md, received late): the shared look.js and holo.js did not exist when this run ended, so the grade, spots, arc and device are this folder's own, not the evolved shared ones; the believability strip test has not been run.
+- The ring label under the knurl on LIGHT reads UNLIT until all seven are lit.
 - No independent critic was run by this builder (no Agent tool); the coordinator should run it.
 
 ## Files
