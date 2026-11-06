@@ -19,7 +19,7 @@
     ['exposure', 'GRADE', .2, 4, 1], ['black', 'GRADE', 0, .2, 0], ['gamma', 'GRADE', 1.6, 3, 2.2], ['warmth', 'GRADE', -1, 1, 0],
     ['spotDensity', 'SPOT', 0, 1, .5], ['spotSize', 'SPOT', .2, 3, 1], ['spotDecay', 'SPOT', .05, 1.5, .35]];
   const groups = ['CANDLE', 'DOME', 'AMBIENT', 'GRADE', 'SPOT'];
-  const stages = [['CANDLE', 'hiC', .85], ['DOME', 'falloff', .6], ['GRADE', 'level', .65], ['WHOLE', 'fit', .72]];   // AMBIENT is not a stage of its own: the ambient level moves the falloff, the level and the shadows' colour together
+  const stages = [['CANDLE', 'hiC', .85], ['AMBIENT', 'shC', .7], ['DOME', 'falloff', .6], ['GRADE', 'level', .65], ['WHOLE', 'fit', .7]];
   const making = [['dark', 0, .2], ['match struck', .2, .4], ['candle light grows', .4, .8], ['grade settles', .8, 1]];
   const blank = () => Float64Array.from(genes.map(g => g[4]));
   const named = G => { const o = {}; genes.forEach((g, i) => o[g[0]] = G[i]); return o; };

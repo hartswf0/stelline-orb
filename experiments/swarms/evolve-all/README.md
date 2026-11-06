@@ -124,8 +124,16 @@ Both choose with SELECT. The scripted chooser between UIs plays the elite every 
   Plain elitist auto-breeding (8 children, sigma 0.1) does a little better: the cake passed all its stages in about 110-150
   generations, but the table passed 2/5 in 300. These are the module versions as of about 03:50; their owners were still
   working.
-- `proof.mp4` and `trace.json` come from one recorded run (`ui/record.js`, CAREFUL script, budget 16 generations per part).
-  The run's own numbers are in trace.json, and operator.html reads them.
+- `proof.mp4` (41.6 s, sound) and `trace.json` come from one recorded run (`ui/record.js`, CAREFUL script, budget 16 generations
+  per part, 146 s of virtual time). The run used the module files as they stood at about 03:51; cake, inscription and light
+  changed after that.
+  - All six parts used up the budget and were made as they stood: cake 2 stages passed, inscription 1, candles 1, people 1,
+    table 0, light 0.
+  - The player made 96 choices; in 10 of them the kept variant was not the fitness best.
+  - The UI changed between parts: U0 -> U2 -> U3 -> U2 -> U7 -> U10. U2 became the elite after the cake. The ring map
+    changed by the end (STRENGTH, VIEW, BIAS).
+  - The end runs: the candles are lit and blown out, then the memory switches off. Only one flame appears, because the
+    candles genome still had one candle.
 
 ## The proof film
 
@@ -144,7 +152,17 @@ ffmpeg -framerate 15 -i <frames-dir>/%05d.jpg -i <frames-dir>/audio.wav -r 30 -c
 - A part that does not pass its stages within the budget is made as it stands. The trace records it (`events`: "budget
   spent"), and the operator page lists it as the next blocking failure.
 
+## Shared film look (FILM-BAR.md)
+
+The page loads `../shared/look.js` and `../shared/holo.js` when they exist. It calls `LOOK.apply(renderer, scene, camera)` and
+uses `HOLO.arc` with `.step(i)` in place of its own arc. Neither file existed when this was written, so this path is not yet
+run or tested. `HOLO.device` is not adopted yet: the UI genome would have to drive its ring roles, detents and rate.
+
 ## What is weak
+
+- The proof is not believable as the film's memory (FILM-BAR.md), and it would not pass the strip test. The parts are near
+  primitives (a post for a table, mannequin-like people, a plain cake), and the light part overexposes the scene while it is
+  being bred.
 
 - With the current real modules, the proof's parts mostly do not reach their final stage within the budget. The film shows
   every part being bred, chosen and made, but several finish as near-primitives. This is the main gap. It needs the module

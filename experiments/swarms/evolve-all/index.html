@@ -308,7 +308,7 @@ function step(dt) { NOW += dt; S.since += dt; S.sinceHold += dt; S.sinceSelect =
   const yaw = S.yaw * Math.PI / 180; cam.position.set(camT.x + Math.sin(yaw) * camD, camT.y + camD * .32 + .05, camT.z + Math.cos(yaw) * camD); cam.lookAt(camT);
   SPOT.position.set(P.cake.holder.position.x, .003, P.cake.holder.position.z); SPOT.scale.setScalar(.45 + .2 * Math.sin(NOW * .3));
   // the arc beside the part being worked, its mark stepping with the stages passed
-  const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion); ARC.s.position.copy(camT).addScaledVector(right, camD * .32); ARC.s.scale.set(camD * .1, camD * .15, 1); ARC.s.material.opacity = (S.phase === 'evolve' ? .8 : 0) * (1 - S.dark); drawArc(Math.round(p.stage / p.mod.stages.length * 4));
+  const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion); ARC.s.position.copy(camT).addScaledVector(right, camD * .32); ARC.s.scale.set(camD * .1, camD * .15, 1); ARC.s.material.opacity = (S.phase === 'evolve' ? .8 : 0) * (1 - S.dark); if (HOLOARC) { try { const k = Math.round(p.stage / p.mod.stages.length * 4); if (HOLOARC.k !== k) { HOLOARC.k = k; HOLOARC.step(k); } if (HOLOARC.object) HOLOARC.object.position.copy(ARC.s.position); } catch (e) { HOLOARC = null; } } else drawArc(Math.round(p.stage / p.mod.stages.length * 4));
   // flames at the wicks; candlelight
   const W = wicks(); let lit = 0; FL.forEach((f, i) => { if (i >= W.length) { f.f.material.opacity = 0; return; } const w = W[i]; f.f.position.copy(w).add(new T.Vector3(0, .014, 0)); const fl = .92 + Math.sin(NOW * 23 + f.ph) * .05 + Math.sin(NOW * 7.1 + f.ph) * .04; f.f.material.opacity = f.lit * (1 - S.dark); f.f.scale.y = .034 * fl; lit += f.lit; });
   candleLight.position.copy(P.cake.holder.position).add(new T.Vector3(0, .22, 0)); candleLight.intensity = lit * .3 * (.95 + Math.sin(NOW * 19) * .04) * (1 - S.dark);
@@ -322,7 +322,12 @@ function step(dt) { NOW += dt; S.since += dt; S.sinceHold += dt; S.sinceSelect =
   lapseEl.textContent = S.lapse > 1 ? 'TIME-LAPSE x' + S.lapse : ''; }
 let last = performance.now();
 function frame(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; step(dt); R.render(scene, cam); drawDev(); requestAnimationFrame(frame); }
-async function boot() { await Promise.all(PARTS.map(n => Promise.all([loadModule(n), loadRefs(n)]))); PARTS.forEach(initPart); PARTS.forEach(n => reattachDependents(n)); PARTS.forEach(n => P[n].holder.position.copy(worldAnchor(n)));
+/* the shared film look and hologram UI (experiments/swarms/shared/, FILM-BAR.md): used when present, the host's own otherwise.
+   Adopted so far: LOOK.apply on the renderer/scene/camera and HOLO.arc for the stepping arc. Still to adopt when holo.js exists: HOLO.device in place of the barrel below. */
+let HOLOARC = null;
+async function loadShared() { if (await loadScript('../shared/look.js') && window.LOOK && LOOK.apply) { try { LOOK.apply(R, scene, cam, { memory: true }); TR.shared = (TR.shared || []).concat('look.js'); } catch (e) { console.error('LOOK', e); } }
+  if (await loadScript('../shared/holo.js') && window.HOLO && HOLO.arc) { try { HOLOARC = HOLO.arc(scene, new T.Vector3(0, .6, 0), {}); ARC.s.visible = false; TR.shared = (TR.shared || []).concat('holo.js arc'); } catch (e) { console.error('HOLO', e); HOLOARC = null; } } }
+async function boot() { await Promise.all(PARTS.map(n => Promise.all([loadModule(n), loadRefs(n)])).concat([loadShared()])); PARTS.forEach(initPart); PARTS.forEach(n => reattachDependents(n)); PARTS.forEach(n => P[n].holder.position.copy(worldAnchor(n)));
   select('table', true); S.ready = true; resize(); if (document.fonts) document.fonts.load('400 20px Oswald').then(() => drawDev());
   if (!REC) { requestAnimationFrame(frame); setInterval(poll, 30000); } }
 /* real modules arriving while the page is open replace their stand-ins (the part restarts from its blank) */
