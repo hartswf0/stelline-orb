@@ -20,7 +20,7 @@
   const url = (rel, base) => new URL(rel, base || SRC).href;
   const DEPS = [['THREE', '../../../ana/assets/three.min.js'], ['LOOK', '../../swarms/shared/look.js'], ['HOLO', '../../swarms/shared/holo.js'],
     ['EVOMOD.cake', '../../swarms/evolve-all/modules/cake.js'], ['EVOMOD.inscription', '../../swarms/evolve-all/modules/inscription.js'],
-    ['EVOMOD.candles', '../../swarms/evolve-all/modules/candles.js'], ['EVOMOD.table', '../../swarms/evolve-all/modules/table.js'], ['EVOMOD.people', '../../swarms/evolve-all/modules/people.js'], ['SCENE_GENOMES', 'genomes.js'], ['SCENE_GHOST', 'ghost.js']];
+    ['EVOMOD.candles', '../../swarms/evolve-all/modules/candles.js'], ['EVOMOD.table', '../../swarms/evolve-all/modules/table.js'], ['EVOMOD.people', '../../swarms/evolve-all/modules/people.js'], ['SCENE_GENOMES', 'genomes.js'], ['SCENE_GHOST', 'ghost.js'], ['SCENE_MEASURE', 'measure.js']];
   const REFS = { inscription: '../../swarms/evolve-all/refs/inscription.json', candles: '../../swarms/evolve-all/refs/candles.json' };
   const CUT = '../../../assets/cutouts/';
   const has = path => path.split('.').reduce((o, k) => o && o[k], root);
@@ -45,7 +45,7 @@
   function World(canvas, bus, opts) {
     const T = THREE, M = root.EVOMOD, GN = root.SCENE_GENOMES, H = root.HOLO, L = root.LOOK, CS = root.CORE_STATE, CO = root.CORE_OPS;
     const phone = Math.min(screen.width, screen.height) < 600;
-    const Q = opts.quality || (phone ? 'mid' : 'high');
+    let Q = opts.quality || (phone ? 'mid' : 'high'); const Q0 = Q; let postOn = Q !== 'low';
     const R = new T.WebGLRenderer({ canvas, antialias: Q === 'low', alpha: false, preserveDrawingBuffer: !!opts.preserve, powerPreference: 'high-performance' });
     R.setPixelRatio(Math.min(root.devicePixelRatio || 1, opts.maxDpr || (Q === 'high' ? 2 : Q === 'mid' ? 1.5 : 1)));
     R.toneMapping = T.ACESFilmicToneMapping;
@@ -310,7 +310,7 @@
     const CAKE_AT = () => new T.Vector3(0, TABLE_Y + .002, 0);
     function consequence(entry) {
       if (!entry) { flashAll(); return; }
-      const op = entry.op, a = entry.args || {}, path = a.path || '';
+      const op = entry.op, a = entry.args || {}, path = a.path || ''; if (op === 'measure') return;   // the scene's own measurement is not a change to show
       arc.step(arcI = (arcI + 1) % 5); readout.type(op === 'batch' ? 3 : 1);
       if (op === 'select') { pulse(new T.Vector3(anchWant.x, TABLE_Y + .002, anchWant.z), .06); const s = prevV && prevV.selection; flash(/^child-/.test(s) ? null : s === 'inscription' ? 'inscription' : s === 'candles' ? 'candles' : 'cake'); }
       else if (op === 'make' || /cake\.stage/.test(path)) pulse(CAKE_AT(), (C.R || .12) * 1.2);
@@ -355,22 +355,41 @@
       holoMat.uniforms.t.value = clock;
       const lit = K.count ? K.flames.length / K.count : 0;
       if (look === 'holo') { scene.overrideMaterial = holoMat; renderPlain(lit); scene.overrideMaterial = null; }
-      else if (look === 'plain' || !LK.pipeline) renderPlain(lit * .85 + .15);
+      else if (look === 'plain' || !LK.pipeline || !postOn) renderPlain(lit * .85 + .15);
       else LK.render(dt, held);
+      maybeMeasure(now, v);
       const ms = performance.now() - t0; ST.frames++; ST.cpu += ms; ST.worst = Math.max(ST.worst, ms); ST.last = ms; dirty = false;
     }
+    /* ---------------------------------------------------------------- the governor (core/governor.js, SCHEMA v1.4 R6): level 0 = as mounted, 1 = coarser, 2 = coarsest */
+    const DPR0 = R.getPixelRatio(); let qLevel = 0;
+    function setQuality(level) { level = clamp(Math.round(+level || 0), 0, 2); if (level === qLevel) return qLevel; qLevel = level;
+      R.setPixelRatio(level === 0 ? DPR0 : level === 1 ? Math.min(DPR0, 1) : Math.min(DPR0, .6));
+      postOn = !!LK.pipeline && level < 2 && Q0 !== 'low';                    // level 2: no post passes (no bloom, grade pass, grain)
+      if (LK.pipeline) LK.pipeline.enabled.dof = level === 0 && Q0 === 'high'; // depth of field only at full quality
+      const sh = level === 0 && Q0 === 'high'; if (R.shadowMap.enabled !== sh) { R.shadowMap.enabled = sh; LK.lights.key.castShadow = sh; scene.traverse(x => { if (x.material) (Array.isArray(x.material) ? x.material : [x.material]).forEach(m => m.needsUpdate = true); }); }
+      dust.visible = level < 2; LK.set({ bloomStrength: level >= 1 ? 0 : G0.bloomStrength });
+      Q = ['as mounted', 'coarse', 'coarsest'][level]; resize(); return qLevel; }
+    /* ---------------------------------------------------------------- the film-bar match: measured now and then (every 6 s of steady frames), posted with the measure op when it moves */
+    const MS = { at: 0, last: null, posted: null, cv: null, x: null };
+    function measureNow(v) { const SM = root.SCENE_MEASURE; if (!SM) return null; if (!MS.cv) { MS.cv = document.createElement('canvas'); MS.cv.width = 160; MS.cv.height = 90; MS.x = MS.cv.getContext('2d', { willReadFrequently: true }); }
+      MS.x.drawImage(R.domElement, 0, 0, 160, 90); const st = SM.stats(MS.x.getImageData(0, 0, 160, 90).data, 160 * 90), tg = SM.targetFor(v), m = SM.match(st, SM.TARGETS[tg]);
+      MS.last = { value: m.value, target: tg, parts: m.parts, stats: st }; return MS.last; }
+    function maybeMeasure(now, v) { if (opts.measure === false || off || now - MS.at < 6000) return; MS.at = now; const m = measureNow(v); if (!m) return;
+      if (bus.do && (MS.posted == null || Math.abs(MS.posted - m.value) >= .02)) { MS.posted = m.value; MS.posting = true;
+        try { bus.do({ op: 'measure', args: { test: 'film-bar match', value: +m.value.toFixed(3), note: 'scene frame vs film ' + SCENE_MEASURE_T(m.target) + ' s, whole-frame LOOK statistics at 160x90' } }, { author: 'agent:scene' }); } catch (e) { } MS.posting = false; } }
+    const SCENE_MEASURE_T = tg => root.SCENE_MEASURE.TARGETS[tg].t;
     function resize() { const w = canvas.clientWidth || canvas.parentNode && canvas.parentNode.clientWidth || 390, h = canvas.clientHeight || canvas.parentNode && canvas.parentNode.clientHeight || 420; aspect = w / Math.max(1, h); cam.aspect = aspect; cam.updateProjectionMatrix(); LK.setSize(w, h); if (!LK.pipeline) R.setSize(w, h, false); }
     function disposeAll() { offs.forEach(f => f && f()); R.dispose(); }
-    return { frame, resize, dispose: disposeAll, stats: () => ({ frames: ST.frames, cpuMs: ST.frames ? ST.cpu / ST.frames : 0, worstMs: ST.worst, lastMs: ST.last, quality: Q, pixelRatio: R.getPixelRatio() }),
+    return { frame, resize, setQuality, measure: () => measureNow(bus.view ? bus.view() : bus.state()), lastMeasure: () => MS.last, dispose: disposeAll, stats: () => ({ frames: ST.frames, cpuMs: ST.frames ? ST.cpu / ST.frames : 0, worstMs: ST.worst, lastMs: ST.last, quality: Q, level: qLevel, pixelRatio: R.getPixelRatio(), match: MS.last && +MS.last.value.toFixed(3) }),
       three: { renderer: R, scene, camera: cam, look: LK }, parts, PEOPLE, arc, readout, cake: C };
   }
 
   /* =================================================================== mount and the core hook */
   function mount(canvas, bus, opts) {
     opts = opts || {}; let W = null, raf = 0, dead = false;
-    const h = { world: null, frame(now) { if (W) W.frame(now); }, resize() { if (W) W.resize(); }, stats() { return W ? W.stats() : { frames: 0 }; },
+    let wantQ = 0; const h = { world: null, frame(now) { if (W) W.frame(now); }, resize() { if (W) W.resize(); }, setQuality(l) { wantQ = l; return W ? W.setQuality(l) : l; }, stats() { return W ? W.stats() : { frames: 0 }; },
       dispose() { dead = true; cancelAnimationFrame(raf); if (W) W.dispose(); } };
-    h.ready = ready(opts.base).then(() => { if (dead) return h; W = h.world = World(canvas, bus, opts); W.resize(); if (opts.loop) { const tick = now => { if (dead) return; W.frame(now); raf = requestAnimationFrame(tick); }; raf = requestAnimationFrame(tick); } return h; });
+    h.ready = ready(opts.base).then(() => { if (dead) return h; W = h.world = World(canvas, bus, opts); W.resize(); if (wantQ) W.setQuality(wantQ); if (opts.loop) { const tick = now => { if (dead) return; W.frame(now); raf = requestAnimationFrame(tick); }; raf = requestAnimationFrame(tick); } return h; });
     h.ready.catch(e => console.error('SCENE', e));
     if (typeof ResizeObserver !== 'undefined') { const ro = new ResizeObserver(() => h.resize()); ro.observe(canvas); }
     return h;
@@ -379,7 +398,7 @@
     const cv = document.createElement('canvas'); cv.style.cssText = 'display:block;width:100%;height:100%;touch-action:none'; container.appendChild(cv);
     const h = mount(cv, orb, { loop: false });
     root.SCENE_HANDLE = h;
-    return { frame: now => h.frame(now), resize: () => h.resize(), dispose: () => { h.dispose(); cv.remove(); }, ready: h.ready, stats: () => h.stats() };
+    return { frame: now => h.frame(now), resize: () => h.resize(), setQuality: l => h.setQuality(l), dispose: () => { h.dispose(); cv.remove(); }, ready: h.ready, stats: () => h.stats() };
   }
   root.SCENE = { mount, ready, KIDS, version: 1 };
   root.ORB_SCENE = { create };

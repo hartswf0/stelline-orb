@@ -50,6 +50,16 @@ ok('ghosts come from CORE_OPS.ghostState: the committed state is untouched, a ba
   const d = GH.diff(s2, t2); ['cake', 'inscription', 'camera'].forEach(k => assert(d.includes(k), 'batch ghost changes ' + k + ' (' + d + ')'));
   assert.strictEqual(orb.state().inscription.text, '生日快乐', 'committed text changed'); assert.strictEqual(GH.trialOf(CO, s2, { op: 'nope', args: {} }), null); });
 
+ok('film-bar match: a target matched by its own statistics scores 1; a black or a white frame scores low; the moment follows the state', () => {
+  const SM = require(path.join(ROOT, 'experiments/orb-tool/scene/measure.js'));
+  for (const k of Object.keys(SM.TARGETS)) { const T = SM.TARGETS[k]; assert(Math.abs(SM.match(T, T).value - 1) < 1e-9, k); }
+  const frame = (r, g, b) => { const d = new Uint8Array(160 * 90 * 4); for (let i = 0; i < d.length; i += 4) { d[i] = r; d[i + 1] = g; d[i + 2] = b; d[i + 3] = 255; } return d; };
+  const black = SM.match(SM.stats(frame(0, 0, 0), 14400), SM.TARGETS.party).value, white = SM.match(SM.stats(frame(255, 255, 255), 14400), SM.TARGETS.party).value;
+  const s0 = SM.stats(frame(0, 0, 0), 14400); assert(Math.abs(s0.L) < 1e-6 && Math.abs(s0.hist[0] - 1) < 1e-9, 'black frame stats');
+  const s1 = SM.stats(frame(255, 255, 255), 14400); assert(Math.abs(s1.L - 100) < 0.05 && Math.abs(s1.a) < 0.05 && Math.abs(s1.b) < 0.05, 'white is L 100, a 0, b 0: ' + JSON.stringify([s1.L, s1.a, s1.b]));
+  assert(white < 0.2, 'white scores ' + white); assert(black < 0.2, 'black scores ' + black);
+  assert.strictEqual(SM.targetFor(S.empty()), 'floating'); const st = S.empty(); st.table.up = 1; st.people[0].arrived = 10; assert.strictEqual(SM.targetFor(st), 'party'); });
+
 /* ------------------------------------------------------------------ browser checks */
 async function browser() {
   const { chromium } = require('playwright'); const URL = (process.env.ORB_URL || 'http://localhost:8765') + '/experiments/orb-tool/scene/index.html?manual&preserve';
