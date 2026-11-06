@@ -113,7 +113,10 @@
   /* ------------------------------------------------------------------ the making on screen */
   function hashf(i) { let h = Math.imul(i + 1, 2654435761) ^ 0x5bd1e995; h = Math.imul(h ^ h >>> 15, 2246822519); h ^= h >>> 13; return ((h >>> 0) % 100000) / 100000; }
   function build(THREE, G, opts) { opts = opts || {}; const T = THREE, s = shape(G), g = s.g, k = R0 / s.R, grp = new T.Group(); grp.name = 'cake';
-    const C = colours(G), col = c => new T.Color(c[0] / 255, c[1] / 255, c[2] / 255), mat = (c, rough) => new T.MeshStandardMaterial({ color: col(c), roughness: rough, metalness: 0, side: T.DoubleSide });
+    const C = colours(G), tint = opts.tint || [1, 1, 1], lin = opts.linear !== false;
+    // colours are as seen in the film (already under its warm candle light and grade). With an sRGB-encoded renderer the sRGB value is
+    // converted to linear here; opts.tint (sRGB fractions of the scene light's colour) divides that light back out so a warm scene light does not warm the icing twice.
+    const col = c => { const k = new T.Color(clamp(c[0] / 255 / tint[0], 0, 1), clamp(c[1] / 255 / tint[1], 0, 1), clamp(c[2] / 255 / tint[2], 0, 1)); return lin && k.convertSRGBToLinear ? k.convertSRGBToLinear() : k; }, mat = (c, rough) => new T.MeshStandardMaterial({ color: col(c), roughness: rough, metalness: 0, side: T.DoubleSide });
     const sponge = mat(C.side, .9), icing = mat(C.top, .55), beadM = mat(C.bead, .4), boardM = new T.MeshStandardMaterial({ color: new T.Color(.08, .07, .06), roughness: .6 });
     const lathe = (pts, m) => new T.Mesh(new T.LatheGeometry(pts.map(p => new T.Vector2(Math.max(1e-5, p[0]) * k, p[1] * k)), 48), m);
     const parts = { board: null, layers: [], fills: [], dome: null, pour: null, topIcing: null, sideIcing: null, beads: null };

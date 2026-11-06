@@ -84,7 +84,7 @@
   }
   /* ------------------------------------------------------------------ fitness */
   const W = { strokes: .1, form: .3, hand: .3, flourish: .15, colour: .15 };
-  const SC = { form: .05, centre: .08, size: .25, width: .35, flourish: .08, colour: .1 };   // tolerance scales (em; cake-top radii R; log ratio; RGB 0..1)
+  const SC = { form: .05, centre: .06, angle: .12, pitch: .12, size: .25, width: .35, flourish: .08, colour: .1 };   // tolerance scales (em; cake-top radii R; log ratio; RGB 0..1)
   function evaluate(G, refs) {
     const ref = refOf(refs), sup = supportOf(refs), R = sup.R, geo = geometry(G, ref), g = geo.g, tb = geo.tb, N = tb.N;
     // STROKES: how many strokes are written, and in what order (fraction of stroke pairs in the standard order)
@@ -95,14 +95,24 @@
     const dC = [0, 0, 0, 0], nC = [0, 0, 0, 0];
     geo.strokes.forEach(s => { if (s.c > 3) return; const st = tb.strokes[s.k]; s.em.forEach((p, i) => { dC[s.c] += Math.hypot(p[0] - st.pts[i][0], p[1] - st.pts[i][1]); nC[s.c]++; }); });
     const formC = dC.map((d, c) => soft(d / nC[c], SC.form)), form = formC.reduce((a, b) => a + b, 0) / 4;
-    // HAND: where the film's hand put each character on the cake top, how big, how thick the line (all in units of the top radius R)
-    const film = ref.film; let eC = 0, eS = 0;
+    // HAND: the film's hand, measured as separate traits so each hand gene has its own measure (all lengths in top radii R):
+    // where the line of characters sits (centre), its direction (angle), the spacing (pitch), the character box (w, h), the line width,
+    // and how far slant / aspect distort the font's shapes (the film is too coarse to show slant, so the font is the reference there)
+    const film = ref.film, fC = film.chars.map(c => c.centre), mC = [], box = [];
     for (let c = 0; c < 4; c++) { let x0 = 1e9, x1 = -1e9, z0 = 1e9, z1 = -1e9, sx = 0, sz = 0, m = 0;
       geo.strokes.forEach(s => { if (s.c !== c) return; s.pts.forEach(p => { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); z0 = Math.min(z0, p[1]); z1 = Math.max(z1, p[1]); sx += p[0]; sz += p[1]; m++; }); });
-      const fc = film.chars[c], pw = g.pressure; eC += Math.hypot(sx / m / R - fc.centre[0], sz / m / R - fc.centre[1]);
-      eS += Math.abs(Math.log(Math.sqrt(((x1 - x0 + pw) / R) * ((z1 - z0 + pw) / R)) / Math.sqrt(fc.w * fc.h))); }
-    const handC = soft(eC / 4, SC.centre), handS = soft(eS / 4, SC.size), handW = soft(Math.abs(Math.log(g.pressure / R / film.strokeWidth)), SC.width);
-    const hand = .6 * handC + .3 * handS + .1 * handW;
+      mC.push([sx / m / R, sz / m / R]); box.push([(x1 - x0 + g.pressure) / R, (z1 - z0 + g.pressure) / R]); }
+    const mean = A => [A.reduce((a, p) => a + p[0], 0) / A.length, A.reduce((a, p) => a + p[1], 0) / A.length];
+    const dir = A => Math.atan2(A[3][1] - A[0][1], A[3][0] - A[0][0]), gap = A => { let L = 0; for (let i = 1; i < 4; i++) L += Math.hypot(A[i][0] - A[i - 1][0], A[i][1] - A[i - 1][1]); return L / 3; };
+    const mm = mean(mC), fm = mean(fC), eCentre = Math.hypot(mm[0] - fm[0], mm[1] - fm[1]);
+    let eAng = Math.abs(dir(mC) - dir(fC)); if (eAng > Math.PI) eAng = 2 * Math.PI - eAng;
+    const ePitch = Math.abs(Math.log(Math.max(1e-6, gap(mC)) / gap(fC)));
+    let eW = 0, eH = 0; box.forEach((b, c) => { eW += Math.abs(Math.log(b[0] / film.chars[c].w)); eH += Math.abs(Math.log(b[1] / film.chars[c].h)); });
+    let eShape = 0, nS = 0; geo.strokes.forEach(s => { if (s.c > 3) return; s.em.forEach(p => { eShape += Math.abs(p[0] * (g.aspect - 1) - g.slant * p[1]); nS++; }); }); eShape /= nS;
+    const hp = { centre: soft(eCentre, SC.centre), angle: soft(eAng, SC.angle), pitch: soft(ePitch, SC.pitch), box: soft((eW + eH) / 8, SC.size),
+      width: soft(Math.abs(Math.log(g.pressure / R / film.strokeWidth)), SC.width), shape: soft(eShape, SC.form) };
+    const hand = (hp.centre + hp.angle + hp.pitch + hp.box + hp.width + hp.shape) / 6;
+    let eC = 0; for (let c = 0; c < 4; c++) eC += Math.hypot(mC[c][0] - fC[c][0], mC[c][1] - fC[c][1]);
     // FLOURISH: the Z's four corners against the film's
     const FC = flourishCorners(g).map(p => place(g, p[0], p[1])); let eF = 0; FC.forEach((p, i) => eF += Math.hypot(p[0] / R - film.flourish[i][0], p[1] / R - film.flourish[i][1]));
     const flourish = soft(eF / 4, SC.flourish);
@@ -112,7 +122,7 @@
     let inside = 0, tot = 0; geo.strokes.forEach(s => s.pts.forEach(p => { tot++; const r = Math.hypot(p[0], p[1]) + g.pressure / 2; inside += clamp(1 - (r - .96 * R) / (.04 * R), 0, 1); }));
     const support = inside / tot;
     const fit = (W.strokes * strokes + W.form * form + W.hand * hand + W.flourish * flourish + W.colour * colour) * (.5 + .5 * support);
-    return { fit, parts: { strokes, count: countS, order: orderS, n, form, formChars: formC, hand, handCentre: handC, handSize: handS, handWidth: handW, flourish, colour, support,
+    return { fit, parts: { strokes, count: countS, order: orderS, n, form, formChars: formC, hand, handParts: hp, flourish, colour, support,
       errCentreR: eC / 4, errFlourishR: eF / 4 } };
   }
   const stages = [['STROKES', 'strokes', .95], ['FORM', 'form', .85], ['HAND', 'hand', .8], ['FLOURISH', 'flourish', .75], ['COLOUR', 'fit', .85]];
