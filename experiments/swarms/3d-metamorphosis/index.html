@@ -112,7 +112,7 @@ const floorSpot = new T.Mesh(new T.CircleGeometry(.3, 64), new T.MeshBasicMateri
 /* =============================================================== THE HOLOGRAM ARC beside the cake at candle height, and its readout: experiments/swarms/shared/holo.js */
 const ARC_AT = new T.Vector3(0, CY + .09, 0);
 const HARC = HOLO.arc(scene, ARC_AT, { camera: cam, size: .1, offset: .2, auto: false }), HREAD = HOLO.readout(scene, ARC_AT, { camera: cam, size: .1, offset: .12, auto: false, typeAuto: false });
-let arcMark = -1, arcOn = false, lastWork = -9;
+let arcMark = -1, arcOn = true, lastWork = -9;   // true so the first frame switches the arc off until the memory is on
 function setArcMark(m) { m = clamp(m, 0, 4); if (m !== arcMark) { arcMark = m; HARC.step(m); } }
 function readStep() { HREAD.feed(9); }
 /* =============================================================== THE GAME STATE */

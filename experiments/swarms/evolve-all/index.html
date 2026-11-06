@@ -75,7 +75,7 @@ async function renderAudio(dur, map) { const sr = 48000, a = new OfflineAudioCon
   for (let i = 0; i < n; i++) { dv.setInt16(44 + i * 4, clamp(L0[i] * gain, -1, 1) * 32767, true); dv.setInt16(46 + i * 4, clamp(R0[i] * gain, -1, 1) * 32767, true); }
   const bytes = new Uint8Array(dv.buffer); let s = ''; for (let i = 0; i < bytes.length; i += 32768) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 32768)); return { b64: btoa(s), peak: pk }; }
 /* =============================================================== THE ROOM (ana/index.html): true black, a dark dome, a band of light where wall meets floor, round projected spots */
-const viewEl = document.getElementById('view'), R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: REC }); R.setPixelRatio(REC ? 1 : Math.min(2, devicePixelRatio)); R.outputEncoding = T.sRGBEncoding; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = .9; viewEl.prepend(R.domElement);
+const viewEl = document.getElementById('view'), R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: REC }); R.setPixelRatio(REC ? +(Q.get('pr') || 1) : Math.min(2, devicePixelRatio));   // ?pr= lowers the recording's 3D resolution (software GL is slow) R.outputEncoding = T.sRGBEncoding; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = .9; viewEl.prepend(R.domElement);
 const scene = new T.Scene(); scene.background = new T.Color(0x030404); scene.fog = new T.FogExp2(0x030404, .05);
 const cam = new T.PerspectiveCamera(34, 1, .02, 60);
 { const fl = new T.Mesh(new T.CircleGeometry(9, 96), new T.MeshStandardMaterial({ color: 0x020303, roughness: .95 })); fl.rotation.x = -Math.PI / 2; scene.add(fl);
@@ -310,8 +310,8 @@ function step(dt) { NOW += dt; S.since += dt; S.sinceHold += dt; S.sinceSelect =
   const yaw = S.yaw * Math.PI / 180; cam.position.set(camT.x + Math.sin(yaw) * camD, camT.y + camD * .32 + .05, camT.z + Math.cos(yaw) * camD); cam.lookAt(camT);
   SPOT.position.set(P.cake.holder.position.x, .003, P.cake.holder.position.z); SPOT.scale.setScalar(.45 + .2 * Math.sin(NOW * .3));
   // the arc beside the part being worked, its mark stepping with the stages passed
-  const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion); ARC.s.position.copy(camT).addScaledVector(right, camD * .32); ARC.s.scale.set(camD * .1, camD * .15, 1); ARC.s.material.opacity = (S.phase === 'evolve' ? .8 : 0) * (1 - S.dark); if (HOLOARC) { try { const k = Math.round(p.stage / p.mod.stages.length * 4); if (HOLOARC.k !== k) { HOLOARC.k = k; HOLOARC.step(k); } ARCANCHOR.copy(camT); HOLOARC.side = 1; HOLOARC.show(S.phase === 'evolve' && S.dark < 1); HOLOARC.update(dt, cam);
-      if (HOLOREAD) { READANCHOR.copy(camT).addScaledVector(right, camD * .14).add(new T.Vector3(0, -camD * .02, 0)); HOLOREAD.show(S.phase === 'evolve'); HOLOREAD.update(dt, cam); } } catch (e) { console.error(e); HOLOARC = null; } } else drawArc(Math.round(p.stage / p.mod.stages.length * 4));
+  const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion); ARC.s.position.copy(camT).addScaledVector(right, camD * .32); ARC.s.scale.set(camD * .1, camD * .15, 1); ARC.s.material.opacity = (S.phase === 'evolve' ? .8 : 0) * (1 - S.dark); if (HOLOARC) { try { const k = Math.round(p.stage / p.mod.stages.length * 4); if (HOLOARC.k !== k) { HOLOARC.k = k; HOLOARC.step(k); } ARCANCHOR.copy(camT); HOLOARC.side = 1; HOLOARC.show(S.phase === 'evolve' && S.dark < 1); S.holoDt = (S.holoDt || 0) + dt;
+      if (HOLOREAD) { READANCHOR.copy(camT).addScaledVector(right, camD * .14).add(new T.Vector3(0, -camD * .02, 0)); HOLOREAD.show(S.phase === 'evolve'); } } catch (e) { console.error(e); HOLOARC = null; } } else drawArc(Math.round(p.stage / p.mod.stages.length * 4));
   // flames at the wicks; candlelight
   const W = wicks(); let lit = 0; FL.forEach((f, i) => { if (i >= W.length) { f.f.material.opacity = 0; return; } const w = W[i]; f.f.position.copy(w).add(new T.Vector3(0, .014, 0)); const fl = .92 + Math.sin(NOW * 23 + f.ph) * .05 + Math.sin(NOW * 7.1 + f.ph) * .04; f.f.material.opacity = f.lit * (1 - S.dark); f.f.scale.y = .034 * fl; lit += f.lit; });
   candleLight.position.copy(P.cake.holder.position).add(new T.Vector3(0, .22, 0)); candleLight.intensity = lit * .3 * (.95 + Math.sin(NOW * 19) * .04) * (1 - S.dark);
@@ -329,16 +329,17 @@ function step(dt) { NOW += dt; S.since += dt; S.sinceHold += dt; S.sinceSelect =
   tagEl.innerHTML = `${LABEL[S.part]} ${P[S.part].real ? '' : '(STAND-IN)'} · GEN ${p.gen}<br>UI ${UIC.id} · ${UI.rate}/S · ${UI.lambda} ${UI.layout}${STYLE ? '<br>PLAYED BY THE ' + STYLE.toUpperCase() + ' SCRIPT' : ''}`;
   lapseEl.textContent = S.lapse > 1 ? 'TIME-LAPSE x' + S.lapse : ''; }
 let last = performance.now();
-function render(dt) { if (LOOKH) { try { LOOKH.render(dt || 1 / 30); return; } catch (e) { console.error('LOOK render', e); LOOKH = null; [key, hemi, rim].forEach(l => l.userData.off = false); } } R.render(scene, cam); }
+function render(dt) { if (HOLOARC && S.holoDt) { try { HOLOARC.update(S.holoDt, cam); if (HOLOREAD) HOLOREAD.update(S.holoDt, cam); } catch (e) { } S.holoDt = 0; }   // the hologram canvases are redrawn only when a frame is drawn (they are costly in software)
+  if (LOOKH) { try { LOOKH.render(dt || 1 / 30); return; } catch (e) { console.error('LOOK render', e); LOOKH = null; [key, hemi, rim].forEach(l => l.userData.off = false); } } R.render(scene, cam); }
 function frame(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; step(dt); render(dt); drawDev(); requestAnimationFrame(frame); }
 /* the shared film look and hologram UI (experiments/swarms/shared/, FILM-BAR.md): used when present, the host's own otherwise.
    Adopted so far: LOOK.apply on the renderer/scene/camera and HOLO.arc for the stepping arc. Still to adopt when holo.js exists: HOLO.device in place of the barrel below. */
 let HOLOARC = null;
-async function loadShared() { if (await loadScript('../shared/look.js') && window.LOOK && LOOK.apply) { try {
-      LOOKH = LOOK.apply(R, scene, cam, { target: LOOKT, candles: FL.map(f => f.f), room: false });
+async function loadShared() { if (Q.has('noshared')) return; if (!Q.has('nolook') && await loadScript('../shared/look.js') && window.LOOK && LOOK.apply) { try {
+      LOOKH = LOOK.apply(R, scene, cam, { target: LOOKT, candles: FL.map(f => f.f), room: false, shadows: Q.get('lshadow') !== '0', post: Q.get('lpost') !== '0' });
       try { await LOOK.load('../shared/look-genome.json'); } catch (e) { }
       [key, hemi, rim, candleLight].forEach(l => { l.userData.off = true; l.intensity = 0; }); TR.shared = (TR.shared || []).concat('look.js'); } catch (e) { console.error('LOOK', e); LOOKH = null; } }
-  if (await loadScript('../shared/holo.js') && window.HOLO && HOLO.arc) { try { HOLOARC = HOLO.arc(scene, ARCANCHOR, { size: .2, camera: cam, auto: false }); ARC.s.visible = false; ARC.s.material.visible = false;
+  if (!Q.has('noholo') && await loadScript('../shared/holo.js') && window.HOLO && HOLO.arc) { try { HOLOARC = HOLO.arc(scene, ARCANCHOR, { size: .2, camera: cam, auto: false }); ARC.s.visible = false; ARC.s.material.visible = false;
       if (HOLO.readout) HOLOREAD = HOLO.readout(scene, READANCHOR, { camera: cam, auto: false }); TR.shared = (TR.shared || []).concat('holo.js arc + readout'); } catch (e) { console.error('HOLO', e); HOLOARC = null; } } }
 const ARCANCHOR = new T.Vector3(), READANCHOR = new T.Vector3(); let HOLOREAD = null, LOOKH = null; const LOOKT = new T.Vector3(0, .55, 0);
 async function boot() { await Promise.all(PARTS.map(n => Promise.all([loadModule(n), loadRefs(n)])).concat([loadShared()])); PARTS.forEach(initPart); PARTS.forEach(n => reattachDependents(n)); PARTS.forEach(n => P[n].holder.position.copy(worldAnchor(n)));

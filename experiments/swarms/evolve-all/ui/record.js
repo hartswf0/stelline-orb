@@ -8,7 +8,7 @@
 'use strict';
 const { chromium } = require('playwright'), fs = require('fs'), path = require('path');
 const out = process.argv[2] || '/tmp/evolve-all-rec', BUDGET = +(process.argv[3] || 150), STYLE = process.argv[4] || 'careful', MAXOUT = 58; fs.mkdirSync(out, { recursive: true });
-const URL = `http://localhost:8790/experiments/swarms/evolve-all/index.html?rec=1&player=${STYLE}&budget=${BUDGET}`;
+const URL = `http://localhost:8790/experiments/swarms/evolve-all/index.html?rec=1&player=${STYLE}&budget=${BUDGET}&pr=${process.env.PR || 1}`;
 (async () => {
   const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   const p = await b.newPage({ viewport: { width: 432, height: 768 }, deviceScaleFactor: 1 }); const errs = [];
