@@ -525,6 +525,58 @@
    "visible100": true,
    "visible1s": true,
    "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 5,
+   "fy": 0.41,
+   "px": 238,
+   "py": 675,
+   "kind": "dragLeft",
+   "firstShotMs": 3794,
+   "d100": {
+    "mean": 0.74,
+    "changedFrac": 0.0107
+   },
+   "d1s": {
+    "mean": 0.98,
+    "changedFrac": 0.0119
+   },
+   "deviceDiff": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": true,
+   "visible1s": true,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 6,
+   "fy": 0.41,
+   "px": 282,
+   "py": 675,
+   "kind": "tap",
+   "firstShotMs": 1762,
+   "d100": {
+    "mean": 0.47,
+    "changedFrac": 0.0026
+   },
+   "d1s": {
+    "mean": 0.17,
+    "changedFrac": 0.0004
+   },
+   "deviceDiff": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
   }
  ],
  "autorow": {
