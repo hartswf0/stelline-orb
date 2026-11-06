@@ -29,7 +29,7 @@
   // geometry
   const GEO = { tableY: .46, plateY: .52, plateR: .165, R: .12, layerH: .032, layers: 3, candleL: .07, candleDepth: .018,
     candleA: k => k / 7 * TAU + .3, candleR: k => (k % 2 ? .052 : .088), beadN: 24, beadR: .111, crownR: .152, crownN: 11, crownH: .03,
-    streamers: 4, streamSeg: 5, streamLen: .009 };
+    streamers: 4, streamSeg: 5, streamLen: .009, fallLim: 1.5 };
   const ICE = { NA: 72, NT: 10, NS: 16, NB: 4, dsB: 7.5 };      // sectors; top, side, board cells
   ICE.NC = ICE.NT + ICE.NS + ICE.NB;
 
@@ -100,7 +100,7 @@
         if (L.y <= top) { const sq = new Osc(MAT.sponge, P, 0); this.layers.push({ x: L.x, sq }); const n = this.layers.length;
           this.layers.forEach((Ly, i) => { Ly.sq.rest = -.012 * (n - 1 - i); });                      // the weight above presses each layer a little
           sq.v = P.rigid ? 0 : L.vy * 7; sq.sleep = P.rigid; sq.still = 0; if (n > 1) this.layers[n - 2].sq.kick(L.vy * 3.5);
-          this.held = null; this.flash = 1; this.base.p = this.base.p1 = this.base.p2 = null; this.emit('landed', { layer: n }); } }
+          this.held = null; this.base.p = this.base.p1 = this.base.p2 = null; this.emit('landed', { layer: n }); } }
       // inertial loads: accelerations of the cake top centre, each candle base / wick, each crown root (finite differences, light low-pass)
       const fd = (o, p) => { o.p2 = o.p1; o.p1 = o.p; o.p = p; if (o.p2) { const a = mul(add(sub(o.p, mul(o.p1, 2)), o.p2), 1 / (h * h)); o.acc = add(mul(o.acc, .6), mul(a, .4)); } return o.acc; };
       const top = this.cakeTop(), aTop = fd(this.base, this.local2world([0, top, 0]));
@@ -127,7 +127,7 @@
     stepCandle(c, h, thAcc, top) {
       const P = this.P, k = c.k, base = [GEO.candleR(k) * Math.cos(GEO.candleA(k)), top - GEO.candleDepth, GEO.candleR(k) * Math.sin(GEO.candleA(k))];
       if (c.state === 'none') return;
-      if (c.state === 'pushing') { c.push += h / .3; if (c.push >= 1) { c.push = 1; c.state = 'set'; const a = GEO.candleA(k) + 1.9; c.lx.kick(Math.cos(a) * 1.0); c.lz.kick(Math.sin(a) * 1.0); this.flash = Math.max(this.flash, .8); this.emit('candle', { k }); } }
+      if (c.state === 'pushing') { c.push += h / .3; if (c.push >= 1) { c.push = 1; c.state = 'set'; const a = GEO.candleA(k) + 1.9; c.lx.kick(Math.cos(a) * 1.0); c.lz.kick(Math.sin(a) * 1.0); this.emit('candle', { k }); } }
       // the base point's acceleration and the stand's angular acceleration load the lean
       const bw = this.local2world(base), o = c; o.bp2 = o.bp1; o.bp1 = o.bp; o.bp = bw; let a = [0, 0, 0];
       if (o.bp2) { a = mul(add(sub(o.bp, mul(o.bp1, 2)), o.bp2), 1 / (h * h)); o.bacc = o.bacc ? add(mul(o.bacc, .6), mul(a, .4)) : a; a = o.bacc; }
@@ -139,7 +139,7 @@
         if (!P.rigid && lean > c.brk) { // the grip breaks: it falls the way it leans, onto the cake
           const d = [c.lx.x / lean, c.lz.x / lean]; c.state = 'falling'; c.fall = { d, g: lean, gv: Math.hypot(c.lx.v, c.lz.v), rest: null }; if (c.lit) { c.lit = false; this.emit('out', { k, why: 'fell' }); } this.emit('fell', { k }); }
       } else if (c.state === 'falling' || c.state === 'fallen') {
-        const F = c.fall, lim = 1.38;
+        const F = c.fall, lim = GEO.fallLim; F.lift = Math.min(1, F.g / lim);   // the grip is gone: the candle comes up out of its hole as it goes over, and lies on the icing
         if (c.state === 'falling') { F.gv += (G / (GEO.candleL * .6)) * Math.sin(F.g) * h; F.g += F.gv * h;
           if (F.g >= lim) { F.g = lim; if (F.gv > .8) { F.gv *= -.25; this.emit('clatter', { k, v: F.gv }); } else { c.state = 'fallen'; F.rest = new Osc(MAT.fallen, P, lim); F.rest.x = lim; F.rest.v = -Math.abs(F.gv) * .25; F.rest.sleep = false; } } }
         else { F.rest.step(h); if (F.rest.x > lim) { F.rest.x = lim; F.rest.v = -Math.abs(F.rest.v) * .25; } F.g = F.rest.x; }   // the cake top is a collision boundary
@@ -164,7 +164,7 @@
         } else { const r = .985 * R * Math.pow(u1, .42), ang = u1 * TAU * 5.5, ci = Math.min(NT - 1, Math.floor(r / dsT)); let wsum = 0; const ws = [];
           for (let da = -5; da <= 5; da++) for (let di = -1; di <= 1; di++) { const i = ci + di; if (i < 0 || i >= NT) continue; const a = ((Math.round(ang / dA) + da) % NA + NA) % NA, w = Math.exp(-da * da / 8 - di * di / 1.2); ws.push([a, i, w]); wsum += w; }
           ws.forEach(([a, i, w]) => { const area = dA * (i + .5) * dsT * dsT; I.h[a * NC + i] += dv * w / wsum / area; }); }
-        I.poured += dv; I.frozen = false; I.any = true; if (u1 >= 1) { I.pour = null; this.emit('poured', { vol: I.poured }); } }
+        I.poured += dv; I.frozen = false; I.any = true; if (u1 >= 1) { I.pour = null; this.flash = 1; this.emit('poured', { vol: I.poured }); }   // the magnesium flash marks a change of the cake (never on a landing) }
       if (!I.any) return;
       const th = this.theta, ps = this.psi, cf = R * 1e-3 * this.turn.v * this.turn.v / G;
       // driving accelerations (in g) seen in the plate frame

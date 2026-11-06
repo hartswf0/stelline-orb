@@ -1,5 +1,5 @@
 {
- "ran": "2026-11-06T08:46:02.759Z",
+ "ran": "2026-11-06T09:02:40.873Z",
  "pass": 36,
  "fail": 0,
  "tests": [
@@ -228,10 +228,10 @@
    }
   },
   {
-   "name": "[30 fps] a fallen candle lies on the cake (angle stops at its contact, 79 deg)",
+   "name": "[30 fps] a fallen candle lies on the cake (angle stops at its contact, 86 deg)",
    "pass": true,
    "info": {
-    "maxFallDeg": 79.0681757280536
+    "maxFallDeg": 85.94366926962348
    }
   },
   {
@@ -288,10 +288,10 @@
    }
   },
   {
-   "name": "[60 fps] a fallen candle lies on the cake (angle stops at its contact, 79 deg)",
+   "name": "[60 fps] a fallen candle lies on the cake (angle stops at its contact, 86 deg)",
    "pass": true,
    "info": {
-    "maxFallDeg": 79.0681757280536
+    "maxFallDeg": 85.94366926962348
    }
   },
   {
