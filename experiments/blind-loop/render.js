@@ -19,6 +19,7 @@ async function renderAll(cands, dir) {
       await pg.evaluate(C => window.go(C), c.genome);
       const f = path.join(dir, c.id + '.png'); const url = await pg.evaluate(() => document.querySelector('canvas').toDataURL('image/png'));
       fs.writeFileSync(f, Buffer.from(url.split(',')[1], 'base64'));
+      const fl = await pg.evaluate(() => window.FLAMES); const ff = path.join(dir, c.id + '-flames.png'); if (fl) fs.writeFileSync(ff, Buffer.from(fl.split(',')[1], 'base64')); else if (fs.existsSync(ff)) fs.unlinkSync(ff);
       if (errs.length) console.log(c.id, 'page errors:', errs.slice(0, 3).join(' | ')); await pg.close();
       if (fs.statSync(f).size < 200000 && tries < 2) { console.log(c.id, 'came out black; rendering again'); continue; }   // a frame lost to the GPU comes out near black (about 20 KB)
       out.push(f); break; } }

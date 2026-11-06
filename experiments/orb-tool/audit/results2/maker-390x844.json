@@ -1,0 +1,580 @@
+{
+ "url": "http://127.0.0.1:8731/maker.html",
+ "name": "maker",
+ "viewport": [
+  390,
+  844
+ ],
+ "loadMs": 26900,
+ "partial": false,
+ "scroll": {
+  "docH": 844,
+  "docW": 390,
+  "vh": 844,
+  "vw": 390,
+  "overflowY": "hidden"
+ },
+ "pageScrolls": false,
+ "hScroll": false,
+ "view": {
+  "tag": "canvas",
+  "id": "",
+  "x": 0,
+  "y": 0,
+  "w": 390,
+  "h": 455.765625,
+  "sel": "#room canvas"
+ },
+ "legibility": {
+  "textNodes": 0,
+  "under12px": 0,
+  "under10px": 0,
+  "samples": []
+ },
+ "fps": {
+  "medianFrameMs": 400,
+  "p90FrameMs": 900
+ },
+ "manual": true,
+ "globals": [
+  "FORGE"
+ ],
+ "controlCount": 0,
+ "smallTargets": 0,
+ "offscreen": 0,
+ "idle": [
+  {
+   "d100": {
+    "mean": 1.67,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 1.64,
+    "changedFrac": 0
+   },
+   "ms": 3013
+  },
+  {
+   "d100": {
+    "mean": 1.7,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 1.69,
+    "changedFrac": 0
+   },
+   "ms": 2264
+  },
+  {
+   "d100": {
+    "mean": 1.67,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 1.74,
+    "changedFrac": 0
+   },
+   "ms": 1774
+  }
+ ],
+ "idleMax": {
+  "d100": 0,
+  "d1s": 0
+ },
+ "results": [],
+ "errors": [],
+ "canvasGrid": [
+  {
+   "canvas": "",
+   "gx": 0,
+   "fy": 0.543,
+   "px": 22,
+   "py": 667,
+   "kind": "tap",
+   "firstShotMs": 2940,
+   "d100": {
+    "mean": 1.65,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 1.64,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 0.02,
+    "changedFrac": 0.0005
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 0,
+   "fy": 0.543,
+   "px": 22,
+   "py": 667,
+   "kind": "dragUp",
+   "firstShotMs": 3293,
+   "d100": {
+    "mean": 1.67,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 1.74,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 0.01,
+    "changedFrac": 0.0003
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 0,
+   "fy": 0.543,
+   "px": 22,
+   "py": 667,
+   "kind": "dragLeft",
+   "firstShotMs": 2288,
+   "d100": {
+    "mean": 1.65,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 1.67,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 0.02,
+    "changedFrac": 0.0005
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 1,
+   "fy": 0.543,
+   "px": 65,
+   "py": 667,
+   "kind": "tap",
+   "firstShotMs": 3659,
+   "d100": {
+    "mean": 1.68,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 1.69,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 0.01,
+    "changedFrac": 0.0001
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 1,
+   "fy": 0.543,
+   "px": 65,
+   "py": 667,
+   "kind": "dragUp",
+   "firstShotMs": 3227,
+   "d100": {
+    "mean": 7.35,
+    "changedFrac": 0.1691
+   },
+   "d1s": {
+    "mean": 7.47,
+    "changedFrac": 0.2197
+   },
+   "deviceDiff": {
+    "mean": 0.05,
+    "changedFrac": 0.0013
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": true,
+   "visible1s": true,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 1,
+   "fy": 0.543,
+   "px": 65,
+   "py": 667,
+   "kind": "dragLeft",
+   "firstShotMs": 3083,
+   "d100": {
+    "mean": 2.32,
+    "changedFrac": 0.0143
+   },
+   "d1s": {
+    "mean": 2.61,
+    "changedFrac": 0.02
+   },
+   "deviceDiff": {
+    "mean": 0.02,
+    "changedFrac": 0.0003
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": true,
+   "visible1s": true,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 2,
+   "fy": 0.543,
+   "px": 108,
+   "py": 667,
+   "kind": "tap",
+   "firstShotMs": 2970,
+   "d100": {
+    "mean": 1.74,
+    "changedFrac": 0.002
+   },
+   "d1s": {
+    "mean": 1.95,
+    "changedFrac": 0.0045
+   },
+   "deviceDiff": {
+    "mean": 0.02,
+    "changedFrac": 0.0005
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 2,
+   "fy": 0.543,
+   "px": 108,
+   "py": 667,
+   "kind": "dragUp",
+   "firstShotMs": 4061,
+   "d100": {
+    "mean": 1.66,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 1.73,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 0.01,
+    "changedFrac": 0
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 2,
+   "fy": 0.543,
+   "px": 108,
+   "py": 667,
+   "kind": "dragLeft",
+   "firstShotMs": 3786,
+   "d100": {
+    "mean": 1.67,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 1.64,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 0.06,
+    "changedFrac": 0.0013
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 3,
+   "fy": 0.543,
+   "px": 152,
+   "py": 667,
+   "kind": "tap",
+   "firstShotMs": 4016,
+   "d100": {
+    "mean": 1.67,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 1.72,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 3,
+   "fy": 0.543,
+   "px": 152,
+   "py": 667,
+   "kind": "dragUp",
+   "firstShotMs": 2116,
+   "d100": {
+    "mean": 1.67,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 1.69,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 0.02,
+    "changedFrac": 0.0005
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 3,
+   "fy": 0.543,
+   "px": 152,
+   "py": 667,
+   "kind": "dragLeft",
+   "firstShotMs": 2702,
+   "d100": {
+    "mean": 1.66,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 1.67,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 4,
+   "fy": 0.543,
+   "px": 195,
+   "py": 667,
+   "kind": "tap",
+   "firstShotMs": 5071,
+   "d100": {
+    "mean": 1.69,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 1.75,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 0.02,
+    "changedFrac": 0.0005
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 4,
+   "fy": 0.543,
+   "px": 195,
+   "py": 667,
+   "kind": "dragUp",
+   "firstShotMs": 4015,
+   "d100": {
+    "mean": 1.69,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 1.66,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 4,
+   "fy": 0.543,
+   "px": 195,
+   "py": 667,
+   "kind": "dragLeft",
+   "firstShotMs": 1869,
+   "d100": {
+    "mean": 1.68,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 1.75,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 0.02,
+    "changedFrac": 0.0005
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 5,
+   "fy": 0.543,
+   "px": 238,
+   "py": 667,
+   "kind": "tap",
+   "firstShotMs": 3475,
+   "d100": {
+    "mean": 1.63,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 1.7,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 5,
+   "fy": 0.543,
+   "px": 238,
+   "py": 667,
+   "kind": "dragUp",
+   "firstShotMs": 2158,
+   "d100": {
+    "mean": 1.65,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 1.65,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 0.02,
+    "changedFrac": 0.0005
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 5,
+   "fy": 0.543,
+   "px": 238,
+   "py": 667,
+   "kind": "dragLeft",
+   "firstShotMs": 1728,
+   "d100": {
+    "mean": 1.66,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 1.72,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  }
+ ],
+ "autorow": {
+  "canvas": 0.543
+ },
+ "budgetHit": "grid",
+ "gridSummary": {
+  "probes": 18,
+  "sceneChanged100": 2,
+  "sceneChanged1s": 2,
+  "deviceOnly": 0,
+  "nothing": 16,
+  "sound": 0
+ },
+ "tested": 0,
+ "noAuthority": [],
+ "authority100": 0,
+ "authority1s": 0,
+ "errorCount": 0,
+ "finalAudit": {
+  "audioStarts": 0,
+  "mediaPlays": 0,
+  "msgListeners": 0,
+  "keyListeners": 1,
+  "rafs": 0
+ }
+}

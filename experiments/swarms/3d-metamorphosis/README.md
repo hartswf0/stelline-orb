@@ -69,15 +69,17 @@ Worst candle anchor move in one morph step 5.49 mm, limit 6 mm. Largest candle j
 settled over 9 frames, 3.7 mm a frame. Identity proxy: under LINGER, a quarter of the way through its steps the surface has
 moved 0 to 1.7% of the way to the next key (mean vertex distance); this is a proxy only.
 
-MEASURED, the proof run (`trace.json`, `render.js`): proof.mp4 is 29.97 s, 540 x 960, 30 fps, AAC sound
-(mean -20.6 dB, peak -1.0 dB). Path NOTHING > DOUGH > SPONGE DISC > LAYERED > ICED > MINT > RED-ORANGE (hard cut at 14.93 s) >
-BROWN DOME (silver decay at 17.23 s), then 7 candles (19.1 to 20.6 s), 24 inscription steps (21.7 to 23.5 s), the match and
-7 lit (24.4 to 26.0 s), the blow (26.6 s), 7 out by 27.8 s. 151 machine steps: 139 at 11.8/s, 12 at 23.6/s (the hand ran more
-than 6 ahead). 62 morph steps: 0 flips, 0 crossings, worst volume step 8.7%. Soundtrack: 302 grains cut from the real device
-recording, 136 synthesized making sounds. The per-frame candle move in the proof is 0 mm, but that measure is empty here: the
-candles are placed after the last change of form, so the proof never carries candles through a morph or a cut (the tests do).
+MEASURED, the proof run, revision 2 (`trace.json`, `render.js`, rendered 06:20-06:35 when the machine's load allowed):
+proof.mp4 is 30.03 s, 540 x 960, 30 fps, AAC sound (mean -22.1 dB, peak -1.3 dB). Path NOTHING > DOUGH > SPONGE DISC >
+LAYERED > ICED > MINT > RED-ORANGE (hard cut at 14.43 s) > BROWN DOME (silver decay at 16.63 s); the cake tilts toward Ana at
+16.2 s, candles set (HOLD) 20.2 s, inscription done and the cake levels 23.0 s, the blow 26.6 s, seven out by 27.8 s.
+153 machine steps: 139 at 11.8/s, 14 at 23.6/s. 64 morph steps: 0 flips, 0 crossings, worst volume step 7.8%.
+Soundtrack: 306 grains from the real device recording, 142 synthesized making sounds. The per-frame candle move in the proof
+is 0 mm, an empty measure: the candles are placed after the last change of form (the tests cover candles through changes).
 
-VIEWED: contact sheets of proof.mp4 every 1.5 s and at 5 fps through dough to sponge (scratch, not kept). The dough, the striped layers, the iced drum, mint with
+MEASURED, `tests-play.js` (Playwright, mouse on the device only, 390 x 844): 11 passed, 0 failed (`tests-play.json`).
+
+VIEWED: a contact sheet of the revision 2 proof.mp4 every 2 s (scratch, not kept). The dough, the striped layers, the iced drum, mint with
 beads, red-orange, the brown dome with 生日快乐 legible from the default kneel, the candles lit, out.
 
 NOT RUN: the independent critic. This builder had no Agent tool; the coordinator runs it.
@@ -111,6 +113,11 @@ the next, and whether the rising and pouring fields read as making rather than a
 - The table was flooded by the candle light; light lowered and the table darkened toward the true-black dome.
 
 ## What is weak
+
+- Revision 2: the shared LOOK table is a large bright orange hexagon filling the lower frame; the cake's texture is one icing
+  mottle for every stage (the sponge reads as iced). In the revision 2 proof the HOLO arc is visible in the first second,
+  before the memory is on; fixed in index.html after the render (not re-rendered).
+- The device is this page's own drawing after ana/index.html; HOLO.device was not adopted.
 
 - The dough is pale cream on a pale board; in the proof it reads as a soft lump but with little contrast.
 - The silver decay flash whitens everything the memory draws (table and board too), so at 17.2 s the whole lower frame

@@ -1,7 +1,7 @@
 # ORB TOOL: the agent side
 
 Owner: AGENT. Files: `agent/commands.js`, `agent/describe.js`, `agent/console.js`, `agent/bridge.js`, `agent/bridge-relay.js`,
-`agent/harness.js`, `agent/harness-page.html`, `tests/agent.test.js`. Built against `core/SCHEMA.md` v1.
+`agent/harness.js`, `agent/harness-page.html`, `tests/agent.test.js`. Built against `core/SCHEMA.md` v1.3.
 
 Our reading of the job: a person on the device and an agent typing or calling tools act through the same core ops on the
 same state. The agent side gives the agent a short written language, a plain account of the memory it can act on, a way
@@ -61,7 +61,10 @@ children arrived, the moment held. (The core's `release` blows when all three ch
 ## 3. Co-working protocol
 
 - The agent proposes; it does not act while the person is working. `propose <command>` (or the bridge tool `orb_propose`)
-  adds ghosts through the core's `propose` op, one per op, each with the agent's author and a note saying why.
+  adds ghosts through the core's `propose` op, each with the agent's author and a note saying why: one ghost per command.
+  A command that compiles to several ops (`cake target brown-dome`, `children arrive`, `child 3 at x z`) is ONE ghost
+  (core v1.3 `propose { ops }`, op `batch`) that shows only where its steps end and is accepted or dismissed whole; a
+  batch ghost cannot be amended. Commands joined with `;` stay separate ghosts.
 - Proposals are made turnable: camera, making and scene changes are proposed as plain `set` ops on the path a ring works
   (`turn -20` becomes `set camera.yaw <absolute>`, `make` becomes `set cake.stage <n+1>`, `kneel 0.4` becomes
   `set camera.kneel 4`), because the core's device amends a pending `set` ghost when the person turns the ring that sets
@@ -86,6 +89,7 @@ It serves the repo over http, opens the page in Chromium at 390x844, loads the a
 - **agent**: a scripted agent that only uses bridge tool calls (`orb_describe`, `orb_command`). It makes three choices of
   its own (`cake target brown-dome`, `kneel 0.4`, `turn -20`, and `child 2 later 0.5` once child 2 is there) and otherwise
   does whatever `NEXT:` says, until describe says BLOWN.
+- Presses are pointer events dispatched on the device canvas (see section 7 for why); ring turns are mouse drags.
 - **cowork**: the agent proposes (`orb_propose`, `orb_await_decision`); a scripted hand answers with real mouse events on
   the device canvas (positions from `ORB.device.toPage`): ACCEPT; four MAKE presses of its own; the KNEEL ring turned two
   detents to raise the agent's `kneel 4` ghost to 6 before accepting; a long ACCEPT to dismiss `turn 90`; the SCALE ring
@@ -120,9 +124,35 @@ Transports:
   page over a WebSocket on 127.0.0.1:8787. `--local` answers from an orb in the node process instead (no page).
   Register it with an MCP client as `{ "command": "node", "args": ["<repo>/experiments/orb-tool/agent/bridge-relay.js"] }`.
 
-To mount in the shell (CORE's file): load `agent/describe.js`, `agent/bridge.js` (and optionally `agent/console.js`) after
-`agent/commands.js`, then `ORB_DESCRIBE.install(ORB); ORB_BRIDGE.attach(ORB);`.
+The shell already loads `agent/commands.js`, `agent/describe.js` and `agent/console.js`. To add the bridge (CORE's file): load
+`agent/bridge.js` and call `ORB_DESCRIBE.install(ORB); ORB_BRIDGE.attach(ORB);`. The harness injects it when missing.
 
-## 6. Measured (see the run records; numbers are from the runs named, not estimates)
+## 6. Measured (Nov 6 2026, this machine: 2 CPUs, load average 31-35 from other swarms during the runs)
 
-See the final section, filled from `harness-record.json` after the last run.
+- `node experiments/orb-tool/tests/agent.test.js`: 16 passed, 0 failed after the v1.3 change (15 before) (the brief's example lines, a full birthday by text,
+  errors, help, kneel scaling, ghosts and amend/accept/reject, ring-turned ghosts through core/devmap.js, describe and
+  following NEXT from empty to BLOWN, JSON ops, the rest of the language, the bridge's tools and orb_await_decision, and one batch ghost for `cake target` / `children arrive` with no stage-4 change event on accept).
+- Relay end to end (scratch script, harness-page.html with `?bridge=ws://localhost:8799`): initialize queued before the page
+  connected was answered after it connected; `orb_command` changed the page's state with author `agent:claude`.
+- agent run on index.html with scene/scene.js: 16 bridge calls, describe says BLOWN, 132 s wall clock. Agent call to the
+  machine's first `step` event: median 0.6 ms, max 50.4 ms over 23 calls (in-page timing, not glass-to-glass).
+  Film agent.mp4: 97 s, with sound.
+- cowork run on index.html with scene/scene.js: 11 ghosts; 10 accepted by the hand on the device, one (kneel) after the
+  KNEEL ring raised it from 4 to 6, one (turn 90) dismissed by a long ACCEPT; the hand's own MAKE x4 and SCALE -4;
+  HOLD then HOLD released and blew the candles. 887 s wall clock under that load; film cowork.mp4 is 626 s real time
+  with sound, plus cowork-x8-timelapse.mp4 (8x, no sound). An earlier run on the core stub renderer at lower load
+  finished in 100 s (cowork-stub-renderer.mp4, 76 s film).
+- Films are in the role's scratchpad, not the repo.
+
+## 7. What is weak
+
+- Under heavy CPU load the device read quick mouse taps as long presses (a first cowork run rejected 9 of 11 ghosts and
+  switched the memory off). The device times presses with `performance.now()` in its handlers; when the main thread
+  stalls, the pointerup is handled late. The harness now dispatches the pointerdown/pointerup pair in one task (real DOM
+  pointer events on the device canvas; the finger glides there with the mouse). Ring turns are real mouse drags. A fix in
+  core/device.js would be to time presses with `event.timeStamp`.
+- Fixed after core v1.3: `cake target X` is now one batch ghost (it used to be two, and accepting the first showed the
+  whole cake for a moment); core now times presses from the events' `timeStamp`, and `candles`, `camera` and `look`
+  ghosts turn on the rings too. The films in section 6 were made before these changes; they were not re-recorded.
+- `describe()` lists a batch ghost's steps as raw JSON.
+- The films are slow because the machine was loaded; the timings above are not what a phone would show.

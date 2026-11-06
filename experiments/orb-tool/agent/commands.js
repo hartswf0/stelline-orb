@@ -189,6 +189,7 @@
   V.amend = (w, st) => {
     const p = pending(st, w[0]); if (p.error) return E(p.error);
     const prop = st.proposals.find(q => q.id === p.id), rest = w.slice(1);
+    if (prop.op === 'batch') return E(p.id + ' is several steps in one ghost; accept or reject it, or propose again');
     if (!rest.length) return E('amend ' + p.id + ' <value>, or amend ' + p.id + ' <key>=<value> ...');
     const args = {};
     if (rest.every(x => /=/.test(x))) for (const x of rest) { const [k, v] = x.split('='); args[k] = isNum(v) ? num(v) : v; }
@@ -199,21 +200,34 @@
   V.propose = (w, st, raw) => {
     const inner = raw.replace(/^\s*\S+\s*/, ''); if (!inner) return E('propose <command>, e.g. propose candles 7');
     let note = ''; const m = inner.match(/^(.*?)\s+(?:--|because)\s+(.*)$/); const body = m ? m[1] : inner; if (m) note = m[2];
-    const r = parse(body, st); if (r.error) return r; if (!isOp(r) && !Array.isArray(r)) return E('only changes can be proposed');
-    const list = Array.isArray(r) ? r : [r];
-    for (const o of list) if (['propose', 'accept', 'reject', 'amend', 'undo', 'redo', 'snapshot', 'load', 'reset'].includes(o.op)) return E(o.op + ' cannot be proposed');
-    // several ops become several ghosts (the core proposes one op at a time)
+    // one ghost per command: a command that compiles to several ops (cake target, children arrive, child n at x z)
+    // is one batch ghost (core v1.3 propose { ops }) that shows only where its steps end; commands joined by ';' are separate ghosts
+    const parts = body.split(/[;\n]/).map(x => x.trim()).filter(Boolean), out = [];
     let stage = st ? st.cake.stage : 0;
-    return list.map(turnable).flat().map(o => ({ op: 'propose', args: { op: o.op, args: o.args, note: note || body } }));
-    // a ghost the person can turn: the device's rings amend pending 'set' proposals on the path they work, so camera,
-    // making and scene changes are proposed as plain sets (turn becomes the absolute yaw it would reach)
+    for (const part of parts) {
+      const r = one(part, st); if (r.error) return E(parts.length > 1 ? part + ': ' + r.error : r.error);
+      if (!isOp(r) && !Array.isArray(r)) return E('only changes can be proposed');
+      const list = Array.isArray(r) ? r : [r];
+      for (const o of list) if (['propose', 'accept', 'reject', 'amend', 'undo', 'redo', 'snapshot', 'load', 'reset', 'batch'].includes(o.op)) return E(o.op + ' cannot be proposed');
+      const ops = list.length > 1 ? list.filter(o => !noop(o)) : list.map(turnable).flat();
+      if (!ops.length) continue;
+      const n = note || part;
+      out.push(ops.length === 1 ? { op: 'propose', args: { op: ops[0].op, args: ops[0].args, note: n } } : { op: 'propose', args: { ops, note: n } });
+    }
+    if (!out.length) return E('that would change nothing, so there is nothing to propose');
+    return out;
+    function cur(path) { return path.split('.').reduce((x, k) => x == null ? x : Array.isArray(x) ? x.find(q => q.id === k) : x[k], st); }
+    // a step that changes nothing is left out of a batch, except cake.stage beside cake.kind (choosing a cake sets the stage)
+    function noop(o) { if (o.op !== 'set' || !st || o.args.path === 'cake.kind' || o.args.path === 'cake.stage') return false; return cur(o.args.path) === o.args.value; }
+    // a single-op ghost the person can turn: camera, making and scene changes are proposed as plain sets on the path a ring
+    // works (turn becomes the absolute yaw it would reach); a ghost that changes nothing is not shown
     function turnable(o) { const a = o.args || {};
-      if (o.op === 'camera') { const out = [];
-        if (a.turn != null) { let y = (st ? st.camera.yaw : 0) + a.turn; y = ((y + 180) % 360 + 360) % 360 - 180; out.push(set('camera.yaw', y)); }
-        for (const k of ['yaw', 'kneel', 'focus']) if (a[k] != null) out.push(set('camera.' + k, a[k])); return out; }
+      if (o.op === 'camera') { const r = [];
+        if (a.turn != null) { let y = (st ? st.camera.yaw : 0) + a.turn; y = ((y + 180) % 360 + 360) % 360 - 180; r.push(set('camera.yaw', y)); }
+        for (const k of ['yaw', 'kneel', 'focus']) if (a[k] != null) r.push(set('camera.' + k, a[k])); return r.length > 1 ? [{ op: 'camera', args: a }] : r; }
       if (o.op === 'make') { stage = a.to != null ? a.to : Math.min(4, stage + 1); return [set('cake.stage', stage)]; }
-      if (o.op === 'look') return ['look', 'place', 'light'].filter(k => a[k] != null).map(k => set('scene.' + k, a[k]));
-      if (o.op === 'set' && st && a.path !== 'cake.kind' && !(a.path === 'cake.stage' && list.some(x => x.args && x.args.path === 'cake.kind'))) { const cur = a.path.split('.').reduce((x, k) => x == null ? x : Array.isArray(x) ? x.find(q => q.id === k) : x[k], st); if (cur === a.value) return []; }   // a ghost that changes nothing is not shown
+      if (o.op === 'look') { const r = ['look', 'place', 'light'].filter(k => a[k] != null).map(k => set('scene.' + k, a[k])); return r.length > 1 ? [o] : r; }
+      if (o.op === 'set' && st && a.path !== 'cake.kind' && cur(a.path) === a.value) return [];
       return [o]; } };
   V.set = (w, st, raw) => { const path = w[0]; if (!path || w.length < 2) return E('set <path> <value>, e.g. set camera.yaw 30');
     const v = raw.replace(/^\s*\S+\s+\S+\s*/, ''); return set(path, isNum(v) ? num(v) : v); };
@@ -266,7 +280,8 @@
       case 'make': return a.to != null ? 'make the cake ' + STAGES[a.to] : 'the next making step';
       case 'write': return 'write ' + a.text; case 'candles': return a.count + ' candles, lit';
       case 'camera': return a.turn != null ? 'turn ' + a.turn + ' degrees' : a.kneel != null ? 'kneel ' + a.kneel : a.yaw != null ? 'view from ' + a.yaw + ' degrees' : 'focus ' + a.focus;
-      case 'propose': return 'propose: ' + say({ op: a.op, args: a.args }, st);
+      case 'propose': return 'propose: ' + (a.ops ? a.ops.map(x => say(x, st)).join(', then ') : say({ op: a.op, args: a.args }, st));
+      case 'batch': return (a.ops || []).map(x => say(x, st)).join(', then ');
       case 'switchOff': return 'switch the memory off'; case 'switchOn': return 'switch the memory on';
       default: return o.op + (Object.keys(a).length ? ' ' + JSON.stringify(a) : ''); } }
 

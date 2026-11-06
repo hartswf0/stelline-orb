@@ -1,0 +1,698 @@
+[
+ {
+  "page": "hand-orb-v5.html",
+  "viewport": [
+   390,
+   844
+  ],
+  "loaded": true,
+  "loadMs": 204,
+  "pageScrolls": false,
+  "hScroll": false,
+  "envErrors": 1,
+  "pageErrors": [],
+  "pageErrorCount": 0,
+  "docH": 844,
+  "docW": 390,
+  "controls": 0,
+  "controlsInView": 0,
+  "under44px": 0,
+  "under24px": 0,
+  "textNodesInView": 0,
+  "textUnder12px": 0,
+  "textUnder10px": 0,
+  "minFontPx": null,
+  "canvases": [
+   [
+    "scene",
+    390,
+    219,
+    0
+   ],
+   [
+    "orb",
+    390,
+    625,
+    219
+   ]
+  ],
+  "handles": [
+   "CORE",
+   "ORB",
+   "ST",
+   "HAND",
+   "SCENE",
+   "APP",
+   "LINK"
+  ],
+  "fps": {
+   "medianFrameMs": 150
+  }
+ },
+ {
+  "page": "maker.html",
+  "viewport": [
+   390,
+   844
+  ],
+  "loaded": true,
+  "loadMs": 23219,
+  "pageScrolls": false,
+  "hScroll": false,
+  "envErrors": 0,
+  "pageErrors": [],
+  "pageErrorCount": 0,
+  "docH": 844,
+  "docW": 390,
+  "controls": 0,
+  "controlsInView": 0,
+  "under44px": 0,
+  "under24px": 0,
+  "textNodesInView": 0,
+  "textUnder12px": 0,
+  "textUnder10px": 0,
+  "minFontPx": null,
+  "canvases": [
+   [
+    "room",
+    390,
+    456,
+    0
+   ],
+   [
+    "orb",
+    390,
+    387,
+    457
+   ]
+  ],
+  "handles": [
+   "FORGE"
+  ],
+  "fps": {
+   "medianFrameMs": 450.1
+  }
+ },
+ {
+  "page": "stage.html",
+  "viewport": [
+   390,
+   844
+  ],
+  "loaded": true,
+  "loadMs": 6789,
+  "pageScrolls": false,
+  "hScroll": false,
+  "envErrors": 3,
+  "pageErrors": [],
+  "pageErrorCount": 0,
+  "docH": 844,
+  "docW": 390,
+  "controls": 1,
+  "controlsInView": 1,
+  "under44px": 1,
+  "under24px": 1,
+  "textNodesInView": 7,
+  "textUnder12px": 5,
+  "textUnder10px": 4,
+  "minFontPx": 6.8,
+  "canvases": [
+   [
+    "gl",
+    390,
+    844,
+    0
+   ],
+   [
+    "qr",
+    200,
+    200,
+    235
+   ]
+  ],
+  "handles": [
+   "STAGE",
+   "PAIR"
+  ],
+  "fps": {
+   "framesIn15s": 10
+  }
+ },
+ {
+  "page": "weaver.html",
+  "viewport": [
+   390,
+   844
+  ],
+  "loaded": true,
+  "loadMs": 36905,
+  "pageScrolls": false,
+  "hScroll": false,
+  "envErrors": 0,
+  "pageErrors": [],
+  "pageErrorCount": 0,
+  "docH": 844,
+  "docW": 390,
+  "controls": 0,
+  "controlsInView": 0,
+  "under44px": 0,
+  "under24px": 0,
+  "textNodesInView": 0,
+  "textUnder12px": 0,
+  "textUnder10px": 0,
+  "minFontPx": null,
+  "canvases": [
+   [
+    "room",
+    390,
+    405,
+    0
+   ],
+   [
+    "orb",
+    390,
+    437,
+    407
+   ]
+  ],
+  "handles": [
+   "FORGE"
+  ],
+  "fps": {
+   "framesIn15s": 11
+  }
+ },
+ {
+  "page": "studio.html",
+  "viewport": [
+   390,
+   844
+  ],
+  "loaded": true,
+  "loadMs": 25528,
+  "pageScrolls": false,
+  "hScroll": false,
+  "envErrors": 0,
+  "pageErrors": [],
+  "pageErrorCount": 0,
+  "docH": 844,
+  "docW": 390,
+  "controls": 15,
+  "controlsInView": 5,
+  "under44px": 15,
+  "under24px": 15,
+  "textNodesInView": 16,
+  "textUnder12px": 0,
+  "textUnder10px": 0,
+  "minFontPx": 13.3333,
+  "canvases": [
+   [
+    "atlasCanvas",
+    390,
+    456,
+    0
+   ],
+   [
+    "hologramCanvas",
+    390,
+    456,
+    0
+   ],
+   [
+    "orbCanvas",
+    390,
+    388,
+    456
+   ]
+  ],
+  "handles": [],
+  "fps": {
+   "framesIn15s": 7
+  }
+ },
+ {
+  "page": "film.html",
+  "viewport": [
+   390,
+   844
+  ],
+  "loaded": true,
+  "loadMs": 25940,
+  "pageScrolls": true,
+  "hScroll": false,
+  "envErrors": 0,
+  "pageErrors": [],
+  "pageErrorCount": 0,
+  "docH": 2352,
+  "docW": 390,
+  "controls": 17,
+  "controlsInView": 12,
+  "under44px": 11,
+  "under24px": 1,
+  "textNodesInView": 21,
+  "textUnder12px": 18,
+  "textUnder10px": 0,
+  "minFontPx": 10,
+  "canvases": [],
+  "handles": [],
+  "fps": {
+   "framesIn15s": 12
+  }
+ },
+ {
+  "page": "ana/index.html",
+  "viewport": [
+   390,
+   844
+  ],
+  "loaded": true,
+  "loadMs": 1707,
+  "pageScrolls": false,
+  "hScroll": false,
+  "envErrors": 0,
+  "pageErrors": [],
+  "pageErrorCount": 0,
+  "docH": 844,
+  "docW": 390,
+  "controls": 0,
+  "controlsInView": 0,
+  "under44px": 0,
+  "under24px": 0,
+  "textNodesInView": 0,
+  "textUnder12px": 0,
+  "textUnder10px": 0,
+  "minFontPx": null,
+  "canvases": [
+   [
+    "view",
+    390,
+    557,
+    0
+   ],
+   [
+    "dev",
+    390,
+    286,
+    558
+   ]
+  ],
+  "handles": [
+   "MM"
+  ],
+  "fps": {
+   "medianFrameMs": 50
+  }
+ },
+ {
+  "page": "cineosis-orb/index.html",
+  "viewport": [
+   390,
+   844
+  ],
+  "loaded": true,
+  "loadMs": 22658,
+  "pageScrolls": false,
+  "hScroll": false,
+  "envErrors": 0,
+  "pageErrors": [],
+  "pageErrorCount": 0,
+  "docH": 844,
+  "docW": 390,
+  "controls": 0,
+  "controlsInView": 0,
+  "under44px": 0,
+  "under24px": 0,
+  "textNodesInView": 0,
+  "textUnder12px": 0,
+  "textUnder10px": 0,
+  "minFontPx": null,
+  "canvases": [
+   [
+    "room",
+    390,
+    456,
+    0
+   ],
+   [
+    "orb",
+    390,
+    387,
+    457
+   ]
+  ],
+  "handles": [
+   "FORGE"
+  ],
+  "fps": {
+   "medianFrameMs": 483.3
+  }
+ },
+ {
+  "page": "hand-orb-v5.html",
+  "viewport": [
+   1280,
+   800
+  ],
+  "loaded": true,
+  "loadMs": 108,
+  "pageScrolls": false,
+  "hScroll": false,
+  "envErrors": 4,
+  "pageErrors": [],
+  "pageErrorCount": 0,
+  "docH": 800,
+  "docW": 1280,
+  "controls": 0,
+  "controlsInView": 0,
+  "under44px": 0,
+  "under24px": 0,
+  "textNodesInView": 0,
+  "textUnder12px": 0,
+  "textUnder10px": 0,
+  "minFontPx": null,
+  "canvases": [
+   [
+    "scene",
+    1280,
+    552,
+    0
+   ],
+   [
+    "orb",
+    1280,
+    248,
+    552
+   ]
+  ],
+  "handles": [
+   "CORE",
+   "ORB",
+   "ST",
+   "HAND",
+   "SCENE",
+   "APP",
+   "LINK"
+  ],
+  "fps": {
+   "framesIn15s": 8
+  }
+ },
+ {
+  "page": "maker.html",
+  "viewport": [
+   1280,
+   800
+  ],
+  "loaded": true,
+  "loadMs": 37671,
+  "pageScrolls": false,
+  "hScroll": false,
+  "envErrors": 0,
+  "pageErrors": [],
+  "pageErrorCount": 0,
+  "docH": 800,
+  "docW": 1280,
+  "controls": 0,
+  "controlsInView": 0,
+  "under44px": 0,
+  "under24px": 0,
+  "textNodesInView": 0,
+  "textUnder12px": 0,
+  "textUnder10px": 0,
+  "minFontPx": null,
+  "canvases": [
+   [
+    "room",
+    1280,
+    496,
+    0
+   ],
+   [
+    "orb",
+    1280,
+    303,
+    497
+   ]
+  ],
+  "handles": [
+   "FORGE"
+  ],
+  "fps": {
+   "framesIn15s": 9
+  }
+ },
+ {
+  "page": "stage.html",
+  "viewport": [
+   1280,
+   800
+  ],
+  "loaded": true,
+  "loadMs": 36417,
+  "pageScrolls": false,
+  "hScroll": false,
+  "envErrors": 3,
+  "pageErrors": [],
+  "pageErrorCount": 0,
+  "docH": 800,
+  "docW": 1280,
+  "controls": 1,
+  "controlsInView": 1,
+  "under44px": 1,
+  "under24px": 1,
+  "textNodesInView": 7,
+  "textUnder12px": 5,
+  "textUnder10px": 4,
+  "minFontPx": 6.8,
+  "canvases": [
+   [
+    "gl",
+    1280,
+    800,
+    0
+   ],
+   [
+    "qr",
+    200,
+    200,
+    213
+   ]
+  ],
+  "handles": [
+   "STAGE",
+   "PAIR"
+  ],
+  "fps": {
+   "framesIn15s": 3
+  }
+ },
+ {
+  "page": "weaver.html",
+  "viewport": [
+   1280,
+   800
+  ],
+  "loaded": false,
+  "loadMs": 90336,
+  "pageScrolls": false,
+  "hScroll": false,
+  "envErrors": 0,
+  "pageErrors": [],
+  "pageErrorCount": 0,
+  "docH": 800,
+  "docW": 1280,
+  "controls": 0,
+  "controlsInView": 0,
+  "under44px": 0,
+  "under24px": 0,
+  "textNodesInView": 0,
+  "textUnder12px": 0,
+  "textUnder10px": 0,
+  "minFontPx": null,
+  "canvases": [
+   [
+    "room",
+    1280,
+    416,
+    0
+   ],
+   [
+    "orb",
+    1280,
+    382,
+    418
+   ]
+  ],
+  "handles": [
+   "FORGE"
+  ],
+  "fps": {
+   "framesIn15s": 2
+  }
+ },
+ {
+  "page": "studio.html",
+  "viewport": [
+   1280,
+   800
+  ],
+  "loaded": true,
+  "loadMs": 3852,
+  "pageScrolls": false,
+  "hScroll": false,
+  "envErrors": 0,
+  "pageErrors": [],
+  "pageErrorCount": 0,
+  "docH": 800,
+  "docW": 1280,
+  "controls": 15,
+  "controlsInView": 13,
+  "under44px": 15,
+  "under24px": 15,
+  "textNodesInView": 16,
+  "textUnder12px": 0,
+  "textUnder10px": 0,
+  "minFontPx": 13.3333,
+  "canvases": [
+   [
+    "atlasCanvas",
+    1280,
+    464,
+    0
+   ],
+   [
+    "hologramCanvas",
+    1280,
+    464,
+    0
+   ],
+   [
+    "orbCanvas",
+    1280,
+    336,
+    464
+   ]
+  ],
+  "handles": [],
+  "fps": {
+   "framesIn15s": 3
+  }
+ },
+ {
+  "page": "film.html",
+  "viewport": [
+   1280,
+   800
+  ],
+  "loaded": false,
+  "loadMs": 104959,
+  "pageScrolls": true,
+  "hScroll": false,
+  "envErrors": 0,
+  "pageErrors": [],
+  "pageErrorCount": 0,
+  "docH": 1858,
+  "docW": 1280,
+  "controls": 17,
+  "controlsInView": 15,
+  "under44px": 11,
+  "under24px": 2,
+  "textNodesInView": 30,
+  "textUnder12px": 27,
+  "textUnder10px": 0,
+  "minFontPx": 10,
+  "canvases": [],
+  "handles": [],
+  "fps": {
+   "framesIn15s": 4
+  }
+ },
+ {
+  "page": "ana/index.html",
+  "viewport": [
+   1280,
+   800
+  ],
+  "loaded": true,
+  "loadMs": 2258,
+  "pageScrolls": false,
+  "hScroll": false,
+  "envErrors": 0,
+  "pageErrors": [],
+  "pageErrorCount": 0,
+  "docH": 800,
+  "docW": 1280,
+  "controls": 0,
+  "controlsInView": 0,
+  "under44px": 0,
+  "under24px": 0,
+  "textNodesInView": 0,
+  "textUnder12px": 0,
+  "textUnder10px": 0,
+  "minFontPx": null,
+  "canvases": [
+   [
+    "view",
+    1280,
+    528,
+    0
+   ],
+   [
+    "dev",
+    1280,
+    271,
+    529
+   ]
+  ],
+  "handles": [
+   "MM"
+  ],
+  "fps": {
+   "medianFrameMs": 183.3
+  }
+ },
+ {
+  "page": "cineosis-orb/index.html",
+  "viewport": [
+   1280,
+   800
+  ],
+  "loaded": true,
+  "loadMs": 23598,
+  "pageScrolls": false,
+  "hScroll": false,
+  "envErrors": 0,
+  "pageErrors": [],
+  "pageErrorCount": 0,
+  "docH": 800,
+  "docW": 1280,
+  "controls": 0,
+  "controlsInView": 0,
+  "under44px": 0,
+  "under24px": 0,
+  "textNodesInView": 0,
+  "textUnder12px": 0,
+  "textUnder10px": 0,
+  "minFontPx": null,
+  "canvases": [
+   [
+    "room",
+    1280,
+    496,
+    0
+   ],
+   [
+    "orb",
+    1280,
+    303,
+    497
+   ]
+  ],
+  "handles": [
+   "FORGE"
+  ],
+  "fps": {
+   "framesIn15s": 14
+  }
+ }
+]

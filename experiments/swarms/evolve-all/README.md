@@ -124,16 +124,35 @@ Both choose with SELECT. The scripted chooser between UIs plays the elite every 
   Plain elitist auto-breeding (8 children, sigma 0.1) does a little better: the cake passed all its stages in about 110-150
   generations, but the table passed 2/5 in 300. These are the module versions as of about 03:50; their owners were still
   working.
-- `proof.mp4` (41.6 s, sound) and `trace.json` come from one recorded run (`ui/record.js`, CAREFUL script, budget 16 generations
-  per part, 146 s of virtual time). The run used the module files as they stood at about 03:51; cake, inscription and light
-  changed after that.
-  - All six parts used up the budget and were made as they stood: cake 2 stages passed, inscription 1, candles 1, people 1,
-    table 0, light 0.
-  - The player made 96 choices; in 10 of them the kept variant was not the fitness best.
-  - The UI changed between parts: U0 -> U2 -> U3 -> U2 -> U7 -> U10. U2 became the elite after the cake. The ring map
-    changed by the end (STRENGTH, VIEW, BIAS).
-  - The end runs: the candles are lit and blown out, then the memory switches off. Only one flame appears, because the
-    candles genome still had one candle.
+- `proof.mp4` and `trace.json`: revision 4 (Nov 6, about 07:20).
+  - The run: CAREFUL script, budget 300 generations per part, look.js plus the holo.js arc and readout. The film is 55.7 s
+    with sound, from 881 s of virtual play.
+  - Stages passed: table 3/3 (28 generations), light 3/3 (44), people 3/3 (75), candles 8/8 (168), inscription 6/6 (123).
+    The cake reached 5/6 by generation 44 and never passed DECORATION in 300 generations.
+  - The player made 738 choices; 39 kept a variant that was not the fitness best.
+- **Revision 4 fixes:**
+  - **Overexposure.**
+    - Cause found by rendering the same end frame three ways: with LOOK and the light part's exposure, with LOOK alone, and
+      without LOOK. All three were washed out, so the exposure product was not the main cause. The main cause was the light
+      module's own lamps: `build()` returns a PointLight (intensity 2.9, range x4) and a hemisphere light, which added to
+      LOOK's (or the host's) lights.
+    - Fix: the light part's lamps are switched off in the scene. Under LOOK, the light part's `params()` are not applied
+      either, because LOOK's grade was evolved against the film.
+    - The host's own dome and glow are hidden under LOOK. The surround is now black.
+  - **Flames.** They show as small glows once the light no longer floods the frame. They are still too small and faint
+    against the film.
+  - **People.** Each child is scaled about its own feet so that heads stand about 1.75 x the table height above the floor;
+    this run used 0.915. This is a host correction, recorded in the trace as `hostScale`; the people module's fitness does
+    not see it. LOOK's depth of field is focused on the cake.
+  - **End shot.** It now frames the whole table from a little above its top, as at 155 s.
+  - **Cake budget.** Raised to 300. It was not enough: with the player choosing, the cake's DECORATION stage was not passed.
+- **Believability strip, revision 4, run by the host owner: FAIL** (film 155.3 s against proof frame 805; frames in
+  /home/claude/stelline-work/evolve-all-strip/). What still gives it away:
+  1. The cake is an orange dome, not cream frosting with beads; DECORATION was not reached.
+  2. The flames are hardly visible.
+  3. The table top is flat-lit and white, where in the film the top is lit from the candles and falls off.
+  4. Four doll-like children with identical bobbed hair, where the film has three.
+  5. No band of light on the wall.
 
 ## The proof film
 
@@ -162,8 +181,14 @@ ffmpeg -framerate 15 -i <frames-dir>/%05d.jpg -i <frames-dir>/audio.wav -r 30 -c
   - the UI-choice panel and the left-collar readout drawn over the barrel;
   - per-gesture move and reversal counts for the UI's fitness.
 - `HOLO.spots` is not adopted.
-- `../shared/look.js` did not exist at revision 2. It is loaded and `LOOK.apply` is called if it appears; that path is
-  untested.
+- `../shared/look.js` is adopted (revision 3). `LOOK.apply(renderer, scene, camera, {target, candles})` renders every frame
+  through `handle.render(dt)`, and the host's own lights are turned off. The key light follows the cake. `candlesLit` follows
+  the lit flames. Switching on and off, and the light part's exposure, go through `handle.set({exposure})`. Each keep calls
+  `LOOK.flash(part)`. Module materials are left as the modules make them; LOOK materials are not swapped in. At the time of
+  writing this ran only as a syntax check (see below).
+- The host keeps its own device (ana/index.html's barrel), not `HOLO.device`, so that the UI genome can set the ring roles,
+  the detent size and the rate, draw the choice panel and the readout, and count gestures and reversals for the UI's
+  fitness.
 - The light module's `params(G)` now sets the grade: exposure, candle colour, range, decay and strength, ambient level and
   tint.
 

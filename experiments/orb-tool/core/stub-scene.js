@@ -14,7 +14,7 @@
     let W = 0, H = 0, dpr = 1, last = performance.now(), off = 0, changeAt = -9, lastSel = null, focusPt = [0, 0.56, 0], cam = null;
     const clocks = {};   // each figure's own performance clock (seconds), stopped while held
     orb.on('change', () => { changeAt = performance.now(); });
-    function resize() { dpr = Math.min(2, root.devicePixelRatio || 1); W = container.clientWidth; H = container.clientHeight; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+    function resize() { dpr = api.quality >= 1 ? 1 : Math.min(2, root.devicePixelRatio || 1); W = container.clientWidth; H = container.clientHeight; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
     // ---- the camera: kneeling around the memory
     function setCam(v) { const a = v.camera.yaw * Math.PI / 180, D = 1.05, ey = 0.6 + (10 - v.camera.kneel) * 0.085;
       const f = v.camera.focus === 'cake' ? [0, 0.56, 0] : (() => { const q = v.people.concat(v.props).find(p => p.id === v.camera.focus); return q ? [q.x * .6, 0.6, q.z * .6] : [0, 0.56, 0]; })();
@@ -48,7 +48,7 @@
     // ---- the cake, by making stage and genome
     function cake(v, look, glow, ghost, now) { const k = v.cake, st = Math.round(k.stage); if (st <= 0) return null; const geomOnly = ghost === 'geom';
       const g = k.genome, R = g.radius, Hh = st === 1 ? g.height * .8 : g.height, base = TABLE_Y, piv = [0, base + .05, 0], ang = k.tilt * 3 * Math.PI / 180, ax = norm([cam.rt[0], 0, cam.rt[2]]);
-      const side = st === 1 ? SPONGE : hex(g.side), topc = st === 1 ? shade(SPONGE, 1.08) : hex(g.top), N = 48, lit = .55 + glow * .45;
+      const side = st === 1 ? SPONGE : hex(g.side), topc = st === 1 ? shade(SPONGE, 1.08) : hex(g.top), N = api.quality >= 1 ? 24 : 48, lit = .55 + glow * .45;
       const W3 = (x, y, z) => P(rot([x, y, z], piv, ax, ang));
       const prof = g.form === 'dome' && st > 1 ? Array.from({ length: 8 }, (_, i) => { const a = i / 7 * Math.PI / 2; return [R * Math.cos(a) + .001, base + .02 + (Hh - .02) * Math.sin(a)]; }) : [[R, base], [R, base + Hh]];
       if (g.form === 'dome' && st > 1) prof.unshift([R, base]);
@@ -109,8 +109,8 @@
       return { x: head[0], y: head[1] }; }
     function prop(p, look, ghost, selected) { const b = P([p.x, 0, p.z]), t = P([p.x, .25 * p.scale, p.z]); if (!b || !t) return; const w = .25 * p.scale / b[2] * cam.F;
       c.beginPath(); c.rect(b[0] - w / 2, t[1], w, b[1] - t[1]); fillOr(look, ghost, [110, 120, 130], .9); if (selected) bracket(b[0] - w / 2 - 4, t[1] - 4, w + 8, b[1] - t[1] + 8);
-      if (!ghost) { c.fillStyle = 'rgba(230,230,230,.7)'; c.font = '10px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText(p.kind.toUpperCase(), b[0], b[1] + 12); } }
-    function bracket(x, y, w, h) { const k = Math.min(10, w / 4, h / 4), f = clamp(1 - (performance.now() - changeAt) / 400, 0, 1); c.strokeStyle = 'rgba(224,51,43,' + (.55 + f * .45) + ')'; c.lineWidth = 1.5 + f * 1.5;
+      if (!ghost) { c.fillStyle = 'rgba(230,230,230,.7)'; c.font = '12px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText(p.kind.toUpperCase(), b[0], b[1] + 12); } }
+    function bracket(x, y, w, h) { const k = Math.min(10, w / 4, h / 4), f = orb.device && orb.device.touching != null ? 1 : clamp(1 - (performance.now() - changeAt) / 400, 0, 1); c.strokeStyle = 'rgba(224,51,43,' + (.55 + f * .45) + ')'; c.lineWidth = 1.5 + f * 1.5;
       c.beginPath(); c.moveTo(x, y + k); c.lineTo(x, y); c.lineTo(x + k, y); c.moveTo(x + w - k, y); c.lineTo(x + w, y); c.lineTo(x + w, y + k); c.moveTo(x, y + h - k); c.lineTo(x, y + h); c.lineTo(x + k, y + h); c.moveTo(x + w - k, y + h); c.lineTo(x + w, y + h); c.lineTo(x + w, y + h - k); c.stroke(); }
     // ---- one frame
     function frame(now) { if (!W) resize(); const dt0 = Math.min(.05, (now - last) / 1000); last = now;
@@ -136,18 +136,18 @@
       // the light level and switching off
       if (light < 10) { c.fillStyle = 'rgba(0,0,0,' + ((10 - light) / 16) + ')'; c.fillRect(0, 0, W, H); }
       off = clamp(off + (v.time.off ? dt0 : -dt0 * 2), 0, 1); if (off > 0) { c.fillStyle = 'rgba(0,0,0,' + off + ')'; c.fillRect(0, 0, W, H); }
-      if (v.time.off && off >= 1) { c.fillStyle = 'rgba(200,210,206,.35)'; c.font = '11px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText('THE MEMORY IS OFF', W / 2, H / 2); }
-      if (v.time.hold) { c.strokeStyle = 'rgba(240,176,64,.8)'; c.lineWidth = 2; c.strokeRect(3, 3, W - 6, H - 6); c.fillStyle = 'rgba(240,176,64,.95)'; c.font = '600 11px ui-monospace,monospace'; c.textAlign = 'left'; c.fillText('HELD: EVERY PERFORMANCE STOPPED', 10, H - 26); }
-      c.fillStyle = 'rgba(200,210,206,.4)'; c.font = '10px ui-monospace,monospace'; c.textAlign = 'right'; c.fillText('STUB RENDERER', W - 8, H - 8); }
-    function ghost(v, pr, now, look, glow) { const g = S.clone(v); g.proposals = []; let e; try { e = O.OPS[pr.op](g, S.clone(pr.args), { author: pr.author }); } catch (er) { e = 'x'; } if (e) return;
+      if (v.time.off && off >= 1) { c.fillStyle = 'rgba(200,210,206,.35)'; c.font = '12px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText('THE MEMORY IS OFF', W / 2, H / 2); }
+      if (v.time.hold) { c.strokeStyle = 'rgba(240,176,64,.8)'; c.lineWidth = 2; c.strokeRect(3, 3, W - 6, H - 6); c.fillStyle = 'rgba(240,176,64,.95)'; c.font = '600 12px ui-monospace,monospace'; c.textAlign = 'left'; c.fillText('HELD: EVERY PERFORMANCE STOPPED', 10, H - 26); }
+      c.fillStyle = 'rgba(200,210,206,.4)'; c.font = '12px ui-monospace,monospace'; c.textAlign = 'right'; c.fillText('STUB RENDERER', W - 8, H - 8); }
+    function ghost(v, pr, now, look, glow) { const g = O.ghostState(v, pr); if (!g) return;
       const same = k => JSON.stringify(g[k]) === JSON.stringify(v[k]);
       if (!same('table')) table(g, g.table.up, look, true);
       if (!same('cake') || !same('inscription')) { const ck = cake(g, look, glow, true, now); if (!ck && g.cake.stage === 0 && v.cake.stage > 0) { const q = P([0, .6, 0]); if (q) { c.strokeStyle = 'rgba(56,214,224,.8)'; c.beginPath(); c.moveTo(q[0] - 12, q[1] - 12); c.lineTo(q[0] + 12, q[1] + 12); c.moveTo(q[0] + 12, q[1] - 12); c.lineTo(q[0] - 12, q[1] + 12); c.stroke(); } } }
       if (!same('candles')) { const ck = cake(g, look, glow, 'geom', now); if (ck) candles(g, ck, now, look, true); }
       g.people.forEach(p => { const o = v.people.find(q => q.id === p.id); if (!o || JSON.stringify(o) !== JSON.stringify(p)) figure(p, now, 0, g, look, glow, true, false); });
       g.props.forEach(p => { const o = v.props.find(q => q.id === p.id); if (!o || JSON.stringify(o) !== JSON.stringify(p)) prop(p, look, true, false); });
-      if (!same('camera') || !same('scene') || !same('time')) { c.fillStyle = 'rgba(56,214,224,.9)'; c.font = '600 11px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText('PROPOSED: ' + O.label(pr.op, pr.args).toUpperCase(), W / 2, H - 26); } }
-    resize(); return { frame, resize, canvas: cv };
+      if (!same('camera') || !same('scene') || !same('time')) { c.fillStyle = 'rgba(56,214,224,.9)'; c.font = '600 12px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText('PROPOSED: ' + O.label(pr.op, pr.args).toUpperCase(), W / 2, H - 26); } }
+    const api = { frame, resize, canvas: cv, quality: 0, setQuality(q) { api.quality = q; resize(); } }; resize(); return api;
   }
   root.ORB_STUB_SCENE = { create };
 })(typeof window !== 'undefined' ? window : globalThis);

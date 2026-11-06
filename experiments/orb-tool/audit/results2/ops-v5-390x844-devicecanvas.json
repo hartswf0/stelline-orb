@@ -1,0 +1,269 @@
+{
+ "manual": false,
+ "fps": {
+  "medianFrameMs": 200,
+  "p90FrameMs": 350
+ },
+ "url": "http://127.0.0.1:8731/hand-orb-v5.html",
+ "name": "v5",
+ "viewport": [
+  390,
+  844
+ ],
+ "view": {
+  "x": 0,
+  "y": 219.375,
+  "w": 390,
+  "h": 624.625,
+  "id": "orb"
+ },
+ "idle": {
+  "d100": 0,
+  "d1s": 0.2046
+ },
+ "ops": [
+  {
+   "op": "CORE.turn(0,+2)",
+   "err": null,
+   "opMs": 0.6,
+   "toFrameMs": 352.5,
+   "firstShotMs": 2529,
+   "d100": 0.0108,
+   "d1s": 0.0097,
+   "visible100": true,
+   "visible1s": false
+  },
+  {
+   "op": "CORE.turn(1,+2)",
+   "err": null,
+   "opMs": 0.5,
+   "toFrameMs": 239.5,
+   "firstShotMs": 2481,
+   "d100": 0.012,
+   "d1s": 0.0116,
+   "visible100": true,
+   "visible1s": false
+  },
+  {
+   "op": "CORE.turn(2,+2)",
+   "err": null,
+   "opMs": 0.3,
+   "toFrameMs": 247.1,
+   "firstShotMs": 2789,
+   "d100": 0.012,
+   "d1s": 0.012,
+   "visible100": true,
+   "visible1s": false
+  },
+  {
+   "op": "CORE.turn(3,+2)",
+   "err": null,
+   "opMs": 0.3,
+   "toFrameMs": 245.3,
+   "firstShotMs": 3054,
+   "d100": 0.0278,
+   "d1s": 0.0254,
+   "visible100": true,
+   "visible1s": false
+  },
+  {
+   "op": "CORE.turn(4,+2)",
+   "err": null,
+   "opMs": 0.2,
+   "toFrameMs": 853.6,
+   "firstShotMs": 7079,
+   "d100": 0.1223,
+   "d1s": 0.122,
+   "visible100": true,
+   "visible1s": false
+  },
+  {
+   "op": "CORE.press(watch)",
+   "err": null,
+   "opMs": 0.2,
+   "toFrameMs": 571.1,
+   "firstShotMs": 9302,
+   "d100": 0.0005,
+   "d1s": 0.0005,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "CORE.press(cut)",
+   "err": null,
+   "opMs": 0.6,
+   "toFrameMs": 423.3,
+   "firstShotMs": 4290,
+   "d100": 0.0068,
+   "d1s": 0.0062,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "CORE.press(build)",
+   "err": null,
+   "opMs": 0.4,
+   "toFrameMs": 4492.4,
+   "firstShotMs": 10993,
+   "d100": 0.0144,
+   "d1s": 0.0135,
+   "visible100": true,
+   "visible1s": false
+  },
+  {
+   "op": "CORE.press(zero)",
+   "err": null,
+   "opMs": 0.3,
+   "toFrameMs": 869.9,
+   "firstShotMs": 7625,
+   "d100": 0,
+   "d1s": 0,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "CORE.press(take)",
+   "err": null,
+   "opMs": 0.8,
+   "toFrameMs": 1706.6,
+   "firstShotMs": 11406,
+   "d100": 0.0053,
+   "d1s": 0.0043,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "CORE.press(bug)",
+   "err": null,
+   "opMs": 0.8,
+   "toFrameMs": 6137.3,
+   "firstShotMs": 16016,
+   "d100": 0.0099,
+   "d1s": 0.0089,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "CORE.press(birthday)",
+   "err": null,
+   "opMs": 1.2,
+   "toFrameMs": 6934.5,
+   "firstShotMs": 19359,
+   "d100": 0.2033,
+   "d1s": 0.2033,
+   "visible100": true,
+   "visible1s": false
+  },
+  {
+   "op": "CORE.press(anything)",
+   "err": null,
+   "opMs": 0.3,
+   "toFrameMs": 2467.5,
+   "firstShotMs": 10999,
+   "d100": 0.0048,
+   "d1s": 0.0087,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "CORE.press(otherwise)",
+   "err": null,
+   "opMs": 1,
+   "toFrameMs": 647.3,
+   "firstShotMs": 12902,
+   "d100": 0.006,
+   "d1s": 0.0051,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "CORE.press(imprint)",
+   "err": null,
+   "opMs": 1590.3,
+   "toFrameMs": 4318.4,
+   "firstShotMs": 15434,
+   "d100": 0.0066,
+   "d1s": 0.0007,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "build: CORE.turn(0,+2)",
+   "err": null,
+   "opMs": 0.8,
+   "toFrameMs": 1280.7,
+   "firstShotMs": 10618,
+   "d100": 0.0124,
+   "d1s": 0.0112,
+   "visible100": true,
+   "visible1s": false
+  },
+  {
+   "op": "build: CORE.turn(1,+2)",
+   "err": null,
+   "opMs": 0.2,
+   "toFrameMs": 896.1,
+   "firstShotMs": 9493,
+   "d100": 0.0145,
+   "d1s": 0.0142,
+   "visible100": true,
+   "visible1s": false
+  },
+  {
+   "op": "build: CORE.turn(2,+2)",
+   "err": null,
+   "opMs": 0.2,
+   "toFrameMs": 1060.4,
+   "firstShotMs": 10434,
+   "d100": 0.0101,
+   "d1s": 0.0101,
+   "visible100": true,
+   "visible1s": false
+  },
+  {
+   "op": "build: CORE.turn(3,+2)",
+   "err": null,
+   "opMs": 0.2,
+   "toFrameMs": 533,
+   "firstShotMs": 6975,
+   "d100": 0.0114,
+   "d1s": 0.0113,
+   "visible100": true,
+   "visible1s": false
+  },
+  {
+   "op": "build: CORE.turn(4,+2)",
+   "err": null,
+   "opMs": 0.2,
+   "toFrameMs": 954.1,
+   "firstShotMs": 7075,
+   "d100": 0.0104,
+   "d1s": 0.0108,
+   "visible100": true,
+   "visible1s": false
+  }
+ ],
+ "errors": [
+  "Failed to load resource: net::ERR_FAILED",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+ ],
+ "handle": "CORE"
+}

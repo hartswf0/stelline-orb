@@ -4,7 +4,8 @@
 const { chromium } = require('playwright');
 const fs = require('fs');
 const [, , URL0, NAME, W, H, OUT, MAXC] = process.argv;
-const VW = +W, VH = +H, MAX = +(MAXC || 60);
+const VW = +W, VH = +H, MAX = +(MAXC || 60); const T_START = Date.now(), BUDGET_MS = +(process.env.BUDGET_MS || 480000); const over = () => Date.now() - T_START > BUDGET_MS;
+let R_SAVE = null; const save = () => { if (R_SAVE) try { fs.writeFileSync(OUT + '/' + NAME + '-' + VW + 'x' + VH + '.json', JSON.stringify(R_SAVE, null, 1)); } catch (e) { } };
 
 const INIT = () => {
   window.__audit = { audioStarts: 0, mediaPlays: 0, msgListeners: 0, keyListeners: 0, rafs: 0 };
@@ -69,12 +70,15 @@ const LEGIBLE = () => {
   await page.waitForFunction(() => document.readyState === 'complete', null, { timeout: 90000 }).catch(e => errors.push('NOT COMPLETE after 90 s'));
   const loadMs = Date.now() - t0;
   await page.waitForTimeout(3000);
-  const R = { url: URL0, name: NAME, viewport: [VW, VH], loadMs };
+  const R = { url: URL0, name: NAME, viewport: [VW, VH], loadMs, partial: true }; R_SAVE = R;
   R.scroll = await page.evaluate(() => ({ docH: document.documentElement.scrollHeight, docW: document.documentElement.scrollWidth, vh: innerHeight, vw: innerWidth, overflowY: getComputedStyle(document.body).overflowY }));
   R.pageScrolls = R.scroll.docH > R.scroll.vh + 2; R.hScroll = R.scroll.docW > R.scroll.vw + 2;
   R.view = process.env.VIEWSEL ? await page.evaluate(sel => { const el = document.querySelector(sel); if (!el) return null; const r = el.getBoundingClientRect(); return { tag: el.tagName.toLowerCase(), id: el.id, x: Math.max(0, r.left), y: Math.max(0, r.top), w: Math.min(innerWidth, r.right) - Math.max(0, r.left), h: Math.min(innerHeight, r.bottom) - Math.max(0, r.top), sel }; }, process.env.VIEWSEL) : null;
   if (!R.view) R.view = await page.evaluate(VIEW);
   R.legibility = await page.evaluate(LEGIBLE);
+  R.fps = await page.evaluate(() => new Promise(r => { const T = []; let last = performance.now(); function f(t) { T.push(t - last); last = t; if (T.length < 30) requestAnimationFrame(f); else { T.sort((a, b) => a - b); r({ medianFrameMs: +T[15].toFixed(1), p90FrameMs: +T[27].toFixed(1) }); } } requestAnimationFrame(f); setTimeout(() => r({ note: 'fewer than 30 frames in 20 s', frames: T.length }), 20000); }));
+  // manual clock: where the page offers FORGE.manual/advance, stop its own loop and step it, so the measure does not depend on machine load
+  R.manual = !!process.env.MANUAL && await page.evaluate(() => !!(window.FORGE && FORGE.manual && FORGE.advance)); if (R.manual) await page.evaluate(() => { FORGE.manual(); FORGE.advance(1 / 60); });
   R.globals = await page.evaluate(() => Object.keys(window).filter(k => /^[A-Z][A-Z0-9_]{1,}$/.test(k) && typeof window[k] === 'object' && window[k] && k !== 'THREE').slice(0, 30));
   const controls = await page.evaluate(ENUM);
   R.controlCount = controls.length;
@@ -83,6 +87,7 @@ const LEGIBLE = () => {
 
   const V = R.view || { x: 0, y: 0, w: VW, h: VH };
   const clip = { x: Math.round(V.x), y: Math.round(V.y), width: Math.max(8, Math.round(V.w)), height: Math.max(8, Math.round(V.h)) };
+  async function settle(frames) { if (R.manual) await page.evaluate(n => { for (let i = 0; i < n; i++) FORGE.advance(1 / 60); }, frames).catch(() => { }); }
   async function shot() { await page.evaluate(() => scrollTo(0, 0)).catch(() => { }); const b = await page.screenshot({ clip, type: 'png', timeout: 8000 }).catch(() => null); return b; }
   async function diff(a, b) { if (!a || !b) return null; return helper.evaluate(async ([A, B]) => {
       const load = async s => { const bm = await createImageBitmap(await (await fetch('data:image/png;base64,' + s)).blob()); const c = new OffscreenCanvas(96, Math.max(8, Math.round(96 * bm.height / bm.width))); const x = c.getContext('2d'); x.drawImage(bm, 0, 0, c.width, c.height); return x.getImageData(0, 0, c.width, c.height).data; };
@@ -90,7 +95,7 @@ const LEGIBLE = () => {
       return { mean: +(s / n).toFixed(2), changedFrac: +(ch / n).toFixed(4) }; }, [a.toString('base64'), b.toString('base64')]); }
   // idle baseline: how much the view changes by itself in ~100 ms and ~1 s
   const idle = [];
-  for (let k = 0; k < 3; k++) { const a = await shot(); const tA = Date.now(); await page.waitForTimeout(60); const b = await shot(); const tB = Date.now() - tA; await page.waitForTimeout(900); const c = await shot(); idle.push({ d100: await diff(a, b), d1s: await diff(a, c), ms: tB }); }
+  for (let k = 0; k < 3; k++) { const a = await shot(); const tA = Date.now(); await page.waitForTimeout(60); await settle(6); const b = await shot(); const tB = Date.now() - tA; await page.waitForTimeout(R.manual ? 0 : 900); await settle(54); const c = await shot(); idle.push({ d100: await diff(a, b), d1s: await diff(a, c), ms: tB }); }
   R.idle = idle;
   const idle100 = Math.max(...idle.map(i => i.d100 ? i.d100.changedFrac : 0)), idle1s = Math.max(...idle.map(i => i.d1s ? i.d1s.changedFrac : 0));
   R.idleMax = { d100: idle100, d1s: idle1s };
@@ -98,7 +103,8 @@ const LEGIBLE = () => {
   const audit = async () => page.evaluate(() => Object.assign({}, window.__audit)).catch(() => ({}));
   const results = [];
   const startURL = page.url();
-  for (const c of controls.slice(0, MAX)) {
+  R.results = results; R.errors = errors;
+  for (const c of controls.slice(0, MAX)) { if (over()) { R.budgetHit = 'controls'; break; }
     const res = { id: c.id, tag: c.tag, type: c.type, label: c.label, box: [c.x, c.y, c.w, c.h], inView: c.inView, font: c.font };
     if (c.tag === 'a' && c.href && !/^#|^javascript:/.test(c.href)) { res.action = 'link (not followed)'; res.href = c.href; results.push(res); continue; }
     const a0 = await audit(); const before = await shot(); const errN = errors.length; const tA = Date.now();
@@ -112,7 +118,7 @@ const LEGIBLE = () => {
       else { res.action = 'click'; await loc.scrollIntoViewIfNeeded({ timeout: 1500 }).catch(() => { }); await loc.click({ timeout: 2000, force: true }); }
     } catch (e) { res.error = 'actuate: ' + e.message.split('\n')[0].slice(0, 100); }
     const tAct = Date.now() - tA;
-    const s100 = await shot(); const t100 = Date.now() - tA; await page.waitForTimeout(Math.max(0, 1000 - (Date.now() - tA))); const s1 = await shot();
+    await settle(6); const s100 = await shot(); const t100 = Date.now() - tA; await page.waitForTimeout(R.manual ? 0 : Math.max(0, 1000 - (Date.now() - tA))); await settle(54); const s1 = await shot();
     res.actMs = tAct; res.firstShotMs = t100;
     res.d100 = await diff(before, s100); res.d1s = await diff(before, s1);
     const a1 = await audit(); res.sound = (a1.audioStarts || 0) - (a0.audioStarts || 0) + (a1.mediaPlays || 0) - (a0.mediaPlays || 0);
@@ -124,28 +130,32 @@ const LEGIBLE = () => {
     // the page may have navigated or opened a modal; return to the page if so
     if (page.url() !== startURL && page.url().split('#')[0] !== startURL.split('#')[0]) { res.navigatedTo = page.url(); await page.goto(startURL, { waitUntil: 'commit' }).catch(() => { }); await page.waitForTimeout(1500); await page.evaluate(ENUM); }
     await page.keyboard.press('Escape').catch(() => { });
-    results.push(res);
+    results.push(res); save();
   }
   // canvas-drawn devices: a grid of taps and vertical drags over every large canvas that is not the view
   const canv = await page.evaluate(V => [...document.querySelectorAll('canvas')].map(c => { const r = c.getBoundingClientRect(); return { id: c.id, x: r.left, y: r.top, w: r.width, h: r.height }; })
     .filter(c => c.w * c.h > 8000 && c.y < innerHeight && !(Math.abs(c.x - V.x) < 2 && Math.abs(c.y - V.y) < 2 && Math.abs(c.w - V.w) < 2)), V);
-  const grid = [];
+  const grid = []; R.canvasGrid = grid;
   const GX = +(process.env.GX || 4), GY = +(process.env.GY || 3);
   for (const cv of canv) {
     const dclip = { x: Math.round(cv.x), y: Math.round(Math.max(0, cv.y)), width: Math.round(cv.w), height: Math.round(Math.min(cv.h, VH - Math.max(0, cv.y))) };
     const dshot = () => page.screenshot({ clip: dclip, type: 'png' }).catch(() => null);
-    for (let gy = 0; gy < GY; gy++) for (let gx = 0; gx < GX; gx++) {
-      const px = cv.x + cv.w * (gx + .5) / GX, py = Math.max(0, cv.y) + dclip.height * (gy + .5) / GY;
+    // rows to probe: either an even grid, or (AUTOROW) the brightest row of the device canvas, where a lit barrel of rings sits
+    let rows = Array.from({ length: GY }, (_, gy) => (gy + .5) / GY);
+    if (process.env.AUTOROW) { const img = await dshot(); if (img) { const fr = await helper.evaluate(async A => { const bm = await createImageBitmap(await (await fetch('data:image/png;base64,' + A)).blob()); const c = new OffscreenCanvas(64, 128); const x = c.getContext('2d'); x.drawImage(bm, 0, 0, 64, 128); const d = x.getImageData(0, 0, 64, 128).data; let best = 0, bi = 64; for (let y = 0; y < 128; y++) { let s = 0; for (let k = 16; k < 48; k++) { const i = (y * 64 + k) * 4; s += d[i] + d[i + 1] + d[i + 2]; } if (s > best) { best = s; bi = y; } } return (bi + .5) / 128; }, img.toString('base64')); rows = [fr]; R.autorow = R.autorow || {}; R.autorow[cv.id || 'canvas'] = +fr.toFixed(3); } }
+    for (const fy of rows) for (let gx = 0; gx < GX; gx++) {
+      const px = cv.x + cv.w * (gx + .5) / GX, py = Math.max(0, cv.y) + dclip.height * fy;
+      if (over()) { R.budgetHit = 'grid'; break; }
       for (const kind of (process.env.KINDS || 'tap,dragUp,dragLeft').split(',')) {
         const before = await shot(), dB = await dshot(); const a0 = await audit(); const errN = errors.length; const tA = Date.now();
         await page.mouse.move(px, py); await page.mouse.down();
         if (kind === 'dragUp') await page.mouse.move(px, py - 70, { steps: 7 }); else if (kind === 'dragLeft') await page.mouse.move(px - 70, py, { steps: 7 }); else await page.waitForTimeout(60);
         await page.mouse.up();
-        const s100 = await shot(); const t100 = Date.now() - tA; await page.waitForTimeout(Math.max(0, 1000 - (Date.now() - tA))); const s1 = await shot(); const dA = await dshot();
+        await settle(6); const s100 = await shot(); const t100 = Date.now() - tA; await page.waitForTimeout(R.manual ? 0 : Math.max(0, 1000 - (Date.now() - tA))); await settle(54); const s1 = await shot(); const dA = await dshot();
         const d100 = await diff(before, s100), d1 = await diff(before, s1), dd = await diff(dB, dA); const a1 = await audit();
-        const r = { canvas: cv.id, gx, gy, px: Math.round(px), py: Math.round(py), kind, firstShotMs: t100, d100, d1s: d1, deviceDiff: dd, sound: (a1.audioStarts || 0) - (a0.audioStarts || 0), newErrors: errors.slice(errN) };
+        const r = { canvas: cv.id, gx, fy: +fy.toFixed(3), px: Math.round(px), py: Math.round(py), kind, firstShotMs: t100, d100, d1s: d1, deviceDiff: dd, sound: (a1.audioStarts || 0) - (a0.audioStarts || 0), newErrors: errors.slice(errN) };
         r.visible100 = (d100 ? d100.changedFrac : 0) > Math.max(0.01, idle100 * 1.5 + 0.005); r.visible1s = (d1 ? d1.changedFrac : 0) > Math.max(0.01, idle1s * 1.5 + 0.005); r.deviceChanged = (dd ? dd.changedFrac : 0) > 0.01;
-        grid.push(r);
+        grid.push(r); save();
         if (page.url().split('#')[0] !== startURL.split('#')[0]) { r.navigatedTo = page.url(); await page.goto(startURL, { waitUntil: 'commit' }).catch(() => { }); await page.waitForTimeout(1500); }
       }
     }
@@ -158,7 +168,7 @@ const LEGIBLE = () => {
   R.noAuthority = results.filter(r => r.d100 && !r.authority).map(r => r.id + ' ' + r.tag + ' "' + r.label + '"');
   R.authority100 = results.filter(r => r.visible100).length; R.authority1s = results.filter(r => r.authority).length;
   R.errors = errors.slice(0, 40); R.errorCount = errors.length;
-  R.finalAudit = await audit();
+  R.finalAudit = await audit(); R.partial = false; R.errors = errors.slice(0, 40);
   fs.writeFileSync(OUT + '/' + NAME + '-' + VW + 'x' + VH + '.json', JSON.stringify(R, null, 1));
   console.log(NAME, VW + 'x' + VH, 'controls', R.controlCount, 'tested', R.tested, 'auth100', R.authority100, 'auth1s', R.authority1s, 'scroll', R.pageScrolls, 'errors', R.errorCount, 'idle', JSON.stringify(R.idleMax), 'view', R.view && (R.view.tag + '#' + R.view.id + ' ' + Math.round(R.view.w) + 'x' + Math.round(R.view.h)), 'grid', JSON.stringify(R.gridSummary));
   await browser.close();

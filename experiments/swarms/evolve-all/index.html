@@ -75,13 +75,13 @@ async function renderAudio(dur, map) { const sr = 48000, a = new OfflineAudioCon
   for (let i = 0; i < n; i++) { dv.setInt16(44 + i * 4, clamp(L0[i] * gain, -1, 1) * 32767, true); dv.setInt16(46 + i * 4, clamp(R0[i] * gain, -1, 1) * 32767, true); }
   const bytes = new Uint8Array(dv.buffer); let s = ''; for (let i = 0; i < bytes.length; i += 32768) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 32768)); return { b64: btoa(s), peak: pk }; }
 /* =============================================================== THE ROOM (ana/index.html): true black, a dark dome, a band of light where wall meets floor, round projected spots */
-const viewEl = document.getElementById('view'), R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: REC }); R.setPixelRatio(REC ? 1 : Math.min(2, devicePixelRatio)); R.outputEncoding = T.sRGBEncoding; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = .9; viewEl.prepend(R.domElement);
+const viewEl = document.getElementById('view'), R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: REC }); R.setPixelRatio(REC ? +(Q.get('pr') || 1) : Math.min(2, devicePixelRatio)); /* ?pr= lowers the recording's 3D resolution */ R.outputEncoding = T.sRGBEncoding; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = .9; viewEl.prepend(R.domElement);
 const scene = new T.Scene(); scene.background = new T.Color(0x030404); scene.fog = new T.FogExp2(0x030404, .05);
-const cam = new T.PerspectiveCamera(34, 1, .02, 60);
+const cam = new T.PerspectiveCamera(34, 1, .02, 60); let DOME = null, GLOW = null;
 { const fl = new T.Mesh(new T.CircleGeometry(9, 96), new T.MeshStandardMaterial({ color: 0x020303, roughness: .95 })); fl.rotation.x = -Math.PI / 2; scene.add(fl);
-  const dome = new T.Mesh(new T.SphereGeometry(8, 48, 24, 0, TAU, 0, Math.PI / 2), new T.MeshBasicMaterial({ color: 0x050707, side: T.BackSide })); scene.add(dome);
+  const dome = DOME = new T.Mesh(new T.SphereGeometry(8, 48, 24, 0, TAU, 0, Math.PI / 2), new T.MeshBasicMaterial({ color: 0x050707, side: T.BackSide })); scene.add(dome);
   const band = new T.Mesh(new T.TorusGeometry(7.5, .012, 6, 256), new T.MeshBasicMaterial({ color: 0xdfe8e4 })); band.rotation.x = Math.PI / 2; band.position.y = .42; scene.add(band);
-  const glow = new T.Mesh(new T.TorusGeometry(7.5, .09, 6, 256), new T.MeshBasicMaterial({ color: 0x7e8f89, transparent: true, opacity: .12 })); glow.rotation.x = Math.PI / 2; glow.position.y = .42; scene.add(glow); }
+  const glow = GLOW = new T.Mesh(new T.TorusGeometry(7.5, .09, 6, 256), new T.MeshBasicMaterial({ color: 0x7e8f89, transparent: true, opacity: .12 })); glow.rotation.x = Math.PI / 2; glow.position.y = .42; scene.add(glow); }
 const spotTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'), g = x.createRadialGradient(64, 64, 2, 64, 64, 64); g.addColorStop(0, 'rgba(255,236,200,.55)'); g.addColorStop(.55, 'rgba(255,220,170,.25)'); g.addColorStop(.85, 'rgba(255,210,160,.06)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, 128, 128); return new T.CanvasTexture(c); })();
 const SPOT = new T.Mesh(new T.CircleGeometry(1, 64), new T.MeshBasicMaterial({ map: spotTex, transparent: true, blending: T.AdditiveBlending, depthWrite: false })); SPOT.rotation.x = -Math.PI / 2; SPOT.position.y = .003; scene.add(SPOT);
 const hemi = new T.HemisphereLight(0x8a9692, 0x0a0806, .12); scene.add(hemi); const key = new T.SpotLight(0xfff0dc, .8, 5, .32, .7, 1.4); key.position.set(.35, 2.1, .9); key.target.position.set(0, .5, 0); scene.add(key, key.target);
@@ -111,8 +111,17 @@ function worldAnchor(n) { const s = SUPPORT[n]; if (!s) return new T.Vector3(); 
 function disposeTree(o) { o.traverse(c => { if (c.geometry) c.geometry.dispose(); const ms = c.material ? (Array.isArray(c.material) ? c.material : [c.material]) : []; ms.forEach(m => { if (m.map) m.map.dispose(); m.dispose(); }); }); }
 function hideFlames(o) { o.traverse(c => { if (/flame|halo|glow/i.test(c.name || '') || (c.userData && c.userData.flame)) c.visible = false; }); }
 function buildObj(p, G, t) { let o; try { o = p.mod.build(T, G, { t, support: SUPPORT[p.name] ? REL.supportInfo(SUPPORT[p.name], P[SUPPORT[p.name]].mod, P[SUPPORT[p.name]].G) : null, refs: REFS[p.name] }); } catch (e) { console.error('build', p.name, e); o = new T.Group(); } hideFlames(o); return o; }
-function rebuild(p, t) { if (p.obj) { p.holder.remove(p.obj); disposeTree(p.obj); } p.obj = buildObj(p, p.G, t); p.holder.add(p.obj); p.mats = []; p.all = []; p.obj.traverse(c => { const ms = c.material ? (Array.isArray(c.material) ? c.material : [c.material]) : []; ms.forEach(m => { if (m.emissive) p.mats.push(m); p.all.push([m, m.opacity == null ? 1 : m.opacity, !!m.transparent]); }); }); p.alphaNow = -1;
+function rebuild(p, t) { if (p.obj) { p.holder.remove(p.obj); disposeTree(p.obj); } p.obj = buildObj(p, p.G, t); p.holder.add(p.obj);
+  if (p.name === 'light') p.obj.traverse(c => { if (c.isLight) c.intensity = 0; });
+  if (p.name === 'people' && t >= 1) childScale(p);   // the light part's own lamps would double the scene's light: its genome reaches the scene only through the grade (lightParams) p.mats = []; p.all = []; p.obj.traverse(c => { const ms = c.material ? (Array.isArray(c.material) ? c.material : [c.material]) : []; ms.forEach(m => { if (m.emissive) p.mats.push(m); p.all.push([m, m.opacity == null ? 1 : m.opacity, !!m.transparent]); }); }); p.alphaNow = -1;
   if (t >= 1) { const b = new T.Box3().setFromObject(p.obj); if (!b.isEmpty()) { const s = b.getSize(new T.Vector3()); p.size = clamp(Math.max(s.x, s.y, s.z), .08, 2.5); p.box = b; } } }
+/* children at a child's height against the table (film 155 s: heads a little above the table top, about 1.7 x its height above the floor).
+   The people module's own figures stand taller than that against this table, so the host scales each child about its own feet.
+   This is a host-side placement correction, written to the trace; the module's FIGURE fitness does not see it. */
+function childScale(p) { const TA = anchorsOf(P.table), topY = (TA.topCentre || [0, .5, 0])[1]; let headY = 0; p.obj.updateMatrixWorld(true);
+  p.obj.children.forEach(g => { const b = new T.Box3().setFromObject(g); if (!b.isEmpty()) headY = Math.max(headY, b.max.y - p.holder.position.y); }); if (!headY) return;
+  const sc = clamp(topY * 1.75 / headY, .5, 1); p.childScale = +sc.toFixed(3); if (sc >= .999) return;
+  p.obj.children.forEach(g => { const b = new T.Box3().setFromObject(g); if (b.isEmpty()) return; const f = new T.Vector3((b.min.x + b.max.x) / 2, b.min.y, (b.min.z + b.max.z) / 2).sub(p.holder.position); g.scale.multiplyScalar(sc); g.position.add(f.multiplyScalar(1 - sc)); }); }
 /* =============================================================== THE UI GENOME in use */
 const UIL = UIG.lineage(SEED); let UIC = { U: UIL.elite.U, id: UIL.elite.id, elite: true }, UI = UIG.decode(UIC.U), choice = null;
 /* =============================================================== THE STATE */
@@ -143,7 +152,7 @@ function hold() { const p = P[S.part]; sound({ k: 'hold' }); S.sinceHold = 0; p.
   // keep: the best among the variants shown so far
   // keep: the variant the player has highlighted (or the parent, the last stop of the highlight). The machine does not choose; the hint only informs.
   if (p.brood) { const b = p.brood, n = b.shown, hi = Math.min(b.hi, n), sc = b.kids.slice(0, n).map(k => k.score), fb = n ? sc.indexOf(Math.max(...sc)) : -1; p.metrics.gens++; p.gen++;
-    if (hi < n) { const k = b.kids[hi]; p.metrics.accepted++; p.G = k.G; p.e = k.e; p.flash = 1; sound({ k: 'flash' }); rebuild(p, 1); reattachDependents(p.name); if (hi !== fb) p.metrics.offBest = (p.metrics.offBest || 0) + 1; }
+    if (hi < n) { const k = b.kids[hi]; p.metrics.accepted++; p.G = k.G; p.e = k.e; p.flash = 1; sound({ k: 'flash' }); rebuild(p, 1); if (LOOKH && LOOK.flash) try { LOOK.flash(p.obj, 1); } catch (e) { } reattachDependents(p.name); if (hi !== fb) p.metrics.offBest = (p.metrics.offBest || 0) + 1; }
     TR.choices.push({ t: +NOW.toFixed(2), part: p.name, gen: p.gen, stage: String(p.mod.stages[Math.min(p.stage, p.mod.stages.length - 1)][0]), shown: n, of: b.kids.length, chose: hi < n ? hi : 'parent', fitnessBest: fb, chosenScore: +(hi < n ? sc[hi] : b.parentScore).toFixed(4), bestScore: fb >= 0 ? +sc[fb].toFixed(4) : null, parentScore: +b.parentScore.toFixed(4), notTheBest: hi < n && hi !== fb, by: STYLE || 'person' });
     TR.events.push([+NOW.toFixed(2), p.name, 'gen', p.gen, +scoreNow(p).toFixed(4), hi < n ? hi : -1, n, b.kids.length]); if (HOLOREAD) try { HOLOREAD.type(1); } catch (e) { }
     clearKids(p); p.brood = null; const ns = BREED.advance(p.mod, p.e, p.stage);
@@ -166,7 +175,7 @@ function showKid(p, i) { const k = p.brood.kids[i], o = buildObj(p, k.G, 1), g =
   const h = hintSprite(k.score, p.brood.bar, p.brood.parentScore, k.ok === false); h.position.copy(g.position).add(new T.Vector3(0, p.size * .3 + .02, 0)); h.scale.set(p.size * .32, p.size * .08, 1); p.kidsG.add(h); g.userData.hint = h; }
 /* the hint over each variant: its score on the stage's measure, the bar to reach (white tick) and the parent's score (grey tick). A hint, not the decision. */
 function hintSprite(v, bar, par, broken) { const c = document.createElement('canvas'); c.width = 128; c.height = 32; const x = c.getContext('2d'); x.fillStyle = 'rgba(0,0,0,.55)'; x.fillRect(0, 10, 128, 10);
-  x.fillStyle = broken ? 'rgba(190,70,60,.9)' : v > par ? 'rgba(232,178,100,.95)' : 'rgba(150,160,156,.8)';   // red: keeping it would undo a stage already passed x.fillRect(0, 10, 128 * clamp(v, 0, 1), 10); x.fillStyle = '#fff'; x.fillRect(128 * bar - 1, 4, 3, 22); x.fillStyle = 'rgba(120,130,126,.9)'; x.fillRect(128 * clamp(par, 0, 1) - 1, 8, 2, 14);
+  x.fillStyle = broken ? 'rgba(190,70,60,.9)' : v > par ? 'rgba(232,178,100,.95)' : 'rgba(150,160,156,.8)'; /* red: keeping it would undo a stage already passed */ x.fillRect(0, 10, 128 * clamp(v, 0, 1), 10); x.fillStyle = '#fff'; x.fillRect(128 * bar - 1, 4, 3, 22); x.fillStyle = 'rgba(120,130,126,.9)'; x.fillRect(128 * clamp(par, 0, 1) - 1, 8, 2, 14);
   const t = new T.CanvasTexture(c), s = new T.Sprite(new T.SpriteMaterial({ map: t, transparent: true, depthTest: false, depthWrite: false })); s.renderOrder = 6; return s; }
 const HI = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'); x.strokeStyle = 'rgba(255,190,110,.6)'; x.lineWidth = 5; x.beginPath(); x.arc(64, 64, 54, 0, TAU); x.stroke();
   const s = new T.Sprite(new T.SpriteMaterial({ map: new T.CanvasTexture(c), transparent: true, depthTest: false, depthWrite: false, blending: T.AdditiveBlending })); s.renderOrder = 7; s.visible = false; scene.add(s); return s; })();
@@ -180,7 +189,7 @@ function makeStep() { const m = S.made, p = m.p; m.i++; const t = m.i / m.n; reb
   const mk = (p.mod.making || []).find(s => t >= s[1] && t <= s[2] + 1e-9); S.caption = LABEL[p.name] + (mk ? ' — ' + String(mk[0]).toUpperCase() : '');
   if (m.i >= m.n) { S.made = null; S.caption = ''; rebuild(p, 1); reattachDependents(p.name); if (m.last) partDone(p); } }
 function partDone(p) { p.done = true; p.made = true; const M = Object.assign({}, p.metrics); M.gensPerStage = +(M.gens / Math.max(1, M.stages)).toFixed(2); M.idle = +M.idle.toFixed(2); M.time = +(NOW - p.t0).toFixed(2);
-  TR.parts.push({ memory: S.memory, part: p.name, real: p.real, ui: UIC.id, gens: p.gen, passGens: p.passGens, fit: +p.e.fit.toFixed(4), parts: roundParts(p.e.parts), metrics: M });
+  TR.parts.push({ memory: S.memory, part: p.name, real: p.real, hostScale: p.childScale || null, ui: UIC.id, G: Array.from(p.G, v => +v.toFixed(6)), gens: p.gen, passGens: p.passGens, fit: +p.e.fit.toFixed(4), parts: roundParts(p.e.parts), metrics: M });
   // the UI that bred this part is scored from this play, then the next UI is chosen on the device
   const outcome = UIG.record(UIL, UIC, M, { part: p.name, memory: S.memory, style: STYLE || 'person' }); S.uiOutcome = outcome;
   if (PARTS.every(n => P[n].done)) { S.phase = 'ready'; S.since = 0; S.caption = 'HOLD: LIGHT THE CANDLES'; return; }
@@ -190,7 +199,8 @@ function chooseUI() { const c = choice.cands[choice.i]; sound({ k: 'ui' }); appl
 function offerNext() { const open = PARTS.filter(n => !P[n].done); if (!open.length) return S.part; if (UI.offer === 'WEAKEST FIRST') return open.slice().sort((a, b) => P[a].e.fit - P[b].e.fit)[0];
   if (UI.offer === 'NEAREST FIRST') return open.slice().sort((a, b) => P[b].stage / P[b].mod.stages.length - P[a].stage / P[a].mod.stages.length || P[b].e.fit - P[a].e.fit)[0]; return open[0]; }
 /* the light part's genome sets the grade (modules/light.js params(G)): exposure, candle colour, range, decay and strength, ambient level and tint */
-function lightParams() { const q = P.light; if (!q || !q.mod.params || !(q.t0 || q.made)) return null; try { const v = q.mod.params(q.G); return v && typeof v === 'object' ? v : null; } catch (e) { return null; } }
+/* under LOOK the shared grade (evolved against the film) is not re-scaled by the light part: applying both halved or doubled the exposure */
+function lightParams() { const q = P.light; if (Q.has('nolp') || LOOKH || !q || !q.mod.params || !(q.t0 || q.made)) return null; try { const v = q.mod.params(q.G); return v && typeof v === 'object' ? v : null; } catch (e) { return null; } }
 function select(n, silent) { const p = P[S.part]; if (p.brood) { clearKids(p); p.brood = null; } S.part = n; const q = P[n]; if (!q.t0) q.t0 = NOW; q.metrics.moves += silent ? 0 : 1; if (!silent) sound({ k: 'select' }); VAL.BIAS = 0; setStrengthStart(); S.since = 0; }
 /* =============================================================== THE BIRTHDAY'S END: candles lit one per machine step, then blown out one by one */
 const FL = []; const flameTex = (() => { const c = document.createElement('canvas'); c.width = 32; c.height = 64; const x = c.getContext('2d'), g = x.createRadialGradient(16, 40, 1, 16, 35, 29); [[0, 'rgba(255,252,232,1)'], [.25, 'rgba(255,206,96,.95)'], [.6, 'rgba(255,120,30,.3)'], [1, 'rgba(255,90,20,0)']].forEach(([o, s]) => g.addColorStop(o, s)); x.fillStyle = g; x.fillRect(0, 0, 32, 64); return new T.CanvasTexture(c); })();
@@ -280,7 +290,7 @@ function scriptTick(dt) { if (!STYLE || S.ended || S.off) return; if (act) { act
   else if (a.kind === 'turn') { const ring = ringOf(a.role); if (a.role === 'BIAS') p.biasStage = p.stage; const g = PLAYER.gestures(PLAYER.STYLES[STYLE], ring.ang, a.goal, UI.detent, pg); if (!g.list.length) return; act = startGesture(ring, g.list.slice()); } }
 function startGesture(ring, queue) { const deg = queue.shift(); gestureStart(ring); return { ring, deg, from: ring.ang, u: 0, dur: PLAYER.STYLES[STYLE].turnTime, queue }; }
 /* =============================================================== EVERY FRAME */
-function resize() { const r = viewEl.getBoundingClientRect(); R.setSize(r.width, r.height, false); cam.aspect = r.width / r.height; cam.updateProjectionMatrix(); layoutDev(); }
+function resize() { const r = viewEl.getBoundingClientRect(); R.setSize(r.width, r.height, false); if (LOOKH && LOOKH.setSize) try { LOOKH.setSize(r.width, r.height); } catch (e) { } cam.aspect = r.width / r.height; cam.updateProjectionMatrix(); layoutDev(); }
 addEventListener('resize', resize);
 const ARC = (() => { const c = document.createElement('canvas'); c.width = 256; c.height = 384; const t = new T.CanvasTexture(c); const s = new T.Sprite(new T.SpriteMaterial({ map: t, transparent: true, depthWrite: false, depthTest: false, opacity: 0 })); s.renderOrder = 5; scene.add(s); return { c, x: c.getContext('2d'), t, s }; })();
 const MARKS = [-23, -19, -9, -1, 6]; let arcBlink = 0;
@@ -306,12 +316,18 @@ function step(dt) { NOW += dt; S.since += dt; S.sinceHold += dt; S.sinceSelect =
     if (b.shown) { HI.visible = true; const tgt = b.hi < b.shown ? b.objs[b.hi] : null; if (tgt) { HI.position.copy(tgt.position).add(new T.Vector3(0, p.size * .12, 0)); HI.scale.setScalar(p.size * .5); } else { const bx = p.box; HI.position.copy(bx ? bx.getCenter(new T.Vector3()) : p.holder.position); HI.scale.setScalar(p.size * .7); } } }
   // the camera: kneeling, turned by the VIEW role, framing the part being worked (the cake at the end)
   const focus = S.phase === 'evolve' || S.phase === 'uichoice' ? p : P.cake, fb = focus.box, fc = fb ? new T.Vector3((fb.min.x + fb.max.x) / 2, (fb.min.y + fb.max.y) / 2, (fb.min.z + fb.max.z) / 2).sub(focus.holder.position).add(focus.holder.position) : focus.holder.position.clone();
-  const end = !(S.phase === 'evolve' || S.phase === 'uichoice'); const fs = Math.max(focus.size, focus.name === 'inscription' || focus.name === 'candles' ? P.cake.size : 0, .25); const dist = end ? .8 : clamp(fs * (focus.name === 'light' ? 1.2 : 2.4) + .35, .6, 3.2); camD = lerp(camD, dist, Math.min(1, dt * 2)); camT.lerp(end ? P.cake.holder.position.clone().add(new T.Vector3(0, .08, 0)) : fc, Math.min(1, dt * 3));
-  const yaw = S.yaw * Math.PI / 180; cam.position.set(camT.x + Math.sin(yaw) * camD, camT.y + camD * .32 + .05, camT.z + Math.cos(yaw) * camD); cam.lookAt(camT);
+  const end = !(S.phase === 'evolve' || S.phase === 'uichoice');
+  if (end) {   // the end shot as at 155 s: the whole hexagonal table seen from a little above its top, the cake centred low, the children behind
+    const TA = anchorsOf(P.table), tr = (TA.topRadius && TA.topRadius[2]) || .45, top = P.table.holder.position.clone().add(new T.Vector3(0, (TA.topCentre || [0, .5, 0])[1], 0));
+    camD = lerp(camD, clamp(tr * 3.1, .9, 2.4), Math.min(1, dt * 2)); camT.lerp(top.clone().add(new T.Vector3(0, .12, 0)), Math.min(1, dt * 3));
+    const yaw = S.yaw * Math.PI / 180; cam.position.set(camT.x + Math.sin(yaw) * camD, camT.y + camD * .38, camT.z + Math.cos(yaw) * camD); cam.lookAt(camT);
+  } else { const fs = Math.max(focus.size, focus.name === 'inscription' || focus.name === 'candles' ? P.cake.size : 0, .25); const dist = clamp(fs * (focus.name === 'light' ? 1.2 : 2.4) + .35, .6, 3.2); camD = lerp(camD, dist, Math.min(1, dt * 2)); camT.lerp(fc, Math.min(1, dt * 3));
+    const yaw = S.yaw * Math.PI / 180; cam.position.set(camT.x + Math.sin(yaw) * camD, camT.y + camD * .32 + .05, camT.z + Math.cos(yaw) * camD); cam.lookAt(camT); }
+  if (LOOKH && LOOKH.focus) try { LOOKH.focus(end ? P.cake.holder.position.clone().add(new T.Vector3(0, .06, 0)) : camT); } catch (e) { }   // depth of field on the cake: the children behind go soft
   SPOT.position.set(P.cake.holder.position.x, .003, P.cake.holder.position.z); SPOT.scale.setScalar(.45 + .2 * Math.sin(NOW * .3));
   // the arc beside the part being worked, its mark stepping with the stages passed
-  const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion); ARC.s.position.copy(camT).addScaledVector(right, camD * .32); ARC.s.scale.set(camD * .1, camD * .15, 1); ARC.s.material.opacity = (S.phase === 'evolve' ? .8 : 0) * (1 - S.dark); if (HOLOARC) { try { const k = Math.round(p.stage / p.mod.stages.length * 4); if (HOLOARC.k !== k) { HOLOARC.k = k; HOLOARC.step(k); } ARCANCHOR.copy(camT); HOLOARC.side = 1; HOLOARC.show(S.phase === 'evolve' && S.dark < 1); HOLOARC.update(dt, cam);
-      if (HOLOREAD) { READANCHOR.copy(camT).addScaledVector(right, camD * .14).add(new T.Vector3(0, -camD * .02, 0)); HOLOREAD.show(S.phase === 'evolve'); HOLOREAD.update(dt, cam); } } catch (e) { console.error(e); HOLOARC = null; } } else drawArc(Math.round(p.stage / p.mod.stages.length * 4));
+  const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion); ARC.s.position.copy(camT).addScaledVector(right, camD * .32); ARC.s.scale.set(camD * .1, camD * .15, 1); ARC.s.material.opacity = (S.phase === 'evolve' ? .8 : 0) * (1 - S.dark); if (HOLOARC) { try { const k = Math.round(p.stage / p.mod.stages.length * 4); if (HOLOARC.k !== k) { HOLOARC.k = k; HOLOARC.step(k); } ARCANCHOR.copy(camT); HOLOARC.side = 1; HOLOARC.show(S.phase === 'evolve' && S.dark < 1); S.holoDt = (S.holoDt || 0) + dt;
+      if (HOLOREAD) { READANCHOR.copy(camT).addScaledVector(right, camD * .14).add(new T.Vector3(0, -camD * .02, 0)); HOLOREAD.show(S.phase === 'evolve'); } } catch (e) { console.error(e); HOLOARC = null; } } else drawArc(Math.round(p.stage / p.mod.stages.length * 4));
   // flames at the wicks; candlelight
   const W = wicks(); let lit = 0; FL.forEach((f, i) => { if (i >= W.length) { f.f.material.opacity = 0; return; } const w = W[i]; f.f.position.copy(w).add(new T.Vector3(0, .014, 0)); const fl = .92 + Math.sin(NOW * 23 + f.ph) * .05 + Math.sin(NOW * 7.1 + f.ph) * .04; f.f.material.opacity = f.lit * (1 - S.dark); f.f.scale.y = .034 * fl; lit += f.lit; });
   candleLight.position.copy(P.cake.holder.position).add(new T.Vector3(0, .22, 0)); candleLight.intensity = lit * .3 * (.95 + Math.sin(NOW * 19) * .04) * (1 - S.dark);
@@ -319,26 +335,37 @@ function step(dt) { NOW += dt; S.since += dt; S.sinceHold += dt; S.sinceSelect =
   // switching on (start) and off (long HOLD, or after the blow): round spots
   const on = clamp(NOW / 1.2, 0, 1); if (S.off) S.dark = clamp((NOW - S.off) / 1.0, 0, 1); else if (S.ended && NOW - S.endAt > 1.4) { S.off = NOW; sound({ k: 'off' }); }
   SPOTS.forEach((s, i) => { const k = S.off ? clamp((NOW - S.off) * 2 - i * .08, 0, 1) * (1 - clamp((NOW - S.off - .8) * 1.5, 0, 1)) : clamp(1 - Math.abs(on * 2 - 1 - i * .02), 0, 1) * (1 - on); s.m.material.opacity = k * .7; s.m.position.set(camT.x + s.x * camD, s.y * camD * .5 + camT.y * .5, camT.z + s.z * camD * .5); s.m.scale.setScalar(s.s * camD); });
+  SPOT.visible = !LOOKH; DOME.visible = GLOW.visible = !LOOKH;   // LOOK lights the floor and grades the black itself
+  if (LOOKH) { [key, hemi, rim, candleLight].forEach(l => l.intensity = 0); LOOKT.copy(P.cake.holder.position).add(new T.Vector3(0, .06, 0)); try { LOOKH.candlesLit && LOOKH.candlesLit(lit / 7); } catch (e) { } }
   const LP = lightParams(); R.toneMappingExposure = (LP && LP.exposure ? clamp(LP.exposure, .3, 2.5) : .9) * on * (1 - S.dark) + .001;
-  if (LP) { if (LP.candleRGB) candleLight.color.setRGB(LP.candleRGB[0], LP.candleRGB[1], LP.candleRGB[2]); if (LP.candleRange) candleLight.distance = LP.candleRange; if (LP.candleDecay) candleLight.decay = LP.candleDecay; if (LP.candleIntensity) candleLight.intensity *= clamp(LP.candleIntensity, 0, 4);
+  if (LOOKH && LOOKH.set) { const ex = +(1.1 * (LP && LP.exposure ? clamp(LP.exposure, .3, 2.5) : 1) * on * (1 - S.dark) + .001).toFixed(2); if (ex !== S.lookExp) { S.lookExp = ex; try { LOOKH.set({ exposure: ex }); } catch (e) { } } }   // LOOK grades without tone mapping: switching on and off goes through its exposure
+  if (LP && !LOOKH) { if (LP.candleRGB) candleLight.color.setRGB(LP.candleRGB[0], LP.candleRGB[1], LP.candleRGB[2]); if (LP.candleRange) candleLight.distance = LP.candleRange; if (LP.candleDecay) candleLight.decay = LP.candleDecay; if (LP.candleIntensity) candleLight.intensity *= clamp(LP.candleIntensity, 0, 4);
     if (LP.ambient != null) hemi.intensity = clamp(LP.ambient, 0, 1) * (1 - S.dark) * (lit ? .6 : 1); if (LP.ambientRGB) hemi.color.setRGB(LP.ambientRGB[0], LP.ambientRGB[1], LP.ambientRGB[2]); }
   capEl.textContent = S.caption || (S.phase === 'uichoice' ? 'THE INTERFACE EVOLVES — SELECT A UI, HOLD TO KEEP IT' : '');
   tagEl.innerHTML = `${LABEL[S.part]} ${P[S.part].real ? '' : '(STAND-IN)'} · GEN ${p.gen}<br>UI ${UIC.id} · ${UI.rate}/S · ${UI.lambda} ${UI.layout}${STYLE ? '<br>PLAYED BY THE ' + STYLE.toUpperCase() + ' SCRIPT' : ''}`;
   lapseEl.textContent = S.lapse > 1 ? 'TIME-LAPSE x' + S.lapse : ''; }
 let last = performance.now();
-function frame(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; step(dt); R.render(scene, cam); drawDev(); requestAnimationFrame(frame); }
+function render(dt) { if (HOLOARC && S.holoDt) { try { HOLOARC.update(S.holoDt, cam); if (HOLOREAD) HOLOREAD.update(S.holoDt, cam); } catch (e) { } S.holoDt = 0; }   // the hologram canvases are redrawn only when a frame is drawn (they are costly in software)
+  if (LOOKH) { try { LOOKH.render(dt || 1 / 30); return; } catch (e) { console.error('LOOK render', e); LOOKH = null; [key, hemi, rim].forEach(l => l.userData.off = false); } } R.render(scene, cam); }
+function frame(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; step(dt); render(dt); drawDev(); requestAnimationFrame(frame); }
 /* the shared film look and hologram UI (experiments/swarms/shared/, FILM-BAR.md): used when present, the host's own otherwise.
    Adopted so far: LOOK.apply on the renderer/scene/camera and HOLO.arc for the stepping arc. Still to adopt when holo.js exists: HOLO.device in place of the barrel below. */
 let HOLOARC = null;
-async function loadShared() { if (await loadScript('../shared/look.js') && window.LOOK && LOOK.apply) { try { LOOK.apply(R, scene, cam, { memory: true }); TR.shared = (TR.shared || []).concat('look.js'); } catch (e) { console.error('LOOK', e); } }
-  if (await loadScript('../shared/holo.js') && window.HOLO && HOLO.arc) { try { HOLOARC = HOLO.arc(scene, ARCANCHOR, { size: .2, camera: cam, auto: false }); ARC.s.visible = false; ARC.s.material.visible = false;
+async function loadShared() { if (Q.has('noshared')) return; if (!Q.has('nolook') && await loadScript('../shared/look.js') && window.LOOK && LOOK.apply) { try {
+      LOOKH = LOOK.apply(R, scene, cam, { target: LOOKT, candles: FL.map(f => f.f), room: false, shadows: Q.get('lshadow') !== '0', post: Q.get('lpost') !== '0' });
+      try { await LOOK.load('../shared/look-genome.json'); } catch (e) { }
+      [key, hemi, rim, candleLight].forEach(l => { l.userData.off = true; l.intensity = 0; }); TR.shared = (TR.shared || []).concat('look.js'); } catch (e) { console.error('LOOK', e); LOOKH = null; } }
+  if (!Q.has('noholo') && await loadScript('../shared/holo.js') && window.HOLO && HOLO.arc) { try { HOLOARC = HOLO.arc(scene, ARCANCHOR, { size: .2, camera: cam, auto: false }); ARC.s.visible = false; ARC.s.material.visible = false;
       if (HOLO.readout) HOLOREAD = HOLO.readout(scene, READANCHOR, { camera: cam, auto: false }); TR.shared = (TR.shared || []).concat('holo.js arc + readout'); } catch (e) { console.error('HOLO', e); HOLOARC = null; } } }
-const ARCANCHOR = new T.Vector3(), READANCHOR = new T.Vector3(); let HOLOREAD = null;
+const ARCANCHOR = new T.Vector3(), READANCHOR = new T.Vector3(); let HOLOREAD = null, LOOKH = null; const LOOKT = new T.Vector3(0, .55, 0);
 async function boot() { await Promise.all(PARTS.map(n => Promise.all([loadModule(n), loadRefs(n)])).concat([loadShared()])); PARTS.forEach(initPart); PARTS.forEach(n => reattachDependents(n)); PARTS.forEach(n => P[n].holder.position.copy(worldAnchor(n)));
   select('table', true); S.ready = true; resize(); if (document.fonts) document.fonts.load('400 20px Oswald').then(() => drawDev());
   if (!REC) { requestAnimationFrame(frame); setInterval(poll, 30000); } }
 /* real modules arriving while the page is open replace their stand-ins (the part restarts from its blank) */
 async function poll() { for (const n of PARTS) if (!P[n].real && await loadModule(n, true)) { await loadRefs(n); initPart(n); reattachDependents(n); TR.events.push([+NOW.toFixed(2), n, 'real module arrived']); } }
 boot();
-window.MM = { stepOnly: dt => step(dt), dev: () => drawDev(), info: () => ({ tris: R.info.render.triangles, calls: R.info.render.calls, programs: R.info.programs.length, geo: R.info.memory.geometries, tex: R.info.memory.textures }), ready: () => S.ready && WAVBYTES !== null, advance: dt => { const a = performance.now(); step(dt); const b = performance.now(); R.render(scene, cam); const c = performance.now(); drawDev(); const d = performance.now(); window.__T = [b - a, c - b, d - c]; }, S, P, UIL, get UI() { return UI; }, get UIC() { return UIC; }, renderAudio, traceOut, press, hold, RINGS, BANDS: () => BANDS, BTNS: () => BTNS, NOW: () => NOW, setLapse: k => { S.lapse = k; } };
+/* for render tests: put every part at given genomes, made, and go to the end (candles lit) */
+function endWith(Gs) { PARTS.forEach(n => { const q = P[n]; if (Gs[n]) q.G = Float64Array.from(Gs[n]); evalPart(q); q.done = q.made = true; q.t0 = q.t0 || NOW; q.stage = q.mod.stages.length; rebuild(q, 1); });
+  PARTS.forEach(n => reattachDependents(n)); PARTS.forEach(n => P[n].holder.position.copy(worldAnchor(n))); S.phase = 'lit'; S.since = 0; const W = wicks(); FL.forEach((f, i) => f.lit = i < W.length ? 1 : 0); S.lit = W.length; S.caption = ''; }
+window.MM = { endWith, stepOnly: dt => step(dt), dev: () => drawDev(), info: () => ({ tris: R.info.render.triangles, calls: R.info.render.calls, programs: R.info.programs.length, geo: R.info.memory.geometries, tex: R.info.memory.textures }), ready: () => S.ready && WAVBYTES !== null, advance: dt => { const a = performance.now(); step(dt); const b = performance.now(); render(dt); const c = performance.now(); drawDev(); const d = performance.now(); window.__T = [b - a, c - b, d - c]; }, S, P, UIL, get UI() { return UI; }, get UIC() { return UIC; }, renderAudio, traceOut, press, hold, RINGS, BANDS: () => BANDS, BTNS: () => BTNS, NOW: () => NOW, setLapse: k => { S.lapse = k; } };
 </script></body></html>

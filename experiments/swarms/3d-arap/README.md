@@ -18,7 +18,7 @@ The cake is worked by hand like dough. One closed mesh (1298 points, 2592 triang
 - index.html: the game (three.js r128; view above, device below; the (i) panel has the numbers and SAVE TRACE).
 - arap.js: solver, handles, targets, metrics. plan.js: greedy search for handle moves, writes plan.json.
 - tests.js: node tests (17). record.js: plays the game with mouse input on a virtual clock and films it.
-- proof.mp4: 25 s, 30 fps, 432x768, with sound. trace.json: the proof run's commits, inputs, energy bursts. strip.jpg: 12 frames from proof run 3.
+- proof.mp4: 25 s, 30 fps, 432x768, with sound. trace.json: the proof run's commits, inputs, energy bursts. strip.jpg: 12 frames from the final proof run.
 
 ## Measured (proof run, record.js, mouse input on the device)
 - Generation 1 (centre +60 mm, tier ring +36 mm): 2.71 mm mean / 10.34 mm worst from BROWN DOME. HOLD does not advance.
@@ -43,13 +43,13 @@ The cake is worked by hand like dough. One closed mesh (1298 points, 2592 triang
 - The live solver counted 29 energy rises in the first build: bursts spanned handle moves. Each handle move now closes a burst; within a settle the count is 0.
 - Twisting the top with every handle pinned forced shear (the tier ring held the letters still). After the sponge is baked only BASE and the selected handle hold.
 - Beads first drew as dark rings: their frame was left-handed (det -1). Fixed (b = a x n).
-- Recording: one recorder bug (SELECT only cycles forward; a run went wrong and the cake was ruined, a useful counterexample: generation 8, 30 mm off). A frame took 190 s once under machine load (load average 20 on 2 cores, other swarms recording). Screenshot capture now retries.
+- Recording: one recorder bug (SELECT only cycles forward; a run went wrong and the cake was ruined, a useful counterexample: generation 8, 30 mm off). A frame took 190 s once under machine load (load average 20 on 2 cores, other swarms recording). Screenshot capture now retries. Two recorded runs drew the candles black with no flames: the small textures came from GPU-backed 2D canvases that failed to upload under load; all texture canvases are now software canvases (willReadFrequently), checked by a screenshot at 20.3 s.
 
 ## What is weak (honest)
 - The naive pane reaches the dome too (1.3 mm): for pure pulls the linear solve is not much worse in shape. ARAP's advantage shows only where the surface turns (the twist), and in details, not in the gross silhouette.
 - Under the 24 deg twist the writing stretches under ARAP too (0.384 vs 0.448 naive): the twist zone crosses the letters. ARAP keeps beads rigid by construction; it does not keep the letters undistorted when the handles force shear.
 - TIERS: run 1 of the planner (fixed 10 iterations per test) reached 0.97 / 3.84 mm; under the settle criterion the greedy search stalls at 3.1 / 17.6 mm. A tiered cake is not shown to be reachable with these five handles. DRUM is reachable (0.24 / 1.74 mm, one generation).
-- Look: the frames do not yet look like the film's memory. Lighting is a plain directional key plus a point light; no grain, no bloom, no spot screen; the arc is the ana/index.html arc, not the evolved HOLO arc. In one recorded run the candle textures failed to load under resource pressure (ERR_INSUFFICIENT_RESOURCES) and the shafts drew black.
+- Look: the frames do not yet look like the film's memory. Lighting is a plain directional key plus a point light; no grain, no bloom, no spot screen; the arc is the ana/index.html arc, not the evolved HOLO arc. 
 - No independent critic: this agent has no Agent tool. The coordinator must run the critic and the FILM-BAR believability strip test.
 - The arc and HUD readouts are mine, not the shared holo.js; the shared look.js and holo.js appeared during this run and are not yet adopted.
 - The 1298-point mesh is coarse for piping: beads sit one per angular column (48 per ring).

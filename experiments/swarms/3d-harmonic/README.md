@@ -19,6 +19,30 @@ The cake is the score. Each decoration is one closed harmonic figure: N beads, M
 ## Primitives (harmonic.js, shared by the page and the tests)
 `gearAngle(ri, ph, k, S)` is exact: `2π·((p·k) mod (q·S))/(q·S) + phase`, with the remainder taken in integers. `passRevs` is the lcm of the ratio denominators. `pass(def, gears, S)` gives the samples (centre, tube radius, contact normal) and the candle stops, which sit on an exact finer grid. `chamfer` is the pattern score: a symmetric mean nearest-neighbour distance in (x, y, z, 3r). `cakeSDF` is the coated cake with a rounded top edge. `newGame/setGear/commit` is a pure reducer: the page feeds it the values the machine reaches and the HOLDs.
 
+## r4: shared modules adopted, inscription cleared
+- **LOOK (../shared/look.js + look-genome.json).** It now supplies the room, the grade, the post pipeline (bloom, grain, depth of field, spot screen), the key and candle lights, and the materials for sponge, icing, chocolate, beads, red piping, wax, flame and halo. The page's own lights, room, warm emissive hacks and amber pool are gone. The cake parts switch on and off through `LOOK.reveal` (round spots), and a cake change through `LOOK.flash`. A rejected pass decays by the same pair. The machine (post, arm, gears, turntable) keeps plain materials and fades with the memory.
+- **HOLO (../shared/holo.js).** `HOLO.arc` replaces the page's own arc: exposure 1 under LOOK's grade, left of the cake at candle height, stepped by the same stage and character events, and updated by the page's clock (`auto: false`, so the virtual clock in recordings drives it).
+  - `HOLO.device` is **not** adopted. The device is still ana's ring barrel, with this game's gear mapping. HOLO's controller has generic targets and ranges; mapping the per-gear rational detent lists, the per-gear ranges (turntable stops at 4:1) and the ratio/phase labels onto it was more work than this round allowed. It is the next integration step.
+  - The page's own scope (the phase visualizer) stays, because HOLO has no equivalent.
+- **Inscription cleared.** The text moved 30 mm toward the reader. The candles now sit on an inner-loop limaçon (arm 1:1 at 90 degrees, ρ = 30 mm + 60 mm·cos), so all seven stand behind the words (all z ≤ 1.7 mm, text from z = 10 mm). The flourish moved to 71 mm, in front of the text, with 7 mm clear. Test 4: minimum candle gap 8.2 mm.
+- **Inscription colour.** On the chocolate cake the words are piped in the bead cream. Red did not read on the orange glaze under LOOK's grade. The white cake keeps the film's red piping. Top sprinkles are kept off the writing's ground.
+- **Own spots.** The page's persistent spots bloomed into white blobs under LOOK's post. They now only mark switching on (opacity 0.22). LOOK's spot screen and reveal carry the rest. LOOK.md notes that the film shows no steady spot pattern.
+
+### Measured on the r4 proof (proof.mp4 26.8 s, chocolate path; trace.json; `node tests.js` → tests.json)
+- **All 7 tests pass on the proof's own trace.**
+  - Closure error 0.
+  - Clearance at least 0.3 mm over about 1.02M samples.
+  - Smallest one-detent error 0.81 mm against 0.7 mm tolerance.
+  - Candles at least 8.2 mm from every stroke and shell.
+  - Both recipes reachable.
+  - Replay of 71 machine events reproduces all 10 passes.
+  - Click rates: slow tails 11.5–12.5/s; fastest 6-step window 22.56/s.
+- **Red/blue of the cake region**, sampled every second from 5 to 23 s: mean 4.27, min 1.30.
+  - The two samples at 1.30 and 1.32 (14 s, 18 s) land on the magnesium flash at a stage change. LOOK.flash turns the whole cake white for about 3 frames. A scan every third frame finds 8 such flashes, one per accepted stage.
+  - Without those two, the minimum is 1.78 and most samples are 3.7–6.0. The film's side measures 3.84 and its top 2.95 (LOOK.md).
+- **Inscription, final level frame (26.8 s, scale at 20 degrees):** 生日快乐 reads as four separate characters, about 12–15 px tall at 432x768 (estimated from a 3x crop, not an automated count). All candles are behind the words and the flourish sits clear in front.
+- **Not measured in r4:** the audio bed (unchanged from r3) and the white recipe under LOOK (no still render this round).
+
 ## Round 1 critic repair (r3)
 The critic's verdict on r2 (critic-round1.md): the making and the game pass; the reference is stronger on the look. The repairs:
 - **Look.** The key light is now warm (0xff9a48). The hemisphere fill is warm and very low. The materials carry a warm emissive base. A round amber pool of light sits behind the memory. The projected spots stay on for the whole run, flickering, and flare on each stage change.
