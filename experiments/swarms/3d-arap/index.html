@@ -76,7 +76,7 @@ async function renderAudio(t0, t1) { const sr = 48000, a = new OfflineAudioConte
 const viewEl = document.getElementById('view'), R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: REC }); R.setPixelRatio(Math.min(2, devicePixelRatio)); R.outputEncoding = T.sRGBEncoding; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = 1.1; R.autoClear = false; viewEl.prepend(R.domElement);
 const scene = new T.Scene(); scene.background = new T.Color(0x000000); scene.fog = new T.FogExp2(0x000000, .09);
 const cam = new T.PerspectiveCamera(32, 1, .02, 60);
-{ const fl = new T.Mesh(new T.CircleGeometry(9, 96), new T.MeshStandardMaterial({ color: 0x0a0b0b, roughness: .55, metalness: .2 })); fl.rotation.x = -Math.PI / 2; scene.add(fl);
+{ const fl = new T.Mesh(new T.CircleGeometry(9, 96), new T.MeshStandardMaterial({ color: 0x050505, roughness: .7, metalness: .1 })); fl.rotation.x = -Math.PI / 2; scene.add(fl);
   const band = new T.Mesh(new T.TorusGeometry(6.5, .012, 6, 256), new T.MeshBasicMaterial({ color: 0xcfd8d4 })); band.rotation.x = Math.PI / 2; band.position.y = .42; scene.add(band);
   const glow = new T.Mesh(new T.TorusGeometry(6.5, .09, 6, 256), new T.MeshBasicMaterial({ color: 0x6e7f79, transparent: true, opacity: .1 })); glow.rotation.x = Math.PI / 2; glow.position.y = .42; scene.add(glow);
   const dome = new T.Mesh(new T.SphereGeometry(6.6, 48, 24, 0, TAU, 0, Math.PI / 2), new T.MeshBasicMaterial({ color: 0x050606, side: T.BackSide })); scene.add(dome);
@@ -100,9 +100,9 @@ function drawInscription(v) { inx.fillStyle = '#' + icingHex.toString(16).padSta
   // fine grain so the glaze reads as a surface
   for (let k = 0; k < 900; k++) { const x = (k * 97) % 512, y = (k * 211) % 512; inx.fillStyle = k % 2 ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.05)'; inx.fillRect(x, y, 3, 3); }
   const p = v / WSTEPS * 5; inx.save(); inx.translate(256, 250); inx.rotate(-.1); inx.fillStyle = '#c4231c'; inx.strokeStyle = '#c4231c';
-  inx.font = '600 70px "PingFang SC","Hiragino Sans GB","Noto Sans CJK SC","Noto Sans SC","Microsoft YaHei",sans-serif'; inx.textBaseline = 'middle'; inx.textAlign = 'center';
-  for (let i = 0; i < 4; i++) { const f = clamp(p - i, 0, 1); if (f <= 0) break; const x = -112 + i * 75; inx.save(); inx.beginPath(); inx.rect(x - 40, -40, 80, 80 * Math.min(1, f * 1.2)); if (f < 1) inx.rect(x - 40, -40 + 80 * Math.max(0, f * 1.2 - .5), 80 * f, 16); inx.clip(); inx.fillText(CHARS[i], x, 0); inx.restore(); }
-  const ff = clamp(p - 4, 0, 1); if (ff > 0) { inx.lineWidth = 7; inx.lineCap = 'round'; inx.beginPath(); const N = 40; for (let k = 0; k <= N * ff; k++) { const u = k / N, X = -125 + u * 250, Y = 56 + Math.sin(u * Math.PI * 1.6) * 12 - u * 8; k ? inx.lineTo(X, Y) : inx.moveTo(X, Y); } inx.stroke(); }
+  inx.font = '700 84px "PingFang SC","Hiragino Sans GB","Noto Sans CJK SC","Noto Sans SC","Microsoft YaHei",sans-serif'; inx.textBaseline = 'middle'; inx.textAlign = 'center';
+  for (let i = 0; i < 4; i++) { const f = clamp(p - i, 0, 1); if (f <= 0) break; const x = -132 + i * 88; inx.save(); inx.beginPath(); inx.rect(x - 46, -46, 92, 92 * Math.min(1, f * 1.2)); if (f < 1) inx.rect(x - 46, -46 + 92 * Math.max(0, f * 1.2 - .5), 92 * f, 18); inx.clip(); inx.fillText(CHARS[i], x, 0); inx.restore(); }
+  const ff = clamp(p - 4, 0, 1); if (ff > 0) { inx.lineWidth = 7; inx.lineCap = 'round'; inx.beginPath(); const N = 40; for (let k = 0; k <= N * ff; k++) { const u = k / N, X = -145 + u * 290, Y = 66 + Math.sin(u * Math.PI * 1.6) * 12 - u * 8; k ? inx.lineTo(X, Y) : inx.moveTo(X, Y); } inx.stroke(); }
   inx.restore(); INT.needsUpdate = true; }
 const MEM = new T.Group(); scene.add(MEM);
 const board = new T.Mesh(new T.CylinderGeometry(.165, .165, .012, 96), new T.MeshStandardMaterial({ color: 0x15130f, roughness: .5, metalness: .35, transparent: true })); board.position.y = CY - .006; MEM.add(board);
@@ -117,9 +117,9 @@ function makeTwin(sol) {
   const icingMat = new T.MeshStandardMaterial({ map: INT, roughness: .45, metalness: .02, transparent: true, polygonOffset: true, polygonOffsetFactor: -1 }); const icing = new T.Mesh(ig, icingMat); icing.visible = false;
   const grp = new T.Group(); grp.position.y = CY; grp.add(sponge, icing); MEM.add(grp);
   const beadGeo = new T.SphereGeometry(1, 12, 8); const beadMat = new T.MeshStandardMaterial({ color: 0xf7f3ea, roughness: .35, transparent: true }); const beads = new T.InstancedMesh(beadGeo, beadMat, 160); beads.count = 0; grp.add(beads);
-  const candles = []; for (let k = 0; k < 7; k++) { const c = new T.Group(); const shaft = new T.Mesh(new T.CylinderGeometry(.0028, .0028, .07, 10), new T.MeshStandardMaterial({ map: stripe, roughness: .5 })); shaft.position.y = .035; c.add(shaft);
-    const f = new T.Sprite(new T.SpriteMaterial({ map: flameTex, blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0 })); f.scale.set(.016, .034, 1); f.position.y = .085; c.add(f);
-    const h = new T.Sprite(new T.SpriteMaterial({ map: haloTex, blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0 })); h.scale.set(.11, .11, 1); h.position.y = .087; c.add(h); c.visible = false; c.matrixAutoUpdate = false; grp.add(c); candles.push({ g: c, f, h, shaft }); }
+  const candles = []; for (let k = 0; k < 7; k++) { const c = new T.Group(); const shaft = new T.Mesh(new T.CylinderGeometry(.0034, .0034, .055, 10), new T.MeshStandardMaterial({ map: stripe, roughness: .5 })); shaft.position.y = .0275; c.add(shaft);
+    const f = new T.Sprite(new T.SpriteMaterial({ map: flameTex, blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0 })); f.scale.set(.016, .034, 1); f.position.y = .069; c.add(f);
+    const h = new T.Sprite(new T.SpriteMaterial({ map: haloTex, blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0 })); h.scale.set(.11, .11, 1); h.position.y = .071; c.add(h); c.visible = false; c.matrixAutoUpdate = false; grp.add(c); candles.push({ g: c, f, h, shaft }); }
   // the target ghost: meridians of the nearest film cake, faint, while sculpting
   const ghost = new T.Group(); grp.add(ghost);
   // the selected handle's points
@@ -179,7 +179,7 @@ function updateTwin(tw, main) {
   tw.N = A.vertexNormals(MESH, X); const N = tw.N;
   // icing: offset shell of the same points, only the covered triangles drawn; UV from where the top was when the icing went on
   if (S.stage >= 1) { tw.icing.visible = true; const th = new Float32Array(n); for (let i = 0; i < n; i++) { th[i] = icingThick(i); tw.ipos[i * 3] = X[i * 3] + N[i * 3] * th[i]; tw.ipos[i * 3 + 1] = X[i * 3 + 1] + N[i * 3 + 1] * th[i]; tw.ipos[i * 3 + 2] = X[i * 3 + 2] + N[i * 3 + 2] * th[i]; }
-    if (tw.icingRest) for (let i = 0; i < n; i++) { tw.iuv[i * 2] = .5 + tw.icingRest[i * 3] / .2; tw.iuv[i * 2 + 1] = .5 - tw.icingRest[i * 3 + 2] / .2; }
+    if (tw.icingRest) for (let i = 0; i < n; i++) { tw.iuv[i * 2] = .5 + tw.icingRest[i * 3] / .17; tw.iuv[i * 2 + 1] = .5 - tw.icingRest[i * 3 + 2] / .17; }
     const idx = []; for (let t = 0; t < MESH.tri.length; t += 3) { const a = MESH.tri[t], b = MESH.tri[t + 1], c = MESH.tri[t + 2]; if (th[a] > 0 && th[b] > 0 && th[c] > 0) idx.push(a, b, c); }
     tw.ig.setIndex(idx); tw.ig.attributes.position.needsUpdate = true; tw.ig.attributes.uv.needsUpdate = true; tw.ig.computeVertexNormals(); tw.ig.computeBoundingSphere(); }
   // beads and candles
@@ -230,7 +230,8 @@ function knurlValue() { const n = tName(), hi = handleIx(n); if (hi >= 0) return
 function triRange() { const n = tName(); return handleIx(n) >= 0 ? [-12, 12] : [-2, 10]; }
 function triValue() { const n = tName(), hi = handleIx(n); return hi >= 0 ? SOL.H[hi].t : S.tilt; }
 function syncRings() { const k = RINGS[1], t = RINGS[2]; k.target = k.applied = knurlValue(); k.ang = k.target * k.deg; t.target = t.applied = triValue(); t.ang = t.target * t.deg; }
-function select(i, silent) { S.target = ((i % targets().length) + targets().length) % targets().length; syncRings(); if (!silent) sound({ k: 'select' }); S.lastWork = NOW; TRACE.inputs.push([+NOW.toFixed(2), 'select', tName()]); }
+function repin() { const hi = handleIx(tName()), list = S.stage === 0 ? null : (hi > 0 ? [hi] : []); [SOL, NAI].forEach(s => { const same = JSON.stringify(s.pinned) === JSON.stringify(list); if (!same) { s.pin(list); s.applyHandles(); } }); handlesChanged(); }
+function select(i, silent) { S.target = ((i % targets().length) + targets().length) % targets().length; repin(); syncRings(); if (!silent) sound({ k: 'select' }); S.lastWork = NOW; TRACE.inputs.push([+NOW.toFixed(2), 'select', tName()]); }
 let stepClock = 0;
 function machine(dt) { stepClock += dt; const busy = RINGS.filter(r => r.target !== r.applied); if (!busy.length) { stepClock = 0; return; }
   const fast = busy.some(r => Math.abs(r.target - r.applied) > 6), period = fast ? 1 / 23.6 : 1 / 11.8;
@@ -246,7 +247,7 @@ function applyStep(r) { S.lastWork = NOW; const n = tName(), hi = handleIx(n);
   else if (n === 'CANDLES') { syncCandles(); if (v > was) sound({ k: 'candle' }); arcMark = Math.min(4, Math.floor(v * 4 / 7)); }
   else if (n === 'LIGHT') { if (v > was) sound({ k: 'match' }); arcMark = Math.min(4, Math.floor(v * 4 / 7)); arcBlink = .1; }
 }
-function beadRings() { return palette.id === 'TIERS' ? [13, 19, 6] : palette.id === 'DOME' ? [6] : [13, 6]; }
+function beadRings() { return palette.id === 'TIERS' ? [13, 19, 6] : palette.id === 'DOME' ? [19, 6] : [13, 6]; }
 function syncBeads() { const rings = beadRings(), per = MESH.M, total = rings.length * per, want = Math.round(S.prog.BEADS / LAYER.BEADS * total);
   TW.forEach(tw => { tw.details = tw.details.filter(d => d.kind !== 'bead'); }); let c = 0;
   for (const ring of rings) for (let j = 0; j < per; j++) { if (c++ >= want) break; addBead(MESH.id(ring, j), ring); }
@@ -268,12 +269,12 @@ function commit() { const st = STAGES[S.stage]; sound({ k: 'hold' });
   if (adv) { S.stage++; sound({ k: 'set' }); const nst = STAGES[S.stage];
     if (nst === 'ICING') { icingHex = palette.top; TW.forEach(tw => { tw.icingRest = Float64Array.from(tw.sol.X); paint(tw); tw.beadMat.color.setHex(palette.beads); }); drawInscription(0); }
     if (nst === 'BLOW') say('ALL SEVEN LIT. HOLD TO BLOW'); else if (nst !== 'DONE') say(`NOW: ${nst}`);
-    S.target = 0; syncRings(); }
+    S.target = 0; repin(); syncRings(); }
   else syncRings(); }
 let sayT = 0; function say(m) { S.msg = m; S.msgAt = NOW; }
 function switchOff() { if (S.offAt) return; S.offAt = NOW; sound({ k: 'off' }); TRACE.inputs.push([+NOW.toFixed(2), 'off']); }
 function reset() { Object.assign(S, { stage: 0, target: 0, gen: 0, prog: { ICING: 0, BEADS: 0, WRITING: 0, CANDLES: 0, LIGHT: 0 }, matched: null, tilt: 0, yaw: 0, flash: 0, offAt: 0, dark: 0, blowAt: 0, out: 0, endAt: 0 });
-  [SOL, NAI].forEach(s => { s.P.set(MESH.X); s.X.set(MESH.X); s.H.forEach(h => { h.k = 0; h.t = 0; }); s.gen = 0; s.rebuild(); });
+  [SOL, NAI].forEach(s => { s.pinned = null; s.P.set(MESH.X); s.X.set(MESH.X); s.H.forEach(h => { h.k = 0; h.t = 0; }); s.gen = 0; s.rebuild(); });
   palette = { side: 0xd9c49a, top: 0xeadbc0, beads: 0xf7f3ea, icing: 'top', name: 'PLAIN DOUGH' }; TW.forEach(tw => { tw.details = []; tw.icingRest = null; tw.icing.visible = false; paint(tw); });
   RINGS.forEach(r => { r.target = r.applied = 0; r.ang = 0; }); S.on = 0; S.dirty = 1; measure(); select(0, true); say('SCULPT THE DOUGH. HOLD TO BAKE'); }
 
@@ -362,7 +363,7 @@ function step(dt) { NOW += dt; runScene(); runAnims(); machine(dt); solveFrame()
   if (S.offAt) { S.dark = clamp((NOW - S.offAt) / 1.0, 0, 1); if (S.dark >= 1 && NOW - S.offAt > 1.6) { reset(); } }
   render(); }
 function render() {
-  const yaw = S.yaw * Math.PI / 180, D = .6; cam.position.set(Math.sin(yaw) * D, CY + .25, Math.cos(yaw) * D); cam.lookAt(0, CY + .04, 0);
+  const yaw = S.yaw * Math.PI / 180, D = .6; cam.position.set(Math.sin(yaw) * D, CY + .3, Math.cos(yaw) * D); cam.lookAt(0, CY + .035, 0);
   const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion);
   const lit = S.stage >= STAGES.indexOf('LIGHT') ? Math.max(0, (S.stage === STAGES.indexOf('LIGHT') ? S.prog.LIGHT : 7) - S.out) : 0, vis = S.on * (1 - S.dark);
   TW.forEach((tw, i) => { updateTwin(tw, i === 0); tw.grp.quaternion.setFromAxisAngle(right, S.tilt * 3 * Math.PI / 180);

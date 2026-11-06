@@ -89,7 +89,7 @@ class View {
     ig.setIndex(idx); this.ice = new T.Mesh(ig, this.mats.ice); this.ice.visible = false; Y.add(this.ice);
     this.beads = new T.InstancedMesh(new T.SphereGeometry(.0058, 12, 8), this.mats.bead, GEO.beadN); this.beads.count = 0; Y.add(this.beads);
     this.insc = new T.Mesh(new T.CircleGeometry(.082, 48), new T.MeshBasicMaterial({ map: INT, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 })); this.insc.rotation.x = -Math.PI / 2; this.insc.visible = false; Y.add(this.insc);
-    this.candles = this.w.candles.map(c => { const g = new T.Group(), m = new T.Mesh(new T.CylinderGeometry(.0028, .0028, GEO.candleL, 10), new T.MeshStandardMaterial({ map: stripe, roughness: .5 })); m.position.y = GEO.candleL / 2; g.add(m); g.visible = false; Y.add(g);
+    this.candles = this.w.candles.map(c => { const g = new T.Group(), m = new T.Mesh(new T.CylinderGeometry(.0028, .0028, GEO.candleL, 10), new T.MeshStandardMaterial({ map: stripe, roughness: .5, emissive: 0x3a302a, emissiveMap: stripe })); m.position.y = GEO.candleL / 2; g.add(m); g.visible = false; Y.add(g);
       const f = new T.Sprite(new T.SpriteMaterial({ map: flameTex, blending: T.AdditiveBlending, depthWrite: false, transparent: true })), hl = new T.Sprite(new T.SpriteMaterial({ map: haloTex, blending: T.AdditiveBlending, depthWrite: false, transparent: true }));
       const sm = new T.Sprite(new T.SpriteMaterial({ map: smokeTex, transparent: true, depthWrite: false, opacity: 0 })); G.add(f, hl, sm); return { g, f, hl, sm, smokeT: -1, smokeP: null, wasLit: false }; });
     // the paper crown: a zigzag band standing on the plate
@@ -250,7 +250,7 @@ function render() {
     const w = game.W[v.name], lit = w.candles.filter(c => c.lit).length; candleLight.position.set(0, GEO.plateY + w.cakeTop() + .1, .03); candleLight.intensity = lit * .22 * (1 - dark);
     spot.intensity = (1.5 - lit * .14) * clamp(since / .8, 0, 1) * (1 - dark);
     const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion); ARC.s.visible = v.name === 'TUNED'; ARC.s.position.set(0, GEO.plateY + w.cakeTop() + .045, 0).addScaledVector(right, .2); ARC.s.material.opacity = arcAlpha * .85 * (1 - dark); if (arcAlpha > .01) drawArc();
-    SPOTS.forEach(sp => { const u = (since - sp.d) / .7, off = dark > 0 ? dark : 0; const o = u > 0 && u < 1 ? Math.sin(Math.PI * u) : 0; sp.s.position.set(Math.cos(sp.a) * sp.r, GEO.plateY + sp.y, Math.sin(sp.a) * sp.r * .6); sp.s.scale.setScalar(.05 + .07 * clamp(u, 0, 1)); sp.s.material.opacity = (o * .5 + off * Math.sin(Math.PI * off) * .5); });
+    SPOTS.forEach(sp => { const u = (since - sp.d) / .7, off = dark > 0 ? dark : 0; const o = u > 0 && u < 1 ? Math.sin(Math.PI * u) : 0; sp.s.position.set(Math.cos(sp.a) * sp.r, GEO.plateY + sp.y, Math.sin(sp.a) * sp.r * .6); sp.s.scale.setScalar(.05 + .07 * clamp(u, 0, 1)); sp.s.material.opacity = (o * .32 + off * Math.sin(Math.PI * off) * .32); });
     R.setViewport(v.x, 0, v.w, VH); R.setScissor(v.x, 0, v.w, VH); R.render(scene, cam);
     if (dark > 0) { /* dim the cake materials by the switch-off */ } });
   R.setScissorTest(false); drawHUD(VW, VH, vps); drawDev();

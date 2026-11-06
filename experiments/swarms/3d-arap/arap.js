@@ -111,12 +111,16 @@ function Solver(mesh, mode) {
   this.H = handleDefs(mesh).map(h => Object.assign({ k: 0, t: 0 }, h));
   this.gen = 0; this.energyLog = []; this.rebuild();
 }
+// which handles hold the dough: null = all of them (sculpting with every pin in), else a list of handle indices (BASE always holds)
+Solver.prototype.pin = function (list) { const n = this.mesh.n; this.pinned = list; this.con = new Uint8Array(n); this.hOf = new Int16Array(n).fill(-1);
+  this.H.forEach((h, hi) => { h.held = !list || hi === 0 || list.indexOf(hi) >= 0; if (h.held) for (const v of h.verts) { this.con[v] = 1; this.hOf[v] = hi; } });
+  const f = []; for (let i = 0; i < n; i++) if (!this.con[i]) f.push(i); this.free = Int32Array.from(f); };
 Solver.prototype.rebuild = function () {   // after a commit: new weights, normals, tangents, constraint set
   const m = this.mesh, n = m.n; this.Wt = cotWeights(m, this.P);
   this.Nrest = vertexNormals(m, this.P); this.Tan = profileTangents(m, this.P);
   this.con = new Uint8Array(n); this.hOf = new Int16Array(n).fill(-1);
-  this.H.forEach((h, hi) => { const vs = []; h.rings.forEach(r => { for (let j = 0; j < m.M; j++) vs.push(m.id(r, j)); }); (h.poles || []).forEach(p => vs.push(p)); h.verts = Int32Array.from(vs); vs.forEach(v => { this.con[v] = 1; this.hOf[v] = hi; }); });
-  this.free = []; for (let i = 0; i < n; i++) if (!this.con[i]) this.free.push(i); this.free = Int32Array.from(this.free);
+  this.H.forEach((h, hi) => { const vs = []; h.rings.forEach(r => { for (let j = 0; j < m.M; j++) vs.push(m.id(r, j)); }); (h.poles || []).forEach(p => vs.push(p)); h.verts = Int32Array.from(vs); });
+  this.pin(this.pinned || null);
   this.diag = new Float64Array(n); for (let i = 0; i < n; i++) { let s = 0; const w = this.Wt.wt[i]; for (let k = 0; k < w.length; k++) s += w[k]; this.diag[i] = s; }
   for (let i = 0; i < n * 9; i += 9) { this.R.fill(0, i, i + 9); this.R[i] = this.R[i + 4] = this.R[i + 8] = 1; }
 };
@@ -129,7 +133,7 @@ Solver.prototype.handlePos = function (h, v, out) {
   else if (h.tri === 'twist') { const a = h.t * STEP_TW, c = Math.cos(a), s = Math.sin(a), nx = c * x - s * z, nz = s * x + c * z; x = nx; z = nz; }
   out[0] = x; out[1] = y; out[2] = z;
 };
-Solver.prototype.applyHandles = function () { const o = [0, 0, 0]; this.H.forEach(h => { for (const v of h.verts) { this.handlePos(h, v, o); this.X[v * 3] = o[0]; this.X[v * 3 + 1] = o[1]; this.X[v * 3 + 2] = o[2]; } }); };
+Solver.prototype.applyHandles = function () { const o = [0, 0, 0]; this.H.forEach(h => { if (!h.held) return; for (const v of h.verts) { this.handlePos(h, v, o); this.X[v * 3] = o[0]; this.X[v * 3 + 1] = o[1]; this.X[v * 3 + 2] = o[2]; } }); };
 Solver.prototype.setHandle = function (hi, k, t) { const h = this.H[hi]; h.k = k; h.t = t; this.applyHandles(); this.dirty = true; };
 
 // local step: optimal rotation per vertex

@@ -454,6 +454,8 @@ function step(dt) { NOW += dt; frameN++; runScene(); runAnims(); machine(dt);
   const g = S.gens[S.gens.length - 1], near = nearestFilm(); statusEl.innerHTML = `<b>GENERATION ${S.gens.length}</b> &middot; ${g ? g.action + (g.variant ? ' (' + g.variant + ')' : '') : 'AN EMPTY TABLE'}<br>NEAREST FILM CAKE: ${near.name}${near.d < 9 ? ' &middot; ' + near.d.toFixed(2) : ''}`;
   statusEl.style.opacity = 1 - S.dark; endEl.style.opacity = S.ended && NOW - S.ended > .6 ? 1 : 0; endEl.textContent = S.ended ? `MADE IN ${S.gens.length} GENERATIONS BY FOUR CHILDREN · ALL SEVEN CANDLES OUT` : '';
   if (frameN % 15 === 0 && KIDS.length) sample();
+  // sprites at zero opacity still cost a full rasterisation pass in software GL: hide them
+  CANDLES.forEach(C => { C.f.visible = C.f.material.opacity > .004; C.hl.visible = C.hl.material.opacity > .004; }); FLASH.visible = FLASH.material.opacity > .004; taperFlame.visible = taperFlame.material.opacity > .004; ARC.s.visible = ARC.s.material.opacity > .004;
   R.render(scene, cam); drawDev(); }
 function sample() { // the poses the tests re-skin offline: child 2 (badge) and child 1 (bow), with what is held
   const s = { t: +NOW.toFixed(3), kids: KIDS.map(k => ({ pos: k.P.toArray().map(v => +v.toFixed(5)), yaw: +k.pose.yaw.toFixed(5), lean: +k.pose.lean.toFixed(5), twist: +(k.pose.twist || 0).toFixed(5), headPitch: +(k.pose.headPitch || 0).toFixed(4), tiptoe: +(k.pose.tiptoe || 0).toFixed(4),
@@ -464,5 +466,5 @@ let last = performance.now();
 function loop(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; step(dt); requestAnimationFrame(loop); }
 document.fonts && document.fonts.load('400 20px Oswald').then(() => drawDev());
 resize(); if (!STRESS) reset(); drawInscription(0, '#c4231c'); if (!REC) requestAnimationFrame(loop); else step(0);
-window.MM = { ready: () => !!WAVBYTES, advance: dt => step(dt), S, KIDS, RINGS, BANDS: () => BANDS, BTNS: () => BTNS, devRect: () => DC.getBoundingClientRect(), NOW: () => NOW, press, handTurn, select, renderAudio, traceOut, actionAt, limitOf, progOf, CANDLES, BEADS };
+window.MM = { R, scene, ready: () => !!WAVBYTES, advance: dt => step(dt), S, KIDS, RINGS, BANDS: () => BANDS, BTNS: () => BTNS, devRect: () => DC.getBoundingClientRect(), NOW: () => NOW, press, handTurn, select, renderAudio, traceOut, actionAt, limitOf, progOf, CANDLES, BEADS };
 </script></body></html>
