@@ -116,18 +116,22 @@
       if (y > 1 - (.04 + .1 * g.fill)) return sh(1);                                         // icing creeps over the top edge
       for (let L = 1; L < layers; L++) if (Math.abs(y - L / layers) < .035 + .05 * g.fill) return sh(2);   // filling lines between layers
       if (((hash(r, c) % 1000) / 1000) < g.beads * .22) return sh(3); return sh(0); });
-    const I = iou(gr.m, refMask(ref, 'cake')), MB = 32, mg = [new Float64Array(MB), new Float64Array(MB), new Float64Array(MB)]; let n = 0;
+    const I = iou(gr.m, refMask(ref, 'cake')), MB = 32, mg = [new Float64Array(MB), new Float64Array(MB), new Float64Array(MB)], h3 = new Float64Array(BINS ** 3); let n = 0;
     for (let i = 0; i < gr.m.length; i++) if (gr.m[i] && gr.c[i] >= 0) { const lit = lightK(g, (gr.c[i] >> 3) / 15), c = pal[gr.c[i] & 7];
+      { const f = c.map(v => clamp(v * lit * BINS / 256 - .5, 0, BINS - 1)), lo = f.map(x => Math.min(BINS - 2, Math.floor(x))), t = f.map((x, k) => x - lo[k]);   // joint 6x6x6 soft histogram, as in extract-refs.py
+        for (let d = 0; d < 8; d++) { const dr = d >> 2 & 1, dg = d >> 1 & 1, db = d & 1; h3[((lo[0] + dr) * BINS + lo[1] + dg) * BINS + lo[2] + db] += (dr ? t[0] : 1 - t[0]) * (dg ? t[1] : 1 - t[1]) * (db ? t[2] : 1 - t[2]); } }
       for (let ch = 0; ch < 3; ch++) { const v = clamp(c[ch] * lit, 0, 255) * MB / 256 - .5, lo = clamp(Math.floor(v), 0, MB - 1), hi = Math.min(MB - 1, lo + 1), t = clamp(v - lo, 0, 1); mg[ch][lo] += 1 - t; mg[ch][hi] += t; } n++; }
     // colour distance: per-channel 1-D earth mover's distance between the form's colours and the reference's, averaged, in units of the full 0..255 range
     let emd = 0; const RM = ref.cake.marginals; for (let ch = 0; ch < 3; ch++) { let ca = 0, cb = 0; for (let b = 0; b < MB; b++) { ca += n ? mg[ch][b] / n : 0; cb += RM[ch][b]; emd += Math.abs(ca - cb) / MB; } } emd /= 3;
-    const hel = Math.min(1, emd / W_CAKE.emdScale);
+    // the joint histogram's Hellinger distance catches wrong hues that the per-channel marginals let through (a pink top on a brown cake)
+    let bc = 0; const RH = ref.cake.hist; for (let i = 0; i < h3.length; i++) bc += Math.sqrt((n ? h3[i] / n : 0) * RH[i]); const helJ = Math.sqrt(Math.max(0, 1 - bc));
+    const hel = .5 * Math.min(1, emd / W_CAKE.emdScale) + .5 * helJ;
     const fit = 1 - (W_CAKE.iou * (1 - I) + W_CAKE.hist * hel);
-    return { fit, iou: I, hist: hel, mask: gr.m, grid: CAKE_GRID };
+    return { fit, iou: I, hist: hel, emd, helJ, mask: gr.m, grid: CAKE_GRID };
   }
   const evaluate = (kind, G, ref) => kind === 'head' ? evalHead(G, ref) : evalCake(G, ref);
   /* ------------------------------------------------------------------ one generation: lambda children around the parent, elitist (1 + lambda) */
-  const LAMBDA = 8, THRESH = { head: .93, cake: .88 };
+  const LAMBDA = 8, THRESH = { head: .93, cake: .86 };
   function weights(kind, group, bias) { const gs = KIND[kind]; const inG = gs.map(g => group === 'ALL' || g[1] === group); const idx = gs.map((g, i) => i).filter(i => inG[i]);
     return gs.map((g, i) => !inG[i] ? 0 : (bias > 0 && idx[(bias - 1) % idx.length] === i) ? 1.6 : bias > 0 ? .35 : 1); }
   function breed(kind, parent, opts, ref) {   // opts: { seed, gen, sigma, group, bias }

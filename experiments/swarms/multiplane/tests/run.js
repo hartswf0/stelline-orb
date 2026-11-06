@@ -25,7 +25,12 @@ function shiftOf(A, B, W, H, maxS) { const g = d => { const o = new Float32Array
     for (let i = 0; i < info.length; i++) { if (cf.name === 'moved' && !['child2', 'child1', 'child3', 'string', 'bench'].includes(info[i].id)) continue;
       const PAD = 420, pred0 = F * (b1 - b0) * (1 / ZC - 1 / info[i].z);
       // rendered with a wide margin (so a card that leaves the phone's frame is still measured); the matching runs in the page
-      const meas = await pg.evaluate(([b0, b1, i, p, maxS, src]) => { const A = MP.render(b0, 0, i, p), B = MP.render(b1, 0, i, p), W = MP.W + 2 * p, H = MP.H + 2 * p; const shiftOf = eval('(' + src + ')'); return shiftOf(A, B, W, H, maxS); }, [b0, b1, i, PAD, Math.ceil(Math.abs(pred0)) + 40, shiftOf.toString()]);
+      const meas = await pg.evaluate(([b0, b1, i, p, maxS, src]) => { const A = MP.render(b0, 0, i, p), B = MP.render(b1, 0, i, p), W = MP.W + 2 * p, H = MP.H + 2 * p; const shiftOf = eval('(' + src + ')');
+        // a card with a silhouette inside the margin is matched on its silhouette (alpha); the projection's spot texture is periodic and can alias the match by one spot.
+        // Wall and floor strips fill the whole margin, so they are matched on their picture.
+        const al = d => { const o = new Uint8ClampedArray(d.length); for (let k = 0; k < d.length; k += 4) { o[k] = o[k + 1] = o[k + 2] = d[k + 3]; o[k + 3] = 255; } return o; };
+        let varied = false; for (let k = 3; k < A.length; k += 4) if (A[k] < 255) { varied = true; break; }
+        return varied ? shiftOf(al(A), al(B), W, H, maxS) : shiftOf(A, B, W, H, maxS); }, [b0, b1, i, PAD, Math.ceil(Math.abs(pred0)) + 40, shiftOf.toString()]);
       const pred = pred0;
       const err = meas - pred, tol = Math.max(1.0, .02 * Math.abs(pred)); rows.push({ config: cf.name, plane: info[i].id, depth: info[i].z, predictedPx: +pred.toFixed(2), measuredPx: +meas.toFixed(2), errorPx: +err.toFixed(2), ok: Math.abs(err) <= tol }); } }
   const worst = rows.reduce((m, r) => Math.abs(r.errorPx) > Math.abs(m.errorPx) ? r : m, rows[0]);
