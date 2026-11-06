@@ -86,6 +86,7 @@ It serves the repo over http, opens the page in Chromium at 390x844, loads the a
 - **agent**: a scripted agent that only uses bridge tool calls (`orb_describe`, `orb_command`). It makes three choices of
   its own (`cake target brown-dome`, `kneel 0.4`, `turn -20`, and `child 2 later 0.5` once child 2 is there) and otherwise
   does whatever `NEXT:` says, until describe says BLOWN.
+- Presses are pointer events dispatched on the device canvas (see section 7 for why); ring turns are mouse drags.
 - **cowork**: the agent proposes (`orb_propose`, `orb_await_decision`); a scripted hand answers with real mouse events on
   the device canvas (positions from `ORB.device.toPage`): ACCEPT; four MAKE presses of its own; the KNEEL ring turned two
   detents to raise the agent's `kneel 4` ghost to 6 before accepting; a long ACCEPT to dismiss `turn 90`; the SCALE ring
@@ -120,9 +121,34 @@ Transports:
   page over a WebSocket on 127.0.0.1:8787. `--local` answers from an orb in the node process instead (no page).
   Register it with an MCP client as `{ "command": "node", "args": ["<repo>/experiments/orb-tool/agent/bridge-relay.js"] }`.
 
-To mount in the shell (CORE's file): load `agent/describe.js`, `agent/bridge.js` (and optionally `agent/console.js`) after
-`agent/commands.js`, then `ORB_DESCRIBE.install(ORB); ORB_BRIDGE.attach(ORB);`.
+The shell already loads `agent/commands.js`, `agent/describe.js` and `agent/console.js`. To add the bridge (CORE's file): load
+`agent/bridge.js` and call `ORB_DESCRIBE.install(ORB); ORB_BRIDGE.attach(ORB);`. The harness injects it when missing.
 
-## 6. Measured (see the run records; numbers are from the runs named, not estimates)
+## 6. Measured (Nov 6 2026, this machine: 2 CPUs, load average 31-35 from other swarms during the runs)
 
-See the final section, filled from `harness-record.json` after the last run.
+- `node experiments/orb-tool/tests/agent.test.js`: 15 passed, 0 failed (the brief's example lines, a full birthday by text,
+  errors, help, kneel scaling, ghosts and amend/accept/reject, ring-turned ghosts through core/devmap.js, describe and
+  following NEXT from empty to BLOWN, JSON ops, the rest of the language, the bridge's tools and orb_await_decision).
+- Relay end to end (scratch script, harness-page.html with `?bridge=ws://localhost:8799`): initialize queued before the page
+  connected was answered after it connected; `orb_command` changed the page's state with author `agent:claude`.
+- agent run on index.html with scene/scene.js: 16 bridge calls, describe says BLOWN, 132 s wall clock. Agent call to the
+  machine's first `step` event: median 0.6 ms, max 50.4 ms over 23 calls (in-page timing, not glass-to-glass).
+  Film agent.mp4: 97 s, with sound.
+- cowork run on index.html with scene/scene.js: 11 ghosts; 10 accepted by the hand on the device, one (kneel) after the
+  KNEEL ring raised it from 4 to 6, one (turn 90) dismissed by a long ACCEPT; the hand's own MAKE x4 and SCALE -4;
+  HOLD then HOLD released and blew the candles. 887 s wall clock under that load; film cowork.mp4 is 626 s real time
+  with sound, plus cowork-x8-timelapse.mp4 (8x, no sound). An earlier run on the core stub renderer at lower load
+  finished in 100 s (cowork-stub-renderer.mp4, 76 s film).
+- Films are in the role's scratchpad, not the repo.
+
+## 7. What is weak
+
+- Under heavy CPU load the device read quick mouse taps as long presses (a first cowork run rejected 9 of 11 ghosts and
+  switched the memory off). The device times presses with `performance.now()` in its handlers; when the main thread
+  stalls, the pointerup is handled late. The harness now dispatches the pointerdown/pointerup pair in one task (real DOM
+  pointer events on the device canvas; the finger glides there with the mouse). Ring turns are real mouse drags. A fix in
+  core/device.js would be to time presses with `event.timeStamp`.
+- `cake target X` proposed as ghosts is two ghosts (kind, then stage kept); accepting the first shows the whole cake for a
+  moment before the second puts it back to nothing. A core `target` op would make it one ghost.
+- The core proposes one op per ghost, so `candles 7` (count and all lit) cannot be adjusted on a ring; only `set` ghosts can.
+- The films are slow because the machine was loaded; the timings above are not what a phone would show.
