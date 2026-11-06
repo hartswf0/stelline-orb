@@ -55,7 +55,8 @@ window.go = async function (C) {
   /* v5 M21: the cake body is built here as one high-poly lathe (wall, rounded shoulder, slightly dished top), height 0.43 of the diameter as
      measured in the 146 s and 152 s frames, displaced at several scales: trowel ridges, a sagging ridge under the shoulder, fine noise; top: spatula arcs */
   if (V5) { const Hc = 2 * R0 * .43 * def('hRatio', 1); TY = Hc; topA[1] = Hc; insA[1] = Hc; baseA[1] = 0;
-    const prof = [], rr0 = .006; const und = def('undul', .0012);   // v5: broad smooth undulation (hand-spread) under the fine scales for (let i = 0; i <= 60; i++) prof.push(new T.Vector2(R0, Hc * .02 + (Hc - rr0 - Hc * .02) * i / 60));
+    const prof = [], rr0 = .006; const und = def('undul', .0012);   /* v5: broad smooth undulation (hand-spread) under the fine scales */
+    for (let i = 0; i <= 60; i++) prof.push(new T.Vector2(R0, Hc * .02 + (Hc - rr0 - Hc * .02) * i / 60));
     for (let i = 1; i <= 12; i++) { const a = i / 12 * Math.PI / 2; prof.push(new T.Vector2(R0 - rr0 + rr0 * Math.cos(a), Hc - rr0 + rr0 * Math.sin(a))); }
     for (let i = 1; i <= 50; i++) { const u = i / 50, r = (R0 - rr0) * (1 - u); prof.push(new T.Vector2(Math.max(r, 1e-5), Hc - .002 * Math.sin(u * Math.PI / 2))); }
     const geo = new T.LatheGeometry(prof, 384), pa = geo.attributes.position, v = new T.Vector3(), rd = def('ridge5', .0007), sag = def('sag', .0016), fn = def('fine', .0004);
@@ -71,11 +72,11 @@ window.go = async function (C) {
     const body = new T.Mesh(geo, bm); body.castShadow = body.receiveShadow = true; body.name = 'v5-body'; cake.add(body);
     // v5 M22: the piped bottom border, a swept tube with noise
     const pts = []; for (let i = 0; i <= 200; i++) { const a = i / 200 * 6.283, p = new T.Vector3(Math.cos(a) * (R0 + .002), .004, Math.sin(a) * (R0 + .002)); p.multiplyScalar(1 + .002 * noise(p) / R0); p.y = .004 + .0012 * noise(p.clone().multiplyScalar(2)); pts.push(p); }
-    const bt = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts, true), 400, .0042, 8, true), bm); bt.castShadow = true; cake.add(bt); }
+    const bt = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts, true), 400, .0042, 8, true), bm); bt.castShadow = true; bt.name = 'v5-border'; cake.add(bt); }
   // M2: no perfect borders or identical beads: the module's instanced pieces (shell borders, beads) are hidden
   // M2/M3: every cake surface gets a seeded lumpy displacement and a lopsided top, and the LOOK buttercream material (bump, speckle)
   const lump = Math.min(def('lump', 0.0008), 0.0015), lop = clampV(def('lop', 0.001), -0.002, 0.002), ridge = def('ridge', 0.0006), mats = [];
-  cake.traverse(o => { if (!o.isMesh) return; if (V5 && o.name !== 'v5-body') { o.visible = false; return; } if (V5) return; if (o.isInstancedMesh) { o.visible = def('modBeads', 0) > .5; return; }
+  cake.traverse(o => { if (!o.isMesh) return; if (V5 && !/^v5-/.test(o.name)) { o.visible = false; return; } if (V5) return; if (o.isInstancedMesh) { o.visible = def('modBeads', 0) > .5; return; }
     o.castShadow = o.receiveShadow = true; o.geometry = o.geometry.clone(); const pa = o.geometry.attributes.position, inv = new T.Matrix4().copy(o.matrixWorld).invert(), v = new T.Vector3();
     for (let i = 0; i < pa.count; i++) { v.fromBufferAttribute(pa, i).applyMatrix4(o.matrixWorld); const rr = Math.hypot(v.x, v.z), n = noise(v);
       const onTop = v.y > TY - .004 && rr < R0 - .002, ang = Math.atan2(v.z, v.x);
