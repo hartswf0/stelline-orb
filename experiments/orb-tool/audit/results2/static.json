@@ -606,5 +606,49 @@
   "fps": {
    "framesIn15s": 4
   }
+ },
+ {
+  "page": "ana/index.html",
+  "viewport": [
+   1280,
+   800
+  ],
+  "loaded": true,
+  "loadMs": 2258,
+  "pageScrolls": false,
+  "hScroll": false,
+  "envErrors": 0,
+  "pageErrors": [],
+  "pageErrorCount": 0,
+  "docH": 800,
+  "docW": 1280,
+  "controls": 0,
+  "controlsInView": 0,
+  "under44px": 0,
+  "under24px": 0,
+  "textNodesInView": 0,
+  "textUnder12px": 0,
+  "textUnder10px": 0,
+  "minFontPx": null,
+  "canvases": [
+   [
+    "view",
+    1280,
+    528,
+    0
+   ],
+   [
+    "dev",
+    1280,
+    271,
+    529
+   ]
+  ],
+  "handles": [
+   "MM"
+  ],
+  "fps": {
+   "medianFrameMs": 183.3
+  }
  }
 ]
