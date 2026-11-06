@@ -75,7 +75,10 @@ const stripe = (() => { const c = document.createElement('canvas'); c.width = 16
 const flameMat = new T.SpriteMaterial({ map: (() => { const c = document.createElement('canvas'); c.width = 64; c.height = 128; const x = c.getContext('2d'), g = x.createRadialGradient(32, 86, 2, 32, 76, 46); g.addColorStop(0, 'rgba(255,252,230,1)'); g.addColorStop(.22, 'rgba(255,205,95,.95)'); g.addColorStop(.6, 'rgba(255,120,30,.35)'); g.addColorStop(1, 'rgba(255,90,20,0)'); x.fillStyle = g; x.beginPath(); x.ellipse(32, 76, 18, 46, 0, 0, TAU); x.fill(); return new T.CanvasTexture(c); })(), blending: T.AdditiveBlending, depthWrite: false, transparent: true, toneMapped: false });
 const icingMat = mistify(new T.MeshStandardMaterial({ roughness: .78, bumpMap: bump, bumpScale: .0012 })), beadMat = mistify(new T.MeshStandardMaterial({ roughness: .5 })), candleMat = mistify(new T.MeshStandardMaterial({ map: stripe, roughness: .5 })), wickMat = new T.MeshBasicMaterial({ color: 0x1b1612 });
 let FLAMES = [];
-function buildCake(c) { CAKE.clear(); FLAMES = []; if (!c) return; const F = FORMS[c.form];
+function sculpt(F0, c) { const tl = c.tall || 1, wd = c.wide || 1, tp = c.taper == null ? 1 : c.taper, sw = c.swell || 0; if (tl === 1 && wd === 1 && tp === 1 && !sw) return F0;
+  const H = F0.top, R = (r, y) => r * wd * (1 - (1 - tp) * Math.min(1, y / H)) * (1 + sw * Math.sin(Math.PI * Math.min(1, y / H)));
+  const F = Object.assign({}, F0, { p: F0.p.map(([r, y]) => [R(r, y), y * tl]), top: F0.top * tl, edge: R(F0.edge, F0.top) }); if (F0.low) F.low = [R(F0.low[0], F0.low[1]), F0.low[1] * tl]; return F; }
+function buildCake(c) { CAKE.clear(); FLAMES = []; if (!c) return; const F = sculpt(FORMS[c.form], c);
   icingMat.color.setHex(ICING[c.icing][1]); const body = new T.Mesh(new T.LatheGeometry(F.p.map(p => new T.Vector2(p[0], p[1])), 112), icingMat); body.castShadow = body.receiveShadow = true; CAKE.add(body);
   if (c.border) { beadMat.color.setHex(BORDER[c.border][1]); const rings = [[F.edge, F.top - (F.domed ? .07 : .002)], [F.p[1][0], .006]]; if (F.low) rings.push([F.low[0] - .003, F.low[1]]);
     rings.forEach(([r, y]) => { const n = Math.round(TAU * r / .0105), im = new T.InstancedMesh(new T.SphereGeometry(.0062, 10, 8), beadMat, n), m4 = new T.Matrix4(); for (let k = 0; k < n; k++) { const a = k / n * TAU; m4.makeTranslation(Math.cos(a) * r, y, Math.sin(a) * r); im.setMatrixAt(k, m4); } im.castShadow = true; CAKE.add(im); }); }
@@ -122,7 +125,8 @@ fetch('cut/catalog.json').then(r => r.json()).then(c => { CAT = c; c.forEach(x =
 function sheetTex(e) { if (TEX[e.id]) return TEX[e.id]; const t = new T.TextureLoader().load(e.src, img => { t.userData.clones.forEach(c => { c.image = t.image; c.needsUpdate = true; }); dirty.items = true; }); t.userData = { clones: [] }; t.encoding = T.sRGBEncoding; t.anisotropy = 4; t.minFilter = T.LinearFilter; return TEX[e.id] = t; }
 function cutMesh(it) { const e = CATBY[it.ref]; if (!e) return null; const base = sheetTex(e), tex = base.clone(); tex.userData = {}; if (base.image) tex.needsUpdate = true; else base.userData.clones.push(tex); tex.repeat.set(1 / e.cols, 1 / e.rows);
   const mat = mistify(new T.MeshStandardMaterial({ map: tex, alphaTest: .35, side: T.DoubleSide, roughness: .92, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: .14, transparent: true }));
-  const m = new T.Mesh(new T.PlaneGeometry(1, 1), mat); m.castShadow = true; m.customDepthMaterial = new T.MeshDepthMaterial({ depthPacking: T.RGBADepthPacking, map: tex, alphaTest: .35 }); m.userData = { cut: e, tex }; return m; }
+  const m = new T.Mesh(new T.PlaneGeometry(1, 1, 24, 1), mat); m.castShadow = true; m.customDepthMaterial = new T.MeshDepthMaterial({ depthPacking: T.RGBADepthPacking, map: tex, alphaTest: .35 }); m.userData = { cut: e, tex }; return m; }
+function bendCard(m, curl) { if (m.userData.curl === curl) return; m.userData.curl = curl; const P = m.geometry.attributes.position; for (let i = 0; i < P.count; i++) { const x = P.getX(i); P.setZ(i, -curl * (x * x - .25) * 1.2); } P.needsUpdate = true; m.geometry.computeVertexNormals(); }
 function setFrame(m, f) { const e = m.userData.cut, i = ((f % e.frames) + e.frames) % e.frames; m.userData.tex.offset.set((i % e.cols) / e.cols, 1 - (Math.floor(i / e.cols) + 1) / e.rows); }
 /* =============================================================== PROPS: the things a birthday table has */
 const PALETTE = [['RED', 0xc23b32], ['ROSE', 0xe7a1b0], ['SKY', 0x8fb8e0], ['MINT', 0xa8d8bf], ['LEMON', 0xeed27a], ['WHITE', 0xf3efe6], ['GOLD', 0xd2a23a], ['NAVY', 0x2c3e66], ['GREEN', 0x4f8a4a]];
@@ -353,7 +357,7 @@ function rings() {
     out[4] = num('LENS', () => V.fov, v => V.fov = Math.round(v), 14, 70, 2, v => Math.round(12 / Math.tan(v * Math.PI / 360)) + ' MM'); return out; }
   const L = things(); if (L.length > 1) out[0] = list('PICK', () => Math.max(0, L.findIndex(t => t.key === S.pick)), v => { if (L[v].key !== S.pick) { S.pick = L[v].key; chime(); } }, L.map(t => t.name));
   const p = picked(); if (!p) return out; const dc = () => dirty.cake = true; let props = [];
-  if (S.mode === 'PLACE') props = placeRings(p, dc); else props = styleRings(p, dc);
+  if (S.mode === 'PLACE') props = placeRings(p, dc); else if (S.mode === 'SHAPE') props = shapeRings(p, dc); else props = styleRings(p, dc);
   props.forEach((r, i) => { if (r) { r.undoable = true; out[i + 1] = r; } }); return out; }
 function placeRings(p, dc) { const C = DOC.cake, Lt = DOC.light;
   if (p.key === 'light') return [num('AROUND', () => Lt.a, v => Lt.a = v, -180, 180, 10, v => Math.round(v) + '°', true), num('HEIGHT', () => Lt.h, v => Lt.h = v, .05, 1.6, .05, cm)];
@@ -365,13 +369,23 @@ function placeRings(p, dc) { const C = DOC.cake, Lt = DOC.light;
   return [num('ACROSS', () => it.x, v => { it.x = v; di(); }, -lim, lim, .01, cm), pl === 'AIR' || pl === 'BACK' ? num('UP', () => it.up, v => { it.up = v; di(); }, -.4, 2.2, .01, cm) : num('DEPTH', () => it.z, v => { it.z = v; di(); }, -lim, lim, .01, cm),
     pl === 'BACK' ? num('DISTANCE', () => it.z, v => { it.z = v; di(); }, -9, -1, .1, v => (-v).toFixed(1) + ' M') : num('TURN', () => it.turn, v => { it.turn = Math.round(v); di(); }, -180, 180, 5, v => Math.round(v) + '°', true),
     num('SIZE', () => it.size, v => { it.size = v; di(); }, .2, 4, .05, v => '×' + v.toFixed(2))]; }
+// SHAPE: a made thing is sculpted (height, width, taper, swell, lean); a cut-out is a card, so it is tilted, curled and lit
+function shapeRings(p, dc) { const pct = v => Math.round(v * 100) + '%', x2 = v => '×' + v.toFixed(2);
+  if (p.key === 'cake') { const C = DOC.cake; return [num('TALL', () => C.tall || 1, v => { C.tall = v; dc(); }, .5, 2.2, .05, x2), num('WIDE', () => C.wide || 1, v => { C.wide = v; dc(); }, .6, 1.6, .05, x2),
+    num('TAPER', () => C.taper == null ? 1 : C.taper, v => { C.taper = v; dc(); }, .45, 1.3, .05, v => v < .98 ? 'NARROWS ' + pct(1 - v) : v > 1.02 ? 'FLARES ' + pct(v - 1) : 'STRAIGHT'), num('SWELL', () => C.swell || 0, v => { C.swell = v; dc(); }, -.3, .4, .02, v => v > .01 ? 'BELLIES ' + pct(v) : v < -.01 ? 'PINCHED ' + pct(-v) : 'NONE')]; }
+  if (p.key === 'table') return [num('WIDTH', () => DOC.table.w, v => { DOC.table.w = v; dirty.table = dirty.mess = true; }, .6, 1.6, .05, v => Math.round(120 * v) + ' CM')];
+  const it = p.it, di = () => dirty.items = true; if (!it) return [];
+  if (it.type === 'prop') return [num('TALL', () => it.tall || 1, v => { it.tall = v; di(); }, .4, 2.5, .05, x2), num('WIDE', () => it.wide || 1, v => { it.wide = v; di(); }, .4, 2.5, .05, x2),
+    num('LEAN', () => it.lean || 0, v => { it.lean = Math.round(v); di(); }, -90, 90, 5, v => Math.round(v) + '°'), num('SPIN', () => it.turn, v => { it.turn = Math.round(v); di(); }, -180, 180, 5, v => Math.round(v) + '°', true)];
+  return [num('TILT', () => it.lean || 0, v => { it.lean = Math.round(v); di(); }, -60, 60, 3, v => v ? (v > 0 ? 'BACK ' : 'FORWARD ') + Math.abs(Math.round(v)) + '°' : 'UPRIGHT'), num('CURL', () => it.curl || 0, v => { it.curl = +v.toFixed(2); di(); }, -1, 1, .05, v => Math.abs(v) < .03 ? 'FLAT' : (v > 0 ? 'TOWARD YOU ' : 'AWAY ') + pct(Math.abs(v))),
+    list('FACES', () => it.fixed ? 1 : 0, v => { it.fixed = v; di(); }, ['THE EYE', 'ITS OWN WAY']), num('GLOW', () => it.glow == null ? .14 : it.glow, v => { it.glow = v; di(); }, 0, 1, .02, v => v < .08 ? 'PAPER' : v > .6 ? 'PROJECTED' : pct(v))]; }
 function styleRings(p, dc) { const C = DOC.cake, Lt = DOC.light, Rm = DOC.room;
   if (p.key === 'cake') return [list('CAKE', () => C.preset == null ? 0 : C.preset, v => { const q = PRESETS[v]; Object.assign(C, { preset: v, form: q[1], icing: q[2], border: q[3] }); dc(); }, PRESETS.map(q => q[0])), list('FORM', () => Object.keys(FORMS).indexOf(C.form), v => { C.form = Object.keys(FORMS)[v]; dc(); }, Object.keys(FORMS)),
     list('ICING', () => C.icing, v => { C.icing = v; dc(); }, ICING.map(i => i[0])), list('BORDER', () => C.border, v => { C.border = v; dc(); }, BORDER.map(i => i[0]))];
   if (p.key === 'candles') return candleRings(DOC.candles, dc, false);
   if (p.key === 'writing') return writingRings(DOC.writing, dc);
   if (p.key === 'sketch') return sketchRings(DOC.sketch, dc);
-  if (p.key === 'table') return [list('WOOD', () => DOC.table.wood, v => { DOC.table.wood = v; dirty.table = true; }, WOOD.map(w => w[0])), list('SHAPE', () => DOC.table.shape, v => { DOC.table.shape = v; dirty.table = true; }, ['HEX', 'ROUND'])];
+  if (p.key === 'table') return [list('WOOD', () => DOC.table.wood, v => { DOC.table.wood = v; dirty.table = true; }, WOOD.map(w => w[0])), list('OUTLINE', () => DOC.table.shape, v => { DOC.table.shape = v; dirty.table = true; }, ['HEX', 'ROUND'])];
   if (p.key === 'light') return [num('WARMTH', () => Lt.warm, v => Lt.warm = v, 0, 1, .05, v => Math.round(lerp(6500, 2200, v) / 100) * 100 + ' K'), num('STRENGTH', () => Lt.k, v => Lt.k = v, 0, 3, .1, v => Math.round(v / 3 * 100) + '%')];
   if (p.key === 'room') { const PL = [null, ...CAT.filter(c => c.kind === 'place').map(c => c.id)]; return [list('PLACE', () => Math.max(0, PL.indexOf(Rm.place || null)), v => { Rm.place = PL[v]; }, PL.map(id => id ? CATBY[id].name : 'THE DOME')), list('ERA', () => Rm.era || 0, v => Rm.era = v, ERAS),
     num('MIST', () => Rm.mist, v => Rm.mist = v, 0, 1, .05, v => Math.round(v * 100) + '%'), num('MESS', () => Rm.mess, v => { Rm.mess = v; dirty.mess = true; }, 0, 1, .05, v => Math.round(v * 100) + '%')]; }
@@ -411,9 +425,10 @@ function viewBy(dyaw, dpitch, dzoom, panx, pany) { if (window.REMOTE) return win
   if (panx || pany) { const r = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion), u = new T.Vector3(0, 1, 0).applyQuaternion(cam.quaternion); V.pan.addScaledVector(r, -(panx || 0) * V.dist).addScaledVector(u, (pany || 0) * V.dist); } }
 
 /* =============================================================== BUTTONS: MODE · UNDO · PHONE on the grip; ADD · DEL · KEEP on the lens end */
-const MODES = ['PLACE', 'STYLE', 'VIEW'], MODECOL = { PLACE: 0x5fd07a, STYLE: 0xe0a040, VIEW: 0x6f9fe0 };
+const MODES = ['PLACE', 'SHAPE', 'STYLE', 'VIEW'], MODECOL = { PLACE: 0x5fd07a, SHAPE: 0xd27ac4, STYLE: 0xe0a040, VIEW: 0x6f9fe0 };
 function press(b, long) { if (window.REMOTE) { tick('press'); ORB.push(b); return window.REMOTE({ k: 'press', b, long }); } tick('press'); ORB.push(b);
-  if (b === 'MODE') { S.add = null; ghostDirty = true; S.mode = long ? 'VIEW' : MODES[(MODES.indexOf(S.mode) + 1) % 3]; say(S.mode === 'PLACE' ? 'PLACE · WHERE IT IS' : S.mode === 'STYLE' ? 'STYLE · WHAT IT IS LIKE' : 'VIEW · HOW IT IS SEEN'); }
+  if (b === 'MODE') { S.add = null; ghostDirty = true; S.mode = long ? 'VIEW' : MODES[(MODES.indexOf(S.mode) + 1) % MODES.length]; const pk = picked(); if (S.mode === 'SHAPE' && !(pk && shapeRings(pk, () => {}).length)) S.mode = 'STYLE';
+    const card = pk && pk.it && pk.it.type === 'cut'; say(S.mode === 'PLACE' ? 'PLACE · WHERE IT IS' : S.mode === 'SHAPE' ? (card ? 'SHAPE · BEND AND TILT THE CARD' : 'SHAPE · SCULPT IT') : S.mode === 'STYLE' ? 'STYLE · WHAT IT IS LIKE' : 'VIEW · HOW IT IS SEEN'); }
   else if (b === 'ADD') { if (!S.add) { if (S.mode === 'VIEW') S.mode = 'PLACE'; S.add = { s: DOC.cake ? 2 : 0, i: 0 }; ghostDirty = true; say('RING 1 A SHELF · RING 2 THE THING · ADD AGAIN TO PUT IT IN'); }
     else { const sh = shelves()[S.add.s], x = sh && sh.items[S.add.i]; if (!x) return; snap(true); create(x.key); S.add = null; ghostDirty = true; chime(); if (!x.key.startsWith('bday')) say(x.name + ' · IN'); } }
   else if (b === 'DEL') { if (S.add) { S.add = null; ghostDirty = true; say('CANCELLED'); return; } const p = picked(); if (!p || p.key === 'light' || p.key === 'room') { tick('dead'); return; } if (p.key === 'sketch' && DOC.sketch.pts.length && !long) { snap(true); DOC.sketch.pts = []; dirty.cake = true; say('SHAKEN CLEAN'); return; } snap(true); remove(p.key); setDoc(DOC); say(p.name + ' · OUT · UNDO BRINGS IT BACK'); }
@@ -514,6 +529,22 @@ addEventListener('keydown', e => { const k = e.key; if (S.mode !== 'VIEW' && S.p
   if (k >= '1' && k <= '5') { S.lastRing = +k - 1; oledDirty = true; } else if (k === 'ArrowUp' || k === 'ArrowDown') { e.preventDefault(); turn(Math.max(0, S.lastRing), k === 'ArrowUp' ? 1 : -1); } else if (k === 'ArrowLeft' || k === 'ArrowRight') { e.preventDefault(); scrub(Math.max(0, S.lastRing), k === 'ArrowRight' ? .25 : -.25); }
   else if (k === 'Tab' || k === 'm') { e.preventDefault(); press('MODE'); } else if (k === 'a') press('ADD'); else if (k === 'Delete' || k === 'Backspace' || k === 'x') press('DEL'); else if (k === 'z') press('UNDO', e.shiftKey); else if (k === 'p') PAIR.open(); else if (k === '[') setSqueeze(S.stretch - .1); else if (k === ']') setSqueeze(S.stretch + .1); });
 
+/* =============================================================== THE DEVICE'S OWN SOUNDS: if cut/device-sounds.wav is present (clicks, ratchet, ticks, comb and whirr cut from the scene),
+   the rings click with it, faster turns ratchet, presses tick; without it the synthesized clicks stay. Each ring is pitched a little differently. */
+const DEVSPR = {"click": [[0.0, 0.065], [0.115, 0.065], [0.23, 0.065], [0.345, 0.065], [0.46, 0.065], [0.575, 0.065], [0.69, 0.065], [0.805, 0.065], [0.92, 0.065]], "ratchet": [[1.035, 0.05], [1.135, 0.05], [1.235, 0.05], [1.335, 0.05]], "tick": [[1.435, 0.04], [1.525, 0.04]], "comb": [[1.615, 0.37]], "whirr": [[2.035, 0.62]]}; let DEVBUF = null, lastRingT = [0, 0, 0, 0, 0];
+fetch('cut/device-sounds.wav').then(r => r.ok ? r.arrayBuffer() : null).then(ab => { if (!ab) return; DEVBUF = ab; }).catch(() => { });
+const tickSynth = tick;
+tick = function (kind, i) { if (!DEVBUF || !(window.AudioContext || window.webkitAudioContext)) return tickSynth(kind, i);
+  try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume();
+    if (DEVBUF instanceof ArrayBuffer) { const ab = DEVBUF; DEVBUF = 'decoding'; AC.decodeAudioData(ab, b => { DEVBUF = b; }, () => { DEVBUF = null; }); }
+    if (!(DEVBUF instanceof AudioBuffer)) return tickSynth(kind, i);
+    if (window.SNDLOG && kind !== 'press') window.SNDLOG.push({ t: NOW, k: kind, i: i || 0 });
+    const now = performance.now(), fast = kind === 'ring' && now - (lastRingT[i || 0] || 0) < 70; if (kind === 'ring') lastRingT[i || 0] = now;
+    const set = kind === 'ring' ? DEVSPR[fast ? 'ratchet' : 'click'] : kind === 'press' ? DEVSPR.tick : DEVSPR.click, [o, d] = set[Math.floor(Math.random() * set.length)];
+    const n = AC.createBufferSource(); n.buffer = DEVBUF; n.playbackRate.value = kind === 'ring' ? 1 + ((i || 0) - 2) * .045 + (Math.random() - .5) * .03 : kind === 'dead' ? .7 : 1;
+    const g = AC.createGain(); g.gain.value = kind === 'dead' ? .25 : kind === 'press' ? .7 : .9; n.connect(g).connect(AC.destination); n.start(0, o, d);
+    if (kind === 'press') return tickSynth('press', i); } catch (e) { return tickSynth(kind, i); }
+  if (navigator.vibrate) navigator.vibrate(kind === 'press' ? 14 : kind === 'dead' ? 3 : 6); };
 /* =============================================================== THE DISPLAY */
 let oledDirty = true; function wrapLines(x, t, w, n) { const out = []; let cur = ''; for (const word of String(t || '').split(' ')) { const tr = cur ? cur + ' ' + word : word; if (x.measureText(tr).width > w && cur) { out.push(cur); cur = word; } else cur = tr; } if (cur) out.push(cur); if (out.length > n) { out.length = n; out[n - 1] += '…'; } return out; }
 function drawOLED() { const W = OLED.width, H = OLED.height, x = ox; x.fillStyle = '#020403'; x.fillRect(0, 0, W, H); const CY = '#5ff0dc', DIM = '#2e7a70', MID = '#8fe9dc';
@@ -561,8 +592,11 @@ function placeItem(m, it, dt) { const e = it.type === 'cut' ? CATBY[it.ref] : nu
   if (e) { const hh = e.h * it.size, ww = hh * e.fw / e.fh; m.scale.set(ww * (it.mirror ? -1 : 1), hh, 1); const lift = (e.lift || 0) * it.size, feet = 1 - (e.feet == null ? 1 : e.feet);
     if (pl === 'FLAT') { m.position.set(it.x, TOP + .002, it.z); m.rotation.set(-Math.PI / 2, 0, it.turn * Math.PI / 180); return; }
     if (pl === 'BACK') { m.position.set(it.x, it.up + hh / 2, it.z); m.rotation.set(0, 0, 0); return; }
-    m.position.set(it.x, (pl === 'AIR' ? TOP + it.up : y + lift) + hh / 2 - feet * hh, it.z); m.updateMatrixWorld(true); const wp = m.getWorldPosition(new T.Vector3()); m.lookAt(cam.position.x, wp.y, cam.position.z); m.rotateY(it.turn * Math.PI / 180); return; }
-  m.scale.setScalar(it.size); m.rotation.set(0, it.turn * Math.PI / 180, 0); if (pl === 'AIR') m.position.set(it.x, TOP + it.up + (it.ref === 'BALLOON' ? .45 : 0) + Math.sin(NOW * .8 + it.id) * .006, it.z); else if (pl === 'BACK') m.position.set(it.x, it.up, it.z); else m.position.set(it.x, y, it.z); }
+    bendCard(m, it.curl || 0); m.material.emissiveIntensity = it.glow == null ? .14 : it.glow;
+    m.position.set(it.x, (pl === 'AIR' ? TOP + it.up : y + lift) + hh / 2 - feet * hh, it.z); m.updateMatrixWorld(true); const wp = m.getWorldPosition(new T.Vector3());
+    if (it.fixed) m.rotation.set(0, 0, 0); else m.lookAt(cam.position.x, wp.y, cam.position.z); m.rotateY(it.turn * Math.PI / 180);
+    if (it.lean) { const b = hh / 2 - feet * hh; m.translateY(-b); m.rotateX(-it.lean * Math.PI / 180); m.translateY(b); } return; }
+  m.scale.set(it.size * (it.wide || 1), it.size * (it.tall || 1), it.size * (it.wide || 1)); m.rotation.set(0, it.turn * Math.PI / 180, (it.lean || 0) * Math.PI / 180, 'YXZ'); if (pl === 'AIR') m.position.set(it.x, TOP + it.up + (it.ref === 'BALLOON' ? .45 : 0) + Math.sin(NOW * .8 + it.id) * .006, it.z); else if (pl === 'BACK') m.position.set(it.x, it.up, it.z); else m.position.set(it.x, y, it.z); }
 function syncItems(dt) { const ids = new Set(DOC.items.map(it => it.id)); for (const id in ITEMM) if (!ids.has(+id) || dirty.items && ITEMM[id].userData.rebuild) { ITEMG.remove(ITEMM[id]); delete ITEMM[id]; }
   DOC.items.forEach(it => { let m = ITEMM[it.id]; const sig = it.type + it.ref + (it.color || 0); if (m && m.userData.sig !== sig) { ITEMG.remove(m); m = null; }
     if (!m) { m = it.type === 'cut' ? cutMesh(it) : propMesh(it); if (!m) return; m.userData.item = it.id; m.userData.sig = sig; m.traverse(o => o.userData.item = it.id); ITEMM[it.id] = m; ITEMG.add(m); }
