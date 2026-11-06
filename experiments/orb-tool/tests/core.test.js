@@ -228,5 +228,16 @@ test('R10 every made thing names its source; the memory carries its tests; the l
   t = orb.tests(); assert.equal(by('film-bar match').pass, true); assert.match(by('film-bar match').note, /agent:critic/);
   assert.ok(orb.save().tests.length === 4 && orb.save().tests.every(x => 'value' in x && 'bar' in x && 'pass' in x));
   assert.ok(S.birthday().people.every(p => p.source && p.source.by === 'film'));
-  orb.propose({ op: 'candles', args: { count: 9 } }, 'nine', A); orb.do({ op: 'reject' }, H); assert.deepEqual(orb.ledger().map(r => r.op), ['propose', 'reject']);
+  orb.propose({ op: 'candles', args: { count: 9 } }, 'nine', A); orb.do({ op: 'reject' }, H); assert.deepEqual(orb.ledger().map(r => r.op), ['measure', 'propose', 'reject']);
+});
+
+test('measure is not an edit: no history entry, UNDO steps past it, the value survives undo, the log and ledger keep it', () => {
+  const orb = B.createOrb({ state: S.birthday() }), sc = { author: 'agent:scene' };
+  orb.do({ op: 'candles', args: { count: 4 } }, H);
+  for (const v of [0.5, 0.64, 0.7]) assert.equal(orb.do({ op: 'measure', args: { test: 'film-bar match', value: v } }, sc).ok, true);
+  assert.equal(orb.history().length, 1); assert.equal(orb.cursor(), 1);
+  orb.undo(); assert.equal(orb.state().candles.count, 7, 'UNDO went to the candles, not a measure'); assert.equal(orb.state().measures['film-bar match'].value, 0.7);
+  orb.redo(); assert.equal(orb.state().measures['film-bar match'].value, 0.7);
+  assert.equal(orb.ledger().filter(r => r.op === 'measure').length, 3); assert.equal(orb.tests().find(t => t.name === 'film-bar match').pass, true);
+  assert.equal(JSON.stringify(B.replay(orb.save()).state()), JSON.stringify(orb.state()));
 });

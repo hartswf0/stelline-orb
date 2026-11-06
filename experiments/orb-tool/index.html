@@ -106,7 +106,7 @@
   const device = API.device = CORE_DEVICE.create(devCv, bus, { onUi: ui => ui === 'ask' ? openAsk() : ui === 'save' ? saveFile() : ui === 'load' ? document.getElementById('file').click() : ui === 'play' ? playback() : null });
   // ---- the status line: every op, from either hand, answers in words on the glass strip
   const WHO = a => a === 'hand' ? 'YOU' : a.replace(/^agent:/, '').toUpperCase();
-  bus.on('log', r => { if (r.same) return; device.say(r.ok ? WHO(r.author) + ': ' + (r.label || r.op) : WHO(r.author) + ' REFUSED: ' + r.error, !r.ok); });
+  bus.on('log', r => { if (r.same || r.nonedit) return; device.say(r.ok ? WHO(r.author) + ': ' + (r.label || r.op) : WHO(r.author) + ' REFUSED: ' + r.error, !r.ok); });
   // ---- playback: the history is the film. From the cursor to the end at the pace it was made (gaps over 1.2 s shortened)
   let playing = null;
   function playback(opts) { opts = opts || {}; if (playing) { clearTimeout(playing); playing = null; device.say('PLAYBACK STOPPED'); return; }

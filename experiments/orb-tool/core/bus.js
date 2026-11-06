@@ -5,6 +5,7 @@
   const node = typeof module !== 'undefined' && module.exports;
   const S = node ? require('./state.js') : root.CORE_STATE, O = node ? require('./ops.js') : root.CORE_OPS, TESTS = node ? require('./tests.js') : root.CORE_TESTS;
   const MERGEABLE = { set: 1, nudge: 1 };
+  const NONEDIT = { measure: 1 };   // ops that record, not edit: kept in the state and the log, never in the undoable history or the strip
   function createOrb(opts) {
     opts = opts || {};
     let state = opts.state ? S.clone(opts.state) : S.empty(); const initial = S.clone(state);
@@ -35,6 +36,7 @@
       const before = JSON.stringify(state), next = JSON.parse(before), ctx = { author, at: cursor };
       for (const x of list) { let e; try { e = O.OPS[x.op](next, S.clone(x.args), ctx); } catch (err) { e = 'failed: ' + err.message; } if (e) return refuse(x.op + ': ' + e); }
       if (!(list.length === 1 && (list[0].op === 'load' || list[0].op === 'reset'))) O.stamp(JSON.parse(before), next, author, list.map(x => O.label(x.op, x.args)).join(', '), ctx);
+      if (list.every(x => NONEDIT[x.op])) { rec.ok = true; rec.label = list.map(x => O.label(x.op, x.args)).join(', '); rec.nonedit = true; log.push(rec); state = next; emit('change', state, null); emit('log', rec); return { ok: true, nonedit: true }; }
       const after = JSON.stringify(next); if (after === before && !(list.length === 1 && list[0].op === 'snapshot')) { rec.ok = true; rec.same = true; log.push(rec); emit('log', rec); return { ok: true, same: true }; }
       const lab = list.map(x => O.label(x.op, x.args)).join(', ');
       rec.ok = true; rec.label = lab + (ctx.via ? ' (accepted ' + ctx.via + ')' : ''); log.push(rec);
@@ -44,7 +46,7 @@
       else { hist.length = cursor; hist.push({ t: rec.t, before, after, op: one ? one.op : 'batch', args: one ? one.args : list, author, via: ctx.via, gesture, path: one && one.args && one.args.path, label: lab }); cursor = hist.length; }
       state = next; const entry = hist[cursor - 1]; emit('change', state, entry); emit('log', rec); return { ok: true, entry: pub(entry, cursor - 1) };
     }
-    function moveTo(n) { n = Math.max(0, Math.min(hist.length, n)); if (n === cursor) return; state = JSON.parse(n === 0 ? hist[0].before : hist[n - 1].after); const e = hist[n - 1] || null, from = cursor; cursor = n; emit('change', state, e); emit('seek', n, from); }
+    function moveTo(n) { n = Math.max(0, Math.min(hist.length, n)); if (n === cursor) return; const keep = state.measures; state = JSON.parse(n === 0 ? hist[0].before : hist[n - 1].after); if (keep) state.measures = keep; else delete state.measures; const e = hist[n - 1] || null, from = cursor; cursor = n; emit('change', state, e); emit('seek', n, from); }
     function seek(n) { n = Math.max(0, Math.min(hist.length, Math.round(n))); if (n === cursor) return { ok: true }; return doOps({ op: n < cursor ? 'undo' : 'redo', args: { steps: Math.abs(n - cursor) } }, { author: 'hand' }); }
     const pub = (h, i) => ({ i, t: h.t, op: h.op, args: h.args, author: h.author, via: h.via, label: h.label });
     function describe() { if (describeFn) return describeFn(S.clone(state)); return defaultDescribe(state); }
@@ -64,7 +66,7 @@
       save: () => ({ format: 'orb-memory', v: 1, state: S.clone(state), initial: S.clone(initial), log: log.map(r => S.clone(r)), tests: TESTS ? TESTS.run(state) : [] }),
       initial: () => S.clone(initial),
       tests: () => TESTS ? TESTS.run(state) : [],
-      ledger: () => log.filter(r => /^(propose|amend|accept|reject)$/.test(r.op)).map(r => S.clone(r)),
+      ledger: () => log.filter(r => /^(propose|amend|accept|reject|measure)$/.test(r.op)).map(r => S.clone(r)),
       load: (json, meta) => { let m = json; if (typeof m === 'string') { try { m = JSON.parse(m); } catch (e) { return { ok: false, error: 'not JSON' }; } } return doOps({ op: 'load', args: { memory: m } }, meta || { author: 'hand' }); },
       paths: () => S.allPaths(state),
       ops: () => O.NAMES.slice()
