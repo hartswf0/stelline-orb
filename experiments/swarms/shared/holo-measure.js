@@ -69,9 +69,11 @@ function roiData(img) { const c = new OffscreenCanvas(ROI.w, ROI.h), x = c.getCo
 function lum(d) { const n = d.length / 4, L = new Float32Array(n); for (let i = 0; i < n; i++) L[i] = 0.2126 * d[i * 4] + 0.7152 * d[i * 4 + 1] + 0.0722 * d[i * 4 + 2]; return L; }
 function pct(stack, q) { const n = stack[0].length, out = new Float32Array(n), v = new Float32Array(stack.length); for (let i = 0; i < n; i++) { for (let k = 0; k < stack.length; k++) v[k] = stack[k][i]; v.sort(); out[i] = v[Math.floor(q * (v.length - 1))]; } return out; }
 function samp(L, x, y) { const W = ROI.w, H = ROI.h; if (x < 0 || y < 0 || x >= W - 1 || y >= H - 1) return 0; const x0 = x | 0, y0 = y | 0, fx = x - x0, fy = y - y0, i = y0 * W + x0; return L[i] * (1 - fx) * (1 - fy) + L[i + 1] * fx * (1 - fy) + L[i + W] * (1 - fx) * fy + L[i + W + 1] * fx * fy; }
-function fitEllipse(L) { const W = ROI.w, pts = []; let bg = 1e9, mx = 0; for (let y = ROI.wallY; y < ROI.h; y++) for (let x = 60; x < W; x++) { const v = L[y * W + x]; if (v < bg) bg = v; if (v > mx) mx = v; }
-  const th = bg + 0.3 * (mx - bg) * 0.6; for (let y = ROI.wallY; y < ROI.h; y++) for (let x = 60; x < W; x++) { const v = L[y * W + x]; if (v > th) pts.push([x, y, v - th]); }
-  let best = null; for (let asp = 0.7; asp <= 1.12; asp += 0.02) for (let cx = 70; cx <= 150; cx += 1.5) for (let cy = 90; cy <= 130; cy += 1.5) { let sw = 0, sr = 0, sr2 = 0; for (const [x, y, w] of pts) { const r = Math.hypot((x - cx) / asp, y - cy); sw += w; sr += w * r; sr2 += w * r * r; } const mu = sr / sw, sd = Math.sqrt(Math.max(0, sr2 / sw - mu * mu)) / mu; if (!best || sd < best.sd) best = { sd, asp, cx, cy, R: mu }; }
+function fitEllipse(L) { const W = ROI.w, pts = []; let bg = 1e9, mx = 0; const G0 = { cx: 112, cy: 110, R: 80 };
+  const ok = (x, y) => { const r = Math.hypot(x - G0.cx, y - G0.cy) / G0.R; return y >= ROI.wallY && x >= 88 && r > 0.72 && r < 1.3; };
+  for (let y = 0; y < ROI.h; y++) for (let x = 0; x < W; x++) if (ok(x, y)) { const v = L[y * W + x]; if (v < bg) bg = v; if (v > mx) mx = v; }
+  const th = bg + 0.25 * (mx - bg); for (let y = 0; y < ROI.h; y++) for (let x = 0; x < W; x++) if (ok(x, y)) { const v = L[y * W + x]; if (v > th) pts.push([x, y, v - th]); }
+  let best = null; for (let asp = 0.72; asp <= 1.1; asp += 0.02) for (let cx = 90; cx <= 135; cx += 1) for (let cy = 95; cy <= 125; cy += 1) { let sw = 0, sr = 0, sr2 = 0; for (const [x, y, w] of pts) { const r = Math.hypot((x - cx) / asp, y - cy); sw += w; sr += w * r; sr2 += w * r * r; } const mu = sr / sw, sd = Math.sqrt(Math.max(0, sr2 / sw - mu * mu)); if (!best || sd < best.sd) best = { sd, asp, cx, cy, R: mu }; }
   return best; }
 // polar unwrap in the frame of an ellipse fit: rho in units of R, theta in degrees (canvas convention, negative = above)
 const TH0 = -135, TH1 = 85, RH0 = 0.55, RH1 = 1.3;
@@ -101,11 +103,11 @@ function chamfer(A, B) { const d = (P, Q) => { let s = 0; for (const p of P) { l
 function markAngle(L, plate, F, thr) { let best = 0, ba = null; for (let t = -60; t <= 40; t += 0.5) { const a = t * Math.PI / 180; for (let rr = 0.9; rr <= 1.16; rr += 0.02) { const r = rr * F.R, v = samp(L, F.cx + Math.cos(a) * r * F.asp, F.cy + Math.sin(a) * r) - samp(plate, F.cx + Math.cos(a) * r * F.asp, F.cy + Math.sin(a) * r); if (v > best) { best = v; ba = t; } } } return best > thr ? { a: ba, v: best } : null; }
 function markBlob(L, plate, F, m) { const W = ROI.w, a = m.a * Math.PI / 180, x0 = F.cx + Math.cos(a) * F.R * F.asp, y0 = F.cy + Math.sin(a) * F.R; let x1 = 1e9, x2 = -1, y1 = 1e9, y2 = -1, n = 0; for (let y = Math.round(y0 - 10); y <= y0 + 10; y++) for (let x = Math.round(x0 - 12); x <= x0 + 12; x++) { const i = y * W + x; if (L[i] - plate[i] > m.v * 0.5) { n++; x1 = Math.min(x1, x); x2 = Math.max(x2, x); y1 = Math.min(y1, y); y2 = Math.max(y2, y); } } return { w: x2 - x1 + 1, h: y2 - y1 + 1, n }; }
 // the readout: rows of tiny type left of the arc
-const RD = { x: 0, y: 130, w: 130, h: 60 };
-function readFeat(L, bgL) { const W = ROI.w, rows = new Float32Array(RD.h); const lit = []; for (let y = 0; y < RD.h; y++) for (let x = 0; x < RD.w; x++) { const i = (RD.y + y) * W + RD.x + x, v = L[i] - bgL[i]; if (v > 9) { rows[y] += v; lit.push([x, y]); } }
-  const pk = []; for (let y = 1; y < RD.h - 1; y++) if (rows[y] > 120 && rows[y] >= rows[y - 1] && rows[y] > rows[y + 1]) pk.push(y);
-  const lines = []; pk.forEach(y => { let a = y, b = y; while (a > 0 && rows[a - 1] > rows[y] / 2) a--; while (b < RD.h - 1 && rows[b + 1] > rows[y] / 2) b++; let x1 = 1e9, x2 = -1; lit.forEach(([x, yy]) => { if (yy >= a && yy <= b) { x1 = Math.min(x1, x); x2 = Math.max(x2, x); } }); lines.push({ y, h: b - a + 1, x1, x2, len: x2 - x1 + 1 }); });
-  return lines.filter(l => l.len > 4); }
+const RD = { x: 14, y: 138, w: 112, h: 50, k: 0.18 };   // rows are deskewed: the readout rises to the right (k = measured slope)
+function readFeat(L, bgL) { const W = ROI.w, H2 = RD.h + 26, rows = new Float32Array(H2); const lit = []; for (let y = 0; y < RD.h; y++) for (let x = 0; x < RD.w; x++) { const i = (RD.y + y) * W + RD.x + x, v = L[i] - bgL[i]; if (v > 7) { const yy = Math.round(y + x * RD.k); rows[yy] += v; lit.push([x, yy]); } }
+  const pk = []; for (let y = 1; y < H2 - 1; y++) if (rows[y] > 60 && rows[y] >= rows[y - 1] && rows[y] > rows[y + 1] && (!pk.length || y - pk[pk.length - 1] > 2)) pk.push(y);
+  const lines = []; pk.forEach(y => { let a = y, b = y; while (a > 0 && rows[a - 1] > rows[y] / 2) a--; while (b < H2 - 1 && rows[b + 1] > rows[y] / 2) b++; let x1 = 1e9, x2 = -1, n = 0; lit.forEach(([x, yy]) => { if (yy >= a && yy <= b) { n++; x1 = Math.min(x1, x); x2 = Math.max(x2, x); } }); lines.push({ y, h: b - a + 1, x1, x2, len: x2 - x1 + 1, n }); });
+  return lines.filter(l => l.len > 6 && l.n > 6); }
 `;
 
 /* ---------------------------------------------------------------- the in-page evolution */
@@ -126,7 +128,7 @@ async function filmMeasure(frames, arcSeries, readSeries, kidUrl) {
   const rf = Ls.map(L => readFeat(L, bgL)); const glyph = [], gapsY = [], lens = []; rf.forEach((ls, i) => { ls.forEach(l => glyph.push(l.h)); for (let k = 1; k < ls.length; k++) gapsY.push(ls[k].y - ls[k - 1].y); lens.push(ls.length ? ls[ls.length - 1].len : 0); });
   const med = a => { const s = a.slice().sort((p, q) => p - q); return s[s.length >> 1]; };
   const rate = typeRate(rf.map(ls => ls.length ? ls[ls.length - 1].x2 : null), 24);
-  const readStart = med(rf.filter(ls => ls.length).map(ls => ls[0].x1)), readY = med(rf.filter(ls => ls.length).map(ls => ls[0].y));
+  const readStart = med(rf.filter(ls => ls.length).map(ls => ls[0].x1)), readY = med(rf.filter(ls => ls.length).map(ls => ls[0].y - Math.round(ls[0].x1 * RD.k)));
   // the child's mark at 153.07 (k04): its extent
   const ki = await loadImg(kidUrl); const kc = new OffscreenCanvas(80, 70), kx = kc.getContext('2d'); kx.drawImage(ki, -810, -125); const kd = lum(kx.getImageData(0, 0, 80, 70).data); let x1 = 99, x2 = -1, y1 = 99, y2 = -1, kmx = 0; kd.forEach(v => kmx = Math.max(kmx, v)); kd.forEach((v, i) => { if (v > kmx * 0.45) { const x = i % 80, y = (i / 80) | 0; x1 = Math.min(x1, x); x2 = Math.max(x2, x); y1 = Math.min(y1, y); y2 = Math.max(y2, y); } });
   return { F, feat, E, plate, marks: series, markOffset: best.off, markAgree: best.r, markBias: bias, markRmsVsSeries: rm, blob, read: { glyphH: med(glyph), lineGap: med(gapsY), maxLines: Math.max(...rf.map(l => l.length)), maxLen: Math.max(...lens), rate, x0: readStart, y0: readY, series: rf.map(l => l.length) }, kid: { w: x2 - x1 + 1, h: y2 - y1 + 1 } };
@@ -173,7 +175,7 @@ const GENES = [['fit.dx', -6, 6], ['fit.dy', -6, 6], ['arc.R', 70, 100], ['arc.a
   ['arc.capA1', -95, -55], ['arc.capGain', 0.8, 2.6], ['arc.gapW', 0.8, 6], ['arc.hairR', 0.6, 0.92], ['arc.hairA', 0, 0.8], ['arc.glow', 0, 4], ['arc.glowA', 0, 0.9], ['arc.col.0', 140, 255], ['arc.col.1', 140, 255], ['arc.col.2', 120, 255],
   ['arc.markW', 3, 14], ['arc.markH', 2, 10], ['arc.markOff', -4, 6], ['arc.edge', 0, 4],
   ['steps.blinkFrames', 2, 5.5], ['steps.drift', 0, 5], ['steps.driftTime', 0.15, 1.2],
-  ['readout.glyphH', 1, 4.5], ['readout.lineGap', 3.5, 10], ['readout.typeRate', 20, 200], ['readout.lineW', 50, 140], ['readout.charW', 0.8, 3], ['readout.burst', 0.04, 0.2]];
+  ['readout.glyphH', 1, 4.5], ['readout.lineGap', 3.5, 10], ['readout.typeRate', 20, 200], ['readout.lineW', 50, 140], ['readout.charW', 0.8, 3], ['readout.burst', 0.04, 0.2], ['readout.blur', 0, 3]];
 function getP(o, p) { return p.split('.').reduce((a, k) => a[k], o); } function setP(o, p, v) { const ks = p.split('.'), l = ks.pop(); ks.reduce((a, k) => a[k], o)[l] = v; }
 function evolve(G0, seed, gens, onGen) { const rnd = HOLO.prng(seed); const clone = o => JSON.parse(JSON.stringify(o)); let pop = [{ G: G0, r: scoreGenome(G0) }]; const log = [];
   for (let gen = 0; gen < gens; gen++) { const kids = []; const sigma = 0.12 * Math.pow(0.96, gen);

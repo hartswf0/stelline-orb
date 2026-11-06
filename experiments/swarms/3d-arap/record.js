@@ -29,7 +29,7 @@ fs.mkdirSync(out, { recursive: true });
       else if (s[1] === 'k' || s[1] === 't') { const ix = s[1] === 'k' ? 1 : 2, cur = await p.evaluate(i => MM.RINGS[i].target, ix); drag(geo[s[1]], s[2] - cur, Math.max(4, Math.round(s[3] * 30))); log.push([+t.toFixed(2), 'drag ' + (s[1] === 'k' ? 'KNURL' : 'TRIANGLE'), s[2] - cur]); } }
     for (const a of pending.filter(a => a[0] === F)) await a[1](); pending = pending.filter(a => a[0] > F);
     await p.evaluate(() => MM.advance(1 / 30));
-    await p.screenshot({ path: path.join(out, String(F).padStart(5, '0') + '.jpg'), type: 'jpeg', quality: 90, timeout: 600000 });
+    for (let tries = 0; ; tries++) { try { await p.screenshot({ path: path.join(out, String(F).padStart(5, '0') + '.jpg'), type: 'jpeg', quality: 90, timeout: 600000 }); break; } catch (e) { if (tries >= 4) throw e; await new Promise(r => setTimeout(r, 2000)); } }   /* the machine is shared and loaded: retry a failed capture */
     if (F % 60 === 0) console.log('frame', F, 'of', N, Math.round((Date.now() - t0) / 1000) + ' s', await p.evaluate(() => MM.STAGES[MM.S.stage] + ' ' + MM.tName()));
   }
   const au = await p.evaluate(d => MM.renderAudio(0, d), DUR); fs.writeFileSync(path.join(out, 'audio.wav'), Buffer.from(au.b64, 'base64'));

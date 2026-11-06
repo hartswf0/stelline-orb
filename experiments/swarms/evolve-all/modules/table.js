@@ -13,10 +13,9 @@
   const CANDLE = [1, .70, .22], GAIN = .8;  // reference candle tint and gain: how a surface albedo reads as an sRGB colour in the party frames
   /* [key, group, min, max, default(=blank)] */
   const genes = [
-    ['sides', 'SHAPE', 4, 6.5, 4],         // continuous: between integers the polygon morphs (a vertex splits); the blank is a square post
+    ['hex', 'SHAPE', 0, 1, 0],             // 0 = a square post, 1 = a regular hexagon; between them an elongated hexagon (long front and back edges, as the film's)
     ['stretch', 'SHAPE', .8, 1.3, 1],      // the top widened along x
     ['yaw', 'SHAPE', -20, 20, 0],          // degrees; 0 = a vertex pointing right (+x)
-    ['warp', 'SHAPE', 0, .9, 0],           // moves the vertices toward the x axis: lengthens the front and back edges (the film's hexagon is not regular)
     ['radius', 'SIZE', .05, .5, .05],      // top: centre to vertex
     ['height', 'SIZE', .25, .75, .5],      // floor to top surface
     ['thick', 'SIZE', .008, .12, .12],     // edge thickness
@@ -28,17 +27,18 @@
     ['topR', 'COLOUR', .2, 1, .5], ['topG', 'COLOUR', .2, 1, .5], ['topB', 'COLOUR', .1, .9, .5], ['legLum', 'COLOUR', 0, .6, .3],
   ];
   const groups = ['SHAPE', 'SIZE', 'BASE', 'COLOUR'];
-  const stages = [['SHAPE', 'silhouette', .83], ['SIZE', 'frame', .85], ['COLOUR', 'palette', .82]];
+  const stages = [['SHAPE', 'silhouette', .86], ['SIZE', 'frame', .8], ['COLOUR', 'palette', .85]];
   const making = [['legs rise', 0, .35], ['top set', .35, .65], ['colour', .65, .8], ['cloth falls', .8, 1]];
   const IDX = {}; genes.forEach((g, i) => IDX[g[0]] = i);
   const named = G => { const o = {}; genes.forEach((g, i) => o[g[0]] = G[i]); return o; };
   const blank = () => Float64Array.from(genes.map(g => g[4]));
   /* ------------------------------------------------------------------ the top as numbers */
-  function top(G) { const g = named(G), n0 = Math.floor(g.sides), f = g.sides - n0, n = f > 1e-9 ? n0 + 1 : n0, r = g.radius, h = g.height, th = Math.min(g.thick, h - .005);
-    // continuous in the number of sides: an n0-gon with its first vertex doubled morphs into an (n0+1)-gon as the gene goes from n0 to n0+1
-    const yaw = g.yaw * D2R, verts = []; for (let i = 0; i < n; i++) { const b = lerp(i < n0 ? i / n0 : 1, i / n, n > n0 ? f : 0) * Math.PI * 2, a = yaw + b - g.warp * Math.sin(2 * b) / 2; verts.push([Math.cos(a) * r * g.stretch, Math.sin(a) * r]); }
+  /* the top: six vertices that morph from a square (hex = 0: two vertices sit on the middle of the left and right sides) to a hexagon (hex = 1) */
+  const SQ_A = [0, 45, 135, 180, 225, 315], HX_A = [0, 60, 120, 180, 240, 300], SQ_R = [Math.SQRT1_2, 1, 1, Math.SQRT1_2, 1, 1];
+  function top(G) { const g = named(G), n = 6, hx = clamp(g.hex, 0, 1), r = g.radius, h = g.height, th = Math.min(g.thick, h - .005);
+    const yaw = g.yaw * D2R, verts = []; for (let i = 0; i < n; i++) { const b = lerp(SQ_A[i], HX_A[i], hx) * D2R, rr = r * lerp(SQ_R[i], 1, hx), a = yaw + b; verts.push([Math.cos(a) * rr * g.stretch, Math.sin(a) * rr]); }
     let rIn = 1e9; for (let i = 0; i < n; i++) { const [x1, z1] = verts[i], [x2, z2] = verts[(i + 1) % n], L = Math.hypot(x2 - x1, z2 - z1); if (L > 1e-9) rIn = Math.min(rIn, Math.abs(x1 * z2 - x2 * z1) / L); }   // the smallest centre-to-edge distance
-    return { y: h, thick: th, sides: n, rOut: r, rIn, stretch: g.stretch, yaw: g.yaw, verts }; }
+    return { y: h, thick: th, sides: n, hex: hx, rOut: r, rIn, stretch: g.stretch, yaw: g.yaw, verts }; }
   /* ------------------------------------------------------------------ silhouette: the top face projected from the film's camera elevation, normalised by its width */
   const GRID = [96, 32, -.55, .55, -.02, .33];
   function rasterPoly(poly, W, H, X0, X1, Y0, Y1) { const m = new Uint8Array(W * H), sx = W / (X1 - X0), sy = H / (Y1 - Y0);
@@ -76,7 +76,7 @@
     const fits = .05 + .95 * sstep(.3, 1.5, T.rIn / CAKE_R);
     const below = (cl ? (g.cloth - .5) / .5 * lum(g.clothR, g.clothG, g.clothB) * 40 : 0) + g.legLum * 12 * (legs === 1 ? 1 : .6);   // predicted luma under the top
     const dark = 1 / (1 + Math.pow(Math.max(0, below - (t.belowLuma || 2.8)) / 8, 2));
-    const support = stand * fits, frame = .5 * proportion + .5 * support;
+    const support = stand * fits, frame = proportion * support;
     const pal = palette * dark, fit = .35 * silhouette + .4 * frame + .25 * pal;
     return { fit, parts: { frame, silhouette, iou: IoU, chamfer: cham, corners: nc, proportion, support, palette: pal, colourMatch: palette, stand, fits, dark, cakeToTop, heightToWidth: hToW, edgeToWidth: eToW, seen } };
   }

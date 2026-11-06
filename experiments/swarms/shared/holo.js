@@ -69,10 +69,11 @@ function drawArc(ctx, cx, cy, s, g, st) {
 }
 /* the readout: rows of tiny type, typed left to right. lines: array of glyph-width arrays (negative = space); typed: how many px of the last line are shown */
 function drawReadout(ctx, x0, y0, s, g, lines, typed, alpha) {
-  const A = alpha == null ? 1 : alpha; if (A <= 0.002 || !lines.length) return;
+  const A = alpha == null ? 1 : alpha; if (A <= 0.002 || !lines.length) return; ctx.save(); ctx.translate(x0, y0); ctx.transform(1, -(g.slant || 0), 0, 1, 0, 0); x0 = 0; y0 = 0; if (g.blur > 0 && ctx.filter !== undefined) ctx.filter = `blur(${(g.blur * s).toFixed(2)}px)`;   // rows rise to the right, as seen in the film
   for (let i = 0; i < lines.length; i++) { const ln = lines[i], lim = i === lines.length - 1 ? typed : 1e9; let px = 0; const y = y0 + i * g.lineGap * s;
     for (let k = 0; k < ln.length; k++) { const w = ln[k]; if (px >= lim) break; if (w > 0) { const ww = Math.min(w, lim - px); ctx.fillStyle = rgba(g.col, g.alpha * A * (0.75 + 0.25 * ((k * 7919) % 13) / 13)); ctx.fillRect(x0 + px * s, y - g.glyphH * s / 2, ww * s, g.glyphH * s * (((k * 31) % 5) ? 1 : 0.7)); }
       px += Math.abs(w) + g.charGap; } }
+  ctx.restore();
 }
 function makeLine(g, rnd, width) { const out = []; let x = 0; const W = width || g.lineW * (0.8 + 0.2 * rnd());
   while (x < W) { const n = Math.round(lerp(g.wordMin, g.wordMax, rnd())); for (let k = 0; k < n && x < W; k++) { const w = g.charW * (0.6 + 0.8 * rnd()); out.push(w); x += w + g.charGap; } out.push(-g.spaceW); x += g.spaceW + g.charGap; } return out; }

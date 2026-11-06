@@ -33,8 +33,8 @@
   if (!T) throw new Error('LOOK needs THREE (r128) loaded first');
 
   /* ------------------------------------------------------------------ the genome (defaults = accepted values) */
-  const GENOME = {"exposure":1.1,"keyIntensity":2.4,"keyKelvin":2500,"keyCone":0.5,"keySoft":0.75,"keyHeight":1.3,"candleIntensity":0.9,"candleDecay":1.6,"candleKelvin":1900,"ambient":0.05,"ambientCool":0.6,"bgLevel":0.004,"wbR":1.06,"wbB":0.8,"contrast":1.08,"saturation":1.0,"blackPoint":0.012,"toe":1.15,"bloomStrength":0.55,"bloomRadius":0.7,"bloomThreshold":1.1,"halation":0.5,"flame":3.2,"haloSize":1.0,"grain":0.03,"grainSize":1.2,"aperture":0.9,"vignette":0.55,"spotSteady":0.0,"spotPitch":4,"icingTone":0.92,"icingWarm":0.25,"spongeTone":0.85,"chocoTone":0.5,"tableTone":0.7,"tableWarm":0.5,"roughIcing":0.72,"bumpIcing":1.0,"band":1.0};
-  const RANGES = {exposure:[0.3,3],keyIntensity:[0,8],keyKelvin:[1800,4000],keyCone:[0.2,0.95],keySoft:[0.1,1],keyHeight:[0.6,2.2],candleIntensity:[0,4],candleDecay:[0.6,2.6],candleKelvin:[1400,2600],ambient:[0,0.4],ambientCool:[0,1],bgLevel:[0,0.03],wbR:[0.8,1.4],wbB:[0.45,1.1],contrast:[0.7,1.5],saturation:[0.5,1.6],blackPoint:[0,0.05],toe:[0.7,2],bloomStrength:[0,2],bloomRadius:[0.2,1.6],bloomThreshold:[0.3,3],halation:[0,1],flame:[1,8],haloSize:[0.3,2.5],grain:[0,0.1],grainSize:[0.6,2.5],aperture:[0,3],vignette:[0,1.6],spotSteady:[0,0.2],spotPitch:[2,9],icingTone:[0.4,1.05],icingWarm:[0,1],spongeTone:[0.4,1.05],chocoTone:[0.15,1.2],tableTone:[0.2,1.05],tableWarm:[0,1],roughIcing:[0.3,1],bumpIcing:[0,3],band:[0.2,2.5]};
+  const GENOME = {"exposure":1.1,"keyIntensity":2.4,"keyKelvin":2500,"keyCone":0.5,"keySoft":0.75,"keyHeight":1.3,"keyForward":0.5,"candleIntensity":0.9,"candleDecay":1.6,"candleKelvin":1900,"ambient":0.05,"ambientCool":0.6,"bgLevel":0.004,"wbR":1.06,"wbB":0.8,"contrast":1.08,"saturation":1.0,"blackPoint":0.012,"toe":1.15,"bloomStrength":0.55,"bloomRadius":0.7,"bloomThreshold":1.1,"halation":0.5,"flame":3.2,"haloSize":1.0,"grain":0.03,"grainSize":1.2,"aperture":0.9,"vignette":0.55,"spotSteady":0.0,"spotPitch":4,"icingTone":0.92,"icingWarm":0.25,"spongeTone":0.85,"chocoTone":0.5,"tableTone":0.7,"tableWarm":0.5,"roughIcing":0.72,"bumpIcing":1.0,"band":1.0};
+  const RANGES = {exposure:[0.3,3],keyIntensity:[0,8],keyKelvin:[1800,4000],keyCone:[0.2,0.95],keySoft:[0.1,1],keyHeight:[0.6,2.2],keyForward:[-0.4,1.4],candleIntensity:[0,4],candleDecay:[0.6,2.6],candleKelvin:[1400,2600],ambient:[0,0.4],ambientCool:[0,1],bgLevel:[0,0.03],wbR:[0.8,1.4],wbB:[0.45,1.1],contrast:[0.7,1.5],saturation:[0.5,1.6],blackPoint:[0,0.05],toe:[0.7,2],bloomStrength:[0,2],bloomRadius:[0.2,1.6],bloomThreshold:[0.3,3],halation:[0,1],flame:[1,8],haloSize:[0.3,2.5],grain:[0,0.1],grainSize:[0.6,2.5],aperture:[0,3],vignette:[0,1.6],spotSteady:[0,0.2],spotPitch:[2,9],icingTone:[0.4,1.05],icingWarm:[0,1],spongeTone:[0.4,1.05],chocoTone:[0.15,1.2],tableTone:[0.2,1.05],tableWarm:[0,1],roughIcing:[0.3,1],bumpIcing:[0,3],band:[0.2,2.5]};
   const G = Object.assign({}, GENOME);
 
   /* ------------------------------------------------------------------ helpers */
@@ -178,7 +178,7 @@
     copy: 'uniform sampler2D tA; varying vec2 vUv; void main(){ gl_FragColor = texture2D(tA, vUv); }',
     dof: `uniform sampler2D tA; uniform sampler2D tD; uniform vec2 px; uniform float near, far, focus, ap, maxR; varying vec2 vUv;
       float lin(float d){ float z = d * 2.0 - 1.0; return 2.0 * near * far / (far + near - z * (far - near)); }
-      float coc(vec2 uv){ float z = lin(texture2D(tD, uv).x); return clamp(abs(z - focus) / max(z, 1e-3) * ap * 60.0, 0.0, maxR); }
+      float coc(vec2 uv){ float z = lin(texture2D(tD, uv).x); return clamp(abs(z - focus) / max(z, 1e-3) * ap * 12.0, 0.0, maxR); }
       void main(){ float c0 = coc(vUv); vec4 acc = vec4(texture2D(tA, vUv).rgb, 1.0); if (c0 < 0.35 && maxR < 0.01) { gl_FragColor = vec4(acc.rgb, 1.0); return; }
         for (int i = 1; i < 40; i++) { float fi = float(i); float a = fi * 2.39996; float r = sqrt(fi / 40.0) * maxR; vec2 o = vec2(cos(a), sin(a)) * r * px; float cs = coc(vUv + o);
           float w = smoothstep(r - 1.0, r, min(cs, c0 + 1.5) ); w = max(w, smoothstep(r - 1.0, r, cs) * step(c0, cs)); acc += vec4(texture2D(tA, vUv + o).rgb * w, w); }
@@ -231,7 +231,7 @@
     };
     P.process = (inTex, depthTex, camera, target) => {
       const W = P.W, H = P.H; let src = inTex;
-      const maxR = clamp(G.aperture * 7 * (H / 540), 0, 22);
+      const maxR = clamp(G.aperture * 4 * (H / 540), 0, 14);
       if (depthTex && camera && G.aperture > 0.01 && P.enabled.dof) {
         pass(M.dof, { tA: { value: inTex }, tD: { value: depthTex }, px: { value: new T.Vector2(1 / W, 1 / H) }, near: { value: camera.near }, far: { value: camera.far }, focus: { value: P.focusDist }, ap: { value: G.aperture * (H / 540) }, maxR: { value: maxR } }, P.dofRT);
         src = P.dofRT.texture;
@@ -296,7 +296,7 @@
     const tmp = new T.Vector3();
     function sync() {
       key.color.copy(kelvin(G.keyKelvin)); key.intensity = G.keyIntensity; key.angle = G.keyCone; key.penumbra = G.keySoft;
-      key.position.set(target.x + 0.12, target.y + G.keyHeight, target.z + 0.28);
+      key.position.set(target.x + 0.12, target.y + G.keyHeight, target.z + G.keyForward);
       candle.color.copy(kelvin(G.candleKelvin)); candle.decay = G.candleDecay;
       hemi.intensity = G.ambient; hemi.color.setRGB(0.55 + 0.25 * (1 - G.ambientCool), 0.6, 0.55 + 0.3 * G.ambientCool);
       if (roomG) roomG.traverse(x => { if (x.material && x.material.userData.lookBand) { x.material.color.setHex(x.material.transparent ? 0x9fb0aa : 0xdfe8e4).multiplyScalar(G.band); } });
