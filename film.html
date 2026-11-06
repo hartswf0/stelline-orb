@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VESPER // STELLINE ORB DIRECTOR FILM (FLM-0021)</title>
+<style>
+  :root {
+    --bg: #030508;
+    --panel: #090d13;
+    --border: rgba(95, 240, 220, 0.22);
+    --cyan: #5ff0dc;
+    --gold: #ffcc66;
+    --orange: #ff9f43;
+    --red: #ff5a3c;
+    --green: #98f5b0;
+    --ink: #ecf3f8;
+    --muted: #8fa3b5;
+    --mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: radial-gradient(circle at 50% 0%, #0d1620 0%, #030508 65%);
+    color: var(--ink);
+    font-family: var(--sans);
+    min-height: 100vh;
+    padding: 20px 24px 48px;
+  }
+  header {
+    max-width: 1320px;
+    margin: 0 auto 18px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 14px;
+  }
+  .brand {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: var(--cyan);
+    font-weight: 700;
+  }
+  .brand span { color: var(--gold); }
+  .nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink);
+    text-decoration: none;
+    padding: 6px 11px;
+    border-radius: 4px;
+    border: 1px solid rgba(140, 170, 195, 0.3);
+    background: rgba(12, 18, 26, 0.85);
+    transition: all 0.15s ease;
+  }
+  .nav-links a:hover, .nav-links a.primary {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    background: rgba(20, 44, 54, 0.9);
+  }
+  .nav-links a.gold {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(48, 36, 14, 0.88);
+  }
+  main {
+    max-width: 1320px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 18px;
+    align-items: start;
+  }
+  @media (max-width: 1024px) {
+    main { grid-template-columns: 1fr; }
+  }
+  .player-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
+  }
+  .video-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #020304;
+  }
+  video {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+    background: #020304;
+  }
+  .player-bar {
+    padding: 12px 16px;
+    border-top: 1px solid rgba(95, 240, 220, 0.16);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  button {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink);
+    background: #121c26;
+    border: 1px solid rgba(95, 240, 220, 0.35);
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  button:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+  }
+  button.active-act {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(52, 38, 14, 0.92);
+  }
+  .chapters-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .chapters-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    font-weight: 700;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 204, 102, 0.22);
+  }
+  .act-btn {
+    text-align: left;
+    padding: 8px 10px;
+    background: rgba(14, 20, 28, 0.9);
+    border: 1px solid rgba(130, 155, 175, 0.22);
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    transition: all 0.14s ease;
+  }
+  .act-btn .t-range {
+    font-size: 10px;
+    color: var(--cyan);
+  }
+  .act-btn .act-name {
+    font-size: 11px;
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .act-btn .act-desc {
+    font-family: var(--sans);
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 400;
+    line-height: 1.35;
+  }
+  .live-section {
+    max-width: 1320px;
+    margin: 22px auto 0;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .live-header {
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(95, 240, 220, 0.18);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--cyan);
+  }
+  iframe {
+    width: 100%;
+    height: 760px;
+    border: 0;
+    display: block;
+    background: #020304;
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">VESPER // <span>FLM-0021</span> · STELLINE MEMORY WEAVER DIRECTOR FILM (3D HORIZONTAL 5-RING SCROLL ENGINE · 1280x720 H.264 + FOLEY AUDIO)</div>
+    <nav class="nav-links">
+      <a href="weaver.html" class="gold">OPEN LIVE 3D MEMORY WEAVER</a>
+      <a href="field-orb-05.html" class="primary">FIELD ORB 05 (3D SCROLL ENGINE)</a>
+      <a href="stage.html">STAGE-0019</a>
+      <a href="mist.html">MIST-0020</a>
+      <a href="index.html">INDEX</a>
+      <a href="versions.html">VERSIONS</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="player-card">
+      <div class="video-wrap">
+        <video id="orbFilm" src="assets/stelline-orb-film.mp4" controls autoplay loop playsinline preload="auto"></video>
+      </div>
+      <div class="player-bar">
+        <div class="btn-group">
+          <button id="playPauseBtn">PAUSE / PLAY</button>
+          <button id="restartBtn">RESTART 00:00</button>
+          <button id="unmuteBtn">UNMUTE MECHANICAL FOLEY + PAD</button>
+        </div>
+        <div id="timecodeReadout" style="color:var(--gold)">TIMECODE // 00:00.00 / 00:34.13</div>
+        <a href="assets/stelline-orb-film.mp4" download="stelline_orb_film.mp4" style="color:var(--cyan);text-decoration:none;font-weight:700;">DOWNLOAD .MP4 (H.264 + AAC)</a>
+      </div>
+    </section>
+
+    <aside class="chapters-card">
+      <div class="chapters-title">6-ACT 3D HORIZONTAL 5-RING SCROLL ENGINE SEQUENCE</div>
+
+      <button class="act-btn" data-seek="0.0">
+        <span class="t-range">[00:00.0 - 00:04.5] ACT I · THE 4 CAKE EVOLUTIONS</span>
+        <span class="act-name">Ring 3 (VERB: BUNDT -> DRUM -> DOME -> TIERS) + Ring 5 (PUT DOWN)</span>
+        <span class="act-desc">Dials Ring 3 VERB and Ring 5 PUT DOWN / AMOUNT to materialize and frost the fluted chocolate Bundt, white Drum, golden lemon Dome, and hero 2-tier cake.</span>
+      </button>
+
+      <button class="act-btn" data-seek="4.5">
+        <span class="t-range">[00:04.5 - 00:09.5] ACT II · LOOK ORBIT + MAKE (PULL OUT, SPIN-12 & FROST)</span>
+        <span class="act-name">Ring 1 (LOOK / MAKE) + Ring 3 (PULL OUT / FROST) + Ring 4 (HEIGHT)</span>
+        <span class="act-desc">Circles the cake in LOOK mode, swells both tiers with PULL OUT and 12-fold radial symmetry footprints (SPIN 12), and glazes rose, chocolate, and white buttercream.</span>
+      </button>
+
+      <button class="act-btn" data-seek="9.5">
+        <span class="t-range">[00:09.5 - 00:18.5] ACT III · 360° PIPING, ROSETTES, CHERRIES, BERRIES & 7 CANDLES</span>
+        <span class="act-name">Ring 3 (PIPE / ROSETTES / CHERRIES / BERRIES / CANDLES) + Ring 5</span>
+        <span class="act-desc">Pipes closed 360° white, rose, and gold beaded borders via Ring 5 LENGTH, then places 10 rosettes, 8 cherries, 12 berries, rainbow sprinkles, and 7 lit striped candles.</span>
+      </button>
+
+      <button class="act-btn" data-seek="18.5">
+        <span class="t-range">[00:18.5 - 00:24.5] ACT IV · SCENE-GRAPH PICK, 3D RGB GIZMO, 3 CHILDREN & DOF</span>
+        <span class="act-name">Ring 1 (MOVE / TURN / SIZE / LOOK) + Ring 2 (PICK) + 3D RGB Gizmo</span>
+        <span class="act-desc">Walks the scene graph with Ring 2 PICK (CANDLE 4, CAKE, CHILD 1..3), lifts Candle 4 with the 3D RGB Gizmo, stages all 3 film children, and racks 28-tap optical DOF focus.</span>
+      </button>
+
+      <button class="act-btn" data-seek="24.5">
+        <span class="t-range">[00:24.5 - 00:29.5] ACT V · TIME STOP-MOTION, ONION SKIN & BLOW OUT CANDLES</span>
+        <span class="act-name">Ring 1 (TIME) + DO (Add Frame) + BLOW OUT 7 Candles + TWEEN 24</span>
+        <span class="act-desc">Adds stop-motion Frame 2 with cyan wireframe onion-skin ghosting, blows out all 7 candles ("ALL OUT · MAKE A WISH"), and plays smooth 24fps tweened rotation.</span>
+      </button>
+
+      <button class="act-btn" data-seek="29.5">
+        <span class="t-range">[00:29.5 - 00:34.1] ACT VI · WEAVE: 6,000-PARTICLE MIST TRAILS & KEEP GLB</span>
+        <span class="act-name">Ring 1 (WEAVE) + Ring 4 (MATERIALIZE) + Ring 5 (MIST 75%) + KEEP</span>
+        <span class="act-desc">Dissolves the memory into 6,000 additive particles and 7 temporal trail echoes hanging behind the turning cake, records a live ring take, and opens GLB · SCENE export.</span>
+      </button>
+    </aside>
+  </main>
+
+  <section class="live-section">
+    <div class="live-header">
+      <span>LIVE INTERACTIVE 3D HORIZONTAL 5-RING SCROLL ENGINE // MEMORY WEAVER (DRAG RINGS 1..5 UP/DOWN OR SIDEWAYS; PRESS MODE / UNDO / DO / PLAY / KEEP)</span>
+      <a href="weaver.html" style="color:var(--gold);text-decoration:none;">OPEN FULLSCREEN -></a>
+    </div>
+    <iframe src="weaver.html" title="Live Interactive Memory Weaver 3D Scroll Engine"></iframe>
+  </section>
+
+  <script>
+    const vid = document.getElementById('orbFilm');
+    const tc = document.getElementById('timecodeReadout');
+    const actBtns = Array.from(document.querySelectorAll('.act-btn'));
+    const ranges = [0, 4.5, 9.5, 18.5, 24.5, 29.5, 35.0];
+
+    document.getElementById('playPauseBtn').addEventListener('click', () => {
+      if (vid.paused) vid.play();
+      else vid.pause();
+    });
+    document.getElementById('restartBtn').addEventListener('click', () => {
+      vid.currentTime = 0;
+      vid.play();
+    });
+    document.getElementById('unmuteBtn').addEventListener('click', () => {
+      vid.muted = false;
+      vid.volume = 0.9;
+      vid.play();
+    });
+    actBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        vid.currentTime = Number(btn.dataset.seek);
+        vid.play();
+      });
+    });
+    vid.addEventListener('timeupdate', () => {
+      const t = vid.currentTime || 0;
+      tc.textContent = `TIMECODE // 00:${t.toFixed(2).padStart(5, '0')} / 00:34.13`;
+      actBtns.forEach((b, i) => {
+        b.classList.toggle('active-act', t >= ranges[i] && t < ranges[i + 1]);
+      });
+    });
+  </script>
+</body>
+</html>

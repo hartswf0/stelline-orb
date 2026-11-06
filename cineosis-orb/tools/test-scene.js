@@ -1,0 +1,23 @@
+const { chromium } = require('playwright');
+(async () => {
+  const b = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-webgl', '--ignore-gpu-blocklist'] });
+  const p = await b.newPage({ viewport: { width: 1280, height: 860 } });
+  const errs = []; p.on('pageerror', e => errs.push('PE ' + e.message)); p.on('console', m => { if (m.type() === 'error') errs.push('CE ' + m.text().slice(0, 160)); });
+  await p.goto('http://127.0.0.1:8095/cineosis-orb/', { waitUntil: 'load' }); await p.waitForTimeout(2500);
+  const run = async (src, sec) => p.evaluate(([s, n]) => { eval(s); for (let k = 0; k < n * 30; k++) FORGE.step(1 / 30); }, [src, sec || .5]);
+  const shot = async n => { await p.evaluate(() => FORGE.advance(1 / 30)); await p.screenshot({ path: `/home/claude/stelline-work/corb/s${n}.jpg`, quality: 82 }); };
+  await p.evaluate(() => FORGE.manual());
+  const addFrom = (shelf, item) => `FORGE.press('ADD'); { const SH = FORGE.shelves(); const si = SH.findIndex(s => s.n === '${shelf}'); FORGE.S.add.s = si; FORGE.S.add.i = Math.max(0, SH[si].items.findIndex(x => x.name === '${item}')); } FORGE.press('ADD');`;
+  await run(addFrom('CAKES', 'CHOCOLATE TIERS'), .5); await run(addFrom('ON THE CAKE', 'CANDLES')); await run(addFrom('TABLE', 'TABLE'), 1);
+  await run(addFrom('PROPS', 'PLATE')); await run(addFrom('PROPS', 'PRESENT')); await run(addFrom('PROPS', 'PARTY HAT')); await run(addFrom('PROPS', 'BALLOON'));
+  await run(addFrom('FROM THE FILM', 'CHILD 1')); await run(addFrom('FROM THE FILM', 'CHILD 3')); await run(addFrom('MOVING', 'CAT')); await run(addFrom('CAST', 'BECKY'), 1);
+  await shot(0);
+  await run("FORGE.press('ADD'); FORGE.S.add.s = FORGE.shelves().findIndex(s => s.n === 'MOVING'); FORGE.S.add.i = 3; FORGE.turn(1,0)", .5); await shot(1); await run("FORGE.press('DEL')");
+  await run(addFrom('ON THE CAKE', 'ICING PEN')); await run("FORGE.press('MODE'); for (let k=0;k<10;k++) FORGE.turn(1,1); FORGE.turn(3,1); for (let k=0;k<12;k++) FORGE.turn(2,1); for (let k=0;k<8;k++) FORGE.turn(1,-1)", .5);
+  await run("FORGE.pickKey('room'); FORGE.S.mode='STYLE'; FORGE.turn(2,8)", 1); await shot(2);
+  await run("FORGE.turn(1,10)", 1); await shot(3);
+  await run("FORGE.press('MODE'); FORGE.setView('TOP')", 1.5); await shot(4);
+  await run("FORGE.setView('FLY')", 2); await shot(5);
+  console.log(JSON.stringify(await p.evaluate(() => ({ n: FORGE.CAT.length, things: FORGE.things().map(t => t.name), shelves: FORGE.shelves().map(s => s.n + ':' + s.items.length) }))));
+  console.log(errs.slice(0, 8)); await b.close();
+})();
