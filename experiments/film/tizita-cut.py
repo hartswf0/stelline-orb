@@ -3,7 +3,7 @@
 import json, subprocess, os, numpy as np
 from scipy.io import wavfile
 from scipy.signal import resample
-W = '/home/claude/stelline-work/mv/'; M = '/home/claude/stelline-work/film/memory.mp4'; SR = 48000; FPS = 30; END = 209.8
+W = os.environ.get('W', '/home/claude/stelline-work/mv/'); M = '/home/claude/stelline-work/film/memory.mp4'; SR = 48000; FPS = 30; END = 209.8
 # [song start, song end, source start, keep her voice]
 REAL = [(0.0, 5.6, 128.4, 0), (5.6, 11.6, 137.5, 0), (11.6, 13.7, 167.3, 0),
         (24.6, 28.1, 190.8, 1), (44.5, 46.6, 145.0, 0), (57.6, 61.0, 223.3, 1), (84.2, 88.2, 152.0, 0), (98.1, 100.4, 256.2, 1),
@@ -67,3 +67,6 @@ def write(name, x):
     print(name, os.path.getsize(W + 'tizita-' + name + '.mp4') // 1e6, 'MB')
 write('with-the-device', song * duck[:, None] + voice + dev * .55)
 write('song-and-her', song * duck[:, None] + voice)
+# the whole scene underneath: the original clip's sound from her walk onward runs beneath the song the whole way, low, so the room is always there
+bed = dec(M, 128.4, END)[:L]; bed = np.pad(bed, ((0, L - len(bed)), (0, 0)))
+write('song-and-the-scene', song * duck[:, None] + voice + bed * .32 * ((duck - .3) / .7)[:, None] + dev * .45)
