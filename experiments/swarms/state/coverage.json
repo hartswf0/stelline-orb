@@ -5,16 +5,16 @@
   "watch>hide": 140,
   "hide>refuse": 67,
   "refuse>watch": 165,
-  "watch>approach": 172,
+  "watch>approach": 173,
   "approach>watch": 35,
-  "watch>retreat": 116,
-  "retreat>refuse": 127,
-  "watch>refuse": 91,
+  "watch>retreat": 117,
+  "retreat>refuse": 128,
+  "watch>refuse": 90,
   "hide>watch": 97,
   "approach>blow": 122,
-  "blow>watch": 117,
+  "blow>watch": 118,
   "refuse>hide": 72,
-  "watch>blow": 10,
+  "watch>blow": 11,
   "hide>retreat": 8,
   "refuse>retreat": 7,
   "blow>refuse": 13,
@@ -137,7 +137,7 @@
   {
    "name": "declared: every transition taken in 200 random runs x 80 s is in the declared table",
    "ok": true,
-   "detail": "1361 transitions taken, 0 undeclared"
+   "detail": "1365 transitions taken, 0 undeclared"
   },
   {
    "name": "locomotion continuity: position moves only by walking (max 0.5 m/s), body turn <= 4.2 rad/s, sit changes <= 1/0.65 per s",
@@ -157,7 +157,12 @@
   {
    "name": "lasting cost (critic r1): after being pressed she stops short and looks back at Ana before she blows; fresh she does not",
    "ok": true,
-   "detail": "pressed: pause 22.70 s, blow 28.47 s; fresh: pause null, blow 8.90 s"
+   "detail": "pressed: pause 22.67 s, blow 28.40 s; fresh: pause null, blow 8.90 s"
+  },
+  {
+   "name": "visible memory (critic r2): pressed, watching before the approach, a wary act starts at least every 5 s; fresh shows none; fresh approaches within 8 s of setup",
+   "ok": true,
+   "detail": "pressed watching 15.27-33.17 s, 7 acts (3 looks back, 4 half-steps), longest gap 2.90 s; fresh acts 0, fresh setup-to-approach 3.53 s"
   }
  ]
 }

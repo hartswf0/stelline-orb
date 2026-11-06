@@ -98,6 +98,15 @@ function repairRun(pressed) { const W = M.createWorld({ seed: 7 }); for (let i =
 const fresh = repairRun(false), pressed = repairRun(true);
 check('lasting cost (critic r1): after 6 s of calling at 6/6 and a 112 cm cake push, time from setup to approach >= 2x fresh', fresh.ap && pressed.ap && pressed.ap >= 2 * fresh.ap, `fresh ${fresh.ap && fresh.ap.toFixed(2)} s, pressed ${pressed.ap && pressed.ap.toFixed(2)} s (x${(pressed.ap / fresh.ap).toFixed(2)})`);
 check('lasting cost (critic r1): after being pressed she stops short and looks back at Ana before she blows; fresh she does not', pressed.pause != null && pressed.blow != null && pressed.pause < pressed.blow && fresh.pause == null, `pressed: pause ${pressed.pause && pressed.pause.toFixed(2)} s, blow ${pressed.blow && pressed.blow.toFixed(2)} s; fresh: pause ${fresh.pause}, blow ${fresh.blow && fresh.blow.toFixed(2)} s`);
+/* 11 · critic round 2 repair condition: the memory is visible while she watches before the approach. In the pressed run, every 5 s of that watching
+   contains the start of a wary act (a look back at Ana or a half-step toward the cake and back) that a fresh run never shows; a fresh run still approaches within 8 s. */
+function watchActs(r) { const tr = r.trace, ap = tr.find(t => t.to.startsWith('approach')); let w0 = null;
+  for (const t of tr) { if (t === ap) break; if (t.to.startsWith('watch') && !t.from.startsWith('watch')) w0 = t.t; else if (!t.to.startsWith('watch')) w0 = null; }
+  const acts = tr.filter(t => (t.to === 'watch.glance' || t.to === 'watch.edge') && (!ap || t.t < ap.t)).map(t => t.t); return { w0, w1: ap && ap.t, acts }; }
+{ const pw = watchActs(pressed), fw = watchActs(fresh); let worst = 0, prev = pw.w0; for (const a of pw.acts.concat([pw.w1])) { if (a >= pw.w0) { worst = Math.max(worst, a - prev); prev = a; } }
+  check('visible memory (critic r2): pressed, watching before the approach, a wary act starts at least every 5 s; fresh shows none; fresh approaches within 8 s of setup',
+    pw.w0 != null && pw.acts.length >= 2 && worst <= 5 && fw.acts.length === 0 && fresh.ap <= 8,
+    `pressed watching ${pw.w0 && pw.w0.toFixed(2)}-${pw.w1 && pw.w1.toFixed(2)} s, ${pw.acts.length} acts (${pressed.trace.filter(t => t.to === 'watch.glance').length} looks back, ${pressed.trace.filter(t => t.to === 'watch.edge').length} half-steps), longest gap ${worst.toFixed(2)} s; fresh acts ${fw.acts.length}, fresh setup-to-approach ${fresh.ap.toFixed(2)} s`); }
 /* write the traces and coverage */
 const pick = W => ({ transitions: W.girl.trans, samples: W.girl.samples.filter((s, i) => i % 2 === 0), inputs: W.log.filter(e => ['hand', 'select', 'hold', 'off', 'call'].includes(e.k)), candles: W.candles, ended: W.ended });
 const traces = { note: 'Decision traces of the birthday girl, run headless in node through memory.js with the scripted device input in scenarios.js (seed 7). Each transition carries every utility, the guards, the drives and what she believed she had seen at that tick. Samples every 0.2 s.',

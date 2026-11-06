@@ -40,7 +40,7 @@ const SONG = (() => { const G4 = 392, A4 = 440, B4 = 493.88, C5 = 523.25, D5 = 5
 
 /* ------------------------------------------------------------------ THE GIRL: declared states, sub-states, transitions, guards, action windows */
 const STATES = ['watch', 'approach', 'retreat', 'hide', 'refuse', 'blow'];
-const SUBS = { watch: ['look'], approach: ['walk', 'pause', 'slow', 'arrive'], retreat: ['back'], hide: ['lower', 'hidden', 'peek'], refuse: ['turn', 'sulk', 'glance'], blow: ['inhale', 'blow', 'after'] };
+const SUBS = { watch: ['look', 'glance', 'edge'], approach: ['walk', 'pause', 'slow', 'arrive'], retreat: ['back'], hide: ['lower', 'hidden', 'peek'], refuse: ['turn', 'sulk', 'glance'], blow: ['inhale', 'blow', 'after'] };
 const ALLOWED = { watch: ['approach', 'retreat', 'hide', 'refuse', 'blow'], approach: ['watch', 'retreat', 'refuse', 'blow'], retreat: ['watch', 'refuse', 'hide'],
   hide: ['watch', 'refuse', 'retreat'], refuse: ['watch', 'hide', 'retreat'], blow: ['watch', 'refuse'] };
 const GUARDS = { approach: 'has seen the cake low and still for 1.5 s; candles lit; fear < 0.35; pressure < 0.15',
@@ -199,6 +199,11 @@ function blowWindow(g, w, out) { const a = g.t - g.blowStart;
   if (g.sub === 'blow') { g.puffs = g.puffs.filter((pt, i) => { if (g.t >= pt) { out('puff', { i: 7 - g.puffs.length }); return false; } return true; }); if (a >= WINDOW.inhale + WINDOW.blow) setSub(g, 'after', out); }
   if (g.sub === 'after' && a >= WINDOW.inhale + WINDOW.blow + WINDOW.after) { g.after = true; enter(g, 'watch', w, out); } }
 function subStates(g, w, out) { const age = g.t - g.subSince;
+  if (g.st === 'watch') {   // wary watching: the memory of being pushed builds an urge (faster with fear and with the candles' pull) that breaks out as a look back at Ana or a half-step toward the cake and back
+    g.urge = g.M > 0.25 && !g.after ? (g.urge || 0) + g.M * (0.4 + g.F + 0.5 * g.A) * DT : 0;
+    if (g.sub === 'look' && g.urge > 1.6 && age > 0.5) { g.urge = 0; if (g.A * g.T > 0.8 * g.F && g.T > 0.12 && (g.edgeN || 0) <= (g.glanceN || 0)) { setSub(g, 'edge', out); g.edgeFrom = { x: g.x, z: g.z }; g.edgeN = (g.edgeN || 0) + 1; } else { setSub(g, 'glance', out); g.glanceN = (g.glanceN || 0) + 1; } }
+    else if (g.sub === 'glance' && age > 1.3) setSub(g, 'look', out);
+    else if (g.sub === 'edge' && age > 2.4) setSub(g, 'look', out); }
   if (g.st === 'refuse') { if (g.sub === 'turn' && age > 0.6) setSub(g, 'sulk', out);
     else if (g.sub === 'sulk' && g.C > 0.45 && g.P < 0.12 && g.t - g.glanceAt > 2.2 && age > 1.2) { setSub(g, 'glance', out); g.glanceAt = g.t; }
     else if (g.sub === 'glance' && age > 1.1) setSub(g, 'sulk', out); }
@@ -220,7 +225,10 @@ function body(g, w, dt, out) {
   const gazeAng = g.gazeAt === 'cake' ? toCake : g.gazeAt === 'ana' ? ang(g.x, g.z, w.ana.x, w.ana.z) : ang(g.x, g.z, 0, -0.58);
   let psiT = clamp(wrap(gazeAng - g.th), -1.3, 1.3);
   switch (g.st) {
-    case 'watch': if (Math.abs(wrap(toCake - g.th)) > 0.7 || g.after) thT = toCake; hdT = 0.15 * g.F; crossT = g.after ? 0 : 0.3 * g.F; break;
+    case 'watch': if (Math.abs(wrap(toCake - g.th)) > 0.7 || g.after) thT = toCake; hdT = 0.15 * g.F; crossT = g.after ? 0 : Math.max(0.3 * g.F, 0.6 * g.M * (1 - g.T));   // arms drawn in while she remembers
+      if (g.sub === 'glance') { psiT = clamp(wrap(ang(g.x, g.z, w.ana.x, w.ana.z) - g.th), -1.9, 1.9); crossT = 0.85; hdT = 0.1; }
+      if (g.sub === 'edge') { thT = toCake; const a = g.t - g.subSince, d = hyp(g.x, g.z, g.edgeFrom.x, g.edgeFrom.z); if (a < 0.8) vT = 0.28; else { back = true; vT = d > 0.02 ? 0.22 : 0; } psiT = clamp(wrap(toCake - g.th), -1.3, 1.3); }
+      break;
     case 'approach': { const r = Math.hypot(g.x, g.z), tx = g.x / r * GEO.reach, tz = g.z / r * GEO.reach, d = r - GEO.reach; thT = ang(g.x, g.z, tx, tz);
       vT = d < 0.02 || g.sub === 'pause' ? 0 : d < 0.3 || g.paused ? 0.2 : 0.45; psiT = g.sub === 'pause' ? clamp(wrap(ang(g.x, g.z, w.ana.x, w.ana.z) - g.th), -1.9, 1.9) : clamp(wrap(toCake - g.th), -1.3, 1.3);
       tabT = g.sub === 'arrive' ? 1 : 0; crossT = g.sub === 'pause' ? 0.6 : 0; hdT = g.sub === 'pause' ? 0.2 : 0; break; }

@@ -29,7 +29,7 @@ button.x { font: 500 12px 'Oswald', sans-serif; letter-spacing: .12em; color: va
 <script>
 'use strict';
 const T = THREE, TAU = Math.PI * 2, clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t, E = window.EVO;
-const Q = new URLSearchParams(location.search), REC = Q.has('rec'), SEED = +(Q.get('seed') || 2049);
+const Q = new URLSearchParams(location.search), REC = Q.has('rec'), SEED = +(Q.get('seed') || 2092);
 let NOW = 0, REF = null;
 /* =============================================================== SOUND: the device's own grains (ana/device-sounds.wav) and a tone that follows fitness */
 const SPR = { click: [[0, .065], [.115, .065], [.23, .065], [.345, .065], [.46, .065], [.575, .065], [.69, .065], [.805, .065], [.92, .065]], ratchet: [[1.035, .05], [1.135, .05], [1.235, .05], [1.335, .05]], tick: [[1.435, .04], [1.525, .04]], comb: [[1.615, .37]], whirr: [[2.035, .62]] };
@@ -82,13 +82,14 @@ function makeHeadView(slY, slX, op) { const g = new T.Group(); const geo = new T
 function setHead(v, G) { const m = E.headMesh(G); if (!v.idx) { v.body.geometry.setIndex(E.indices(m.rows, m.cols)); v.idx = true; } v.body.geometry.setAttribute('position', new T.BufferAttribute(m.P, 3)); v.body.geometry.attributes.position.needsUpdate = true; v.body.geometry.computeBoundingSphere();
   const a = E.slices(m, 'y', v.slY), b = v.slX ? E.slices(m, 'x', v.slX) : new Float32Array(0), all = new Float32Array(a.length + b.length); all.set(a); all.set(b, a.length);
   v.lines.geometry.setAttribute('position', new T.BufferAttribute(all, 3)); v.lines.geometry.computeBoundingSphere(); return m; }
-const BEADMAT = new T.MeshLambertMaterial({ color: 0x1a0f08 });
-function makeCakeView(slY, op, solid) { const g = new T.Group(); const body = new T.Mesh(new T.BufferGeometry(), new T.MeshLambertMaterial({ vertexColors: true, transparent: true, opacity: solid })); const lines = new T.LineSegments(new T.BufferGeometry(), lineMat(op));
+const BEADMAT = new T.MeshBasicMaterial({ color: 0x0c0704 });
+function makeCakeView(slY, op, solid) { const g = new T.Group(); const body = new T.Mesh(new T.BufferGeometry(), new T.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: solid })); const lines = new T.LineSegments(new T.BufferGeometry(), lineMat(op));
   const beads = new T.InstancedMesh(new T.SphereGeometry(.011, 6, 4), BEADMAT, 90); beads.count = 0; g.add(body, lines, beads); g.scale.setScalar(CS); return { g, body, lines, beads, slY, idx: 0 }; }
 function setCake(v, G) { const m = E.cakeMesh(G), n = m.P.length / 3, col = new Float32Array(n * 3), g = m.g, layers = 1 + Math.round(g.tiers * 2), C = m.colours;
   for (let r = 0; r < m.rows; r++) { const p = m.parts[r], y = clamp(m.P[r * m.cols * 3 + 1] / m.H, 0, 1); let c = p === 'board' ? C.board : p === 'top' ? C.top : C.side;
     if (p === 'side') { if (y > 1 - (.04 + .1 * g.fill)) c = C.top; else for (let L = 1; L < layers; L++) if (Math.abs(y - L / layers) < .035 + .05 * g.fill) c = C.fill; }
-    for (let j = 0; j < m.cols; j++) { const i = (r * m.cols + j) * 3; col[i] = Math.pow(c[0] / 255, 2.2); col[i + 1] = Math.pow(c[1] / 255, 2.2); col[i + 2] = Math.pow(c[2] / 255, 2.2); } }
+    for (let j = 0; j < m.cols; j++) { const i = (r * m.cols + j) * 3, a = j / (m.cols - 1) * TAU, face = Math.max(0, Math.cos(a)), lit = E.lightK(g, p === 'top' ? .85 + .15 * face : (.18 + .82 * Math.pow(face, .8)) * (.55 + .45 * y)) * 1.15;
+      col[i] = Math.pow(clamp(c[0] * lit / 255, 0, 1), 2.2); col[i + 1] = Math.pow(clamp(c[1] * lit / 255, 0, 1), 2.2); col[i + 2] = Math.pow(clamp(c[2] * lit / 255, 0, 1), 2.2); } }
   const geo = v.body.geometry; if (v.idx !== m.rows) { geo.setIndex(E.indices(m.rows, m.cols)); v.idx = m.rows; } geo.setAttribute('position', new T.BufferAttribute(m.P, 3)); geo.setAttribute('color', new T.BufferAttribute(col, 3)); geo.computeVertexNormals(); geo.computeBoundingSphere();
   v.lines.geometry.setAttribute('position', new T.BufferAttribute(E.slices(m, 'y', v.slY), 3)); v.lines.geometry.computeBoundingSphere();
   const nb = Math.round(g.beads * 90), m4 = new T.Matrix4(), rt = .5 * lerp(.8, 1.12, g.taper); v.beads.count = nb;
@@ -101,7 +102,7 @@ const GHOST = { head: new T.LineLoop(new T.BufferGeometry(), new T.LineDashedMat
   cake: new T.LineLoop(new T.BufferGeometry(), new T.LineDashedMaterial({ color: 0x9fb6b0, dashSize: .006, gapSize: .006, transparent: true, opacity: .0, depthWrite: false })) };
 scene.add(GHOST.head, GHOST.cake);
 // the population: eight small variants on a ring around the form, shown one per machine step as a generation is bred
-const KIDV = { head: [], cake: [] }, KR = .34;
+const KIDV = { head: [], cake: [] }, KR = .2;
 for (let i = 0; i < E.LAMBDA; i++) { const h = makeHeadView(12, 0, .5), c = makeCakeView(6, .35, .9); [h, c].forEach(v => { v.g.scale.multiplyScalar(.32); v.g.visible = false; scene.add(v.g); }); KIDV.head.push(h); KIDV.cake.push(c); }
 // candles (as in ana/index.html): seven, on her cake, lit one by one when both forms have grown into their references
 const CANDLES = new T.Group(); scene.add(CANDLES); const FLAMES = [];
@@ -237,24 +238,25 @@ function ghostFor(k, m) { const L = GHOST[k], poly = REF[k].outline; const S2 = 
   const s = k === 'head' ? y1 - y0 : x1 - x0, cx = (x0 + x1) / 2, sc = k === 'head' ? HS : CS, pts = poly.map(([x, y]) => new T.Vector3((cx + x * s) * sc, -(y0 + y * s) * sc, 0)); L.geometry.setFromPoints(pts); L.computeLineDistances(); }
 let lastMesh = { head: null, cake: null };
 function step(dt) { NOW += dt; machine(dt); candles(dt);
-  const yaw = S.yaw * Math.PI / 180, D = .92, ec = new T.Vector3(0, CY + .01, 0); cam.position.set(Math.sin(yaw) * D, CY + .1, Math.cos(yaw) * D); cam.lookAt(ec);
+  const yaw = S.yaw * Math.PI / 180, hf = 2 * Math.atan(Math.tan(cam.fov * Math.PI / 360) * cam.aspect), D = .3 / Math.sin(Math.min(cam.fov * Math.PI / 180, hf) / 2), ec = new T.Vector3(0, CY + .01, 0); cam.position.set(Math.sin(yaw) * D, CY + .1, Math.cos(yaw) * D); cam.lookAt(ec);
   const both = POP.head.matched && POP.cake.matched, k = kindNow(), dark = S.offAt ? clamp((NOW - S.offAt) / 1.0, 0, 1) : 0; S.dark = dark;
   // morph each form toward its parent genome: the sculpting is seen, not cut
   ['head', 'cake'].forEach(kk => { const P = POP[kk]; if (P.morphT < 1) { P.morphT = Math.min(1, P.morphT + dt / .38); const u = P.morphT * P.morphT * (3 - 2 * P.morphT); P.shown = P.from.map((v, i) => lerp(v, P.parent.G[i], u)); lastMesh[kk] = kk === 'head' ? setHead(HEAD, P.shown) : setCake(CAKE, P.shown); }
     if (!lastMesh[kk]) lastMesh[kk] = kk === 'head' ? setHead(HEAD, P.shown) : setCake(CAKE, P.shown); P.flash = Math.max(0, P.flash - dt * 2.2); });
   // placement: the form being worked hangs in the middle; once both are grown they sit as the birthday (her head behind her cake)
   const showH = both || k === 'head', showC = both || k === 'cake';
-  HEADPIV.position.lerp(both ? new T.Vector3(0, CY + .13, -.17) : new T.Vector3(0, CY + .02, 0), Math.min(1, dt * 3)); CAKEPIV.position.lerp(both ? new T.Vector3(0, CY - .14, .04) : new T.Vector3(0, CY - .07, 0), Math.min(1, dt * 3));
+  HEADPIV.position.lerp(both ? new T.Vector3(0, CY + .1, -.17) : new T.Vector3(0, CY + .02, 0), Math.min(1, dt * 3)); CAKEPIV.position.lerp(both ? new T.Vector3(0, CY - .14, .04) : new T.Vector3(0, CY - .07, 0), Math.min(1, dt * 3));
   HEADPIV.visible = showH; CAKEPIV.visible = showC;
   // the neuroglow: cool while far from the reference, warming as the match approaches the threshold
   const hp = POP.head, hcol = COOL.clone().lerp(WARM, clamp((hp.parent.fit - .55) / (E.THRESH.head - .55), 0, 1)); HEAD.lines.material.color.copy(hcol).multiplyScalar((1 + hp.flash * .9) * (1 - dark)); HEAD.lines.material.opacity = .55 + .3 * hp.flash;
   HEAD.body.material.opacity = 1 - dark; const cp = POP.cake; CAKE.lines.material.color.copy(COOL.clone().lerp(WARM, clamp((cp.parent.fit - .5) / (E.THRESH.cake - .5), 0, 1))).multiplyScalar((.6 + cp.flash) * (1 - dark)); CAKE.body.material.opacity = 1 - dark;
   // the ghost of the reference: in the reference camera's plane, fades as you kneel away from it and once the form is grown
-  ['head', 'cake'].forEach(kk => { const L = GHOST[kk], P = POP[kk]; if (lastMesh[kk] && (P.morphT < 1 || !L.userData.ok)) { ghostFor(kk, lastMesh[kk]); L.userData.ok = 1; } const piv = kk === 'head' ? HEADPIV : CAKEPIV; L.position.copy(piv.position); if (kk === 'head') L.position.z += .1; else { L.position.z += .17; L.rotation.x = 0; }
+  ['head', 'cake'].forEach(kk => { const L = GHOST[kk], P = POP[kk]; if (lastMesh[kk] && (P.morphT < 1 || !L.userData.ok)) { ghostFor(kk, lastMesh[kk]); L.userData.ok = 1; } const piv = kk === 'head' ? HEADPIV : CAKEPIV; L.position.copy(piv.position); L.position.z += kk === 'head' ? .0 : .0;
     L.visible = piv.visible; L.material.opacity = (P.matched ? .08 : .32) * Math.max(0, Math.cos(yaw)) * (1 - dark) * (both ? 0 : 1); });
+  const camR = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion), camU = new T.Vector3(0, 1, 0).applyQuaternion(cam.quaternion), camF = new T.Vector3(0, 0, -1).applyQuaternion(cam.quaternion);
   // the population ring: the generation's variants on a circle around the form, each glowing by its own match; the chosen one flies in
   ['head', 'cake'].forEach(kk => { const P = POP[kk]; KIDV[kk].forEach((v, i) => { if (kk !== k || both) { v.g.visible = false; return; } const a = (i / E.LAMBDA) * TAU + Math.PI / E.LAMBDA, piv = kk === 'head' ? HEADPIV : CAKEPIV;
-    const p = new T.Vector3(Math.sin(a) * KR, (kk === 'head' ? -.04 : .05) + Math.cos(a * 2) * .02, Math.cos(a) * KR * .55 - .08).add(piv.position);
+    const p = piv.position.clone().addScaledVector(camR, Math.cos(a) * KR * 1.05).addScaledVector(camU, Math.sin(a) * KR * .78).addScaledVector(camF, .12);
     const age = NOW - (v.born || -9), chosen = !JOB && P.chosen === i && P.morphT < 1; if (chosen) p.lerp(piv.position, P.morphT);
     v.g.position.copy(p); v.g.rotation.y = 0; const rel = clamp(((v.fit || 0) - P.parent.fit + .06) / .08, 0, 1), fade = JOB && JOB.kind === kk ? 1 : clamp(1 - (NOW - (P.morphT < 1 ? NOW : (v.born || 0) + 1.6)), 0, 1);
     v.lines.material.color.copy(COOL.clone().lerp(WARM, rel)).multiplyScalar(clamp(age * 6, 0, 1) * (1 - dark)); v.lines.material.opacity = .25 + .55 * rel; if (v.body.material) v.body.material.opacity = (kk === 'cake' ? .5 : 1) * (1 - dark);
