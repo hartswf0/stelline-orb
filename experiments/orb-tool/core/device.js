@@ -6,11 +6,11 @@
 (function (root) {
   'use strict';
   const S = root.CORE_STATE, DM = root.CORE_DEVMAP;
-  const DW = 400, DH = 334, BODY = [62, 170], RW = 80, RG = 6, RX0 = 32, LONG = 650;
+  const DW = 400, DH = 370, BODY = [86, 190], RW = 80, RG = 6, RX0 = 32, LONG = 650, HIT = 26, MINFONT = 13;   // HIT: button touch radius; MINFONT: no text under 13 units (12.4 px at 390 px wide)
   const RINGS = [0, 1, 2, 3].map(i => [RX0 + i * (RW + RG), RX0 + i * (RW + RG) + RW]);
   const BROWS = [['select', 'hold', 'make', 'accept', 'ask'], ['undo', 'redo', 'keep', 'breed', 'save']];
   const LAB = {}; for (const side of ['left', 'right']) DM.BUTTONS[side].forEach(([k, l]) => { LAB[k] = l; });
-  const BTN = {}; BROWS.forEach((row, r) => row.forEach((k, i) => { BTN[k] = { cx: 44 + i * 78, cy: 238 + r * 58, r: 17, lab: LAB[k] }; }));
+  const BTN = {}; BROWS.forEach((row, r) => row.forEach((k, i) => { BTN[k] = { cx: 44 + i * 78, cy: 268 + r * 60, r: 18, lab: LAB[k] }; }));
   const lerp = (a, b, t) => a + (b - a) * t, mix = (c1, c2, t) => c1.map((v, i) => Math.round(lerp(v, c2[i], t))), rgb = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a == null ? 1 : a})`;
   const FONT = '"IBM Plex Mono", ui-monospace, Menlo, monospace';
   function create(cv, orb, opts) {
@@ -45,9 +45,9 @@
       if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
       const s = Math.min(w / DW, h / DH) * .98 * dpr; D.M = { s, cx: cv.width / 2, cy: cv.height / 2, dpr }; }
     function toDev(e) { const r = cv.getBoundingClientRect(), M = D.M; return [((e.clientX - r.left) * M.dpr - M.cx) / M.s + DW / 2, ((e.clientY - r.top) * M.dpr - M.cy) / M.s + DH / 2]; }
-    function hitAt(x, y) { for (const k in BTN) { const b = BTN[k]; if (Math.hypot(x - b.cx, y - b.cy) < b.r + 9) return { btn: k }; }
-      for (let i = 0; i < 4; i++) if (x >= RINGS[i][0] - 3 && x <= RINGS[i][1] + 3 && y >= BODY[0] - 22 && y <= BODY[1] + 44) return { ring: i };
-      if (y < 50 && x > 20 && x < 380) return { glass: true }; return null; }
+    function hitAt(x, y) { for (const k in BTN) { const b = BTN[k]; if (Math.hypot(x - b.cx, y - b.cy) < HIT) return { btn: k }; }
+      for (let i = 0; i < 4; i++) if (x >= RINGS[i][0] - 3 && x <= RINGS[i][1] + 3 && y >= BODY[0] - 16 && y <= BODY[1] + 46) return { ring: i };
+      if (y < 72 && x > 20 && x < 380) return { glass: true }; return null; }
     D.toPage = (x, y) => { const M = D.M, r = cv.getBoundingClientRect(); return [((x - DW / 2) * M.s + M.cx) / M.dpr + r.left, ((y - DH / 2) * M.s + M.cy) / M.dpr + r.top]; };
     D.ringX = i => (RINGS[i][0] + RINGS[i][1]) / 2; D.BTN = BTN; D.BODY = BODY; D.hitAt = hitAt;
     // ---- actions
@@ -106,7 +106,7 @@
       if (R) { const N = R.labels.length;
         for (let k = Math.max(0, Math.floor(pos) - 4); k <= Math.min(N - 1, Math.ceil(pos) + 4); k++) { const th = (k - pos) * 24 * Math.PI / 180; if (Math.abs(th) > 1.4) continue;
           const y = cy + rad * .86 * Math.sin(th), sc = Math.cos(th), on = Math.abs(k - pos) < .5, lab = R.labels[k] || '';
-          c.save(); c.translate((x0 + x1) / 2, y); c.scale(1, Math.max(.05, sc)); c.font = (on ? '700 ' : '500 ') + (lab.length > 8 ? 9 : lab.length > 5 ? 10.5 : 12.5) + 'px ' + FONT; c.textAlign = 'center'; c.textBaseline = 'middle';
+          c.save(); c.translate((x0 + x1) / 2, y); c.scale(1, Math.max(.05, sc)); c.font = (on ? '700 ' : '500 ') + (on ? 14 : MINFONT) + 'px ' + FONT; c.textAlign = 'center'; c.textBaseline = 'middle';
           c.fillStyle = i === 3 ? (on ? '#fff' : 'rgba(255,255,255,.55)') : on ? '#111' : 'rgba(20,20,20,.5)'; c.fillText(fit(c, lab, w - 22), 0, 0); c.restore(); }
         // the agent's ghost on this ring: a dashed cyan mark where it would set the value
         if (R.gpos != null) { const th = (R.gpos - pos) * 24 * Math.PI / 180; if (Math.abs(th) < 1.4) { const y = cy + rad * .86 * Math.sin(th); c.setLineDash([3, 3]); c.strokeStyle = '#38d6e0'; c.lineWidth = 2; rr(c, x0 + 4, y - 9, w - 8, 18, 4); c.stroke(); c.setLineDash([]); } } }
@@ -115,20 +115,24 @@
       c.fillStyle = act ? '#e0332b' : 'rgba(190,40,35,.75)'; c.fillRect(x0 - 2, cy - 1, 6, 2); c.fillRect(x1 - 4, cy - 1, 6, 2);
       if (act || hov) { c.strokeStyle = act ? 'rgba(224,51,43,.95)' : 'rgba(255,255,255,.35)'; c.lineWidth = act ? 2.2 : 1.4; rr(c, x0 - 1, y0 - 1, w + 2, y1 - y0 + 2, 7); c.stroke(); }
       // the role and value under the ring, in plain words
-      c.textAlign = 'center'; c.font = '500 8.5px ' + FONT; c.fillStyle = act ? '#f2c2bd' : 'rgba(230,230,230,.6)'; c.fillText(fit(c, (i + 1) + ' ' + (R ? R.role.name : 'NOTHING'), w + 4), (x0 + x1) / 2, BODY[1] + 20);
-      c.font = '700 11px ' + FONT; c.fillStyle = '#f4f4f2'; c.fillText(fit(c, R ? R.value : '', w + 4), (x0 + x1) / 2, BODY[1] + 35); }
-    function glass(c, s, infos, now) { const x = 20, y = 6, w = 360, h = 44; c.save(); rr(c, x, y, w, h, 9);
+      c.textAlign = 'center'; c.font = '500 ' + MINFONT + 'px ' + FONT; c.fillStyle = act ? '#f2c2bd' : 'rgba(230,230,230,.72)'; c.fillText(fit(c, R ? R.role.name : 'NOTHING', w + 4), (x0 + x1) / 2, BODY[1] + 22);
+      c.font = '700 15px ' + FONT; c.fillStyle = '#f4f4f2'; c.fillText(fit(c, R ? R.value : '', w + 4), (x0 + x1) / 2, BODY[1] + 41); }
+    // the status line (AUDIT R5): line 1 says what is true, line 2 what just happened (or the waiting ghost, or what to do)
+    function truth(s) { const st = ['NO CAKE', 'SPONGE', 'FROSTED', 'DECORATED', 'FINISHED'][s.cake.stage], name = s.cake.kind >= 0 && s.library[s.cake.kind] ? s.library[s.cake.kind].name.split(',')[0].toUpperCase() + ' ' : s.cake.kind === -2 ? 'BRED ' : '';
+      const here = s.people.filter(p => p.arrived >= 10).length, flags = [s.time.off ? 'OFF' : '', s.time.hold ? 'HELD' : '', s.time.blown ? 'BLOWN' : ''].filter(Boolean).join(' ');
+      return 'ON ' + s.selection.toUpperCase() + ' | ' + (s.cake.stage ? name + st : st) + ' | ' + Math.min(5, Math.ceil(s.inscription.written / 5)) + '/5 WRITTEN | CANDLES ' + s.candles.lit + '/' + s.candles.count + ' | HERE ' + here + '/' + s.people.length + (flags ? ' | ' + flags : ''); }
+    D.truth = () => truth(orb.raw());
+    function glass(c, s, infos, now) { const x = 12, y = 6, w = 376, h = 62; c.save(); rr(c, x, y, w, h, 9);
       const g = c.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, 'rgba(255,255,255,.14)'); g.addColorStop(1, 'rgba(255,255,255,.04)'); c.fillStyle = g; c.fill(); c.strokeStyle = 'rgba(255,255,255,.26)'; c.lineWidth = 1; c.stroke(); c.clip();
-      c.textAlign = 'left'; c.font = '700 11px ' + FONT; c.fillStyle = '#e0332b'; const sel = 'SELECT: ' + s.selection.toUpperCase(); c.fillText(sel, x + 8, y + 17);
-      c.font = '600 10.5px ' + FONT; c.fillStyle = 'rgba(255,255,255,.9)'; const R = infos[D.ring]; c.fillText(fit(c, R ? R.long : '', w - 20 - c.measureText(sel).width), x + 16 + c.measureText(sel).width + 4, y + 17);
+      c.textAlign = 'left'; c.font = '700 ' + MINFONT + 'px ' + FONT; c.fillStyle = '#ffffff'; c.fillText(fit(c, truth(s), w - 16), x + 8, y + 24);
       let note = '', col = 'rgba(255,224,160,.95)';
-      if (D.msg && now - D.msg.at < 2600) { note = D.msg.t; col = D.msg.bad ? '#ff9a8a' : col; }
+      if (D.msg && now - D.msg.at < 3000) { note = D.msg.t; col = D.msg.bad ? '#ff9a8a' : col; }
       else if (s.proposals.length) { const p = s.proposals[0]; note = (s.proposals.length > 1 ? s.proposals.length + ' WAITING. ' : '') + p.author.replace('agent:', '').toUpperCase() + ' PROPOSES ' + root.CORE_OPS.label(p.op, p.args) + (p.note ? ' (' + p.note + ')' : '') + '. ACCEPT OR HOLD TO TAKE IT, TURN IT, OR HOLD ACCEPT DOWN TO REJECT'; col = '#7fe9f0'; }
       else if (s.time.off) note = 'SWITCHED OFF. PRESS HOLD TO SWITCH ON';
       else if (s.time.hold) note = 'HELD. PRESS HOLD TO RELEASE' + (s.people.slice(0, 3).every(p => p.arrived >= 10) && s.candles.lit > 0 ? ': THEY BLOW THE CANDLES' : '');
-      else if (s.time.blown) note = 'BLOWN OUT. HOLD THE HOLD BUTTON TO SWITCH THE MEMORY OFF';
-      else note = 'DRAG A RING UP OR DOWN. SELECT CHANGES WHAT RINGS 3 AND 4 SET';
-      c.font = '600 9.5px ' + FONT; c.fillStyle = col; c.fillText(fit(c, note.toUpperCase(), w - 16), x + 8, y + 34); c.restore(); }
+      else if (s.time.blown) note = 'BLOWN OUT. HOLD THE HOLD BUTTON DOWN TO SWITCH THE MEMORY OFF';
+      else { const R = infos[D.ring]; note = R ? R.long : 'DRAG A RING UP OR DOWN'; }
+      c.font = '600 ' + MINFONT + 'px ' + FONT; c.fillStyle = col; c.fillText(fit(c, note.toUpperCase(), w - 16), x + 8, y + 48); c.restore(); }
     function buttons(c, s, now) { for (const k in BTN) { const b = BTN[k], prs = (D.held && D.held.btn === k) || (now - (D.flash[k] || 0) < 160), hov = D.hot === k;
         const lit = (k === 'hold' && (s.time.hold || s.time.off)) || (k === 'accept' && s.proposals.length) || (k === 'undo' && orb.cursor() > 0) || (k === 'redo' && orb.cursor() < orb.history().length);
         c.save(); c.translate(b.cx, b.cy + (prs ? 1.5 : 0));
@@ -138,8 +142,8 @@
         if (lit || hov) { c.beginPath(); c.arc(0, 0, b.r - 1, 0, 7); c.lineWidth = 2.5; c.strokeStyle = k === 'accept' ? '#38d6e0' : k === 'hold' ? (s.time.off ? '#888' : '#f0b040') : hov && !lit ? 'rgba(255,255,255,.7)' : 'rgba(224,51,43,.85)'; c.stroke(); }
         if (D.held && D.held.btn === k) { const f = Math.min(1, (now - D.held.at) / LONG); c.beginPath(); c.arc(0, 0, b.r + 4, -Math.PI / 2, -Math.PI / 2 + f * 6.283); c.strokeStyle = f >= 1 ? '#ffd36b' : 'rgba(255,211,107,.5)'; c.lineWidth = 2; c.stroke(); }
         c.restore();
-        if (k === 'select') { c.font = '600 9px ' + FONT; const tw = c.measureText(b.lab).width + 8; c.fillStyle = '#b8352c'; c.fillRect(b.cx - tw / 2, b.cy + b.r + 4, tw, 12); c.fillStyle = '#f4e9e3'; c.textAlign = 'center'; c.fillText(b.lab, b.cx, b.cy + b.r + 13); }
-        else { c.font = '600 9px ' + FONT; c.textAlign = 'center'; c.fillStyle = 'rgba(240,240,240,.85)'; const lab = k === 'hold' && s.time.off ? 'ON' : k === 'hold' && s.time.hold ? 'RELEASE' : b.lab; c.fillText(lab, b.cx, b.cy + b.r + 13); } } }
+        if (k === 'select') { c.font = '600 ' + MINFONT + 'px ' + FONT; const tw = c.measureText(b.lab).width + 8; c.fillStyle = '#b8352c'; c.fillRect(b.cx - tw / 2, b.cy + b.r + 3, tw, 16); c.fillStyle = '#f4e9e3'; c.textAlign = 'center'; c.fillText(b.lab, b.cx, b.cy + b.r + 15); }
+        else { c.font = '600 ' + MINFONT + 'px ' + FONT; c.textAlign = 'center'; c.fillStyle = 'rgba(240,240,240,.85)'; const lab = k === 'hold' && s.time.off ? 'ON' : k === 'hold' && s.time.hold ? 'RELEASE' : b.lab; c.fillText(lab, b.cx, b.cy + b.r + 13); } } }
     function grips(c, now) { const G = D.grip; if (!G || now - G.at > 400) return; const [x0, x1] = RINGS[G.ring], cx = (x0 + x1) / 2;
       c.save(); c.globalAlpha = .5 * (1 - (now - G.at) / 400); for (const [dx, dy] of [[-.25, -.38], [.28, .34]]) { const X = cx + dx * (x1 - x0), Y = (BODY[0] + BODY[1]) / 2 + dy * 100, g = c.createRadialGradient(X, Y, 2, X, Y, 20); g.addColorStop(0, 'rgba(232,190,160,.95)'); g.addColorStop(1, 'rgba(232,190,160,0)');
         c.fillStyle = g; c.beginPath(); c.ellipse(X, Y, 22, 14, 0, 0, 7); c.fill(); } c.restore(); }
