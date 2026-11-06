@@ -63,3 +63,7 @@ Every unit carries the same reference set: `06,07,08` for the controller and the
 4. Stitch with ffmpeg; panel composited per unit; publish in `versions-film.html`.
 
 Blocker: fal returns "User is locked. Exhausted balance" (top up at fal.ai/dashboard/billing). Offline alternative: render the same units from our own engine (arcs.html + party.html) with Playwright, which needs no balance.
+
+## 7. First test (U2, 5 s, `assets/units/U2-vidu/`)
+
+Endpoint `fal-ai/vidu/q1/reference-to-video` with refs 06, 07, 03 works (1920x1080, 5.4 s). `fal-ai/kling-video/v1.6/pro/elements` returned "downstream service error" with the same refs. Result: first-person hands, a chrome knurled barrel resembling the orb, cake appears from nothing in the dark with candles lit. Misses: the orb drifts down and away from her hands by the last second; the candles are already lit (the beat wants flames only at U7/U8); the barrel is camera-like, not yet the exact orb. Next: shorter 3 s units, "orb stays centred in both hands" in the prompt, 'candles unlit' and the real panel composited.

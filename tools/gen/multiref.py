@@ -23,7 +23,7 @@ uris = ['data:image/jpeg;base64,' + base64.b64encode(open(R + r['file'], 'rb').r
 key = 'image_urls' if 'veo' in ep else 'reference_image_urls' if 'vidu' in ep else 'input_image_urls' if 'elements' in ep else 'image_url'
 body = dict(extra, prompt=prompt); body[key] = uris if key != 'image_url' else uris[0]
 os.makedirs(out, exist_ok=True); json.dump({'endpoint': ep, 'refs': [r['file'] for r in pick], 'prompt': prompt, 'args': extra}, open(out + '/request.json', 'w'), indent=1)
-r = subprocess.run(['curl', '-sS', '-m', '120', '-X', 'POST', 'https://queue.fal.run/' + ep, '-H', 'Content-Type: application/json', '-d', json.dumps(body)], capture_output=True, text=True).stdout
+r = subprocess.run(['curl', '-sS', '-m', '300', '-X', 'POST', 'https://queue.fal.run/' + ep, '-H', 'Content-Type: application/json', '--data-binary', '@-'], input=json.dumps(body), capture_output=True, text=True).stdout
 try: sub = json.loads(r)
 except Exception: sys.exit('bad response: ' + r[:300])
 if 'status_url' not in sub: sys.exit('refused: ' + r[:300])
