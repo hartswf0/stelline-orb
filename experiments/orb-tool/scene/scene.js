@@ -62,7 +62,7 @@
       D.add(new T.Mesh(new T.SphereGeometry(7, 48, 24, 0, TAU, 0, Math.PI / 2), new T.MeshStandardMaterial({ color: 0x0b0d0c, roughness: 1, side: T.BackSide })));
       const fl = new T.Mesh(new T.CircleGeometry(7, 72), new T.MeshStandardMaterial({ color: 0x060707, roughness: .45, metalness: .45 })); fl.rotation.x = -Math.PI / 2; fl.receiveShadow = true; D.add(fl);
       const ring = (r, w, y, c, o) => { const m = new T.Mesh(new T.TorusGeometry(r, w, 6, 240), basic(c, o)); m.rotation.x = Math.PI / 2; m.position.y = y; D.add(m); return m; };
-      ring(6.65, .014, .62, 0xf2f7f3); ring(6.65, .12, .62, 0x9fb4ad, { transparent: true, opacity: .1, depthWrite: false }); ring(6.6, .05, .012, 0x8fa39c, { transparent: true, opacity: .07, depthWrite: false });
+      ring(6.65, .009, .62, 0xf2f7f3); ring(6.65, .05, .62, 0x9fb4ad, { transparent: true, opacity: .07, depthWrite: false, blending: T.AdditiveBlending }); ring(6.6, .03, .004, 0x8fa39c, { transparent: true, opacity: .035, depthWrite: false, blending: T.AdditiveBlending });
       const seam = new T.LineBasicMaterial({ color: 0x161a18, transparent: true, opacity: .5 });
       for (let k = 0; k < 10; k++) { const a = k / 10 * TAU, pts = []; for (let j = 0; j <= 20; j++) { const e = .1 + j / 20 * 1.4; pts.push(new T.Vector3(Math.cos(a) * Math.cos(e) * 6.95, Math.sin(e) * 6.95, Math.sin(a) * Math.cos(e) * 6.95)); } D.add(new T.Line(new T.BufferGeometry().setFromPoints(pts), seam)); }
       // the booth at the back: a rounded arch lit from inside, a man standing in it
@@ -120,12 +120,8 @@
     const flashAll = () => Object.keys(parts).forEach(flash);
 
     // the cake: evolve-all cake module; form, colours, size and layers from the state, finish from the evolved genome
-    function cakeGenome(g) {
-      const F = GN.G.cakeFinish, lab = h => { const c = hexRGB(h); return M.cake.srgb2lab(c[0], c[1], c[2]); };
-      const sd = lab(g.side), tp = lab(g.top), dome = g.form === 'dome';
-      return GN.arr(M.cake, Object.assign({}, F, { height: clamp(g.height / (2 * g.radius), .06, .9), layers: g.layers, dome: dome ? .85 : 0, bevel: dome ? 0 : F.bevel, beads: g.dots * .32,
-        sideL: sd[0], sideA: sd[1], sideB: sd[2], topL: tp[0], topA: tp[1], topB: tp[2], border: dome ? 0 : F.border, spread: dome ? 0 : F.spread })); }
-    const STAGE_T = [0, .44, .72, .86, 1];
+    const cakeGenome = g => GN.cakeGenes(M.cake, g);
+    const STAGE_T = GN.STAGE_T;
     const C = { key: '', G: null, s: 1, t: 0, tWant: 0, topY: .1, R: .12, tilt: 0 };
     function rebuildCake(g) { C.G = cakeGenome(g); C.s = g.radius / M.cake.R0; C.R = g.radius; const obj = M.cake.build(T, C.G, { t: Math.max(.001, C.t) });
       obj.scale.setScalar(C.s); obj.traverse(x => { if (x.isMesh) { x.castShadow = true; x.receiveShadow = true; } }); setPart('cake', obj, PIVOT);
@@ -187,7 +183,7 @@
 
     /* ---------------------------------------------------------------- the hologram UI: arc and readout beside the selected thing */
     const ANCH = new T.Object3D(); scene.add(ANCH); const anchWant = new T.Vector3(0, .7, 0); ANCH.position.copy(anchWant);
-    const arc = H.arc(scene, ANCH, { camera: cam, auto: false, size: .15, side: 1 }), readout = H.readout(scene, ANCH, { camera: cam, auto: false, size: .15, side: 1, seed: 11 });
+    const arc = H.arc(scene, ANCH, { camera: cam, auto: false, size: .13, side: 1 }), readout = H.readout(scene, ANCH, { camera: cam, auto: false, size: .13, side: 1, seed: 11 });
     let arcI = 0;
     // the pulse: a thin ring of light spreading on the table from the thing an op touched
     const PULSES = []; const pulseGeo = new T.RingGeometry(.96, 1, 96);
@@ -204,9 +200,9 @@
         if (!x.isInstancedMesh && x.geometry.attributes.position.count < 6000) { const w = new T.Mesh(x.geometry, ghostWire); w.matrixAutoUpdate = false; w.matrix.copy(x.matrixWorld); out.add(w); } });
       return out; }
     function label(text) { const c = document.createElement('canvas'); c.width = 512; c.height = 64; const x = c.getContext('2d'); x.font = '500 26px "Helvetica Neue",Arial,sans-serif'; x.fillStyle = 'rgba(200,232,255,.92)'; x.fillText(text.slice(0, 40), 6, 40);
-      const t = new T.CanvasTexture(c); const s = new T.Sprite(new T.SpriteMaterial({ map: t, transparent: true, depthTest: false, depthWrite: false, toneMapped: false })); s.scale.set(.24, .03, 1); s.renderOrder = 7; return s; }
+      const t = new T.CanvasTexture(c); OWN.add(t); const s = new T.Sprite(new T.SpriteMaterial({ map: t, transparent: true, depthTest: false, depthWrite: false, toneMapped: false })); s.scale.set(.24, .03, 1); s.renderOrder = 7; return s; }
     function buildGhosts(v) {
-      GHOST.children.slice().forEach(c => { GHOST.remove(c); c.traverse(x => { if (x.material && x.material !== ghostMat && x.material !== ghostWire) { if (x.material.map) x.material.map.dispose(); x.material.dispose(); } if (x.isMesh && x.parent && x.userData.ownGeo) x.geometry.dispose(); }); });
+      GHOST.children.slice().forEach(c => { GHOST.remove(c); c.traverse(x => { if (x.material && x.material !== ghostMat && x.material !== ghostWire) { if (x.material.map && OWN.has(x.material.map)) x.material.map.dispose(); x.material.dispose(); } if (x.isMesh && x.parent && x.userData.ownGeo) x.geometry.dispose(); }); });
       (v.proposals || []).forEach((p, pi) => {
         let trial = null; if (CO && CS) { trial = CS.clone(v); try { if (CO.OPS[p.op](trial, CS.clone(p.args || {}), { author: p.author })) trial = null; } catch (e) { trial = null; } }
         const g = new T.Group(); GHOST.add(g); const at = new T.Vector3(0, TABLE_Y + C.topY + .16 + pi * .04, 0);

@@ -202,6 +202,7 @@ function fitRot(pts, asp0, asp1) { let best = null; const tryF = (rot, asp) => {
     if (!best || f.rms * Math.sqrt(asp) < best.rms * Math.sqrt(best.asp)) { const cr = Math.cos(rot * Math.PI / 180), sr = Math.sin(rot * Math.PI / 180), ux = f.cx * asp, uy = f.cy; best = { rot, asp, R: f.R, rms: f.rms * asp, cx: ux * cr - uy * sr, cy: ux * sr + uy * cr }; } };
   for (let rot = 0; rot < 180; rot += 1) for (let asp = asp0; asp <= asp1 + 1e-9; asp += 0.01) tryF(rot, asp);
   const b0 = best; for (let rot = b0.rot - 1; rot <= b0.rot + 1; rot += 0.1) for (let asp = b0.asp - 0.01; asp <= b0.asp + 0.01; asp += 0.001) tryF(rot, asp);
+  if (best.rot > 90) best.rot -= 180; if (best.rot < -90) best.rot += 180;
   let e = 0; pts.forEach(p => { e += ellDist(best, p) ** 2; }); best.rms = Math.sqrt(e / pts.length); return best; }
 function ellPt(F, t, rho) { const c = Math.cos(t * Math.PI / 180), s = Math.sin(t * Math.PI / 180), r = F.rot * Math.PI / 180, x = c * F.R * rho * F.asp, y = s * F.R * rho; return [F.cx + x * Math.cos(r) - y * Math.sin(r), F.cy + x * Math.sin(r) + y * Math.cos(r)]; }
 function ellDist(F, [x, y]) { const r = -F.rot * Math.PI / 180, dx = x - F.cx, dy = y - F.cy, u = (dx * Math.cos(r) - dy * Math.sin(r)) / F.asp, v = dx * Math.sin(r) + dy * Math.cos(r); const rr = Math.hypot(u, v); return (rr - F.R) * (Math.hypot(u * F.asp, v) / rr); }
@@ -257,7 +258,7 @@ async function kidMeasure(url) { const img = await loadImg(url); const KB = { x:
   const pts = edgePts(L, { W: KB.w, x0: 52, x1: 105, y0: 20, y1: 85, min: bg + 0.35 * (mx - bg), bg }); const F = fitRot(pts, 0.5, 1.0);
   // thickness: half-max width along rows through the C's right side, in units of the fitted R
   let thick = [], bar = { x1: 99, x2: -1, y1: 99, y2: -1 }; for (let y = Math.round(F.cy - 6); y <= F.cy + 6; y++) { let pkx = -1, pv = 0; for (let xx = Math.round(F.cx); xx < KB.w; xx++) if (L[y * KB.w + xx] > pv) { pv = L[y * KB.w + xx]; pkx = xx; } const th = bg + 0.5 * (pv - bg); let a = pkx, b = pkx; while (a > 0 && L[y * KB.w + a] > th) a--; while (b < KB.w - 1 && L[y * KB.w + b] > th) b++; thick.push(b - a - 1); }
-  const thr = bg + 0.45 * (mx - bg); for (let y = 0; y < KB.h; y++) for (let xx = 0; xx < 45; xx++) if (L[y * KB.w + xx] > thr) { bar.x1 = Math.min(bar.x1, xx); bar.x2 = Math.max(bar.x2, xx); bar.y1 = Math.min(bar.y1, y); bar.y2 = Math.max(bar.y2, y); }
+  const thr = bg + 0.6 * (mx - bg); for (let y = Math.max(0, Math.round(F.cy - 30)); y < F.cy + 5; y++) for (let xx = Math.max(0, Math.round(F.cx - 45)); xx < F.cx - 18; xx++) if (L[y * KB.w + xx] > thr) { bar.x1 = Math.min(bar.x1, xx); bar.x2 = Math.max(bar.x2, xx); bar.y1 = Math.min(bar.y1, y); bar.y2 = Math.max(bar.y2, y); }
   thick.sort((p, q) => p - q); return { box: KB, F: { cx: F.cx, cy: F.cy, R: F.R, asp: F.asp, rot: F.rot, rms: F.rms, n: pts.length }, thick: thick[thick.length >> 1], bar: { x: bar.x1 - F.cx, y: bar.y1 - F.cy, w: bar.x2 - bar.x1 + 1, h: bar.y2 - bar.y1 + 1 }, mx, bg, pts }; }
 async function kidRender(g, KM) { const c = new OffscreenCanvas(KM.box.w, KM.box.h), x = c.getContext('2d'); x.fillStyle = 'rgb(' + [KM.bg, KM.bg, KM.bg] + ')'; x.fillRect(0, 0, KM.box.w, KM.box.h); x.globalCompositeOperation = 'lighter'; HOLO.draw.childMark(x, KM.F.cx, KM.F.cy, 1, g, 1); const L = lum(x.getImageData(0, 0, KM.box.w, KM.box.h).data); return { L, c }; }
 // genes set straight from the measurements
@@ -267,7 +268,7 @@ function directGenes(G0, FMx, KM) { const G = JSON.parse(JSON.stringify(G0)), g 
   S('arc.gaps', f.gaps.map(q => q.t)); S('arc.gapW', f.gaps.reduce((a, q) => a + q.w, 0) / f.gaps.length);
   const dIn = f.gaps.reduce((a, q) => a + q.depthIn, 0) / f.gaps.length, dOut = f.gaps.reduce((a, q) => a + q.depthOut, 0) / f.gaps.length; S('arc.gapDepth', Math.min(1, Math.max(dIn, dOut) * 1.3)); S('arc.gapCover', Math.max(0.35, Math.min(1, 0.5 + 0.5 * (dOut / Math.max(0.01, dIn)))));
   const rgb = f.labRgb, m = Math.max(...rgb); S('arc.col', rgb.map(v => Math.round(v / m * 255))); S('arc.markW', FMx.blob.w); S('arc.markH', FMx.blob.h); S('arc.markOff', 0);
-  S('steps.marks', FMx.rest.map(v => +v.toFixed(1))); S('steps.blinkFrames', FMx.blinks.reduce((a, b) => a + b, 0) / FMx.blinks.length); S('steps.drift', FMx.drift.reduce((a, b) => a + b, 0) / Math.max(1, FMx.drift.length));
+  S('steps.marks', FMx.rest.map((v, i) => v === null ? G0.steps.marks[i] : +v.toFixed(1))); S('steps.blinkFrames', FMx.blinks.reduce((a, b) => a + b, 0) / FMx.blinks.length); S('steps.drift', FMx.drift.reduce((a, b) => a + b, 0) / Math.max(1, FMx.drift.length));
   G.arc.needles = [[-62, 0.6, 1.04, 0.5], [33, 0.74, 1.1, 0.45]];
   if (KM) { const k = G.child; S('child.R', KM.F.R); S('child.asp', KM.F.asp); S('child.rot', KM.F.rot); S('child.thick', KM.thick); S('child.barX', KM.bar.x); S('child.barY', KM.bar.y); S('child.barW', KM.bar.w); S('child.barH', KM.bar.h); }
   G.fit = { dx: 0, dy: 0 }; return { G, set }; }

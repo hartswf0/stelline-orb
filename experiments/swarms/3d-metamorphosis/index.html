@@ -38,6 +38,8 @@ button.x { font: 500 12px 'Oswald', sans-serif; letter-spacing: .12em; color: va
 <script src="../../../ana/assets/three.min.js"></script>
 <script src="morph.js"></script>
 <script src="sound.js"></script>
+<script src="../shared/look.js"></script>
+<script src="../shared/holo.js"></script>
 <script>
 'use strict';
 const T = THREE, M = MORPH, TAU = Math.PI * 2, clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t;
@@ -50,86 +52,69 @@ function play(type, p) { p = Object.assign({ seed: SEED++ }, p || {}); SNDLOG.pu
   try { if ((type === 'grain') && BUF) { const set = SOUND.GRAINS[p.kind], [o, d] = set[p.seed % set.length], s = a.createBufferSource(); s.buffer = BUF; s.playbackRate.value = p.rate || 1; const g = a.createGain(); g.gain.value = p.vol; s.connect(g).connect(a.destination); s.start(0, o, d); return; }
     const x = SOUND.synth(type === 'grain' ? 'click' : type, p, a.sampleRate), b = a.createBuffer(1, x.length, a.sampleRate); b.copyToChannel(x, 0); const s = a.createBufferSource(); s.buffer = b; s.connect(a.destination); s.start(); } catch (e) { } }
 const SND = { step(fast, ring) { play('grain', { kind: fast ? 'ratchet' : 'click', rate: 1 + (ring - 1) * .045, vol: .7 }); }, hand(ring) { play('grain', { kind: 'click', rate: 1.25 + ring * .03, vol: .2 }); } };
-/* =============================================================== THE ROOM: black dome, a band of light where wall meets floor, a ring on the floor */
-const viewEl = document.getElementById('view'), R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: PROOF }); R.setPixelRatio(PROOF ? 1 : Math.min(2, devicePixelRatio)); R.outputEncoding = T.sRGBEncoding; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = 1.05; viewEl.prepend(R.domElement);
-const scene = new T.Scene(); scene.background = new T.Color(0x020303); scene.fog = new T.FogExp2(0x020303, .07);
-const cam = new T.PerspectiveCamera(30, 1, .02, 60);
-{ const fl = new T.Mesh(new T.CircleGeometry(9, 96), new T.MeshStandardMaterial({ color: 0x0a0b0b, roughness: .5, metalness: .2 })); fl.rotation.x = -Math.PI / 2; scene.add(fl);
-  const band = new T.Mesh(new T.TorusGeometry(7.5, .012, 6, 256), new T.MeshBasicMaterial({ color: 0xdfe8e4 })); band.rotation.x = Math.PI / 2; band.position.y = .42; scene.add(band);
-  const glow = new T.Mesh(new T.TorusGeometry(7.5, .09, 6, 256), new T.MeshBasicMaterial({ color: 0x7e8f89, transparent: true, opacity: .1 })); glow.rotation.x = Math.PI / 2; glow.position.y = .42; scene.add(glow);
-  const ring = new T.Mesh(new T.RingGeometry(1.9, 1.91, 128), new T.MeshBasicMaterial({ color: 0x252b29 })); ring.rotation.x = -Math.PI / 2; ring.position.y = .002; scene.add(ring); }
-scene.add(new T.HemisphereLight(0x6c7a76, 0x050403, .12));
-const workLight = new T.SpotLight(0xffe2c4, 0, 3, .15, .85, 1.2); workLight.position.set(.35, 1.45, .55); scene.add(workLight); scene.add(workLight.target);
-const candleLight = new T.PointLight(0xffa04a, 0, 3.2, 1.5); scene.add(candleLight);
-/* the memory's look: everything made is drawn through round spots that switch on and off (uPresence 0 = none, 1.25 = all),
-   lit a little from within (its own colour), and flashes silver on a cut */
-const U_ = { uPresence: { value: 0 }, uSpot: { value: 5 }, uSelf: { value: .28 }, uFlash: { value: 0 } };
-function memoryMat(m) { m.onBeforeCompile = sh => { Object.assign(sh.uniforms, U_);
-    sh.fragmentShader = 'uniform float uPresence; uniform float uSpot; uniform float uSelf; uniform float uFlash;\n' + sh.fragmentShader
-      .replace('void main() {', `void main() { { vec2 sc = gl_FragCoord.xy / uSpot; vec2 f = fract(sc) - .5; float h = fract(sin(dot(floor(sc), vec2(12.9898, 78.233))) * 43758.5453); if (length(f) > uPresence * (.6 + .6 * h)) discard; }`)
-      .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>\n${m.vertexColors ? 'totalEmissiveRadiance += vColor.rgb * uSelf;' : 'totalEmissiveRadiance += diffuseColor.rgb * uSelf;'}\ntotalEmissiveRadiance += vec3(.95, .96, 1.0) * uFlash;`); };
-  return m; }
-/* =============================================================== THE CAKE: one surface (morph.js), the same NU x NT points in every form */
-const CY = .5, BODY = new T.Group(); BODY.position.y = CY; scene.add(BODY);
-const NU = M.NU, NT = M.NT, NV = NU * NT, COS = [], SIN = []; for (let j = 0; j < NT; j++) { COS.push(Math.cos(M.TH(j))); SIN.push(Math.sin(M.TH(j))); }
-const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.BufferAttribute(new Float32Array(NV * 3), 3)); geo.setAttribute('color', new T.BufferAttribute(new Float32Array(NV * 3), 3));
-{ const ix = []; for (let i = 0; i < NU - 1; i++) for (let j = 0; j < NT; j++) { const j1 = (j + 1) % NT, a = i * NT + j, b = (i + 1) * NT + j, c = (i + 1) * NT + j1, d = i * NT + j1; ix.push(a, b, c, a, c, d); } geo.setIndex(ix); }
-const cakeMat = memoryMat(new T.MeshStandardMaterial({ vertexColors: true, roughness: .74, metalness: 0 })), cake = new T.Mesh(geo, cakeMat); BODY.add(cake);
-// the inscription: a skin over the cap rows of the same surface, a canvas drawn stroke by stroke
+/* =============================================================== THE ROOM AND THE LOOK: experiments/swarms/shared/look.js (dark dome, band of light, key and
+   candle light, grade, bloom, grain, the projected-spot screen, materials) */
+const viewEl = document.getElementById('view'), R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: PROOF }); R.setPixelRatio(PROOF ? 1 : Math.min(2, devicePixelRatio)); viewEl.prepend(R.domElement);
+const scene = new T.Scene(), cam = new T.PerspectiveCamera(30, 1, .02, 60), CY = .5;
+const FLAMES = [];   // flame sprites, handed to LOOK for the candle light
+const LK = LOOK.apply(R, scene, cam, { target: new T.Vector3(0, CY + .06, 0), room: true, shadows: false, candles: [] });
+/* =============================================================== THE CAKE: one surface (morph.js), the same NU x NT points in every form.
+   Drawn with one extra column (the seam) so the material's texture wraps; BODY tilts toward Ana as one piece with its board. */
+const BODY = new T.Group(); BODY.position.y = CY; scene.add(BODY);
+const NU = M.NU, NT = M.NT, NV = NU * NT, NC = NT + 1, NR = NU * NC, COS = [], SIN = []; for (let j = 0; j <= NT; j++) { COS.push(Math.cos(M.TH(j % NT))); SIN.push(Math.sin(M.TH(j % NT))); }
+const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.BufferAttribute(new Float32Array(NR * 3), 3)); geo.setAttribute('color', new T.BufferAttribute(new Float32Array(NR * 3), 3));
+{ const uv = new Float32Array(NR * 2); for (let i = 0; i < NU; i++) for (let j = 0; j <= NT; j++) { uv[(i * NC + j) * 2] = j / NT * 4; uv[(i * NC + j) * 2 + 1] = i / (NU - 1) * 1.5; } geo.setAttribute('uv', new T.BufferAttribute(uv, 2));
+  const ix = []; for (let i = 0; i < NU - 1; i++) for (let j = 0; j < NT; j++) { const a = i * NC + j, b = (i + 1) * NC + j, c = (i + 1) * NC + j + 1, d = i * NC + j + 1; ix.push(a, b, c, a, c, d); } geo.setIndex(ix); }
+const cakeMat = LOOK.material('icing', { color: 0xffffff, seed: 3 }); cakeMat.vertexColors = true; cakeMat.needsUpdate = true;
+const cake = new T.Mesh(geo, cakeMat); BODY.add(cake);
+// the inscription: a skin over the cap rows of the same surface, a canvas drawn stroke by stroke in red piping
 const CAPN = NU - M.ROW_RIM, igeo = new T.BufferGeometry(); igeo.setAttribute('position', new T.BufferAttribute(new Float32Array(CAPN * NT * 3), 3)); igeo.setAttribute('uv', new T.BufferAttribute(new Float32Array(CAPN * NT * 2), 2));
 { const ix = []; for (let i = 0; i < CAPN - 1; i++) for (let j = 0; j < NT; j++) { const j1 = (j + 1) % NT, a = i * NT + j, b = (i + 1) * NT + j, c = (i + 1) * NT + j1, d = i * NT + j1; ix.push(a, b, c, a, c, d); } igeo.setIndex(ix); }
 const INC = document.createElement('canvas'); INC.width = INC.height = 512; const inx = INC.getContext('2d'), INT = new T.CanvasTexture(INC); INT.encoding = T.sRGBEncoding;
-const inscMat = memoryMat(new T.MeshStandardMaterial({ map: INT, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, roughness: .5 })), insc = new T.Mesh(igeo, inscMat); BODY.add(insc);
+const inscMat = LOOK.material('piping'); inscMat.map = INT; inscMat.transparent = true; inscMat.alphaTest = .35; inscMat.depthWrite = false; inscMat.polygonOffset = true; inscMat.polygonOffsetFactor = -2; inscMat.color.setRGB(1, 1, 1); inscMat.needsUpdate = true;
+const insc = new T.Mesh(igeo, inscMat); BODY.add(insc);
 const CHARS = ['生', '日', '快', '乐'], WSTEPS = 24;
-function drawInscription(v) { inx.clearRect(0, 0, 512, 512); const p = v / WSTEPS * 5; inx.save(); inx.translate(256, 256); inx.rotate(-.12); inx.fillStyle = '#c4231c'; inx.strokeStyle = '#c4231c';
-  inx.font = '600 84px "PingFang SC","Hiragino Sans GB","Noto Sans CJK SC","Microsoft YaHei",sans-serif'; inx.textBaseline = 'middle'; inx.textAlign = 'center';
-  for (let i = 0; i < 4; i++) { const f = clamp(p - i, 0, 1); if (f <= 0) break; const x = -138 + i * 92; inx.save(); inx.beginPath(); inx.rect(x - 48, -48 - 6, 96, 96 * Math.min(1, f * 1.2)); if (f < 1) inx.rect(x - 48, -54 + 96 * Math.max(0, f * 1.2 - .5), 96 * f, 18); inx.clip(); inx.fillText(CHARS[i], x, -6); inx.restore(); }
-  const ff = clamp(p - 4, 0, 1); if (ff > 0) { inx.lineWidth = 8; inx.lineCap = 'round'; inx.beginPath(); const N = 40; for (let k = 0; k <= N * ff; k++) { const u = k / N, X = -150 + u * 300, Y = 66 + Math.sin(u * Math.PI * 1.6) * 14 - u * 10; k ? inx.lineTo(X, Y) : inx.moveTo(X, Y); } inx.stroke(); }
+/* The canvas maps to the cap so that its top edge is the far side of the cake from the default kneel (+z): the characters read
+   left to right, upright, for Ana. They fill the middle (radius under 0.07 m); the candles stand on a ring at 0.094 m. */
+function drawInscription(v) { inx.clearRect(0, 0, 512, 512); const p = v / WSTEPS * 5; inx.save(); inx.translate(256, 250); inx.rotate(-.08); inx.fillStyle = '#ffffff'; inx.strokeStyle = '#ffffff';
+  inx.font = '700 64px "PingFang SC","Hiragino Sans GB","Noto Sans CJK SC","Microsoft YaHei",sans-serif'; inx.textBaseline = 'middle'; inx.textAlign = 'center';
+  for (let i = 0; i < 4; i++) { const f = clamp(p - i, 0, 1); if (f <= 0) break; const x = -102 + i * 68; inx.save(); inx.beginPath(); inx.rect(x - 36, -40, 72, 72 * Math.min(1, f * 1.2)); if (f < 1) inx.rect(x - 36, -40 + 72 * Math.max(0, f * 1.2 - .5), 72 * f, 14); inx.clip(); inx.fillText(CHARS[i], x, -4); inx.restore(); }
+  const ff = clamp(p - 4, 0, 1); if (ff > 0) { inx.lineWidth = 6; inx.lineCap = 'round'; inx.beginPath(); const N = 40; for (let k = 0; k <= N * ff; k++) { const u = k / N, X = -110 + u * 220, Y = 50 + Math.sin(u * Math.PI * 1.6) * 10 - u * 8; k ? inx.lineTo(X, Y) : inx.moveTo(X, Y); } inx.stroke(); }
   inx.restore(); INT.needsUpdate = true; }
-// the board and table under it (they arrive with the dough)
-const board = new T.Mesh(new T.CylinderGeometry(.15, .15, .006, 72), memoryMat(new T.MeshStandardMaterial({ color: 0xcfc8b8, roughness: .4, metalness: .3 }))); board.position.y = CY - .003; scene.add(board);
-const table = new T.Mesh(new T.CylinderGeometry(.4, .4, .03, 6), memoryMat(new T.MeshStandardMaterial({ color: 0x30210f, roughness: .75 }))); table.position.y = CY - .021; scene.add(table);
-const leg = new T.Mesh(new T.CylinderGeometry(.05, .07, CY - .036, 16), memoryMat(new T.MeshStandardMaterial({ color: 0x1a1612, roughness: .8 }))); leg.position.y = (CY - .036) / 2; scene.add(leg);
+// the board (tilts with the cake) and the table (stays)
+const board = new T.Mesh(new T.CylinderGeometry(.15, .15, .006, 72), LOOK.material('board')); board.position.y = -.003; BODY.add(board);
+const TABLE = new T.Group(); scene.add(TABLE);
+{ const top = new T.Mesh(new T.CylinderGeometry(.4, .4, .03, 6), LOOK.material('table')); top.position.y = CY - .021; TABLE.add(top);
+  const leg = new T.Mesh(new T.CylinderGeometry(.05, .07, CY - .036, 16), LOOK.material('board')); leg.position.y = (CY - .036) / 2; TABLE.add(leg); }
 // the beads: points of the side; they grow out of it as a change passes their height
-const BEADC = [0xe94b3c, 0xf2d14b, 0x4bb0e9, 0xf7f3ea, 0x6cc070].map(h => new T.Color(h)), beadMat = memoryMat(new T.MeshStandardMaterial({ roughness: .45 }));
+const BEADC = [0xe94b3c, 0xf2d14b, 0x4bb0e9, 0xf7f3ea, 0x6cc070].map(h => new T.Color(h)), beadMat = LOOK.material('bead', { color: 0xffffff });
 const beads = new T.InstancedMesh(new T.SphereGeometry(.0048, 8, 6), beadMat, M.BEADS.length); beads.instanceMatrix.setUsage(T.DynamicDrawUsage); BODY.add(beads); let beadsWhiteNow = null;
 // the seven candles: each stands on its anchor, a fixed point of the cap
 const stripe = (() => { const c = document.createElement('canvas'); c.width = 16; c.height = 64; const x = c.getContext('2d'); x.fillStyle = '#f2e9d6'; x.fillRect(0, 0, 16, 64); x.fillStyle = '#d4483e'; for (let y = -16; y < 80; y += 12) { x.beginPath(); x.moveTo(0, y); x.lineTo(16, y + 8); x.lineTo(16, y + 13); x.lineTo(0, y + 5); x.fill(); } const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; return t; })();
 const spriteTex = (stops, w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'), g = x.createRadialGradient(w / 2, h * .62, 1, w / 2, h * .55, h * .45); stops.forEach(([o, s]) => g.addColorStop(o, s)); x.fillStyle = g; x.fillRect(0, 0, w, h); return new T.CanvasTexture(c); };
-const flameTex = spriteTex([[0, 'rgba(255,252,232,1)'], [.25, 'rgba(255,206,96,.95)'], [.6, 'rgba(255,120,30,.3)'], [1, 'rgba(255,90,20,0)']], 32, 64), haloTex = spriteTex([[0, 'rgba(255,190,110,.5)'], [.4, 'rgba(255,140,60,.12)'], [1, 'rgba(255,120,40,0)']], 64, 64);
 const smokeTex = spriteTex([[0, 'rgba(200,205,210,.35)'], [1, 'rgba(200,205,210,0)']], 32, 32);
-const candleMat = memoryMat(new T.MeshStandardMaterial({ map: stripe, roughness: .5 }));
+const candleMat = LOOK.material('wax'); candleMat.map = stripe; candleMat.needsUpdate = true;
 const CANDLES = M.CANDLES.map((a, k) => { const g = new T.Group(); const c = new T.Mesh(new T.CylinderGeometry(.0028, .0028, .07, 10), candleMat); c.position.y = .035; g.add(c);
-  const f = new T.Sprite(new T.SpriteMaterial({ map: flameTex, blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0 })); f.scale.set(.016, .034, 1); f.position.y = .085; g.add(f);
-  const hl = new T.Sprite(new T.SpriteMaterial({ map: haloTex, blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0 })); hl.scale.set(.11, .11, 1); hl.position.y = .087; g.add(hl);
+  const f = new T.Sprite(LOOK.material('flame')); f.material.opacity = 0; f.scale.set(.016, .034, 1); f.position.y = .085; g.add(f);
+  const hl = new T.Sprite(LOOK.material('halo')); hl.material.opacity = 0; hl.scale.set(.11, .11, 1); hl.position.y = .087; g.add(hl);
   const sm = new T.Sprite(new T.SpriteMaterial({ map: smokeTex, depthWrite: false, transparent: true, opacity: 0 })); sm.scale.set(.02, .02, 1); g.add(sm);
   g.visible = false; BODY.add(g); return { g, f, hl, sm, a, placed: false, placeAt: 0, lit: false, out: 0, ph: k * 1.7, pos: new T.Vector3(), hold: null }; });
 // the match: carried from wick to wick
 const MATCH = new T.Group(); { const st = new T.Mesh(new T.BoxGeometry(.0024, .055, .0024), new T.MeshStandardMaterial({ color: 0xd9c08a, roughness: .8 })); st.position.y = -.0275; MATCH.add(st);
   const hd = new T.Mesh(new T.SphereGeometry(.0034, 10, 8), new T.MeshStandardMaterial({ color: 0x3a1a12, roughness: .6 })); MATCH.add(hd);
-  const mf = new T.Sprite(new T.SpriteMaterial({ map: flameTex, blending: T.AdditiveBlending, depthWrite: false, transparent: true })); mf.scale.set(.02, .04, 1); mf.position.y = .016; MATCH.add(mf); MATCH.userData.f = mf; }
+  const mf = new T.Sprite(LOOK.material('flame')); mf.scale.set(.02, .04, 1); mf.position.y = .016; MATCH.add(mf); MATCH.userData.f = mf; }
 MATCH.rotation.z = -.5; MATCH.visible = false; scene.add(MATCH);
 // the discontinuity marker: a thin ring at the cake's foot that brightens toward a cut and flashes on it
 const cutRing = new T.Mesh(new T.TorusGeometry(.135, .0012, 6, 128), new T.MeshBasicMaterial({ color: 0xf2f6f4, transparent: true, opacity: 0, depthWrite: false })); cutRing.rotation.x = Math.PI / 2; cutRing.position.y = CY + .002; scene.add(cutRing);
 // the round projected spot that the memory switches on through
 const spotTex = spriteTex([[0, 'rgba(235,240,238,.55)'], [.5, 'rgba(200,215,210,.18)'], [1, 'rgba(180,200,195,0)']], 64, 64);
 const floorSpot = new T.Mesh(new T.CircleGeometry(.3, 64), new T.MeshBasicMaterial({ map: spotTex, transparent: true, opacity: 0, blending: T.AdditiveBlending, depthWrite: false })); floorSpot.rotation.x = -Math.PI / 2; floorSpot.position.y = CY + .001; scene.add(floorSpot);
-/* =============================================================== THE HOLOGRAM ARC beside the cake at candle height, and its readout (after ana/index.html) */
-function canvasSprite(w, h, sw, sh) { const c = document.createElement('canvas'); c.width = w; c.height = h; const t = new T.CanvasTexture(c); const s = new T.Sprite(new T.SpriteMaterial({ map: t, transparent: true, depthWrite: false, depthTest: false, opacity: 0 })); s.scale.set(sw, sh, 1); s.renderOrder = 5; scene.add(s); return { c, x: c.getContext('2d'), t, s }; }
-const ARC = canvasSprite(256, 384, .13, .195), READ = canvasSprite(512, 96, .2, .0375);
-const MARKS = [-23, -19, -9, -1, 6]; let arcMark = 0, arcBlink = 0, arcAlpha = 0, readLines = [], readType = 0, lastWork = -9;
-function drawArc() { const { x, c } = ARC; x.clearRect(0, 0, c.width, c.height); const cx = 70, cy = 192, r = 140;
-  x.strokeStyle = 'rgba(220,232,228,.55)'; x.lineWidth = 18; [[-78, -52], [-49, -20], [-17, 12], [15, 44], [47, 76]].forEach(([a, b]) => { x.beginPath(); x.arc(cx, cy, r, a * Math.PI / 180, b * Math.PI / 180); x.stroke(); });
-  x.strokeStyle = 'rgba(245,250,248,.9)'; x.lineWidth = 20; x.beginPath(); x.arc(cx, cy, r, -80 * Math.PI / 180, -70 * Math.PI / 180); x.stroke();
-  if (arcBlink <= 0) { const a = MARKS[arcMark] * Math.PI / 180, mx = cx + Math.cos(a) * r, my = cy + Math.sin(a) * r; x.fillStyle = 'rgba(255,255,255,.95)'; x.fillRect(mx - 9, my - 6, 18, 12);
-    x.strokeStyle = 'rgba(230,240,236,.8)'; x.lineWidth = 2; x.beginPath(); x.moveTo(mx + 10, my); x.lineTo(mx + 46, my); x.stroke(); for (let k = 0; k < 4; k++) x.fillRect(mx + 50 + k * 9, my - 1, 4, 2); }
-  ARC.t.needsUpdate = true; }
-function drawRead() { const { x, c } = READ; x.clearRect(0, 0, c.width, c.height); x.fillStyle = 'rgba(214,228,223,.75)';
-  readLines.forEach((ln, i) => { const n = i === readLines.length - 1 ? Math.floor(readType) : ln.length; let px = 6; for (let k = 0; k < Math.min(n, ln.length); k++) { const w = ln[k]; if (w > 0) x.fillRect(px, 10 + i * 28, w, 6); px += Math.abs(w) + 3; } });
-  READ.t.needsUpdate = true; }
-let rseed = 3; const rr = () => (rseed = (rseed * 16807) % 2147483647) / 2147483647;
-function readStep() { if (!readLines.length || readType >= readLines[readLines.length - 1].length) { if (readLines.length >= 3) readLines = []; readLines.push(Array.from({ length: 22 + Math.floor(rr() * 14) }, () => rr() < .18 ? -6 : 4 + Math.floor(rr() * 14))); readType = 0; } readType += 3; }
-function setArcMark(m) { m = clamp(m, 0, 4); if (m !== arcMark) { arcMark = m; arcBlink = .12; } }
+/* =============================================================== THE HOLOGRAM ARC beside the cake at candle height, and its readout: experiments/swarms/shared/holo.js */
+const ARC_AT = new T.Vector3(0, CY + .09, 0);
+const HARC = HOLO.arc(scene, ARC_AT, { camera: cam, size: .1, offset: .2, auto: false }), HREAD = HOLO.readout(scene, ARC_AT, { camera: cam, size: .1, offset: .12, auto: false, typeAuto: false });
+let arcMark = -1, arcOn = false, lastWork = -9;
+function setArcMark(m) { m = clamp(m, 0, 4); if (m !== arcMark) { arcMark = m; HARC.step(m); } }
+function readStep() { HREAD.feed(9); }
 /* =============================================================== THE GAME STATE */
 const OPS = { CANDLES: 'CANDLES', INSCRIPTION: 'INSCRIPTION', MATCH: 'MATCH' };
 const S = { cur: null, path: [], reachedDome: false, target: 0, step: 0, N: 12, pace: 1, insc: 0, placed: 0, lit: 0, blowAt: 0, ended: false, offAt: 0, cutCount: 0, surf: null, msg: '', msgAt: -9, scene: null, yaw: 0 };

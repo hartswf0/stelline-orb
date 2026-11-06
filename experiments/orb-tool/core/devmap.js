@@ -15,8 +15,8 @@
     room: [['scene.light', 'LIGHT'], ['scene.place', 'PLACE']]
   };
   function role(s, ring) {
-    if (ring === 0) return { path: 'camera.yaw', name: 'WHERE YOU KNEEL' };
-    if (ring === 1) return { path: 'camera.kneel', name: 'HOW LOW' };
+    if (ring === 0) return { path: 'camera.yaw', name: 'ANGLE' };
+    if (ring === 1) return { path: 'camera.kneel', name: 'KNEEL' };
     const sel = s.selection; let row = TABLE[sel];
     if (!row && /^child-/.test(sel)) row = [['people.' + sel + '.arrived', 'ARRIVING'], ['people.' + sel + '.offset', 'HER TIME']];
     if (!row) return null; const [path, name] = row[ring - 2]; return S.locate(s, path) ? { path, name } : null; }

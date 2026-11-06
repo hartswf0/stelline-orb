@@ -1,40 +1,37 @@
 {
  "arc": {
-  "R": 85.186,
-  "asp": 0.89,
-  "thick": 15.985,
-  "a0": -107.284,
-  "a1": 48.998,
+  "R": 91.801,
+  "asp": 0.78,
+  "thick": 21,
+  "a0": -111,
+  "a1": 99,
   "tail": 12.934,
-  "capA0": -104,
-  "capA1": -73.139,
-  "capGain": 1.586,
+  "capA0": -111,
+  "capA1": -105,
+  "capGain": 1,
   "bandIn": 0.156,
   "bandOut": 0.362,
   "edge": 1.2,
   "gaps": [
-   -22,
-   -9,
-   6.3,
-   15.1,
-   29.8,
-   40
+   1,
+   34,
+   48
   ],
-  "gapW": 2.4,
-  "gapDepth": 0.75,
+  "gapW": 5.333,
+  "gapDepth": 0.638,
   "hairR": 0.801,
   "hairA": 0.305,
   "hairW": 1,
   "col": [
-   196,
-   198.878,
-   197.994
+   254,
+   255,
+   222
   ],
   "glow": 1.968,
   "glowA": 0.29,
-  "markW": 8.082,
-  "markH": 6,
-  "markOff": 0.852,
+  "markW": 15,
+  "markH": 14,
+  "markOff": 0,
   "markGain": 1.35,
   "tickLen": 13,
   "tickDots": 4,
@@ -42,10 +39,10 @@
   "tickGap": 4.5,
   "needles": [
    [
-    -79,
-    0.52,
-    1.06,
-    0.55
+    -62,
+    0.6,
+    1.04,
+    0.5
    ],
    [
     33,
@@ -54,18 +51,20 @@
     0.45
    ]
   ],
-  "needleW": 1
+  "needleW": 1,
+  "rot": -22,
+  "gapCover": 1
  },
  "steps": {
   "marks": [
-   -23.2,
-   -19.3,
-   -10,
-   -0.7,
-   6
+   -5.5,
+   -1.5,
+   7,
+   16,
+   23
   ],
-  "blinkFrames": 3.85,
-  "drift": 2.339,
+  "blinkFrames": 3.75,
+  "drift": -0.25,
   "driftTime": 0.5
  },
  "readout": {
@@ -89,17 +88,20 @@
   "clearHold": 0.45
  },
  "child": {
-  "R": 13,
-  "asp": 0.9,
-  "thick": 4.2,
+  "R": 23.791,
+  "asp": 0.82,
+  "thick": 5,
   "a0": -110,
   "a1": 70,
   "capGain": 1.6,
-  "barW": 9,
-  "barH": 12,
+  "barW": 8,
+  "barH": 5,
   "leader": 16,
   "leaderA": 135,
-  "alpha": 0.8
+  "alpha": 0.8,
+  "rot": 4,
+  "barX": -45.181,
+  "barY": -16.658
  },
  "device": {
   "detentDeg": 9,
@@ -114,7 +116,7 @@
   "handRate": 1.442
  },
  "fit": {
-  "dx": 0.39,
+  "dx": 0,
   "dy": 0
  }
 }

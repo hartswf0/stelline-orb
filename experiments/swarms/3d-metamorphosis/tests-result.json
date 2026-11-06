@@ -1,5 +1,5 @@
 {
- "passed": 3555,
+ "passed": 3595,
  "failed": 0,
  "failures": [],
  "edges": [
@@ -8,15 +8,15 @@
    "to": "SPONGE",
    "field": "RISE",
    "steps_by_pace": [
-    12,
-    17,
-    25,
-    18
+    13,
+    19,
+    29,
+    21
    ],
    "V_from_ml": 764,
    "V_to_ml": 1948.2,
-   "worst_dV_rel": 0.0837,
-   "worst_candle_mm": 5.09,
+   "worst_dV_rel": 0.0776,
+   "worst_candle_mm": 5.33,
    "linger_step3_pct": 0.4
   },
   {
@@ -24,16 +24,16 @@
    "to": "DOMED",
    "field": "RISE",
    "steps_by_pace": [
-    14,
-    20,
-    30,
-    21
+    15,
+    22,
+    33,
+    23
    ],
    "V_from_ml": 764,
    "V_to_ml": 3231.3,
-   "worst_dV_rel": 0.0969,
-   "worst_candle_mm": 5.14,
-   "linger_step3_pct": 0.9
+   "worst_dV_rel": 0.0926,
+   "worst_candle_mm": 5.24,
+   "linger_step3_pct": 0.4
   },
   {
    "from": "SPONGE",
@@ -48,7 +48,7 @@
    "V_from_ml": 1948.2,
    "V_to_ml": 4335.9,
    "worst_dV_rel": 0.0584,
-   "worst_candle_mm": 5.43,
+   "worst_candle_mm": 5.47,
    "linger_step3_pct": 0
   },
   {
@@ -62,10 +62,10 @@
     12
    ],
    "V_from_ml": 3231.3,
-   "V_to_ml": 3790.7,
-   "worst_dV_rel": 0.0185,
-   "worst_candle_mm": 1.25,
-   "linger_step3_pct": 1.7
+   "V_to_ml": 3256,
+   "worst_dV_rel": 0.0096,
+   "worst_candle_mm": 0.57,
+   "linger_step3_pct": 1.4
   },
   {
    "from": "DOMED",
@@ -74,14 +74,14 @@
    "steps_by_pace": [
     12,
     12,
-    14,
+    16,
     12
    ],
    "V_from_ml": 3231.3,
    "V_to_ml": 4335.9,
    "worst_dV_rel": 0.0314,
-   "worst_candle_mm": 2.67,
-   "linger_step3_pct": 0.4
+   "worst_candle_mm": 3.13,
+   "linger_step3_pct": 0.1
   },
   {
    "from": "LAYERED",
@@ -95,9 +95,9 @@
    ],
    "V_from_ml": 4335.9,
    "V_to_ml": 4593.4,
-   "worst_dV_rel": 0.0069,
-   "worst_candle_mm": 0.24,
-   "linger_step3_pct": 1.1
+   "worst_dV_rel": 0.0241,
+   "worst_candle_mm": 0.3,
+   "linger_step3_pct": 1.4
   },
   {
    "from": "LAYERED",
@@ -111,9 +111,9 @@
    ],
    "V_from_ml": 4335.9,
    "V_to_ml": 4464.2,
-   "worst_dV_rel": 0.0035,
-   "worst_candle_mm": 0.11,
-   "linger_step3_pct": 1.1
+   "worst_dV_rel": 0.0202,
+   "worst_candle_mm": 0.12,
+   "linger_step3_pct": 1.4
   },
   {
    "from": "ICED",
@@ -127,9 +127,9 @@
    ],
    "V_from_ml": 4593.4,
    "V_to_ml": 4464.2,
-   "worst_dV_rel": 0.0035,
-   "worst_candle_mm": 0.15,
-   "linger_step3_pct": 1
+   "worst_dV_rel": 0.0181,
+   "worst_candle_mm": 0.21,
+   "linger_step3_pct": 1.3
   },
   {
    "from": "ICED",
@@ -143,9 +143,9 @@
    ],
    "V_from_ml": 4593.4,
    "V_to_ml": 4464.2,
-   "worst_dV_rel": 0.0035,
-   "worst_candle_mm": 0.15,
-   "linger_step3_pct": 1
+   "worst_dV_rel": 0.0181,
+   "worst_candle_mm": 0.21,
+   "linger_step3_pct": 1.3
   },
   {
    "from": "ICED",
@@ -159,14 +159,14 @@
    ],
    "V_from_ml": 4593.4,
    "V_to_ml": 4695.6,
-   "worst_dV_rel": 0.0037,
-   "worst_candle_mm": 0.5,
-   "linger_step3_pct": 1.5
+   "worst_dV_rel": 0.0195,
+   "worst_candle_mm": 0.65,
+   "linger_step3_pct": 2
   },
   {
    "from": "ICED",
    "to": "BROWN_DOME",
-   "field": "POUR",
+   "field": "EVEN",
    "steps_by_pace": [
     12,
     12,
@@ -174,10 +174,10 @@
     12
    ],
    "V_from_ml": 4593.4,
-   "V_to_ml": 3790.7,
-   "worst_dV_rel": 0.0217,
-   "worst_candle_mm": 1.65,
-   "linger_step3_pct": 0.1
+   "V_to_ml": 3256,
+   "worst_dV_rel": 0.0245,
+   "worst_candle_mm": 2.43,
+   "linger_step3_pct": 6.6
   },
   {
    "from": "CHOC_ORANGE",
@@ -220,7 +220,7 @@
     12
    ],
    "V_from_ml": 4464.2,
-   "V_to_ml": 3790.7,
+   "V_to_ml": 3256,
    "worst_dV_rel": 0,
    "worst_candle_mm": 0
   },
@@ -280,7 +280,7 @@
     12
    ],
    "V_from_ml": 4464.2,
-   "V_to_ml": 3790.7,
+   "V_to_ml": 3256,
    "worst_dV_rel": 0,
    "worst_candle_mm": 0
   },
@@ -340,7 +340,7 @@
     12
    ],
    "V_from_ml": 4464.2,
-   "V_to_ml": 3790.7,
+   "V_to_ml": 3256,
    "worst_dV_rel": 0,
    "worst_candle_mm": 0
   },
@@ -369,7 +369,7 @@
     12,
     12
    ],
-   "V_from_ml": 3790.7,
+   "V_from_ml": 3256,
    "V_to_ml": 4464.2,
    "worst_dV_rel": 0,
    "worst_candle_mm": 0
@@ -384,7 +384,7 @@
     12,
     12
    ],
-   "V_from_ml": 3790.7,
+   "V_from_ml": 3256,
    "V_to_ml": 4464.2,
    "worst_dV_rel": 0,
    "worst_candle_mm": 0
@@ -399,7 +399,7 @@
     12,
     12
    ],
-   "V_from_ml": 3790.7,
+   "V_from_ml": 3256,
    "V_to_ml": 4464.2,
    "worst_dV_rel": 0,
    "worst_candle_mm": 0
@@ -414,7 +414,7 @@
     12,
     12
    ],
-   "V_from_ml": 3790.7,
+   "V_from_ml": 3256,
    "V_to_ml": 4695.6,
    "worst_dV_rel": 0,
    "worst_candle_mm": 0
@@ -475,7 +475,7 @@
     12
    ],
    "V_from_ml": 4695.6,
-   "V_to_ml": 3790.7,
+   "V_to_ml": 3256,
    "worst_dV_rel": 0,
    "worst_candle_mm": 0
   }
@@ -489,11 +489,11 @@
    "LINGER",
    "LEAN"
   ],
-  "worst_dV_rel": 0.0969,
-  "worst_dV_at": "DOUGH>DOMED EVEN step 10",
-  "worst_candle_step_mm": 5.49,
-  "worst_candle_at": "DOUGH>SPONGE LINGER step 13",
-  "worst_cut_candle_jump_mm": 17.43,
+  "worst_dV_rel": 0.0926,
+  "worst_dV_at": "DOUGH>DOMED EVEN step 11",
+  "worst_candle_step_mm": 5.47,
+  "worst_candle_at": "DOUGH>SPONGE EASE step 10",
+  "worst_cut_candle_jump_mm": 33.06,
   "flips": 0,
   "crossings": 0,
   "min_profile_area_m2": 0.00332

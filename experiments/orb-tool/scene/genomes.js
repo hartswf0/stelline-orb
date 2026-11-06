@@ -15,10 +15,19 @@
     cakeFinish: null   // filled below from the cake climb
   };
   // climbed (reference 'cream', fit 0.971): frostTop 0.099, frostSide 0.219, spread 0.717, fill 0.228, border 0.032, foot 0, dome 0.19, layers 2.1.
-  // Kept as climbed except border and foot, raised so the DECORATED stage has a visible piped border (the film's 155 s cake shows one).
-  G.cakeFinish = { taper: 1.0, board: 0, bevel: 0.05, frostTop: 0.099, frostSide: 0.219, spread: 0.717, fill: 0.228, border: 0.12, foot: 0.3, beadL: 88, beadA: 1, beadB: 9 };
+  // Kept as climbed except border and foot, and frostSide lowered to 0.08 (the climbed 0.219 rendered as a rough bark under the key light), raised so the DECORATED stage has a visible piped border (the film's 155 s cake shows one).
+  G.cakeFinish = { taper: 1.0, board: 0, bevel: 0.05, frostTop: 0.099, frostSide: 0.08, spread: 0.717, fill: 0.228, border: 0.12, foot: 0.3, beadL: 88, beadA: 1, beadB: 9 };
   // a genome array for a module from a named object (genes not named keep the module's blank)
   function arr(M, named) { const g = M.blank(); M.genes.forEach((d, i) => { if (named && named[d[0]] != null) g[i] = Math.max(d[2], Math.min(d[3], named[d[0]])); }); return g; }
-  const API = { G, arr };
+  // the state's cake genome (core/SCHEMA.md: form, side, top, dots, height, radius, layers) -> the cake module's genes.
+  // CAKE = the evolve-all cake module (it supplies srgb2lab and the gene table). Height is relative to the diameter in the module.
+  function cakeGenes(CAKE, g) {
+    const F = G.cakeFinish, hx = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)), lab = h => { const c = hx(h); return CAKE.srgb2lab(c[0], c[1], c[2]); };
+    const sd = lab(g.side), tp = lab(g.top), dome = g.form === 'dome';
+    return arr(CAKE, Object.assign({}, F, { height: Math.max(.06, Math.min(.9, g.height / (2 * g.radius))), layers: g.layers, dome: dome ? .85 : 0, bevel: dome ? 0 : F.bevel, beads: g.dots * .32,
+      sideL: sd[0], sideA: sd[1], sideB: sd[2], topL: tp[0], topA: tp[1], topB: tp[2], border: dome ? 0 : F.border, spread: dome ? 0 : F.spread })); }
+  // the making: cake.stage 0..4 -> the module's making time t (0 nothing; 1 board, sponge layers, dome; 2 icing poured and spread; 3 borders piped; 4 beads set)
+  const STAGE_T = [0, .44, .72, .86, 1];
+  const API = { G, arr, cakeGenes, STAGE_T };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.SCENE_GENOMES = API;
 })(typeof window !== 'undefined' ? window : globalThis);
