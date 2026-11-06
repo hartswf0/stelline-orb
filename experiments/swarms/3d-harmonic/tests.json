@@ -1,6 +1,6 @@
 {
- "ran": "2026-11-06T10:27:20.150Z",
- "failures": 2,
+ "ran": "2026-11-06T12:00:39.440Z",
+ "failures": 0,
  "results": [
   {
    "name": "1 closed paths return to start (max error over 404 passes, metres; gear angle error, radians)",
@@ -697,7 +697,7 @@
   },
   {
    "name": "5 replaying the trace (71 machine events) reproduces every pass, distance and path hash",
-   "ok": false,
+   "ok": true,
    "detail": {
     "passes": 10,
     "kept": 9,
@@ -707,19 +707,19 @@
   },
   {
    "name": "6 click trains from the trace: last six steps at 11.8/s (+-10%, 30 fps clock); no 6-step window faster than 23.6/s (+10%)",
-   "ok": false,
+   "ok": true,
    "detail": {
     "slow_tail_rates": [
      11.55,
      11.55,
-     11.55,
-     11.55,
-     11.52
+     12.5,
+     11.52,
+     11.55
     ],
-    "fastest_6_step_window": 30,
+    "fastest_6_step_window": 22.56,
     "head_rates_reported": [
-     21.02,
-     15.8
+     19.07,
+     14.29
     ]
    }
   }
