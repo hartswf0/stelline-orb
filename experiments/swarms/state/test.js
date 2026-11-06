@@ -44,13 +44,18 @@ const impW = run(S.impatient.script, S.impatient.dur);
   check('state-conditioned: action windows — inside refusal\'s 1.6 s dwell she stays; from watch the same utilities move her', M.decide(g2) === 'refuse' && M.decide(g3) === 'watch', `refuse(dwell)->${M.decide(g2)}, watch->${M.decide(g3)}`); }
 /* 8 · perception: she sees only where she faces. Turned away, she does not learn that you knelt until she looks */
 { const W = run(S.callOnly.script.slice(0, 2), 4); const g = W.girl; const before = g.wm.anaH; M.select(W, 3); M.turn(W, 'knurl', -3);   // stop calling
-  M.turn(W, 'scale', 4); while (W.val.scale !== 4) M.step(W); let learnedAt = null, visMax = 0, t0 = W.t; while (W.t - t0 < 20) { M.step(W); const near = Math.abs(g.wm.anaH - M.anaPose(W.val.scale).h) < 0.1; if (W.t - t0 < 1.0) visMax = Math.max(visMax, g.vis.ana); if (near && learnedAt == null) learnedAt = { t: W.t - t0, st: g.st + '.' + g.sub, psi: g.psi }; }
-  check('perception: kneeling behind her back is not known until she turns her head (belief lags truth while vis < 0.2)', before > 1.3 && visMax < 0.2 && learnedAt && learnedAt.t > 1.0, `belief before ${before.toFixed(2)} m; max vis of you in the first 1 s ${visMax.toFixed(2)}; learned at +${learnedAt && learnedAt.t.toFixed(2)} s in ${learnedAt && learnedAt.st}`); }
+  M.turn(W, 'scale', 4); while (W.val.scale !== 4) M.step(W); let learnedAt = null, visMax = 0, t0 = W.t, belief5 = 0, kidsAt = null;
+  while (W.t - t0 < 30) { M.step(W); if (W.t - t0 >= 5 && kidsAt == null) { kidsAt = W.t - t0; M.select(W, 2); M.turn(W, 'knurl', 3); belief5 = g.wm.anaH; }
+    const near = Math.abs(g.wm.anaH - M.anaPose(W.val.scale).h) < 0.1; if (W.t - t0 < 5) visMax = Math.max(visMax, g.vis.ana); if (near && learnedAt == null) learnedAt = { t: W.t - t0, st: g.st + '.' + g.sub }; }
+  check('perception: you kneel behind her back; for 5 s she does not see you (vis < 0.2) and still believes you stand; the children\'s song turns her head and then she knows', before > 1.3 && visMax < 0.2 && belief5 > 1.3 && learnedAt && learnedAt.t > 5, `belief before ${before.toFixed(2)} m, at 5 s ${belief5.toFixed(2)} m (truth ${M.anaPose(4).h.toFixed(2)}); max vis of you in 5 s ${visMax.toFixed(2)}; learned at +${learnedAt && learnedAt.t.toFixed(2)} s in ${learnedAt && learnedAt.st}`); }
 /* 9 · model-based exploration: random device input; every state reached, every taken transition declared, no unintended absorbing state, locomotion continuous */
 const rnd = (() => { let s = 12345; return () => { s = (s * 1103515245 + 12345) % 2147483648; return s / 2147483648; }; })();
 /* the player's vocabulary: set a thing to a value through the device (SELECT until it is selected, then hand detents), all at once */
 function setVal(W, target, ring, v) { if (ring !== 'scale') while (M.TARGETS[W.sel] !== target) M.select(W, W.sel + 1); const s = ring === 'scale' ? 'scale' : M.slot(W, ring), [lo, hi] = M.RANGES[s];
-  const want = Math.max(lo, Math.min(hi, v)), n = want - W.rings[ring].target; for (let i = 0; i < Math.abs(n); i++) M.turn(W, ring, Math.sign(n)); }
+  const want = Math.max(lo, Math.min(hi, v)), n = want - W.rings[ring].target; for (let i = 0; i < Math.abs(n); i++) M.turn(W, ring, Math.sign(n));
+  // a player waits for the device to finish stepping before selecting something else (SELECT abandons pending steps, as on ana's device)
+  let k = 0; while (Object.values(W.rings).some(r => r.target !== r.applied) && k++ < 200) STEP(W); }
+let STEP = W => M.step(W);
 const MACRO = [
   W => setVal(W, 'ROOM', 'knurl', Math.floor(rnd() * 9)), W => setVal(W, 'CAKE', 'knurl', Math.floor(rnd() * 9)), W => setVal(W, 'CAKE', 'tri', Math.floor(rnd() * 9)),
   W => setVal(W, 'CHILDREN', 'knurl', Math.floor(rnd() * 4)), W => setVal(W, 'CHILDREN', 'tri', Math.floor(rnd() * 13) - 6), W => setVal(W, 'HER', 'knurl', rnd() < .5 ? 0 : Math.floor(rnd() * 7)),
@@ -59,13 +64,14 @@ const MACRO = [
   W => { setVal(W, 'ROOM', 'knurl', 1); setVal(W, 'CAKE', 'knurl', 0); setVal(W, 'CAKE', 'tri', 0); setVal(W, 'CHILDREN', 'knurl', 3); setVal(W, 'HER', 'knurl', 0); setVal(W, 'x', 'scale', 4); } ];
 const covered = {}, reached = new Set(), snaps = []; let undeclared = [], cont = { maxStep: 0, maxTurn: 0, maxSit: 0, teleport: 0 };
 for (let run_ = 0; run_ < 200; run_++) { const W = M.createWorld({ seed: 1 + run_ }); let next = 0; let g = W.girl; let px = g.x, pz = g.z, pth = g.th, ps = g.sit;
-  while (W.t < 80) { if (W.t >= next) { MACRO[Math.floor(rnd() * MACRO.length)](W); next = W.t + (rnd() < .4 ? 3 + rnd() * 12 : rnd() * 1.5); }
-    const nT = g.trans.length; M.step(W);
-    if (W.girl !== g) { g = W.girl; px = g.x; pz = g.z; pth = g.th; ps = g.sit; continue; }   // switched off: the memory restarted with a new girl
+  STEP = W => { const nT = g.trans.length; M.step(W);
+    if (W.girl !== g) { g = W.girl; px = g.x; pz = g.z; pth = g.th; ps = g.sit; return; }   // switched off: the memory restarted with a new girl
     for (let k = nT; k < g.trans.length; k++) { const a = g.trans[k].from.split('.')[0], b = g.trans[k].to.split('.')[0]; if (a !== b) { covered[a + '>' + b] = (covered[a + '>' + b] || 0) + 1; if (!M.ALLOWED[a].includes(b)) undeclared.push(g.trans[k]); } }
     reached.add(g.st); const step = Math.hypot(g.x - px, g.z - pz), turn = Math.abs(M.wrap(g.th - pth)); cont.maxStep = Math.max(cont.maxStep, step); cont.maxTurn = Math.max(cont.maxTurn, turn); cont.maxSit = Math.max(cont.maxSit, Math.abs(g.sit - ps)); if (step > 0.5 * M.DT * 1.01 + 1e-6) cont.teleport++;
     px = g.x; pz = g.z; pth = g.th; ps = g.sit;
-    if (rnd() < 0.004 && snaps.length < 400 && g.st !== 'blow' && !W.offAt) snaps.push(JSON.parse(JSON.stringify(W, (k, v) => k === 'rnd' || k === 'log' || k === 'samples' || k === 'trans' ? undefined : v))); } }
+    if (rnd() < 0.004 && snaps.length < 400 && g.st !== 'blow' && !W.offAt) snaps.push(JSON.parse(JSON.stringify(W, (k, v) => k === 'rnd' || k === 'log' || k === 'samples' || k === 'trans' ? undefined : v))); };
+  while (W.t < 80) { if (W.t >= next) { MACRO[Math.floor(rnd() * MACRO.length)](W); next = W.t + (rnd() < .4 ? 3 + rnd() * 12 : rnd() * 1.5); } STEP(W); } }
+STEP = W => M.step(W);
 M.STATES.forEach(s => check(`reachable: ${s}`, reached.has(s)));
 check('declared: every transition taken in 200 random runs x 80 s is in the declared table', undeclared.length === 0, `${Object.values(covered).reduce((a, b) => a + b, 0)} transitions taken, ${undeclared.length} undeclared`);
 const declared = Object.entries(M.ALLOWED).flatMap(([a, bs]) => bs.map(b => a + '>' + b)), notTaken = declared.filter(d => !covered[d]);

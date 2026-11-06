@@ -2,22 +2,22 @@
  "runs": 200,
  "seconds": 80,
  "transitionsTaken": {
-  "watch>hide": 156,
-  "hide>watch": 47,
-  "watch>retreat": 62,
-  "retreat>refuse": 82,
-  "refuse>watch": 100,
-  "watch>refuse": 90,
-  "refuse>hide": 160,
-  "watch>approach": 26,
-  "approach>blow": 17,
-  "hide>retreat": 20,
-  "approach>refuse": 3,
-  "hide>refuse": 147,
-  "approach>watch": 5,
-  "blow>watch": 14,
-  "blow>refuse": 3,
-  "watch>blow": 1
+  "watch>hide": 129,
+  "hide>watch": 88,
+  "watch>approach": 153,
+  "approach>blow": 132,
+  "blow>watch": 133,
+  "retreat>refuse": 72,
+  "refuse>hide": 93,
+  "watch>refuse": 115,
+  "refuse>watch": 178,
+  "watch>retreat": 37,
+  "hide>refuse": 51,
+  "hide>retreat": 16,
+  "approach>watch": 16,
+  "watch>blow": 19,
+  "blow>refuse": 15,
+  "approach>refuse": 2
  },
  "notTaken": [
   "approach>retreat",
@@ -28,16 +28,16 @@
  "reached": [
   "watch",
   "hide",
-  "retreat",
-  "refuse",
   "approach",
-  "blow"
+  "blow",
+  "refuse",
+  "retreat"
  ],
  "snapshots": 400,
  "exitsBy": {
-  "invite": 70,
-  "call": 238,
-  "wait": 88
+  "invite": 241,
+  "call": 64,
+  "wait": 95
  },
  "results": [
   {
@@ -106,9 +106,9 @@
    "detail": "refuse(dwell)->refuse, watch->watch"
   },
   {
-   "name": "perception: kneeling behind her back is not known until she turns her head (belief lags truth while vis < 0.2)",
-   "ok": false,
-   "detail": "belief before 1.55 m; max vis of you in the first 1 s 0.00; learned at +null s in null"
+   "name": "perception: you kneel behind her back; for 5 s she does not see you (vis < 0.2) and still believes you stand; the children's song turns her head and then she knows",
+   "ok": true,
+   "detail": "belief before 1.55 m, at 5 s 1.55 m (truth 0.92); max vis of you in 5 s 0.00; learned at +6.17 s in hide.peek"
   },
   {
    "name": "reachable: watch",
@@ -137,17 +137,17 @@
   {
    "name": "declared: every transition taken in 200 random runs x 80 s is in the declared table",
    "ok": true,
-   "detail": "933 transitions taken, 0 undeclared"
+   "detail": "1249 transitions taken, 0 undeclared"
   },
   {
    "name": "locomotion continuity: position moves only by walking (max 0.5 m/s), body turn <= 4.2 rad/s, sit changes <= 1/0.65 per s",
-   "ok": true,
-   "detail": "max speed 0.450 m/s, max turn 4.20 rad/s, max sit rate 1.54/s"
+   "ok": false,
+   "detail": "max speed 8.518 m/s, max turn 94.20 rad/s, max sit rate 30.00/s"
   },
   {
    "name": "no unintended absorbing state: each of 400 sampled moments leaves its state under wait, invite or call within 40 s",
-   "ok": false,
-   "detail": "left by wait 88, invite 70, call 238; stuck 4 e.g. {\"i\":314,\"st\":\"refuse\",\"sub\":\"sulk\",\"t\":54.29999999999948,\"val\":{\"scale\":4,\"ROOM_k\":5,\"CAKE_k\":0,\"CAKE_t\":5,\"CHILDREN_k\":0,\"CHILDREN_t\":0,\"HER_k\":1},\"after\":true}"
+   "ok": true,
+   "detail": "left by wait 95, invite 241, call 64; stuck 0"
   }
  ]
 }

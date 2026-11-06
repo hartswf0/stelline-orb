@@ -105,8 +105,9 @@
     const turb = (vnoise(t * 16 + i * 3.3) - .5) * 10 * Math.min(1, W);
     const sx = Math.sin(dir), sy = Math.cos(dir);
     const bendX = W * (sx * 150 + Math.sign(sx) * 18) * f * f + turb * f * f;
-    const bendY = W * (44 + 40 * (1 - Math.abs(sx))) * f * f * Math.max(.3, sy);
-    const lengthen = 1 + Math.min(W, 1.2) * .35 * f * Math.abs(sx);
+    // the downward bend is capped so the spine stays ordered (dy/df < 0 needs bendY < 42 at the tip): a flame never turns inside out
+    const Wc = Math.min(W, 1.3), bendY = Wc * (14 + 14 * (1 - Math.abs(sx))) * f * f * Math.max(.3, sy);
+    const lengthen = 1 + Wc * (.35 * f * Math.abs(sx) - .3 * (1 - Math.abs(sx))); // outer flames stream longer; the centre one flattens toward us (shorter)
     const thin = 1 - .4 * Math.min(1, W), k = .1 + .9 * lit;
     return [cd.x + (x * thin + sway * f * f * Math.max(0, 1 - W) + bendX) * k, cd.y + (y * stretch * lengthen + bendY) * k];
   }

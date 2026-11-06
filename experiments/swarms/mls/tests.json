@@ -108,8 +108,8 @@
     "folded_triangles": 94
    },
    "flame": {
-    "min_jacobian": -1.113,
-    "folded_triangles": 14861
+    "min_jacobian": -0.124,
+    "folded_triangles": 755
    }
   },
   "similarity": {
@@ -122,8 +122,8 @@
     "folded_triangles": 0
    },
    "flame": {
-    "min_jacobian": -0.158,
-    "folded_triangles": 536
+    "min_jacobian": -0.041,
+    "folded_triangles": 40
    }
   },
   "rigid": {
@@ -136,8 +136,8 @@
     "folded_triangles": 0
    },
    "flame": {
-    "min_jacobian": -1.917,
-    "folded_triangles": 3896
+    "min_jacobian": -1.566,
+    "folded_triangles": 3149
    }
   }
  },
@@ -200,7 +200,7 @@
     "max_contour_accel_px": 24.67,
     "max_handle_accel_px": 25.05,
     "ratio": 0.985,
-    "frames_with_contour_reversal_but_no_handle_reversal": 25
+    "frames_with_contour_reversal_but_no_handle_reversal": 9
    }
   }
  },
@@ -234,7 +234,7 @@
   0.085
  ],
  "machine_rate_hz": 11.79,
- "solve_ms_per_world_frame": 2.58,
+ "solve_ms_per_world_frame": 2.53,
  "vertex_counts": {
   "face": 1628,
   "paper": 555,
