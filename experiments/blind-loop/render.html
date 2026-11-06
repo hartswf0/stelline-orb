@@ -19,14 +19,14 @@
 <script src="../swarms/evolve-all/modules/table.js"></script>
 <script>
 'use strict';
-const T = THREE, M = window.EVOMOD, W = 1280, H = 720;
+const T = THREE, M = window.EVOMOD; let W = 1280, H = 720;
 async function json(u) { const r = await fetch(u); return r.json(); }
 function vec(mod, o) { return Float64Array.from(mod.genes.map(g => o && o[g[0]] != null ? o[g[0]] : g[4])); }
 const BASE = {   // the framings in swarms/shared/look-test.html, set to land the cake where the film has it
   A: { cam: [0.0, 1.235, 1.065], look: [0.215, 0.675, 0.0], fov: 30 },
   B: { cam: [0.0, 0.735, 1.38], look: [-0.015, 0.665, 0.0], fov: 30 } };
 window.go = async function (C) {
-  const S = C.scene, refs = {};
+  const S = C.scene, refs = {}; const V5 = (S.v5 || 0) > .5, SS = V5 ? (S.ss || 2) : 1; W = 1280 * SS; H = 720 * SS;   // v5 M20: supersampled, downscaled by maker.js
   for (const n of ['cake', 'candles', 'inscription', 'table']) refs[n] = await json('../swarms/evolve-all/refs/' + n + '.json');
   refs.cake.target = S.shot === 'A' ? 'cream' : 'cream_table';
   const R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); R.setPixelRatio(1); document.body.append(R.domElement);
@@ -39,8 +39,10 @@ window.go = async function (C) {
   const waves = Array.from({ length: 9 }, () => { const d = new T.Vector3(rnd() - .5, rnd() - .5, rnd() - .5).normalize(); return { d, f: 180 + rnd() * 220, ph: rnd() * 6.28 }; });   // v3: surface scale only (wavelength 1.5-3.5 cm), no change of the cake's form
   const noise = p => waves.reduce((s, w) => s + Math.sin(w.d.dot(p) * w.f + w.ph), 0) / 3;
   // M5: the table: a thin hexagonal top with no visible leg (module table hidden)
-  const tableTopY = S.shot === 'B' ? (REL.findA(M.table.anchors(P.table.G), ['topCentre']) || [0, 0.5, 0])[1] : 0.5;
-  if (S.shot === 'B') { const tg = C.table || {}, rad = def('tableR', 0.36);
+  const tableTopY = (S.shot === 'B' || V5) ? (REL.findA(M.table.anchors(P.table.G), ['topCentre']) || [0, 0.5, 0])[1] : 0.5;
+  if (V5) { // v5 M24: a dark rectangular tabletop, both framings
+    const top = new T.Mesh(new T.BoxGeometry(1.3, 0.02, 0.85), LOOK.material('table', { seed: 3 })); top.position.y = tableTopY - 0.01; top.position.z = -0.1; top.receiveShadow = true; scene.add(top); }
+  else if (S.shot === 'B') { const tg = C.table || {}, rad = def('tableR', 0.36);
     const top = new T.Mesh(new T.CylinderGeometry(rad, rad, 0.018, 6), LOOK.material('table', { seed: 3 })); top.rotation.y = Math.PI / 6 + (tg.yaw || 0) * Math.PI / 180;
     top.scale.x = tg.stretch || 1; top.position.y = tableTopY - 0.009; top.receiveShadow = true; scene.add(top); }
   // the cake: on the table (B) or in the air, tilted toward her (A)
@@ -49,11 +51,31 @@ window.go = async function (C) {
   const cake = M.cake.build(T, P.cake.G, { t: 1, tint, refs: refs.cake }); cakeHolder.add(cake); cake.updateMatrixWorld(true);
   const A = M.cake.anchors(P.cake.G), sup = REL.supportInfo('cake', M.cake, P.cake.G);
   const topA = REL.findA(A, ['top']) || [0, 0.1, 0], insA = REL.findA(A, ['inscription']) || topA, rimA = REL.findA(A, ['rim']) || [0.12, 0.1, 0], baseA = REL.findA(A, ['bodyBase', 'base']) || [0, 0, 0];
-  const R0 = rimA[0], TY = topA[1];
+  const R0 = rimA[0]; let TY = topA[1];
+  /* v5 M21: the cake body is built here as one high-poly lathe (wall, rounded shoulder, slightly dished top), height 0.43 of the diameter as
+     measured in the 146 s and 152 s frames, displaced at several scales: trowel ridges, a sagging ridge under the shoulder, fine noise; top: spatula arcs */
+  if (V5) { const Hc = 2 * R0 * .43 * def('hRatio', 1); TY = Hc; topA[1] = Hc; insA[1] = Hc; baseA[1] = 0;
+    const prof = [], rr0 = .006; const und = def('undul', .0012);   // v5: broad smooth undulation (hand-spread) under the fine scales for (let i = 0; i <= 60; i++) prof.push(new T.Vector2(R0, Hc * .02 + (Hc - rr0 - Hc * .02) * i / 60));
+    for (let i = 1; i <= 12; i++) { const a = i / 12 * Math.PI / 2; prof.push(new T.Vector2(R0 - rr0 + rr0 * Math.cos(a), Hc - rr0 + rr0 * Math.sin(a))); }
+    for (let i = 1; i <= 50; i++) { const u = i / 50, r = (R0 - rr0) * (1 - u); prof.push(new T.Vector2(Math.max(r, 1e-5), Hc - .002 * Math.sin(u * Math.PI / 2))); }
+    const geo = new T.LatheGeometry(prof, 384), pa = geo.attributes.position, v = new T.Vector3(), rd = def('ridge5', .0007), sag = def('sag', .0016), fn = def('fine', .0004);
+    for (let i = 0; i < pa.count; i++) { v.fromBufferAttribute(pa, i); const rr = Math.hypot(v.x, v.z), ang = Math.atan2(v.z, v.x), n = noise(v), n2 = noise(v.clone().multiplyScalar(2.7));
+      if (v.y < Hc - rr0 * .6) { const d = rd * Math.sin(v.y / .011 * 6.283 + 1.8 * n) * (.55 + .45 * Math.sin(ang * 2.3 + n)) + sag * Math.exp(-Math.pow((v.y - (Hc - .016)) / .007, 2)) * (.6 + .4 * n) + fn * n2 + und * Math.sin(ang * 3 + 2.1 * Math.sin(v.y * 40)) * Math.sin(ang * 5 + 1.3);
+        v.x += v.x / rr * d; v.z += v.z / rr * d; }
+      else v.y += .7 * rd * Math.sin(rr / .016 * 6.283 + ang * 1.5 + 1.6 * n) * Math.min(1, (R0 - rr) / .01) + fn * n2;
+      pa.setXYZ(i, v.x, v.y, v.z); }
+    geo.computeVertexNormals(); const L = C.cake || {}; const lab = [def('_', 0), 0, 0];
+    const cs = M.cake.lab2srgb ? M.cake.lab2srgb(L.topL || 78, (L.topA || 3) + def('warmA', 4), (L.topB || 35) + def('warmB', 18)) : [214, 180, 120];
+    const col = new T.Color(Math.min(1, cs[0] / 255 / S.tintR), Math.min(1, cs[1] / 255 / S.tintG), Math.min(1, cs[2] / 255 / S.tintB));
+    const bm = new T.MeshStandardMaterial({ color: col.clone().convertSRGBToLinear(), roughness: def('rough5', .55), metalness: 0 });
+    const body = new T.Mesh(geo, bm); body.castShadow = body.receiveShadow = true; body.name = 'v5-body'; cake.add(body);
+    // v5 M22: the piped bottom border, a swept tube with noise
+    const pts = []; for (let i = 0; i <= 200; i++) { const a = i / 200 * 6.283, p = new T.Vector3(Math.cos(a) * (R0 + .002), .004, Math.sin(a) * (R0 + .002)); p.multiplyScalar(1 + .002 * noise(p) / R0); p.y = .004 + .0012 * noise(p.clone().multiplyScalar(2)); pts.push(p); }
+    const bt = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts, true), 400, .0042, 8, true), bm); bt.castShadow = true; cake.add(bt); }
   // M2: no perfect borders or identical beads: the module's instanced pieces (shell borders, beads) are hidden
   // M2/M3: every cake surface gets a seeded lumpy displacement and a lopsided top, and the LOOK buttercream material (bump, speckle)
   const lump = Math.min(def('lump', 0.0008), 0.0015), lop = clampV(def('lop', 0.001), -0.002, 0.002), ridge = def('ridge', 0.0006), mats = [];
-  cake.traverse(o => { if (!o.isMesh) return; if (o.isInstancedMesh) { o.visible = def('modBeads', 0) > .5; return; }
+  cake.traverse(o => { if (!o.isMesh) return; if (V5 && o.name !== 'v5-body') { o.visible = false; return; } if (V5) return; if (o.isInstancedMesh) { o.visible = def('modBeads', 0) > .5; return; }
     o.castShadow = o.receiveShadow = true; o.geometry = o.geometry.clone(); const pa = o.geometry.attributes.position, inv = new T.Matrix4().copy(o.matrixWorld).invert(), v = new T.Vector3();
     for (let i = 0; i < pa.count; i++) { v.fromBufferAttribute(pa, i).applyMatrix4(o.matrixWorld); const rr = Math.hypot(v.x, v.z), n = noise(v);
       const onTop = v.y > TY - .004 && rr < R0 - .002, ang = Math.atan2(v.z, v.x);
@@ -71,7 +93,7 @@ window.go = async function (C) {
     for (let i = 0; i < pa.count; i++) { v.fromBufferAttribute(pa, i); v.addScaledVector(v.clone().normalize(), .0006 * noise(v.clone().multiplyScalar(3))); pa.setXYZ(i, v.x, v.y, v.z); } tube.computeVertexNormals();
     const col = mats[0] ? mats[0].userData : null; const rm = LOOK.material('icing', { color: def('rimCol', 0xe3c48c), speckle: 1, seed: 11 }); const rim = new T.Mesh(tube, rm); rim.castShadow = rim.receiveShadow = true; cake.add(rim); }
   // v3 M10: one visible layer seam: a shallow darker groove round the wall at mid height
-  if (def('seam', 1) > .5) { const sy = baseA[1] + (TY - baseA[1]) * def('seamY', .5); const sm = LOOK.material('icing', { color: def('seamCol', 0xb89a62), seed: 13 });
+  if (!V5 && def('seam', 1) > .5) { const sy = baseA[1] + (TY - baseA[1]) * def('seamY', .5); const sm = LOOK.material('icing', { color: def('seamCol', 0xb89a62), seed: 13 });
     const seam = new T.Mesh(new T.TorusGeometry(R0 + .0004, .0011, 6, 160), sm); seam.rotation.x = Math.PI / 2; seam.position.y = sy; seam.scale.set(1, 1, .6); cake.add(seam); }
   // M4: dark dots pressed into the side frosting at irregular spacing (flattened, half sunk, sizes vary)
   { const nd = Math.round(def('dots', 34)), dm = LOOK.material('chocolate', { color: 0x24160d, seed: 6 }), y0 = baseA[1] + .012, y1 = TY - .01;
@@ -79,7 +101,7 @@ window.go = async function (C) {
       const p = new T.Vector3(Math.cos(a) * R0, y, Math.sin(a) * R0); p.multiplyScalar(1 + lump * noise(p) / R0); p.y = y;
       const d = new T.Mesh(new T.SphereGeometry(s, 10, 8), dm); d.position.copy(p).addScaledVector(new T.Vector3(Math.cos(a), 0, Math.sin(a)), -s * .45); d.scale.set(1, .85, .55); d.lookAt(p.clone().multiplyScalar(2)); d.scale.set(1, .85, .5); cake.add(d); } }
   // M8: a thin metal cake board
-  if (S.shot === 'B' && def('metalBoard', 1) > .5) { const bd = new T.Mesh(new T.CylinderGeometry(R0 * 1.12, R0 * 1.12, .004, 64), new T.MeshStandardMaterial({ color: 0x8a8580, metalness: .85, roughness: .35 })); bd.position.y = baseA[1] - .002; bd.receiveShadow = true; cake.add(bd); }
+  if (S.shot === 'B' && def('metalBoard', 1) > .5) { const bd = new T.Mesh(new T.CylinderGeometry(R0 * 1.12, R0 * 1.12, .004, 64), new T.MeshStandardMaterial({ color: 0x8a8580, metalness: .85, roughness: .35 })); bd.position.y = V5 ? .0012 : baseA[1] - .002; bd.receiveShadow = true; cake.add(bd); }
   // inscription (module tubes = piped relief), lifted out of the coat, wobble raised by the genome
   const ins = M.inscription.build(T, P.inscription.G, { t: 1, support: sup, refs: refs.inscription });
   const insH = new T.Group(); insH.position.set(insA[0], insA[1] + (S.insLift || 0) + lop * insA[0] / R0, insA[2]); insH.add(ins); cake.add(insH);
@@ -93,11 +115,11 @@ window.go = async function (C) {
     const b = x.createRadialGradient(32, 108, 0, 32, 108, 10); b.addColorStop(0, 'rgba(80,110,255,.8)'); b.addColorStop(1, 'rgba(80,110,255,0)'); x.globalCompositeOperation = 'lighter'; x.fillStyle = b; x.fillRect(16, 96, 32, 24);
     const t = new T.CanvasTexture(c); return t; })();
   const V4 = def('v4', 0) > .5;   // TOOL v4 (round 04): thin scattered candles, flames as a separate overlay, candle-only light
-  const H0 = V4 ? .045 * def('candleLen4', 1) : (cg.height || .0485) * def('candleLen', .78), TH = V4 ? .002 : (cg.thick || .0075) * .5 * def('candleThick', 1.3);
+  const H0 = V5 ? .05 * def('candleLen4', 1) : V4 ? .045 * def('candleLen4', 1) : (cg.height || .0485) * def('candleLen', .78), TH = V5 ? .003 : V4 ? .002 : (cg.thick || .0075) * .5 * def('candleThick', 1.3);
   // v4 M17: seven seats scattered over the top (back half and sides, clear of the writing), at least 0.17 R apart; not a ring or a row
   const seats = []; if (V4) { let guard = 0; while (seats.length < 7 && guard++ < 4000) { const rr = Math.sqrt(rnd()) * .74 * R0, a = rnd() * Math.PI * 2, x = Math.cos(a) * rr, z = Math.sin(a) * rr;
-      if (z > .12 * R0 && x > -.35 * R0) continue; if (seats.some(q => Math.hypot(q[0] - x, q[2] - z) < .17 * R0)) continue; seats.push([x, 0, z]); } }
-  const KINDS4 = [null, '#c9362a', null, '#4a6fc4', '#c9362a', null, '#4a6fc4'], flameSpots = [];
+      if (!V5 && z > .12 * R0 && x > -.35 * R0) continue; if (V5 && (Math.abs(x - insA[0]) < .42 * R0 && Math.abs(z - insA[2]) < .2 * R0)) continue; if (seats.some(q => Math.hypot(q[0] - x, q[2] - z) < .17 * R0)) continue; seats.push([x, 0, z]); } }
+  const KINDS4 = V5 ? ['#c9362a', null, '#c9362a', '#4a6fc4', null, '#c9362a', null] : [null, '#c9362a', null, '#4a6fc4', '#c9362a', null, '#4a6fc4'], flameSpots = [];
   for (let k = 0; k < 7; k++) { const w = V4 ? seats[k] : wa['wick' + k]; if (!w) continue; const g = new T.Group(); const h = H0 * (V4 ? .7 + .5 * rnd() : .85 + .3 * rnd()), sink = .003 + .008 * rnd();
     g.position.set(w[0] + topA[0], topA[1] - sink + lop * w[0] / R0, w[2] + topA[2]); const ln = def('lean', 7) * Math.PI / 180; g.rotation.set((rnd() - .5) * 2 * ln, rnd() * 6.28, (rnd() - .5) * 2 * ln, 'YXZ');
     const kind = V4 ? KINDS4[k] : KINDS[k]; const wax = LOOK.material('wax', V4 && !kind ? { color: 0xf0d27a } : { stripe: kind }); const sh = new T.Mesh(new T.CylinderGeometry(TH * .95, TH, h, 12), wax); sh.position.y = h / 2; sh.castShadow = true; g.add(sh);
@@ -113,12 +135,19 @@ window.go = async function (C) {
     cake.add(g); flames.push(f); }
   // pose
   const r0 = 0.12;
-  if (S.shot === 'A') { cakeHolder.position.set(S.cx, 0.5 + S.lift, S.cz); cakeHolder.rotation.set(S.tiltX, S.yaw, S.tiltZ, 'YXZ'); cakeHolder.scale.setScalar(S.scale); }
+  if (V5) { cakeHolder.position.set(0, tableTopY, 0); cakeHolder.rotation.set(0, S.yaw, 0); }
+  else if (S.shot === 'A') { cakeHolder.position.set(S.cx, 0.5 + S.lift, S.cz); cakeHolder.rotation.set(S.tiltX, S.yaw, S.tiltZ, 'YXZ'); cakeHolder.scale.setScalar(S.scale); }
   else { cakeHolder.position.set(S.cx, tableTopY, S.cz); cakeHolder.rotation.set(0, S.yaw, 0); cakeHolder.scale.setScalar(S.scale); }
   // camera
   const b = BASE[S.shot], dy = S.shot === 'B' ? tableTopY - 0.5 : 0;
   cam.position.set(b.cam[0] + S.camX, b.cam[1] + S.camY + dy, b.cam[2] + S.camZ); cam.fov = b.fov * S.fov; cam.updateProjectionMatrix();
   cam.lookAt(new T.Vector3(b.look[0] + S.lookX, b.look[1] + S.lookY + dy, b.look[2]));
+  /* v5 M25: the camera solved from the decoy frame: the top ellipse's major axis (px at 1280 wide), its minor/major ratio (elevation),
+     its roll and its centre, measured by hand on 3x zooms of 146.0 s and 152.25 s. fov 30 (vertical); distance = 2 R f / major. */
+  if (V5) { const SOL = { A: { major: 277, elev: 31, roll: 10.4, cx: 411, cy: 403 }, B: { major: 217, elev: 6, roll: 0, cx: 651, cy: 424 } }[S.shot];
+    cam.fov = 30; cam.aspect = 16 / 9; const fpx = 360 / Math.tan(15 * Math.PI / 180), d = 2 * R0 * fpx / (SOL.major * def('camScale', 1)), e = (SOL.elev + def('elevD', 0)) * Math.PI / 180;
+    const tgt = new T.Vector3(0, tableTopY + TY, 0); cam.up.set(0, 1, 0); cam.position.set(0, tgt.y + Math.sin(e) * d, Math.cos(e) * d); cam.lookAt(tgt); cam.rotateZ(SOL.roll * Math.PI / 180);
+    cam.setViewOffset(W, H, -(SOL.cx - 640) * SS, -(SOL.cy - 360) * SS, W, H); cam.updateProjectionMatrix(); }
   // the look
   const target = cakeHolder.position.clone().add(new T.Vector3(0, 0.08, 0));
   const Hd = LOOK.apply(R, scene, cam, { target, room: S.room > 0.5, genome: C.look });
@@ -131,11 +160,13 @@ window.go = async function (C) {
     const scr = o => { const v = o.getWorldPosition(new T.Vector3()).project(cam); return [(v.x + 1) / 2 * W, (1 - v.y) / 2 * H]; };
     for (const f of flameSpots) { const b = scr(f.base), t = scr(f.tip); const hp = Math.max(4, Math.hypot(t[0] - b[0], t[1] - b[1])), wp = hp * .36 * S.flameW;
       x.save(); x.translate(b[0], b[1]); x.rotate(Math.atan2(t[0] - b[0], b[1] - t[1]) + f.rot);
-      const glow = x.createRadialGradient(0, -hp * .45, 0, 0, -hp * .45, hp * 1.6); glow.addColorStop(0, 'rgba(255,190,110,' + (.22 * f.gain) + ')'); glow.addColorStop(1, 'rgba(255,150,60,0)'); x.fillStyle = glow; x.fillRect(-hp * 2, -hp * 2.2, hp * 4, hp * 4);
+      const glow = x.createRadialGradient(0, -hp * .45, 0, 0, -hp * .45, hp * 1.6); glow.addColorStop(0, 'rgba(255,190,110,' + ((V5 ? .05 : .22) * f.gain) + ')'); glow.addColorStop(1, 'rgba(255,150,60,0)'); x.fillStyle = glow; x.fillRect(-hp * 2, -hp * 2.2, hp * 4, hp * 4);
       x.beginPath(); x.moveTo(0, -hp); x.bezierCurveTo(wp * .5, -hp * .55, wp * .62, -hp * .2, wp * .45, -hp * .05); x.bezierCurveTo(wp * .3, hp * .05, -wp * .3, hp * .05, -wp * .45, -hp * .05); x.bezierCurveTo(-wp * .62, -hp * .2, -wp * .5, -hp * .55, 0, -hp); x.closePath();
       const g = x.createRadialGradient(0, -hp * .3, 0, 0, -hp * .4, hp * .75); g.addColorStop(0, 'rgba(255,253,235,1)'); g.addColorStop(.35, 'rgba(255,236,160,1)'); g.addColorStop(.75, 'rgba(255,170,70,.9)'); g.addColorStop(1, 'rgba(240,110,30,.6)');
       x.fillStyle = g; x.fill();
       const bl = x.createRadialGradient(0, -hp * .06, 0, 0, -hp * .06, wp * .55); bl.addColorStop(0, 'rgba(90,120,255,.55)'); bl.addColorStop(1, 'rgba(90,120,255,0)'); x.globalCompositeOperation = 'lighter'; x.fillStyle = bl; x.fillRect(-wp, -hp * .3, wp * 2, hp * .4);
+      if (V5) { x.globalCompositeOperation = 'source-over'; x.strokeStyle = 'rgba(150,150,145,.10)'; x.lineWidth = Math.max(1, hp * .08); x.beginPath(); x.moveTo(0, -hp * 1.05);
+        for (let j = 1; j <= 8; j++) x.lineTo(Math.sin(j * .9 + f.rot * 9) * hp * .12 * j / 4, -hp * (1.05 + j * .28)); x.stroke(); }   // v5 M23: a faint smoke wisp
       x.restore(); }
     window.FLAMES = c.toDataURL('image/png'); }
   return true;

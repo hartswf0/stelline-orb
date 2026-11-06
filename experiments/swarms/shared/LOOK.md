@@ -40,6 +40,39 @@ Film numbers (640x360, means of 3 frames): see `look-genome.json` `film`. Notabl
 Each term is |render − film| / tolerance; a term above 1 fails. Score = sum of squared terms + 4 per failing term.
 
 ## Evolution
-Seeded (20261106) elitist (mu+lambda), mu 5, lambda 10, uniform crossover between elites, Gaussian mutation (half the genes, sigma adapted by success), elites re-measured every generation and kept at their worse score. Genome: 41 genes (light, grade, bloom, grain, DOF, vignette, spot screen, material tones). Log: `look-trace.json`.
+Seeded (20261106) elitist (mu+lambda), mu 5, lambda 10, uniform crossover between elites, Gaussian mutation (half the genes, sigma adapted by success), 9 generations. Earlier runs also re-measured the elite each generation; dropped once the render was shown to be deterministic. Genome: 41 genes (light, grade, bloom, grain, DOF, vignette, spot screen, material tones). Log: `look-trace.json`.
 
-RESULTS_PLACEHOLDER
+## Results (accepted genome, gen 8 of 9; `look-genome.json`)
+Score 137.4 (start 238.3). **Not within tolerance: 15 of 40 terms fail.** The evolution was stopped by the time budget, not by convergence.
+
+|region|render L / a / b|film L / a / b|
+|---|---|---|
+|A top|62.4 / 7.9 / 44.6|53.7 / 8.9 / 41.1|
+|A side|13.6 / 3.9 / 14.8|8.1 / 4.2 / 8.2|
+|A bg|0.2 / 0.0 / 0.0|3.6 / -1.3 / 1.7|
+|B top|57.5 / 10.4 / 43.4|62.8 / 14.7 / 55.9|
+|B side|10.4 / 18.9 / 15.3|14.7 / 7.8 / 19.7|
+|B table|44.8 / 15.8 / 46.3|47.1 / 13.0 / 47.9|
+|B bg|0.2 / 0.0 / 0.0|2.5 / -1.1 / 1.9|
+
+Red/blue cake top 146 s: render 2.66, film 2.95 (pass). Bloom radius: A 25.7 vs 11.6, B 26.9 vs 14.0 px (fail, about twice the film's). Histogram EMD passes on both shots.
+
+Failing terms (|diff| / tolerance): B.side.a 3.69, A.bloom 3.47, B.top.b 3.14, B.bloom 2.62, A.top.L 2.19, B.top.sb 1.95, B.table.sb 1.76, A.side.b 1.65, B.side.sb 1.54, B.top.a 1.46, A.side.L 1.38, B.top.L 1.33, B.side.b 1.10, B.side.L 1.08, B.table.sL 1.05
+
+## Bug found and fixed during the run
+The post pipeline first replaced each ShaderMaterial's `uniforms` object per pass. three r128 keeps the object it compiled with, so every post parameter (exposure, white balance, bloom, grain, vignette, spots) was frozen at the first frame's values. Two earlier evolution runs were invalid because of it (their scores depended on which genome was rendered first in the page); their traces were discarded. Fixed by updating uniform values in place; `node look-measure.js repeat` now gives the same score for the same genome regardless of order (±1.3 on the very first render).
+
+## What is weak
+- Bloom: the halo sprites read as round discs around each flame and the measured radius is about 2x the film's. The halo should be smaller and the bloom tighter; the evolution did not get there.
+- Steady spot screen: the evolution raised `spotSteady` to 0.12 at a 2.4 px pitch to match the film's fine texture; in the render it reads as a visible dot screen on the lit cake, which the film does not show. Swarms should set `spotSteady: 0` until this is re-measured (or the texture term weighted against it).
+- Background: renders sit at L 0.2; the film's dark room is L 2.5-3.6 with a slight green-yellow cast. `bgLevel` does not lift it enough after the tone curve.
+- Chocolate side (B): too red (a 18.9 vs 7.8) and its horizontal bump streaks read as stacked layers; the film's side is smoother frosting with dark dots.
+- The film's key light is a wide pool that lights the whole table and the children; the test scene's spot is narrower.
+- The band of light is thin and hard; the film's band is wider and softer.
+- Region polygons are hand-drawn on single frames; the B cake top is only ~1000 px at 640x360, so its spreads are noisy.
+- Rendering is SwiftShader (software) at 640x360; a phone GPU will differ in grain and bloom texture sizes.
+- No independent critic has seen the strips. Side-by-sides with film frames: `/home/claude/stelline-work/look/side-A.png`, `side-B.png`. `look-strip.png` holds renders only (shot A, shot B, a half-revealed spot frame).
+
+## Files
+`look.js` module; `look-genome.json` accepted genome + film numbers + per-term result; `look-test.html` test scene (phone: scene top half, controls and measured-vs-film table bottom half, no page scroll; serve over http so it can fetch the genome); `look-measure.js` (`film`, `frame`, `evolve N`, `strip`, `repeat`); `look-trace.json` per-generation log.
+

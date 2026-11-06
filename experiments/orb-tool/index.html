@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --bg: #050605; --ink: #e6ebe9; --dim: #8b9693; --line: #252b29; --hand: #e0a15a; --agent: #38d6e0; --red: #e0332b; --devH: clamp(250px, 43dvh, 380px); }
+  :root { --bg: #050605; --ink: #e6ebe9; --dim: #8b9693; --line: #252b29; --hand: #e0a15a; --agent: #38d6e0; --red: #e0332b; --devH: min(clamp(250px, 46dvh, 460px), calc(100vw * 334 / 400 + 6px)); }
   html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); overflow: hidden; overscroll-behavior: none; -webkit-user-select: none; user-select: none; font: 12px/1.4 "IBM Plex Mono", ui-monospace, Menlo, monospace; }
   .app { position: fixed; inset: 0; display: flex; flex-direction: column; height: 100dvh; }
   #view { position: relative; flex: 1 1 auto; min-height: 0; background: #000; touch-action: none; overflow: hidden; }
@@ -84,6 +84,8 @@
     // the agent side, when its files exist: the command language, the richer describe, the pull-up console
     if (!Q.has('nocmd')) { await loadScript('agent/commands.js'); await loadScript('agent/describe.js'); await loadScript('agent/console.js');
       try { if (window.ORB_DESCRIBE && ORB_DESCRIBE.install) ORB_DESCRIBE.install(API); } catch (e) { console.error(e); }
+      // the bridge: JSON-RPC tools for a real agent over postMessage, and over a localhost WebSocket relay with ?bridge=ws://localhost:8787
+      await loadScript('agent/bridge.js'); try { if (window.ORB_BRIDGE && ORB_BRIDGE.attach) API.bridge = ORB_BRIDGE.attach(API, { commands: window.ORB_COMMANDS }); } catch (e) { console.error(e); }
       try { if (window.ORB_CONSOLE && window.ORB_COMMANDS) window.ORB_CONSOLE_INSTANCE = ORB_CONSOLE.mount(API, { parent: document.body, author: 'hand', focus: false }); } catch (e) { console.error(e); window.ORB_CONSOLE_INSTANCE = null; } }
     API.ready = true;
   })();

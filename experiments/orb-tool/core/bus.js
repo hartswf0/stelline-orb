@@ -53,7 +53,7 @@
       _emitStep: (path, value, fast) => emit('step', path, value, fast),
       raw: () => state,                      // read-only reference for renderers each frame (do not mutate)
       do: (o, meta) => doOps(o, meta),
-      propose: (o, note, meta) => doOps({ op: 'propose', args: { op: o && o.op, args: o && o.args, note } }, meta),
+      propose: (o, note, meta) => doOps({ op: 'propose', args: o && Array.isArray(o.ops) ? { ops: o.ops, note } : Array.isArray(o) ? { ops: o, note } : { op: o && o.op, args: o && o.args, note } }, meta),
       undo: meta => doOps({ op: 'undo', args: {} }, meta || { author: 'hand' }),
       redo: meta => doOps({ op: 'redo', args: {} }, meta || { author: 'hand' }),
       on, describe, setDescribe(fn) { describeFn = fn; }, seek,

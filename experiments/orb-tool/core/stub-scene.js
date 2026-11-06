@@ -139,7 +139,7 @@
       if (v.time.off && off >= 1) { c.fillStyle = 'rgba(200,210,206,.35)'; c.font = '11px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText('THE MEMORY IS OFF', W / 2, H / 2); }
       if (v.time.hold) { c.strokeStyle = 'rgba(240,176,64,.8)'; c.lineWidth = 2; c.strokeRect(3, 3, W - 6, H - 6); c.fillStyle = 'rgba(240,176,64,.95)'; c.font = '600 11px ui-monospace,monospace'; c.textAlign = 'left'; c.fillText('HELD: EVERY PERFORMANCE STOPPED', 10, H - 26); }
       c.fillStyle = 'rgba(200,210,206,.4)'; c.font = '10px ui-monospace,monospace'; c.textAlign = 'right'; c.fillText('STUB RENDERER', W - 8, H - 8); }
-    function ghost(v, pr, now, look, glow) { const g = S.clone(v); g.proposals = []; let e; try { e = O.OPS[pr.op](g, S.clone(pr.args), { author: pr.author }); } catch (er) { e = 'x'; } if (e) return;
+    function ghost(v, pr, now, look, glow) { const g = O.ghostState(v, pr); if (!g) return;
       const same = k => JSON.stringify(g[k]) === JSON.stringify(v[k]);
       if (!same('table')) table(g, g.table.up, look, true);
       if (!same('cake') || !same('inscription')) { const ck = cake(g, look, glow, true, now); if (!ck && g.cake.stage === 0 && v.cake.stage > 0) { const q = P([0, .6, 0]); if (q) { c.strokeStyle = 'rgba(56,214,224,.8)'; c.beginPath(); c.moveTo(q[0] - 12, q[1] - 12); c.lineTo(q[0] + 12, q[1] + 12); c.moveTo(q[0] + 12, q[1] - 12); c.lineTo(q[0] - 12, q[1] + 12); c.stroke(); } } }

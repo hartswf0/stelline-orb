@@ -18,11 +18,11 @@
     const D = { cv, M: null, hot: null, held: null, down: null, disp: [0, 0, 0, 0], flash: {}, grip: null, msg: null, ring: 2, gest: 0 };
     // ---- what each ring shows: its labels and where the hand has it
     function ringInfo(s, i) { const r = DM.role(s, i); if (!r) return null; const sp = S.spec(r.path), v = S.get(s, r.path);
-      const ghost = s.proposals.find(p => p.op === 'set' && p.args.path === r.path);
+      const ghost = s.proposals.find(p => root.CORE_OPS.ghostArg(p, r.path)), gv = ghost ? ghost.args[root.CORE_OPS.ghostArg(ghost, r.path)] : null;
       let labels, pos, gpos = null;
-      if (sp.kind === 'enum') { labels = sp.a.map(x => x.toUpperCase()); pos = sp.a.indexOf(v); if (ghost) gpos = sp.a.indexOf(ghost.args.value); }
+      if (sp.kind === 'enum') { labels = sp.a.map(x => x.toUpperCase()); pos = sp.a.indexOf(v); if (ghost) gpos = sp.a.indexOf(gv); }
       else { const lo = typeof sp.a === 'function' ? sp.a(s) : sp.a, hi = typeof sp.b === 'function' ? sp.b(s) : sp.b, n = Math.round((hi - lo) / sp.step);
-        labels = []; for (let k = 0; k <= n; k++) labels.push(fmt(s, r.path, lo + k * sp.step)); pos = (v - lo) / sp.step; if (ghost) gpos = (ghost.args.value - lo) / sp.step; }
+        labels = []; for (let k = 0; k <= n; k++) labels.push(fmt(s, r.path, lo + k * sp.step)); pos = (v - lo) / sp.step; if (ghost) gpos = (gv - lo) / sp.step; }
       return { role: r, labels, pos, gpos, value: fmt(s, r.path, v), long: longName(s, r.path, v) }; }
     function fmt(s, path, v) {
       if (path === 'cake.kind') return v === -1 ? 'NONE' : v === -2 ? 'BRED' : (s.library[v] ? s.library[v].name.split(',')[0].toUpperCase() : '' + v);
@@ -61,7 +61,7 @@
     D.turn = turn; D.press = press;
     function pdown(e) { layout(); const [x, y] = toDev(e), h = hitAt(x, y); if (!h) return; e.preventDefault(); SND && SND.wake(); try { cv.setPointerCapture(e.pointerId); } catch (er) { }
       if (h.glass) { opts.onUi && opts.onUi('ask'); return; }
-      if (h.btn) { D.held = { btn: h.btn, at: performance.now(), long: false }; D.flash[h.btn] = performance.now(); return; }
+      if (h.btn) { D.held = { btn: h.btn, at: performance.now(), ts: e.timeStamp, long: false }; D.flash[h.btn] = performance.now(); return; }
       D.down = { ring: h.ring, y, acc: 0, g: 'drag-' + (++D.gest) + '-' + Date.now() }; D.ring = h.ring; }
     // one label step is 24 degrees of the barrel: the label under the finger stays under it
     const STEP = 54 * Math.sin(24 * Math.PI / 180);
@@ -69,7 +69,8 @@
         const k = D.down.acc > 0 ? Math.floor(D.down.acc) : Math.ceil(D.down.acc); if (k) { D.down.acc -= k; turn(D.down.ring, k, D.down.g); } return; }
       if (e.target !== cv) { if (D.hot) D.hot = null; return; } const [x, y] = toDev(e), h = hitAt(x, y), nh = h ? (h.btn || (h.glass ? 'glass' : 'r' + h.ring)) : null;
       if (nh !== D.hot) { D.hot = nh; cv.style.cursor = h ? (h.ring != null ? 'ns-resize' : 'pointer') : 'default'; } }
-    function pup() { if (D.held) { const H = D.held; D.held = null; press(H.btn, performance.now() - H.at > LONG); } D.down = null; }
+    // long or short is decided from the pointer events' own timeStamps, so a slow frame cannot turn a tap into a long press
+    function pup(e) { if (D.held) { const H = D.held; D.held = null; const up = e && e.timeStamp != null ? e.timeStamp : performance.now(); press(H.btn, DM.isLong(H.ts != null ? H.ts : H.at, up)); } D.down = null; }
     cv.addEventListener('pointerdown', pdown); root.addEventListener('pointermove', pmove); root.addEventListener('pointerup', pup); root.addEventListener('pointercancel', pup);
     cv.addEventListener('wheel', e => { layout(); const [x, y] = toDev(e), h = hitAt(x, y); if (h && h.ring != null) { e.preventDefault(); turn(h.ring, e.deltaY > 0 ? -1 : 1, 'wheel-' + h.ring + '-' + Math.floor(performance.now() / 600)); } }, { passive: false });
     root.addEventListener('keydown', e => { if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return; const k = e.key;
@@ -122,7 +123,7 @@
       c.font = '600 10.5px ' + FONT; c.fillStyle = 'rgba(255,255,255,.9)'; const R = infos[D.ring]; c.fillText(fit(c, R ? R.long : '', w - 20 - c.measureText(sel).width), x + 16 + c.measureText(sel).width + 4, y + 17);
       let note = '', col = 'rgba(255,224,160,.95)';
       if (D.msg && now - D.msg.at < 2600) { note = D.msg.t; col = D.msg.bad ? '#ff9a8a' : col; }
-      else if (s.proposals.length) { const p = s.proposals[0]; note = (s.proposals.length > 1 ? s.proposals.length + ' WAITING. ' : '') + p.author.replace('agent:', '').toUpperCase() + ' PROPOSES ' + root.CORE_OPS.label(p.op, p.args) + (p.note ? ' (' + p.note + ')' : '') + '. ACCEPT, OR TURN IT, OR HOLD ACCEPT TO REJECT'; col = '#7fe9f0'; }
+      else if (s.proposals.length) { const p = s.proposals[0]; note = (s.proposals.length > 1 ? s.proposals.length + ' WAITING. ' : '') + p.author.replace('agent:', '').toUpperCase() + ' PROPOSES ' + root.CORE_OPS.label(p.op, p.args) + (p.note ? ' (' + p.note + ')' : '') + '. ACCEPT OR HOLD TO TAKE IT, TURN IT, OR HOLD ACCEPT DOWN TO REJECT'; col = '#7fe9f0'; }
       else if (s.time.off) note = 'SWITCHED OFF. PRESS HOLD TO SWITCH ON';
       else if (s.time.hold) note = 'HELD. PRESS HOLD TO RELEASE' + (s.people.slice(0, 3).every(p => p.arrived >= 10) && s.candles.lit > 0 ? ': THEY BLOW THE CANDLES' : '');
       else if (s.time.blown) note = 'BLOWN OUT. HOLD THE HOLD BUTTON TO SWITCH THE MEMORY OFF';

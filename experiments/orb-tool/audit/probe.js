@@ -76,6 +76,9 @@ const LEGIBLE = () => {
   R.view = process.env.VIEWSEL ? await page.evaluate(sel => { const el = document.querySelector(sel); if (!el) return null; const r = el.getBoundingClientRect(); return { tag: el.tagName.toLowerCase(), id: el.id, x: Math.max(0, r.left), y: Math.max(0, r.top), w: Math.min(innerWidth, r.right) - Math.max(0, r.left), h: Math.min(innerHeight, r.bottom) - Math.max(0, r.top), sel }; }, process.env.VIEWSEL) : null;
   if (!R.view) R.view = await page.evaluate(VIEW);
   R.legibility = await page.evaluate(LEGIBLE);
+  R.fps = await page.evaluate(() => new Promise(r => { const T = []; let last = performance.now(); function f(t) { T.push(t - last); last = t; if (T.length < 30) requestAnimationFrame(f); else { T.sort((a, b) => a - b); r({ medianFrameMs: +T[15].toFixed(1), p90FrameMs: +T[27].toFixed(1) }); } } requestAnimationFrame(f); setTimeout(() => r({ note: 'fewer than 30 frames in 20 s', frames: T.length }), 20000); }));
+  // manual clock: where the page offers FORGE.manual/advance, stop its own loop and step it, so the measure does not depend on machine load
+  R.manual = !!process.env.MANUAL && await page.evaluate(() => !!(window.FORGE && FORGE.manual && FORGE.advance)); if (R.manual) await page.evaluate(() => { FORGE.manual(); FORGE.advance(1 / 60); });
   R.globals = await page.evaluate(() => Object.keys(window).filter(k => /^[A-Z][A-Z0-9_]{1,}$/.test(k) && typeof window[k] === 'object' && window[k] && k !== 'THREE').slice(0, 30));
   const controls = await page.evaluate(ENUM);
   R.controlCount = controls.length;
@@ -84,6 +87,7 @@ const LEGIBLE = () => {
 
   const V = R.view || { x: 0, y: 0, w: VW, h: VH };
   const clip = { x: Math.round(V.x), y: Math.round(V.y), width: Math.max(8, Math.round(V.w)), height: Math.max(8, Math.round(V.h)) };
+  async function settle(frames) { if (R.manual) await page.evaluate(n => { for (let i = 0; i < n; i++) FORGE.advance(1 / 60); }, frames).catch(() => { }); }
   async function shot() { await page.evaluate(() => scrollTo(0, 0)).catch(() => { }); const b = await page.screenshot({ clip, type: 'png', timeout: 8000 }).catch(() => null); return b; }
   async function diff(a, b) { if (!a || !b) return null; return helper.evaluate(async ([A, B]) => {
       const load = async s => { const bm = await createImageBitmap(await (await fetch('data:image/png;base64,' + s)).blob()); const c = new OffscreenCanvas(96, Math.max(8, Math.round(96 * bm.height / bm.width))); const x = c.getContext('2d'); x.drawImage(bm, 0, 0, c.width, c.height); return x.getImageData(0, 0, c.width, c.height).data; };
@@ -91,7 +95,7 @@ const LEGIBLE = () => {
       return { mean: +(s / n).toFixed(2), changedFrac: +(ch / n).toFixed(4) }; }, [a.toString('base64'), b.toString('base64')]); }
   // idle baseline: how much the view changes by itself in ~100 ms and ~1 s
   const idle = [];
-  for (let k = 0; k < 3; k++) { const a = await shot(); const tA = Date.now(); await page.waitForTimeout(60); const b = await shot(); const tB = Date.now() - tA; await page.waitForTimeout(900); const c = await shot(); idle.push({ d100: await diff(a, b), d1s: await diff(a, c), ms: tB }); }
+  for (let k = 0; k < 3; k++) { const a = await shot(); const tA = Date.now(); await page.waitForTimeout(60); await settle(6); const b = await shot(); const tB = Date.now() - tA; await page.waitForTimeout(R.manual ? 0 : 900); await settle(54); const c = await shot(); idle.push({ d100: await diff(a, b), d1s: await diff(a, c), ms: tB }); }
   R.idle = idle;
   const idle100 = Math.max(...idle.map(i => i.d100 ? i.d100.changedFrac : 0)), idle1s = Math.max(...idle.map(i => i.d1s ? i.d1s.changedFrac : 0));
   R.idleMax = { d100: idle100, d1s: idle1s };
@@ -114,7 +118,7 @@ const LEGIBLE = () => {
       else { res.action = 'click'; await loc.scrollIntoViewIfNeeded({ timeout: 1500 }).catch(() => { }); await loc.click({ timeout: 2000, force: true }); }
     } catch (e) { res.error = 'actuate: ' + e.message.split('\n')[0].slice(0, 100); }
     const tAct = Date.now() - tA;
-    const s100 = await shot(); const t100 = Date.now() - tA; await page.waitForTimeout(Math.max(0, 1000 - (Date.now() - tA))); const s1 = await shot();
+    await settle(6); const s100 = await shot(); const t100 = Date.now() - tA; await page.waitForTimeout(R.manual ? 0 : Math.max(0, 1000 - (Date.now() - tA))); await settle(54); const s1 = await shot();
     res.actMs = tAct; res.firstShotMs = t100;
     res.d100 = await diff(before, s100); res.d1s = await diff(before, s1);
     const a1 = await audit(); res.sound = (a1.audioStarts || 0) - (a0.audioStarts || 0) + (a1.mediaPlays || 0) - (a0.mediaPlays || 0);
@@ -144,7 +148,7 @@ const LEGIBLE = () => {
         await page.mouse.move(px, py); await page.mouse.down();
         if (kind === 'dragUp') await page.mouse.move(px, py - 70, { steps: 7 }); else if (kind === 'dragLeft') await page.mouse.move(px - 70, py, { steps: 7 }); else await page.waitForTimeout(60);
         await page.mouse.up();
-        const s100 = await shot(); const t100 = Date.now() - tA; await page.waitForTimeout(Math.max(0, 1000 - (Date.now() - tA))); const s1 = await shot(); const dA = await dshot();
+        await settle(6); const s100 = await shot(); const t100 = Date.now() - tA; await page.waitForTimeout(R.manual ? 0 : Math.max(0, 1000 - (Date.now() - tA))); await settle(54); const s1 = await shot(); const dA = await dshot();
         const d100 = await diff(before, s100), d1 = await diff(before, s1), dd = await diff(dB, dA); const a1 = await audit();
         const r = { canvas: cv.id, gx, gy, px: Math.round(px), py: Math.round(py), kind, firstShotMs: t100, d100, d1s: d1, deviceDiff: dd, sound: (a1.audioStarts || 0) - (a0.audioStarts || 0), newErrors: errors.slice(errN) };
         r.visible100 = (d100 ? d100.changedFrac : 0) > Math.max(0.01, idle100 * 1.5 + 0.005); r.visible1s = (d1 ? d1.changedFrac : 0) > Math.max(0.01, idle1s * 1.5 + 0.005); r.deviceChanged = (dd ? dd.changedFrac : 0) > 0.01;

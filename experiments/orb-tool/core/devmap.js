@@ -3,7 +3,7 @@
    Browser global CORE_DEVMAP; node module.exports. */
 (function (root) {
   'use strict';
-  const S = typeof module !== 'undefined' && module.exports ? require('./state.js') : root.CORE_STATE;
+  const node = typeof module !== 'undefined' && module.exports, S = node ? require('./state.js') : root.CORE_STATE, O = node ? require('./ops.js') : root.CORE_OPS;
   const RINGS = [{ id: 'scale', title: 'SCALE' }, { id: 'kneel', title: 'KNEEL' }, { id: 'knurl', title: 'KNURL' }, { id: 'tri', title: 'TRIANGLES' }];
   const BUTTONS = { left: [['undo', 'UNDO'], ['redo', 'REDO'], ['keep', 'KEEP'], ['breed', 'BREED'], ['save', 'SAVE']], right: [['select', 'SELECT'], ['hold', 'HOLD'], ['make', 'MAKE'], ['accept', 'ACCEPT'], ['ask', 'ASK']] };
   // which path a ring sets for the current selection, and what to call it
@@ -30,8 +30,8 @@
   function turn(orb, ring, detents, meta) {
     meta = Object.assign({ author: 'hand' }, meta || {}); detents = Math.round(detents); if (!detents) return { ok: true, same: true };
     const s = orb.raw(), r = role(s, ring); if (!r) return { ok: false, error: 'this ring does nothing for ' + s.selection };
-    const ghost = s.proposals.find(p => p.op === 'set' && p.args.path === r.path);
-    if (ghost) return orb.do({ op: 'amend', args: { id: ghost.id, args: { value: clampFor(s, r.path, stepValue(s, r.path, ghost.args.value, detents)) } } }, meta);
+    const ghost = s.proposals.find(p => O.ghostArg(p, r.path));
+    if (ghost) { const k = O.ghostArg(ghost, r.path); return orb.do({ op: 'amend', args: { id: ghost.id, args: { [k]: clampFor(s, r.path, stepValue(s, r.path, ghost.args[k], detents)) } } }, meta); }
     return orb.do({ op: 'set', args: { path: r.path, value: stepValue(s, r.path, S.get(s, r.path), detents) } }, meta); }
   function clampFor(s, path, v) { const c = S.coerce(s, path, v); return c.error ? v : c.value; }
   // a button press; long is a press held past 650 ms. Returns the bus result, or { ui } for what the shell does itself
@@ -40,6 +40,7 @@
     switch (id) {
       case 'select': return orb.do({ op: 'select', args: { by: long ? -1 : 1 } }, meta);
       case 'hold': if (s.time.off) return orb.do({ op: 'switchOn', args: {} }, meta);
+        if (!long && s.proposals.length) return orb.do({ op: 'accept', args: {} }, meta);   // with a ghost waiting, HOLD accepts it (as the brief had it)
         if (long) return orb.do({ op: 'switchOff', args: {} }, meta);
         return orb.do({ op: s.time.hold ? 'release' : 'hold', args: {} }, meta);
       case 'make': return orb.do(long ? { op: 'make', args: { to: 0 } } : { op: 'make', args: {} }, meta);
@@ -53,6 +54,8 @@
       case 'ask': return { ok: true, ui: 'ask' };
     }
     return { ok: false, error: 'no button ' + id }; }
-  const API = { RINGS, BUTTONS, TABLE, role, turn, press, stepValue };
+  // a press is long when the button was down 650 ms or more, timed by the events' own timestamps (not by when the handler ran)
+  const LONG_MS = 650; function isLong(downStamp, upStamp) { return upStamp - downStamp >= LONG_MS; }
+  const API = { RINGS, BUTTONS, TABLE, role, turn, press, stepValue, isLong, LONG_MS };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.CORE_DEVMAP = API;
 })(typeof window !== 'undefined' ? window : globalThis);

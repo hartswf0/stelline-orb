@@ -65,7 +65,11 @@
       if (a.turn != null) { if (typeof a.turn !== 'number') return 'turn needs degrees'; let y = s.camera.yaw + a.turn; y = ((y + 180) % 360 + 360) % 360 - 180; const e = setPath(s, 'camera.yaw', y); if (e) return e; any = true; }
       for (const k of ['yaw', 'kneel', 'focus']) if (a[k] != null) { const e = setPath(s, 'camera.' + k, a[k]); if (e) return e; any = true; }
       return any ? null : 'camera needs yaw, kneel, focus or turn'; },
-    propose(s, a, ctx) { if (!isObj(a) || typeof a.op !== 'string') return 'propose needs { op, args }';
+    // several ops as one: what `propose { ops }` and accept use, so a ghost made of steps shows only where it ends
+    batch(s, a, ctx) { if (!isObj(a) || !Array.isArray(a.ops) || !a.ops.length || a.ops.length > 32) return 'batch needs { ops: [ {op, args}, ... ] }';
+      for (const x of a.ops) { if (!isObj(x) || !PROPOSABLE.includes(x.op)) return 'batch cannot hold ' + (x && x.op); const e = OPS[x.op](s, S.clone(x.args || {}), ctx); if (e) return x.op + ': ' + e; } return null; },
+    propose(s, a, ctx) { if (isObj(a) && Array.isArray(a.ops)) a = { op: 'batch', args: { ops: a.ops }, note: a.note };
+      if (!isObj(a) || typeof a.op !== 'string') return 'propose needs { op, args } or { ops }';
       if (!PROPOSABLE.includes(a.op)) return 'cannot propose ' + a.op;
       const trial = S.clone(s), e = OPS[a.op](trial, a.args || {}); if (e) return 'the proposal would fail: ' + e;
       s.seq++; s.proposals.push({ id: 'p' + s.seq, op: a.op, args: S.clone(a.args || {}), author: (ctx && ctx.author) || 'agent:api', note: typeof a.note === 'string' ? a.note.slice(0, 120) : '' }); return null; },
@@ -79,7 +83,7 @@
       for (const k of Object.keys(s)) delete s[k]; Object.assign(s, S.clone(m)); return null; },
     reset(s) { const e = S.empty(); for (const k of Object.keys(s)) delete s[k]; Object.assign(s, e); return null; }
   };
-  const PROPOSABLE = ['select', 'set', 'nudge', 'add', 'remove', 'make', 'breed', 'keep', 'write', 'candles', 'hold', 'release', 'blow', 'switchOff', 'switchOn', 'look', 'camera'];
+  const PROPOSABLE = ['batch', 'select', 'set', 'nudge', 'add', 'remove', 'make', 'breed', 'keep', 'write', 'candles', 'hold', 'release', 'blow', 'switchOff', 'switchOn', 'look', 'camera'];
   // a loaded memory must have the shape of the state
   function check(m) { if (!isObj(m)) return 'not an object'; const e = S.empty();
     for (const k of Object.keys(e)) { if (!(k in m)) return 'missing ' + k; if (Array.isArray(e[k]) !== Array.isArray(m[k]) || typeof e[k] !== typeof m[k]) return k + ' has the wrong type'; }
@@ -92,7 +96,13 @@
       case 'select': return 'select ' + (args.target || (args.by > 0 ? 'next' : 'previous')); case 'propose': return 'propose ' + label(args.op, args.args);
       case 'write': return 'write ' + args.text; case 'candles': return 'candles ' + args.count; case 'add': return 'add ' + args.kind; case 'remove': return 'remove ' + args.id;
       case 'camera': return 'camera ' + Object.keys(args).map(k => k + ' ' + args[k]).join(' '); case 'look': return 'look ' + Object.keys(args).map(k => args[k]).join(' ');
+      case 'batch': return (args.ops || []).map(x => label(x.op, x.args)).join(', ');
       default: return op; } }
-  const API = { OPS, NAMES, META, PROPOSABLE, label, check };
+  // the state a proposal would make, without touching the real one (renderers draw ghosts from this)
+  function ghostState(state, p) { const g = S.clone(state); g.proposals = []; let e; try { e = OPS[p.op](g, S.clone(p.args || {}), { author: p.author }); } catch (er) { e = 'failed'; } return e ? null : g; }
+  // which argument of a proposal a ring path turns: a ghost of these ops can be turned on the device like a `set` ghost
+  const GHOST_ARG = { candles: { 'candles.count': 'count' }, camera: { 'camera.yaw': 'yaw', 'camera.kneel': 'kneel' }, look: { 'scene.light': 'light', 'scene.place': 'place' } };
+  function ghostArg(p, path) { if (p.op === 'set') return p.args.path === path ? 'value' : null; const m = GHOST_ARG[p.op]; const k = m && m[path]; return k && p.args[k] != null ? k : null; }
+  const API = { OPS, NAMES, META, PROPOSABLE, label, check, ghostState, ghostArg };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.CORE_OPS = API;
 })(typeof window !== 'undefined' ? window : globalThis);

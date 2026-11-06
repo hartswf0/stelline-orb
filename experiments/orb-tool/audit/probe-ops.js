@@ -32,15 +32,18 @@ const VW = +W, VH = +H;
     else if (window.MM) { for (let i = 0; i < 3; i++) P.push({ label: 'MM.handTurn(ring' + i + ', 3 detents)', js: 'MM.handTurn(MM.RINGS[' + i + '], MM.RINGS[' + i + '].deg*3)' }); P.push({ label: 'MM.select(next)', js: 'MM.select(MM.S.target+1)' }); for (let i = 0; i < 3; i++) P.push({ label: 'after select: MM.handTurn(ring' + i + ', 3)', js: 'MM.handTurn(MM.RINGS[' + i + '], MM.RINGS[' + i + '].deg*3)' }); P.push({ label: 'MM.toggleHold()', js: 'MM.toggleHold()' }); P.push({ label: 'MM.switchOff()', js: 'MM.switchOff()' }); }
     else if (window.STAGE) { for (let i = 0; i < 5; i++) P.push({ label: 'STAGE.ring(' + i + ',+3)', js: 'STAGE.ring(' + i + ',3)' }); }
     return P; });
+  const fps = await page.evaluate(() => new Promise(r => { const T = []; let last = performance.now(); function f(t) { T.push(t - last); last = t; if (T.length < 40) requestAnimationFrame(f); else { T.sort((a, b) => a - b); r({ medianFrameMs: +T[20].toFixed(1), p90FrameMs: +T[36].toFixed(1) }); } } requestAnimationFrame(f); }));
+  const manual = await page.evaluate(() => !!(window.FORGE && FORGE.manual && FORGE.advance)); if (manual) await page.evaluate(() => { FORGE.manual(); FORGE.advance(1 / 60); });
+  const settle = n => manual ? page.evaluate(n => { for (let i = 0; i < n; i++) FORGE.advance(1 / 60); }, n) : null;
   const res = [];
   for (const p of plan) {
     if (p.when === 'build') await page.evaluate(() => { if (CORE.ST.mode !== 'build') CORE.press('birthday'); }).catch(() => { });
-    const a = await shot(); const t0 = Date.now(); let err = null; await page.evaluate(js => { try { (0, eval)(js); return null; } catch (e) { return e.message; } }, p.js).then(e => err = e);
-    const b = await shot(); const tb = Date.now() - t0; await page.waitForTimeout(Math.max(0, 1000 - (Date.now() - t0))); const c = await shot();
+    const a = await shot(); const t0 = Date.now(); let err = null; let lat = null; await page.evaluate(js => new Promise(res => { const t0 = performance.now(); let e = null; try { (0, eval)(js); } catch (x) { e = x.message; } const t1 = performance.now(); requestAnimationFrame(() => requestAnimationFrame(() => res({ e, opMs: +(t1 - t0).toFixed(1), toFrameMs: +(performance.now() - t0).toFixed(1) }))); }), p.js).then(r => { err = r.e; lat = r; });
+    await settle(6); const b = await shot(); const tb = Date.now() - t0; await page.waitForTimeout(manual ? 0 : Math.max(0, 1000 - (Date.now() - t0))); await settle(54); const c = await shot();
     const d100 = await diff(a, b), d1 = await diff(a, c);
-    res.push({ op: p.label, err, firstShotMs: tb, d100, d1s: d1, visible100: d100 > Math.max(.01, i100 * 1.5 + .005), visible1s: d1 > Math.max(.01, i1 * 1.5 + .005) });
+    res.push({ op: p.label, err, opMs: lat && lat.opMs, toFrameMs: lat && lat.toFrameMs, firstShotMs: tb, d100, d1s: d1, visible100: d100 > Math.max(.01, i100 * 1.5 + .005), visible1s: d1 > Math.max(.01, i1 * 1.5 + .005) });
   }
-  const R = { url: URL0, name: NAME, viewport: [VW, VH], view, idle: { d100: i100, d1s: i1 }, ops: res, errors: errors.slice(0, 20), handle: plan.length ? plan[0].label.split('.')[0] : 'none' };
+  const R = { manual, fps, url: URL0, name: NAME, viewport: [VW, VH], view, idle: { d100: i100, d1s: i1 }, ops: res, errors: errors.slice(0, 20), handle: plan.length ? plan[0].label.split('.')[0] : 'none' };
   fs.writeFileSync(OUT + '/ops-' + NAME + '-' + VW + 'x' + VH + '.json', JSON.stringify(R, null, 1));
   console.log('OPS', NAME, VW + 'x' + VH, 'handle', R.handle, 'ops', res.length, 'visible<=~100ms', res.filter(r => r.visible100).length, 'visible<=1s', res.filter(r => r.visible100 || r.visible1s).length, 'idle', i100, i1);
   await browser.close();

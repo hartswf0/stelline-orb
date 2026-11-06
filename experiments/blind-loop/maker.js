@@ -69,7 +69,8 @@ function upgradeV4(G) { const o = upgradeV3(G); Object.assign(o.scene, V4D.scene
    A: + overlay grain, JPEG.  B: no grain; H.264 (libx264, crf 30, 1 s of the still at 24 fps), frame 0 taken back out, then JPEG. */
 function finish(it, out, branch) { const crop = SHOTS[it.shot].crop, fl = it.flames && fs.existsSync(it.flames);
   const ins = ['-i', it.src].concat(fl ? ['-i', it.flames] : []);
-  const g = `[0]${crop},gblur=sigma=0.45[a]` + (fl ? `;[1]${crop}[f];[a][f]overlay=format=auto[c]` : ';[a]null[c]');
+  const pre = it.precropped ? (it.shot === 'A' ? 'scale=640:360:flags=lanczos' : 'null') : 'scale=1280:720:flags=lanczos,' + crop;   // v5: supersampled renders come down to 1280x720 first; Blender renders arrive already cropped
+  const g = `[0]${pre},gblur=sigma=0.45[a]` + (fl ? `;[1]${it.precropped ? (it.shot === 'A' ? 'scale=640:360' : 'null') : 'scale=1280:720,' + crop}[f];[a][f]overlay=format=auto[c]` : ';[a]null[c]');
   if (branch !== 'B') { ff(ins.concat(['-filter_complex', g + ';[c]noise=alls=7:allf=t+u[o]', '-map', '[o]', '-frames:v', '1'], JPEG, [out])); return; }
   const png = out + '.tmp.png', mp4 = out + '.tmp.mp4';
   ff(ins.concat(['-filter_complex', g + ';[c]format=rgb24[o]', '-map', '[o]', '-frames:v', '1', png]));
@@ -107,8 +108,44 @@ async function fork4(scoresFile) {
   const cands = []; for (const br of ['A', 'B']) gens.forEach(g => cands.push(Object.assign({}, g, { id: g.id.replace(`r${pad(M)}-`, `r${pad(M)}-${br}-`), branch: br, genomeOf: g.id })));
   t.rounds.push({ round: M, tool: last.tool + '; v4 hand layer; fork: branch A = flame overlay + grain, branch B = flame overlay + H.264 (no grain)', genomes: gens, candidates: cands, scores: null }); saveTrace(t);
   const w = await writeFork(M, gens); console.log('round', pad(M), 'written to', w.blind); }
+/* TOOL v5 (round 05): supersampling, the high-poly lathe body, matched cameras (render.html M20-M25) */
+const V5R = { 'scene.v5': [0.6, 1], 'scene.ss': [2, 2], 'scene.hRatio': [0.9, 1.1], 'scene.ridge5': [0.0003, 0.0012], 'scene.sag': [0, 0.003], 'scene.fine': [0.00005, 0.0004], 'scene.rough5': [0.4, 0.7],
+  'scene.camScale': [0.95, 1.05], 'scene.undul': [0, 0.0025], 'scene.warmA': [0, 8], 'scene.warmB': [8, 28], 'scene.elevD': [-3, 3], 'scene.candleLen4': [0.85, 1.15], 'look.bgLevel': [0.004, 0.012] };
+function upgradeV5(G, shot) { const o = upgradeV4(G); o.scene.shot = shot; Object.assign(o.scene, { v5: 1, ss: 2, hRatio: 1, ridge5: 0.0004, sag: 0.0016, fine: 0.00015, undul: 0.0012, warmA: 4, warmB: 18, rough5: 0.55, camScale: 1, elevD: 0, candleLen4: 1, yaw: 0 });
+  o.look.bgLevel = 0.01; o.look.keyIntensity = 0.5; o.tool = 5; return o; }
+/* round 05: branch A (three.js v5) and branch C (Blender Cycles) render the same 4 genomes at the matched cameras; one shared finish (H.264), 2 decoys */
+function waitLoad(maxMin) { const t0 = Date.now(); for (;;) { const l = +fs.readFileSync('/proc/loadavg', 'utf8').split(' ')[0]; if (l <= 8 || Date.now() - t0 > maxMin * 60000) return l;
+    cp.execFileSync('sleep', ['20']); } }
+async function fork5(scoresFile) {
+  const t = loadTrace(), last = t.rounds[t.rounds.length - 1], N = last.round, key = JSON.parse(fs.readFileSync(path.join(WORK, 'blind-keys', 'round-' + pad(N) + '.json'), 'utf8'));
+  const sc = JSON.parse(fs.readFileSync(scoresFile, 'utf8')), byId = {}, decoys = [];
+  for (const [name, v] of Object.entries(sc)) { const id = key[name]; if (!id) continue; if (id === 'FILM') decoys.push(Object.assign({ name, shot: key[name + ':shot'], branch: key[name + ':branch'] }, v)); else byId[id] = Object.assign({ name }, v); }
+  last.candidates.forEach(c => { c.score = byId[c.id] ? byId[c.id].score : 0; c.giveaway = byId[c.id] ? byId[c.id].giveaway || '' : ''; });
+  last.decoys = decoys; last.scores = sc; last.finding = 'branch A and B scored the same for every genome: the finishing pipeline is not the cause'; saveTrace(t);
+  const M = N + 1, R = pad(M), shotOf = { 'r04-K1': 'B', 'r04-E1': 'B', 'r04-K2': 'A', 'r04-E2': 'A' };
+  const gens = last.genomes.map(g => ({ id: g.id.replace('r04-', `r${R}-`) + '-' + shotOf[g.id], parents: [g.id], genome: upgradeV5(g.genome, shotOf[g.id]) }));
+  const cands = []; for (const br of ['A', 'C']) gens.forEach(g => cands.push(Object.assign({}, g, { id: g.id.replace(`r${R}-`, `r${R}-${br}-`), branch: br, genomeOf: g.id })));
+  t.rounds.push({ round: M, tool: 'v5: branch A = three.js (EVOLVE-ALL modules for colours/inscription + v5 hand layer, 2x supersampled, matched camera); branch C = Blender 5.2 Cycles (blender_render.py, same genome, matched camera); both finished with H.264', genomes: gens, candidates: cands, scores: null }); saveTrace(t);
+  const tmp = path.join(SCRATCH, 'round-' + R), blind = path.join(WORK, 'blind', 'round-' + R), keys = path.join(WORK, 'blind-keys'), repo = path.join(HERE, 'rounds', R);
+  [tmp, blind, keys, repo].forEach(d => fs.mkdirSync(d, { recursive: true })); fs.readdirSync(blind).forEach(f => fs.unlinkSync(path.join(blind, f)));
+  waitLoad(10); await renderAll(gens, tmp);
+  for (const g of gens) { const gj = path.join(tmp, g.id + '.json'), out = path.join(tmp, g.id + '-cy.png'); fs.writeFileSync(gj, JSON.stringify(g.genome));
+    if (fs.existsSync(out)) continue; const l = waitLoad(10); console.log('blender', g.id, 'load', l);
+    cp.execFileSync('python3.13', [path.join(HERE, 'blender_render.py'), gj, out, String(process.env.CY_SAMPLES || 64)], { stdio: ['ignore', 'ignore', 'inherit'], timeout: 45 * 60000 }); }
+  const items = [];
+  for (const g of gens) { items.push({ id: g.id.replace(`r${R}-`, `r${R}-A-`), branch: 'A', shot: g.genome.scene.shot, src: path.join(tmp, g.id + '.png'), flames: path.join(tmp, g.id + '-flames.png') });
+    items.push({ id: g.id.replace(`r${R}-`, `r${R}-C-`), branch: 'C', shot: g.genome.scene.shot, src: path.join(tmp, g.id + '-cy.png'), precropped: true }); }
+  for (const s of ['A', 'B']) { const f = path.join(tmp, 'film-' + s + '.png'); if (!fs.existsSync(f)) ff(['-ss', String(SHOTS[s].film), '-i', FILM, '-frames:v', '1', f]); items.push({ id: 'FILM-' + s, shot: s, src: f, film: true }); }
+  const r = mulberry32((Date.now() ^ (M * 7919)) >>> 0), nm = names(items.length, r), key2 = {}; let i = 0;
+  const order = items.map((it, k) => [r(), k]).sort((a, b) => a[0] - b[0]).map(x => items[x[1]]);
+  for (const it of order) { const name = nm[i++] + '.jpg', out = path.join(blind, name); finish(it, out, 'B');
+    key2[name] = it.film ? 'FILM' : it.id; if (it.branch) key2[name + ':branch'] = it.branch; if (it.film) key2[name + ':shot'] = it.id;
+    if (!it.film) fs.copyFileSync(out, path.join(repo, it.id + '.jpg')); }
+  fs.writeFileSync(path.join(keys, 'round-' + R + '.json'), JSON.stringify(key2, null, 1));
+  fs.writeFileSync(path.join(blind, 'READY'), `round ${R}: ${items.length} images, 640x360 JPEG. Score each 0-10: is this a frame from the film's memory?\n`);
+  console.log('round', R, 'written to', blind); }
 const LOOK_SEED = { wbB: 0.95, wbR: 1.0, saturation: 0.72, flame: 2.2, halo: 0.6, tableTone: 0.22, keyIntensity: 1.6, grain: 0.04 };
-function rangeOf(part, key) { if (V4R[part + '.' + key]) return V4R[part + '.' + key]; if (V3R[part + '.' + key]) return V3R[part + '.' + key]; if (part === 'scene') return SCENE_R[key]; if (part === 'look') return LOOK_R[key]; const g = mods[part].genes.find(g => g[0] === key); return g && [g[2], g[3]]; }
+function rangeOf(part, key) { if (V5R[part + '.' + key]) return V5R[part + '.' + key]; if (V4R[part + '.' + key]) return V4R[part + '.' + key]; if (V3R[part + '.' + key]) return V3R[part + '.' + key]; if (part === 'scene') return SCENE_R[key]; if (part === 'look') return LOOK_R[key]; const g = mods[part].genes.find(g => g[0] === key); return g && [g[2], g[3]]; }
 const INT = { 'cake.layers': 1, 'candles.count': 1 };
 
 function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -209,6 +246,6 @@ async function next(scoresFile) {
   const w = await writeRound(M, cands, last.tool); console.log('round', pad(M), 'written to', w.blind); }
 
 const [cmd, arg] = process.argv.slice(2);
-(cmd === 'fork4' ? fork4(arg) : cmd === 'init' ? init() : cmd === 'next' ? next(arg) : cmd === 'write' ? (async () => { const t = loadTrace(), rd = t.rounds.find(x => x.round === +arg); await writeRound(rd.round, rd.candidates, rd.tool); })() : Promise.resolve(console.log('usage: node maker.js init | next <scores.json> | write <NN>')))
+(cmd === 'fork5' ? fork5(arg) : cmd === 'fork4' ? fork4(arg) : cmd === 'init' ? init() : cmd === 'next' ? next(arg) : cmd === 'write' ? (async () => { const t = loadTrace(), rd = t.rounds.find(x => x.round === +arg); await writeRound(rd.round, rd.candidates, rd.tool); })() : Promise.resolve(console.log('usage: node maker.js init | next <scores.json> | write <NN>')))
   .catch(e => { console.error(e); process.exit(1); });
-module.exports = { mutate, steer, seedGenome, upgradeV2, upgradeV3, upgradeV4, finish, mulberry32 };
+module.exports = { mutate, steer, seedGenome, upgradeV2, upgradeV3, upgradeV4, upgradeV5, finish, mulberry32, loadTrace, saveTrace, writeFork };

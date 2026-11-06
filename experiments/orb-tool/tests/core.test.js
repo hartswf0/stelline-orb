@@ -140,3 +140,31 @@ test('every op answers in words: log labels for ops, undo and refusals', () => {
   assert.ok(orb.history().every(h => typeof h.t === 'number'));
   const moves = []; orb.on('seek', (n, from) => moves.push([n, from])); orb.redo(); orb.seek(0); assert.deepEqual(moves, [[2, 1], [0, 2]]);
 });
+
+test('press length is timed by event timestamps: a tap handled late stays a tap', () => {
+  assert.equal(D.isLong(1000, 1120), false); assert.equal(D.isLong(1000, 1649), false); assert.equal(D.isLong(1000, 1650), true);
+  // the device file decides from the events' own stamps, not from when the handler runs
+  const src = require('fs').readFileSync(require('path').join(__dirname, '../core/device.js'), 'utf8');
+  assert.match(src, /ts: e\.timeStamp/); assert.match(src, /DM\.isLong\(H\.ts/);
+});
+
+test('ghosts of candles, camera and look turn on the rings like set ghosts; HOLD accepts a waiting ghost', () => {
+  const orb = B.createOrb();
+  orb.do({ op: 'select', args: { target: 'candles' } }, H);
+  orb.propose({ op: 'candles', args: { count: 9 } }, 'nine', A);
+  D.turn(orb, 2, -3, { gesture: 'c' }); assert.equal(orb.state().proposals[0].args.count, 6); assert.equal(orb.state().candles.count, 7);
+  D.press(orb, 'hold', false); assert.equal(orb.state().candles.count, 6); assert.equal(orb.state().time.hold, false, 'HOLD accepted, it did not hold');
+  orb.propose({ op: 'camera', args: { kneel: 8 } }, '', A); D.turn(orb, 1, -5); assert.equal(orb.state().proposals[0].args.kneel, 3); assert.equal(orb.state().camera.kneel, 6);
+  D.press(orb, 'accept', true); assert.equal(orb.state().proposals.length, 0); assert.equal(orb.state().camera.kneel, 6);
+  D.press(orb, 'hold', false); assert.equal(orb.state().time.hold, true, 'with no ghost HOLD holds');
+});
+
+test('a ghost made of several steps is one proposal and shows only where it ends; the state is untouched until accepted', () => {
+  const orb = B.createOrb(), before = JSON.stringify(Object.assign(orb.state(), { proposals: [] }));
+  orb.do({ op: 'make', args: { to: 1 } }, H);
+  const r = orb.propose({ ops: [{ op: 'set', args: { path: 'cake.kind', value: 3 } }, { op: 'set', args: { path: 'cake.stage', value: 1 } }] }, 'brown dome, keep making', A);
+  assert.equal(r.ok, true); const s = orb.state(); assert.equal(s.proposals.length, 1); assert.equal(s.proposals[0].op, 'batch'); assert.equal(s.cake.kind, -1);
+  const g = O.ghostState(s, s.proposals[0]); assert.equal(g.cake.stage, 1); assert.equal(g.cake.genome.form, 'dome'); assert.equal(orb.state().cake.stage, 1);
+  orb.do({ op: 'accept' }, H); assert.equal(orb.state().cake.kind, 3); assert.equal(orb.state().cake.stage, 1);
+  assert.equal(orb.do({ op: 'propose', args: { ops: [{ op: 'undo' }] } }, A).ok, false); assert.ok(before);
+});
