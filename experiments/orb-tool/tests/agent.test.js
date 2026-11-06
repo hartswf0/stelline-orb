@@ -84,6 +84,21 @@ test('propose makes ghosts; amend turns one; accept applies it with the author r
   run(orb, 'reject', 'hand'); assert.strictEqual(orb.state().proposals.length, 0); assert.strictEqual(orb.state().camera.yaw, 0);
 });
 
+test('a command of several steps is ONE batch ghost; accepting it applies them together with no flash of the whole cake', () => {
+  const orb = BUS.createOrb(); const seen = [];
+  orb.on('change', s => seen.push(s.cake.stage));
+  run(orb, 'propose cake target brown-dome -- her brown dome', 'agent:claude');
+  let s = orb.state(); assert.strictEqual(s.proposals.length, 1); assert.strictEqual(s.proposals[0].op, 'batch');
+  assert.deepStrictEqual(s.proposals[0].args.ops.map(o => o.args.path), ['cake.kind', 'cake.stage']);
+  assert.ok(/brown dome, then/.test(C.say({ op: 'propose', args: s.proposals[0].args.ops ? { ops: s.proposals[0].args.ops } : {} }, s)));
+  seen.length = 0; run(orb, 'accept', 'hand'); s = orb.state();
+  assert.strictEqual(s.cake.kind, 3); assert.strictEqual(s.cake.stage, 0); assert.ok(!seen.includes(4), 'no change event shows stage 4');
+  assert.strictEqual(orb.history().length, 2, 'propose + accept: the batch is one history entry');
+  run(orb, 'propose children arrive', 'agent:claude'); assert.strictEqual(orb.state().proposals.length, 1); assert.strictEqual(orb.state().proposals[0].op, 'batch');
+  assert.ok(/several steps/.test(C.parse('amend', orb.state()).error || C.parse('amend p' + orb.state().proposals[0].id.slice(1) + ' 3', orb.state()).error));
+  run(orb, 'accept', 'hand'); assert.ok(orb.state().people.every(p => p.arrived === 10));
+});
+
 test('propose with several commands makes several ghosts', () => {
   const orb = BUS.createOrb(); run(orb, 'propose table up; cake mint'); assert.strictEqual(orb.state().proposals.length, 2);
 });
@@ -135,7 +150,7 @@ test('proposals are turnable sets on ring paths, and a ring turn on the device a
   DM.turn(orb, 1, 2, { author: 'hand' }); assert.strictEqual(orb.state().proposals[0].args.value, 6, 'the KNEEL ring raised the ghost from 4 to 6');
   DM.press(orb, 'accept', false); assert.strictEqual(orb.state().camera.kneel, 6);
   DM.press(orb, 'accept', true); assert.strictEqual(orb.state().camera.yaw, 0, 'a long ACCEPT dismissed the turn');
-  assert.strictEqual(C.parse('propose table down', orb.state()).length, 0, 'a ghost that changes nothing is not proposed');
+  assert.ok(/change nothing/.test(C.parse('propose table down', orb.state()).error), 'a ghost that changes nothing is not proposed');
 });
 
 async function asyncTests() {

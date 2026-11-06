@@ -38,6 +38,18 @@ ok('the inscription is written stroke by stroke: more of it at each written step
 ok('the table top stands at the state table height (0.5 m) once placed', () => { const g = GN.arr(TABLE, GN.G.table), top = TABLE.top(g); assert(top.y > .2 && top.y < 1, 'module top ' + top.y); assert(top.rIn > .2 && top.rIn < .6, 'radius ' + top.rIn); });
 ok('the evolved genomes stay inside their gene ranges', () => { for (const [M, k] of [[TABLE, 'table'], [INS, 'inscription'], [CANDLES, 'candles']]) M.genes.forEach(g => { const v = GN.G[k][g[0]]; if (v != null) assert(v >= g[2] - 1e-9 && v <= g[3] + 1e-9, k + '.' + g[0]); }); });
 
+ok('ghosts come from CORE_OPS.ghostState: the committed state is untouched, a batch proposal is one ghost, only changed parts are drawn', () => {
+  const GH = require(path.join(ROOT, 'experiments/orb-tool/scene/ghost.js')), BUS = require(path.join(ROOT, 'experiments/orb-tool/core/bus.js')), CO = require(path.join(ROOT, 'experiments/orb-tool/core/ops.js'));
+  const orb = BUS.createOrb(); orb.do({ op: 'set', args: { path: 'cake.kind', value: 4 } });
+  let r = orb.do({ op: 'propose', args: { op: 'candles', args: { count: 9 }, note: 'nine' } }, { author: 'agent:test' }); assert(r.ok, r.error);
+  const s = orb.state(), before = JSON.stringify(s), p = s.proposals[0], t = GH.trialOf(CO, s, p);
+  assert(t && t.candles.count === 9, 'ghost has 9 candles'); assert.strictEqual(JSON.stringify(s), before, 'state mutated'); assert.strictEqual(orb.state().candles.count, 7, 'committed candles changed');
+  assert.deepStrictEqual(GH.diff(s, t), ['candles']);
+  r = orb.do({ op: 'propose', args: { ops: [{ op: 'set', args: { path: 'cake.stage', value: 2 } }, { op: 'write', args: { text: 'ANA' } }, { op: 'camera', args: { kneel: 9 } }] } }, { author: 'agent:test' }); assert(r.ok, r.error);
+  const s2 = orb.state(), pb = s2.proposals[s2.proposals.length - 1], t2 = GH.trialOf(CO, s2, pb); assert(t2, 'batch ghost');
+  const d = GH.diff(s2, t2); ['cake', 'inscription', 'camera'].forEach(k => assert(d.includes(k), 'batch ghost changes ' + k + ' (' + d + ')'));
+  assert.strictEqual(orb.state().inscription.text, '生日快乐', 'committed text changed'); assert.strictEqual(GH.trialOf(CO, s2, { op: 'nope', args: {} }), null); });
+
 /* ------------------------------------------------------------------ browser checks */
 async function browser() {
   const { chromium } = require('playwright'); const URL = (process.env.ORB_URL || 'http://localhost:8765') + '/experiments/orb-tool/scene/index.html?manual&preserve';

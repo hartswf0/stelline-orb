@@ -577,5 +577,34 @@
   "fps": {
    "framesIn15s": 3
   }
+ },
+ {
+  "page": "film.html",
+  "viewport": [
+   1280,
+   800
+  ],
+  "loaded": false,
+  "loadMs": 104959,
+  "pageScrolls": true,
+  "hScroll": false,
+  "envErrors": 0,
+  "pageErrors": [],
+  "pageErrorCount": 0,
+  "docH": 1858,
+  "docW": 1280,
+  "controls": 17,
+  "controlsInView": 15,
+  "under44px": 11,
+  "under24px": 2,
+  "textNodesInView": 30,
+  "textUnder12px": 27,
+  "textUnder10px": 0,
+  "minFontPx": 10,
+  "canvases": [],
+  "handles": [],
+  "fps": {
+   "framesIn15s": 4
+  }
  }
 ]

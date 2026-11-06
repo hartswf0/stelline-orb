@@ -6,7 +6,7 @@
   844
  ],
  "loadMs": 1999,
- "partial": true,
+ "partial": false,
  "scroll": {
   "docH": 844,
   "docW": 390,
@@ -681,9 +681,133 @@
    "visible100": true,
    "visible1s": true,
    "deviceChanged": true
+  },
+  {
+   "canvas": "",
+   "gx": 7,
+   "fy": 0.41,
+   "px": 325,
+   "py": 675,
+   "kind": "dragLeft",
+   "firstShotMs": 2975,
+   "d100": {
+    "mean": 0.78,
+    "changedFrac": 0.004
+   },
+   "d1s": {
+    "mean": 0.21,
+    "changedFrac": 0.0021
+   },
+   "deviceDiff": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "sound": 5,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 8,
+   "fy": 0.41,
+   "px": 368,
+   "py": 675,
+   "kind": "tap",
+   "firstShotMs": 1763,
+   "d100": {
+    "mean": 0.46,
+    "changedFrac": 0.0053
+   },
+   "d1s": {
+    "mean": 0.61,
+    "changedFrac": 0.0045
+   },
+   "deviceDiff": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 8,
+   "fy": 0.41,
+   "px": 368,
+   "py": 675,
+   "kind": "dragUp",
+   "firstShotMs": 3724,
+   "d100": {
+    "mean": 0.62,
+    "changedFrac": 0.001
+   },
+   "d1s": {
+    "mean": 0.22,
+    "changedFrac": 0.002
+   },
+   "deviceDiff": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "",
+   "gx": 8,
+   "fy": 0.41,
+   "px": 368,
+   "py": 675,
+   "kind": "dragLeft",
+   "firstShotMs": 2795,
+   "d100": {
+    "mean": 0.43,
+    "changedFrac": 0.0002
+   },
+   "d1s": {
+    "mean": 0.7,
+    "changedFrac": 0.003
+   },
+   "deviceDiff": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
   }
  ],
  "autorow": {
   "canvas": 0.41
+ },
+ "gridSummary": {
+  "probes": 27,
+  "sceneChanged100": 10,
+  "sceneChanged1s": 10,
+  "deviceOnly": 1,
+  "nothing": 16,
+  "sound": 7
+ },
+ "tested": 0,
+ "noAuthority": [],
+ "authority100": 0,
+ "authority1s": 0,
+ "errorCount": 0,
+ "finalAudit": {
+  "audioStarts": 39,
+  "mediaPlays": 0,
+  "msgListeners": 0,
+  "keyListeners": 0,
+  "rafs": 0
  }
 }
