@@ -1,10 +1,63 @@
 # HOLO: the hologram UI and the device, measured against the film
 
+Rerun pass 2: `node holo-measure.js --minutes 14 --seed 7` (`--no-evolve` only measures and sets the genes directly).
+
 Files: `holo.js` (module), `holo-genome.json` (evolved numbers, also injected into holo.js), `holo-test.html` (bench), `holo-measure.js` (measurement and evolution), `holo-trace.json` (numbers only, no film pixels). Side-by-side strips with film pixels are only in `/home/claude/stelline-work/holo/` (strip-arc.png: film on top, HOLO at the same framing below, brightened 2.2x).
 
 ## API
 `HOLO.arc(scene, anchor, {size, camera, side})` returns `.object`, `.step(i)` (the mark blinks out for blinkFrames/24 s, comes back at -23.2/-19.3/-10/-0.7/+6 deg, then drifts), `.show(on)`, `.off(dur)` (segments go out one by one, neon style). `HOLO.readout(...)` returns `.type(n)`, `.feed(px)`, `.clear()`. `HOLO.childMark(scene, head, {size})` returns `.show(p)` (visible while 0 < p < 1). `HOLO.spots(root)` returns `.on(dur)`, `.off(dur, {origin})` (banks ordered by distance), `.flash()`, `.set(k)`. `HOLO.device(canvas, {targets, rings})` returns the controller: `on('step'|'hand'|'select'|'hold'|'off'|'ring')`, `setRange`, `setValue`, `setLabel`, `turn`, `press`. `HOLO.Machine` is the device's stepping logic without the DOM (works in node). `HOLO.draw.*` are the plain 2D renderers the measurement uses. The objects update themselves on requestAnimationFrame; pass `camera` so they keep to the cake's side.
 
+## Pass 2 (current): a fit checked against the film, measured genes set directly, only the free genes evolved
+**Fit.** Pass 1 fitted an axis-aligned ellipse to every bright pixel, and the result sat on the edge of its search range. Pass 2 treats the arc as a circle seen in perspective, i.e. a turned ellipse. It finds 234 half-max crossings on the band's outer edge (scanning rows on the right side and columns along the top). It then searches over rotation and aspect, with a linear circle fit at each step, and refines the best result.
+
+Result in ROI coordinates: centre (120.9, 109.2), which is frame (660.9, 379.2); semi-major axis R 91.8 px; aspect 0.78; rotation -22 deg; RMS 1.55 px. An independent direct conic fit in Python agrees: frame (662.4, 378.7), axes 68.6 x 91.0, so aspect 0.754, rotated 158.5 deg (the same as -21.5). The overlay is at /home/claude/stelline-work/holo/fit-overlay.png: the red ellipse runs along the outer edge across the top, the right side and the bottom.
+
+All arc angles are now the ellipse's own angle measured around its centre in the turned frame (not image degrees).
+
+**Set straight from the film (holo-trace.json `directGenes`):**
+
+| gene | value |
+|---|---|
+| R / aspect / rotation | 91.8 px / 0.78 / -22 deg |
+| band width (FWHM) | 21 px |
+| extent | -111 to 99 deg |
+| segments | 4 (gaps at 1, 34, 48 deg; 5.3 deg wide) |
+| notch darkness | 0.64 |
+| notch reach | full band width (the film's notches darken the outer half at least as much as the inner half, so they are not inner-side only) |
+| colour | film mean RGB of the band's brighter half, hue only (brightness left to the free gene `gain`) |
+| index mark | 15 x 14 px including bloom |
+| mark rest positions | -5.5, -1.5, 7, 16, 23 deg (median over each run in arc-series.json) |
+| blink | 3.75 frames (4, 3, 4, 4) |
+| drift after landing | -0.25 deg (almost none at this precision) |
+
+**Evolved, free genes only.** These are band falloff (in, out, exponent), the outer lip, glow and glow alpha, softness, gain, the hairline, the two end fades and a sub-pixel offset. The score combines edge distance, ΔE, the radial profile and the angular profile. Seed 7, 5 parents and 16 children per generation, 265 generations, stopped at the 14-minute cap. Flicker cannot be measured from a static plate, so I did not evolve it.
+
+| metric | tol | pass-1 genome under the new fit | genes set directly | after evolution |
+|---|---|---|---|---|
+| chamfer distance between edge maps (px) | 1.6 | 3.89 | 2.75 | **1.41 (pass)** |
+| colour ΔE (Lab) | 6 | 11.9 | 25.8 | **1.17 (pass)** |
+| angular profile correlation | >= 0.88 | 0.64 | 0.80 | **0.881 (pass, at the limit)** |
+| radial profile L2 | 0.12 | 0.31 | 0.24 | 0.207 (fail) |
+
+Checks: the same extractor run on the final render.
+
+| check | render | film | |
+|---|---|---|---|
+| segments | 4 | 4 | ok |
+| band width | 21 px | 21 px | ok |
+| gap positions | within 1.3 deg | | ok |
+| extent | -105 / 91 | -111 / 99 | off by 6 and 8 deg; the check tolerance is 4 |
+| mark | 19 x 15 | 15 x 14 | too wide |
+
+**Child mark** (frame 153.07 s, measured with the same edge fit). The C has R 23.8 px, aspect 0.82, rotation 4 deg, RMS 0.33 px, and a 5 px band. Its bar has a bright top 8 x 5 px, 45 px to the left of the C's centre and 17 px above it.
+
+I set these as genes, rendered the mark, and measured it again with the same extractor: R 24.3, aspect 0.85, rotation 7. The overlay is at /home/claude/stelline-work/holo/kid-overlay.png (film left, render right). The bar's dim body below its bright top runs into the transparent child behind it, so I did not measure it. I also did not measure the leader line. e-children.jpg and e-kids.jpg are crops of the same moments; I measured the raw frame because its pixel scale is known.
+
+**3D use.** The genome holds the film's pixel levels, which are dark because they come after the film's grade. `HOLO.arc` therefore takes `exposure` (default 2.2), so the arc shows in an ungraded scene. A swarm using LOOK's grade should pass about 1.
+
+**Still weak.** The radial profile fails: the film band has a softer inner ramp. The mark renders as a round bright blob, where the film's is a squarer block. The cap is not detected as brighter, because the mask under the wall light cuts it off, so capGain is 1. The readout, step-timing and feel numbers below come from pass 1 and were not changed.
+
+## Pass 1 record
 ## What was measured (film, by holo-measure.js)
 - Arc, medium cake shot 144.70 to 148.5 s, every frame (91 frames), ROI x540-800 y270-490. Static plate = 20th-percentile frame. Ellipse fit in ROI coordinates: centre (97, 120), R 93 px, aspect 1.0. The fit sits on the edge of its search range, so its geometry is not reliable (weak).
 - Band radial FWHM 18 px. Angular extent -125 to 57 deg. 4 segments (gaps at -21, 7, 19 deg). Cap ratio 0.36. Band colour Lab (28.6, -2.0, 5.4): dark grey with a slight green-yellow cast.

@@ -102,7 +102,7 @@ const TABLE = new T.Group(); MEM.add(TABLE);
 { const hex = new T.Mesh(new T.CylinderGeometry(0.35, 0.35, 0.025, 6), LOOK.material('table')); hex.position.y = TOP - 0.0125; hex.rotation.y = Math.PI / 6; TABLE.add(tag(hex, 'table'));
   const leg = new T.Mesh(new T.CylinderGeometry(0.06, 0.08, TOP - 0.025, 16), LOOK.material('board')); leg.position.y = (TOP - 0.025) / 2; TABLE.add(tag(leg, 'tableEdge')); }
 const A = cakeA(), B = cakeB(); MEM.add(A.g, B.g);
-A.g.position.set(0, TOP + 0.06, 0); A.g.rotation.set(0.45, 0.4, -0.12);    // the cake in the air, tilted toward Ana
+A.g.position.set(0, TOP + 0.06, 0); A.g.rotation.set(0.3, 0.4, -0.12);    // the cake in the air, tilted toward Ana
 B.g.position.set(0, TOP + 0.003, 0);
 
 /* ---------------------------------------------------------------- the look */

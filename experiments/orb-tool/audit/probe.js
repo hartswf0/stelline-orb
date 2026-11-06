@@ -72,7 +72,8 @@ const LEGIBLE = () => {
   const R = { url: URL0, name: NAME, viewport: [VW, VH], loadMs };
   R.scroll = await page.evaluate(() => ({ docH: document.documentElement.scrollHeight, docW: document.documentElement.scrollWidth, vh: innerHeight, vw: innerWidth, overflowY: getComputedStyle(document.body).overflowY }));
   R.pageScrolls = R.scroll.docH > R.scroll.vh + 2; R.hScroll = R.scroll.docW > R.scroll.vw + 2;
-  R.view = await page.evaluate(VIEW);
+  R.view = process.env.VIEWSEL ? await page.evaluate(sel => { const el = document.querySelector(sel); if (!el) return null; const r = el.getBoundingClientRect(); return { tag: el.tagName.toLowerCase(), id: el.id, x: Math.max(0, r.left), y: Math.max(0, r.top), w: Math.min(innerWidth, r.right) - Math.max(0, r.left), h: Math.min(innerHeight, r.bottom) - Math.max(0, r.top), sel }; }, process.env.VIEWSEL) : null;
+  if (!R.view) R.view = await page.evaluate(VIEW);
   R.legibility = await page.evaluate(LEGIBLE);
   R.globals = await page.evaluate(() => Object.keys(window).filter(k => /^[A-Z][A-Z0-9_]{1,}$/.test(k) && typeof window[k] === 'object' && window[k] && k !== 'THREE').slice(0, 30));
   const controls = await page.evaluate(ENUM);
@@ -135,7 +136,7 @@ const LEGIBLE = () => {
     const dshot = () => page.screenshot({ clip: dclip, type: 'png' }).catch(() => null);
     for (let gy = 0; gy < GY; gy++) for (let gx = 0; gx < GX; gx++) {
       const px = cv.x + cv.w * (gx + .5) / GX, py = Math.max(0, cv.y) + dclip.height * (gy + .5) / GY;
-      for (const kind of (process.env.KINDS || 'tap,dragUp').split(',')) {
+      for (const kind of (process.env.KINDS || 'tap,dragUp,dragLeft').split(',')) {
         const before = await shot(), dB = await dshot(); const a0 = await audit(); const errN = errors.length; const tA = Date.now();
         await page.mouse.move(px, py); await page.mouse.down();
         if (kind === 'dragUp') await page.mouse.move(px, py - 70, { steps: 7 }); else if (kind === 'dragLeft') await page.mouse.move(px - 70, py, { steps: 7 }); else await page.waitForTimeout(60);

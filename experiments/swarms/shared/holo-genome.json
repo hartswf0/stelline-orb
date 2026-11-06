@@ -5,13 +5,13 @@
   "thick": 21,
   "a0": -111,
   "a1": 99,
-  "tail": 12.934,
+  "tail": 22.107,
   "capA0": -111,
   "capA1": -105,
   "capGain": 1,
-  "bandIn": 0.156,
-  "bandOut": 0.362,
-  "edge": 1.2,
+  "bandIn": 0.144,
+  "bandOut": 0.316,
+  "edge": 1.199,
   "gaps": [
    1,
    34,
@@ -19,16 +19,16 @@
   ],
   "gapW": 5.333,
   "gapDepth": 0.638,
-  "hairR": 0.801,
-  "hairA": 0.305,
+  "hairR": 0.738,
+  "hairA": 0.17,
   "hairW": 1,
   "col": [
    254,
    255,
    222
   ],
-  "glow": 1.968,
-  "glowA": 0.29,
+  "glow": 3.055,
+  "glowA": 0.151,
   "markW": 15,
   "markH": 14,
   "markOff": 0,
@@ -53,7 +53,12 @@
   ],
   "needleW": 1,
   "rot": -22,
-  "gapCover": 1
+  "gapCover": 1,
+  "fall": 1.889,
+  "lip": 0.423,
+  "soft": 1.189,
+  "gain": 0.73,
+  "headTail": 16.893
  },
  "steps": {
   "marks": [
@@ -116,7 +121,7 @@
   "handRate": 1.442
  },
  "fit": {
-  "dx": 0,
-  "dy": 0
+  "dx": 0.237,
+  "dy": -0.114
  }
 }

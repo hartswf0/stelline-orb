@@ -38,12 +38,12 @@ const SCENE_A = { shot: 'A', tiltX: 0.12, tiltZ: -0.15, yaw: 0.4, lift: 0.06, cx
   tintR: 1.2, tintG: 1, tintB: 0.8, flameW: 0.7, flameH: 0.8, halo: 0.4, modFlame: 0.3, room: 0.8, bandY: 0.45, time: 2, insLift: 0.003 };
 const SCENE_B = Object.assign({}, SCENE_A, { shot: 'B', tiltX: 0, tiltZ: 0, yaw: 0, lift: 0, scale: 0.9, camZ: 0.08, bandY: 0.25 });
 /* TOOL v2 (round 02): new hand-layer genes (render.html M1-M8) and the light/framing reset applied to every genome, elites included */
-const SCENE_V2 = { lump: 0.004, lop: 0.006, rimW: 0.006, dots: 34, dotS: 0.0048, lean: 7, flameGain: 1.6, tableR: 0.36, seed: 7, lookIcing: 1, metalBoard: 1, modBeads: 0 };
-const LOOK_V2 = { keySoft: 1, keyCone: 0.8, contrast: 0.9, saturation: 0.65, wbB: 1.0, ambient: 0.12, aperture: 1.4, keyIntensity: 1.2, keyHeight: 1.0, keyForward: 0.9 };
+const SCENE_V2 = { lump: 0.004, lop: 0.006, rimW: 0.006, dots: 34, dotS: 0.0048, lean: 7, flameGain: 2.6, tableR: 0.36, seed: 7, lookIcing: 1, metalBoard: 1, modBeads: 0 };
+const LOOK_V2 = { keySoft: 1, keyCone: 0.8, contrast: 0.9, saturation: 0.65, wbB: 1.0, ambient: 0.12, aperture: 1.4, keyIntensity: 1.9, exposure: 1.3, keyHeight: 1.0, keyForward: 0.9 };
 const CAKE_V2 = { frostTop: 0.03, frostSide: 0.03 };
 const FRAME_V2 = { A: { fov: 1.12, lookY: 0.03 }, B: { lookY: 0.04, camZ: 0.12 } };
 function upgradeV2(G, r) { const o = clone(G); for (const k in SCENE_V2) if (o.scene[k] == null) o.scene[k] = SCENE_V2[k];
-  o.scene.seed = Math.round(1 + r() * 998); Object.assign(o.look, LOOK_V2); Object.assign(o.cake, CAKE_V2); Object.assign(o.scene, FRAME_V2[o.scene.shot]); o.tool = 2; return o; }
+  o.scene.seed = Math.round(1 + r() * 998); Object.assign(o.look, LOOK_V2); Object.assign(o.cake, CAKE_V2); o.cake.topL = Math.max(o.cake.topL, 74); o.cake.topB = Math.min(o.cake.topB, 38); o.cake.sideL = o.cake.topL - 8; o.cake.sideB = o.cake.topB - 4; o.inscription.count = 0.875; o.scene.flameGain = SCENE_V2.flameGain; o.scene.flameH = Math.max(o.scene.flameH, 1); Object.assign(o.scene, FRAME_V2[o.scene.shot]); o.tool = 2; return o; }
 const LOOK_SEED = { wbB: 0.95, wbR: 1.0, saturation: 0.72, flame: 2.2, halo: 0.6, tableTone: 0.22, keyIntensity: 1.6, grain: 0.04 };
 function rangeOf(part, key) { if (part === 'scene') return SCENE_R[key]; if (part === 'look') return LOOK_R[key]; const g = mods[part].genes.find(g => g[0] === key); return g && [g[2], g[3]]; }
 const INT = { 'cake.layers': 1, 'candles.count': 1 };
@@ -64,6 +64,7 @@ function mutate(G, r, rate, sigma, focus) { const o = clone(G); focus = focus ||
       if (r() > p) continue; let v = o[part][key] + sigma * (1 + f) * (rg[1] - rg[0]) * gauss(r); v = clamp(v, rg[0], rg[1]);
       if (INT[part + '.' + key]) v = Math.round(v); o[part][key] = +v.toFixed(5); } }
   if (o.candles) o.candles.count = 7;   // seven candles, as in the film
+  if ((o.tool || 1) >= 2) o.inscription.count = 0.875;   // the characters only: the film's frames do not show the flourish
   return o; }
 function cross(a, b, r) { const o = clone(a); for (const part of ['cake', 'candles', 'inscription', 'table', 'look']) for (const k of Object.keys(o[part] || {})) if (b[part] && r() < 0.5) o[part][k] = b[part][k];
   for (const k of Object.keys(o.scene)) if (k !== 'shot' && r() < 0.5 && b.scene.shot === a.scene.shot) o.scene[k] = b.scene[k]; return o; }

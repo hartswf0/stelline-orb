@@ -20,3 +20,21 @@ seed.js grows the starting genomes with the modules' own fitness (cake toward re
 ## Rounds
 ### Round 01
 8 candidates: A1 and B1 = the seeds; A2-A4 and B2-B4 = seeds mutated (35 % of genes, step 0.1 of range). Tool: EVOLVE-ALL modules + LOOK.
+Scores (critic, blind): decoys 9 (FILM-A, utz) and 9 (FILM-B, lgx). Candidates: A1 (kff) 2, A3 (aov) 2, B1 (eyv) 2, B4 (zuf) 2, B2 (tqd) 1, B3 (fft) 1, A4 (jtq) 1, A2 (cbc) 1. Full giveaways in trace.json (rounds[0].scores).
+Main giveaways: (1) flames are white balls with no teardrop, blue base or wick; candles identical straight rods in an even ring; flames cut off by the top of the frame in 5 of 8. (2) Machine-made cake: perfect cylinder, clean ellipse, perfect rope borders, grid/tiled top, identical evenly spaced beads; lettering read as a decal. (3) Hard overhead spot, orange top, black sides, no bounce or gradual falloff; table a hard cream slab with a visible leg; one saturated orange grade.
+
+## Tool mutations before round 02 (TOOL v2; render.html "hand layer", maker.js upgradeV2)
+The critic's coordinator allowed changing the generator code. These changes are mutations of the tool, applied to every genome (elites included, so the elites of round 01 are re-rendered under tool v2).
+- M1 candles (giveaway 1): the module's candles are hidden; seven candles are built at the module's wick positions with the film's kinds in order (cream, red spiral, cream, blue spiral, cream, red spiral, cream; LOOK wax material), each with its own height (0.85-1.15), sink (3-11 mm) and lean (up to gene `lean`, default 7 degrees), a dark wick, and a teardrop flame sprite (white core, orange edge, blue base) with gain `flameGain`. Flame size kept at least 1.
+- M2 borders and beads (giveaway 2): the module's instanced pieces (piped shell borders, beads) are hidden (gene `modBeads` can bring them back).
+- M3 hand-spread surface (giveaway 2): every cake mesh is displaced by a seeded smooth noise (gene `lump`, radial) and tilted lopsided (gene `lop`); materials replaced by the LOOK buttercream (bump, speckle) in the module's colour (gene `lookIcing`). A lumpy piped rim tube with wandering radius and height (`rimW`) and toasted speckle replaces the clean edge. Frost ripple genes set to 0.03 (the module's plane waves made the grid).
+- M4 dots (giveaway 2): `dots` (default 34) dark chocolate dots of varied size (`dotS`) pressed half into the side at random angles and heights.
+- M5 table (giveaway 3): the module table is hidden; a thin hexagonal top (LOOK table material, radius `tableR`) with no leg.
+- M6 light (giveaway 3): LOOK key softened and widened (keySoft 1, keyCone 0.8, key lower and further forward), ambient 0.12 for bounce, contrast 0.9, saturation 0.65, wbB 1.0, aperture 1.4 for optical softness, exposure 1.3.
+- M7 framing (giveaway 1): A: fov x1.12 and look 3 cm higher; B: look 4 cm higher, camera 12 cm back, so the flames are inside the frame.
+- M8 board (giveaway 3): a thin metal cake board under the B cake.
+- Also: cake top colour raised to L >= 74 with b <= 38 (cream, less orange), side 8 L darker; inscription limited to the 21 character strokes (the frames show no flourish; the critic read the flourish as an "N/lightning" decal). Each genome gets a new `seed` for the hand layer.
+- render.js: a frame that comes out near black (lost to the GPU when the disk was full) is rendered again, up to 3 tries.
+
+### Round 02
+Elites: r01-A1 and r01-B1 (both 2; upgraded to tool v2). 6 children: per framing, crossover of the two best of that framing plus mutation (rate 0.18, step 0.07) raised on the genes named by the giveaways (STEER). Tool: EVOLVE-ALL modules + LOOK + the v2 hand layer in render.html.

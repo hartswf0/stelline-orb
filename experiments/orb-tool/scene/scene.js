@@ -60,7 +60,7 @@
     const basic = (c, o) => new T.MeshBasicMaterial(Object.assign({ color: c, toneMapped: false }, o || {}));
     (function dome(D) {
       D.add(new T.Mesh(new T.SphereGeometry(7, 48, 24, 0, TAU, 0, Math.PI / 2), new T.MeshStandardMaterial({ color: 0x0b0d0c, roughness: 1, side: T.BackSide })));
-      const fl = new T.Mesh(new T.CircleGeometry(7, 72), new T.MeshStandardMaterial({ color: 0x060707, roughness: .45, metalness: .45 })); fl.rotation.x = -Math.PI / 2; fl.receiveShadow = true; D.add(fl);
+      const fl = new T.Mesh(new T.CircleGeometry(7, 72), new T.MeshStandardMaterial({ color: 0x040505, roughness: .6, metalness: .3 })); fl.rotation.x = -Math.PI / 2; fl.receiveShadow = true; D.add(fl);
       const ring = (r, w, y, c, o) => { const m = new T.Mesh(new T.TorusGeometry(r, w, 6, 240), basic(c, o)); m.rotation.x = Math.PI / 2; m.position.y = y; D.add(m); return m; };
       ring(6.65, .009, .62, 0xf2f7f3); ring(6.65, .05, .62, 0x9fb4ad, { transparent: true, opacity: .07, depthWrite: false, blending: T.AdditiveBlending }); ring(6.6, .03, .004, 0x8fa39c, { transparent: true, opacity: .035, depthWrite: false, blending: T.AdditiveBlending });
       const seam = new T.LineBasicMaterial({ color: 0x161a18, transparent: true, opacity: .5 });
@@ -168,7 +168,7 @@
         const hd = new T.Mesh(new T.SphereGeometry(.075, 18, 14), new T.MeshStandardMaterial({ color: 0x8a6a52, roughness: .8 })); hd.position.y = .51; mesh.add(hd);
         const hr = new T.Mesh(new T.SphereGeometry(.082, 18, 14, 0, TAU, 0, Math.PI * .62), hair); hr.position.y = .515; hr.rotation.x = -.5; mesh.add(hr);
         mesh.position.y = TABLE_Y + kid.base - .05; head.position.y = TABLE_Y + kid.base + .5; }
-      else { tex = KIDTEX[i % KIDS.length].clone(); tex.needsUpdate = true; OWN.add(tex);
+      else { tex = KIDTEX[i % KIDS.length].clone(); if (tex.image) tex.needsUpdate = true; OWN.add(tex);
         mesh = new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshStandardMaterial({ map: tex, emissiveMap: tex, emissive: 0xffd4a6, emissiveIntensity: .14, color: 0xfff2e2, roughness: .66, transparent: true, alphaTest: .06, side: T.DoubleSide }));
         head.position.y = TABLE_Y + kid.base + kid.h * .86; }
       grp.add(mesh, head); grp.position.set(p.x, 0, p.z); MEM.add(grp);
@@ -278,6 +278,7 @@
       (v.people || []).forEach((p, i) => { ids.add(p.id); let P = PEOPLE[p.id]; if (!P) { P = PEOPLE[p.id] = personObj(p, i); if (off) P.spots.set(0); }
         P.obj.position.x = lerp(P.obj.position.x, p.x, ease(dt, .1)); P.obj.position.z = lerp(P.obj.position.z, p.z, ease(dt, .1));
         const a = p.arrived / 10; P.a = a; P.spots.set(off ? 0 : a * offK); P.mark.show(a === 0 ? .01 : a); P.mark.alpha = off ? 0 : P.mark.alpha;
+        if (P.tex && !P.tex.image) { const src = KIDTEX[i % KIDS.length]; if (src.image) { P.tex.image = src.image; P.tex.needsUpdate = true; } }
         if (P.tex) { const k = P.kid, fi = ((Math.floor(clock * k.fps) + p.offset + i * 5) % k.frames + k.frames) % k.frames; P.tex.offset.x = fi / k.frames; P.mesh.scale.set(k.h * (k.aspect || .7), k.h, 1); P.mesh.position.y = TABLE_Y + k.base + k.h / 2; }
         P.mesh.rotation.y = Math.atan2(cam.position.x - P.obj.position.x, cam.position.z - P.obj.position.z); });
       Object.keys(PEOPLE).forEach(id => { if (!ids.has(id)) { const P = PEOPLE[id]; MEM.remove(P.obj); dispose(P.obj); P.mark.dispose(); P.spots.dispose(); delete PEOPLE[id]; } });
