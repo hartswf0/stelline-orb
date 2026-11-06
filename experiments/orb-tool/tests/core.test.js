@@ -136,7 +136,7 @@ test('every op answers in words: log labels for ops, undo and refusals', () => {
   const orb = B.createOrb(), seen = [];
   orb.on('log', r => seen.push(r.ok ? r.author + ': ' + r.label : 'refused ' + r.error));
   orb.do({ op: 'candles', args: { count: 5 } }, A); orb.do({ op: 'set', args: { path: 'cake.kind', value: 3 } }, H); orb.undo(); orb.do({ op: 'blow' }, A);
-  assert.equal(seen[0], 'agent:test: candles 5'); assert.equal(seen[1], 'hand: cake.kind 3'); assert.equal(seen[2], 'hand: undid cake.kind 3'); assert.match(seen[3], /^refused blow: there is no cake/);
+  assert.equal(seen[0], 'agent:test: candles 5'); assert.equal(seen[1], 'hand: cake.kind 3'); assert.match(seen[2], /^hand: undid cake\.kind 3; brought back cake\.kind -1, cake\.stage 0/); assert.match(seen[3], /^refused blow: there is no cake/);
   assert.ok(orb.history().every(h => typeof h.t === 'number'));
   const moves = []; orb.on('seek', (n, from) => moves.push([n, from])); orb.redo(); orb.seek(0); assert.deepEqual(moves, [[2, 1], [0, 2]]);
 });

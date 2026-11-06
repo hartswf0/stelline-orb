@@ -73,7 +73,7 @@ flow, LOOSE energy, at-rest flag; the events; and for each impulse the time unti
 scene the next action usually comes before rest, so those times (1.0 to 19 s) measure the scene's pace, not a material's
 settle time; the per-material settle times are the test numbers above.
 
-`proof.mp4`: 28.5 s, 1280x720, 30 fps, with sound (device grains from `ana/device-sounds.wav`, making sounds synthesized).
+`proof.mp4` (revision 2, re-recorded with the shared look): 28.5 s, 1280x720, 30 fps, with sound. The recording was resumed at frame 50 after a capture failure under load; three frames at the seam (50, 54, 55) came out black or half-drawn and were replaced by their neighbours (49, 53, 56) before encoding. Revision 1 notes follow: 28.5 s, 1280x720, 30 fps, with sound (device grains from `ana/device-sounds.wav`, making sounds synthesized).
 Recorded with Playwright on a fixed clock; frames 408 onward were re-recorded after an interrupted run (the game is
 deterministic; the earlier frames were re-simulated without drawing). Shows: memory on, three layers lowered (the second
 4 mm off centre), the pour and drips, a careful tilt toward her while the icing is wet, 24 beads, 生日快乐 stroke by stroke,
@@ -102,7 +102,7 @@ What the critic found, and what changed:
 - **Split view took 12 to 20.5 s.** It now runs only 17.7 to 19.5 s, around the flick. On screens narrower than 600 px the split is never drawn.
 - **At-rest frames not identical.** Two causes:
   - The smoke and the arc fade counted rendered frames, not the game clock, so they kept changing when frames were skipped. Both now run on the game clock.
-  - What still differs between two at-rest frames 1 s apart: lit, only the flames and halos (combustion flicker, x 93-289 / y 168-280 at 390x844); unlit, only the fading HUD note. The 3D state is bit-identical (tested).
+  - What still differs between two at-rest frames 1 s apart, with the shared look on: every pixel, because the shared look animates film grain each frame. Before the look was swapped in, lit frames differed only in the flames and halos (combustion flicker) and unlit frames only in the fading HUD note. The cake's 3D state is bit-identical either way (tested; `careless.json`).
 - **Device not yet replaced.** The device is still this page's copy of `ana/index.html`'s. `HOLO.device` carries its own ring machine, and this game's machine (per-target ranges, smooth tilt, scripted hand) would have to be moved onto it. Not done in this revision.
 
 ## What is weak

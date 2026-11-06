@@ -32,7 +32,16 @@
     const s = orb.raw(), r = role(s, ring); if (!r) return { ok: false, error: 'this ring does nothing for ' + s.selection };
     const ghost = s.proposals.find(p => O.ghostArg(p, r.path));
     if (ghost) { const k = O.ghostArg(ghost, r.path); return orb.do({ op: 'amend', args: { id: ghost.id, args: { [k]: clampFor(s, r.path, stepValue(s, r.path, ghost.args[k], detents)) } } }, meta); }
-    return orb.do({ op: 'set', args: { path: r.path, value: stepValue(s, r.path, S.get(s, r.path), detents) } }, meta); }
+    // AUDIT R2: a ring always moves something you can see. A change that would not show is re-targeted to what makes it show
+    let path = r.path; const pre = [], why = [];
+    if (s.time.off) { pre.push({ op: 'switchOn', args: {} }); why.push('switched the memory on'); }
+    const cakePart = /^(inscription\.|candles\.|cake\.tilt|cake\.genome\.)/.test(path);
+    if (cakePart && s.cake.stage === 0) { const op = { op: 'set', args: { path: 'cake.kind', value: 0 } }; const res = orb.do(pre.concat([op]), meta); if (res.ok) res.retarget = why.concat('no cake yet: the ring made one').join('; '); return res; }
+    if (path === 'inscription.written' && s.cake.stage < 2 && detents > 0) { pre.push({ op: 'set', args: { path: 'cake.stage', value: 2 } }); why.push('frosted the cake to write on'); }
+    let m; if ((m = /^people\.(.+)\.offset$/.exec(path))) { const p = s.people.find(q => q.id === m[1]); if (p && p.arrived === 0) { path = 'people.' + m[1] + '.arrived'; why.push('she was not there: the ring brings her in'); } }
+    if (path === 'candles.lit' && s.candles.count === 0) { path = 'candles.count'; why.push('no candles: the ring adds them'); }
+    const op = { op: 'set', args: { path, value: stepValue(s, path, S.get(s, path), path === r.path ? detents : Math.abs(detents)) } };
+    const res = orb.do(pre.length ? pre.concat([op]) : op, pre.length ? Object.assign({}, meta, { gesture: null }) : meta); if (res.ok && why.length) res.retarget = why.join('; '); return res; }
   function clampFor(s, path, v) { const c = S.coerce(s, path, v); return c.error ? v : c.value; }
   // a button press; long is a press held past 650 ms. Returns the bus result, or { ui } for what the shell does itself
   function press(orb, id, long, meta) {
