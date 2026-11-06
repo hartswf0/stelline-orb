@@ -1,0 +1,145 @@
+{
+ "url": "http://127.0.0.1:8731/weaver.html",
+ "name": "weaver",
+ "viewport": [
+  390,
+  844
+ ],
+ "loadMs": 27314,
+ "partial": true,
+ "scroll": {
+  "docH": 844,
+  "docW": 390,
+  "vh": 844,
+  "vw": 390,
+  "overflowY": "hidden"
+ },
+ "pageScrolls": false,
+ "hScroll": false,
+ "view": {
+  "tag": "canvas",
+  "id": "",
+  "x": 0,
+  "y": 0,
+  "w": 390,
+  "h": 405.109375,
+  "sel": "#room canvas"
+ },
+ "legibility": {
+  "textNodes": 0,
+  "under12px": 0,
+  "under10px": 0,
+  "samples": []
+ },
+ "fps": {
+  "note": "fewer than 30 frames in 20 s",
+  "frames": 22
+ },
+ "manual": true,
+ "globals": [
+  "FORGE"
+ ],
+ "controlCount": 0,
+ "smallTargets": 0,
+ "offscreen": 0,
+ "idle": [
+  {
+   "d100": {
+    "mean": 0.07,
+    "changedFrac": 0.0011
+   },
+   "d1s": {
+    "mean": 0.43,
+    "changedFrac": 0.0115
+   },
+   "ms": 6116
+  },
+  {
+   "d100": {
+    "mean": 0.04,
+    "changedFrac": 0.0006
+   },
+   "d1s": {
+    "mean": 0.13,
+    "changedFrac": 0.0019
+   },
+   "ms": 6982
+  },
+  {
+   "d100": {
+    "mean": 0.02,
+    "changedFrac": 0.0002
+   },
+   "d1s": {
+    "mean": 0.05,
+    "changedFrac": 0.0006
+   },
+   "ms": 8106
+  }
+ ],
+ "idleMax": {
+  "d100": 0.0011,
+  "d1s": 0.0115
+ },
+ "results": [],
+ "errors": [
+  "REQFAIL http://127.0.0.1:8731/assets/clips/stelline_oled_reel.mp4"
+ ],
+ "canvasGrid": [
+  {
+   "canvas": "",
+   "gx": 0,
+   "fy": 0.418,
+   "px": 22,
+   "py": 590,
+   "kind": "tap",
+   "firstShotMs": 17313,
+   "d100": {
+    "mean": 28.78,
+    "changedFrac": 0.9502
+   },
+   "d1s": {
+    "mean": 28.73,
+    "changedFrac": 0.9502
+   },
+   "deviceDiff": {
+    "mean": 66.53,
+    "changedFrac": 0.7634
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": true,
+   "visible1s": true,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "",
+   "gx": 0,
+   "fy": 0.418,
+   "px": 22,
+   "py": 590,
+   "kind": "dragUp",
+   "firstShotMs": 6359,
+   "d100": {
+    "mean": 1.9,
+    "changedFrac": 0.0027
+   },
+   "d1s": {
+    "mean": 2.36,
+    "changedFrac": 0.0158
+   },
+   "deviceDiff": {
+    "mean": 2.92,
+    "changedFrac": 0.0309
+   },
+   "sound": 0,
+   "newErrors": [],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": true
+  }
+ ],
+ "autorow": {
+  "canvas": 0.418
+ }
+}
