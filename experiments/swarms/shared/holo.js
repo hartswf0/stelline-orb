@@ -104,7 +104,7 @@ function tickAll(t) { const dt = Math.min(0.05, lastT ? (t - lastT) / 1000 : 0.0
 function live(o) { LIVE.add(o); if (!ticking && hasDOM && typeof requestAnimationFrame === 'function') { ticking = true; requestAnimationFrame(tickAll); } }
 function three() { return root.THREE || null; }
 function spriteFor(scene, cw, ch, worldH) { const T = three(); const c = document.createElement('canvas'); c.width = cw; c.height = ch; const tex = new T.CanvasTexture(c); if (T.sRGBEncoding) tex.encoding = T.sRGBEncoding;
-  const m = new T.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: false, opacity: 1, blending: T.AdditiveBlending }); const s = new T.Sprite(m); s.scale.set(worldH * cw / ch, worldH, 1); s.renderOrder = 6; if (scene) scene.add(s); return { c, x: c.getContext('2d'), tex, s }; }
+  const m = new T.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: false, opacity: 1, fog: false, blending: T.AdditiveBlending }); const s = new T.Sprite(m); s.scale.set(worldH * cw / ch, worldH, 1); s.renderOrder = 6; if (scene) scene.add(s); return { c, x: c.getContext('2d'), tex, s }; }
 function anchorPos(anchor, out) { if (!anchor) return out.set(0, 0, 0); if (anchor.isVector3) return out.copy(anchor); if (anchor.getWorldPosition) return anchor.getWorldPosition(out); return out.set(anchor.x || 0, anchor.y || 0, anchor.z || 0); }
 
 /* HOLO.arc: beside the cake at candle height, open toward it. opts: { genome, size (world height of the arc), offset (world units to the side), side (+1 right of the anchor as seen, -1 left), camera, follow } */

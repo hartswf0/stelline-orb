@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Orb Agent Bench</title>
+<meta name="description" content="A bare page for the agent harness when the tool shell is not available: the core bus and device below, describe() as the view above, and the command drawer.">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #050605; --ink: #d8d2c4; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); overflow: hidden; font: 500 12px/1.45 'IBM Plex Mono', ui-monospace, monospace; }
+  #view { position: fixed; left: 0; top: 0; right: 0; height: 52dvh; padding: 12px 16px; box-sizing: border-box; white-space: pre-wrap; overflow: hidden; }
+  #dev { position: fixed; left: 0; bottom: 0; width: 100vw; height: 48dvh; display: block; touch-action: none; }
+  #ask { position: fixed; right: 12px; top: 10px; background: none; border: 1px solid #3a3a34; color: var(--ink); font: inherit; padding: 2px 8px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<pre id="view"></pre>
+<button id="ask" type="button" aria-label="Command line">(i)</button>
+<canvas id="dev"></canvas>
+<script src="../core/state.js"></script>
+<script src="../core/ops.js"></script>
+<script src="../core/bus.js"></script>
+<script src="../core/machine.js"></script>
+<script src="../core/devmap.js"></script>
+<script src="../core/sound.js"></script>
+<script src="../core/device.js"></script>
+<script src="commands.js"></script>
+<script src="describe.js"></script>
+<script src="bridge.js"></script>
+<script src="console.js"></script>
+<script>
+  const ORB = window.ORB = CORE_BUS.createOrb();
+  const M = CORE_MACHINE.create(ORB);
+  ORB.on('step', (p, v, fast) => window.CORE_SOUND && CORE_SOUND.step(fast));
+  const con = window.ORB_CONSOLE_INSTANCE = ORB_CONSOLE.mount(ORB, { focus: true });
+  const D = window.ORB_DEVICE = CORE_DEVICE.create(document.getElementById('dev'), ORB, { onUi: k => { if (k === 'ask') con.toggle(); } });
+  ORB_BRIDGE.attach(ORB);
+  document.getElementById('ask').onclick = () => con.toggle();
+  const view = document.getElementById('view'); let last = 0, txt = '';
+  function frame(now) { const dt = Math.min(.1, (now - last) / 1000); last = now; M.tick(dt); D.layout(); D.draw(now);
+    const t = ORB_DESCRIBE.describe(ORB.view(), { history: ORB.history(), cursor: ORB.cursor() }); if (t !== txt) { txt = t; view.textContent = t; }
+    requestAnimationFrame(frame); }
+  requestAnimationFrame(frame);
+</script>
+</body>
+</html>
