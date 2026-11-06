@@ -5,7 +5,7 @@
 'use strict';
 const { chromium } = require('playwright'), fs = require('fs'), path = require('path'), S = require('./scenarios.js');
 const mode = process.argv[2] || 'proof', out = process.argv[3] || '/tmp/rec'; fs.mkdirSync(out, { recursive: true });
-const CFG = mode === 'mobile' ? { vp: { width: 390, height: 844 }, sc: 'impatient', dur: 32, touch: true } : { vp: { width: 1280, height: 720 }, sc: 'earned', dur: 27, touch: false };
+const CFG = mode === 'pressed' ? { vp: { width: 1280, height: 720 }, sc: 'pressed', dur: 48, touch: false } : mode === 'mobile' ? { vp: { width: 390, height: 844 }, sc: 'impatient', dur: 32, touch: true } : { vp: { width: 1280, height: 720 }, sc: 'earned', dur: 27, touch: false };
 (async () => {
   const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   const ctx = await b.newContext({ viewport: CFG.vp, deviceScaleFactor: 1, hasTouch: CFG.touch, isMobile: CFG.touch }); const p = await ctx.newPage();
@@ -25,7 +25,7 @@ const CFG = mode === 'mobile' ? { vp: { width: 390, height: 844 }, sc: 'impatien
     if (tapUp && t >= tapUp.t) { await upp(tapUp.x, tapUp.y); tapUp = null; }
     if (dragRing && t - lastDetent > 0.2 && !(ai < acts.length && acts[ai][1] === 'turn' && acts[ai][2] === dragRing && acts[ai][0] - t < 0.25)) { const g = geo.rings[dragRing], q = P(g.x, dragY); await upp(q.x, q.y); dragRing = null; }
     while (ai < acts.length && acts[ai][0] <= t) { const a = acts[ai++]; inputLog.push([+t.toFixed(3), a[1], a[2] || '', a[3] || '']);
-      if (tapUp && a[1] !== 'turn') { await upp(tapUp.x, tapUp.y); tapUp = null; }
+      if (tapUp) { await upp(tapUp.x, tapUp.y); tapUp = null; }
       if (a[1] === 'sel') { if (dragRing) { const g = geo.rings[dragRing], q = P(g.x, dragY); await upp(q.x, q.y); dragRing = null; } const q = P(geo.sel.x, geo.sel.y); await down(q.x, q.y); tapUp = { t: t + 0.1, ...q }; }
       else if (a[1] === 'hold' || a[1] === 'long') { if (dragRing) { const g = geo.rings[dragRing], q = P(g.x, dragY); await upp(q.x, q.y); dragRing = null; } const q = P(geo.hold.x, geo.hold.y); await down(q.x, q.y); tapUp = { t: t + (a[1] === 'long' ? 0.9 : 0.1), ...q }; }
       else if (a[1] === 'turn') { const g = geo.rings[a[2]]; if (dragRing !== a[2]) { if (dragRing) { const h = geo.rings[dragRing], q = P(h.x, dragY); await upp(q.x, q.y); } dragRing = a[2]; dragY = g.y; const q = P(g.x, dragY); await down(q.x, q.y); }
@@ -35,6 +35,6 @@ const CFG = mode === 'mobile' ? { vp: { width: 390, height: 844 }, sc: 'impatien
   if (dragRing) await upp(0, 0);
   const au = await p.evaluate(d => MM.renderAudio(0, d), CFG.dur); fs.writeFileSync(path.join(out, 'audio.wav'), Buffer.from(au.b64, 'base64'));
   const tr = await p.evaluate(() => MM.traceOut()); tr.recording = { mode, viewport: CFG.vp, input: CFG.touch ? 'CDP touch events on the device canvas' : 'mouse pointer events on the device canvas', scenario: CFG.sc, inputLog, audioPeak: au.peak };
-  fs.writeFileSync(path.join(__dirname, mode === 'mobile' ? 'mobile-trace.json' : 'proof-trace.json'), JSON.stringify(tr));
+  fs.writeFileSync(path.join(__dirname, mode + '-trace.json'), JSON.stringify(tr));
   console.log('frames', N, 'errors', errs.length, errs.slice(0, 3).join(' | '), 'transitions', tr.transitions.map(t => `${t.t}:${t.to}`).join(' '));
   await b.close(); })();

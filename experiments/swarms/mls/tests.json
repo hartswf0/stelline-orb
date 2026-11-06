@@ -3,9 +3,9 @@
   "result": "ALL SEVEN OUT IN TWO BREATHS",
   "lit": {
    "YOURS": 0,
-   "AFFINE": 1,
-   "SIMILARITY": 0,
-   "RIGID": 0
+   "AFFINE": 0,
+   "SIMILARITY": 6,
+   "RIGID": 7
   },
   "events": [
    [
@@ -14,67 +14,67 @@
     null
    ],
    [
-    2.067,
+    1.767,
+    "select",
+    null
+   ],
+   [
+    2.767,
     "select",
     null
    ],
    [
     3.267,
-    "select",
-    null
-   ],
-   [
-    4.267,
     "blow",
     null
    ],
    [
-    4.933,
+    3.933,
+    "out",
+    2
+   ],
+   [
+    3.967,
+    "out",
+    0
+   ],
+   [
+    3.967,
+    "out",
+    1
+   ],
+   [
+    3.967,
+    "out",
+    3
+   ],
+   [
+    3.967,
     "out",
     4
    ],
    [
     4.967,
-    "out",
-    3
-   ],
-   [
-    4.967,
-    "out",
-    5
-   ],
-   [
-    4.967,
-    "out",
-    6
-   ],
-   [
-    5,
-    "out",
-    2
-   ],
-   [
-    5.767,
     "select",
     null
    ],
    [
-    7.033,
+    6.367,
     "blow",
     null
    ],
    [
-    7.733,
+    7.067,
     "out",
-    0
+    5
    ],
    [
-    7.733,
+    7.067,
     "out",
-    1
+    6
    ],
    [
-    8.733,
+    8.067,
     "wash",
     null
    ]
@@ -84,60 +84,60 @@
   "affine": {
    "point_exact_px": 0,
    "point_0p25_away_excess_px": 0,
-   "line_samples_px": 0.163
+   "line_samples_px": 0.353
   },
   "similarity": {
    "point_exact_px": 0,
    "point_0p25_away_excess_px": 0,
-   "line_samples_px": 0.178
+   "line_samples_px": 0.356
   },
   "rigid": {
    "point_exact_px": 0,
    "point_0p25_away_excess_px": 0,
-   "line_samples_px": 0.179
+   "line_samples_px": 0.355
   }
  },
  "foldovers": {
   "affine": {
    "face": {
-    "min_jacobian": 0.102,
+    "min_jacobian": 0.031,
     "folded_triangles": 0
    },
    "paper": {
-    "min_jacobian": -0.041,
-    "folded_triangles": 94
+    "min_jacobian": -0.039,
+    "folded_triangles": 90
    },
    "flame": {
-    "min_jacobian": 0,
+    "min_jacobian": 0.01,
     "folded_triangles": 0
    }
   },
   "similarity": {
    "face": {
-    "min_jacobian": 0.046,
+    "min_jacobian": 0.035,
     "folded_triangles": 0
    },
    "paper": {
-    "min_jacobian": 0.081,
+    "min_jacobian": 0.082,
     "folded_triangles": 0
    },
    "flame": {
-    "min_jacobian": 0.003,
+    "min_jacobian": 0.062,
     "folded_triangles": 0
    }
   },
   "rigid": {
    "face": {
-    "min_jacobian": -0.165,
-    "folded_triangles": 7
+    "min_jacobian": 0.032,
+    "folded_triangles": 0
    },
    "paper": {
-    "min_jacobian": 0.131,
+    "min_jacobian": 0.132,
     "folded_triangles": 0
    },
    "flame": {
-    "min_jacobian": -0.896,
-    "folded_triangles": 2886
+    "min_jacobian": -0.415,
+    "folded_triangles": 15
    }
   }
  },
@@ -145,87 +145,138 @@
  "contour_stability": {
   "affine": {
    "face": {
-    "max_contour_accel_px": 3.48,
-    "max_handle_accel_px": 3.74,
-    "ratio": 0.928,
+    "max_contour_accel_px": 3.2,
+    "max_handle_accel_px": 3.53,
+    "ratio": 0.906,
     "frames_with_contour_reversal_but_no_handle_reversal": 0
    },
    "paper": {
-    "max_contour_accel_px": 25.33,
-    "max_handle_accel_px": 25.33,
+    "max_contour_accel_px": 30.09,
+    "max_handle_accel_px": 30.09,
     "ratio": 1,
     "frames_with_contour_reversal_but_no_handle_reversal": 0
    },
    "flame": {
-    "max_contour_accel_px": 18.73,
-    "max_handle_accel_px": 17.52,
-    "ratio": 1.069,
-    "frames_with_contour_reversal_but_no_handle_reversal": 0
+    "max_contour_accel_px": 14.08,
+    "max_handle_accel_px": 13.17,
+    "ratio": 1.07,
+    "frames_with_contour_reversal_but_no_handle_reversal": 1
    }
   },
   "similarity": {
    "face": {
-    "max_contour_accel_px": 3.44,
-    "max_handle_accel_px": 3.74,
-    "ratio": 0.918,
+    "max_contour_accel_px": 3.19,
+    "max_handle_accel_px": 3.53,
+    "ratio": 0.904,
     "frames_with_contour_reversal_but_no_handle_reversal": 0
    },
    "paper": {
-    "max_contour_accel_px": 25.33,
-    "max_handle_accel_px": 25.33,
+    "max_contour_accel_px": 30.09,
+    "max_handle_accel_px": 30.09,
     "ratio": 1,
     "frames_with_contour_reversal_but_no_handle_reversal": 0
    },
    "flame": {
-    "max_contour_accel_px": 18.72,
-    "max_handle_accel_px": 17.52,
-    "ratio": 1.068,
-    "frames_with_contour_reversal_but_no_handle_reversal": 0
+    "max_contour_accel_px": 14.07,
+    "max_handle_accel_px": 13.17,
+    "ratio": 1.069,
+    "frames_with_contour_reversal_but_no_handle_reversal": 1
    }
   },
   "rigid": {
    "face": {
-    "max_contour_accel_px": 3.41,
-    "max_handle_accel_px": 3.74,
-    "ratio": 0.91,
+    "max_contour_accel_px": 3.18,
+    "max_handle_accel_px": 3.53,
+    "ratio": 0.902,
     "frames_with_contour_reversal_but_no_handle_reversal": 0
    },
    "paper": {
-    "max_contour_accel_px": 25.33,
-    "max_handle_accel_px": 25.33,
+    "max_contour_accel_px": 30.09,
+    "max_handle_accel_px": 30.09,
     "ratio": 1,
     "frames_with_contour_reversal_but_no_handle_reversal": 0
    },
    "flame": {
-    "max_contour_accel_px": 17.3,
-    "max_handle_accel_px": 17.52,
-    "ratio": 0.987,
-    "frames_with_contour_reversal_but_no_handle_reversal": 1
+    "max_contour_accel_px": 13.03,
+    "max_handle_accel_px": 13.17,
+    "ratio": 0.99,
+    "frames_with_contour_reversal_but_no_handle_reversal": 0
    }
   }
  },
- "best_single_breath": {
+ "winning_settings_affine_flames": {
+  "count": 6,
+  "of": 143,
+  "purse_pct": [
+   0,
+   10,
+   20,
+   30,
+   40,
+   50
+  ],
+  "aim_deg": [
+   8
+  ]
+ },
+ "max_everything": {
+  "cheeks": 100,
+  "purse": 100,
+  "aim_deg": 24,
+  "out": 4,
+  "aim0_purse100_out": 5
+ },
+ "best_single_breath_by_flame_family": {
   "affine": {
-   "out": 5,
-   "purse": 7,
-   "aim": -4,
-   "cheek_gain": 0.2849,
-   "mouth_px2": 337.2
+   "out": 7,
+   "purse": 0,
+   "aim_deg": 8
   },
   "similarity": {
-   "out": 7,
-   "purse": 3,
-   "aim": 0,
-   "cheek_gain": 0.3138,
-   "mouth_px2": 416.4
+   "out": 2,
+   "purse": 60,
+   "aim_deg": 20
   },
   "rigid": {
-   "out": 5,
-   "purse": 3,
-   "aim": -8,
-   "cheek_gain": 0.2868,
-   "mouth_px2": 412.3
+   "out": 0,
+   "purse": 0,
+   "aim_deg": -24
   }
+ },
+ "cheek_locality": {
+  "affine": {
+   "plate_border_max_move_px": 0.053,
+   "neck_max_move_px": 0.272,
+   "cheek_outline_max_outward_px": 21.49
+  },
+  "similarity": {
+   "plate_border_max_move_px": 0.068,
+   "neck_max_move_px": 0.244,
+   "cheek_outline_max_outward_px": 21.43
+  },
+  "rigid": {
+   "plate_border_max_move_px": 0.075,
+   "neck_max_move_px": 0.18,
+   "cheek_outline_max_outward_px": 21.36
+  }
+ },
+ "cheek_family_divergence": {
+  "on_outer_cheek_outline_px": 0.95,
+  "anywhere_in_cheek_region_px": 0.95
+ },
+ "flame_thinning_at_W1": {
+  "affine": [
+   0.587,
+   0.6
+  ],
+  "similarity": [
+   0.76,
+   0.644
+  ],
+  "rigid": [
+   0.831,
+   0.829
+  ]
  },
  "machine_step_interval_s": [
   0.085,
@@ -234,21 +285,22 @@
   0.085
  ],
  "machine_rate_hz": 11.79,
- "solve_ms_per_world_frame": 4.01,
+ "solve_ms_per_world_frame": 14.48,
  "vertex_counts": {
   "face": 1628,
   "paper": 555,
   "flames": 833
  },
  "handles": {
-  "points": 77,
-  "lines": 32,
+  "points": 81,
+  "lines": 39,
   "by_surface": {
-   "face": 39,
+   "face": 50,
    "flame": 56,
    "paper": 14
   }
  },
+ "demo_frames_with_two_steps": 0,
  "checks": [
   {
    "name": "point handles hit their targets exactly (< 0.001 px), every family",
@@ -263,15 +315,27 @@
    "ok": true
   },
   {
+   "name": "smallest triangle area ratio >= 0.05 in the chosen family of each surface",
+   "ok": false
+  },
+  {
    "name": "contours never reverse where their handles do not, chosen families",
-   "ok": true
+   "ok": false
   },
   {
    "name": "contour acceleration at most 1.5x the handles' own, chosen families",
    "ok": true
   },
   {
-   "name": "machine steps at 11.8/s (within 1%)",
+   "name": "critic r1: cheeks 100 %, purse 60 %: plate border and neck move <= 1 px (chosen face family)",
+   "ok": true
+  },
+  {
+   "name": "critic r1: outer cheek outline differs by >= 4 px between two face families",
+   "ok": false
+  },
+  {
+   "name": "machine steps at 11.8/s (within 1%), never two steps in one film frame",
    "ok": true
   },
   {
@@ -279,7 +343,15 @@
    "ok": true
   },
   {
-   "name": "only the chosen face family can put out all seven in one breath",
+   "name": "only affine flames can all be put out in one breath",
+   "ok": true
+  },
+  {
+   "name": "maxing every ring does not win (needs a shaped breath)",
+   "ok": true
+  },
+  {
+   "name": "a win needs fewer than a quarter of the ring settings",
    "ok": true
   }
  ]

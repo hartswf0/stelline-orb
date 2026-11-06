@@ -43,9 +43,11 @@
     if (after !== before) { G.ev('detent', { ring: ring.ix }); c.target = clamp(after, c.min, c.max); G.lastWork = G.now; } };
   // the machine: every channel not at its target steps one value at 11.8/s (23.6/s when far), one click per step
   Game.prototype.machine = function (dt) { const G = this; G.stepClock += dt;
-    const busy = Object.keys(G.C).filter(k => G.C[k].target !== G.C[k].applied); if (!busy.length) { G.stepClock = 0; return; }
-    const fast = busy.some(k => Math.abs(G.C[k].target - G.C[k].applied) > 6), period = fast ? 1 / 23.6 : 1 / S.STEP_HZ;
-    while (G.stepClock >= period) { G.stepClock -= period; busy.forEach(k => { const c = G.C[k]; if (c.target === c.applied) return; c.applied += Math.sign(c.target - c.applied); G.applyStep(k, c); }); }
+    // one step per tick at 11.8/s, taken in turn by the channels still away from their targets (never two in one tick)
+    const busy = () => Object.keys(G.C).filter(k => G.C[k].target !== G.C[k].applied); if (!busy().length) { G.stepClock = 0; return; }
+    const period = 1 / S.STEP_HZ; G.rr = G.rr || 0;
+    while (G.stepClock >= period) { G.stepClock -= period; const b = busy(); if (!b.length) break; const k = b[G.rr++ % b.length], c = G.C[k];
+      c.applied += Math.sign(c.target - c.applied); G.applyStep(k, c); }
   };
   Game.prototype.applyStep = function (k, c) { const G = this; G.lastWork = G.now;
     G.ev('step', { ring: k === 'YAW' ? 0 : /\.k$/.test(k) ? 1 : 2, chan: k, v: c.applied });
@@ -63,8 +65,10 @@
       const pre = S.measureFace(MLS, G.H, Object.assign({}, face, { fill, open: 0 }), w.fam.face, G.alpha);
       const open = S.measureFace(MLS, G.H, Object.assign({}, face, { fill: fill * .85, open: 1 }), w.fam.face, G.alpha);
       w.meas = { cheek: pre.cheek, mouth: open.mouth, width: open.width };
-      w.plan = S.breathPlan(w.meas, aim).map(p => Object.assign(p, { s: p.s / size }));
-      w.plan.forEach((p, i) => { p.outAt = w.lit[i] && p.s >= 1 ? G.now + .3 + p.delay + .16 / p.s : null; });
+      w.plan = S.breathPlan(w.meas, aim);
+      // a flame goes out if the breath tears it thin: measured on this world's flame mesh, under its flame family
+      w.plan.forEach((p, i) => { p.W = Math.min(1.3, p.s); p.thin = w.lit[i] ? S.flameThin(MLS, G.H, i, p.W, p.dir, w.fam.flame, size) : 1;
+        p.outAt = w.lit[i] && p.thin < S.FLAME_TEAR ? G.now + .3 + p.delay + .2 * p.thin : null; });
     });
     G.breath = { t0: G.now, dur, fill }; G.breaths++; G.ev('blow', { dur: dur + .45, fill });
     G.C['CHEEKS.k'].target = 0; // the machine steps the cheeks empty under the breath
@@ -111,12 +115,12 @@
   // scripted play (the left collar's SCENE, and the proof film): the same rings and buttons, turned by a scripted hand
   // entries: [t, 'k'|'t'|'s', toValue, seconds] or [t, button, long]
   const DEMO = [
-    [.15, 'sel', 0], [.25, 'k', 16, .45],                       // STREAMER: wrap the cake
-    [2.05, 'sel', 1], [2.15, 'k', 10, .4],                      // CHEEKS: fill
-    [3.25, 'sel', 2], [3.35, 'k', 6, .3], [3.45, 't', 3, .3],   // LIPS: purse, aim off to the right
-    [4.25, 'hold'],                                             // breath one
-    [5.55, 't', -1, .3], [5.75, 'sel', 1], [5.85, 'k', 10, .4], // re-aim, fill again
-    [7.0, 'hold'],                                              // breath two
+    [.15, 'sel', 0], [.25, 'k', 16, .45],                       // STREAMER: wrap the cake (16 steps)
+    [1.75, 'sel', 1], [1.85, 'k', 10, .4],                      // CHEEKS: fill (10 steps)
+    [2.75, 'sel', 2], [2.85, 'k', 3, .25],                      // LIPS: a light purse
+    [3.25, 'hold'],                                             // breath one: aim not corrected for her lean
+    [4.75, 't', 2, .25], [4.95, 'sel', 1], [5.05, 'k', 10, .4], // aim +8 degrees, fill again
+    [6.35, 'hold'],                                             // breath two
   ];
   Game.prototype.playScript = function (list) { this.reset(); this.script = { t0: this.now, i: 0, list: list || DEMO, auto: true }; };
   Game.prototype.runScript = function () { const G = this, sc = G.script; if (!sc) return; const t = G.now - sc.t0;

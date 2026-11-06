@@ -23,12 +23,14 @@ button.x { font: 500 12px 'Oswald', sans-serif; letter-spacing: .12em; color: va
 </style></head><body>
 <div class="app"><div id="view"></div><div id="dev"></div></div>
 <div id="info"><h3>THE BLOW &middot; A BIRTHDAY MADE BY BENDING ONE PICTURE</h3>
-<p>Goal: shape one breath so all seven candles go out. You have three breaths. The breath is read off the face itself: how much the cheek
-discs grow and how large the mouth opening is after the handles have deformed the engraving. So the deformation family you choose for the face changes the breath.</p>
+<p>Goal: shape one breath so all seven candles go out. You have three breaths. The breath's strength is read off the deformed face
+(how much the cheek discs grow, how large the mouth opening is). She leans, so an uncorrected breath goes 8&deg; to one side: aim it.
+A flame goes out only when the breath stretches it thinner than two thirds of its width, measured on the flame's own deformed mesh.
+So the family you choose for the flames decides whether they can go out: affine flames thin and tear; rigid flames cannot thin and never go out.</p>
 <table>
-<tr><td>SELECT</td><td>Short press: the next thing to work: STREAMER, CHEEKS, LIPS, FLAMES. Long press: the next deformation family (AFFINE, SIMILARITY, RIGID) for that thing's surface.</td></tr>
-<tr><td>KNURLED RING</td><td>The value of the selected thing: how far the streamer wraps the cake, how much breath the cheeks hold, how tightly the lips purse, how many candles are lit. Turn it by hand (quiet detents); the machine then steps to it at 11.8 a second, one click a step.</td></tr>
-<tr><td>TRIANGLE RING</td><td>Cheeks or lips: the aim of the breath, left or right. Streamer: its height on the cake. Flames: their size (a bigger flame needs a stronger breath).</td></tr>
+<tr><td>SELECT</td><td>Short press: the next thing to work: STREAMER, CHEEKS, LIPS, FLAMES. Long press (0.6 s, real time): the next deformation family (AFFINE, SIMILARITY, RIGID) for that thing's surface.</td></tr>
+<tr><td>KNURLED RING</td><td>The value of the selected thing: how far the streamer wraps the cake, how much breath the cheeks hold, how tightly the lips purse, how many candles are lit. Turn it by hand (quiet detents); the machine then steps to it at 11.8 a second, one click a step, one step at a time across all values.</td></tr>
+<tr><td>TRIANGLE RING</td><td>Cheeks or lips: the aim of the breath, left or right (she leans: about two detents corrects it). Streamer: its height on the cake. Flames: their size (a bigger flame needs a stronger breath).</td></tr>
 <tr><td>SCALE RING</td><td>Where you kneel: the flat layers slide against each other (the face plate behind, the cake in front).</td></tr>
 <tr><td>HOLD</td><td>Short press: blow. The cheeks empty under the breath, the machine stepping them down. Hold it down to switch the memory off.</td></tr>
 <tr><td>LEFT COLLAR</td><td>SCENE plays a ten-second demonstration through the same rings and buttons. CLEAR relights the candles and resets.</td></tr>
@@ -184,7 +186,7 @@ function drawDev() { dx.clearRect(0, 0, DW, DH);
   BTNS.forEach(bt => { const g = dx.createRadialGradient(bt.x - bt.r * .3, bt.y - bt.r * .3, 1, bt.x, bt.y, bt.r); g.addColorStop(0, '#e8eeec'); g.addColorStop(.6, '#8f9996'); g.addColorStop(1, '#3a403e'); dx.fillStyle = g; dx.beginPath(); dx.arc(bt.x, bt.y, bt.r, 0, TAU); dx.fill();
     dx.fillStyle = 'rgba(15,16,16,.85)'; if (bt.id === 'play') { dx.beginPath(); dx.moveTo(bt.x - bt.r * .3, bt.y - bt.r * .4); dx.lineTo(bt.x + bt.r * .45, bt.y); dx.lineTo(bt.x - bt.r * .3, bt.y + bt.r * .4); dx.fill(); }
     if (bt.id === 'clear') dx.fillRect(bt.x - bt.r * .4, bt.y - bt.r * .08, bt.r * .8, bt.r * .16);
-    if (pressAt && pressAt.id === bt.id) { const u = clamp((G.now - pressAt.t) / .6, 0, 1); dx.strokeStyle = 'rgba(232,178,100,.95)'; dx.lineWidth = 2; dx.beginPath(); dx.arc(bt.x, bt.y, bt.r + 4, -Math.PI / 2, -Math.PI / 2 + TAU * u); dx.stroke(); }
+    if (pressAt && pressAt.id === bt.id) { const u = clamp((performance.now() - pressAt.w) / 600, 0, 1); dx.strokeStyle = 'rgba(232,178,100,.95)'; dx.lineWidth = 2; dx.beginPath(); dx.arc(bt.x, bt.y, bt.r + 4, -Math.PI / 2, -Math.PI / 2 + TAU * u); dx.stroke(); }
     if (bt.id === 'hold' && G.breath) { dx.strokeStyle = 'rgba(232,178,100,.95)'; dx.lineWidth = 2; dx.beginPath(); dx.arc(bt.x, bt.y, bt.r + 4, 0, TAU); dx.stroke(); }
     if (bt.id === 'info') { dx.fillRect(bt.x - 1, bt.y - bt.r * .1, 2, bt.r * .6); dx.fillRect(bt.x - 1, bt.y - bt.r * .5, 2, 2); }
     const lab = { select: 'SELECT', hold: 'HOLD', play: 'SCENE', clear: 'CLEAR' }[bt.id]; if (lab) { dx.font = `500 ${Math.round(Math.max(9, bt.r * .5))}px Oswald, sans-serif`; dx.textAlign = 'center';
@@ -197,10 +199,10 @@ function drawDev() { dx.clearRect(0, 0, DW, DH);
 let drag = null;
 function userInput() { G.script = null; G.anims = []; }
 DC.addEventListener('pointerdown', e => { ac(); const r = DC.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
-  const bt = BTNS.find(b => Math.hypot(b.x - x, b.y - y) < b.r + 10); if (bt) { if (bt.id === 'info') { openInfo(); return; } pressAt = { id: bt.id, t: G.now }; DC.setPointerCapture(e.pointerId); return; }
+  const bt = BTNS.find(b => Math.hypot(b.x - x, b.y - y) < b.r + 10); if (bt) { if (bt.id === 'info') { openInfo(); return; } pressAt = { id: bt.id, w: performance.now() }; DC.setPointerCapture(e.pointerId); return; }
   const band = BANDS.find(b => b.ring && x >= b.x && x <= b.x + b.w && Math.abs(y - b.cy) < b.rad * 1.15); if (band) { userInput(); drag = { band, y }; DC.setPointerCapture(e.pointerId); } });
 DC.addEventListener('pointermove', e => { if (!drag) return; const y = e.clientY - DC.getBoundingClientRect().top, d = y - drag.y; drag.y = y; G.handTurn(drag.band.ring, -d / drag.band.rad * 57.3 * .9); });
-function release() { drag = null; if (pressAt) { const long = G.now - pressAt.t > .6, id = pressAt.id; pressAt = null; if (id !== 'play') userInput(); G.press(id, long); } }
+function release() { drag = null; if (pressAt) { const long = performance.now() - pressAt.w > 600, id = pressAt.id; pressAt = null; if (id !== 'play') userInput(); G.press(id, long); } }
 DC.addEventListener('pointerup', release); DC.addEventListener('pointercancel', () => { drag = null; pressAt = null; });
 DC.addEventListener('wheel', e => { e.preventDefault(); ac(); const r = DC.getBoundingClientRect(), x = e.clientX - r.left; const band = BANDS.find(b => b.ring && x >= b.x && x <= b.x + b.w); if (band) { userInput(); G.handTurn(band.ring, -Math.sign(e.deltaY) * band.ring.deg); } }, { passive: false });
 addEventListener('keydown', e => { const k = e.key.toLowerCase(); if (k === ' ') { ac(); userInput(); G.press('hold', false); } if (k === 's') { ac(); userInput(); G.press('select', e.shiftKey); } });

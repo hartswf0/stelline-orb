@@ -1,122 +1,118 @@
 # SCION // SCHAEFER, MCPHAIL & WARREN · MLS DEFORMATION · THE BLOW
 
+Revision r3 (after critic round 1). Not committed.
+
 ## Thesis
 
-One flat archived picture, bent by handles, has to do the blow: the cheeks fill, the lips purse into an O, the breath goes out,
-and seven candle flames lean away, stream and go out. A paper streamer curls round the cake (the long-neck case). Each surface
-gets the moving-least-squares family that suits its material, chosen by how it looks: similarity for the face (cheeks must
-swell), affine for the flames (gas shears and stretches), rigid for the paper (it does not stretch).
+One flat archived picture, bent by handles, has to do the blow: the cheeks fill, the lips purse, the breath goes out, and seven
+candle flames lean away, stream and go out. A paper streamer curls round the cake (the long-neck case). Each surface gets the
+moving-least-squares family that suits its material: similarity for the face, affine for the flames (gas thins and tears), rigid
+for the paper (it does not stretch).
 
-It is a game played on the memory maker's device (the controller from ana/index.html), not an editor. The goal is to put out all
-seven candles in one breath. The breath is **read off the deformed picture**. Its strength comes from how much two cheek discs
-grow and how large the mouth opening is after the handles have bent the engraving, under the family you chose for the face. So
-the family is a game decision, not a display setting.
+It is a game played on the memory maker's device (ana/index.html's ring barrel), not an editor. The goal is to put out all seven
+in one breath; you have three. The breath's strength is **read off the deformed face**: how much two cheek discs grow and how big
+the mouth opening is. Whether a flame goes out is **read off the deformed flame**: it goes out when the breath stretches it
+thinner than 0.66 of its rest width (measured at 35 % and 70 % of its height on its own solved mesh). So the flame family decides
+the game. Affine flames thin to about 0.6 and tear out. Similarity flames thin to 0.64-0.76, and in practice two at most go out.
+Rigid flames stay at 0.83 and never go out.
 
-What would make it bland: a face that only translates, flames that swing like stiff petals, a streamer that thins on the
-bend, a family switch that changes nothing you can see or do.
+What would make it bland: a face that only translates, flames that swing like stiff petals, a family switch that changes nothing
+you can see or do.
 
 ## Native formal language and the material
 
-Control points, line-segment handles, local weighting (alpha), the affine, similarity and rigid families, and feature
-protection. The solver (mls.js) is written by hand from the paper. Point handles use w = 1/|p - v|^(2 alpha). **Line handles
-are integrated numerically** (adaptive midpoint rule, 2 to 64 samples per segment, weight ds / 8 px). This is not the paper's
-closed form.
+The formal language is control points, line-segment handles, local weighting (alpha = 1), the affine, similarity and rigid
+families, and feature protection. The solver (mls.js) is written by hand from the paper. **Line handles are integrated
+numerically** (adaptive midpoint rule, 2-64 samples per segment, weight ds / 8 px). This is not the paper's closed form.
 
-The material is drawn by code for this page (textures.js): an engraved portrait of a child (luminous lines on black, line
-width = light, lit from below by the candles; plate "PL. 128"), one painted flame used seven times, a printed paper streamer
-550 x 36 px, and the cake. The deformed surfaces are WebGL meshes: face 37 x 44 vertices, streamer 111 x 5, seven flames 7 x 17.
+The material is drawn by code here (textures.js): an engraved child's portrait (luminous lines, width = light, lit from below),
+one painted flame used seven times, a printed streamer, and the cake. The meshes are face 37 x 44, streamer 111 x 5, and seven
+flames of 7 x 17.
 
-Handle set (handles.json): **77 point handles and 32 line handles**. Face: 31 points (11 of them anchors on the plate edge,
-skull and neck) and 8 segments (brows, four lip contours, cheek outlines). Each flame: 6 points and 2 spine segments. Streamer:
-10 spine segments and 4 corner points.
+The handle set (handles.json) has **81 point handles and 39 line handles**:
+- Face: 50 handles. These include fixed segments along all four plate edges and across the neck, a radial ring of four handles
+  per cheek, and the lips and eyes.
+- Flames: 6 points and 2 spine segments each.
+- Streamer: 10 spine segments and 4 corners.
 
 ## The game (game.js, index.html)
 
-- SELECT (short): STREAMER, CHEEKS, LIPS, FLAMES. SELECT (long): the next family for that thing's surface.
-- KNURLED RING: the selected thing's value. Wrap 0-16 steps, breath held 0-100 %, purse 0-100 %, or candles lit 0-7.
-  Turned by hand in quiet detents. The machine then steps to the value at 11.8 per second, one device click per step.
-- TRIANGLE RING: the aim of the breath (cheeks or lips, 4 degrees a detent), the streamer's height, or the flame size.
-- SCALE RING: where you kneel (the flat layers slide against each other).
-- HOLD (short): blow. The machine steps the cheeks back to empty under the breath. HOLD (long): switch the memory off.
-- Left collar: SCENE (the 10 s demonstration through the same rings) and CLEAR.
-- You have three breaths. The end states are ALL SEVEN OUT IN ONE BREATH, ALL SEVEN OUT IN TWO or THREE BREATHS, or N STILL BURNING.
-- The (i) sheet holds the explanation, the measured breath in each family, and COMPARE (four views side by side).
-
-Breath model (scene.js `breathPlan`): V = cheek-disc area gain / 0.40; jet = 1.37 · V · sqrt(580 / mouth area); spread = 0.05 + 0.5 ·
-mouth width / 50 rad. Each candle gets s = jet · gaussian(angle - aim, spread) · (290 / distance) / flame size. A candle goes out if s >= 1.
+- SELECT short: STREAMER, CHEEKS, LIPS, FLAMES. SELECT long (0.6 s of wall-clock time): the next family for that surface.
+- KNURLED RING: the value (wrap, breath held, purse, or candles lit). Hand detents, then the machine steps at 11.8/s, one step
+  per tick across all values. There is no fast mode.
+- TRIANGLE RING: the aim, the streamer's height, or the flame size. SCALE RING: where you kneel (parallax of the flat layers).
+- HOLD short: blow. HOLD long: switch off. Left collar: SCENE (the 10 s demonstration) and CLEAR.
+- She leans, so at aim 0 the breath goes 8° off. Winning needs full cheeks, aim +8° and a purse of 50 % or less: **6 of the 143**
+  ring settings win in one breath. Maxing every ring puts out 4 or 5 (measured).
 
 ## Measured (node tools/test.js; tests.json)
 
 | check | result |
 |---|---|
-| point handles land on their targets (every family) | 0.000 px |
-| line handles: samples at 1/4 and 1/2 of each segment, distance from target | 0.16 / 0.18 / 0.18 px (affine / similarity / rigid) |
-| folded triangles, chosen family (demo every 3rd frame + 4 extreme states) | face 0, flames 0, streamer 0 |
-| folded triangles, other families | face: rigid 7. Streamer: affine 94. Flames: rigid 2886, similarity 0 |
-| smallest triangle area ratio, chosen | face 0.046, flames 0.000 (positive, near-degenerate sliver), streamer 0.131 |
-| contour acceleration / handle acceleration, chosen | face 0.92, flames 1.07, streamer 1.00 |
-| contour reversals not caused by any handle, chosen | 0 |
-| machine step rate | 11.79 / s |
-| most candles one breath can put out (grid over purse and aim, full cheeks) | similarity 7, affine 5, rigid 5 |
-| demo outcome (proof film) | yours: all seven out in two breaths. All-affine world: one still burning |
-| solve time, one world, all surfaces (node, 3016 vertices) | ~3-4 ms |
+| point handles land on their targets | 0.000 px, every family |
+| line-handle samples from the target segment | 0.36 px |
+| folded triangles, chosen families (demo every 3rd frame + 4 extreme states, drawn geometry only) | face 0, flames 0, streamer 0 |
+| folded triangles, other families | streamer affine 90, flames rigid 15. Face: 0 in every family |
+| **FAIL** smallest triangle area ratio >= 0.05, chosen | face similarity 0.035, flames affine 0.010, streamer rigid 0.132 |
+| **FAIL** contour reversals not caused by a handle, chosen | flames affine 1 frame (face 0, streamer 0) |
+| contour acceleration / handle acceleration, chosen | face 0.90, flames 1.07, streamer 1.00 |
+| critic r1: cheeks 100 %, purse 60 %: plate border / neck movement, similarity | **0.07 px / 0.24 px** (round 1: 15 px / 4.6 px) |
+| cheek outline moves outward when the cheeks fill | 21.4 px (round 1: about 3 px) |
+| **FAIL** critic r1: outer cheek outline differs >= 4 px between two face families | 0.95 px (largest anywhere in the cheek region: 0.95 px) |
+| machine step rate; film frames with two steps | 11.79/s; 0 |
+| most candles one breath can put out, by flame family (face similarity) | affine 7, similarity 2, rigid 0 |
+| demo outcome | yours: all seven out in two breaths. Same inputs: affine everywhere 7 out, similarity 1 out, rigid 0 out |
+| solve time, one world, all surfaces (node) | ~4.4 ms |
 
-The cheek-disc gain at full cheeks and purse 0.6 is 0.334 (similarity), 0.305 (rigid) and 0.278 (affine) of the rest area.
-The difference between the families is about 10-20 %. That is real but small, and the breath constants were tuned so that this
-difference decides the one-breath win. That tuning is a design choice, not a measurement.
-
-Sound (proof.mp4): the device grains from ana/device-sounds.wav for hand detents (quiet, rate 1.25), machine steps, select and family
-ticks. The breath, the candle outs and the wash are synthesized in sound.js. One mixer serves both the page and the film.
-Whole-film levels: mean -20.2 dBFS, peak -1.4 dBFS (first render; not re-measured per stem).
-
-## Protected conditions
-
-The breath is computed from the solved mesh, never from the ring values directly. The chosen family of each surface has no
-folded triangles. Flames never turn inside out (the downward bend is capped by the spine-order condition). The machine's rate is
-11.8/s. There are no free-form drag handles or plain buttons as the primary input. No film frames or film audio are used.
+"Drawn geometry only": a flame that has gone out has zero opacity and index.html does not draw it, so the tests skip it. The two
+remaining fails both occur in the 0.11 s fade-out of a flame that is going out (the flame shrinks to 40 % while it fades).
 
 ## What failed and what changed
 
-1. **The brief changed mid-build** from a drag-handle editor to a game on the device. Free dragging was removed. Rings, SELECT
-   and HOLD drive the handle groups, and the breath was made a measurement of the deformed face.
-2. **The flames folded in every family** (chosen affine: 14,861 folded triangle-instances). The first cause found was the
-   downward bend exceeding the spine-order limit (dy/df < 0 needs bend < 42 px), which turned flames inside out. Capping it
-   brought the count to 755. Adding width handles near the top made it worse (1,617), so the defect was plotted. The plot showed
-   the root cause: the flame model *sheared* the flame (cross-sections stayed horizontal), so its width collapsed as it lay over.
-   It was replaced by a bending rod whose cross-sections stay perpendicular to the spine (11 folds left), and the tip angle was
-   capped at 77 degrees (0 folds).
-3. **Contour reversals on the flames** (5 frames) came from turbulence noise at 16 Hz sampled at 30 fps. It was lowered to 7 Hz (0).
-4. The face was too small in frame and the lips' O did not read. The view was reframed to x 50-550, y 30-800. The opening pose was
-   enlarged and the cheek pose made 1.5x larger, and the breath constants were then re-measured and re-tuned.
-5. The room went black after the candles went out and hid the smile. The ambient floor on the face was raised from 0.17 to 0.34.
+Round 0 (builder): the flames folded in every family. The cause was a shear model whose cross-sections stayed horizontal, and it
+was replaced by a bending rod. Turbulence at 16 Hz, sampled at 30 fps, read as jitter and was lowered to 7 Hz.
+
+Round 1 critic (critic-round1.md), with the repairs:
+1. **Filling the cheeks bent the whole plate.** Four corner anchors could not hold a 414 px edge at alpha 1. Points every 70 px
+   along the edge still let it move 1-5 px. The edges and the neck are now pinned by fixed **line handles**, and the plate border
+   moves 0.07 px. The swell itself was rebuilt as a radial ring of handles per cheek, with the outer one a short segment (as a
+   single point it spiked and folded). The cheek outline now moves 21 px outward.
+2. **The face families are nearly indistinguishable.** This was not repaired. With the face held locally, the three families
+   agree on the cheek to within 0.95 px. Every configuration I tried (ring radius 12-44 px, swell 6-24 px, alpha 1-2, cheek
+   segments on or inside the outline) stayed under 1 px. The round-0 handle set reached 2.4 px only because the plate was free to
+   bow. In these experiments, locality and visible family divergence on the face pull against each other on one handle set.
+   Consequence: the face family no longer changes the breath (within 4 %), so the game's family coupling moved to the flames,
+   where the families do diverge (thinning 0.59 / 0.76 / 0.83 at the same breath).
+3. **The machine ran at 23.6/s and stepped twice in one frame.** The fast mode was removed, and the machine now takes one step per
+   tick, in turn, across all busy values. Measured: 11.79/s and 0 double frames.
+4. **The long SELECT was timed on the game clock.** It is now timed on performance.now (600 ms).
+5. **Maxing the rings won.** The fix adds a lean bias (aim must be +8°), narrows the jet, and makes the flames tear rather than
+   reach a strength threshold. 6 of 143 settings win; maxing gives 4-5.
+6. **A flame triangle had an area ratio of 0.000.** It was in an out-going flame collapsing to 10 % size. The collapse now stops
+   at 40 % and fades instead. Drawn flames now bottom out at 0.010, still under the 0.05 floor.
+7. Full cheeks plus a smile folded the face. The smile now acts only on empty cheeks.
 
 ## Independent critic
 
-**Not run.** The builder's session had no tool for spawning agents. No independent critic has watched proof.mp4. The builder
-watched a contact sheet of 10 frames. That is not a verdict.
+Round 1 was run by the coordinator's critic: **inconclusive, leaning pass**. Quote: "filling the cheeks bends the whole plate,
+not the cheeks". Round 2 has not been run. Fork for the open gap (face divergence): a sparse-handle face branch, with no edge
+pinning but with alpha raised only far from the cheek. It has not been built.
 
-Critic brief (give the critic only this and the outputs): *Expected experience: in ten seconds, on the memory maker's device, a
-hand wraps a paper streamer round a cake in clicking steps, fills an engraved child's cheeks, purses her lips and aims, then
-blows. The flames lean away from her, stream and go out, five on the first breath. She re-aims, fills again and blows again, and
-the last two go out. She smiles. Three side panels show the same inputs with one MLS family everywhere. Watch proof.mp4 at
-normal speed with sound. Return pass / reference stronger / inconclusive, exact frames, the largest gap, a falsifiable repair
-condition, and strengths to keep.*
+Critic brief: *in ten seconds on the memory maker's device, a hand wraps a paper streamer round a cake in clicking steps, fills an
+engraved child's cheeks, purses her lips lightly, and blows. Five flames lean, thin and go out. The hand re-aims two detents,
+fills again and blows, and the last two go out. Three side panels show the same inputs with one family everywhere: the
+similarity flames mostly survive and the rigid flames all survive.*
 
 ## What is weak, unknown, not done
 
-- Scale: in the 4-panel proof each face is ~330 px tall. The cheek swell and the family differences on the face are hard to see
-  at normal speed. They read in strip.png, not in the film.
-- The family columns look alike on the face. They differ in the flames (affine streams thin; similarity and rigid swing as
-  petals) and in the outcome (the affine world leaves one candle burning).
-- The flames' smallest area ratio in affine is ~0.000: no fold, but slivers at the inner bend near the tip.
-- The demonstration is dense (two breaths in 10 s). It may read as rushed.
-- The engraving aliases (moiré) at phone size.
-- The game has not been playtested on a phone by a person. Audio was checked by level only, not listened to by a person.
-- The line handles are the numerical integral, not the paper's closed form.
-- Not done: the film-derived face option (ana/cut sprites were inspected; the face is ~70 px wide, too small to deform well).
-  There is no handle-set import in the game; handles.json is generated by tools/test.js.
+- The face family choice is not visible (under 1 px) and no longer matters to the game.
+- Two numerical fails remain: the area floor (face 0.035, flame 0.010) and one contour-reversal frame during a flame's fade-out.
+- The proof is dense. In the 4-panel layout each face is about 330 px tall.
+- There has been no phone playtest by a person and no listening test.
+- The line handles use the numerical integral.
+- The film-derived face was not used: the ana/cut faces are about 70 px wide.
 
 ## Files
 
-index.html (the game), operator.html, proof.mp4, strip.png, handles.json, tests.json, proof-events.json, mls.js, scene.js,
+index.html, operator.html, proof.mp4, strip.png, handles.json, tests.json, proof-events.json, critic-round1.md, mls.js, scene.js,
 game.js, sound.js, textures.js, tools/test.js, tools/render.js (needs `python3 -m http.server 8765` at the repo root), tools/shot.js.

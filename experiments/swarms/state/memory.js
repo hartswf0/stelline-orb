@@ -208,7 +208,7 @@ function subStates(g, w, out) { const age = g.t - g.subSince;
   if (g.st === 'approach') { const d = Math.hypot(g.x, g.z) - GEO.reach, short = 0.3 + 0.35 * g.M;
     if (g.sub === 'walk' && g.M > 0.25 && !g.paused && d < short) { setSub(g, 'pause', out); g.paused = g.t; g.pauseFor = 1.0 + 2.5 * g.M; }   // wary: stops short and looks back at Ana
     else if (g.sub === 'pause') { if (age > g.pauseFor) setSub(g, 'slow', out); }
-    else setSub(g, d < 0.04 && g.speed < 0.06 ? 'arrive' : d < 0.3 ? 'slow' : 'walk', out); } }
+    else setSub(g, d < 0.04 && g.speed < 0.06 ? 'arrive' : d < 0.3 || g.paused ? 'slow' : 'walk', out); } }
 
 /* ------------------------------------------------------------------ BODY: posture follows state and drives; position only by walking */
 function body(g, w, dt, out) {
@@ -222,7 +222,7 @@ function body(g, w, dt, out) {
   switch (g.st) {
     case 'watch': if (Math.abs(wrap(toCake - g.th)) > 0.7 || g.after) thT = toCake; hdT = 0.15 * g.F; crossT = g.after ? 0 : 0.3 * g.F; break;
     case 'approach': { const r = Math.hypot(g.x, g.z), tx = g.x / r * GEO.reach, tz = g.z / r * GEO.reach, d = r - GEO.reach; thT = ang(g.x, g.z, tx, tz);
-      vT = d < 0.02 || g.sub === 'pause' ? 0 : d < 0.3 ? 0.2 : 0.45; psiT = g.sub === 'pause' ? clamp(wrap(ang(g.x, g.z, w.ana.x, w.ana.z) - g.th), -1.9, 1.9) : clamp(wrap(toCake - g.th), -1.3, 1.3);
+      vT = d < 0.02 || g.sub === 'pause' ? 0 : d < 0.3 || g.paused ? 0.2 : 0.45; psiT = g.sub === 'pause' ? clamp(wrap(ang(g.x, g.z, w.ana.x, w.ana.z) - g.th), -1.9, 1.9) : clamp(wrap(toCake - g.th), -1.3, 1.3);
       tabT = g.sub === 'arrive' ? 1 : 0; crossT = g.sub === 'pause' ? 0.6 : 0; hdT = g.sub === 'pause' ? 0.2 : 0; break; }
     case 'retreat': thT = th; vT = 0.38; back = true; psiT = clamp(wrap(th - g.th), -1.3, 1.3); hdT = 0.1; break;
     case 'hide': sitT = 1; hugT = 1; hdT = g.sub === 'peek' ? 0.15 : 1; psiT = g.sub === 'peek' ? clamp(wrap((w.singing && g.peekN % 2 ? ang(g.x, g.z, 0, -0.58) : ang(g.x, g.z, w.ana.x, w.ana.z)) - g.th), -1.9, 1.9) : 0; break;

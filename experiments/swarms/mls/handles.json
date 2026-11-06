@@ -3,7 +3,7 @@
  "families": {
   "face": {
    "family": "similarity",
-   "why": "Cheeks must swell. Similarity allows local uniform scale, so the engraved lines swell evenly and keep their spacing. Rigid refuses the swell (area held, so the breath is small). Affine swells too but shears the hatching beside the mouth.",
+   "why": "Cheeks must swell: a swell is a local scale, which similarity represents and rigid does not. With the plate edges and neck pinned by fixed segments (so a cheek cannot bow the print), the three families now agree on this face to within 1 px; the choice is by principle, not by a visible difference.",
    "mesh": {
     "rect": [
      120,
@@ -19,7 +19,7 @@
   },
   "flame": {
    "family": "affine",
-   "why": "A flame is gas: under breath it leans, thins and stretches. Affine lets it shear and lengthen. Similarity and rigid hold its proportions, so it swings over like a stiff petal.",
+   "why": "A flame is gas: under breath it leans, thins and stretches. Affine lets it thin to 0.6 of its width and tear out. Similarity thins it less (0.64-0.76) and rigid hardly at all (0.83), so they swing over like stiff petals and stay lit.",
    "mesh": {
     "rect": [
      -20,
@@ -128,8 +128,8 @@
    "surface": "face",
    "kind": "point",
    "rest": [
-    182,
-    258
+    160,
+    262
    ],
    "anchor": true
   },
@@ -138,8 +138,8 @@
    "surface": "face",
    "kind": "point",
    "rest": [
-    418,
-    258
+    440,
+    262
    ],
    "anchor": true
   },
@@ -299,7 +299,7 @@
    "kind": "point",
    "rest": [
     242,
-    290
+    300
    ],
    "anchor": false
   },
@@ -309,27 +309,71 @@
    "kind": "point",
    "rest": [
     358,
-    290
+    300
    ],
    "anchor": false
   },
   {
-   "id": "jawL",
+   "id": "cheekLout",
    "surface": "face",
-   "kind": "point",
+   "kind": "segment",
    "rest": [
-    232,
-    368
+    206,
+    286,
+    206,
+    322
    ],
    "anchor": false
   },
   {
-   "id": "jawR",
+   "id": "cheekLlo",
    "surface": "face",
    "kind": "point",
    "rest": [
-    368,
-    368
+    231,
+    332
+   ],
+   "anchor": false
+  },
+  {
+   "id": "cheekLup",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    234,
+    272
+   ],
+   "anchor": false
+  },
+  {
+   "id": "cheekRout",
+   "surface": "face",
+   "kind": "segment",
+   "rest": [
+    394,
+    286,
+    394,
+    322
+   ],
+   "anchor": false
+  },
+  {
+   "id": "cheekRlo",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    369,
+    332
+   ],
+   "anchor": false
+  },
+  {
+   "id": "cheekRup",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    366,
+    272
    ],
    "anchor": false
   },
@@ -440,10 +484,10 @@
    "surface": "face",
    "kind": "segment",
    "rest": [
-    196,
-    276,
-    212,
-    344
+    262,
+    300,
+    266,
+    334
    ],
    "anchor": false
   },
@@ -452,12 +496,92 @@
    "surface": "face",
    "kind": "segment",
    "rest": [
-    404,
-    276,
-    388,
-    344
+    338,
+    300,
+    334,
+    334
    ],
    "anchor": false
+  },
+  {
+   "id": "plateTop",
+   "surface": "face",
+   "kind": "segment",
+   "rest": [
+    128,
+    28,
+    472,
+    28
+   ],
+   "anchor": true
+  },
+  {
+   "id": "plateBot",
+   "surface": "face",
+   "kind": "segment",
+   "rest": [
+    128,
+    442,
+    472,
+    442
+   ],
+   "anchor": true
+  },
+  {
+   "id": "plateLeft",
+   "surface": "face",
+   "kind": "segment",
+   "rest": [
+    128,
+    28,
+    128,
+    442
+   ],
+   "anchor": true
+  },
+  {
+   "id": "plateRight",
+   "surface": "face",
+   "kind": "segment",
+   "rest": [
+    472,
+    28,
+    472,
+    442
+   ],
+   "anchor": true
+  },
+  {
+   "id": "neckBase",
+   "surface": "face",
+   "kind": "segment",
+   "rest": [
+    250,
+    446,
+    350,
+    446
+   ],
+   "anchor": true
+  },
+  {
+   "id": "neckL2",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    256,
+    414
+   ],
+   "anchor": true
+  },
+  {
+   "id": "neckR2",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    344,
+    414
+   ],
+   "anchor": true
   },
   {
    "id": "f0.wick",
@@ -1211,28 +1335,60 @@
  "poses": {
   "CHEEKS": {
    "cheekL": [
-    -19,
-    -5
+    -12,
+    -2
    ],
    "cheekR": [
-    19,
-    -5
+    12,
+    -2
+   ],
+   "cheekLout:a": [
+    -20,
+    -2
+   ],
+   "cheekLout:b": [
+    -22,
+    3
+   ],
+   "cheekLlo": [
+    -8,
+    11
+   ],
+   "cheekLup": [
+    -5,
+    -7
+   ],
+   "cheekRout:a": [
+    20,
+    -2
+   ],
+   "cheekRout:b": [
+    22,
+    3
+   ],
+   "cheekRlo": [
+    8,
+    11
+   ],
+   "cheekRup": [
+    5,
+    -7
    ],
    "cheekLineL:a": [
-    -14,
-    -2
+    -2,
+    0
    ],
    "cheekLineL:b": [
-    -21,
-    0
+    -3,
+    2
    ],
    "cheekLineR:a": [
-    14,
-    -2
+    2,
+    0
    ],
    "cheekLineR:b": [
-    21,
-    0
+    3,
+    2
    ],
    "jawL": [
     -9,
@@ -1443,12 +1599,13 @@
   }
  },
  "breath": {
-  "k": 1.37,
+  "k": 0.85,
   "cheekRef": 0.4,
   "mouthRef": 580,
   "spread0": 0.05,
   "spreadW": 0.5,
-  "widthRef": 50
+  "widthRef": 50,
+  "lean": -8
  },
  "groups": {
   "STREAMER": "surface paper",

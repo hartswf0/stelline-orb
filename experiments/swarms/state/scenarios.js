@@ -13,6 +13,12 @@ const S = {
     [7.2, { sel: 'CHILDREN' }], [7.4, { ring: 'knurl', to: 3, dur: 0.5 }],     // the children in, singing
     [8.0, { ring: 'scale', to: 4, dur: 0.8 }],                                // kneel to her height; then wait
     [23.0, { long: 1 }] ] },                                                  // after her birthday: a long HOLD ends the memory (then the end card)
+  /* critic round 1 repair film: pressed first (calling at 6 of 6 for 6 s, the cake pushed to 112 cm), then the same setup as the proof */
+  pressed: { dur: 48, script: [
+    [0.5, { sel: 'HER' }], [0.8, { ring: 'knurl', to: 6, dur: 0.5 }], [6.8, { ring: 'knurl', to: 0, dur: 0.4 }],
+    [7.4, { sel: 'CAKE' }], [7.9, { ring: 'knurl', to: 8, dur: 0.3 }],
+    [9.4, { sel: 'ROOM' }], [9.9, { ring: 'knurl', to: 1, dur: 0.8 }], [10.9, { sel: 'CAKE' }], [11.1, { ring: 'knurl', to: 0, dur: 0.9 }], [12.1, { ring: 'tri', to: 0, dur: 0.7 }],
+    [13.0, { sel: 'CHILDREN' }], [13.2, { ring: 'knurl', to: 3, dur: 0.5 }], [13.8, { ring: 'scale', to: 4, dur: 0.8 }], [46.0, { long: 1 }] ] },
   /* obedient default: the player only calls, and calls again */
   callOnly: { dur: 60, script: [[0.5, { sel: 'HER' }], [0.8, { ring: 'knurl', to: 3, dur: 0.2 }], [10, { ring: 'knurl', to: 6, dur: 0.3 }], [30, { ring: 'knurl', to: 0, dur: 0.3 }], [31, { ring: 'knurl', to: 6, dur: 0.3 }]] },
   /* calling her while every other circumstance is right */
