@@ -3,23 +3,23 @@
  "mesh": {
   "vertices": 1298,
   "triangles": 2592,
-  "clampedWeights": 1152
+  "clampedWeights": 792
  },
  "tolerance": {
   "chamferMm": 2,
   "hausdorffMm": 8
  },
- "stage": "SPONGE",
- "gen": 8,
- "matched": null,
+ "stage": "DONE",
+ "gen": 7,
+ "matched": "DOME",
  "monotoneViolations": 0,
  "maxInverted": 0,
  "maxCollapsed": 0,
  "now": {
-  "beadsArap": 0,
-  "beadsNaive": 0,
-  "lettersArap": 0,
-  "lettersNaive": 0
+  "beadsArap": 3.51e-9,
+  "beadsNaive": 0.0477,
+  "lettersArap": 0.384,
+  "lettersNaive": 0.4484
  },
  "commits": [
   {
@@ -55,204 +55,175 @@
    "t": 8.1,
    "stage": "SPONGE",
    "gen": 2,
+   "foldDeg": 89.8,
+   "dist": [
+    {
+     "id": "DOME",
+     "chamferMm": 0.71,
+     "hausdorffMm": 3.61
+    },
+    {
+     "id": "TIERS",
+     "chamferMm": 4.04,
+     "hausdorffMm": 19.98
+    },
+    {
+     "id": "DRUM",
+     "chamferMm": 7.42,
+     "hausdorffMm": 38.63
+    }
+   ],
+   "naiveToNearestMm": 1.3,
+   "beadsArap": 0,
+   "beadsNaive": 0,
+   "lettersArap": 0,
+   "lettersNaive": 0,
+   "advanced": true
+  },
+  {
+   "t": 10.4,
+   "stage": "ICING",
+   "gen": 3,
+   "foldDeg": 89.8,
+   "dist": [
+    {
+     "id": "DOME",
+     "chamferMm": 0.71,
+     "hausdorffMm": 3.61
+    },
+    {
+     "id": "TIERS",
+     "chamferMm": 4.04,
+     "hausdorffMm": 19.98
+    },
+    {
+     "id": "DRUM",
+     "chamferMm": 7.42,
+     "hausdorffMm": 38.63
+    }
+   ],
+   "naiveToNearestMm": 1.3,
+   "beadsArap": 0,
+   "beadsNaive": 0,
+   "lettersArap": 0,
+   "lettersNaive": 0,
+   "advanced": true
+  },
+  {
+   "t": 13.1,
+   "stage": "BEADS",
+   "gen": 4,
+   "foldDeg": 89.8,
+   "dist": [
+    {
+     "id": "DOME",
+     "chamferMm": 0.71,
+     "hausdorffMm": 3.61
+    },
+    {
+     "id": "TIERS",
+     "chamferMm": 4.04,
+     "hausdorffMm": 19.98
+    },
+    {
+     "id": "DRUM",
+     "chamferMm": 7.42,
+     "hausdorffMm": 38.63
+    }
+   ],
+   "naiveToNearestMm": 1.3,
+   "beadsArap": 3.51e-9,
+   "beadsNaive": 0,
+   "lettersArap": 0,
+   "lettersNaive": 0,
+   "advanced": true
+  },
+  {
+   "t": 17.1,
+   "stage": "WRITING",
+   "gen": 5,
    "foldDeg": 90,
    "dist": [
     {
      "id": "DOME",
-     "chamferMm": 2.5,
-     "hausdorffMm": 10.21
+     "chamferMm": 0.9,
+     "hausdorffMm": 4.2
     },
     {
      "id": "TIERS",
-     "chamferMm": 4.39,
-     "hausdorffMm": 27.75
+     "chamferMm": 4.14,
+     "hausdorffMm": 21.07
     },
     {
      "id": "DRUM",
-     "chamferMm": 9.18,
-     "hausdorffMm": 44.75
+     "chamferMm": 7.68,
+     "hausdorffMm": 39.34
     }
    ],
-   "naiveToNearestMm": 2.88,
-   "beadsArap": 0,
-   "beadsNaive": 0,
-   "lettersArap": 0,
-   "lettersNaive": 0,
-   "advanced": false
-  },
-  {
-   "t": 10.4,
-   "stage": "SPONGE",
-   "gen": 3,
-   "foldDeg": 89.2,
-   "dist": [
-    {
-     "id": "DRUM",
-     "chamferMm": 6.36,
-     "hausdorffMm": 23.06
-    },
-    {
-     "id": "TIERS",
-     "chamferMm": 7.09,
-     "hausdorffMm": 34.04
-    },
-    {
-     "id": "DOME",
-     "chamferMm": 7.38,
-     "hausdorffMm": 39.02
-    }
-   ],
-   "naiveToNearestMm": 6.65,
-   "beadsArap": 0,
-   "beadsNaive": 0,
-   "lettersArap": 0,
-   "lettersNaive": 0,
-   "advanced": false
-  },
-  {
-   "t": 13.1,
-   "stage": "SPONGE",
-   "gen": 4,
-   "foldDeg": 105,
-   "dist": [
-    {
-     "id": "DRUM",
-     "chamferMm": 16.77,
-     "hausdorffMm": 81.01
-    },
-    {
-     "id": "TIERS",
-     "chamferMm": 21.82,
-     "hausdorffMm": 93.59
-    },
-    {
-     "id": "DOME",
-     "chamferMm": 24.56,
-     "hausdorffMm": 110.5
-    }
-   ],
-   "naiveToNearestMm": 15.87,
-   "beadsArap": 0,
-   "beadsNaive": 0,
-   "lettersArap": 0,
-   "lettersNaive": 0,
-   "advanced": false
-  },
-  {
-   "t": 17.1,
-   "stage": "SPONGE",
-   "gen": 5,
-   "foldDeg": 122.4,
-   "dist": [
-    {
-     "id": "DRUM",
-     "chamferMm": 36,
-     "hausdorffMm": 155.09
-    },
-    {
-     "id": "TIERS",
-     "chamferMm": 41.64,
-     "hausdorffMm": 167.61
-    },
-    {
-     "id": "DOME",
-     "chamferMm": 45.76,
-     "hausdorffMm": 185.82
-    }
-   ],
-   "naiveToNearestMm": 35.53,
-   "beadsArap": 0,
-   "beadsNaive": 0,
-   "lettersArap": 0,
-   "lettersNaive": 0,
-   "advanced": false
+   "naiveToNearestMm": 1.37,
+   "beadsArap": 3.51e-9,
+   "beadsNaive": 0.0477,
+   "lettersArap": 0.384,
+   "lettersNaive": 0.4484,
+   "advanced": true
   },
   {
    "t": 18.5,
-   "stage": "SPONGE",
+   "stage": "CANDLES",
    "gen": 6,
-   "foldDeg": 125.6,
+   "foldDeg": 90,
    "dist": [
     {
-     "id": "DRUM",
-     "chamferMm": 41.76,
-     "hausdorffMm": 172.48
+     "id": "DOME",
+     "chamferMm": 0.9,
+     "hausdorffMm": 4.2
     },
     {
      "id": "TIERS",
-     "chamferMm": 47.88,
-     "hausdorffMm": 187.44
+     "chamferMm": 4.14,
+     "hausdorffMm": 21.07
     },
     {
-     "id": "DOME",
-     "chamferMm": 52.18,
-     "hausdorffMm": 204.76
+     "id": "DRUM",
+     "chamferMm": 7.68,
+     "hausdorffMm": 39.34
     }
    ],
-   "naiveToNearestMm": 40.5,
-   "beadsArap": 0,
-   "beadsNaive": 0,
-   "lettersArap": 0,
-   "lettersNaive": 0,
-   "advanced": false
+   "naiveToNearestMm": 1.37,
+   "beadsArap": 3.51e-9,
+   "beadsNaive": 0.0477,
+   "lettersArap": 0.384,
+   "lettersNaive": 0.4484,
+   "advanced": true
   },
   {
    "t": 20,
-   "stage": "SPONGE",
+   "stage": "LIGHT",
    "gen": 7,
-   "foldDeg": 128.5,
+   "foldDeg": 90,
    "dist": [
     {
-     "id": "DRUM",
-     "chamferMm": 47.66,
-     "hausdorffMm": 189.49
+     "id": "DOME",
+     "chamferMm": 0.9,
+     "hausdorffMm": 4.2
     },
     {
      "id": "TIERS",
-     "chamferMm": 54.29,
-     "hausdorffMm": 206.82
+     "chamferMm": 4.14,
+     "hausdorffMm": 21.07
     },
-    {
-     "id": "DOME",
-     "chamferMm": 58.71,
-     "hausdorffMm": 223
-    }
-   ],
-   "naiveToNearestMm": 45.49,
-   "beadsArap": 0,
-   "beadsNaive": 0,
-   "lettersArap": 0,
-   "lettersNaive": 0,
-   "advanced": false
-  },
-  {
-   "t": 21,
-   "stage": "SPONGE",
-   "gen": 8,
-   "foldDeg": 128.5,
-   "dist": [
     {
      "id": "DRUM",
-     "chamferMm": 47.66,
-     "hausdorffMm": 189.49
-    },
-    {
-     "id": "TIERS",
-     "chamferMm": 54.29,
-     "hausdorffMm": 206.82
-    },
-    {
-     "id": "DOME",
-     "chamferMm": 58.71,
-     "hausdorffMm": 223
+     "chamferMm": 7.68,
+     "hausdorffMm": 39.34
     }
    ],
-   "naiveToNearestMm": 45.49,
-   "beadsArap": 0,
-   "beadsNaive": 0,
-   "lettersArap": 0,
-   "lettersNaive": 0,
-   "advanced": false
+   "naiveToNearestMm": 1.37,
+   "beadsArap": 3.51e-9,
+   "beadsNaive": 0.0477,
+   "lettersArap": 0.384,
+   "lettersNaive": 0.4484,
+   "advanced": true
   }
  ],
  "inputs": [
@@ -305,22 +276,22 @@
    "SIDE BAND"
   ],
   [
-   6.8,
+   6.6,
    "select",
    "BASE"
   ],
   [
-   6.93,
+   6.73,
    "select",
    "TOP CENTRE"
   ],
   [
-   7.07,
+   6.87,
    "select",
    "TIER RING"
   ],
   [
-   7.1,
+   7.2,
    "turn",
    "knurl",
    "TIER RING"
@@ -333,7 +304,7 @@
    8.6,
    "turn",
    "knurl",
-   "TIER RING"
+   "ICING"
   ],
   [
    10.4,
@@ -343,7 +314,7 @@
    10.8,
    "turn",
    "knurl",
-   "TIER RING"
+   "BEADS"
   ],
   [
    13.1,
@@ -353,13 +324,18 @@
    13.5,
    "turn",
    "knurl",
-   "TIER RING"
+   "WRITING"
+  ],
+  [
+   15.7,
+   "select",
+   "TOP CENTRE"
   ],
   [
    15.9,
    "turn",
    "tri",
-   "TIER RING"
+   "TOP CENTRE"
   ],
   [
    17.1,
@@ -369,7 +345,7 @@
    17.5,
    "turn",
    "knurl",
-   "TIER RING"
+   "CANDLES"
   ],
   [
    18.5,
@@ -379,7 +355,7 @@
    18.9,
    "turn",
    "knurl",
-   "TIER RING"
+   "LIGHT"
   ],
   [
    20,
@@ -388,6 +364,14 @@
   [
    21,
    "hold"
+  ],
+  [
+   21,
+   "blow"
+  ],
+  [
+   22.47,
+   "all out"
   ]
  ],
  "energyBursts": [
@@ -1012,23 +996,55 @@
     0.0079265597,
     0.0079241295,
     "...",
-    0.0079016123,
-    0.0079014455,
-    0.0079012908,
-    0.0079011473
+    0.0079084332,
+    0.0079077434,
+    0.0079071089,
+    0.0079065246
    ],
    "cut": "handle moved before settling"
   },
   {
-   "t": 6.833,
+   "t": 6.633,
    "gen": 1,
    "E": [
+    0.0079059862,
+    0.0079054899,
+    0.0079050319,
+    0.0079046092,
+    0.0079042187,
+    0.007903858,
+    0.0079035245,
+    0.0079032162,
+    0.0079029309,
+    0.0079026669,
+    0.0079024225,
+    0.0079021961
+   ],
+   "cut": "handle moved before settling"
+  },
+  {
+   "t": 6.767,
+   "gen": 1,
+   "E": [
+    0.0079019865,
+    0.0079017923,
+    0.0079016123,
+    0.0079014455,
+    0.0079012908,
+    0.0079011473,
     0.0079010142,
     0.0079008908,
     0.0079007763,
     0.00790067,
     0.0079005713,
-    0.0079004797,
+    0.0079004797
+   ],
+   "cut": "handle moved before settling"
+  },
+  {
+   "t": 6.9,
+   "gen": 1,
+   "E": [
     0.0079003947,
     0.0079003158
    ],
@@ -1040,14 +1056,52 @@
     "inverted": 0,
     "collapsed": 0
    },
-   "iters": 8
+   "iters": 2
   },
   {
-   "t": 6.967,
+   "t": 7.4,
    "gen": 1,
    "E": [
-    0.0079002425,
-    0.0079001744
+    0.0080074168,
+    0.0079419255,
+    0.0079258161,
+    0.0079199015,
+    0.0079171212,
+    0.0079155197,
+    0.0079144345,
+    0.0079136066,
+    0.0079129236
+   ],
+   "cut": "handle moved before settling"
+  },
+  {
+   "t": 7.5,
+   "gen": 1,
+   "E": [
+    0.0080786464,
+    0.0080121114,
+    0.0079947709,
+    0.0079877353,
+    0.0079839572,
+    0.0079814663
+   ],
+   "cut": "handle moved before settling"
+  },
+  {
+   "t": 7.567,
+   "gen": 1,
+   "E": [
+    0.0082175827,
+    0.0081483109,
+    0.0081287802,
+    0.0081200151,
+    0.0081148147,
+    0.0081111214,
+    "...",
+    0.008086788,
+    0.0080866891,
+    0.0080866003,
+    0.0080865207
    ],
    "inverted": {
     "inverted": 0,
@@ -1057,30 +1111,13 @@
     "inverted": 0,
     "collapsed": 0
    },
-   "iters": 2
-  },
-  {
-   "t": 7.1,
-   "gen": 1,
-   "E": [
-    0.0079001111,
-    0.0079000523
-   ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 2
+   "iters": 39
   },
   {
    "t": 8.1,
    "gen": 2,
    "E": [
-    3.3071091e-18
+    3.9212482e-18
    ],
    "inverted": {
     "inverted": 0,
@@ -1093,162 +1130,10 @@
    "iters": 1
   },
   {
-   "t": 8.833,
+   "t": 8.133,
    "gen": 2,
    "E": [
-    0.00013492276,
-    0.000067802697,
-    0.000052065335,
-    0.000046695188,
-    0.000044437747,
-    0.000043325979,
-    0.000042706498,
-    0.000042327135,
-    0.000042077846
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 8.933,
-   "gen": 2,
-   "E": [
-    0.00026718325,
-    0.00019953015,
-    0.00018309082,
-    0.00017715695,
-    0.00017447284,
-    0.00017304216
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 9,
-   "gen": 2,
-   "E": [
-    0.00049979383,
-    0.00043030865,
-    0.00041257067,
-    0.00040578479,
-    0.00040252601,
-    0.00040069801,
-    0.00039956033,
-    0.00039880262,
-    0.00039827541
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 9.1,
-   "gen": 2,
-   "E": [
-    0.0008293885,
-    0.00076522009,
-    0.00074953162,
-    0.00074370445,
-    0.00074095926,
-    0.00073944029
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 9.167,
-   "gen": 2,
-   "E": [
-    0.0013025077,
-    0.0012380803,
-    0.0012217992,
-    0.0012155403,
-    0.0012125089,
-    0.0012108058,
-    0.0012097554,
-    0.001209069,
-    0.001208604
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 9.267,
-   "gen": 2,
-   "E": [
-    0.0029298689,
-    0.0027143068,
-    0.002665639,
-    0.0026488328,
-    0.0026414612,
-    0.0026376706
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 9.333,
-   "gen": 2,
-   "E": [
-    0.0037189429,
-    0.0036606064,
-    0.0036455397,
-    0.003639591,
-    0.003636685,
-    0.0036350831,
-    0.0036341369,
-    0.0036335554,
-    0.0036331894
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 9.433,
-   "gen": 2,
-   "E": [
-    0.0065731783,
-    0.0063955414,
-    0.0063578774,
-    0.0063455176,
-    0.0063403738,
-    0.0063378926
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 9.5,
-   "gen": 2,
-   "E": [
-    0.0081502118,
-    0.0081036304,
-    0.0080927183,
-    0.0080887968,
-    0.0080870588,
-    0.0080861943,
-    0.0080857357,
-    0.0080854833,
-    0.0080853415
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 9.6,
-   "gen": 2,
-   "E": [
-    0.010184408,
-    0.010145308,
-    0.01013736,
-    0.010134856,
-    0.010133862,
-    0.010133409
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 9.667,
-   "gen": 2,
-   "E": [
-    0.012549617,
-    0.012512169,
-    0.012504546,
-    0.012502152,
-    0.012501213,
-    0.012500794,
-    0.012500593,
-    0.012500492
+    3.9212482e-18
    ],
    "inverted": {
     "inverted": 0,
@@ -1258,69 +1143,13 @@
     "inverted": 0,
     "collapsed": 0
    },
-   "iters": 8
-  },
-  {
-   "t": 9.767,
-   "gen": 2,
-   "E": [
-    0.015251854,
-    0.015218136,
-    0.015211692,
-    0.015209788,
-    0.015209081,
-    0.015208782,
-    0.015208645
-   ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 7
-  },
-  {
-   "t": 9.867,
-   "gen": 2,
-   "E": [
-    0.018317121,
-    0.01828566,
-    0.018279796,
-    0.018278109,
-    0.018277502,
-    0.018277254
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 9.933,
-   "gen": 2,
-   "E": [
-    0.021761719,
-    0.0217322,
-    0.021726806,
-    0.02172529,
-    0.021724759,
-    0.021724548
-   ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 6
+   "iters": 1
   },
   {
    "t": 10.4,
    "gen": 3,
    "E": [
-    1.8516976e-18
+    3.9212482e-18
    ],
    "inverted": {
     "inverted": 0,
@@ -1333,123 +1162,10 @@
    "iters": 1
   },
   {
-   "t": 11.033,
+   "t": 10.433,
    "gen": 3,
    "E": [
-    0.00020508547,
-    0.00016674933,
-    0.00015809928,
-    0.00015509606,
-    0.00015380343,
-    0.00015316746,
-    0.00015282628,
-    0.00015263228,
-    0.00015251726
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 11.133,
-   "gen": 3,
-   "E": [
-    0.00067353759,
-    0.0006363453,
-    0.0006278141,
-    0.00062480527,
-    0.00062349991,
-    0.00062285937
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 11.2,
-   "gen": 3,
-   "E": [
-    0.0014783745,
-    0.001441546,
-    0.0014329129,
-    0.0014298457,
-    0.0014285248,
-    0.0014278891,
-    0.0014275609,
-    0.0014273832,
-    0.0014272836
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 11.3,
-   "gen": 3,
-   "E": [
-    0.0042674159,
-    0.0041462727,
-    0.0041211982
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 11.333,
-   "gen": 3,
-   "E": [
-    0.006075989,
-    0.0060308711,
-    0.0060193936
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 11.367,
-   "gen": 3,
-   "E": [
-    0.008361802,
-    0.0083242439,
-    0.0083153005
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 11.4,
-   "gen": 3,
-   "E": [
-    0.011058669,
-    0.011024575,
-    0.011016921,
-    0.011014517,
-    0.011013642,
-    0.011013295
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 11.467,
-   "gen": 3,
-   "E": [
-    0.014163803,
-    0.014138122,
-    0.014133227
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 11.5,
-   "gen": 3,
-   "E": [
-    0.017710249,
-    0.017682142,
-    0.017676601
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 11.533,
-   "gen": 3,
-   "E": [
-    0.021685458,
-    0.021658516,
-    0.021653337,
-    0.021651953,
-    0.021651525,
-    0.021651381
+    3.9212482e-18
    ],
    "inverted": {
     "inverted": 0,
@@ -1459,216 +1175,13 @@
     "inverted": 0,
     "collapsed": 0
    },
-   "iters": 6
-  },
-  {
-   "t": 11.6,
-   "gen": 3,
-   "E": [
-    0.026096442,
-    0.026075061,
-    0.026071446
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 11.633,
-   "gen": 3,
-   "E": [
-    0.03096684,
-    0.030943758,
-    0.030939748
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 11.667,
-   "gen": 3,
-   "E": [
-    0.036289606,
-    0.036267539,
-    0.036263811
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 11.7,
-   "gen": 3,
-   "E": [
-    0.042074219,
-    0.042053451,
-    0.042050077,
-    0.042049325,
-    0.042049132
-   ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 5
-  },
-  {
-   "t": 11.767,
-   "gen": 3,
-   "E": [
-    0.048324021,
-    0.048306652,
-    0.048304088
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 11.8,
-   "gen": 3,
-   "E": [
-    0.055052346,
-    0.055034225,
-    0.055031534
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 11.833,
-   "gen": 3,
-   "E": [
-    0.062256502,
-    0.062239238,
-    0.062236755,
-    0.062236269
-   ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 4
-  },
-  {
-   "t": 11.933,
-   "gen": 3,
-   "E": [
-    0.069941452,
-    0.069926236,
-    0.069924188,
-    0.06992381
-   ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 4
-  },
-  {
-   "t": 12,
-   "gen": 3,
-   "E": [
-    0.078114255,
-    0.078099882,
-    0.078098021,
-    0.078097691
-   ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 4
-  },
-  {
-   "t": 12.1,
-   "gen": 3,
-   "E": [
-    0.08677725,
-    0.086763615,
-    0.086761911,
-    0.08676162
-   ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 4
-  },
-  {
-   "t": 12.167,
-   "gen": 3,
-   "E": [
-    0.095933804,
-    0.095920853,
-    0.095919289,
-    0.095919033
-   ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 4
-  },
-  {
-   "t": 12.267,
-   "gen": 3,
-   "E": [
-    0.10558708,
-    0.10557476,
-    0.10557333,
-    0.1055731
-   ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 4
-  },
-  {
-   "t": 12.333,
-   "gen": 3,
-   "E": [
-    0.11574,
-    0.11572827,
-    0.11572695,
-    0.11572675
-   ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 4
+   "iters": 1
   },
   {
    "t": 13.1,
    "gen": 4,
    "E": [
-    5.5676177e-19
+    3.9212482e-18
    ],
    "inverted": {
     "inverted": 0,
@@ -1681,158 +1194,10 @@
    "iters": 1
   },
   {
-   "t": 13.733,
+   "t": 13.133,
    "gen": 4,
    "E": [
-    0.00020401761,
-    0.00018876378,
-    0.00018497874,
-    0.00018353842,
-    0.00018289085,
-    0.00018257223,
-    0.00018240575,
-    0.0001823147,
-    0.00018226301
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 13.833,
-   "gen": 4,
-   "E": [
-    0.00075436833,
-    0.00073913269,
-    0.00073533835,
-    0.00073390973,
-    0.00073328009,
-    0.00073297809
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 13.9,
-   "gen": 4,
-   "E": [
-    0.0016787745,
-    0.0016631992,
-    0.0016592661,
-    0.0016578005,
-    0.0016571696,
-    0.0016568762,
-    0.0016567324,
-    0.0016566591,
-    0.0016566205
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 14,
-   "gen": 4,
-   "E": [
-    0.002978236,
-    0.0029639372,
-    0.002960588,
-    0.0029594184,
-    0.0029589444,
-    0.0029587365
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 14.067,
-   "gen": 4,
-   "E": [
-    0.0046625638,
-    0.0046480641,
-    0.0046446422,
-    0.0046434628,
-    0.004642996,
-    0.0046427972
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 14.133,
-   "gen": 4,
-   "E": [
-    0.0067316228,
-    0.0067175394,
-    0.0067142998
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 14.167,
-   "gen": 4,
-   "E": [
-    0.0091944528,
-    0.0091778551,
-    0.0091737823
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 14.2,
-   "gen": 4,
-   "E": [
-    0.012045719,
-    0.01202905,
-    0.012024981
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 14.233,
-   "gen": 4,
-   "E": [
-    0.015291244,
-    0.015275038,
-    0.015271173,
-    0.015269929,
-    0.015269484,
-    0.015269315
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 14.3,
-   "gen": 4,
-   "E": [
-    0.018929843,
-    0.018917226,
-    0.018914581
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 14.333,
-   "gen": 4,
-   "E": [
-    0.022976926,
-    0.022962432,
-    0.02295924
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 14.367,
-   "gen": 4,
-   "E": [
-    0.027423745,
-    0.027409302,
-    0.02740615
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 14.4,
-   "gen": 4,
-   "E": [
-    0.03227477,
-    0.032260719,
-    0.03225772,
-    0.032256861,
-    0.032256588
+    3.9212482e-18
    ],
    "inverted": {
     "inverted": 0,
@@ -1842,47 +1207,13 @@
     "inverted": 0,
     "collapsed": 0
    },
-   "iters": 5
+   "iters": 1
   },
   {
-   "t": 14.467,
+   "t": 15.733,
    "gen": 4,
    "E": [
-    0.037529641,
-    0.037518021,
-    0.037515759
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 14.5,
-   "gen": 4,
-   "E": [
-    0.043198366,
-    0.043185502,
-    0.043182924
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 14.533,
-   "gen": 4,
-   "E": [
-    0.049275575,
-    0.049262851,
-    0.049260332
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 14.567,
-   "gen": 4,
-   "E": [
-    0.055764587,
-    0.055752199,
-    0.055749798,
-    0.055749178,
-    0.055749001
+    3.9212482e-18
    ],
    "inverted": {
     "inverted": 0,
@@ -1892,193 +1223,50 @@
     "inverted": 0,
     "collapsed": 0
    },
-   "iters": 5
-  },
-  {
-   "t": 14.633,
-   "gen": 4,
-   "E": [
-    0.062665063,
-    0.062654618,
-    0.062652752,
-    0.062652294
-   ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 4
-  },
-  {
-   "t": 14.7,
-   "gen": 4,
-   "E": [
-    0.069983505,
-    0.069972944,
-    0.069971065,
-    0.069970611
-   ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 4
-  },
-  {
-   "t": 14.8,
-   "gen": 4,
-   "E": [
-    0.077717998,
-    0.077707674,
-    0.077705872,
-    0.077705446
-   ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 4
-  },
-  {
-   "t": 14.867,
-   "gen": 4,
-   "E": [
-    0.085870319,
-    0.085860246,
-    0.085858522,
-    0.085858124
-   ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 4
-  },
-  {
-   "t": 14.967,
-   "gen": 4,
-   "E": [
-    0.094441741,
-    0.094431909,
-    0.094430259,
-    0.094429886
-   ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 4
-  },
-  {
-   "t": 15.033,
-   "gen": 4,
-   "E": [
-    0.10343344,
-    0.10342384,
-    0.10342226,
-    0.10342191
-   ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 4
-  },
-  {
-   "t": 15.133,
-   "gen": 4,
-   "E": [
-    0.11284651,
-    0.11283713,
-    0.11283562,
-    0.11283529
-   ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 4
+   "iters": 1
   },
   {
    "t": 16.133,
    "gen": 4,
    "E": [
-    0.11212977,
-    0.11206673,
-    0.11205052,
-    0.11204586,
-    0.11204445,
-    0.11204401
+    0.000029423373,
+    0.000025985239,
+    0.00002540422,
+    0.000025267774,
+    0.000025228662,
+    0.000025216016,
+    0.000025211623,
+    0.000025210027,
+    0.000025209428
    ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 6
+   "cut": "handle moved before settling"
   },
   {
    "t": 16.233,
    "gen": 4,
    "E": [
-    0.11157432,
-    0.11150996,
-    0.11149336,
-    0.11148858,
-    0.11148714,
-    0.11148669
+    0.00010498573,
+    0.00010154165,
+    0.00010095521,
+    0.00010081592,
+    0.00010077535,
+    0.0001007619
    ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 6
+   "cut": "handle moved before settling"
   },
   {
    "t": 16.3,
    "gen": 4,
    "E": [
-    0.11125197,
-    0.11118778,
-    0.11117126,
-    0.11116652,
-    0.11116508,
-    0.11116464
+    0.00023071855,
+    0.00022721907,
+    0.00022660903,
+    0.00022645948,
+    0.00022641403,
+    0.00022639799,
+    0.00022639156,
+    0.00022638863,
+    0.00022638708
    ],
    "inverted": {
     "inverted": 0,
@@ -2088,39 +1276,34 @@
     "inverted": 0,
     "collapsed": 0
    },
-   "iters": 6
+   "iters": 9
   },
   {
    "t": 16.4,
    "gen": 4,
    "E": [
-    0.11116608,
-    0.11110212,
-    0.11108571,
-    0.11108101,
-    0.11107959,
-    0.11107915
+    0.00040592965,
+    0.00040250849,
+    0.00040191544,
+    0.00040176885,
+    0.00040172284,
+    0.00040170548
    ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 6
+   "cut": "handle moved before settling"
   },
   {
    "t": 16.467,
    "gen": 4,
    "E": [
-    0.11131804,
-    0.11125434,
-    0.11123803,
-    0.11123338,
-    0.11123198,
-    0.11123155
+    0.00063045577,
+    0.00062697787,
+    0.00062635337,
+    0.00062619019,
+    0.00062613468,
+    0.00062611133,
+    0.00062609949,
+    0.00062609244,
+    0.00062608769
    ],
    "inverted": {
     "inverted": 0,
@@ -2130,39 +1313,34 @@
     "inverted": 0,
     "collapsed": 0
    },
-   "iters": 6
+   "iters": 9
   },
   {
    "t": 16.567,
    "gen": 4,
    "E": [
-    0.11170922,
-    0.11164578,
-    0.11162959,
-    0.11162498,
-    0.1116236,
-    0.11162318
+    0.00090309792,
+    0.00089970406,
+    0.0008990941,
+    0.00089893124,
+    0.00089887307,
+    0.00089884678
    ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 6
+   "cut": "handle moved before settling"
   },
   {
    "t": 16.633,
    "gen": 4,
    "E": [
-    0.11234101,
-    0.11227785,
-    0.11226178,
-    0.11225722,
-    0.11225586,
-    0.11225545
+    0.0012234346,
+    0.0012199747,
+    0.0012193205,
+    0.0012191313,
+    0.0012190565,
+    0.001219019,
+    0.0012189965,
+    0.0012189812,
+    0.0012189699
    ],
    "inverted": {
     "inverted": 0,
@@ -2172,18 +1350,21 @@
     "inverted": 0,
     "collapsed": 0
    },
-   "iters": 6
+   "iters": 9
   },
   {
    "t": 16.733,
    "gen": 4,
    "E": [
-    0.11321485,
-    0.11315198,
-    0.11313604,
-    0.11313153,
-    0.11313019,
-    0.11312978
+    0.0015898083,
+    0.0015864388,
+    0.0015857975,
+    0.0015856065,
+    0.0015855273,
+    0.0015854853,
+    0.0015854591,
+    0.0015854407,
+    0.0015854269
    ],
    "inverted": {
     "inverted": 0,
@@ -2193,13 +1374,13 @@
     "inverted": 0,
     "collapsed": 0
    },
-   "iters": 6
+   "iters": 9
   },
   {
    "t": 17.1,
    "gen": 5,
    "E": [
-    9.4691443e-19
+    1.8566758e-18
    ],
    "inverted": {
     "inverted": 0,
@@ -2212,75 +1393,10 @@
    "iters": 1
   },
   {
-   "t": 17.733,
+   "t": 17.133,
    "gen": 5,
    "E": [
-    0.00018020668,
-    0.0001691393,
-    0.00016598295,
-    0.00016475674,
-    0.00016422462,
-    0.00016397634,
-    0.00016385339,
-    0.00016378934,
-    0.00016375454
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 17.833,
-   "gen": 5,
-   "E": [
-    0.00067537466,
-    0.0006644083,
-    0.00066132039,
-    0.00066013564,
-    0.00065962838,
-    0.00065939505
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 17.9,
-   "gen": 5,
-   "E": [
-    0.0015087314,
-    0.0014975101,
-    0.0014943536,
-    0.0014931559,
-    0.0014926508,
-    0.0014924224,
-    0.001492313,
-    0.0014922581,
-    0.0014922294
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 18,
-   "gen": 5,
-   "E": [
-    0.0026824778,
-    0.0026723171,
-    0.002669653,
-    0.0026686931,
-    0.002668308,
-    0.0026681423
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 18.067,
-   "gen": 5,
-   "E": [
-    0.0042057902,
-    0.0041954582,
-    0.0041927599,
-    0.0041918011,
-    0.0041914232,
-    0.0041912638,
-    0.0041911927,
-    0.0041911593
+    1.8566758e-18
    ],
    "inverted": {
     "inverted": 0,
@@ -2290,48 +1406,13 @@
     "inverted": 0,
     "collapsed": 0
    },
-   "iters": 8
-  },
-  {
-   "t": 18.167,
-   "gen": 5,
-   "E": [
-    0.0060789971,
-    0.0060694063,
-    0.0060670347,
-    0.006066226,
-    0.0060659197,
-    0.0060657958
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 18.233,
-   "gen": 5,
-   "E": [
-    0.0083087094,
-    0.0082990642,
-    0.0082967005,
-    0.0082959076,
-    0.008295613,
-    0.0082954963,
-    0.0082954474
-   ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 7
+   "iters": 1
   },
   {
    "t": 18.5,
    "gen": 6,
    "E": [
-    9.5522217e-19
+    1.8566758e-18
    ],
    "inverted": {
     "inverted": 0,
@@ -2344,75 +1425,10 @@
    "iters": 1
   },
   {
-   "t": 19.133,
+   "t": 18.533,
    "gen": 6,
    "E": [
-    0.00018493765,
-    0.00017440073,
-    0.00017148603,
-    0.00017038343,
-    0.00016992164,
-    0.00016971479,
-    0.00016961654,
-    0.00016956727,
-    0.00016954134
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 19.233,
-   "gen": 6,
-   "E": [
-    0.00069702006,
-    0.00068659584,
-    0.00068375046,
-    0.00068268708,
-    0.00068224724,
-    0.0006820527
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 19.3,
-   "gen": 6,
-   "E": [
-    0.0015577805,
-    0.0015471291,
-    0.0015442229,
-    0.0015431478,
-    0.0015427091,
-    0.001542518,
-    0.0015424298,
-    0.0015423869,
-    0.001542365
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 19.4,
-   "gen": 6,
-   "E": [
-    0.0027693147,
-    0.0027596145,
-    0.0027571343,
-    0.0027562575,
-    0.0027559153,
-    0.0027557729
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 19.467,
-   "gen": 6,
-   "E": [
-    0.0043398879,
-    0.0043300339,
-    0.0043275217,
-    0.0043266448,
-    0.004326308,
-    0.0043261703,
-    0.0043261109,
-    0.0043260839
+    1.8566758e-18
    ],
    "inverted": {
     "inverted": 0,
@@ -2422,48 +1438,13 @@
     "inverted": 0,
     "collapsed": 0
    },
-   "iters": 8
-  },
-  {
-   "t": 19.567,
-   "gen": 6,
-   "E": [
-    0.0062700283,
-    0.0062608588,
-    0.006258638,
-    0.0062578907,
-    0.0062576138,
-    0.0062575048
-   ],
-   "cut": "handle moved before settling"
-  },
-  {
-   "t": 19.633,
-   "gen": 6,
-   "E": [
-    0.0085658827,
-    0.0085566697,
-    0.008554456,
-    0.0085537221,
-    0.008553455,
-    0.0085533519,
-    0.0085533099
-   ],
-   "inverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "naiveInverted": {
-    "inverted": 0,
-    "collapsed": 0
-   },
-   "iters": 7
+   "iters": 1
   },
   {
    "t": 20,
    "gen": 7,
    "E": [
-    9.1978226e-19
+    1.8566758e-18
    ],
    "inverted": {
     "inverted": 0,
@@ -2476,10 +1457,10 @@
    "iters": 1
   },
   {
-   "t": 21,
-   "gen": 8,
+   "t": 20.033,
+   "gen": 7,
    "E": [
-    9.1978226e-19
+    1.8566758e-18
    ],
    "inverted": {
     "inverted": 0,
@@ -2492,8 +1473,94 @@
    "iters": 1
   }
  ],
- "detailSamples": [],
- "sounds": 385,
+ "detailSamples": [
+  [
+   16.13,
+   3.5e-9,
+   0.0059
+  ],
+  [
+   16.17,
+   3.5e-9,
+   0.0059
+  ],
+  [
+   16.2,
+   3.5e-9,
+   0.0059
+  ],
+  [
+   16.23,
+   3.5e-9,
+   0.0119
+  ],
+  [
+   16.27,
+   3.5e-9,
+   0.0119
+  ],
+  [
+   16.3,
+   3.5e-9,
+   0.0178
+  ],
+  [
+   16.33,
+   3.5e-9,
+   0.0178
+  ],
+  [
+   16.4,
+   3.5e-9,
+   0.0238
+  ],
+  [
+   16.43,
+   3.5e-9,
+   0.0238
+  ],
+  [
+   16.47,
+   3.5e-9,
+   0.0298
+  ],
+  [
+   16.5,
+   3.5e-9,
+   0.0298
+  ],
+  [
+   16.57,
+   3.5e-9,
+   0.0358
+  ],
+  [
+   16.6,
+   3.5e-9,
+   0.0358
+  ],
+  [
+   16.63,
+   3.5e-9,
+   0.0418
+  ],
+  [
+   16.67,
+   3.5e-9,
+   0.0418
+  ],
+  [
+   16.73,
+   3.5e-9,
+   0.0477
+  ],
+  [
+   16.77,
+   3.5e-9,
+   0.0477
+  ]
+ ],
+ "sounds": 402,
  "source": "the proof recording (record.js): the game played through the device with mouse input on a virtual clock, 25 s, 432x768",
  "deviceInputs": [
   [
@@ -2533,11 +1600,11 @@
    3
   ],
   [
-   6.8,
+   6.6,
    "tap SELECT x3"
   ],
   [
-   7.1,
+   7.2,
    "drag KNURL",
    3
   ],
@@ -2570,7 +1637,7 @@
   ],
   [
    15.7,
-   "tap SELECT x0"
+   "tap SELECT x1"
   ],
   [
    15.9,
@@ -2605,7 +1672,7 @@
   ]
  ],
  "audio": {
-  "peak": 1.1147916316986084,
+  "peak": 1.0591083765029907,
   "realDeviceGrains": true
  }
 }

@@ -89,10 +89,27 @@ careless flick (TUNED loses candles 1 and 3, LOOSE all seven, RIGID none), the t
 - A fallen candle bounced through the cake top (contact spring overshoot): the top is now a hard boundary.
 - The page drew stale worlds after the scene reset (views held the old objects): views now rebind every frame.
 
+
+## Revision 2 (after critic round 1: reference stronger)
+
+What the critic found, and what changed:
+- **The flash hid the landings.** The magnesium flash no longer fires when a layer lands or a candle goes in. It fires once, when the pour ends. A layer's landing and settle are now unlit by any flash.
+- **Fallen candles showed only as a label.** A candle that loses its grip now comes up out of its hole as it goes over. It lies on the icing at 86 deg (it was 79 deg, base still buried). The camera is 28 deg above the cake (it was 12). At 390x844, after the scene's flick, the two fallen candles measure 25 and 30 px on screen (`careless-check.js`, `careless.json`).
+- **The tilt readout showed 0.2 deg after a flick.** It showed the stand's settled angle. It now shows the ring's commanded tilt (the hand). The flick peaks at 12 deg.
+- **Not the memory's look.** The table, stand stem and metal plate are gone. The grade, lights, dome, band, bloom, grain and spot screen now come from `../shared/look.js` (`LOOK.apply`, `LOOK.material`, `LOOK.reveal` for switch-on, `LOOK.flash`). The arc is `../shared/holo.js` (`HOLO.arc`, stepped once per finished stage).
+- **Crown and streamers are not in the film.** They are off by default, behind (i) or `?paper`. They are still simulated and tested.
+- **Arc clipped on mobile.** The arc is now the shared one, anchored beside the cake top. It sits inside the frame at 390x844.
+- **Split view took 12 to 20.5 s.** It now runs only 17.7 to 19.5 s, around the flick. On screens narrower than 600 px the split is never drawn.
+- **At-rest frames not identical.** Two causes:
+  - The smoke and the arc fade counted rendered frames, not the game clock, so they kept changing when frames were skipped. Both now run on the game clock.
+  - What still differs between two at-rest frames 1 s apart: lit, only the flames and halos (combustion flicker, x 93-289 / y 168-280 at 390x844); unlit, only the fading HUD note. The 3D state is bit-identical (tested).
+- **Device not yet replaced.** The device is still this page's copy of `ana/index.html`'s. `HOLO.device` carries its own ring machine, and this game's machine (per-target ranges, smooth tilt, scripted hand) would have to be moved onto it. Not done in this revision.
+
 ## What is weak
 
 - No independent critic has run (this builder had no tool to start one); the coordinator should.
-- A fallen candle usually falls toward or away from her eye and reads as a dark stub end-on.
+- Fallen candles still fall toward or away from her eye (the tilt is about her left-right axis), so they read foreshortened. They are 25 to 30 px long at 390x844.
+- The inscription is dark red on orange under the shared grade and is hard to read once lit.
 - Only one film cake (chocolate, orange top) is the target; the evolution is a sequence of stages toward it, not a
   population of cakes.
 - The match score is this page's reading of the traced frame (height to width 0.40 +/- 0.06, a colour pair), not a pixel

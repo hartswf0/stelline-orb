@@ -46,7 +46,7 @@
                     side: 0x8fd0bd, top: 0xc5ecdf, base: 0x6aa996, crumb: .03, beads: 1 },
     RED_ORANGE:   { label: 'RED-ORANGE', level: 4, kind: 'film', Rb: .121, Rt: .12, H: .095, bulge: .001, swell: .003, crown: r => .003 * (1 - r * r), lump: 0,
                     side: 0xb3412a, top: 0xe46c3c, base: 0x7d2c1c, crumb: .03, beads: 1 },
-    BROWN_DOME:   { label: 'BROWN DOME', level: 4, kind: 'film', Rb: .121, Rt: .12, H: .05, bulge: .001, swell: 0, crown: r => .05 * Math.pow(1 - r * r, .5), lump: 0,
+    BROWN_DOME:   { label: 'BROWN DOME', level: 4, kind: 'film', Rb: .121, Rt: .118, H: .026, bulge: .002, swell: 0, crown: r => .074 * Math.pow(1 - r * r, .55), lump: 0,
                     side: 0x6a4326, top: 0x7d5230, base: 0x4a2e1a, crumb: .03, beads: 0 },
     SPONGE_BEADS: { label: 'SPONGE, WHITE BEADS', level: 4, kind: 'film', Rb: .121, Rt: .12, H: .1, bulge: .001, swell: .003, crown: r => .003 * (1 - r * r), lump: 0,
                     side: 0xe2c286, top: 0xf1dca9, base: 0xb39661, crumb: .05, beads: 1, beadsWhite: true }
@@ -59,7 +59,7 @@
     SPONGE: { LAYERED: 'RISE' },
     DOMED: { BROWN_DOME: 'POUR', LAYERED: 'RISE' },
     LAYERED: { ICED: 'POUR', CHOC_ORANGE: 'POUR' },
-    ICED: { MINT: 'POUR', RED_ORANGE: 'POUR', SPONGE_BEADS: 'POUR', BROWN_DOME: 'POUR' }
+    ICED: { MINT: 'POUR', RED_ORANGE: 'POUR', SPONGE_BEADS: 'POUR', BROWN_DOME: 'EVEN' }
   };
   FILM.forEach(a => { EDGES[a] = {}; FILM.forEach(b => { if (a !== b) EDGES[a][b] = 'CUT'; }); });
   const PACES = [
@@ -96,10 +96,14 @@
   }
 
   /* ---------------------------------------------------------------- IN-BETWEENS: one field over the rows, one pacing curve */
-  const FIELD_SPAN = .32;
-  function fieldT(field, T, u) {
+  /* POUR runs down the side in drips: the front is delayed more at some angles than others (low harmonics), and the coat
+     carries a wet lip at its front (COAT metres of extra radius, largest half-way through each point's change). */
+  const FIELD_SPAN = .32, DRIP = .16, COAT = .0032;
+  const dripAt = th => .5 + .5 * Math.sin(5 * th + 1.3) * Math.cos(3 * th + .4);
+  const sideW = u => u < .15 || u > .55 ? 0 : clamp((.55 - u) / .25, 0, 1);
+  function fieldT(field, T, u, th) {
     if (field === 'RISE') return clamp((T - FIELD_SPAN * u) / (1 - FIELD_SPAN), 0, 1);
-    if (field === 'POUR') return clamp((T - FIELD_SPAN * (1 - u)) / (1 - FIELD_SPAN), 0, 1);
+    if (field === 'POUR') { const d = FIELD_SPAN * (1 - u) + DRIP * dripAt(th || 0) * sideW(u); return clamp((T - d) / (1 - FIELD_SPAN - DRIP), 0, 1); }
     return T;
   }
   /* The surface at step k of N (0..N) from key a to key b. For a CUT the surface is a until the middle step, then b. */
@@ -108,8 +112,8 @@
     out = out || { R: new Float64Array(n), Y: new Float64Array(n), C: new Float64Array(n * 3), beads: 0, cut: false };
     const T = PACES[paceIx || 0].f(clamp(step / N, 0, 1));
     if (field === 'CUT') { const S = step >= N / 2 ? B : A; out.R.set(S.R); out.Y.set(S.Y); out.C.set(S.C); out.beads = S.beads; out.beadsWhite = S.beadsWhite; out.cut = true; out.T = step >= N / 2 ? 1 : 0; return out; }
-    for (let i = 0; i < NU; i++) { const t = fieldT(field, T, U(i)); for (let j = 0; j < NT; j++) { const k = i * NT + j;
-      out.R[k] = lerp(A.R[k], B.R[k], t); out.Y[k] = lerp(A.Y[k], B.Y[k], t);
+    for (let i = 0; i < NU; i++) { const u = U(i); for (let j = 0; j < NT; j++) { const k = i * NT + j, t = fieldT(field, T, u, TH(j));
+      out.R[k] = lerp(A.R[k], B.R[k], t) + (field === 'POUR' ? COAT * 4 * t * (1 - t) * Math.min(1, sideW(u) * 3 + (u > .55 ? 0 : 0)) : 0); out.Y[k] = lerp(A.Y[k], B.Y[k], t);
       out.C[k * 3] = lerp(A.C[k * 3], B.C[k * 3], t); out.C[k * 3 + 1] = lerp(A.C[k * 3 + 1], B.C[k * 3 + 1], t); out.C[k * 3 + 2] = lerp(A.C[k * 3 + 2], B.C[k * 3 + 2], t); } }
     // the beads grow out of the side as the change passes their height
     const tb = fieldT(field, T, .35); out.beads = lerp(A.beads, B.beads, tb); out.beadsWhite = tb < .5 ? A.beadsWhite : B.beadsWhite; out.cut = false; out.T = T; return out;
@@ -127,7 +131,8 @@
     return [r * Math.cos(th), y, r * Math.sin(th)];
   }
   // the seven candles: on the cap at fixed radius fractions (the inner and outer ring of the film's cake), fixed angles
-  const CANDLES = Array.from({ length: 7 }, (_, k) => { const rho = k % 2 ? .052 / .12 : .088 / .12; return { u: .55 + .45 * (1 - rho), th: k / 7 * TAU + .3 }; });
+  // one ring near the rim, so the inscription in the middle stays clear of them
+  const CANDLES = Array.from({ length: 7 }, (_, k) => { const rho = .8; return { u: .55 + .45 * (1 - rho), th: k / 7 * TAU + .3 }; });
   // the beads: the film's coloured dots, fixed points of the side
   const BEADS = Array.from({ length: 84 }, (_, k) => ({ u: .18 + .34 * (((k * 37) % 84) / 84), th: k * 2.39996 % TAU, c: k % 5 }));
   function volume(S) { let v = 0;
@@ -154,11 +159,11 @@
      5.5 mm or the volume more than 15% (the steepest slope of the pacing curve times the field's compression). */
   const SLOPE = [1, 1.5, 2.25, 1.6];
   function stepsFor(a, b, paceIx) { const field = EDGES[a] && EDGES[a][b]; if (!field || field === 'CUT') return STEPS;
-    const A = key(a), B = key(b), comp = field === 'EVEN' ? 1 : 1 / (1 - FIELD_SPAN), sl = SLOPE[paceIx || 0] * comp;
+    const A = key(a), B = key(b), comp = field === 'EVEN' ? 1 : field === 'POUR' ? 1 / (1 - FIELD_SPAN - DRIP) : 1 / (1 - FIELD_SPAN), sl = SLOPE[paceIx || 0] * comp;
     const dc = Math.max(...CANDLES.map(c => { const p = at(A, c.u, c.th), q = at(B, c.u, c.th); return Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]); }));
     const Va = volume(A), Vb = volume(B), dv = Math.abs(Vb - Va) / Math.max(Va, Vb);
     return Math.max(STEPS, Math.ceil(sl * dc / .0055), Math.ceil(sl * dv / .15)); }
 
-  const API = { stepsFor, NU, NT, STEPS, TAU, KEYS, ORDER, FILM, EDGES, PACES, CANDLES, BEADS, ROW_FOOT, ROW_RIM, key, between, at, xyz, volume, faceNormals, profileCheck, profileDist, U, TH, hex };
+  const API = { fieldT, stepsFor, NU, NT, STEPS, TAU, KEYS, ORDER, FILM, EDGES, PACES, CANDLES, BEADS, ROW_FOOT, ROW_RIM, key, between, at, xyz, volume, faceNormals, profileCheck, profileDist, U, TH, hex };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.MORPH = API;
 })(typeof window !== 'undefined' ? window : globalThis);

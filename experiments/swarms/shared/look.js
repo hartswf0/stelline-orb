@@ -33,7 +33,7 @@
   if (!T) throw new Error('LOOK needs THREE (r128) loaded first');
 
   /* ------------------------------------------------------------------ the genome (defaults = accepted values) */
-  const GENOME = {"exposure":1.1,"keyIntensity":2.4,"keyKelvin":3300,"keyCone":0.5,"keySoft":0.75,"keyHeight":1.3,"keyForward":0.5,"candleIntensity":0.9,"candleDecay":1.6,"candleKelvin":2100,"ambient":0.05,"ambientCool":0.6,"bgLevel":0.004,"wbR":1.06,"wbB":1.0,"contrast":1.08,"saturation":1.0,"blackPoint":0.012,"toe":1.15,"bloomStrength":0.55,"bloomRadius":0.7,"bloomThreshold":1.1,"halation":0.5,"flame":3.2,"halo":1.0,"grain":0.03,"grainSize":1.2,"aperture":0.9,"vignette":0.55,"spotSteady":0.0,"spotPitch":4,"icingTone":0.92,"icingWarm":0.25,"spongeTone":0.85,"chocoTone":1.0,"tableTone":0.7,"tableWarm":0.5,"roughIcing":0.72,"bumpIcing":1.0,"band":1.0};
+  const GENOME = {"exposure":1.1,"keyIntensity":2.4,"keyKelvin":3300,"keyCone":0.5,"keySoft":0.75,"keyHeight":1.3,"keyForward":0.5,"candleIntensity":0.9,"candleDecay":1.6,"candleKelvin":2100,"ambient":0.05,"ambientCool":0.6,"bgLevel":0.004,"wbR":1.06,"wbB":1.0,"contrast":1.08,"saturation":1.0,"blackPoint":0.012,"toe":1.15,"bloomStrength":0.55,"bloomRadius":0.7,"bloomThreshold":1.1,"halation":0.5,"flame":3.2,"halo":1.0,"grain":0.03,"grainSize":1.2,"aperture":0.9,"vignette":0.55,"spotSteady":0.0,"spotPitch":4,"icingTone":0.92,"icingWarm":0.25,"spongeTone":0.85,"chocoTone":1.0,"tableTone":0.7,"tableWarm":0.5,"roughIcing":0.72,"bumpIcing":1.0,"band":0.6};
   const RANGES = {exposure:[0.3,3],keyIntensity:[0,8],keyKelvin:[1800,5200],keyCone:[0.2,0.95],keySoft:[0.1,1],keyHeight:[0.6,2.2],keyForward:[-0.4,1.4],candleIntensity:[0,4],candleDecay:[0.6,2.6],candleKelvin:[1400,2600],ambient:[0,0.4],ambientCool:[0,1],bgLevel:[0,0.012],wbR:[0.8,1.4],wbB:[0.45,1.4],contrast:[0.7,1.5],saturation:[0.5,1.6],blackPoint:[0,0.05],toe:[0.7,2],bloomStrength:[0,2],bloomRadius:[0.2,1.6],bloomThreshold:[0.3,3],halation:[0,1],flame:[1,8],halo:[0,2.5],grain:[0,0.1],grainSize:[0.6,2.5],aperture:[0,3],vignette:[0,1.6],spotSteady:[0,0.2],spotPitch:[2,9],icingTone:[0.4,1.05],icingWarm:[0,1],spongeTone:[0.4,1.05],chocoTone:[0.3,2.4],tableTone:[0.2,1.05],tableWarm:[0,1],roughIcing:[0.3,1],bumpIcing:[0,3],band:[0.2,2.5]};
   const G = Object.assign({}, GENOME);
 
@@ -222,7 +222,8 @@
     const cam = new T.OrthographicCamera(-1, 1, 1, -1, 0, 1), quad = new T.Mesh(new T.PlaneGeometry(2, 2)), qs = new T.Scene(); qs.add(quad); quad.frustumCulled = false;
     const M = {}; for (const k in FS) M[k] = new T.ShaderMaterial({ vertexShader: VS, fragmentShader: FS[k], depthTest: false, depthWrite: false, uniforms: {} });
     const P = { W: 1, H: 1, main: null, dofRT: null, half: null, lv: [], focusDist: 1, frame: 0, enabled: { dof: true } };
-    function pass(mat, uniforms, target) { mat.uniforms = uniforms; quad.material = mat; mat.uniformsNeedUpdate = true; renderer.setRenderTarget(target); renderer.render(qs, cam); }
+    // uniforms are updated in place: three r128 keeps the uniforms object it compiled with, so replacing it would freeze the values of the first frame
+    function pass(mat, uniforms, target) { const U = mat.uniforms; for (const k in uniforms) { if (U[k]) U[k].value = uniforms[k].value; else U[k] = { value: uniforms[k].value }; } quad.material = mat; renderer.setRenderTarget(target); renderer.render(qs, cam); }
     P.setSize = (w, h) => { // device pixels
       w = Math.max(2, Math.round(w)); h = Math.max(2, Math.round(h)); if (w === P.W && h === P.H && P.main) return; P.W = w; P.H = h;
       [P.main, P.dofRT, P.half].concat(P.lv.flat()).forEach(r => r && r.dispose());
@@ -272,9 +273,9 @@
     const fl = new T.Mesh(new T.CircleGeometry(9, 96), material('floor')); fl.rotation.x = -Math.PI / 2; fl.userData.region = 'room'; g.add(fl);
     const wall = new T.Mesh(new T.SphereGeometry(8, 64, 24, 0, Math.PI * 2, 0, Math.PI / 2), new T.MeshStandardMaterial({ color: 0x0b0d0c, roughness: 0.9, side: T.BackSide })); wall.userData.region = 'room'; g.add(wall);
     const bandMat = new T.MeshBasicMaterial({ color: 0xdfe8e4 }); bandMat.userData.lookBand = true;
-    const band = new T.Mesh(new T.TorusGeometry(7.7, 0.02, 6, 256), bandMat); band.rotation.x = Math.PI / 2; band.position.y = 0.42; band.userData.region = 'band'; g.add(band);
+    const band = new T.Mesh(new T.TorusGeometry(7.7, 0.012, 6, 256), bandMat); band.rotation.x = Math.PI / 2; band.position.y = 0.42; band.userData.region = 'band'; g.add(band);
     const glowMat = new T.MeshBasicMaterial({ color: 0x9fb0aa, transparent: true, opacity: 0.16, depthWrite: false }); glowMat.userData.lookBand = true;
-    const glow = new T.Mesh(new T.TorusGeometry(7.7, 0.12, 6, 256), glowMat); glow.rotation.x = Math.PI / 2; glow.position.y = 0.42; glow.userData.region = 'band'; g.add(glow);
+    const glow = new T.Mesh(new T.TorusGeometry(7.7, 0.06, 6, 256), glowMat); glow.rotation.x = Math.PI / 2; glow.position.y = 0.42; glow.userData.region = 'band'; g.add(glow);
     scene.add(g); return g;
   }
 

@@ -18,7 +18,7 @@ const TAU = Math.PI * 2, D2R = Math.PI / 180, clamp = (v, a, b) => Math.max(a, M
 const hasDOM = typeof document !== 'undefined';
 
 /* ------------------------------------------------------------------ THE GENOME (evolved; holo-genome.json holds the same numbers) */
-const GENOME = /*GENOME*/{"arc":{"R":85.186,"asp":0.89,"thick":15.985,"a0":-107.284,"a1":48.998,"tail":12.934,"capA0":-104,"capA1":-73.139,"capGain":1.586,"bandIn":0.156,"bandOut":0.362,"edge":1.2,"gaps":[-22,-9,6.3,15.1,29.8,40],"gapW":2.4,"gapDepth":0.75,"hairR":0.801,"hairA":0.305,"hairW":1,"col":[196,198.878,197.994],"glow":1.968,"glowA":0.29,"markW":8.082,"markH":6,"markOff":0.852,"markGain":1.35,"tickLen":13,"tickDots":4,"tickDot":2,"tickGap":4.5,"needles":[[-79,0.52,1.06,0.55],[33,0.74,1.1,0.45]],"needleW":1},"steps":{"marks":[-23.2,-19.3,-10,-0.7,6],"blinkFrames":3.85,"drift":2.339,"driftTime":0.5},"readout":{"glyphH":2.4,"lineGap":5.956,"charW":1.7,"charGap":0.9,"wordMin":3,"wordMax":9,"spaceW":3.2,"lineW":102.179,"maxLines":3,"typeRate":74.595,"burst":0.096,"alpha":0.72,"col":[206,214,200],"clearHold":0.45},"child":{"R":13,"asp":0.9,"thick":4.2,"a0":-110,"a1":70,"capGain":1.6,"barW":9,"barH":12,"leader":16,"leaderA":135,"alpha":0.8},"device":{"detentDeg":9,"rate":11.7098,"fastRate":16,"fastAfter":8,"latency":0.423,"handGain":0.1672,"stepGain":0.7851,"fastGain":0.1638,"clickRate":1.6,"handRate":1.442},"fit":{"dx":0.39,"dy":0}}/*END*/;
+const GENOME = /*GENOME*/{"arc":{"R":91.801,"asp":0.78,"thick":21,"a0":-111,"a1":99,"tail":22.107,"capA0":-111,"capA1":-105,"capGain":1,"bandIn":0.144,"bandOut":0.316,"edge":1.199,"gaps":[1,34,48],"gapW":5.333,"gapDepth":0.638,"hairR":0.738,"hairA":0.17,"hairW":1,"col":[254,255,222],"glow":3.055,"glowA":0.151,"markW":15,"markH":14,"markOff":0,"markGain":1.35,"tickLen":13,"tickDots":4,"tickDot":2,"tickGap":4.5,"needles":[[-62,0.6,1.04,0.5],[33,0.74,1.1,0.45]],"needleW":1,"rot":-22,"gapCover":1,"fall":1.889,"lip":0.423,"soft":1.189,"gain":0.73,"headTail":16.893},"steps":{"marks":[-5.5,-1.5,7,16,23],"blinkFrames":3.75,"drift":-0.25,"driftTime":0.5},"readout":{"glyphH":2.4,"lineGap":5.956,"charW":1.7,"charGap":0.9,"wordMin":3,"wordMax":9,"spaceW":3.2,"lineW":102.179,"maxLines":3,"typeRate":74.595,"burst":0.096,"alpha":0.72,"col":[206,214,200],"clearHold":0.45},"child":{"R":23.791,"asp":0.82,"thick":5,"a0":-110,"a1":70,"capGain":1.6,"barW":8,"barH":5,"leader":16,"leaderA":135,"alpha":0.8,"rot":4,"barX":-45.181,"barY":-16.658},"device":{"detentDeg":9,"rate":11.7098,"fastRate":16,"fastAfter":8,"latency":0.423,"handGain":0.1672,"stepGain":0.7851,"fastGain":0.1638,"clickRate":1.6,"handRate":1.442},"fit":{"dx":0.237,"dy":-0.114}}/*END*/;
 
 /* ------------------------------------------------------------------ small helpers */
 function prng(seed) { let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -27,46 +27,45 @@ function merge(base, over) { const o = JSON.parse(JSON.stringify(base)); if (!ov
 
 const LAYERS = {}; function layer(w, h) { const k = w + 'x' + h; if (!LAYERS[k]) LAYERS[k] = typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(w, h) : Object.assign(document.createElement('canvas'), { width: w, height: h }); return LAYERS[k]; }
 /* ================================================================== 2D RENDERERS (pure; the measurement draws these at the film's framing)
-   drawArc(ctx, cx, cy, s, g, st): s = pixels per film pixel; st = { mark: deg or null, alpha, segOn: [0..1 per segment] } */
-function drawArc(ctx, cx, cy, s, g, st) { // eslint-disable-line
+   The arc is a circle seen in perspective: an ellipse with semi-major R (film px), minor = R*asp, turned by rot degrees.
+   Every angle in the genome (a0, a1, gaps, marks, needles) is the ellipse's parametric angle t in that turned frame, negative = up.
+   drawArc(ctx, cx, cy, s, g, st): s = pixels per film pixel; st = { mark: t or null, alpha, segOn: [0..1 per segment] } */
+function ellP(g, R, t) { const c = Math.cos(t * D2R), sn = Math.sin(t * D2R), r = (g.rot || 0) * D2R, x = c * R * g.asp, y = sn * R; return [x * Math.cos(r) - y * Math.sin(r), x * Math.sin(r) + y * Math.cos(r)]; }
+function drawArc(ctx, cx, cy, s, g, st) {
   st = st || {}; const A = st.alpha == null ? 1 : st.alpha; if (A <= 0.002) return;
-  const R = g.R * s, th = g.thick * s, col = g.col;
-  // the segments, from the band's top end to its lower end, cut by the gaps
+  const R = g.R * s, th = g.thick * s, col = g.col, gain = g.gain == null ? 1 : g.gain;
   const cuts = [g.a0].concat(g.gaps.filter(a => a > g.a0 && a < g.a1)).concat([g.a1]); const segOn = st.segOn || [];
-  ctx.save(); ctx.translate(cx, cy); ctx.scale(g.asp, 1);
-  const band = (alphaK) => {
-    const nr = Math.max(4, Math.round(th / Math.max(0.5, s * 0.75)));
-    for (let i = 0; i < cuts.length - 1; i++) {
-      const on = segOn[i] == null ? 1 : segOn[i]; if (on <= 0.01) continue;
-      let p0 = cuts[i] + (i ? g.gapW / 2 : 0), p1 = cuts[i + 1] - (i < cuts.length - 2 ? g.gapW / 2 : 0); if (p1 <= p0) continue;
-      for (let k = 0; k < nr; k++) { const u = (k + 0.5) / nr, r = R - th + u * th; // u: 0 inner -> 1 outer
-        let a = lerp(g.bandIn, g.bandOut, Math.pow(u, 1.3)); if (u > 1 - g.edge / g.thick) a *= 0.55; // a softer outer lip
-        // the lower end fades out over 'tail' degrees; the cap at the upper end is brighter
-        const steps = Math.max(2, Math.ceil((p1 - p0) / 3));
-        for (let j = 0; j < steps; j++) { const q0 = p0 + (p1 - p0) * j / steps, q1 = p0 + (p1 - p0) * (j + 1) / steps, qm = (q0 + q1) / 2;
-          let k2 = a; if (qm > g.a1 - g.tail) k2 *= clamp((g.a1 - qm) / g.tail, 0, 1); if (qm >= g.capA0 && qm <= g.capA1) k2 *= g.capGain * (0.75 + 0.25 * Math.sin(Math.PI * (qm - g.capA0) / (g.capA1 - g.capA0)));
-          ctx.strokeStyle = rgba(col, k2 * A * on * alphaK); ctx.lineWidth = th / nr + 0.6; ctx.beginPath(); ctx.arc(0, 0, r, q0 * D2R, q1 * D2R + 0.002); ctx.stroke(); } }
-    }
-    // the gaps do not cut clean: a dark notch with a little of the band left in it
-    ctx.globalCompositeOperation = 'source-over';
-  };
-  // the band is drawn once into a layer; the glow is that layer blurred, laid under it
-  const cw = ctx.canvas.width, ch = ctx.canvas.height; const lay = layer(cw, ch), lx = lay.getContext('2d'); lx.setTransform(1, 0, 0, 1, 0, 0); lx.clearRect(0, 0, cw, ch); lx.setTransform(ctx.getTransform()); lx.lineCap = 'butt';
-  const keep = ctx; ctx = lx; band(1); ctx = keep; ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
-  if (g.glow > 0 && ctx.filter !== undefined) { ctx.filter = `blur(${(g.glow * s).toFixed(2)}px)`; ctx.globalAlpha = g.glowA; ctx.drawImage(lay, 0, 0); ctx.filter = 'none'; ctx.globalAlpha = 1; }
-  ctx.drawImage(lay, 0, 0); ctx.restore();
-  // inner hairline, concentric, the full height of the band
-  ctx.strokeStyle = rgba(col, g.hairA * A); ctx.lineWidth = Math.max(0.5, g.hairW * s) / g.asp; ctx.beginPath(); ctx.arc(0, 0, R * g.hairR, (g.a0 + 18) * D2R, (g.a1 - 6) * D2R); ctx.stroke();
-  ctx.restore();
+  const cw = ctx.canvas.width, ch = ctx.canvas.height; const lay = layer(cw, ch), lx = lay.getContext('2d'); lx.setTransform(1, 0, 0, 1, 0, 0); lx.clearRect(0, 0, cw, ch);
+  lx.setTransform(ctx.getTransform()); lx.translate(cx, cy); lx.rotate((g.rot || 0) * D2R); lx.scale(g.asp, 1); lx.lineCap = 'butt';
+  const nr = Math.max(4, Math.round(th / Math.max(0.5, s * 0.75)));
+  for (let i = 0; i < cuts.length - 1; i++) { const on = segOn[i] == null ? 1 : segOn[i]; if (on <= 0.01) continue; const p0 = cuts[i], p1 = cuts[i + 1]; if (p1 <= p0) continue;
+    for (let k = 0; k < nr; k++) { const u = (k + 0.5) / nr, r = R - th + u * th;   // u: 0 inner edge -> 1 outer edge
+      let a = lerp(g.bandIn, g.bandOut, Math.pow(u, g.fall || 1.3)); if (u > 1 - g.edge / g.thick) a *= g.lip == null ? 0.55 : g.lip;
+      const steps = Math.max(2, Math.ceil((p1 - p0) / 3));
+      for (let j = 0; j < steps; j++) { const q0 = p0 + (p1 - p0) * j / steps, q1 = p0 + (p1 - p0) * (j + 1) / steps, qm = (q0 + q1) / 2;
+        let k2 = a * gain; if (qm > g.a1 - g.tail) k2 *= clamp((g.a1 - qm) / g.tail, 0, 1); if (qm < g.a0 + (g.headTail || 0)) k2 *= clamp((qm - g.a0) / g.headTail, 0, 1);
+        if (qm >= g.capA0 && qm <= g.capA1) k2 *= 1 + (g.capGain - 1) * Math.min(1, Math.sin(Math.PI * clamp((qm - g.capA0) / (g.capA1 - g.capA0), 0, 1)) * 1.6);
+        lx.strokeStyle = rgba(col, k2 * A * on); lx.lineWidth = th / nr + 0.6; lx.beginPath(); lx.arc(0, 0, r, q0 * D2R, q1 * D2R + 0.002); lx.stroke(); } } }
+  // the notches: dark cuts that reach only part way across the band, from its inner side (as in the film)
+  lx.globalCompositeOperation = 'destination-out'; const cov = g.gapCover == null ? 1 : g.gapCover;
+  g.gaps.forEach(ga => { if (ga <= g.a0 || ga >= g.a1) return; lx.strokeStyle = `rgba(0,0,0,${clamp(g.gapDepth, 0, 1)})`; lx.lineWidth = th * cov; lx.beginPath(); lx.arc(0, 0, R - th + th * cov / 2, (ga - g.gapW / 2) * D2R, (ga + g.gapW / 2) * D2R); lx.stroke(); });
+  lx.globalCompositeOperation = 'source-over';
+  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (g.glow > 0 && ctx.filter !== undefined) { ctx.filter = `blur(${(g.glow * s).toFixed(2)}px)`; ctx.globalAlpha = clamp(g.glowA, 0, 1); ctx.drawImage(lay, 0, 0); ctx.filter = 'none'; ctx.globalAlpha = 1; }
+  if (g.soft > 0 && ctx.filter !== undefined) ctx.filter = `blur(${(g.soft * s).toFixed(2)}px)`; ctx.drawImage(lay, 0, 0); ctx.filter = 'none'; ctx.restore();
+  ctx.save(); ctx.translate(cx, cy);
+  // inner hairline, concentric
+  ctx.save(); ctx.rotate((g.rot || 0) * D2R); ctx.scale(g.asp, 1); ctx.strokeStyle = rgba(col, g.hairA * A * gain); ctx.lineWidth = Math.max(0.5, g.hairW * s) / g.asp; ctx.beginPath(); ctx.arc(0, 0, R * g.hairR, (g.a0 + 18) * D2R, (g.a1 - 6) * D2R); ctx.stroke(); ctx.restore();
   // the needles: thin straight lines across the band that do not move
-  ctx.save(); ctx.translate(cx, cy); ctx.lineWidth = Math.max(0.5, g.needleW * s);
-  g.needles.forEach(([a, r0, r1, al]) => { const c = Math.cos(a * D2R), sn = Math.sin(a * D2R); ctx.strokeStyle = rgba([235, 240, 232], al * A); ctx.beginPath(); ctx.moveTo(c * R * r0 * g.asp, sn * R * r0); ctx.lineTo(c * R * r1 * g.asp, sn * R * r1); ctx.stroke(); });
-  // the index mark, a bright block on the outer edge, and the dotted tick that runs out from it
-  if (st.mark != null) { const a = st.mark * D2R, c = Math.cos(a), sn = Math.sin(a), rr = R + g.markOff * s - g.markW * s / 2, mx = c * rr * g.asp, my = sn * rr;
-    ctx.save(); ctx.translate(mx, my); ctx.rotate(Math.atan2(sn, c * g.asp));
-    ctx.fillStyle = rgba([250, 252, 246], Math.min(1, g.markGain * 0.74) * A); ctx.fillRect(-g.markW * s / 2, -g.markH * s / 2, g.markW * s, g.markH * s);
-    if (g.glow > 0 && ctx.filter !== undefined) { ctx.filter = `blur(${(g.glow * s).toFixed(2)}px)`; ctx.fillRect(-g.markW * s / 2, -g.markH * s / 2, g.markW * s, g.markH * s); ctx.filter = 'none'; }
-    ctx.fillStyle = rgba(col, 0.75 * A); const x0 = g.markW * s / 2 + 1.5 * s; ctx.fillRect(x0, -0.5 * s, g.tickLen * s * 0.45, Math.max(0.6, 1 * s));
+  ctx.lineWidth = Math.max(0.5, g.needleW * s);
+  g.needles.forEach(([a, r0, r1, al]) => { const p = ellP(g, R * r0, a), q = ellP(g, R * r1, a); ctx.strokeStyle = rgba([235, 240, 232], al * A); ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.stroke(); });
+  // the index mark, a bright block straddling the outer edge, and the dotted tick that runs out from it
+  if (st.mark != null) { const p = ellP(g, R + g.markOff * s, st.mark), p2 = ellP(g, R + g.markOff * s + 1, st.mark), dir = Math.atan2(p2[1] - p[1], p2[0] - p[0]);
+    ctx.save(); ctx.translate(p[0], p[1]); ctx.rotate(dir); const mw = g.markW * s, mh = g.markH * s;
+    ctx.fillStyle = rgba([250, 252, 246], Math.min(1, g.markGain * 0.74) * A);
+    if (g.glow > 0 && ctx.filter !== undefined) { ctx.filter = `blur(${(g.glow * s).toFixed(2)}px)`; ctx.fillRect(-mw / 2, -mh / 2, mw, mh); ctx.filter = 'none'; }
+    ctx.fillRect(-mw / 2 + s, -mh / 2 + s, mw - 2 * s, mh - 2 * s);
+    ctx.fillStyle = rgba(col, 0.75 * A); const x0 = mw / 2 + 1.5 * s; ctx.fillRect(x0, -0.5 * s, g.tickLen * s * 0.45, Math.max(0.6, 1 * s));
     for (let k = 0; k < g.tickDots; k++) ctx.fillRect(x0 + g.tickLen * s * 0.5 + k * g.tickGap * s, -g.tickDot * s / 2, g.tickDot * s, g.tickDot * s);
     ctx.restore(); }
   ctx.restore();
@@ -83,14 +82,14 @@ function makeLine(g, rnd, width) { const out = []; let x = 0; const W = width ||
   while (x < W) { const n = Math.round(lerp(g.wordMin, g.wordMax, rnd())); for (let k = 0; k < n && x < W; k++) { const w = g.charW * (0.6 + 0.8 * rnd()); out.push(w); x += w + g.charGap; } out.push(-g.spaceW); x += g.spaceW + g.charGap; } return out; }
 function lineLength(ln, g) { return ln.reduce((a, w) => a + Math.abs(w) + g.charGap, 0); }
 /* the child's mark: a small C with a bright cap, a little bar beside it, and a leader line down toward the head */
-function drawChildMark(ctx, cx, cy, s, g, alpha) { const A = alpha == null ? 1 : alpha; if (A <= 0.002) return; const R = g.R * s, col = [214, 222, 208];
-  ctx.save(); ctx.translate(cx, cy); ctx.save(); ctx.scale(g.asp, 1); ctx.lineCap = 'butt';
-  for (let a = g.a0; a < g.a1; a += 4) { const k = a < g.a0 + 40 ? g.capGain : 1; ctx.strokeStyle = rgba(col, g.alpha * 0.7 * k * A * (a > g.a1 - 30 ? (g.a1 - a) / 30 : 1)); ctx.lineWidth = g.thick * s; ctx.beginPath(); ctx.arc(0, 0, R - g.thick * s / 2, a * D2R, (a + 4.3) * D2R); ctx.stroke(); }
+function drawChildMark(ctx, cx, cy, s, g, alpha) { const A = alpha == null ? 1 : alpha; if (A <= 0.002) return; const R = g.R * s, col = g.col || [214, 222, 208];
+  ctx.save(); ctx.translate(cx, cy); ctx.save(); ctx.rotate((g.rot || 0) * D2R); ctx.scale(g.asp, 1); ctx.lineCap = 'butt';
+  for (let a = g.a0; a < g.a1; a += 4) { const k = a < g.a0 + (g.capW || 40) ? g.capGain : 1; ctx.strokeStyle = rgba(col, g.alpha * 0.7 * k * A * (a > g.a1 - 30 ? (g.a1 - a) / 30 : 1)); ctx.lineWidth = g.thick * s; ctx.beginPath(); ctx.arc(0, 0, R - g.thick * s / 2, a * D2R, (a + 4.3) * D2R); ctx.stroke(); }
   ctx.restore();
-  ctx.fillStyle = rgba(col, g.alpha * 0.45 * A); ctx.fillRect(-R * 2.2, -R * 0.55, g.barW * s, g.barH * s); ctx.fillStyle = rgba(col, g.alpha * 0.95 * A); ctx.fillRect(-R * 2.2, -R * 0.55, g.barW * s, 2 * s);
-  const la = g.leaderA * D2R; ctx.strokeStyle = rgba(col, g.alpha * 0.6 * A); ctx.lineWidth = Math.max(0.6, 0.9 * s); ctx.beginPath(); ctx.moveTo(Math.cos(la) * R * 1.1, Math.sin(la) * R * 1.1); ctx.lineTo(Math.cos(la) * (R * 1.1 + g.leader * s), Math.sin(la) * (R * 1.1 + g.leader * s)); ctx.stroke();
+  const bx = (g.barX == null ? -R * 2.2 / s : g.barX) * s, by = (g.barY == null ? -R * 0.55 / s : g.barY) * s;
+  ctx.fillStyle = rgba(col, g.alpha * 0.45 * A); ctx.fillRect(bx, by, g.barW * s, g.barH * s); ctx.fillStyle = rgba(col, g.alpha * 0.95 * A); ctx.fillRect(bx, by, g.barW * s, 2 * s);
+  const la = g.leaderA * D2R, lx0 = bx + (g.barW * s) / 2, ly0 = by + g.barH * s; ctx.strokeStyle = rgba(col, g.alpha * 0.6 * A); ctx.lineWidth = Math.max(0.6, 0.9 * s); ctx.beginPath(); ctx.moveTo(lx0, ly0); ctx.lineTo(lx0 + Math.cos(la) * g.leader * s, ly0 + Math.sin(la) * g.leader * s); ctx.stroke();
   ctx.restore(); }
-
 /* ================================================================== THE STEPPING MARK (pure state; used by the arc and by the timing measurement)
    step(i): the mark blinks out for blinkFrames/24 s, comes back at marks[i], then eases on by 'drift' degrees */
 function MarkState(gs) { this.g = gs; this.i = 0; this.ang = gs.marks[0]; this.blink = 0; this.since = 9; this.from = gs.marks[0]; }
@@ -104,14 +103,14 @@ function tickAll(t) { const dt = Math.min(0.05, lastT ? (t - lastT) / 1000 : 0.0
 function live(o) { LIVE.add(o); if (!ticking && hasDOM && typeof requestAnimationFrame === 'function') { ticking = true; requestAnimationFrame(tickAll); } }
 function three() { return root.THREE || null; }
 function spriteFor(scene, cw, ch, worldH) { const T = three(); const c = document.createElement('canvas'); c.width = cw; c.height = ch; const tex = new T.CanvasTexture(c); if (T.sRGBEncoding) tex.encoding = T.sRGBEncoding;
-  const m = new T.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: false, opacity: 1, blending: T.AdditiveBlending }); const s = new T.Sprite(m); s.scale.set(worldH * cw / ch, worldH, 1); s.renderOrder = 6; if (scene) scene.add(s); return { c, x: c.getContext('2d'), tex, s }; }
+  const m = new T.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: false, opacity: 1, fog: false, blending: T.AdditiveBlending }); if (spriteFor.exposure) m.color.setScalar(spriteFor.exposure); const s = new T.Sprite(m); s.scale.set(worldH * cw / ch, worldH, 1); s.renderOrder = 6; if (scene) scene.add(s); return { c, x: c.getContext('2d'), tex, s }; }
 function anchorPos(anchor, out) { if (!anchor) return out.set(0, 0, 0); if (anchor.isVector3) return out.copy(anchor); if (anchor.getWorldPosition) return anchor.getWorldPosition(out); return out.set(anchor.x || 0, anchor.y || 0, anchor.z || 0); }
 
 /* HOLO.arc: beside the cake at candle height, open toward it. opts: { genome, size (world height of the arc), offset (world units to the side), side (+1 right of the anchor as seen, -1 left), camera, follow } */
 function arc(scene, anchor, opts) {
   opts = opts || {}; const G = merge(GENOME, opts.genome); const g = G.arc; const T = three(); const ss = opts.ss || 3;
   const half = (g.R + g.tickLen + g.tickDots * g.tickGap + 14), W = Math.ceil(half * 2 * ss), H = Math.ceil((g.R + 10) * 2 * ss);
-  const size = opts.size || 0.2, sp = T ? spriteFor(scene, W, H, size * H / (g.R * 2 * ss)) : null;
+  const size = opts.size || 0.2; spriteFor.exposure = opts.exposure == null ? 2.2 : opts.exposure; const sp = T ? spriteFor(scene, W, H, size * H / (g.R * 2 * ss)) : null; spriteFor.exposure = 0;   // the genome holds film pixel levels (after the film's grade); exposure lifts them for an ungraded scene
   const ms = new MarkState(G.steps); const nSeg = g.gaps.filter(a => a > g.a0 && a < g.a1).length + 1;
   const o = { object: sp && sp.s, canvas: sp && sp.c, genome: G, mark: ms, alpha: 0, want: opts.visible === false ? 0 : 1, segOn: new Array(nSeg).fill(1), _off: null, _auto: true, side: opts.side || 1, flicker: 0,
     step(i) { ms.step(i); this.want = 1; this.flicker = 0.12; return this; }, setMark(deg) { ms.g = Object.assign({}, ms.g, { marks: ms.g.marks.map((m, k) => k === ms.i ? deg : m) }); return this; },

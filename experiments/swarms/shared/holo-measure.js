@@ -190,6 +190,109 @@ function evolve(G0, seed, gens, onGen) { const rnd = HOLO.prng(seed); const clon
   return { best: pop[0], log }; }
 `;
 
+/* ---------------------------------------------------------------- pass 2: a trustworthy fit, genes set from measurement, evolution only of the free genes */
+const PAGE_V2 = String.raw`
+// a circle seen in perspective: an ellipse turned by rot. Fit to the band's OUTER edge (half-max crossing scanned per row on the right, per column on the top),
+// grid over (rot, asp), linear circle fit in the turned and unstretched frame, then refine. Returns centre, R (semi-major), asp (minor/major), rot (deg), rms (px).
+function circLS(P) { let sxx = 0, sxy = 0, sx = 0, syy = 0, sy = 0, n = P.length, bx = 0, by = 0, b1 = 0; for (const [x, y] of P) { const z = x * x + y * y; sxx += x * x; sxy += x * y; sx += x; syy += y * y; sy += y; bx += x * z; by += y * z; b1 += z; }
+  const M = [[sxx, sxy, sx], [sxy, syy, sy], [sx, sy, n]], b = [bx, by, b1]; const det = m => m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
+  const D = det(M), sol = [0, 1, 2].map(i => det(M.map((r, k) => r.map((v, j) => j === i ? b[k] : v))) / D); const cx = sol[0] / 2, cy = sol[1] / 2, R = Math.sqrt(sol[2] + cx * cx + cy * cy);
+  let e = 0; for (const [x, y] of P) e += (Math.hypot(x - cx, y - cy) - R) ** 2; return { cx, cy, R, rms: Math.sqrt(e / n) }; }
+function fitRot(pts, asp0, asp1) { let best = null; const tryF = (rot, asp) => { const c = Math.cos(-rot * Math.PI / 180), s = Math.sin(-rot * Math.PI / 180); const Q = pts.map(([x, y]) => [(x * c - y * s) / asp, x * s + y * c]); const f = circLS(Q);
+    if (!best || f.rms * Math.sqrt(asp) < best.rms * Math.sqrt(best.asp)) { const cr = Math.cos(rot * Math.PI / 180), sr = Math.sin(rot * Math.PI / 180), ux = f.cx * asp, uy = f.cy; best = { rot, asp, R: f.R, rms: f.rms * asp, cx: ux * cr - uy * sr, cy: ux * sr + uy * cr }; } };
+  for (let rot = 0; rot < 180; rot += 1) for (let asp = asp0; asp <= asp1 + 1e-9; asp += 0.01) tryF(rot, asp);
+  const b0 = best; for (let rot = b0.rot - 1; rot <= b0.rot + 1; rot += 0.1) for (let asp = b0.asp - 0.01; asp <= b0.asp + 0.01; asp += 0.001) tryF(rot, asp);
+  if (best.rot > 90) best.rot -= 180; if (best.rot < -90) best.rot += 180;
+  let e = 0; pts.forEach(p => { e += ellDist(best, p) ** 2; }); best.rms = Math.sqrt(e / pts.length); return best; }
+function ellPt(F, t, rho) { const c = Math.cos(t * Math.PI / 180), s = Math.sin(t * Math.PI / 180), r = F.rot * Math.PI / 180, x = c * F.R * rho * F.asp, y = s * F.R * rho; return [F.cx + x * Math.cos(r) - y * Math.sin(r), F.cy + x * Math.sin(r) + y * Math.cos(r)]; }
+function ellDist(F, [x, y]) { const r = -F.rot * Math.PI / 180, dx = x - F.cx, dy = y - F.cy, u = (dx * Math.cos(r) - dy * Math.sin(r)) / F.asp, v = dx * Math.sin(r) + dy * Math.cos(r); const rr = Math.hypot(u, v); return (rr - F.R) * (Math.hypot(u * F.asp, v) / rr); }
+function edgePts(L, box) { const W = box.W, pts = []; const at = (x, y) => L[y * W + x];
+  for (let y = box.y0; y < box.y1; y++) { let m = 0; for (let x = box.x0; x < box.x1; x++) m = Math.max(m, at(x, y)); if (m < box.min) continue; const th = box.bg + 0.5 * (m - box.bg); let x = box.x1 - 1; while (x > box.x0 && at(x, y) <= th) x--; if (x <= box.x0) continue; const a = at(x, y), b = at(x + 1, y); pts.push([x + (a - th) / Math.max(1e-3, a - b), y]); }
+  if (box.top) for (let x = box.top[0]; x < box.top[1]; x++) { let m = 0; for (let y = box.ty; y < box.ty + 50; y++) m = Math.max(m, at(x, y)); if (m < box.min) continue; const th = box.bg + 0.5 * (m - box.bg); let y = box.ty; if (at(x, y) > th) continue; while (y < box.ty + 50 && at(x, y) <= th) y++; pts.push([x, y - 0.5]); }
+  return pts; }
+function fitArc(plate) { const pts = edgePts(plate, { W: ROI.w, x0: 70, x1: 225, y0: 30, y1: 195, min: 35, bg: 8, top: [85, 160], ty: 19 });
+  let F = fitRot(pts, 0.55, 1.0); const keep = pts.filter(p => Math.abs(ellDist(F, p)) < 3 * F.rms + 0.5); F = fitRot(keep, 0.55, 1.0); F.n = keep.length; F.pts = keep; return F; }
+// features in the ellipse's parametric frame (t in degrees, rho = fraction of R)
+const T2 = [-150, 110];
+function features2(L, F, rgb) { const R0 = 0.6, R1 = 1.25, nR = Math.round((R1 - R0) * F.R), nT = T2[1] - T2[0] + 1, P = new Float32Array(nT * nR), bg = 8;
+  for (let t = 0; t < nT; t++) for (let k = 0; k < nR; k++) { const [x, y] = ellPt(F, T2[0] + t, R0 + k / F.R); P[t * nR + k] = y < ROI.wallY ? 0 : samp(L, x, y); }
+  const body = [-40, 30], rad = new Float32Array(nR); let cnt = 0; for (let t = body[0] - T2[0]; t <= body[1] - T2[0]; t++) { for (let k = 0; k < nR; k++) rad[k] += P[t * nR + k]; cnt++; } for (let k = 0; k < nR; k++) rad[k] = Math.max(0, rad[k] / cnt - bg);
+  let pk = 0; for (let k = 0; k < nR; k++) if (rad[k] > rad[pk]) pk = k; let a = pk, b = pk; while (a > 0 && rad[a] > rad[pk] / 2) a--; while (b < nR - 1 && rad[b] > rad[pk] / 2) b++;
+  let a3 = pk; while (a3 > 0 && rad[a3] > rad[pk] * 0.25) a3--;
+  const ang = new Float32Array(nT), inner = new Float32Array(nT), outer = new Float32Array(nT), mid = (a + b) >> 1; for (let t = 0; t < nT; t++) { let s = 0, si = 0, so = 0; for (let k = a; k <= b; k++) { const v = P[t * nR + k]; s += v; if (k < mid) si += v; else so += v; } ang[t] = s / (b - a + 1) - bg; inner[t] = si / Math.max(1, mid - a) - bg; outer[t] = so / Math.max(1, b - mid + 1) - bg; }
+  const sorted = Array.from(ang.slice(body[0] - T2[0], body[1] - T2[0] + 1)).sort((p, q) => p - q), med = sorted[sorted.length >> 1];
+  let e0 = -1, e1 = -1; for (let t = 0; t < nT; t++) if (ang[t] > 0.3 * med) { if (e0 < 0) e0 = t; e1 = t; }
+  // notches: dips below 0.8 of the local 70th percentile, on the inner half or the whole band
+  const gaps = []; for (let t = e0 + 8; t < e1 - 8; t++) { const w = []; for (let d = -8; d <= 8; d++) w.push(ang[t + d]); w.sort((p, q) => p - q); const loc = w[Math.floor(w.length * 0.7)];
+    if (ang[t] < 0.8 * loc && ang[t] <= ang[t - 1] && ang[t] <= ang[t + 1]) { let l = t, r = t; const half = (loc + ang[t]) / 2; while (ang[l - 1] < half && l > t - 8) l--; while (ang[r + 1] < half && r < t + 8) r++;
+      const g = { t: T2[0] + t, w: r - l + 1, depthIn: 1 - inner[t] / Math.max(1, (inner[t - 6] + inner[t + 6]) / 2), depthOut: 1 - outer[t] / Math.max(1, (outer[t - 6] + outer[t + 6]) / 2) }; if (!gaps.length || g.t - gaps[gaps.length - 1].t > 5) gaps.push(g); } }
+  // cap: the bright upper end
+  let capEnd = e0; while (capEnd < e1 && ang[capEnd] > 1.25 * med) capEnd++; let cap = 0, cn = 0; for (let t = e0; t < Math.max(e0 + 3, capEnd); t++) { cap += ang[t]; cn++; }
+  let lab = null; if (rgb) { let R = 0, G = 0, B = 0, n = 0; const W = ROI.w; for (let t = body[0] - T2[0]; t <= body[1] - T2[0]; t += 2) for (let k = a; k <= b; k++) { if (P[t * nR + k] - bg <= rad[pk] * 0.5) continue; const [x, y] = ellPt(F, T2[0] + t, R0 + k / F.R), i = Math.round(y) * W + Math.round(x); R += rgb[i * 4]; G += rgb[i * 4 + 1]; B += rgb[i * 4 + 2]; n++; } lab = toLab(R / n, G / n, B / n); lab.rgb = [R / n, G / n, B / n]; }
+  return { rad: Array.from(rad), ang: Array.from(ang), fwhm: (b - a + 1) * 1, w25: pk - a3, peakRho: R0 + pk / F.R, a0: T2[0] + e0, a1: T2[0] + e1, gaps, segs: gaps.length + 1, capEnd: T2[0] + capEnd, capRatio: cap / cn / med, med, peak: rad[pk], lab, labRgb: lab && lab.rgb }; }
+function edges2(L, F) { const W = ROI.w, H = ROI.h, E = []; let mx = 0; const m = new Float32Array(W * H);
+  for (let y = Math.max(1, ROI.wallY + 2); y < H - 1; y++) for (let x = 60; x < W - 1; x++) { const r = -F.rot * Math.PI / 180, dx = x - F.cx, dy = y - F.cy, u = (dx * Math.cos(r) - dy * Math.sin(r)) / F.asp, v = dx * Math.sin(r) + dy * Math.cos(r), rr = Math.hypot(u, v) / F.R; if (rr < 0.6 || rr > 1.25) continue;
+    const i = y * W + x; const gx = L[i + 1 - W] + 2 * L[i + 1] + L[i + 1 + W] - L[i - 1 - W] - 2 * L[i - 1] - L[i - 1 + W], gy = L[i + W - 1] + 2 * L[i + W] + L[i + W + 1] - L[i - W - 1] - 2 * L[i - W] - L[i - W + 1]; m[i] = Math.hypot(gx, gy); if (m[i] > mx) mx = m[i]; }
+  for (let i = 0; i < W * H; i++) if (m[i] > 0.28 * mx) E.push([i % W, (i / W) | 0]); return E; }
+function markT(L, plate, F, thr) { let best = 0, bt = null; for (let t = -110; t <= 70; t += 0.5) for (let rr = 0.94; rr <= 1.12; rr += 0.02) { const [x, y] = ellPt(F, t, rr), v = samp(L, x, y) - samp(plate, x, y); if (v > best) { best = v; bt = t; } } return best > thr ? { t: bt, v: best } : null; }
+function blob2(L, plate, F, m) { const W = ROI.w, [x0, y0] = ellPt(F, m.t, 1.0); let x1 = 1e9, x2 = -1, y1 = 1e9, y2 = -1, n = 0; for (let y = Math.round(y0 - 12); y <= y0 + 12; y++) for (let x = Math.round(x0 - 14); x <= x0 + 14; x++) { const i = y * W + x; if (L[i] - plate[i] > m.v * 0.5) { n++; x1 = Math.min(x1, x); x2 = Math.max(x2, x); y1 = Math.min(y1, y); y2 = Math.max(y2, y); } } return { w: x2 - x1 + 1, h: y2 - y1 + 1, n }; }
+function renderArc2(g, F, markT_, dx, dy) { const c = new OffscreenCanvas(ROI.w, ROI.h), x = c.getContext('2d'); x.fillStyle = 'rgb(8,8,8)'; x.fillRect(0, 0, ROI.w, ROI.h); x.globalCompositeOperation = 'lighter';
+  HOLO.draw.arc(x, F.cx + (dx || 0), F.cy + (dy || 0), 1, g, { mark: markT_, alpha: 1 }); x.globalCompositeOperation = 'source-over'; const d = x.getImageData(0, 0, ROI.w, ROI.h).data; return { d, L: lum(d), c }; }
+async function filmMeasure2(frames, arcSeries) {
+  const imgs = []; for (const u of frames) imgs.push(await loadImg(u)); const D = imgs.map(roiData), Ls = D.map(lum); const plate = pct(Ls, 0.2), F = fitArc(plate);
+  const pr = [0, 1, 2].map(c => pct(D.map(d => { const o = new Float32Array(d.length / 4); for (let i = 0; i < o.length; i++) o[i] = d[i * 4 + c]; return o; }), 0.2)), rgb = new Uint8ClampedArray(ROI.w * ROI.h * 4); for (let i = 0; i < ROI.w * ROI.h; i++) { rgb[i * 4] = pr[0][i]; rgb[i * 4 + 1] = pr[1][i]; rgb[i * 4 + 2] = pr[2][i]; rgb[i * 4 + 3] = 255; }
+  const feat = features2(plate, F, rgb), E = edges2(plate, F);
+  // the mark per frame, aligned to arc-series.json by its absent frames
+  const mk = Ls.map(L => markT(L, plate, F, 22)); let al = null; for (let off = -3; off <= 4; off++) { let ag = 0, n = 0; arcSeries.angle.forEach((a, i) => { const m = mk[i + off]; if (m === undefined) return; n++; if ((a === null) === (m === null)) ag++; }); if (!al || ag / n > al.r) al = { off, r: ag / n }; }
+  const ser = arcSeries.angle.map((a, i) => mk[i + al.off] ? mk[i + al.off].t : null);
+  // the five resting positions: median t over each run between blinks (first 6 frames of each run, before any drift)
+  const runs = []; let cur = null; arcSeries.angle.forEach((a, i) => { if (a === null) { cur = null; return; } if (!cur) { cur = []; runs.push(cur); } cur.push(i); });
+  const med = a => { const s = a.filter(v => v !== null).sort((p, q) => p - q); return s.length ? s[s.length >> 1] : null; };
+  const rest = runs.map(r => med(r.slice(0, 4).map(i => ser[i]))), drift = runs.slice(0, 4).map(r => r.length > 9 ? med(r.slice(7, 10).map(i => ser[i])) - med(r.slice(0, 3).map(i => ser[i])) : null).filter(v => v !== null);
+  const blinks = []; for (let i = 1; i < arcSeries.angle.length; i++) if (arcSeries.angle[i] === null && arcSeries.angle[i - 1] !== null) { let j = i; while (arcSeries.angle[j] === null) j++; blinks.push(j - i); }
+  let bi = -1; runs[runs.length - 1].slice(0, 10).forEach(i => { const j = i + al.off; if (mk[j] && (bi < 0 || mk[j].v > mk[bi].v)) bi = j; }); const blob = bi >= 0 ? blob2(Ls[bi], plate, F, mk[bi]) : { w: 0, h: 0, n: 0 };
+  return { F, feat, E, plate, ser, markAgree: al.r, markOffset: al.off, rest, drift, blinks, blob }; }
+// the child's mark at 153.07 s: the same edge fit on the small C, plus its bar and leader
+async function kidMeasure(url) { const img = await loadImg(url); const KB = { x: 780, y: 110, w: 120, h: 110 }; const c = new OffscreenCanvas(KB.w, KB.h), x = c.getContext('2d'); x.drawImage(img, -KB.x, -KB.y); const L = lum(x.getImageData(0, 0, KB.w, KB.h).data);
+  let mx = 0, bg = 255; L.forEach(v => { mx = Math.max(mx, v); }); const s = Array.from(L).sort((p, q) => p - q); bg = s[s.length >> 2];
+  const pts = edgePts(L, { W: KB.w, x0: 52, x1: 105, y0: 20, y1: 85, min: bg + 0.35 * (mx - bg), bg }); const F = fitRot(pts, 0.5, 1.0);
+  // thickness: half-max width along rows through the C's right side, in units of the fitted R
+  let thick = [], bar = { x1: 99, x2: -1, y1: 99, y2: -1 }; for (let y = Math.round(F.cy - 6); y <= F.cy + 6; y++) { let pkx = -1, pv = 0; for (let xx = Math.round(F.cx); xx < KB.w; xx++) if (L[y * KB.w + xx] > pv) { pv = L[y * KB.w + xx]; pkx = xx; } const th = bg + 0.5 * (pv - bg); let a = pkx, b = pkx; while (a > 0 && L[y * KB.w + a] > th) a--; while (b < KB.w - 1 && L[y * KB.w + b] > th) b++; thick.push(b - a - 1); }
+  const thr = bg + 0.6 * (mx - bg); for (let y = Math.max(0, Math.round(F.cy - 30)); y < F.cy + 5; y++) for (let xx = Math.max(0, Math.round(F.cx - 45)); xx < F.cx - 18; xx++) if (L[y * KB.w + xx] > thr) { bar.x1 = Math.min(bar.x1, xx); bar.x2 = Math.max(bar.x2, xx); bar.y1 = Math.min(bar.y1, y); bar.y2 = Math.max(bar.y2, y); }
+  thick.sort((p, q) => p - q); return { box: KB, F: { cx: F.cx, cy: F.cy, R: F.R, asp: F.asp, rot: F.rot, rms: F.rms, n: pts.length }, thick: thick[thick.length >> 1], bar: { x: bar.x1 - F.cx, y: bar.y1 - F.cy, w: bar.x2 - bar.x1 + 1, h: bar.y2 - bar.y1 + 1 }, mx, bg, pts }; }
+async function kidRender(g, KM) { const c = new OffscreenCanvas(KM.box.w, KM.box.h), x = c.getContext('2d'); x.fillStyle = 'rgb(' + [KM.bg, KM.bg, KM.bg] + ')'; x.fillRect(0, 0, KM.box.w, KM.box.h); x.globalCompositeOperation = 'lighter'; HOLO.draw.childMark(x, KM.F.cx, KM.F.cy, 1, g, 1); const L = lum(x.getImageData(0, 0, KM.box.w, KM.box.h).data); return { L, c }; }
+// genes set straight from the measurements
+function directGenes(G0, FMx, KM) { const G = JSON.parse(JSON.stringify(G0)), g = G.arc, f = FMx.feat, F = FMx.F; const set = {};
+  const S = (k, v) => { const ks = k.split('.'); let o = G; while (ks.length > 1) o = o[ks.shift()]; o[ks[0]] = typeof v === 'number' ? +v.toFixed(3) : v; set[k] = o[ks[0]]; };
+  S('arc.R', F.R); S('arc.asp', F.asp); S('arc.rot', F.rot); S('arc.thick', f.fwhm); S('arc.a0', f.a0); S('arc.a1', f.a1); S('arc.capA0', f.a0); S('arc.capA1', Math.max(f.a0 + 6, f.capEnd)); S('arc.capGain', Math.max(1, f.capRatio));
+  S('arc.gaps', f.gaps.map(q => q.t)); S('arc.gapW', f.gaps.reduce((a, q) => a + q.w, 0) / f.gaps.length);
+  const dIn = f.gaps.reduce((a, q) => a + q.depthIn, 0) / f.gaps.length, dOut = f.gaps.reduce((a, q) => a + q.depthOut, 0) / f.gaps.length; S('arc.gapDepth', Math.min(1, Math.max(dIn, dOut) * 1.3)); S('arc.gapCover', Math.max(0.35, Math.min(1, 0.5 + 0.5 * (dOut / Math.max(0.01, dIn)))));
+  const rgb = f.labRgb, m = Math.max(...rgb); S('arc.col', rgb.map(v => Math.round(v / m * 255))); S('arc.markW', FMx.blob.w); S('arc.markH', FMx.blob.h); S('arc.markOff', 0);
+  S('steps.marks', FMx.rest.map((v, i) => v === null ? G0.steps.marks[i] : +v.toFixed(1))); S('steps.blinkFrames', FMx.blinks.reduce((a, b) => a + b, 0) / FMx.blinks.length); S('steps.drift', FMx.drift.reduce((a, b) => a + b, 0) / Math.max(1, FMx.drift.length));
+  G.arc.needles = [[-62, 0.6, 1.04, 0.5], [33, 0.74, 1.1, 0.45]];
+  if (KM) { const k = G.child; S('child.R', KM.F.R); S('child.asp', KM.F.asp); S('child.rot', KM.F.rot); S('child.thick', KM.thick); S('child.barX', KM.bar.x); S('child.barY', KM.bar.y); S('child.barW', KM.bar.w); S('child.barH', KM.bar.h); }
+  G.fit = { dx: 0, dy: 0 }; return { G, set }; }
+const TOL2 = { chamfer: 1.6, dE: 6, radial: 0.12, angCorr: 0.12 };
+const CHECK2 = { segs: 1, gapMean: 3, fwhm: 1.5, a0: 4, a1: 4, markW: 1.5, markH: 1.5 };
+function score2(G) { const F = FM2.F, r = renderArc2(G.arc, F, null, G.fit.dx, G.fit.dy), f = features2(r.L, F, r.d), E = edges2(r.L, F), ff = FM2.feat, m = {}, err = {}, chk = {};
+  m.chamfer = chamfer(FM2.E, E); err.chamfer = m.chamfer / TOL2.chamfer; m.dE = Math.hypot(f.lab[0] - ff.lab[0], f.lab[1] - ff.lab[1], f.lab[2] - ff.lab[2]); err.dE = m.dE / TOL2.dE;
+  const nr = Math.min(ff.rad.length, f.rad.length); let s = 0; for (let k = 0; k < nr; k++) s += (f.rad[k] / Math.max(1, f.peak) - ff.rad[k] / ff.peak) ** 2; m.radial = Math.sqrt(s / nr); err.radial = m.radial / TOL2.radial;
+  const A = ff.ang, B = f.ang; let ma = 0, mb = 0; for (let i = 0; i < A.length; i++) { ma += A[i]; mb += B[i]; } ma /= A.length; mb /= B.length; let sab = 0, saa = 0, sbb = 0; for (let i = 0; i < A.length; i++) { sab += (A[i] - ma) * (B[i] - mb); saa += (A[i] - ma) ** 2; sbb += (B[i] - mb) ** 2; } m.angCorr = sab / Math.sqrt(saa * sbb); err.angCorr = (1 - m.angCorr) / TOL2.angCorr;
+  // checks (not scored: set directly, verified here by the same extractor)
+  chk.segs = f.segs; chk.fwhm = f.fwhm; chk.a0 = f.a0; chk.a1 = f.a1; let gs = 0; ff.gaps.forEach(q => { let b = 99; f.gaps.forEach(p => b = Math.min(b, Math.abs(p.t - q.t))); gs += Math.min(b, 12); }); chk.gapMean = gs / Math.max(1, ff.gaps.length);
+  const rm = renderArc2(G.arc, F, FM2.rest[4], G.fit.dx, G.fit.dy), mk = markT(rm.L, r.L, F, 22); if (mk) { const bl = blob2(rm.L, r.L, F, mk); chk.markW = bl.w; chk.markH = bl.h; chk.markT = mk.t; }
+  chk.lab = f.lab.map(v => +v.toFixed(1));
+  let S = 0; for (const k in err) S += Math.min(err[k] ** 2, 400); return { S, err, m, chk, within: Object.values(err).filter(v => Math.abs(v) <= 1).length, n: Object.keys(err).length }; }
+const FREE = [['arc.bandIn', 0.02, 1.2], ['arc.bandOut', 0.1, 1.6], ['arc.fall', 0.3, 3], ['arc.edge', 0, 6], ['arc.lip', 0.2, 1.2], ['arc.glow', 0, 5], ['arc.glowA', 0, 1], ['arc.soft', 0, 2.5], ['arc.gain', 0.3, 2.5], ['arc.hairR', 0.6, 0.95], ['arc.hairA', 0, 0.9], ['arc.tail', 1, 40], ['arc.headTail', 0, 20], ['fit.dx', -1.5, 1.5], ['fit.dy', -1.5, 1.5]];
+function evolve2(G0, seed, maxMs, onGen) { const rnd = HOLO.prng(seed), clone = o => JSON.parse(JSON.stringify(o)), t0 = performance.now(); FREE.forEach(([k, lo, hi]) => { if (getP(G0, k) === undefined) setP(G0, k, (lo + hi) / 2); });
+  let pop = [{ G: G0, r: score2(G0) }]; const log = [];
+  for (let gen = 0; performance.now() - t0 < maxMs; gen++) { const sigma = 0.15 * Math.pow(0.97, gen), kids = [];
+    for (let i = 0; i < 16; i++) { const p = pop[Math.min(pop.length - 1, Math.floor(rnd() * rnd() * pop.length))].G, c = clone(p); const nm = 1 + Math.floor(rnd() * 3); for (let j = 0; j < nm; j++) { const [k, lo, hi] = FREE[Math.floor(rnd() * FREE.length)]; let v = getP(c, k) + (rnd() + rnd() + rnd() - 1.5) * (hi - lo) * sigma; setP(c, k, +Math.max(lo, Math.min(hi, v)).toFixed(3)); } kids.push({ G: c, r: score2(c) }); }
+    pop = pop.concat(kids).sort((a, b) => a.r.S - b.r.S).slice(0, 5); const b = pop[0].r; const l = { gen, S: +b.S.toFixed(3), within: b.within, of: b.n, m: Object.fromEntries(Object.entries(b.m).map(([k, v]) => [k, +v.toFixed(3)])) }; log.push(l); if (onGen) onGen(l); if (b.within === b.n) break; }
+  return { best: pop[0], log }; }
+let FM2 = null, KM2 = null;
+`;
+
 (async () => {
   const t0 = Date.now(); const trace = { tool: 'holo-measure.js', seed: SEED, date: new Date().toISOString(), film: { shot: 'medium cake shot 144.70-148.5 s, every frame, ROI x540-800 y270-490 of 1280x720', kids: '153.07 s' } };
   // 1. sound and feel (node)
@@ -202,24 +305,45 @@ function evolve(G0, seed, gens, onGen) { const rnd = HOLO.prng(seed); const clon
   // 2. the UI (browser)
   const { chromium } = require('playwright'); const br = await chromium.launch(); const pg = await br.newPage({ viewport: { width: 400, height: 300 } });
   pg.on('console', m => { if (m.type() === 'error') console.log('page:', m.text()); });
-  await pg.setContent('<html><body></body></html>'); await pg.addScriptTag({ path: path.join(HERE, 'holo.js') }); await pg.addScriptTag({ content: PAGE_LIB + PAGE_EVO + `\nconst ARCSER = ${JSON.stringify(ARCS)};` });
-  const fm = await pg.evaluate(async ([fr, as, rs, ku]) => { FM = await filmMeasure(fr, as, rs, ku); const o = Object.assign({}, FM); delete o.plate; o.E = FM.E.length; o.feat = Object.assign({}, FM.feat); return o; }, [frames, ARCS, READS, kidFrame]);
-  trace.filmMeasured = fm; console.log('film fit', JSON.stringify(fm.F), 'segs', fm.feat.segs, 'gaps', fm.feat.gaps, 'fwhm', fm.feat.fwhm, 'lab', fm.feat.lab.map(v => v.toFixed(1)), 'read', JSON.stringify(fm.read).slice(0, 200), 'mark agree', fm.markAgree, 'bias', fm.markBias.toFixed(2), 'rms', fm.markRmsVsSeries.toFixed(2), 'blob', JSON.stringify(fm.blob), 'kid', JSON.stringify(fm.kid));
-  G0.fit = G0.fit || { dx: 0, dy: 0 }; G0.device = gd;
-  const before = await pg.evaluate(G => { const r = scoreGenome(G); return { S: r.S, within: r.within, n: r.n, err: r.err, m: r.m }; }, G0); trace.before = before; console.log('before S', before.S.toFixed(2), before.within + '/' + before.n);
-  let best = { G: G0, r: before }, log = [];
-  if (EVOLVE) { await pg.exposeFunction('onGen', l => { if (l.gen % 5 === 0) console.log('gen', l.gen, 'S', l.S, l.within + '/' + l.of, l.worst.join(' ')); });
-    const ev = await pg.evaluate(([G, s, n]) => { const e = evolve(G, s, n, window.onGen); return { G: e.best.G, r: { S: e.best.r.S, within: e.best.r.within, n: e.best.r.n, err: e.best.r.err, m: e.best.r.m }, log: e.log }; }, [G0, SEED, GENS]); best = ev; log = ev.log; }
-  trace.after = best.r; trace.log = log; trace.tolerances = await pg.evaluate(() => TOL);
-  // 3. strips (film pixels: only to stelline-work/holo)
+  await pg.setContent('<html><body></body></html>'); await pg.addScriptTag({ path: path.join(HERE, 'holo.js') }); await pg.addScriptTag({ content: PAGE_LIB + PAGE_EVO + PAGE_V2 + `\nconst ARCSER = ${JSON.stringify(ARCS)};` });
+  // pass 2: fit the film's arc on its outer edge, verify by overlay, set the measurable genes, evolve only the free ones
+  const MAXMIN = +arg('minutes', 25);
+  const fm = await pg.evaluate(async ([fr, as, ku]) => { FM2 = await filmMeasure2(fr, as); KM2 = await kidMeasure(ku); const o = Object.assign({}, FM2); delete o.plate; o.E = FM2.E.length; o.F = Object.assign({}, FM2.F); delete o.F.pts; o.kid = Object.assign({}, KM2); delete o.kid.pts; return o; }, [frames, ARCS, kidFrame]);
+  trace.pass = 2; trace.filmMeasured = fm;
+  console.log('fit', JSON.stringify(fm.F), 'feat', JSON.stringify({ fwhm: fm.feat.fwhm, a0: fm.feat.a0, a1: fm.feat.a1, segs: fm.feat.segs, gaps: fm.feat.gaps, cap: fm.feat.capRatio, capEnd: fm.feat.capEnd, lab: fm.feat.lab }), 'rest', fm.rest, 'drift', fm.drift, 'blinks', fm.blinks, 'blob', JSON.stringify(fm.blob), 'agree', fm.markAgree);
+  console.log('kid', JSON.stringify(fm.kid));
+  // overlays: fitted ellipses and edge points on the film plate and on the child's mark (film pixels: stelline-work/holo only)
+  const ov = await pg.evaluate(async ([fr, ku]) => { const out = {}; const F = FM2.F; { const c = new OffscreenCanvas(ROI.w * 3, ROI.h * 3), x = c.getContext('2d'); const id = new ImageData(ROI.w, ROI.h); for (let i = 0; i < ROI.w * ROI.h; i++) { const v = Math.min(255, FM2.plate[i] * 2.5); id.data[i * 4] = id.data[i * 4 + 1] = id.data[i * 4 + 2] = v; id.data[i * 4 + 3] = 255; }
+      const t = new OffscreenCanvas(ROI.w, ROI.h); t.getContext('2d').putImageData(id, 0, 0); x.imageSmoothingEnabled = false; x.drawImage(t, 0, 0, ROI.w * 3, ROI.h * 3);
+      x.fillStyle = '#ff4040'; for (let a = -180; a < 180; a += 0.5) { const [px, py] = ellPt(F, a, 1); x.fillRect(px * 3 - 1, py * 3 - 1, 2, 2); } x.fillStyle = '#40a0ff'; for (let a = -180; a < 180; a += 0.5) { const [px, py] = ellPt(F, a, 1 - FM2.feat.fwhm / F.R); x.fillRect(px * 3 - 1, py * 3 - 1, 2, 2); }
+      x.fillStyle = '#40ff60'; F.pts.forEach(([px, py]) => x.fillRect(px * 3 - 1, py * 3 - 1, 3, 3)); x.fillStyle = '#ffd040'; FM2.feat.gaps.forEach(g => { const [px, py] = ellPt(F, g.t, 1.08); x.fillRect(px * 3 - 3, py * 3 - 3, 6, 6); });
+      FM2.rest.forEach(t => { const [px, py] = ellPt(F, t, 1.14); x.fillStyle = '#ff40ff'; x.fillRect(px * 3 - 3, py * 3 - 3, 6, 6); });
+      const b = await c.convertToBlob({ type: 'image/png' }); out.arc = Array.from(new Uint8Array(await b.arrayBuffer())); }
+    { const K = KM2, img = await loadImg(ku), c = new OffscreenCanvas(K.box.w * 10, K.box.h * 5), x = c.getContext('2d'); x.imageSmoothingEnabled = false; x.filter = 'brightness(2.2)'; x.drawImage(img, K.box.x, K.box.y, K.box.w, K.box.h, 0, 0, K.box.w * 5, K.box.h * 5); x.filter = 'none';
+      x.fillStyle = '#ff4040'; for (let a = -180; a < 180; a += 1) { const [px, py] = ellPt(K.F, a, 1); x.fillRect(px * 5 - 1, py * 5 - 1, 3, 3); } x.fillStyle = '#40ff60'; K.pts.forEach(([px, py]) => x.fillRect(px * 5 - 1, py * 5 - 1, 3, 3));
+      x.strokeStyle = '#ffd040'; x.strokeRect((K.F.cx + K.bar.x) * 5, (K.F.cy + K.bar.y) * 5, K.bar.w * 5, K.bar.h * 5);
+      const G = HOLO.genome; const g = Object.assign({}, G.child, { R: K.F.R, asp: K.F.asp, rot: K.F.rot, thick: K.thick, barX: K.bar.x, barY: K.bar.y, barW: K.bar.w, barH: K.bar.h }); const r = await kidRender(g, K); x.save(); x.translate(K.box.w * 5, 0); x.scale(5, 5); x.filter = 'brightness(2.2)'; x.drawImage(r.c, 0, 0); x.restore();
+      const b = await c.convertToBlob({ type: 'image/png' }); out.kid = Array.from(new Uint8Array(await b.arrayBuffer())); }
+    return out; }, [frames, kidFrame]);
+  fs.writeFileSync(OUT + '/fit-overlay.png', Buffer.from(ov.arc)); fs.writeFileSync(OUT + '/kid-overlay.png', Buffer.from(ov.kid));
+  G0.device = gd; const old = await pg.evaluate(G => { G = JSON.parse(JSON.stringify(G)); G.fit = { dx: 0, dy: 0 }; const r = score2(G); return { S: r.S, within: r.within, n: r.n, m: r.m, chk: r.chk }; }, G0); trace.beforeDirect = old;
+  const dg = await pg.evaluate(G => directGenes(G, FM2, KM2), G0); trace.directGenes = dg.set;
+  const direct = await pg.evaluate(G => { const r = score2(G); return { S: r.S, within: r.within, n: r.n, m: r.m, chk: r.chk, err: r.err }; }, dg.G); trace.afterDirect = direct;
+  console.log('old genome S', old.S.toFixed(2), JSON.stringify(old.m), '| direct S', direct.S.toFixed(2), JSON.stringify(direct.m), JSON.stringify(direct.chk));
+  let best = { G: dg.G, r: direct }, log = [];
+  if (EVOLVE) { await pg.exposeFunction('onGen2', l => { if (l.gen % 5 === 0) console.log('gen', l.gen, 'S', l.S, l.within + '/' + l.of, JSON.stringify(l.m)); });
+    const ev = await pg.evaluate(([G, s, ms]) => { const e = evolve2(G, s, ms, window.onGen2); const r = score2(e.best.G); return { G: e.best.G, r: { S: r.S, within: r.within, n: r.n, err: r.err, m: r.m, chk: r.chk }, log: e.log }; }, [dg.G, SEED, MAXMIN * 60000]); best = ev; log = ev.log; }
+  trace.after = best.r; trace.log = log; trace.tolerances = { scored: await pg.evaluate(() => TOL2), checked: await pg.evaluate(() => CHECK2) };
+  // the child's mark, verified: render with the set genes, re-measure with the same extractor
+  trace.kidCheck = await pg.evaluate(async g => { const r = await kidRender(g, KM2); const L = r.L; let mx = 0; L.forEach(v => mx = Math.max(mx, v)); const pts = edgePts(L, { W: KM2.box.w, x0: 52, x1: 105, y0: 20, y1: 85, min: KM2.bg + 0.35 * (mx - KM2.bg), bg: KM2.bg }); if (pts.length < 6) return { n: pts.length }; const F = fitRot(pts, 0.5, 1.0); return { R: F.R, asp: F.asp, rot: F.rot, cx: F.cx, cy: F.cy, rms: F.rms, n: pts.length }; }, best.G.child);
+  console.log('kid check', JSON.stringify(trace.kidCheck));
+  // strip: film above, HOLO at the same framing below, marks at the film's measured positions
   const strip = await pg.evaluate(async ([fr, G]) => { const W = ROI.w, H = ROI.h, c = new OffscreenCanvas(W * 4, H * 2), x = c.getContext('2d'); x.fillStyle = '#000'; x.fillRect(0, 0, W * 4, H * 2);
-    const show = [10, 40, 62, 84]; for (let k = 0; k < 4; k++) { const img = await loadImg(fr[show[k]]); x.save(); x.beginPath(); x.rect(k * W, 0, W, H); x.clip(); x.drawImage(img, -ROI.x + k * W, -ROI.y, 1280, 720); x.restore();
-      const m = FM.marks[show[k] - FM.markOffset]; const r = renderArc(G.arc, FM.F, m === null || m === undefined ? null : m - FM.markBias, G.fit.dx, G.fit.dy); x.save(); x.beginPath(); x.rect(k * W, H, W, H); x.clip(); x.drawImage(r.c, k * W, H);
-      const o = HOLO.readout(null, null, { genome: { readout: G.readout }, auto: false, seed: 3 }); o.type(3); for (let i = 0; i < 10 + k * 6; i++) o.update(1 / 24); x.globalCompositeOperation = 'lighter'; HOLO.draw.readout(x, k * W + RD.x + FM.read.x0, H + RD.y + FM.read.y0, 1, G.readout, o.lines, o.typed, 1); x.globalCompositeOperation = 'source-over'; x.restore(); }
-    // brighten for reading
+    const show = [8, 30, 44, 70]; for (let k = 0; k < 4; k++) { const img = await loadImg(fr[show[k]]); x.save(); x.beginPath(); x.rect(k * W, 0, W, H); x.clip(); x.drawImage(img, -ROI.x + k * W, -ROI.y, 1280, 720); x.restore();
+      const t = FM2.ser[show[k] - FM2.markOffset]; const r = renderArc2(G.arc, FM2.F, t == null ? null : t, G.fit.dx, G.fit.dy); x.drawImage(r.c, k * W, H); }
     const d = x.getImageData(0, 0, W * 4, H * 2); for (let i = 0; i < d.data.length; i += 4) for (let j = 0; j < 3; j++) d.data[i + j] = Math.min(255, d.data[i + j] * 2.2); x.putImageData(d, 0, 0);
-    const b = await c.convertToBlob({ type: 'image/png' }); const ab = new Uint8Array(await b.arrayBuffer()); let s = ''; for (let i = 0; i < ab.length; i++) s += String.fromCharCode(ab[i]); return btoa(s); }, [frames, best.G]);
-  fs.writeFileSync(OUT + '/strip-arc.png', Buffer.from(strip, 'base64')); trace.strip = OUT + '/strip-arc.png (top: film, bottom: HOLO at the same framing; brightened x2.2)';
+    const b = await c.convertToBlob({ type: 'image/png' }); return Array.from(new Uint8Array(await b.arrayBuffer())); }, [frames, best.G]);
+  fs.writeFileSync(OUT + '/strip-arc.png', Buffer.from(strip)); trace.strip = OUT + '/strip-arc.png (top: film, bottom: HOLO at the same framing; brightened x2.2)'; trace.overlays = [OUT + '/fit-overlay.png', OUT + '/kid-overlay.png'];
   await br.close();
   if (STRIP_ONLY) { console.log('strip written'); return; }
   // 4. write genome, inject into holo.js, write trace
@@ -228,5 +352,5 @@ function evolve(G0, seed, gens, onGen) { const rnd = HOLO.prng(seed); const clon
   const src = fs.readFileSync(path.join(HERE, 'holo.js'), 'utf8'); const a = src.indexOf('/*GENOME*/'), b = src.indexOf('/*END*/'); fs.writeFileSync(path.join(HERE, 'holo.js'), src.slice(0, a + 10) + JSON.stringify(G) + src.slice(b));
   trace.seconds = Math.round((Date.now() - t0) / 1000); fs.writeFileSync(path.join(HERE, 'holo-trace.json'), JSON.stringify(trace, null, 1));
   console.log('after S', best.r.S.toFixed(2), best.r.within + '/' + best.r.n, 'in', trace.seconds, 's');
-  console.log(Object.entries(best.r.err).map(([k, v]) => `${k}:${v.toFixed(2)}`).join(' '));
+  console.log(Object.entries(best.r.err).map(([k, v]) => `${k}:${v.toFixed(2)}`).join(' '), JSON.stringify(best.r.chk));
 })().catch(e => { console.error(e); process.exit(1); });

@@ -116,7 +116,7 @@ ORB.replay(log)        // static: CORE.replay(log) -> state, from an empty memor
 ORB.paths()            // the settable paths table above, with ranges
 ```
 
-`postMessage`: a window may send `{ orb: 'do', ops, author }`, `{ orb: 'propose', op, note, author }`, `{ orb: 'describe' }`, `{ orb: 'state' }`; the page answers with `{ orb: 'reply', id, result }` (echoing `id` if given).
+`postMessage`: a window may send `{ orb: 'do', ops, author }`, `{ orb: 'propose', op, note, author }`, `{ orb: 'command', line, author }`, `{ orb: 'describe' }`, `{ orb: 'state' }`, `{ orb: 'history' }` (author must look like `agent:<name>`, else `agent:remote`); the page answers with `{ orb: 'reply', id, result }` (echoing `id` if given).
 
 Gesture merging: consecutive `set`/`nudge` on the same path with the same `gesture` id merge into one history entry (one undo undoes a whole drag).
 
@@ -141,5 +141,13 @@ If a pending `set` proposal targets the path a ring would set, turning that ring
 - SCENE: define `window.ORB_SCENE = { create(container, ORB) -> { frame(nowMs), resize() } }` in `scene/scene.js`. The shell uses it if present, else `core/stub-scene.js` (same interface, global `ORB_STUB_SCENE`). Draw `ORB.view()`; draw `state.proposals` as ghosts; listen to `ORB.on('change')` for state-change flashes.
 - AGENT: define `window.ORB_COMMANDS = { parse(line, state) -> op | op[] | { error } }` in `agent/commands.js` (node: module.exports). The shell's command line uses it if present, else a small fallback (JSON ops and `set <path> <value>`). A describe function may be installed with `ORB.setDescribe(fn(state) -> string)`.
 
+## 7. The shell (index.html)
+Loads `../../ana/assets/three.min.js` (r128, global THREE) before `scene/scene.js`, so a scene may rely on THREE. If `ORB_SCENE.create` returns a handle with a `ready` promise that rejects, the shell swaps to the stub. `?stub` forces the stub. After load it loads `agent/commands.js`, `agent/describe.js` (installed with `ORB_DESCRIBE.install(ORB)`) and `agent/console.js` (mounted as `window.ORB_CONSOLE_INSTANCE`, opened by ASK, the glass strip and the COMMANDS button); without them a small built-in drawer takes JSON ops. `ORB.ready` is true once all of this is done.
+
+Extra members on `window.ORB` in the shell: `command(line, author)` (runs one command line), `renderer` ('scene' or 'stub'), `device` (the device: `toPage(x, y)`, `ringX(i)`, `BTN`, `BODY`, `M`, `turn(ring, detents, gesture)`, `press(id, long)`, `ringInfo(i)`), `machine`, `bus`, `undo()`, `redo()`, `replay(log)`.
+Probes may set `window.__orbStill = true` to stop the stub's flames and performances so only inputs change the picture.
+
 ## Change log
 - v1 (Nov 6 2026): first publication.
+- v1.2 (after AUDIT.md): log records carry `t` (ms since the bus started, for playback only; replay ignores it) and `label` (what happened in words: `undid cake.kind 3`, `candles 5 (accepted p2)`); `'log'` now fires after the change for applied ops; history entries carry `t`; `'seek'` passes `(n, from)` and the machine steps a one-step move instead of jumping; long REDO plays the history from the cursor at its recorded pace (`ORB.playback()`); the shell writes the session to localStorage 1 s after each change and offers RESTORE on the next visit (`?fresh` skips it); the glass strip says every op in words, from either hand, and a page error is reported there.
+- v1.1: added `switchOn`, `amend`, `reset` to the op table (they were in ops.js from the start); section 7 (the shell); `postMessage` also takes `{ orb: 'command', line }` and `{ orb: 'history' }`; `blow` refused with no cake.

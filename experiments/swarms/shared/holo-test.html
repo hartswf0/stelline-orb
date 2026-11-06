@@ -69,7 +69,7 @@ addEventListener('resize', resize); resize();
 const what = document.getElementById('what'), val = document.getElementById('val'), tests = document.getElementById('tests');
 let last = performance.now();
 function frame(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; S.now += dt;
-  const yaw = S.yaw * Math.PI / 180, D = .9 / Math.min(1, cam.aspect * 1.25); cam.position.set(Math.sin(yaw) * D + Math.cos(yaw) * .07, .74, Math.cos(yaw) * D - Math.sin(yaw) * .07); cam.lookAt(Math.cos(yaw) * .1, .62, -Math.sin(yaw) * .1);
+  const yaw = S.yaw * Math.PI / 180, D = 1.0 / Math.min(1, cam.aspect * 1.1); cam.position.set(Math.sin(yaw) * D + Math.cos(yaw) * .07, .74, Math.cos(yaw) * D - Math.sin(yaw) * .07); cam.lookAt(Math.cos(yaw) * .1, .62, -Math.sin(yaw) * .1);
   const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion); CAKE.quaternion.slerp(new T.Quaternion().setFromAxisAngle(right, S.tilt * 3 * Math.PI / 180), Math.min(1, dt * 5));
   // the arc and the readout stand beside the cake at candle height, on the side nearer her hands, while the cake or its writing is worked
   const working = !S.off && (DEV.target === 0 || DEV.target === 3) && S.now - S.lastWork < 3; ARC.want = working ? 1 : ARC.want * (S.off ? 1 : 0); READ.want = working ? 1 : 0;

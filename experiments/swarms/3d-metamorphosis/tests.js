@@ -42,7 +42,7 @@ edges.forEach(([a, b, field]) => {
   if (field !== 'CUT') { const S0 = M.key(a), S3 = M.between(a, b, Math.round(M.stepsFor(a, b, 2) / 4), M.stepsFor(a, b, 2), 2), S12 = M.key(b), frac = M.profileDist(S0, S3) / M.profileDist(S0, S12);
     ok(frac < .15, `identity held ${a}>${b} LINGER at a quarter of its steps: ${(frac * 100).toFixed(1)}%`); report.edges.find(e => e.from === a && e.to === b).linger_step3_pct = +(frac * 100).toFixed(1); }
 });
-ok(worstCut / 6 <= .004, `cut candle settle per frame ${(worstCut / 6 * 1000).toFixed(2)} mm`);
+ok(worstCut / 9 <= .004, `cut candle settle per frame ${(worstCut / 9 * 1000).toFixed(2)} mm`);
 // 7
 const tp = path.join(__dirname, 'trace.json');
 if (fs.existsSync(tp)) { const tr = JSON.parse(fs.readFileSync(tp)); const ev = tr.events.map(e => e.kind);

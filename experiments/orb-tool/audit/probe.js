@@ -64,13 +64,16 @@ const LEGIBLE = () => {
   page.on('requestfailed', r => errors.push('REQFAIL ' + r.url().slice(-80)));
   page.on('dialog', d => d.dismiss().catch(() => { }));
   const t0 = Date.now();
-  await page.goto(URL0, { waitUntil: 'load', timeout: 45000 }).catch(e => errors.push('GOTO ' + e.message.slice(0, 100)));
+  await ctx.route(u => !/^http:\/\/127\.0\.0\.1/.test(u.href), r => { errors.push('EXTERNAL (aborted in audit) ' + r.request().url().slice(0, 80)); r.abort(); });
+  await page.goto(URL0, { waitUntil: 'commit', timeout: 60000 }).catch(e => errors.push('GOTO ' + e.message.slice(0, 100)));
+  await page.waitForFunction(() => document.readyState === 'complete', null, { timeout: 90000 }).catch(e => errors.push('NOT COMPLETE after 90 s'));
   const loadMs = Date.now() - t0;
   await page.waitForTimeout(3000);
   const R = { url: URL0, name: NAME, viewport: [VW, VH], loadMs };
   R.scroll = await page.evaluate(() => ({ docH: document.documentElement.scrollHeight, docW: document.documentElement.scrollWidth, vh: innerHeight, vw: innerWidth, overflowY: getComputedStyle(document.body).overflowY }));
   R.pageScrolls = R.scroll.docH > R.scroll.vh + 2; R.hScroll = R.scroll.docW > R.scroll.vw + 2;
-  R.view = await page.evaluate(VIEW);
+  R.view = process.env.VIEWSEL ? await page.evaluate(sel => { const el = document.querySelector(sel); if (!el) return null; const r = el.getBoundingClientRect(); return { tag: el.tagName.toLowerCase(), id: el.id, x: Math.max(0, r.left), y: Math.max(0, r.top), w: Math.min(innerWidth, r.right) - Math.max(0, r.left), h: Math.min(innerHeight, r.bottom) - Math.max(0, r.top), sel }; }, process.env.VIEWSEL) : null;
+  if (!R.view) R.view = await page.evaluate(VIEW);
   R.legibility = await page.evaluate(LEGIBLE);
   R.globals = await page.evaluate(() => Object.keys(window).filter(k => /^[A-Z][A-Z0-9_]{1,}$/.test(k) && typeof window[k] === 'object' && window[k] && k !== 'THREE').slice(0, 30));
   const controls = await page.evaluate(ENUM);
@@ -119,10 +122,37 @@ const LEGIBLE = () => {
     res.visible1s = f1 > Math.max(0.01, idle1s * 1.5 + 0.005);
     res.authority = res.visible100 || res.visible1s;
     // the page may have navigated or opened a modal; return to the page if so
-    if (page.url() !== startURL && page.url().split('#')[0] !== startURL.split('#')[0]) { res.navigatedTo = page.url(); await page.goto(startURL, { waitUntil: 'load' }).catch(() => { }); await page.waitForTimeout(1500); await page.evaluate(ENUM); }
+    if (page.url() !== startURL && page.url().split('#')[0] !== startURL.split('#')[0]) { res.navigatedTo = page.url(); await page.goto(startURL, { waitUntil: 'commit' }).catch(() => { }); await page.waitForTimeout(1500); await page.evaluate(ENUM); }
     await page.keyboard.press('Escape').catch(() => { });
     results.push(res);
   }
+  // canvas-drawn devices: a grid of taps and vertical drags over every large canvas that is not the view
+  const canv = await page.evaluate(V => [...document.querySelectorAll('canvas')].map(c => { const r = c.getBoundingClientRect(); return { id: c.id, x: r.left, y: r.top, w: r.width, h: r.height }; })
+    .filter(c => c.w * c.h > 8000 && c.y < innerHeight && !(Math.abs(c.x - V.x) < 2 && Math.abs(c.y - V.y) < 2 && Math.abs(c.w - V.w) < 2)), V);
+  const grid = [];
+  const GX = +(process.env.GX || 4), GY = +(process.env.GY || 3);
+  for (const cv of canv) {
+    const dclip = { x: Math.round(cv.x), y: Math.round(Math.max(0, cv.y)), width: Math.round(cv.w), height: Math.round(Math.min(cv.h, VH - Math.max(0, cv.y))) };
+    const dshot = () => page.screenshot({ clip: dclip, type: 'png' }).catch(() => null);
+    for (let gy = 0; gy < GY; gy++) for (let gx = 0; gx < GX; gx++) {
+      const px = cv.x + cv.w * (gx + .5) / GX, py = Math.max(0, cv.y) + dclip.height * (gy + .5) / GY;
+      for (const kind of (process.env.KINDS || 'tap,dragUp,dragLeft').split(',')) {
+        const before = await shot(), dB = await dshot(); const a0 = await audit(); const errN = errors.length; const tA = Date.now();
+        await page.mouse.move(px, py); await page.mouse.down();
+        if (kind === 'dragUp') await page.mouse.move(px, py - 70, { steps: 7 }); else if (kind === 'dragLeft') await page.mouse.move(px - 70, py, { steps: 7 }); else await page.waitForTimeout(60);
+        await page.mouse.up();
+        const s100 = await shot(); const t100 = Date.now() - tA; await page.waitForTimeout(Math.max(0, 1000 - (Date.now() - tA))); const s1 = await shot(); const dA = await dshot();
+        const d100 = await diff(before, s100), d1 = await diff(before, s1), dd = await diff(dB, dA); const a1 = await audit();
+        const r = { canvas: cv.id, gx, gy, px: Math.round(px), py: Math.round(py), kind, firstShotMs: t100, d100, d1s: d1, deviceDiff: dd, sound: (a1.audioStarts || 0) - (a0.audioStarts || 0), newErrors: errors.slice(errN) };
+        r.visible100 = (d100 ? d100.changedFrac : 0) > Math.max(0.01, idle100 * 1.5 + 0.005); r.visible1s = (d1 ? d1.changedFrac : 0) > Math.max(0.01, idle1s * 1.5 + 0.005); r.deviceChanged = (dd ? dd.changedFrac : 0) > 0.01;
+        grid.push(r);
+        if (page.url().split('#')[0] !== startURL.split('#')[0]) { r.navigatedTo = page.url(); await page.goto(startURL, { waitUntil: 'commit' }).catch(() => { }); await page.waitForTimeout(1500); }
+      }
+    }
+  }
+  R.canvasGrid = grid;
+  R.gridSummary = { probes: grid.length, sceneChanged100: grid.filter(g => g.visible100).length, sceneChanged1s: grid.filter(g => g.visible1s || g.visible100).length, deviceOnly: grid.filter(g => g.deviceChanged && !g.visible100 && !g.visible1s).length, nothing: grid.filter(g => !g.deviceChanged && !g.visible100 && !g.visible1s).length, sound: grid.filter(g => g.sound > 0).length };
+  if (process.env.SHOT) await page.screenshot({ path: OUT + '/' + NAME + '-' + VW + 'x' + VH + '.jpg', type: 'jpeg', quality: 55 }).catch(() => { });
   R.results = results;
   R.tested = results.filter(r => r.d100).length;
   R.noAuthority = results.filter(r => r.d100 && !r.authority).map(r => r.id + ' ' + r.tag + ' "' + r.label + '"');
@@ -130,6 +160,6 @@ const LEGIBLE = () => {
   R.errors = errors.slice(0, 40); R.errorCount = errors.length;
   R.finalAudit = await audit();
   fs.writeFileSync(OUT + '/' + NAME + '-' + VW + 'x' + VH + '.json', JSON.stringify(R, null, 1));
-  console.log(NAME, VW + 'x' + VH, 'controls', R.controlCount, 'tested', R.tested, 'auth100', R.authority100, 'auth1s', R.authority1s, 'scroll', R.pageScrolls, 'errors', R.errorCount, 'idle', JSON.stringify(R.idleMax), 'view', R.view && (R.view.tag + '#' + R.view.id + ' ' + Math.round(R.view.w) + 'x' + Math.round(R.view.h)));
+  console.log(NAME, VW + 'x' + VH, 'controls', R.controlCount, 'tested', R.tested, 'auth100', R.authority100, 'auth1s', R.authority1s, 'scroll', R.pageScrolls, 'errors', R.errorCount, 'idle', JSON.stringify(R.idleMax), 'view', R.view && (R.view.tag + '#' + R.view.id + ' ' + Math.round(R.view.w) + 'x' + Math.round(R.view.h)), 'grid', JSON.stringify(R.gridSummary));
   await browser.close();
 })().catch(e => { console.error('FATAL', e.message); process.exit(1); });

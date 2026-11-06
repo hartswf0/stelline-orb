@@ -35,7 +35,7 @@ if (!LOCAL) {
   const server = http.createServer((q, r) => { r.writeHead(200, { 'content-type': 'text/plain' }); r.end('orb relay: open the tool page with ?bridge=ws://localhost:' + PORT + '\n'); });
   server.on('upgrade', (req, s) => {
     const key = req.headers['sec-websocket-key']; if (!key) return s.destroy();
-    const acc = crypto.createHash('sha1').update(key + '258EAFA5-E914-47DA-95CA-C5AB0DC11B65').digest('base64');
+    const acc = crypto.createHash('sha1').update(key + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('base64');
     s.write('HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ' + acc + '\r\n\r\n');
     if (sock) sock.destroy(); sock = s; say('page connected');
     s.on('data', reader(t => { if (t == null) { s.end(); return; } let m; try { m = JSON.parse(t); } catch (e) { return; }

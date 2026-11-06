@@ -213,6 +213,7 @@
         for (const k of ['yaw', 'kneel', 'focus']) if (a[k] != null) out.push(set('camera.' + k, a[k])); return out; }
       if (o.op === 'make') { stage = a.to != null ? a.to : Math.min(4, stage + 1); return [set('cake.stage', stage)]; }
       if (o.op === 'look') return ['look', 'place', 'light'].filter(k => a[k] != null).map(k => set('scene.' + k, a[k]));
+      if (o.op === 'set' && st && a.path !== 'cake.kind' && !(a.path === 'cake.stage' && list.some(x => x.args && x.args.path === 'cake.kind'))) { const cur = a.path.split('.').reduce((x, k) => x == null ? x : Array.isArray(x) ? x.find(q => q.id === k) : x[k], st); if (cur === a.value) return []; }   // a ghost that changes nothing is not shown
       return [o]; } };
   V.set = (w, st, raw) => { const path = w[0]; if (!path || w.length < 2) return E('set <path> <value>, e.g. set camera.yaw 30');
     const v = raw.replace(/^\s*\S+\s+\S+\s*/, ''); return set(path, isNum(v) ? num(v) : v); };
@@ -257,7 +258,7 @@
     const lib = (st && st.library) || [];
     switch (o.op) {
       case 'set': if (a.path === 'cake.kind') return a.value < 0 ? 'no cake' : 'the cake: ' + ((lib[a.value] || {}).name || a.value);
-        if (a.path === 'cake.stage') return 'the cake at ' + (STAGES[a.value] || a.value); if (a.path === 'candles.lit') return a.value + ' candles lit';
+        if (a.path === 'cake.stage') return a.value === 0 ? 'the cake still to be made (stage nothing)' : 'the cake at ' + (STAGES[a.value] || a.value); if (a.path === 'candles.lit') return a.value + ' candles lit';
         if (/\.arrived$/.test(a.path)) return a.path.split('.')[1] + (a.value >= 10 ? ' arrives' : a.value === 0 ? ' gone' : ' arriving ' + a.value + '/10');
         if (/\.offset$/.test(a.path)) return a.path.split('.')[1] + ' ' + (a.value >= 0 ? 'later' : 'earlier') + ' by ' + Math.abs(a.value) + ' frames';
         if (a.path === 'table.up') return a.value ? 'the table up' : 'the table down';

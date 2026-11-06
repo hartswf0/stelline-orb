@@ -40,7 +40,7 @@ const dataUrl = f => (f.endsWith('.bmp') ? 'data:image/bmp;base64,' : 'data:imag
 
 async function openPage() {
   const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
-  const page = await browser.newPage({ viewport: { width: 960, height: 540 }, deviceScaleFactor: 1 });
+  const page = await browser.newPage({ viewport: { width: 640, height: 360 }, deviceScaleFactor: 1 });
   page.on('pageerror', e => console.error('pageerror', e.message)); page.on('console', m => { if (m.type() === 'error') console.error('console', m.text()); });
   await page.goto('file://' + path.join(HERE, 'look-test.html') + '?measure=1');
   await page.waitForFunction(() => window.LOOKTEST && window.LOOK);
@@ -69,7 +69,7 @@ function terms(r, f, s) { const T = {}, M = (a, b) => Math.abs(a - b);
   T[`${s}.bloom`] = M(r.bloom.r, f.bloom.r) / (TOL.bloomRel * f.bloom.r);
   T[`${s}.hf`] = !r.tex || !isFinite(r.tex.hf) ? 9 : M(r.tex.hf, f.tex.hf) / Math.max(TOL.hfMin, TOL.hfRel * f.tex.hf);
   return T; }
-function score(T) { let s = 0, fails = 0, worst = 0, wk = ''; for (const k in T) { const v = Math.min(T[k], 6); s += v * v; if (v > 1) fails++; if (v > worst) { worst = v; wk = k; } } return { score: s + 4 * fails, fails, worst, worstKey: wk }; }
+function score(T) { let s = 0, fails = 0, worst = 0, wk = ''; for (const k in T) { const v = T[k] > 6 ? 6 + Math.log(T[k] - 5) : T[k]; s += v * v; if (v > 1) fails++; if (v > worst) { worst = v; wk = k; } } return { score: s + 4 * fails, fails, worst, worstKey: wk }; }
 
 async function evalGenome(page, g, film, keep) {
   const res = {}; let all = {};
@@ -96,7 +96,7 @@ async function evolve(gens) {
   for (let gen = 0; gen < gens; gen++) {
     const kids = [];
     for (let j = 0; j < LAMBDA; j++) { const A = pop[Math.floor(rnd() * pop.length)], B = pop[Math.floor(rnd() * pop.length)], g = {};
-      for (const k of keys) { const [a, b] = RANGES[k]; g[k] = (rnd() < 0.5 ? A.g[k] : B.g[k]); if (rnd() < 0.35) g[k] += gauss(rnd) * sigma * (b - a); }
+      for (const k of keys) { const [a, b] = RANGES[k]; g[k] = (rnd() < 0.5 ? A.g[k] : B.g[k]); if (rnd() < 0.5) g[k] += gauss(rnd) * sigma * (b - a); }
       kids.push({ g: clampG(g) }); }
     for (const k of kids) Object.assign(k, await evalGenome(page, k.g, film));
     pop = pop.concat(kids).sort((a, b) => a.score - b.score).slice(0, MU);
@@ -125,8 +125,8 @@ async function frame() {
   const film = loadFilm(), { browser, page } = await openPage();
   const g = fs.existsSync(GENOME_FILE) ? JSON.parse(fs.readFileSync(GENOME_FILE)).genome : null;
   const fin = await evalGenome(page, g || await page.evaluate(() => LOOK.GENOME), film, true);
-  for (const s of ['A', 'B']) { const bx = fin.raw[s].boxes; const fb = k => { const p = (k === 'bg' ? REGIONS[s][k].flat() : REGIONS[s][k]).map(([x, y]) => [x * 0.75, y * 0.75]); return [Math.min(...p.map(q => q[0])), Math.min(...p.map(q => q[1])), Math.max(...p.map(q => q[0])), Math.max(...p.map(q => q[1]))].map(Math.round); };
-    console.log(s, 'render boxes @960', JSON.stringify(bx), '\n  film boxes', JSON.stringify({ top: fb('top'), side: fb('side'), table: REGIONS[s].table ? fb('table') : null, flame: fb('flame') }));
+  for (const s of ['A', 'B']) { const bx = fin.raw[s].boxes; const fb = k => { const p = (k === 'bg' ? REGIONS[s][k].flat() : REGIONS[s][k]).map(([x, y]) => [x * 0.5, y * 0.5]); return [Math.min(...p.map(q => q[0])), Math.min(...p.map(q => q[1])), Math.max(...p.map(q => q[0])), Math.max(...p.map(q => q[1]))].map(Math.round); };
+    console.log(s, 'render boxes @640', JSON.stringify(bx), '\n  film boxes', JSON.stringify({ top: fb('top'), side: fb('side'), table: REGIONS[s].table ? fb('table') : null, flame: fb('flame') }));
     await page.evaluate(([s, g]) => LOOKTEST.frame(s, g), [s, g]); const png = await page.evaluate(() => LOOKTEST.png()); fs.writeFileSync(path.join(SCRATCH, `render-${s}.png`), Buffer.from(png.split(',')[1], 'base64')); }
   console.log('score', fin.score.toFixed(2), 'fails', fin.fails); const bad = Object.entries(fin.terms).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([k, v]) => `${k}=${v.toFixed(2)}`); console.log(bad.join('  '));
   console.log('render', JSON.stringify(round({ A: fin.raw.A.regions, B: fin.raw.B.regions, bloomA: fin.raw.A.bloom.r, bloomB: fin.raw.B.bloom.r, hfA: fin.raw.A.tex.hf }, 2)));
@@ -146,7 +146,7 @@ async function strip() {
   execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', shots[0], '-i', shots[1], '-i', fS, '-filter_complex', '[0][1][2]hstack=3,scale=1920:-2', path.join(HERE, 'look-strip.png')]);
   fs.mkdirSync(WORK, { recursive: true });
   for (const [s, t] of [['A', 146.0], ['B', 155.3]]) { const ff = frameFile(t);
-    execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', ff, '-i', shots[s === 'A' ? 0 : 1], '-filter_complex', '[0]scale=960:540[a];[a][1]hstack=2', path.join(WORK, `side-${s}.png`)]); }
+    execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', ff, '-i', shots[s === 'A' ? 0 : 1], '-filter_complex', '[0]scale=640:360[a];[a][1]hstack=2', path.join(WORK, `side-${s}.png`)]); }
   console.log('wrote', path.join(HERE, 'look-strip.png'), 'and', WORK + '/side-A.png, side-B.png');
 }
 
@@ -156,5 +156,7 @@ async function strip() {
   else if (cmd === 'frame') await frame();
   else if (cmd === 'evolve') await evolve(+(process.argv[3] || 30));
   else if (cmd === 'strip') await strip();
+  else if (cmd === 'repeat') { const film = loadFilm(), { browser, page } = await openPage(); const g = JSON.parse(fs.readFileSync(GENOME_FILE)).genome, d = await page.evaluate(() => Object.assign({}, LOOK.GENOME));
+    for (const [n, x] of (process.env.LOOK_DEFAULT_FIRST ? [['default', d], ['accepted', g], ['default', d], ['accepted', g]] : [['accepted', g], ['default', d], ['accepted', g], ['default', d], ['accepted', g]])) { const r = await evalGenome(page, x, film); console.log('repeat', n, r.score.toFixed(3), r.fails); } await browser.close(); }
   else console.log('usage: node look-measure.js film|frame|evolve [gens]|strip');
 })().catch(e => { console.error(e); process.exit(1); });

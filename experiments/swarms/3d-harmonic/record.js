@@ -36,12 +36,12 @@ const RECIPE = process.argv[3] || 'choc'; const out = process.argv[2] || '/home/
     if (s.over && overAt < 0) overAt = F;
     for (const a of pending.filter(a => a[0] === F)) await a[1](); pending = pending.filter(a => a[0] > F);
     await p.evaluate(() => MM.advance(1 / 30));
-    await p.screenshot({ path: path.join(out, String(F).padStart(5, '0') + '.jpg'), type: 'jpeg', quality: 90, timeout: 300000 });
+    if (!process.env.NOSHOT) await p.screenshot({ path: path.join(out, String(F).padStart(5, '0') + '.jpg'), type: 'jpeg', quality: 90, timeout: 300000 });
     if (overAt >= 0 && F - overAt > 75) { F++; break; }
     if (F % 60 === 0) console.error('frame', F, s.stage, s.run || '');
   }
   const dur = F / 30; const au = await p.evaluate(d => MM.renderAudio(0, d), dur); fs.writeFileSync(path.join(out, 'audio.wav'), Buffer.from(au.b64, 'base64'));
   const tr = await p.evaluate(() => MM.traceOut()); tr.source = 'record.js: the game played through the device with mouse input on a virtual 30 fps clock, ' + dur.toFixed(2) + ' s'; tr.player = log; tr.audio = { peak: au.peak, device_grains: au.grains };
-  fs.writeFileSync(path.join(__dirname, 'trace.json'), JSON.stringify(tr, null, 1));
+  fs.writeFileSync(process.env.TRACE_OUT || path.join(__dirname, 'trace.json'), JSON.stringify(tr, null, 1));
   console.log(JSON.stringify({ frames: F, dur, final: tr.final, peak: au.peak, grains: au.grains, errors: errs }));
   await b.close(); })();

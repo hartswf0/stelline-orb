@@ -44,7 +44,7 @@ const pattern = H.STAGES.filter(d => !d.auto), randGears = () => { const g = {};
     out[rc] = { over: G.over, recipe: G.recipe, passes: G.passes.length, otherRecipeBeadsRejected: !r.ok }; });
   check('7 both film cakes reachable (white sponge / chocolate with orange top), and each rejects the other\'s bead ring', out.white.over && out.choc.over && out.white.recipe === 'white' && out.choc.recipe === 'choc' && out.white.otherRecipeBeadsRejected && out.choc.otherRecipeBeadsRejected, out); }
 // 5 reproducibility from the trace
-const tracePath = path.join(__dirname, 'trace.json');
+const tracePath = process.env.TRACE || path.join(__dirname, 'trace.json');
 if (fs.existsSync(tracePath)) { const tr = JSON.parse(fs.readFileSync(tracePath, 'utf8')); const G = H.newGame();
   tr.applied.forEach(e => { if (e[1] === 'commit') H.commit(G); else H.setGear(G, e[1], e[2], e[3]); });
   const a = JSON.stringify(H.summary(G)), b = JSON.stringify(tr.final), same = a === b;

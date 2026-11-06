@@ -18,7 +18,7 @@
     // ---- the camera: kneeling around the memory
     function setCam(v) { const a = v.camera.yaw * Math.PI / 180, D = 1.05, ey = 0.6 + (10 - v.camera.kneel) * 0.085;
       const f = v.camera.focus === 'cake' ? [0, 0.56, 0] : (() => { const q = v.people.concat(v.props).find(p => p.id === v.camera.focus); return q ? [q.x * .6, 0.6, q.z * .6] : [0, 0.56, 0]; })();
-      focusPt = focusPt.map((x, i) => lerp(x, f[i], .12));
+      focusPt = focusPt.map((x, i) => Math.abs(x - f[i]) < 1e-4 ? f[i] : lerp(x, f[i], .12));
       const e = [Math.sin(a) * D, ey, Math.cos(a) * D], fw = norm(sub(focusPt, e)), rt = norm(cross(fw, [0, 1, 0])), up = cross(rt, fw);
       cam = { e, fw, rt, up, F: Math.min(W, H * 1.3) * 1.25 }; }
     const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]], dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2], cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]], norm = a => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; };
@@ -46,12 +46,13 @@
     function fillOr(look, ghost, col, a) { if (ghost) { c.setLineDash([4, 3]); c.strokeStyle = 'rgba(56,214,224,.7)'; c.lineWidth = 1.2; c.stroke(); c.setLineDash([]); return; }
       if (look === 'holo') { c.strokeStyle = 'rgba(90,230,240,' + (.5 * (a == null ? 1 : a)) + ')'; c.lineWidth = 1; c.stroke(); return; } c.fillStyle = rgba(col, a); c.fill(); }
     // ---- the cake, by making stage and genome
-    function cake(v, look, glow, ghost, now) { const k = v.cake, st = Math.round(k.stage); if (st <= 0) return null;
+    function cake(v, look, glow, ghost, now) { const k = v.cake, st = Math.round(k.stage); if (st <= 0) return null; const geomOnly = ghost === 'geom';
       const g = k.genome, R = g.radius, Hh = st === 1 ? g.height * .8 : g.height, base = TABLE_Y, piv = [0, base + .05, 0], ang = k.tilt * 3 * Math.PI / 180, ax = norm([cam.rt[0], 0, cam.rt[2]]);
       const side = st === 1 ? SPONGE : hex(g.side), topc = st === 1 ? shade(SPONGE, 1.08) : hex(g.top), N = 48, lit = .55 + glow * .45;
       const W3 = (x, y, z) => P(rot([x, y, z], piv, ax, ang));
       const prof = g.form === 'dome' && st > 1 ? Array.from({ length: 8 }, (_, i) => { const a = i / 7 * Math.PI / 2; return [R * Math.cos(a) + .001, base + .02 + (Hh - .02) * Math.sin(a)]; }) : [[R, base], [R, base + Hh]];
       if (g.form === 'dome' && st > 1) prof.unshift([R, base]);
+      if (geomOnly) return { W3, topY: base + Hh, R };
       // side bands, back to front
       const quads = [];
       for (let j = 0; j < prof.length - 1; j++) for (let i = 0; i < N; i++) { const a0 = i / N * TAU, a1 = (i + 1) / N * TAU, am = (a0 + a1) / 2, [r0, y0] = prof[j], [r1, y1] = prof[j + 1];
@@ -95,8 +96,8 @@
     function figure(p, now, dt, v, look, glow, ghost, selected) { const a = ghost ? 1 : p.arrived / 10; if (a <= 0 && !ghost) return;
       if (!(p.id in clocks)) clocks[p.id] = Object.keys(clocks).length * .7; if (!v.time.hold && !ghost) clocks[p.id] += dt;
       const t = clocks[p.id] + p.offset / 11.73, bob = Math.sin(t * TAU * .55) * .012, lean = v.time.blown ? .05 * Math.max(0, Math.sin(Math.min(1, t % 3))) : Math.sin(t * TAU * .23) * .02;
-      const h = p.kind === 'child' ? 1.0 : .7, foot = P([p.x, 0, p.z]), head = P([p.x + lean * (-p.x), h + bob, p.z + lean * (-p.z) * 2]); if (!foot || !head) return;
-      const sc = cam.F / foot[2], bw = .2 * sc, hr = .085 * sc, alpha = ghost ? 1 : (p.arrived >= 10 ? 1 : a * .55);
+      const h = .84, foot = P([p.x, .3, p.z]), head = P([p.x + lean * (-p.x), h + bob, p.z + lean * (-p.z) * 2]); if (!foot || !head) return;
+      const sc = cam.F / foot[2], bw = .17 * sc, hr = .06 * sc, alpha = ghost ? 1 : (p.arrived >= 10 ? 1 : a * .55);
       const col = look === 'holo' ? null : shade([196, 170, 140], .35 + glow * .55);
       c.save(); c.globalAlpha = alpha;
       const sh = [head[0], head[1] + hr * 1.1]; c.beginPath(); c.moveTo(foot[0] - bw * .55, foot[1]); c.lineTo(sh[0] - bw * .5, sh[1] + hr * .6); c.quadraticCurveTo(sh[0], sh[1] - hr * .2, sh[0] + bw * .5, sh[1] + hr * .6); c.lineTo(foot[0] + bw * .55, foot[1]); c.closePath();
@@ -112,7 +113,9 @@
     function bracket(x, y, w, h) { const k = Math.min(10, w / 4, h / 4), f = clamp(1 - (performance.now() - changeAt) / 400, 0, 1); c.strokeStyle = 'rgba(224,51,43,' + (.55 + f * .45) + ')'; c.lineWidth = 1.5 + f * 1.5;
       c.beginPath(); c.moveTo(x, y + k); c.lineTo(x, y); c.lineTo(x + k, y); c.moveTo(x + w - k, y); c.lineTo(x + w, y); c.lineTo(x + w, y + k); c.moveTo(x, y + h - k); c.lineTo(x, y + h); c.lineTo(x + k, y + h); c.moveTo(x + w - k, y + h); c.lineTo(x + w, y + h); c.lineTo(x + w, y + h - k); c.stroke(); }
     // ---- one frame
-    function frame(now) { if (!W) resize(); const dt = Math.min(.05, (now - last) / 1000); last = now;
+    function frame(now) { if (!W) resize(); const dt0 = Math.min(.05, (now - last) / 1000); last = now;
+      // window.__orbStill (for probes): the flames and performances stand still, so only inputs change the picture
+      const still = !!root.__orbStill, dt = still ? 0 : dt0; if (still) now = 0;
       const v = orb.view(), look = v.scene.look, light = v.scene.light; setCam(v);
       c.setTransform(dpr, 0, 0, dpr, 0, 0); room(v, look, light);
       const glow = clamp(light / 10, 0, 1);
@@ -132,17 +135,18 @@
       for (const pr of v.proposals) ghost(v, pr, now, look, glow);
       // the light level and switching off
       if (light < 10) { c.fillStyle = 'rgba(0,0,0,' + ((10 - light) / 16) + ')'; c.fillRect(0, 0, W, H); }
-      off = clamp(off + (v.time.off ? dt : -dt * 2), 0, 1); if (off > 0) { c.fillStyle = 'rgba(0,0,0,' + off + ')'; c.fillRect(0, 0, W, H); }
+      off = clamp(off + (v.time.off ? dt0 : -dt0 * 2), 0, 1); if (off > 0) { c.fillStyle = 'rgba(0,0,0,' + off + ')'; c.fillRect(0, 0, W, H); }
       if (v.time.off && off >= 1) { c.fillStyle = 'rgba(200,210,206,.35)'; c.font = '11px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText('THE MEMORY IS OFF', W / 2, H / 2); }
-      if (v.time.hold) { c.fillStyle = 'rgba(240,176,64,.9)'; c.font = '600 11px ui-monospace,monospace'; c.textAlign = 'left'; c.fillText('HELD', 10, 18); }
+      if (v.time.hold) { c.strokeStyle = 'rgba(240,176,64,.8)'; c.lineWidth = 2; c.strokeRect(3, 3, W - 6, H - 6); c.fillStyle = 'rgba(240,176,64,.95)'; c.font = '600 11px ui-monospace,monospace'; c.textAlign = 'left'; c.fillText('HELD: EVERY PERFORMANCE STOPPED', 10, H - 26); }
       c.fillStyle = 'rgba(200,210,206,.4)'; c.font = '10px ui-monospace,monospace'; c.textAlign = 'right'; c.fillText('STUB RENDERER', W - 8, H - 8); }
     function ghost(v, pr, now, look, glow) { const g = S.clone(v); g.proposals = []; let e; try { e = O.OPS[pr.op](g, S.clone(pr.args), { author: pr.author }); } catch (er) { e = 'x'; } if (e) return;
       const same = k => JSON.stringify(g[k]) === JSON.stringify(v[k]);
       if (!same('table')) table(g, g.table.up, look, true);
-      if (!same('cake') || !same('candles') || !same('inscription')) { const ck = cake(g, look, glow, true, now); if (ck) candles(g, ck, now, look, true); else if (g.cake.stage === 0 && v.cake.stage > 0) { const q = P([0, .6, 0]); if (q) { c.strokeStyle = 'rgba(56,214,224,.8)'; c.beginPath(); c.moveTo(q[0] - 12, q[1] - 12); c.lineTo(q[0] + 12, q[1] + 12); c.moveTo(q[0] + 12, q[1] - 12); c.lineTo(q[0] - 12, q[1] + 12); c.stroke(); } } }
+      if (!same('cake') || !same('inscription')) { const ck = cake(g, look, glow, true, now); if (!ck && g.cake.stage === 0 && v.cake.stage > 0) { const q = P([0, .6, 0]); if (q) { c.strokeStyle = 'rgba(56,214,224,.8)'; c.beginPath(); c.moveTo(q[0] - 12, q[1] - 12); c.lineTo(q[0] + 12, q[1] + 12); c.moveTo(q[0] + 12, q[1] - 12); c.lineTo(q[0] - 12, q[1] + 12); c.stroke(); } } }
+      if (!same('candles')) { const ck = cake(g, look, glow, 'geom', now); if (ck) candles(g, ck, now, look, true); }
       g.people.forEach(p => { const o = v.people.find(q => q.id === p.id); if (!o || JSON.stringify(o) !== JSON.stringify(p)) figure(p, now, 0, g, look, glow, true, false); });
       g.props.forEach(p => { const o = v.props.find(q => q.id === p.id); if (!o || JSON.stringify(o) !== JSON.stringify(p)) prop(p, look, true, false); });
-      if (!same('camera') || !same('scene') || !same('time')) { c.fillStyle = 'rgba(56,214,224,.9)'; c.font = '600 11px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText('PROPOSED: ' + O.label(pr.op, pr.args).toUpperCase(), W / 2, 20); } }
+      if (!same('camera') || !same('scene') || !same('time')) { c.fillStyle = 'rgba(56,214,224,.9)'; c.font = '600 11px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText('PROPOSED: ' + O.label(pr.op, pr.args).toUpperCase(), W / 2, H - 26); } }
     resize(); return { frame, resize, canvas: cv };
   }
   root.ORB_STUB_SCENE = { create };
