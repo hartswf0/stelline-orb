@@ -113,8 +113,13 @@
     function setPart(name, obj, parent, k) {
       const old = parts[name]; if (old) { old.parent.remove(old.obj); dispose(old.obj); old.spots && old.spots.dispose(); }
       if (!obj) { delete parts[name]; return null; }
-      parent.add(obj); const sp = H.spots(obj, { auto: false, k: k == null ? 1 : k, cell: 150 });
+      clean(obj); parent.add(obj); const sp = H.spots(obj, { auto: false, k: k == null ? 1 : k, cell: 150 });
       const p = parts[name] = { obj, parent, spots: sp, k: k == null ? 1 : k }; if (off) { sp.set(0); } return p; }
+    // a NaN vertex or normal (a stroke caught at almost zero length) would poison the half-float bloom chain and blacken the frame: drop or repair it
+    function clean(o) { const bad = []; o.traverse(x => { if (!x.isMesh || !x.geometry || !x.geometry.attributes) return; const P = x.geometry.attributes.position, N = x.geometry.attributes.normal;
+        if (P) for (let i = 0; i < P.array.length; i++) if (!isFinite(P.array[i])) { bad.push(x); return; }
+        if (N) { let fix = false; for (let i = 0; i < N.array.length; i += 3) if (!isFinite(N.array[i]) || !isFinite(N.array[i + 1]) || !isFinite(N.array[i + 2])) { N.array[i] = 0; N.array[i + 1] = 1; N.array[i + 2] = 0; fix = true; } if (fix) N.needsUpdate = true; } });
+      bad.forEach(x => x.parent && x.parent.remove(x)); return bad.length; }
     function dispose(o) { o.traverse(x => { if (x.geometry) x.geometry.dispose(); const ms = x.material ? (Array.isArray(x.material) ? x.material : [x.material]) : []; ms.forEach(m => { if (m.map && OWN.has(m.map)) m.map.dispose(); m.dispose(); }); }); }
     const flash = name => { const p = parts[name]; if (p && p.spots) p.spots.flash(); };
     const flashAll = () => Object.keys(parts).forEach(flash);
@@ -253,7 +258,7 @@
       const ck = JSON.stringify(v.cake.genome); if (ck !== C.key) { const first = !C.key; C.key = ck; rebuildCake(v.cake.genome); I.text = null; K.key = ''; if (!first) flash('cake'); }
       C.tWant = STAGE_T[clamp(Math.round(v.cake.stage), 0, 4)];
       if (Math.abs(C.t - C.tWant) > 1e-4) { const sp = dt / .9 * (STAGE_T[1] - STAGE_T[0]) * 1.6; C.t = C.t < C.tWant ? Math.min(C.tWant, C.t + Math.max(sp, (C.tWant - C.t) * ease(dt, .5))) : Math.max(C.tWant, C.t - Math.max(sp, (C.t - C.tWant) * ease(dt, .3)));
-        const o = parts.cake && parts.cake.obj; if (o && o.userData.setT) { o.userData.setT(Math.max(.001, C.t)); if (parts.cake.spots) parts.cake.spots.each && parts.cake.spots.each(); } }
+        const o = parts.cake && parts.cake.obj; if (o && o.userData.setT) { o.userData.setT(Math.max(.001, C.t)); clean(o); if (parts.cake.spots) parts.cake.spots.each && parts.cake.spots.each(); } }
       PIVOT.position.set(0, TABLE_Y + C.h / 2, 0); TOP.position.set(0, C.topY - C.h / 2, 0); if (parts.cake) parts.cake.obj.position.y = -C.h / 2;
       C.tilt = lerp(C.tilt, v.cake.tilt, ease(dt, .12)); PIVOT.quaternion.copy(tiltQ(C.tilt));
       // the inscription

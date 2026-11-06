@@ -149,4 +149,5 @@ Probes may set `window.__orbStill = true` to stop the stub's flames and performa
 
 ## Change log
 - v1 (Nov 6 2026): first publication.
+- v1.2 (after AUDIT.md): log records carry `t` (ms since the bus started, for playback only; replay ignores it) and `label` (what happened in words: `undid cake.kind 3`, `candles 5 (accepted p2)`); `'log'` now fires after the change for applied ops; history entries carry `t`; `'seek'` passes `(n, from)` and the machine steps a one-step move instead of jumping; long REDO plays the history from the cursor at its recorded pace (`ORB.playback()`); the shell writes the session to localStorage 1 s after each change and offers RESTORE on the next visit (`?fresh` skips it); the glass strip says every op in words, from either hand, and a page error is reported there.
 - v1.1: added `switchOn`, `amend`, `reset` to the op table (they were in ops.js from the start); section 7 (the shell); `postMessage` also takes `{ orb: 'command', line }` and `{ orb: 'history' }`; `blow` refused with no cake.

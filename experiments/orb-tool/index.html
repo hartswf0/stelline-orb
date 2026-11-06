@@ -89,7 +89,30 @@
   })();
   // ---- the device
   const devCv = document.getElementById('dev');
-  const device = API.device = CORE_DEVICE.create(devCv, bus, { onUi: ui => ui === 'ask' ? openAsk() : ui === 'save' ? saveFile() : ui === 'load' ? document.getElementById('file').click() : null });
+  const device = API.device = CORE_DEVICE.create(devCv, bus, { onUi: ui => ui === 'ask' ? openAsk() : ui === 'save' ? saveFile() : ui === 'load' ? document.getElementById('file').click() : ui === 'play' ? playback() : null });
+  // ---- the status line: every op, from either hand, answers in words on the glass strip
+  const WHO = a => a === 'hand' ? 'YOU' : a.replace(/^agent:/, '').toUpperCase();
+  bus.on('log', r => { if (r.same) return; device.say(r.ok ? WHO(r.author) + ': ' + (r.label || r.op) : WHO(r.author) + ' REFUSED: ' + r.error, !r.ok); });
+  // ---- playback: the history is the film. From the cursor to the end at the pace it was made (gaps over 1.2 s shortened)
+  let playing = null;
+  function playback(opts) { opts = opts || {}; if (playing) { clearTimeout(playing); playing = null; device.say('PLAYBACK STOPPED'); return; }
+    const H = bus.history(); if (opts.fromStart || bus.cursor() >= H.length) bus.seek(0); const speed = opts.speed || 1;
+    const next = () => { const i = bus.cursor(); if (i >= H.length) { playing = null; device.say('PLAYED TO THE END'); return; } bus.redo({ author: 'hand' });
+      const gap = H[i + 1] ? Math.min(1200, Math.max(90, (H[i + 1].t - H[i].t))) / speed : 0; playing = setTimeout(next, gap); };
+    device.say('PLAYING THE HISTORY. LONG REDO AGAIN TO STOP'); playing = setTimeout(next, 300); }
+  API.playback = playback;
+  // ---- the session survives the tab: written 1 s after the last change and when the tab hides; offered back on the next visit
+  const KEY = 'orb-tool-session'; let saveT = null, restoreBtn = null;
+  const persist = () => { saveT = null; try { if (bus.history().length) localStorage.setItem(KEY, JSON.stringify({ format: 'orb-session', v: 1, savedAt: Date.now(), log: bus.log().filter(r => r.ok && !r.same) })); } catch (e) { } };
+  bus.on('log', r => { if (!r.ok || r.same || restoring) return; if (restoreBtn) { restoreBtn.remove(); restoreBtn = null; } clearTimeout(saveT); saveT = setTimeout(persist, 1000); });
+  addEventListener('visibilitychange', () => { if (document.hidden && saveT) { clearTimeout(saveT); persist(); } });
+  let restoring = false;
+  function restore(sess) { restoring = true; let n = 0; for (const r of sess.log) { const x = bus.do(r.op === 'batch' ? r.args : { op: r.op, args: r.args }, { author: r.author, gesture: r.gesture }); if (x.ok) n++; } restoring = false; machine.snap(); persist(); device.say('RESTORED ' + n + ' STEPS FROM THE LAST VISIT'); }
+  if (!Q.has('fresh')) { try { const sess = JSON.parse(localStorage.getItem(KEY) || 'null'); if (sess && sess.log && sess.log.length) {
+      restoreBtn = document.createElement('button'); restoreBtn.className = 'x'; restoreBtn.textContent = 'RESTORE ' + sess.log.length + ' STEPS'; restoreBtn.onclick = () => { restoreBtn.remove(); restoreBtn = null; restore(sess); };
+      document.querySelector('.tb.l').appendChild(restoreBtn); } } catch (e) { } }
+  // ---- a fault says so on the device instead of leaving a dead page
+  addEventListener('error', e => { try { device.say('FAULT: ' + (e.message || 'error') + '. THE MEMORY IS KEPT; SAVE OR UNDO STILL WORK', true); } catch (er) { } });
   // ---- sounds follow the state, whoever changed it
   const RING_OF = p => p === 'camera.yaw' ? 0 : p === 'camera.kneel' ? 1 : /tilt|offset|lit|place|height/.test(p) ? 3 : 2;
   bus.on('step', (path, v, fast) => SND.step(fast, RING_OF(path)));

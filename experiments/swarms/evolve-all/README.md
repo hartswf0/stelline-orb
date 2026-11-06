@@ -152,11 +152,29 @@ ffmpeg -framerate 15 -i <frames-dir>/%05d.jpg -i <frames-dir>/audio.wav -r 30 -c
 - A part that does not pass its stages within the budget is made as it stands. The trace records it (`events`: "budget
   spent"), and the operator page lists it as the next blocking failure.
 
-## Shared film look (FILM-BAR.md)
+## Shared film look (FILM-BAR.md), revision 2
 
-The page loads `../shared/look.js` and `../shared/holo.js` when they exist. It calls `LOOK.apply(renderer, scene, camera)` and
-uses `HOLO.arc` with `.step(i)` in place of its own arc. Neither file existed when this was written, so this path is not yet
-run or tested. `HOLO.device` is not adopted yet: the UI genome would have to drive its ring roles, detents and rate.
+- `../shared/holo.js` exists and is adopted for the in-scene hologram: `HOLO.arc` (stepped by stages passed) and `HOLO.readout`
+  (typed once per kept generation) replace the host's own arc whenever holo.js loads. These are updated from the host's
+  frame loop, not by HOLO's own timer.
+- `HOLO.device` is not adopted. The host's barrel is ana/index.html's, and it needs three hooks HOLO.device does not have:
+  - ring roles and detent size set from the UI genome;
+  - the UI-choice panel and the left-collar readout drawn over the barrel;
+  - per-gesture move and reversal counts for the UI's fitness.
+- `HOLO.spots` is not adopted.
+- `../shared/look.js` did not exist at revision 2. It is loaded and `LOOK.apply` is called if it appears; that path is
+  untested.
+- The light module's `params(G)` now sets the grade: exposure, candle colour, range, decay and strength, ambient level and
+  tint.
+
+## Revision 2 fixes
+
+- Stages are sticky (`BREED.advance`). Before, `stageOf` required every earlier stage to still pass, so a kept child that
+  dipped an earlier measure froze progress for good. This was in both the host and the simulation.
+- A variant that would undo a passed stage shows a red hint bar, and the scripted players pass over it.
+- People get the table's `top(G)` in `refs.support`. Dependants' `anchors()` get their support.
+- Wick anchors are local to the cake-top centre. The candles' holder sits on the cake's `top` anchor, so holder position
+  plus wick gives the world position.
 
 ## What is weak
 

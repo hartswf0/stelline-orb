@@ -18,12 +18,14 @@ The user named hand-orb-v5 as the most usable page and maker.html as having no c
 | HOLD | freeze every performance / release; releasing when the three children are there and the candles lit blows them out. Held down: switch the memory off; pressed again: on |
 | MAKE | the next making stage of the cake (held: back to nothing) |
 | ACCEPT | accept the agent's oldest proposal (held: reject it). Turning the ring that sets the same thing turns the proposal instead |
-| UNDO / REDO | one history step (held: to the start / to the end) |
+| UNDO / REDO | one history step (UNDO held: to the start; REDO held: play the history from here at the pace it was made, again to stop) |
 | KEEP / BREED | keep this cake in the library / mix two library cakes into a new one |
 | SAVE | download the memory as JSON (held: load one) |
 | ASK, the glass strip, COMMANDS | open the command line (agent/console.js when present) |
 
 Keys: 1-4 pick a ring, up/down turn it, left/right move between rings, space HOLD, s SELECT, m MAKE, Enter ACCEPT, z UNDO, y REDO. Mouse wheel over a ring turns it.
+
+The glass strip on top of the device answers every operation in words, whoever made it ("YOU: cake.kind 3", "BUILDER: candles 7", "YOU: undid write 生日快乐", "DEMO REFUSED: blow: there is no cake"); when nothing has just happened it shows the oldest waiting proposal or what to do next. The session is written to the browser 1 s after each change and offered back with RESTORE on the next visit (`?fresh` skips the offer). Changes after AUDIT.md: the status line, the restore, the playback and the fault message follow its section 3 (orb-pro-5's status line, journal and session).
 
 The history strip: one cell per history entry, amber for the hand, cyan for an agent, taller for an accepted proposal, white marks for snapshots. Drag along it to scrub; the next operation after scrubbing back drops the undone steps.
 
@@ -41,6 +43,6 @@ The history strip: one cell per history entry, amber for the hand, cyan for an a
 - `index.html` the shell. `tests/core.test.js` the node tests.
 
 ## Tests
-`node experiments/orb-tool/tests/core.test.js` runs 9 tests: op validation, clamping, undo/redo round-trip, authors and proposals, the hand turning an agent's ghost, replay determinism and save/load, device-to-op mapping, the machine's timing, and a whole birthday from nothing to the blow through ops only. All 9 passed on Nov 6 2026.
+`node experiments/orb-tool/tests/core.test.js` runs 10 tests: op validation, clamping, undo/redo round-trip, authors and proposals, the hand turning an agent's ghost, replay determinism and save/load, device-to-op mapping, the machine's timing, a whole birthday from nothing to the blow through ops only, and the words each op answers with. All 10 passed on Nov 6 2026.
 
-Measured in Chromium (Playwright, 390x844, stub renderer, flames and performances stopped with `window.__orbStill`): real pointer drags on each of the four rings under six selections (24 cases) and presses of SELECT, HOLD, MAKE, ACCEPT, UNDO, REDO, KEEP and BREED each changed the view's pixels; the time from the operation to the first changed frame was 2 to 51 ms in every case. A ring at the end of its range does not move further, so a probe has to turn away from the end stop.
+Measured in Chromium (Playwright, 390x844, stub renderer, flames and performances stopped with `window.__orbStill`): real pointer drags on each of the four rings under six selections (24 cases) and presses of SELECT, HOLD, MAKE, ACCEPT, UNDO, REDO, KEEP and BREED each changed the view's pixels; the time from the operation to the first changed frame was 2 to 51 ms in every case. Session restore and long-REDO playback were checked in the same browser (3 steps restored with their authors; playback reached the end). The pixel probe reads a 2D canvas, so it was run on the stub renderer only, not on scene/. A ring at the end of its range does not move further, so a probe has to turn away from the end stop.

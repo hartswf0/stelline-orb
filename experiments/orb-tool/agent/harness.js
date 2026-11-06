@@ -55,6 +55,7 @@ const INIT = () => {
 // ---- page setup: make sure the agent side is loaded and mounted (the shell may already have done it) ----
 async function prepare(page) {
   await page.waitForFunction(() => window.ORB && typeof window.ORB.do === 'function', null, { timeout: 20000 });
+  await page.waitForFunction(() => !!window.ORB.renderer || !!window.ORB_DESCRIBE, null, { timeout: 30000 }).catch(() => { });
   for (const f of ['commands.js', 'describe.js', 'bridge.js', 'console.js']) {
     const g = { 'commands.js': 'ORB_COMMANDS', 'describe.js': 'ORB_DESCRIBE', 'bridge.js': 'ORB_BRIDGE', 'console.js': 'ORB_CONSOLE' }[f];
     if (!await page.evaluate(g => !!window[g], g)) await page.addScriptTag({ url: '/experiments/orb-tool/agent/' + f }); }
@@ -64,7 +65,7 @@ async function prepare(page) {
     window.__con = window.ORB_CONSOLE_INSTANCE || window.__con || ORB_CONSOLE.mount(ORB, { focus: false });
     window.__lat = []; ORB.on('step', () => { if (window.__sent != null) { window.__lat.push(performance.now() - window.__sent); window.__sent = null; } });
     try { window.CORE_SOUND && CORE_SOUND.wake(); } catch (e) { }
-    return { device: !!(window.ORB_DEVICE || window.DEVICE || (window.ORB && window.ORB.device)), scene: !!window.ORB_SCENE, sound: !!window.CORE_SOUND, shellConsole: !!window.ORB_CONSOLE_INSTANCE }; }); }
+    return { renderer: ORB.renderer || 'unknown', device: !!(window.ORB_DEVICE || window.DEVICE || (window.ORB && window.ORB.device)), scene: !!window.ORB_SCENE, sound: !!window.CORE_SOUND, shellConsole: !!window.ORB_CONSOLE_INSTANCE }; }); }
 
 // one JSON-RPC call through the bridge, as an outside agent would make it; the line is also written in the drawer
 let rpcId = 0;
@@ -113,7 +114,7 @@ async function film(page, ctx, name, t0node) {
   return { file: mp4, seconds: +dur.toFixed(1), audio: streams.includes('audio') }; }
 
 async function newPage(browser, srv, q) {
-  const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: 2, hasTouch: false, recordVideo: FILM ? { dir: OUT, size: { width: W, height: H } } : undefined });
+  const ctx = await browser.newContext({ viewport: { width: W, height: H }, deviceScaleFactor: +(arg('--dpr', '1')), hasTouch: false, recordVideo: FILM ? { dir: OUT, size: { width: W, height: H } } : undefined });
   await ctx.addInitScript(INIT);
   const t0 = Date.now(); const page = await ctx.newPage();
   const errors = []; page.on('pageerror', e => errors.push(e.message)); page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
@@ -197,10 +198,11 @@ function stats(a) { if (!a || !a.length) return null; const s = a.slice().sort((
 
 (async () => {
   const srv = await serve();
-  const browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required', '--use-gl=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const launch = () => chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required', '--use-gl=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  let browser = await launch();
   const out = {};
   try {
-    if (WHICH === 'agent' || WHICH === 'both') { out.agent = await runAgent(browser, srv); console.log('agent: blown=' + out.agent.blown + ' in ' + out.agent.seconds.toFixed(1) + ' s, ' + out.agent.calls.length + ' calls' + (out.agent.film ? ', film ' + out.agent.film.file + ' ' + out.agent.film.seconds + ' s audio=' + out.agent.film.audio : '')); }
+    if (WHICH === 'agent' || WHICH === 'both') { out.agent = await runAgent(browser, srv); await browser.close(); browser = await launch(); console.log('agent: blown=' + out.agent.blown + ' in ' + out.agent.seconds.toFixed(1) + ' s, ' + out.agent.calls.length + ' calls' + (out.agent.film ? ', film ' + out.agent.film.file + ' ' + out.agent.film.seconds + ' s audio=' + out.agent.film.audio : '')); }
     if (WHICH === 'cowork' || WHICH === 'both') { out.cowork = await runCowork(browser, srv); console.log('cowork: ' + (out.cowork.error || ('blown=' + out.cowork.blown + ' in ' + out.cowork.seconds.toFixed(1) + ' s, kneel ' + out.cowork.kneel + ', history ' + JSON.stringify(out.cowork.historyByAuthor) + (out.cowork.film ? ', film ' + out.cowork.film.file + ' ' + out.cowork.film.seconds + ' s audio=' + out.cowork.film.audio : '')))); }
   } finally { await browser.close(); srv.close(); }
   fs.writeFileSync(path.join(OUT, 'harness-record.json'), JSON.stringify(out, null, 1));
