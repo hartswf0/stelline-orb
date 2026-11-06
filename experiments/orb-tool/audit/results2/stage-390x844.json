@@ -140,6 +140,89 @@
   "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
   "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
   "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
   "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
- ]
+ ],
+ "canvasGrid": [
+  {
+   "canvas": "qr",
+   "gx": 0,
+   "fy": 0.004,
+   "px": 106,
+   "py": 236,
+   "kind": "tap",
+   "firstShotMs": 5733,
+   "d100": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "qr",
+   "gx": 0,
+   "fy": 0.004,
+   "px": 106,
+   "py": 236,
+   "kind": "dragUp",
+   "firstShotMs": 30751,
+   "d100": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  }
+ ],
+ "autorow": {
+  "qr": 0.004
+ }
 }
