@@ -150,6 +150,15 @@
   // a 2D silhouette of the profile (radius as a function of height, max over columns) for the identity measure
   function profileDist(S1, S2) { let d = 0, m = 0; for (let k = 0; k < NU * NT; k++) { d += Math.hypot(S1.R[k] - S2.R[k], S1.Y[k] - S2.Y[k]); m++; } return d / m; }
 
-  const API = { NU, NT, STEPS, TAU, KEYS, ORDER, FILM, EDGES, PACES, CANDLES, BEADS, ROW_FOOT, ROW_RIM, key, between, at, xyz, volume, faceNormals, profileCheck, profileDist, U, TH, hex };
+  /* How many in-betweens a change gets: at least 12, more for a bigger change, so that no step moves a candle anchor more than
+     5.5 mm or the volume more than 15% (the steepest slope of the pacing curve times the field's compression). */
+  const SLOPE = [1, 1.5, 2.25, 1.6];
+  function stepsFor(a, b, paceIx) { const field = EDGES[a] && EDGES[a][b]; if (!field || field === 'CUT') return STEPS;
+    const A = key(a), B = key(b), comp = field === 'EVEN' ? 1 : 1 / (1 - FIELD_SPAN), sl = SLOPE[paceIx || 0] * comp;
+    const dc = Math.max(...CANDLES.map(c => { const p = at(A, c.u, c.th), q = at(B, c.u, c.th); return Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]); }));
+    const Va = volume(A), Vb = volume(B), dv = Math.abs(Vb - Va) / Math.max(Va, Vb);
+    return Math.max(STEPS, Math.ceil(sl * dc / .0055), Math.ceil(sl * dv / .15)); }
+
+  const API = { stepsFor, NU, NT, STEPS, TAU, KEYS, ORDER, FILM, EDGES, PACES, CANDLES, BEADS, ROW_FOOT, ROW_RIM, key, between, at, xyz, volume, faceNormals, profileCheck, profileDist, U, TH, hex };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.MORPH = API;
 })(typeof window !== 'undefined' ? window : globalThis);

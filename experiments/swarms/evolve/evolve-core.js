@@ -118,6 +118,6 @@
     for (let r = 0; r < rows - 1; r++) for (let c = 0; c < cols - 1; c++) { const a = r * cols + c, b = a + 1, d = a + cols, e = d + 1;
       for (const L of lev) { cut(a, d, b, L); cut(b, d, e, L); } }
     return new Float32Array(out); }
-  function indices(rows, cols) { const I = []; for (let r = 0; r < rows - 1; r++) for (let c = 0; c < cols - 1; c++) { const a = r * cols + c, b = a + 1, d = a + cols, e = d + 1; I.push(a, d, b, b, d, e); } return I; }
+  function indices(rows, cols) { const I = []; for (let r = 0; r < rows - 1; r++) for (let c = 0; c < cols - 1; c++) { const a = r * cols + c, b = a + 1, d = a + cols, e = d + 1; I.push(a, b, d, b, e, d); } return I; }   // wound so that three.js faces point outward
   return { lightK, KIND, groupsOf, blank, named, cakeMesh, project, evaluate, breed, start, weights, slices, indices, mulberry32, hash, LAMBDA, THRESH, STAGES, MEASURE, W_CAKE, CAKE_GRID };
 });

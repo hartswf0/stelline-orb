@@ -1,19 +1,7 @@
 {
- "passed": 3322,
- "failed": 12,
+ "passed": 3544,
+ "failed": 0,
  "failures": [
-  "FAIL candle step DOUGH>SPONGE EASE 7.56 mm",
-  "FAIL volume step DOUGH>SPONGE LINGER 0.181",
-  "FAIL candle step DOUGH>SPONGE LINGER 11.11 mm",
-  "FAIL candle step DOUGH>SPONGE LEAN 7.08 mm",
-  "FAIL candle step DOUGH>DOMED EASE 8.91 mm",
-  "FAIL volume step DOUGH>DOMED LINGER 0.222",
-  "FAIL candle step DOUGH>DOMED LINGER 13.09 mm",
-  "FAIL candle step DOUGH>DOMED LEAN 8.33 mm",
-  "FAIL candle step SPONGE>LAYERED EVEN 6.34 mm",
-  "FAIL candle step SPONGE>LAYERED EASE 9.42 mm",
-  "FAIL candle step SPONGE>LAYERED LINGER 13.84 mm",
-  "FAIL candle step SPONGE>LAYERED LEAN 8.81 mm",
   "NOTE trace.json not found; trace checks skipped"
  ],
  "edges": [
@@ -21,36 +9,60 @@
    "from": "DOUGH",
    "to": "SPONGE",
    "field": "RISE",
+   "steps_by_pace": [
+    12,
+    17,
+    25,
+    18
+   ],
    "V_from_ml": 764,
    "V_to_ml": 1948.2,
    "worst_dV_rel": 0.0837,
    "worst_candle_mm": 5.09,
-   "linger_step3_pct": 0.6
+   "linger_step3_pct": 0.4
   },
   {
    "from": "DOUGH",
    "to": "DOMED",
    "field": "RISE",
+   "steps_by_pace": [
+    14,
+    20,
+    30,
+    21
+   ],
    "V_from_ml": 764,
    "V_to_ml": 3231.3,
-   "worst_dV_rel": 0.1157,
-   "worst_candle_mm": 5.99,
-   "linger_step3_pct": 0.5
+   "worst_dV_rel": 0.0969,
+   "worst_candle_mm": 5.14,
+   "linger_step3_pct": 0.9
   },
   {
    "from": "SPONGE",
    "to": "LAYERED",
    "field": "RISE",
+   "steps_by_pace": [
+    14,
+    21,
+    32,
+    23
+   ],
    "V_from_ml": 1948.2,
    "V_to_ml": 4335.9,
-   "worst_dV_rel": 0.0682,
-   "worst_candle_mm": 6.34,
+   "worst_dV_rel": 0.0584,
+   "worst_candle_mm": 5.43,
    "linger_step3_pct": 0
   },
   {
    "from": "DOMED",
    "to": "BROWN_DOME",
    "field": "POUR",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 3231.3,
    "V_to_ml": 3790.7,
    "worst_dV_rel": 0.0185,
@@ -61,16 +73,28 @@
    "from": "DOMED",
    "to": "LAYERED",
    "field": "RISE",
+   "steps_by_pace": [
+    12,
+    12,
+    14,
+    12
+   ],
    "V_from_ml": 3231.3,
    "V_to_ml": 4335.9,
    "worst_dV_rel": 0.0314,
    "worst_candle_mm": 2.67,
-   "linger_step3_pct": 0.1
+   "linger_step3_pct": 0.4
   },
   {
    "from": "LAYERED",
    "to": "ICED",
    "field": "POUR",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4335.9,
    "V_to_ml": 4593.4,
    "worst_dV_rel": 0.0069,
@@ -81,6 +105,12 @@
    "from": "LAYERED",
    "to": "CHOC_ORANGE",
    "field": "POUR",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4335.9,
    "V_to_ml": 4464.2,
    "worst_dV_rel": 0.0035,
@@ -91,6 +121,12 @@
    "from": "ICED",
    "to": "MINT",
    "field": "POUR",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4593.4,
    "V_to_ml": 4464.2,
    "worst_dV_rel": 0.0035,
@@ -101,6 +137,12 @@
    "from": "ICED",
    "to": "RED_ORANGE",
    "field": "POUR",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4593.4,
    "V_to_ml": 4464.2,
    "worst_dV_rel": 0.0035,
@@ -111,6 +153,12 @@
    "from": "ICED",
    "to": "SPONGE_BEADS",
    "field": "POUR",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4593.4,
    "V_to_ml": 4695.6,
    "worst_dV_rel": 0.0037,
@@ -121,6 +169,12 @@
    "from": "ICED",
    "to": "BROWN_DOME",
    "field": "POUR",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4593.4,
    "V_to_ml": 3790.7,
    "worst_dV_rel": 0.0217,
@@ -131,6 +185,12 @@
    "from": "CHOC_ORANGE",
    "to": "MINT",
    "field": "CUT",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4464.2,
    "V_to_ml": 4464.2,
    "worst_dV_rel": 0,
@@ -140,6 +200,12 @@
    "from": "CHOC_ORANGE",
    "to": "RED_ORANGE",
    "field": "CUT",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4464.2,
    "V_to_ml": 4464.2,
    "worst_dV_rel": 0,
@@ -149,6 +215,12 @@
    "from": "CHOC_ORANGE",
    "to": "BROWN_DOME",
    "field": "CUT",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4464.2,
    "V_to_ml": 3790.7,
    "worst_dV_rel": 0,
@@ -158,6 +230,12 @@
    "from": "CHOC_ORANGE",
    "to": "SPONGE_BEADS",
    "field": "CUT",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4464.2,
    "V_to_ml": 4695.6,
    "worst_dV_rel": 0,
@@ -167,6 +245,12 @@
    "from": "MINT",
    "to": "CHOC_ORANGE",
    "field": "CUT",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4464.2,
    "V_to_ml": 4464.2,
    "worst_dV_rel": 0,
@@ -176,6 +260,12 @@
    "from": "MINT",
    "to": "RED_ORANGE",
    "field": "CUT",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4464.2,
    "V_to_ml": 4464.2,
    "worst_dV_rel": 0,
@@ -185,6 +275,12 @@
    "from": "MINT",
    "to": "BROWN_DOME",
    "field": "CUT",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4464.2,
    "V_to_ml": 3790.7,
    "worst_dV_rel": 0,
@@ -194,6 +290,12 @@
    "from": "MINT",
    "to": "SPONGE_BEADS",
    "field": "CUT",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4464.2,
    "V_to_ml": 4695.6,
    "worst_dV_rel": 0,
@@ -203,6 +305,12 @@
    "from": "RED_ORANGE",
    "to": "CHOC_ORANGE",
    "field": "CUT",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4464.2,
    "V_to_ml": 4464.2,
    "worst_dV_rel": 0,
@@ -212,6 +320,12 @@
    "from": "RED_ORANGE",
    "to": "MINT",
    "field": "CUT",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4464.2,
    "V_to_ml": 4464.2,
    "worst_dV_rel": 0,
@@ -221,6 +335,12 @@
    "from": "RED_ORANGE",
    "to": "BROWN_DOME",
    "field": "CUT",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4464.2,
    "V_to_ml": 3790.7,
    "worst_dV_rel": 0,
@@ -230,6 +350,12 @@
    "from": "RED_ORANGE",
    "to": "SPONGE_BEADS",
    "field": "CUT",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4464.2,
    "V_to_ml": 4695.6,
    "worst_dV_rel": 0,
@@ -239,6 +365,12 @@
    "from": "BROWN_DOME",
    "to": "CHOC_ORANGE",
    "field": "CUT",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 3790.7,
    "V_to_ml": 4464.2,
    "worst_dV_rel": 0,
@@ -248,6 +380,12 @@
    "from": "BROWN_DOME",
    "to": "MINT",
    "field": "CUT",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 3790.7,
    "V_to_ml": 4464.2,
    "worst_dV_rel": 0,
@@ -257,6 +395,12 @@
    "from": "BROWN_DOME",
    "to": "RED_ORANGE",
    "field": "CUT",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 3790.7,
    "V_to_ml": 4464.2,
    "worst_dV_rel": 0,
@@ -266,6 +410,12 @@
    "from": "BROWN_DOME",
    "to": "SPONGE_BEADS",
    "field": "CUT",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 3790.7,
    "V_to_ml": 4695.6,
    "worst_dV_rel": 0,
@@ -275,6 +425,12 @@
    "from": "SPONGE_BEADS",
    "to": "CHOC_ORANGE",
    "field": "CUT",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4695.6,
    "V_to_ml": 4464.2,
    "worst_dV_rel": 0,
@@ -284,6 +440,12 @@
    "from": "SPONGE_BEADS",
    "to": "MINT",
    "field": "CUT",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4695.6,
    "V_to_ml": 4464.2,
    "worst_dV_rel": 0,
@@ -293,6 +455,12 @@
    "from": "SPONGE_BEADS",
    "to": "RED_ORANGE",
    "field": "CUT",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4695.6,
    "V_to_ml": 4464.2,
    "worst_dV_rel": 0,
@@ -302,6 +470,12 @@
    "from": "SPONGE_BEADS",
    "to": "BROWN_DOME",
    "field": "CUT",
+   "steps_by_pace": [
+    12,
+    12,
+    12,
+    12
+   ],
    "V_from_ml": 4695.6,
    "V_to_ml": 3790.7,
    "worst_dV_rel": 0,
@@ -317,10 +491,10 @@
    "LINGER",
    "LEAN"
   ],
-  "worst_dV_rel": 0.2224,
-  "worst_dV_at": "DOUGH>DOMED LINGER step 7",
-  "worst_candle_step_mm": 13.84,
-  "worst_candle_at": "SPONGE>LAYERED LINGER step 7",
+  "worst_dV_rel": 0.0969,
+  "worst_dV_at": "DOUGH>DOMED EVEN step 10",
+  "worst_candle_step_mm": 5.49,
+  "worst_candle_at": "DOUGH>SPONGE LINGER step 13",
   "worst_cut_candle_jump_mm": 17.43,
   "flips": 0,
   "crossings": 0,

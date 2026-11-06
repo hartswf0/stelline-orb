@@ -1,0 +1,326 @@
+{
+ "ran": "2026-11-06T08:12:46.884Z",
+ "failures": 1,
+ "results": [
+  {
+   "name": "1 closed paths return to start (max error over 404 passes, metres; gear angle error, radians)",
+   "ok": true,
+   "detail": {
+    "worst": 0,
+    "worstAng": 0
+   }
+  },
+  {
+   "name": "2 no tube cuts the cream: min (signed distance - tube radius) over 1017392 samples and chord midpoints",
+   "ok": true,
+   "detail": {
+    "min_clearance_m": 0.0002988,
+    "at": "BASE BEADS random t4:1@105 a3:1@15 n3:4@45",
+    "min_height_above_board_m": 0.0006
+   }
+  },
+  {
+   "name": "3 target scores 0 and every one-detent error in a needed gear is out of tolerance (0.8 mm); smallest error distance in mm",
+   "ok": true,
+   "detail": {
+    "smallest_mm": 0.983,
+    "note": "turntable phase on the bead ring is a symmetry (24 beads, 15 degrees = one bead), so it is excluded",
+    "rows": [
+     [
+      "BASE BEADS",
+      "t",
+      1,
+      0,
+      2.086,
+      false
+     ],
+     [
+      "BASE BEADS",
+      "t",
+      -1,
+      0,
+      2.834,
+      false
+     ],
+     [
+      "BASE BEADS",
+      "t",
+      0,
+      1,
+      0,
+      true
+     ],
+     [
+      "BASE BEADS",
+      "t",
+      0,
+      -1,
+      0,
+      true
+     ],
+     [
+      "BASE BEADS",
+      "n",
+      1,
+      0,
+      2.747,
+      false
+     ],
+     [
+      "BASE BEADS",
+      "n",
+      -1,
+      0,
+      2.872,
+      false
+     ],
+     [
+      "BASE BEADS",
+      "n",
+      0,
+      1,
+      0.983,
+      false
+     ],
+     [
+      "BASE BEADS",
+      "n",
+      0,
+      -1,
+      0.983,
+      false
+     ],
+     [
+      "TOP SHELLS",
+      "t",
+      1,
+      0,
+      2.217,
+      false
+     ],
+     [
+      "TOP SHELLS",
+      "t",
+      -1,
+      0,
+      2.996,
+      false
+     ],
+     [
+      "TOP SHELLS",
+      "t",
+      0,
+      1,
+      5.264,
+      false
+     ],
+     [
+      "TOP SHELLS",
+      "t",
+      0,
+      -1,
+      5.264,
+      false
+     ],
+     [
+      "TOP SHELLS",
+      "n",
+      -1,
+      0,
+      3.457,
+      false
+     ],
+     [
+      "TOP SHELLS",
+      "n",
+      0,
+      1,
+      1.261,
+      false
+     ],
+     [
+      "TOP SHELLS",
+      "n",
+      0,
+      -1,
+      1.261,
+      false
+     ],
+     [
+      "SIDE LATTICE",
+      "t",
+      1,
+      0,
+      3.463,
+      false
+     ],
+     [
+      "SIDE LATTICE",
+      "t",
+      -1,
+      0,
+      3.963,
+      false
+     ],
+     [
+      "SIDE LATTICE",
+      "t",
+      0,
+      1,
+      7.468,
+      false
+     ],
+     [
+      "SIDE LATTICE",
+      "t",
+      0,
+      -1,
+      7.468,
+      false
+     ],
+     [
+      "SIDE LATTICE",
+      "a",
+      1,
+      0,
+      7.913,
+      false
+     ],
+     [
+      "SIDE LATTICE",
+      "a",
+      -1,
+      0,
+      8.189,
+      false
+     ],
+     [
+      "SIDE LATTICE",
+      "a",
+      0,
+      1,
+      2.386,
+      false
+     ],
+     [
+      "SIDE LATTICE",
+      "a",
+      0,
+      -1,
+      2.386,
+      false
+     ],
+     [
+      "CANDLES",
+      "t",
+      1,
+      0,
+      16.631,
+      false
+     ],
+     [
+      "CANDLES",
+      "t",
+      -1,
+      0,
+      19.84,
+      false
+     ],
+     [
+      "CANDLES",
+      "t",
+      0,
+      1,
+      19.318,
+      false
+     ],
+     [
+      "CANDLES",
+      "t",
+      0,
+      -1,
+      19.318,
+      false
+     ],
+     [
+      "CANDLES",
+      "a",
+      1,
+      0,
+      8.471,
+      false
+     ],
+     [
+      "CANDLES",
+      "a",
+      -1,
+      0,
+      6.876,
+      false
+     ],
+     [
+      "CANDLES",
+      "a",
+      0,
+      1,
+      2.991,
+      false
+     ],
+     [
+      "CANDLES",
+      "a",
+      0,
+      -1,
+      2.991,
+      false
+     ],
+     [
+      "CANDLES",
+      "n",
+      1,
+      0,
+      15.468,
+      false
+     ],
+     [
+      "CANDLES",
+      "n",
+      -1,
+      0,
+      12.77,
+      false
+     ],
+     [
+      "CANDLES",
+      "n",
+      0,
+      1,
+      2.809,
+      false
+     ],
+     [
+      "CANDLES",
+      "n",
+      0,
+      -1,
+      2.809,
+      false
+     ]
+    ]
+   }
+  },
+  {
+   "name": "4 seven candles, each clear of every inscription stroke and shell (min gap, metres)",
+   "ok": true,
+   "detail": {
+    "candles": 7,
+    "min_gap_m": 0.0035,
+    "at": "candle 3 / flourish1"
+   }
+  },
+  {
+   "name": "5 trace.json present",
+   "ok": false
+  }
+ ]
+}
