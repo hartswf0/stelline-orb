@@ -38,7 +38,7 @@
   ];
   const groups = ['BASE', 'FORM', 'SPONGE', 'ICING', 'FROSTING', 'DECORATION'];
   // a stage is passed when its measure (a key of evaluate().parts, or 'fit') reaches the threshold
-  const stages = [['BASE', 'iou', .75], ['FORM', 'iou', .8], ['SPONGE', 'side', .82], ['ICING', 'top', .85], ['FROSTING', 'frost', .8], ['DECORATION', 'deco', .75]];
+  const stages = [['BASE', 'shape', .5], ['FORM', 'shape', .7], ['SPONGE', 'side', .82], ['ICING', 'top', .85], ['FROSTING', 'frost', .8], ['DECORATION', 'deco', .75]];
   const making = [['SET THE BOARD', 0, .08], ['SET THE SPONGE LAYERS', .08, .36], ['RAISE THE DOME', .36, .44],
     ['POUR THE ICING', .44, .58], ['SPREAD THE ICING DOWN THE SIDE', .58, .72], ['PIPE THE BORDERS', .72, .86], ['SET THE BEADS', .86, 1]];
   const IDX = {}; genes.forEach((g, i) => IDX[g[0]] = i);
@@ -98,23 +98,29 @@
   const targets = refs => (refs.order || Object.keys(refs.cakes)).map(id => ({ id, t: refs.cakes[id].t, label: refs.cakes[id].label }));
   /* ------------------------------------------------------------------ fitness
      0.3 silhouette + 0.2 top colour + 0.15 side colour + 0.1 beads + 0.15 frosting texture + 0.1 top border.
-     Texture is predicted from the genome by one shading rule: a surface whose ripples have slope s, seen at lightness L, shows a
-     band-pass lightness spread of about L * s. (Beads also add side texture in the frames; they are judged by their own term instead.) The prediction is compared with the
-     band-pass spread measured in the frame (refs texture, rimTop). The rule is not calibrated against rendered images. */
+     Texture: one shading rule turns the frame's band-pass lightness spread into a ripple slope. A surface whose ripples have slope s,
+     seen at lightness L, shows a spread of about L * s; so the measured slope is spread / L, with L the measured lightness of that
+     region (floored at 5 for near-black sides, where the film's sheen still shows texture). The genes frostTop / frostSide are slopes
+     and are compared with these; the top border's relief adds to the slope at the rim. The rule is not calibrated against rendered
+     images; beads also add side texture in the frames (they are judged by their own term). */
   const DE_SCALE = 30, W = { iou: .3, top: .2, side: .15, beads: .1, frost: .15, border: .1 };
-  function predictTexture(g) {
-    return { top: g.topL * g.frostTop, side: g.sideL * g.frostSide, rim: g.topL * (.4 * g.frostTop + g.border) }; }
+  const slopes = t => { const c = t._slopes; if (c) return c; const tx = t.texture || {}, Lt = Math.max(5, t.top.lab[0]), Ls = Math.max(5, t.side.lab[0]);
+    const o = { top: tx.top != null ? tx.top / Lt : null, side: tx.side != null ? tx.side / Ls : null, rim: t.rimTop ? t.rimTop.energy / Lt : null };
+    Object.defineProperty(t, '_slopes', { value: o, enumerable: false }); return o; };
+  // the shape stages are judged on how much of the gap between the blank disc and a perfect overlap is closed: seen from some
+  // cameras (the brown dome from below at 43 degrees, the cream cake from above) the blank disc already overlaps 0.6-0.85
+  const blankIoU = (t, rm) => { if (t._blankIoU == null) Object.defineProperty(t, '_blankIoU', { value: iou(maskOf(blank(), t.elevationDeg, t.rollDeg || 0), rm), enumerable: false }); return t._blankIoU; };
   function evaluate(G, refs) { const t = target(refs), g = named(G); let rm = cache.get(t); if (!rm) { rm = polyMask(t.outline); cache.set(t, rm); }
-    const I = iou(maskOf(G, t.elevationDeg, t.rollDeg || 0), rm);
+    const I = iou(maskOf(G, t.elevationDeg, t.rollDeg || 0), rm), I0 = blankIoU(t, rm), shapeS = clamp((I - I0) / (1 - I0), 0, 1);
     const dTop = dE([g.topL, g.topA, g.topB], t.top.lab), dSide = dE([g.sideL, g.sideA, g.sideB], t.side.lab);
     const bf = t.beads.frac, dBead = t.beads.lab ? dE([g.beadL, g.beadA, g.beadB], t.beads.lab) : 0;
     const top = Math.exp(-dTop / DE_SCALE), side = Math.exp(-dSide / DE_SCALE);
     const beads = Math.sqrt(Math.exp(-Math.abs(g.beads - bf) / .05) * Math.exp(-dBead / DE_SCALE));   // geometric mean: neither the share nor the colour can be ignored
-    const P = predictTexture(g), tx = t.texture || {}, dT = tx.top != null ? Math.abs(P.top - tx.top) : 0, dS = tx.side != null ? Math.abs(P.side - tx.side) : 0;
-    const frost = Math.exp(-(dT + dS) / 5), border = t.rimTop ? Math.exp(-Math.abs(P.rim - t.rimTop.energy) / 3) : 1;
+    const S = slopes(t), rimSlope = .4 * g.frostTop + g.border, dT = S.top != null ? Math.abs(g.frostTop - S.top) : 0, dS = S.side != null ? Math.abs(g.frostSide - S.side) : 0;
+    const frost = Math.exp(-(dT + dS) / .12), border = S.rim != null ? Math.exp(-Math.abs(rimSlope - S.rim) / .06) : 1;
     const fit = W.iou * I + W.top * top + W.side * side + W.beads * beads + W.frost * frost + W.border * border;
-    return { fit, parts: { iou: I, top, side, beads, frost, border, deco: .6 * beads + .4 * border,
-      dETop: dTop, dESide: dSide, dEBead: dBead, beadFrac: g.beads, texTop: P.top, texSide: P.side, rim: P.rim } }; }
+    return { fit, parts: { iou: I, shape: shapeS, top, side, beads, frost, border, deco: .6 * beads + .4 * border,
+      dETop: dTop, dESide: dSide, dEBead: dBead, beadFrac: g.beads, slopeTop: g.frostTop, slopeSide: g.frostSide, slopeRim: rimSlope, refSlope: S } }; }
   /* ------------------------------------------------------------------ anchors (scene units; origin = centre of the underside) */
   function anchors(G) { const s = shape(G), k = R0 / s.R, ty = surfaceY(s, 0) * k, o = {
       base: [0, 0, 0], baseRim: [s.Rb * k, 0, 0], bodyBase: [0, s.y0 * k, 0], bodyRim: [s.R * k, s.y0 * k, 0],
@@ -135,7 +141,8 @@
     // converted to linear here; opts.tint (sRGB fractions of the scene light's colour) divides that light back out so a warm scene light does not warm the icing twice.
     const col = c => { const q = new T.Color(clamp(c[0] / 255 / tint[0], 0, 1), clamp(c[1] / 255 / tint[1], 0, 1), clamp(c[2] / 255 / tint[2], 0, 1)); return lin && q.convertSRGBToLinear ? q.convertSRGBToLinear() : q; };
     const mat = (c, rough) => new T.MeshStandardMaterial({ color: col(c), roughness: rough, metalness: 0, side: T.DoubleSide });
-    const sponge = mat(C.side, .9), icing = mat(C.top, .5), beadM = mat(C.bead, .35), boardM = new T.MeshStandardMaterial({ color: new T.Color(.08, .07, .06), roughness: .6 });
+    const sponge = mat(C.side, .9), icing = mat(C.top, .5), sideIcing = mat(C.side, .55),   /* the side coat takes the side's measured colour: in the frames an iced side is seen in shadow */
+      beadM = mat(C.bead, .35), boardM = new T.MeshStandardMaterial({ color: new T.Color(.08, .07, .06), roughness: .6 });
     const ampTop = g.frostTop * LAMBDA / Math.PI, ampSide = g.frostSide * LAMBDA / Math.PI;
     // a lathe mesh; disp(a, x, y) -> [dr, dy] in scene units moves each vertex (radially / vertically) for the frosting
     function lathe(pts, m, disp, seg) { const geo = new T.LatheGeometry(pts.map(p => new T.Vector2(Math.max(1e-5, p[0]) * k, p[1] * k)), seg || 64);
@@ -163,7 +170,7 @@
     function topCoat(p) { drop(top); top.clear(); if (p <= 0) return; const rmax = s.rt * p, pts = []; for (let q = 0; q <= 22; q++) { const r = rmax * (1 - q / 22); pts.push([r, surfaceY(s, Math.min(r, s.rt)) + coat]); }
       pts[0] = [rmax, surfaceY(s, Math.min(rmax, s.rt)) + coat * .3]; top.add(lathe(pts, icing, topDisp, 96)); }
     function sideCoat(p) { drop(side); side.clear(); const depth = g.spread * s.H * p; if (depth < 1e-3) return; const ya = s.yTop - s.bev - depth, pts = [];
-      for (let q = 0; q <= 16; q++) { const y = lerp(ya, s.yTop - s.bev, q / 16); pts.push([rAt(clamp(y, s.y0, s.yTop)) + coat, y]); } side.add(lathe(pts, icing, sideDisp, 96)); }
+      for (let q = 0; q <= 16; q++) { const y = lerp(ya, s.yTop - s.bev, q / 16); pts.push([rAt(clamp(y, s.y0, s.yTop)) + coat, y]); } side.add(lathe(pts, sideIcing, sideDisp, 96)); }
     const m4 = new T.Matrix4(), q4 = new T.Quaternion(), v3 = new T.Vector3(), up = new T.Vector3(0, 1, 0);
     // piped shells: elongated drops laid tangent to a ring (real geometry, icing colour)
     function shellRing(r, y, spacing, len, hgt, wid) { const n = Math.max(8, Math.round(2 * Math.PI * r / spacing)), im = new T.InstancedMesh(new T.SphereGeometry(1, 10, 8), icing, n); im.userData.place = [];

@@ -81,6 +81,6 @@ else { const G = results.cream[0].p.G, A = M.anchors(G);
   ok(rip > flat + .0002, `build cream t=1: the top coat is rippled frosting (height above the smooth surface spreads ${(rip * 1000).toFixed(2)} mm vs ${(flat * 1000).toFixed(2)} mm with frostTop 0; frostTop ${gc.frostTop.toFixed(2)})`);
   // dome: the top anchor rises with the dome
   const D = Float64Array.from(G); D[M.genes.findIndex(g => g[0] === 'dome')] = 1; ok(M.anchors(D).top[1] > A.top[1] + .05, 'anchors: a dome raises the top centre'); }
-{ let rows = []; for (const { id } of M.targets(REFS)) { const P = results[id][0].p.e.parts, t = REFS.cakes[id]; rows.push(`${id} tex top ${P.texTop.toFixed(1)}/${t.texture.top} side ${P.texSide.toFixed(1)}/${t.texture.side} rim ${P.rim.toFixed(1)}/${t.rimTop ? t.rimTop.energy : '-'}`); }
-  ok(M.targets(REFS).every(({ id }) => results[id][0].p.e.parts.frost > .5), 'frosting: predicted texture within reach of the measured texture for every reference (frost part > 0.5)'); console.log('      ' + rows.join('\n      ')); }
+{ let rows = []; for (const { id } of M.targets(REFS)) { const P = results[id][0].p.e.parts, t = REFS.cakes[id]; const f = v => v == null ? '-' : v.toFixed(3); rows.push(`${id} slope top ${f(P.slopeTop)}/${f(P.refSlope.top)} side ${f(P.slopeSide)}/${f(P.refSlope.side)} rim ${f(P.slopeRim)}/${f(P.refSlope.rim)} (evolved/measured)`); }
+  ok(M.targets(REFS).every(({ id }) => results[id][0].p.e.parts.frost > .5), 'frosting: evolved ripple slopes near the slopes measured from the frames for every reference (frost part > 0.5)'); console.log('      ' + rows.join('\n      ')); }
 console.log(fails ? fails + ' FAILED' : 'ALL PASS'); process.exit(fails ? 1 : 0);

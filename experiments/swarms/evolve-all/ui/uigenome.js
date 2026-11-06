@@ -31,18 +31,22 @@
     return +(.2 * acc + .2 * Math.exp(-mpa / 6) + .25 * (1 - Math.min(1, rev * 3)) + .35 * Math.exp(-ipg / 1.2)).toFixed(5); }
   function blankMetrics() { return { gens: 0, accepted: 0, moves: 0, reversals: 0, idle: 0, stages: 0, time: 0 }; }
   /* the lineage: elitist, logged */
-  /* the lineage: elitist under noise. A small pool of measured UIs, each with the running mean of its scores; the elite is the pool's best.
+  /* the lineage: elitist under noise. A small pool of measured UIs, each with the running mean of its scores; the elite is the pool's best by its mean shrunk toward zero (mean x n / (n + 1)).
      A UI's score is re-measured whenever it is played again, so a lucky single measurement does not hold the elite for ever. */
   const POOL = 4;
   function lineage(seed) { const L = { seed: seed || 7, round: 0, pool: [{ U: blank(), fit: null, n: 0, id: 'U0', parent: null }], nextId: 1, log: [], parts: {} }; L.elite = L.pool[0]; return L; }
-  /* parts differ in difficulty, so a UI is judged against the mean of every measurement made on the same part (any UI): score = fitness - that mean */
-  function relative(L, part, f) { const ps = L.parts[part] || (L.parts[part] = { sum: 0, n: 0 }); const base = ps.n ? ps.sum / ps.n : f; ps.sum += f; ps.n++; return +(f - base).toFixed(5); }
+  /* parts differ in difficulty, so a UI is judged against the mean of every measurement made on the same part (any UI): score = fitness - that mean;
+     on a part's first visit the mean over all parts so far stands in (confounded by part difficulty until the part is played again) */
+  function relative(L, part, f) { const ps = L.parts[part] || (L.parts[part] = { sum: 0, n: 0 }), all = L.all || (L.all = { sum: 0, n: 0 });
+    const base = ps.n ? ps.sum / ps.n : all.n ? all.sum / all.n : f;   // first visit to a part: against the mean over all parts so far
+    ps.sum += f; ps.n++; all.sum += f; all.n++; return +(f - base).toFixed(5); }
   function candidates(L, k) { k = clamp(k || 3, 2, 3); const r = BREED.breed(UIMOD, { G: L.elite.U, e: { fit: 0, parts: {} } }, { seed: L.seed, gen: 1000 + L.round, sigma: { MAP: .35, FEEL: .22, BROOD: .3, FLOW: .45 }, lambda: k - 1 }, null);
     return [{ U: L.elite.U, id: L.elite.id, elite: true }].concat(r.kids.map(c => ({ U: safe(c.G), id: 'U' + (L.nextId++), elite: false, parent: L.elite.id }))); }
   /* after a part was played with the chosen candidate: update its running mean (or enter it in the pool), and the elite is the pool's best */
   function record(L, cand, metrics, info) { const raw = fitness(metrics), part = (info && info.part) || 'any', f = relative(L, part, raw), before = L.elite.id, beforeFit = L.elite.fit;
     let m = L.pool.find(q => q.id === cand.id); if (m) { m.fit = m.fit == null ? f : (m.fit * m.n + f) / (m.n + 1); m.n++; } else { m = { U: Float64Array.from(cand.U), fit: f, n: 1, id: cand.id, parent: cand.parent || null }; L.pool.push(m); }
-    L.pool.sort((a, b) => (b.fit == null ? -9 : b.fit) - (a.fit == null ? -9 : a.fit)); L.pool.length = Math.min(L.pool.length, POOL); L.elite = L.pool[0];
+    const sh = q => q.fit == null ? -9 : q.fit * q.n / (q.n + 1);   // shrunk toward 0 by how few times it was measured: one lucky run does not take the elite
+    L.pool.sort((a, b) => sh(b) - sh(a)); L.pool.length = Math.min(L.pool.length, POOL); L.elite = L.pool[0];
     const kept = L.elite.id !== before ? 'NEW ELITE' : cand.id === before ? 'ELITE RE-MEASURED' : 'ELITE KEPT';
     L.log.push(Object.assign({ round: L.round, played: cand.id, parent: cand.parent || null, ui: decode(cand.U), metrics: Object.assign({}, metrics), fitness: raw, relative: f, eliteBefore: before, eliteBeforeFit: beforeFit, outcome: kept, elite: L.elite.id, eliteFit: L.elite.fit, eliteUI: decode(L.elite.U), pool: L.pool.map(q => [q.id, q.fit == null ? null : +q.fit.toFixed(4), q.n]) }, info || {}));
     L.round++; return kept; }

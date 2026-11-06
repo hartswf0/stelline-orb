@@ -370,7 +370,7 @@ function render() {
   const yaw = S.yaw * Math.PI / 180, D = .6; cam.position.set(Math.sin(yaw) * D, CY + .3, Math.cos(yaw) * D); cam.lookAt(0, CY + .035, 0);
   const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion);
   const lit = S.stage >= STAGES.indexOf('LIGHT') ? Math.max(0, (S.stage === STAGES.indexOf('LIGHT') ? S.prog.LIGHT : 7) - S.out) : 0, vis = S.on * (1 - S.dark);
-  TW.forEach((tw, i) => { updateTwin(tw, i === 0); tw.grp.quaternion.setFromAxisAngle(right, S.tilt * 3 * Math.PI / 180);
+  let _a = performance.now(); TW.forEach((tw, i) => { updateTwin(tw, i === 0); tw.grp.quaternion.setFromAxisAngle(right, S.tilt * 3 * Math.PI / 180);
     tw.ghost.visible = i === 0 && S.stage === 0;
     [tw.spongeMat, tw.icingMat, tw.beadMat].forEach(m => { m.opacity = vis; const c = m.color, gl = .25 * (lit ? 1 : .4); m.emissive.setRGB(c.r * gl * (m === tw.icingMat ? 0 : 1) + S.flash * .9, c.g * gl * .82 * (m === tw.icingMat ? 0 : 1) + S.flash * .9, c.b * gl * .55 * (m === tw.icingMat ? 0 : 1) + S.flash * .95); });
     tw.icingMat.emissive.setRGB(S.flash * .9 + (lit ? .05 : 0), S.flash * .9 + (lit ? .03 : 0), S.flash * .95); tw.icingMat.emissiveMap = null;
@@ -382,11 +382,11 @@ function render() {
   // the arc: beside the cake at candle height while the cake is being worked
   const working = S.stage >= 1 && S.stage <= 5 && NOW - S.lastWork < 2.6; arcAlpha = lerp(arcAlpha, working ? 1 : 0, .15); ARC.s.position.set(0, CY + .13, 0).addScaledVector(right, .21); ARC.s.material.opacity = arcAlpha * .85 * vis; if (arcAlpha > .01) drawArc();
   // main view (ARAP), then the naive twin in its own pane
-  R.setScissorTest(true); const w = inset.split ? VW / 2 : VW;
+  PROF.twin = performance.now() - _a; _a = performance.now(); R.setScissorTest(true); const w = inset.split ? VW / 2 : VW;
   R.setViewport(0, 0, w, VH); R.setScissor(0, 0, w, VH); cam.aspect = w / VH; cam.updateProjectionMatrix(); TW[0].grp.visible = true; TW[1].grp.visible = false; R.clear(); R.render(scene, cam);
   const iy = VH - inset.y - inset.h; R.setViewport(inset.x, iy, inset.w, inset.h); R.setScissor(inset.x, iy, inset.w, inset.h); cam.aspect = inset.w / inset.h; cam.updateProjectionMatrix(); TW[0].grp.visible = false; TW[1].grp.visible = true; ARC.s.visible = false;
   R.clear(); R.render(scene, cam); ARC.s.visible = true; TW[0].grp.visible = true; TW[1].grp.visible = false; R.setScissorTest(false);
-  drawHud(); drawDev(); }
+  PROF.gl = performance.now() - _a; _a = performance.now(); drawHud(); PROF.hud = performance.now() - _a; _a = performance.now(); drawDev(); PROF.dev = performance.now() - _a; }
 let hudT = -1; const fmm = v => (v * 1000).toFixed(1);
 function drawHud() { if (NOW - hudT < .1 && !REC) return; hudT = NOW; const st = STAGES[S.stage], d0 = S.dist && S.dist[0];
   let h = `<b>${st}</b> &middot; GENERATION ${S.gen}`;

@@ -1,7 +1,7 @@
 /* modules/light.js — EVOLVE-ALL evolver module: the memory's light.
    Candle warmth and falloff, the dark dome (ambient falling off away from the table, the thin bright band), the ambient level, the colour grade
    (exposure, true-black point, display gamma, white balance), and the projected-spot screen density of the memory switching on and off.
-   Blank: one dim white light in a flat grey room.
+   Blank: one dim white light in a dim grey room.
    Fitness (node-safe): a small synthetic frame of the party (camera, hexagonal-table disc, cake, three figures, floor, dome wall and band, the flame)
    is shaded by the genome's lights and graded; its luminance and colour statistics are compared with the film's (refs/light.json: luma percentiles,
    black fraction, mean, mean luma in rings around the candle, colour of highlights and of shadows, five party frames).
@@ -13,13 +13,13 @@
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t;
   const cauchy = (d, tol) => 1 / (1 + (d / tol) * (d / tol));
   const genes = [
-    ['kelvin', 'CANDLE', 1000, 6500, 6500], ['candleI', 'CANDLE', 0, 8, .3], ['range', 'CANDLE', .1, 3, 1], ['decay', 'CANDLE', .5, 4, 2],
+    ['kelvin', 'CANDLE', 1000, 6500, 6500], ['yellow', 'CANDLE', 0, 1, 0], ['candleI', 'CANDLE', 0, 8, .3], ['range', 'CANDLE', .1, 3, 1], ['decay', 'CANDLE', .5, 4, 2],
     ['domeFall', 'DOME', 0, 3, 0], ['bandI', 'DOME', 0, 3, 0],
-    ['amb', 'AMBIENT', 0, 1, .3], ['ambWarm', 'AMBIENT', -1, 1, 0],
+    ['amb', 'AMBIENT', 0, 1, .08], ['ambWarm', 'AMBIENT', -1, 1, 0],
     ['exposure', 'GRADE', .2, 4, 1], ['black', 'GRADE', 0, .2, 0], ['gamma', 'GRADE', 1.6, 3, 2.2], ['warmth', 'GRADE', -1, 1, 0],
     ['spotDensity', 'SPOT', 0, 1, .5], ['spotSize', 'SPOT', .2, 3, 1], ['spotDecay', 'SPOT', .05, 1.5, .35]];
   const groups = ['CANDLE', 'DOME', 'AMBIENT', 'GRADE', 'SPOT'];
-  const stages = [['CANDLE', 'colour', .8], ['DOME', 'falloff', .8], ['AMBIENT', 'level', .8], ['GRADE', 'fit', .88]];
+  const stages = [['CANDLE', 'hiC', .85], ['DOME', 'falloff', .8], ['AMBIENT', 'level', .8], ['GRADE', 'fit', .88]];
   const making = [['dark', 0, .2], ['match struck', .2, .4], ['candle light grows', .4, .8], ['grade settles', .8, 1]];
   const blank = () => Float64Array.from(genes.map(g => g[4]));
   const named = G => { const o = {}; genes.forEach((g, i) => o[g[0]] = G[i]); return o; };
@@ -28,7 +28,7 @@
     r = t <= 66 ? 255 : 329.698727446 * Math.pow(t - 60, -.1332047592); g = t <= 66 ? 99.4708025861 * Math.log(t) - 161.1195681661 : 288.1221695283 * Math.pow(t - 60, -.0755148492);
     b = t >= 66 ? 255 : t <= 19 ? 0 : 138.5177312231 * Math.log(t - 10) - 305.0447927307; const c = [r, g, b].map(v => clamp(v, 0, 255) / 255), m = Math.max(...c); return c.map(v => Math.pow(v / m, 2.2)); }
   /* ------------------------------------------------------------------ the synthetic party frame: geometry is fixed, cast once */
-  const FW = 80, FH = 45, CAM = [0, .95, 1.55], LOOK = [0, .45, 0], FOV = 38, CANDLE_P = [0, .6, 0], TY = .43;
+  const FW = 64, FH = 36, CAM = [0, .95, 1.55], LOOK = [0, .45, 0], FOV = 38, CANDLE_P = [0, .6, 0], TY = .43;
   const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]], dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2], nrm = a => { const l = Math.hypot(a[0], a[1], a[2]); return [a[0] / l, a[1] / l, a[2] / l]; };
   const crs = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
   let SCENE = null;
@@ -57,7 +57,8 @@
     SCENE = { px, candle: [cx / FW, cy / FH] }; return SCENE; }
   /* ------------------------------------------------------------------ shade and grade one frame; returns sRGB 0..255 per pixel */
   function params(G) { const g = named(G), wb = [1 + .12 * g.warmth, 1, 1 - .3 * g.warmth];
-    return { candleRGB: kelvinRGB(g.kelvin), candleIntensity: g.candleI, candleRange: g.range, candleDecay: g.decay, ambient: g.amb, ambientRGB: [1 + .25 * g.ambWarm, 1, 1 - .45 * g.ambWarm].map(v => clamp(v, 0, 2)),
+    const kc = kelvinRGB(g.kelvin); kc[2] *= 1 - .8 * g.yellow;   // the flame reads more yellow than a black body (less blue)
+    return { candleRGB: kc, candleIntensity: g.candleI, candleRange: g.range, candleDecay: g.decay, ambient: g.amb, ambientRGB: [1 + .25 * g.ambWarm, 1, 1 - .45 * g.ambWarm].map(v => clamp(v, 0, 2)),
       domeFalloff: g.domeFall, domeBand: g.bandI, exposure: g.exposure, blackPoint: g.black, gamma: g.gamma, warmth: g.warmth, whiteBalance: wb,
       spotDensity: g.spotDensity, spotSize: g.spotSize, spotDecay: g.spotDecay }; }
   function render(G) { const S = scene(), P = params(G), out = new Float64Array(S.px.length * 3), cc = P.candleRGB, ac = P.ambientRGB;
@@ -66,7 +67,7 @@
       else { const v = sub(CANDLE_P, q.p), d = Math.hypot(v[0], v[1], v[2]), ndl = Math.max(0, dot(q.n, v) / d), att = P.candleIntensity / (1 + Math.pow(d / P.candleRange, P.candleDecay));
         const domeK = Math.exp(-P.domeFalloff * Math.hypot(q.p[0], q.p[2]));   // the dome darkens away from the table
         c = q.alb.map((a, k) => a * (cc[k] * ndl * att + P.ambient * ac[k] * domeK)); if (q.kind === 'band') c = c.map((x, k) => x + P.domeBand * [.85, .9, .88][k]); }
-      for (let k = 0; k < 3; k++) { let x = c[k] * P.exposure * P.whiteBalance[k]; x = Math.max(0, x - P.blackPoint) / (1 - P.blackPoint); x = x / (1 + .25 * x);   // a soft shoulder
+      for (let k = 0; k < 3; k++) { let x = c[k] * P.exposure * P.whiteBalance[k]; x = Math.max(0, x - P.blackPoint) / (1 - P.blackPoint); x = x * (1 + x / 4) / (1 + x);   // a soft shoulder (Reinhard, white at 2)
         out[i * 3 + k] = 255 * Math.pow(clamp(x, 0, 1), 1 / P.gamma); } });
     return out; }
   const RING = [0, .05, .1, .2, .3, .45, .7];
@@ -85,9 +86,9 @@
     const eRing = s.rings.reduce((a, v, k) => a + Math.abs(Math.log((v + 2) / (r.rings[k] + 2))), 0) / s.rings.length, falloff = cauchy(eRing, .18);
     const chroma = c => c ? [c[0] / Math.max(1, c[1]), c[2] / Math.max(1, c[1])] : [1, 1];   // red over green and blue over green: the warmth independent of the level
     const h = chroma(s.hiRGB), hr = chroma(r.hiRGB), d = chroma(s.shRGB), dr = chroma(r.shRGB);
-    const colour = cauchy(Math.abs(h[0] - hr[0]) + Math.abs(h[1] - hr[1]), .12) * (s.hiRGB ? 1 : .5) * (.5 + .5 * cauchy(Math.abs(d[0] - dr[0]) + Math.abs(d[1] - dr[1]), .12));
+    const hiC = cauchy(Math.abs(h[0] - hr[0]) + Math.abs(h[1] - hr[1]), .12) * (s.hiRGB ? 1 : .5), shC = cauchy(Math.abs(d[0] - dr[0]) + Math.abs(d[1] - dr[1]), .12) * (s.shRGB ? 1 : .5), colour = hiC * (.5 + .5 * shC);
     const fit = .35 * level + .35 * falloff + .3 * colour;
-    return { fit, parts: { level, falloff, colour, pct: s.pct, black: s.black, mean: s.mean, rings: s.rings, hiRGB: s.hiRGB, shRGB: s.shRGB } }; }
+    return { fit, parts: { level, falloff, colour, hiC, shC, pct: s.pct, black: s.black, mean: s.mean, rings: s.rings, hiRGB: s.hiRGB, shRGB: s.shRGB } }; }
   /* ------------------------------------------------------------------ anchors: where the light sits (the candle flame centre the scene is lit from) */
   function anchors(G) { return { candle: CANDLE_P.slice(), domeCentre: [0, 0, 0] }; }
   /* ------------------------------------------------------------------ build: the lights; opts.t = how far made (dark, the match, the candle light grows, the grade settles) */

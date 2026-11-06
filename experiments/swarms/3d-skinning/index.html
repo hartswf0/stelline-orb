@@ -411,7 +411,7 @@ function stressPose(t) { const ph = (t % 12) / 12, seg = (a, b) => sst(a, b, ph)
   const bend = lerp(.1, 2.55, seg(.3, .38) * (1 - seg(.44, .5))) + .25 * seg(.55, .6) * (1 - seg(.7, .75)), tw = 2.6 * Math.sin(PI * seg(.77, .98));
   const e = el * PI / 180, d = V(Math.sin(e) * (1 - fwd * .9), -Math.cos(e), Math.sin(e) * fwd).normalize();
   const lab = ph < .25 ? 'ARM RAISE' : ph < .5 ? 'FOLD' : ph < .75 ? 'REACH' : 'FOREARM TWIST';
-  return { lab, arms: { L: { dir: d, bend, pole: V(.4, -.8, -.6), twist: tw } } }; }
+  return { lab, arms: { L: { dir: d, bend, pole: V(.15, -.25, -1), twist: tw } } }; }
 
 /* =============================================================== EVERY FRAME */
 function resize() { const r = viewEl.getBoundingClientRect(); R.setSize(r.width, r.height, false); cam.aspect = r.width / r.height; cam.fov = cam.aspect < 1 ? 2 * Math.atan(Math.tan(24 * PI / 180) / cam.aspect) * 180 / PI : 36; if (STRESS) cam.fov = cam.aspect < 1 ? 2 * Math.atan(Math.tan(22 * PI / 180) / cam.aspect) * 180 / PI : 32; cam.updateProjectionMatrix(); layoutDev(); }

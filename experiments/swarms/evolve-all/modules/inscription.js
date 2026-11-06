@@ -109,13 +109,13 @@
     let eAng = Math.abs(dir(mC) - dir(fC)); if (eAng > Math.PI) eAng = 2 * Math.PI - eAng;
     const ePitch = Math.abs(gap(mC) - gap(fC)) / gap(fC);
     let eW = 0, eH = 0; box.forEach((b, c) => { eW += Math.abs(Math.log(b[0] / film.chars[c].w)); eH += Math.abs(Math.log(b[1] / film.chars[c].h)); });
-    const hp = { centre: soft(eCentre, SC.centre), angle: soft(eAng, SC.angle), pitch: soft(ePitch, SC.pitch), box: soft((eW + eH) / 8, SC.size),
+    const hp = { centre: soft(eCentre, SC.centre), angle: soft(eAng, SC.angle), pitch: soft(ePitch, SC.pitch, 8), box: soft((eW + eH) / 8, SC.size, 8),
       width: soft(Math.abs(Math.log(g.pressure / R / film.strokeWidth)), SC.width) };
     const hand = (hp.centre + hp.angle + hp.pitch + hp.box + hp.width) / 5;
     let eC = 0; for (let c = 0; c < 4; c++) eC += Math.hypot(mC[c][0] - fC[c][0], mC[c][1] - fC[c][1]);
     // FLOURISH: the Z's four corners against the film's
     const FC = flourishCorners(g).map(p => place(g, p[0], p[1])); let eF = 0; FC.forEach((p, i) => eF += Math.hypot(p[0] / R - film.flourish[i][0], p[1] / R - film.flourish[i][1]));
-    const flourish = soft(eF / 4, SC.flourish);
+    const flourish = soft(eF / 4, SC.flourish, 8);
     // COLOUR: the icing against the cake top, per channel, as the film shows it (icing / top)
     const tgt = film.icingRel.map((v, i) => clamp(v * sup.col[i], 0, 1)), colour = soft(Math.hypot(g.r - tgt[0], g.g - tgt[1], g.b - tgt[2]), SC.colour, 1.5 / SC.colour);   // the slope reaches across the whole colour cube
     // SUPPORT: every piped point on the cake top, inside the rim (a bead that runs off the edge fails)
