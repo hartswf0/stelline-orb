@@ -1367,6 +1367,42 @@ function loop(now) { if (!auto) return; const dt = Math.min(.05, (now - last) / 
 resize(); showFrame(); drawOLED(); requestAnimationFrame(loop);
 setInterval(() => { oledDirty = true; }, 500);
 
+
+/* =============================================================== USER MEDIA IMPORTER (DRAG-AND-DROP OR PRESS [I]) */
+const wFileImp = document.createElement('input');
+wFileImp.type = 'file'; wFileImp.multiple = true; wFileImp.accept = 'image/*,video/*,audio/*,.json';
+wFileImp.style.display = 'none'; document.body.append(wFileImp);
+
+function weaverImportFiles(files) {
+  if (!files || !files.length) return;
+  Array.from(files).forEach(f => {
+    const url = URL.createObjectURL(f);
+    const name = f.name.replace(/\.[^.]+$/, '').toUpperCase().slice(0, 14);
+    if (f.type.startsWith('video/') || /\.(mp4|webm|mov)$/i.test(f.name)) {
+      if (typeof oledVideo !== 'undefined') { oledVideo.src = url; oledVideo.play().catch(() => {}); }
+      say('IMPORTED VIDEO TO OLED & TABLE · ' + name);
+    } else if (f.type.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(f.name)) {
+      const tex = new T.TextureLoader().load(url, t => {
+        t.encoding = T.sRGBEncoding;
+        const slot = DOC.cast.length % KIDS.length;
+        kidTex[slot] = t;
+        KIDS[slot][6] = 1; // 1 frame static/custom cutout
+        if (!DOC.cast.includes(slot)) DOC.cast.push(slot);
+        DOC.hasTable = true;
+        showFrame(); oledDirty = true;
+        say('IMPORTED PHOTO CUTOUT AT TABLE · ' + name);
+      });
+    } else if (f.type.startsWith('audio/') || /\.(mp3|wav|ogg|m4a)$/i.test(f.name)) {
+      if (typeof mixAudio !== 'undefined') { mixAudio.src = url; mixAudio.play().catch(() => {}); }
+      say('IMPORTED BIRTHDAY AUDIO · ' + name);
+    }
+  });
+}
+wFileImp.addEventListener('change', e => { weaverImportFiles(e.target.files); wFileImp.value = ''; });
+addEventListener('dragover', e => e.preventDefault());
+addEventListener('drop', e => { e.preventDefault(); if (e.dataTransfer && e.dataTransfer.files) weaverImportFiles(e.dataTransfer.files); });
+addEventListener('keydown', e => { if ((e.key === 'i' || e.key === 'I') && !e.metaKey && !e.ctrlKey) wFileImp.click(); });
+
 /* =============================================================== a handle for scripts: tests, and the film */
 window.FORGE = { S, get DOC() { return DOC; }, turn, press, rings, scrub, nodes, curNode, pickTo, setMode, setVerb, GUIDE, GSTEPS, PAIR, CINE, setCine, CAM_SHOTS, KID_POSES, applyCamShot, applyKidPose, now: () => NOW, gizmoHit, gizmoDrag, setStretch, setPull, VERBS, MODES, spawn, place, hitAt, strokeStart, strokeMove, strokeEnd, snapshot, showFrame, cam, CAKE, ORB, RINGS, BTN, OC, perf: () => perf,
   manual() { auto = false; }, setAim(x, y) { hover = x == null ? null : { x, y }; }, aim: () => AIM, advance(dt) { update(dt); render(); }, step(dt) { update(dt); placeCam(); cam.updateMatrixWorld(); }, worldToRoom(v) { const p = v.clone().project(cam); return [(p.x + 1) / 2 * roomEl.clientWidth, (1 - p.y) / 2 * roomEl.clientHeight]; }, local(v) { return CAKE.localToWorld(v.clone()); } };
