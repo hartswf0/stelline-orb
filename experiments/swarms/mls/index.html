@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Blow</title>
+<style>
+@font-face { font-family: 'Oswald'; src: url('../../../ana/assets/oswald-latin-400-normal.woff2') format('woff2'); font-weight: 400; }
+@font-face { font-family: 'Oswald'; src: url('../../../ana/assets/oswald-latin-500-normal.woff2') format('woff2'); font-weight: 500; }
+:root { --bg: #050606; --ink: #d9e2de; --dim: #6f7c77; --amber: #e8b264; }
+* { box-sizing: border-box; } html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); overflow: hidden; }
+body { font: 13px/1.4 'Oswald', 'Arial Narrow', sans-serif; letter-spacing: .06em; -webkit-user-select: none; user-select: none; }
+.app { height: 100dvh; display: grid; grid-template-rows: minmax(0, 1fr) clamp(200px, 34vh, 330px); }
+body.proof .app { width: 1920px; height: 1080px; grid-template-rows: 780px 300px; }
+body.strip .app { display: block; width: 1290px; height: 1250px; }
+#view { position: relative; overflow: hidden; } #view canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+#dev { position: relative; background: radial-gradient(120% 140% at 50% 0%, #121413 0%, #070807 60%, #030303 100%); border-top: 1px solid #161918; touch-action: none; }
+#dev canvas { display: block; width: 100%; height: 100%; } body.strip #dev { display: none; } body.strip #view { width: 1290px; height: 1250px; }
+#info { position: absolute; inset: 0; background: rgba(3, 4, 4, .95); display: none; overflow: auto; padding: 18px 16px 30px; font: 14px/1.5 -apple-system, Arial, sans-serif; letter-spacing: 0; z-index: 5; }
+#info.on { display: block; } #info h3 { font: 500 15px 'Oswald', sans-serif; letter-spacing: .1em; margin: 0 0 10px; color: var(--amber); }
+#info h4 { font: 500 13px 'Oswald', sans-serif; letter-spacing: .1em; margin: 18px 0 6px; color: var(--ink); }
+#info table { border-collapse: collapse; width: 100%; max-width: 760px; } #info td { padding: 6px 6px; border-bottom: 1px solid #1c201e; vertical-align: top; }
+#info td:first-child { font: 500 13px 'Oswald', sans-serif; letter-spacing: .08em; white-space: nowrap; color: var(--ink); }
+#info p { max-width: 760px; color: #a9b4b0; margin: 6px 0; } #info a { color: var(--amber); }
+button.x { font: 500 12px 'Oswald', sans-serif; letter-spacing: .12em; color: var(--ink); background: #121514; border: 1px solid #2a302d; border-radius: 4px; padding: 7px 12px; cursor: pointer; margin: 10px 8px 0 0; }
+</style></head><body>
+<div class="app"><div id="view"></div><div id="dev"></div></div>
+<div id="info"><h3>THE BLOW &middot; A BIRTHDAY MADE BY BENDING ONE PICTURE</h3>
+<p>Goal: shape one breath so all seven candles go out. You have three breaths. The breath is read off the face itself: how much the cheek
+discs grow and how large the mouth opening is after the handles have deformed the engraving. So the deformation family you choose for the face changes the breath.</p>
+<table>
+<tr><td>SELECT</td><td>Short press: the next thing to work: STREAMER, CHEEKS, LIPS, FLAMES. Long press: the next deformation family (AFFINE, SIMILARITY, RIGID) for that thing's surface.</td></tr>
+<tr><td>KNURLED RING</td><td>The value of the selected thing: how far the streamer wraps the cake, how much breath the cheeks hold, how tightly the lips purse, how many candles are lit. Turn it by hand (quiet detents); the machine then steps to it at 11.8 a second, one click a step.</td></tr>
+<tr><td>TRIANGLE RING</td><td>Cheeks or lips: the aim of the breath, left or right. Streamer: its height on the cake. Flames: their size (a bigger flame needs a stronger breath).</td></tr>
+<tr><td>SCALE RING</td><td>Where you kneel: the flat layers slide against each other (the face plate behind, the cake in front).</td></tr>
+<tr><td>HOLD</td><td>Short press: blow. The cheeks empty under the breath, the machine stepping them down. Hold it down to switch the memory off.</td></tr>
+<tr><td>LEFT COLLAR</td><td>SCENE plays a ten-second demonstration through the same rings and buttons. CLEAR relights the candles and resets.</td></tr>
+</table>
+<h4>WHICH FAMILY FOR WHICH SURFACE</h4><table id="why"></table>
+<h4>THE LAST BREATH, MEASURED IN EACH FAMILY</h4><table id="meas"><tr><td>-</td><td>No breath yet.</td></tr></table>
+<button class="x" id="cmp">COMPARE THE FAMILIES SIDE BY SIDE</button><button class="x" id="infoClose">CLOSE</button>
+<p style="margin-top:14px">Picture, handles and solver are drawn and written for this page. Moving least squares after Schaefer, McPhail &amp; Warren (2006). <a href="operator.html">Operator page</a> &middot; <a href="handles.json">handle set</a> &middot; <a href="README.md">README</a></p></div>
+<script src="mls.js"></script><script src="scene.js"></script><script src="game.js"></script><script src="sound.js"></script><script src="textures.js"></script>
+<script>
+'use strict';
+const Q = new URLSearchParams(location.search), PROOF = Q.has('proof'), STRIP = Q.has('strip');
+if (PROOF) document.body.classList.add('proof'); if (STRIP) document.body.classList.add('strip');
+const TAU = Math.PI * 2, clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+/* =============================================================== SOUND: the device's grains (ana/device-sounds.wav) and the shared mixer */
+let AC = null, BUF = null, GR = null, GSR = 48000;
+function ac() { if (PROOF || STRIP) return null; if (!AC) { AC = new (window.AudioContext || window.webkitAudioContext)(); fetch('../../../ana/device-sounds.wav').then(r => r.arrayBuffer()).then(b => AC.decodeAudioData(b)).then(b => { BUF = b; GR = b.getChannelData(0); GSR = b.sampleRate; startRoom(); }).catch(() => { }); } if (AC.state === 'suspended') AC.resume(); return AC; }
+function playBuf(data, vol) { const a = AC; if (!a) return; const b = a.createBuffer(1, data.length, a.sampleRate); b.getChannelData(0).set(data); const s = a.createBufferSource(); s.buffer = b; const g = a.createGain(); g.gain.value = vol == null ? 1 : vol; s.connect(g).connect(a.destination); s.start(); return s; }
+function startRoom() { const d = SOUND.mix([], { sr: AC.sampleRate, dur: 4, grains: GR, gsr: GSR, noNorm: true }); const b = AC.createBuffer(1, d.length, AC.sampleRate); b.getChannelData(0).set(d); const s = AC.createBufferSource(); s.buffer = b; s.loop = true; const g = AC.createGain(); g.gain.value = .9; s.connect(g).connect(AC.destination); s.start(); }
+function sound(e) { if (!AC) return; const dur = { detent: .1, step: .1, select: .4, family: .2, refuse: .1, fail: .5, out: .2, wash: .7, off: 1, blow: (e.dur || 1) + .1 }[e.kind] || .3;
+  try { playBuf(SOUND.mix([Object.assign({}, e, { t: 0 })], { sr: AC.sampleRate, dur, grains: GR, gsr: GSR, noRoom: true, noNorm: true, seed: (Math.random() * 1e9) | 0 }), .9); } catch (err) { } }
+/* =============================================================== THE GAME */
+const G = new GAME.Game({ emit: e => sound(e) });
+window.G = G;
+/* =============================================================== THE PICTURE: WebGL meshes deformed by MLS every frame */
+const viewEl = document.getElementById('view'), GLC = document.createElement('canvas'), OV = document.createElement('canvas'); viewEl.append(GLC, OV);
+const gl = GLC.getContext('webgl', { premultipliedAlpha: true, antialias: true, preserveDrawingBuffer: true }), ox = OV.getContext('2d');
+const VS = 'attribute vec2 aP; attribute vec2 aT; uniform vec4 uX; varying vec2 vT; void main(){ vT = aT; gl_Position = vec4(aP * uX.xy + uX.zw, 0., 1.); }';
+const FS = 'precision mediump float; uniform sampler2D uS; uniform vec4 uM; varying vec2 vT; void main(){ gl_FragColor = texture2D(uS, vT) * uM; }';
+function sh(t, s) { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); return o; }
+const PR = gl.createProgram(); gl.attachShader(PR, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(PR, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(PR); gl.useProgram(PR);
+const aP = gl.getAttribLocation(PR, 'aP'), aT = gl.getAttribLocation(PR, 'aT'), uX = gl.getUniformLocation(PR, 'uX'), uM = gl.getUniformLocation(PR, 'uM');
+gl.enableVertexAttribArray(aP); gl.enableVertexAttribArray(aT); gl.enable(gl.BLEND);
+function tex(c) { const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t); gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c); [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T].forEach(p => gl.texParameteri(gl.TEXTURE_2D, p, gl.CLAMP_TO_EDGE));
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR); return t; }
+function mesh(rect, cols, rows) { const m = MLS.grid(rect[0], rect[1], rect[2], rect[3], cols, rows); m.pb = gl.createBuffer(); m.tb = gl.createBuffer(); m.ib = gl.createBuffer(); m.lb = gl.createBuffer(); m.def = new Float64Array(m.verts.length); m.f32 = new Float32Array(m.verts.length);
+  gl.bindBuffer(gl.ARRAY_BUFFER, m.tb); gl.bufferData(gl.ARRAY_BUFFER, m.uv, gl.STATIC_DRAW); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, m.ib); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, m.idx, gl.STATIC_DRAW);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, m.lb); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, m.lines, gl.STATIC_DRAW); return m; }
+let TX = null; const ME = {};
+function initPicture() {
+  TX = { face: tex(TEX.face()), flame: tex(TEX.flame()), paper: tex(TEX.paper()), cake: tex(TEX.cake(SCENE.CANDLES)), glow: tex(TEX.glow()), white: tex((() => { const c = document.createElement('canvas'); c.width = c.height = 2; const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, 2, 2); return c; })()) };
+  const F = SCENE.SURF; ME.face = mesh(F.face.rect, F.face.grid[0], F.face.grid[1]); ME.paper = mesh(F.paper.rect, F.paper.grid[0], F.paper.grid[1]);
+  ME.flames = SCENE.CANDLES.map(cd => mesh([cd.x + F.flame.rect[0], cd.y + F.flame.rect[1], F.flame.rect[2], F.flame.rect[3]], F.flame.grid[0], F.flame.grid[1]));
+  ME.quad = mesh([0, 0, 1, 1], 1, 1);
+}
+// solve every surface of a world state under per-surface families; returns { T, face, paper, flames[] } (deformed vertex arrays)
+function solveWorld(st, fam, alpha) { const H = G.H, T = SCENE.targets(H, st), out = { T };
+  out.face = MLS.solve(SCENE.pack(H, T, 'face'), ME.face.verts, new Float64Array(ME.face.verts.length), fam.face, alpha);
+  out.paper = MLS.solve(SCENE.pack(H, T, 'paper'), ME.paper.verts, new Float64Array(ME.paper.verts.length), fam.paper, alpha);
+  out.flames = ME.flames.map((m, i) => MLS.solve(SCENE.pack(H, T, 'flame', i), m.verts, new Float64Array(m.verts.length), fam.flame, alpha)); return out; }
+let XF = [1, 1, 0, 0];
+function draw(m, def, t, mul, add, shift) { gl.blendFunc(gl.ONE, add ? gl.ONE : gl.ONE_MINUS_SRC_ALPHA); for (let k = 0; k < def.length; k++) m.f32[k] = def[k];
+  gl.bindBuffer(gl.ARRAY_BUFFER, m.pb); gl.bufferData(gl.ARRAY_BUFFER, m.f32, gl.DYNAMIC_DRAW); gl.vertexAttribPointer(aP, 2, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, m.tb); gl.vertexAttribPointer(aT, 2, gl.FLOAT, false, 0, 0); gl.bindTexture(gl.TEXTURE_2D, t);
+  gl.uniform4f(uX, XF[0], XF[1], XF[2] + XF[0] * (shift || 0), XF[3]); gl.uniform4f(uM, mul[0], mul[1], mul[2], mul[3]);
+  if (m.wire) { gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, m.lb); gl.drawElements(gl.LINES, m.lines.length, gl.UNSIGNED_SHORT, 0); }
+  else { gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, m.ib); gl.drawElements(gl.TRIANGLES, m.idx.length, gl.UNSIGNED_SHORT, 0); } }
+function quad(x, y, w, h, t, mul, add, shift) { draw(ME.quad, [x, y, x + w, y, x, y + h, x + w, y + h], t, mul, add, shift); }
+const ga = (v, a) => [v * a, v * a, v * a, a];
+/* a panel: a world drawn into a rect of the canvas, scene crop fitted to it */
+let DPR = 1, VW = 0, VH = 0;
+function panelXf(p) { if (p.crop) return { cx: p.crop[0], cy: p.crop[1], cw: p.crop[2], ch: p.crop[3] };
+  // fit the region that matters (x 60..540, y 30..800) into the panel, centred
+  const a = p.w / p.h; let cw = 500, ch = 770; if (cw / ch < a) cw = ch * a; else ch = cw / a; return { cx: 300 - cw / 2, cy: 415 - ch / 2, cw, ch }; }
+function drawPanel(p, st, fam, extra) {
+  const c = panelXf(p), light = st.flames.reduce((s, f) => s + f.lit, 0) / 7, dark = 1 - (extra.dark || 0);
+  gl.viewport(p.x * DPR, (VH - p.y - p.h) * DPR, p.w * DPR, p.h * DPR); gl.enable(gl.SCISSOR_TEST); gl.scissor(p.x * DPR, (VH - p.y - p.h) * DPR, p.w * DPR, p.h * DPR);
+  gl.clearColor(.012, .015, .015, 1); gl.clear(gl.COLOR_BUFFER_BIT); gl.disable(gl.SCISSOR_TEST);
+  XF = [2 / c.cw, -2 / c.ch, -1 - 2 * c.cx / c.cw, 1 + 2 * c.cy / c.ch];
+  const S = extra.solved || solveWorld(st, fam, extra.alpha || 1), yaw = st.yaw || 0, near = yaw * .55, far = -yaw * 1.5;
+  const flick = .95 + .05 * SCENE.vnoise(st.t * 9), Lf = (.17 + .83 * light * flick) * dark, Lc = (.2 + .8 * light) * dark;
+  quad(0, 0, 600, 1000, TX.cake, ga(Lc, 1), false, near);
+  st.flames.forEach((f, i) => { if (f.lit <= 0) return; const tip = S.T['f' + i + '.tip'], wk = S.T['f' + i + '.wick'], cx = (tip[0] + wk[0]) / 2, cy = (tip[1] + wk[1]) / 2, r = 120 * f.size; quad(cx - r, cy - r, 2 * r, 2 * r, TX.glow, ga(f.lit * dark * .9, f.lit * dark * .9), true, near); });
+  draw(ME.face, S.face, TX.face, ga(Lf, dark), false, far);
+  draw(ME.paper, S.paper, TX.paper, ga(Lc * .95, dark), false, near);
+  S.flames.forEach((d, i) => { const l = st.flames[i].lit * dark; if (l > 0) draw(ME.flames[i], d, TX.flame, [l, l, l, l], true, near); });
+  if (extra.wire) { [['face', far], ['paper', near]].forEach(([k, sft]) => { ME[k].wire = true; draw(ME[k], S[k], TX.white, [.16, .2, .2, .16], false, sft); ME[k].wire = false; });
+    S.flames.forEach((d, i) => { ME.flames[i].wire = true; draw(ME.flames[i], d, TX.white, [.16, .2, .2, .16], false, near); ME.flames[i].wire = false; }); }
+  return { S, c, near, far };
+}
+/* overlay: smoke and embers, the arc beside the cake, the selected handles while worked, the panel's label and the game's state */
+function overlay(p, st, R, extra) {
+  const c = R.c, k = p.w / c.cw, X = x => p.x + (x - c.cx) * k, Y = y => p.y + (y - c.cy) * k, dark = 1 - (extra.dark || 0), g = ox;
+  g.save(); g.beginPath(); g.rect(p.x, p.y, p.w, p.h); g.clip();
+  // smoke from each candle once it is out, and the ember on the wick
+  st.flames.forEach((f, i) => { if (f.outAt == null) return; const a = st.t - f.outAt; if (a < 0 || a > 3.4) return; const cd = SCENE.CANDLES[i];
+    g.fillStyle = `rgba(255,140,60,${Math.max(0, 1 - a / 1.2) * dark})`; g.beginPath(); g.arc(X(cd.x + R.near), Y(cd.y), Math.max(1, 2 * k), 0, TAU); g.fill();
+    const len = 150 * Math.min(1, a / 1.5); g.lineCap = 'round';
+    for (let j = 0; j < 22; j++) { const s0 = j / 22, s1 = (j + 1) / 22, xs = s => cd.x + R.near + 10 * s * Math.sin(s * 5 + st.t * 1.7 + i * 2) + 18 * s * s * Math.sin(i + st.t * .5), ys = s => cd.y - len * s;
+      g.strokeStyle = `rgba(205,205,210,${.32 * Math.max(0, 1 - a / 3.4) * (1 - s0 * .7) * dark})`; g.lineWidth = Math.max(.6, (1 + 3 * s0) * k); g.beginPath(); g.moveTo(X(xs(s0)), Y(ys(s0))); g.lineTo(X(xs(s1)), Y(ys(s1))); g.stroke(); } });
+  // the arc beside the cake: segments for the knurl's range, lit to where the machine is, a hand mark where the hand set it
+  if (extra.arc) { const t = GAME.TARGETS[G.sel], key = t + '.k', ch = G.C[key], n = ch.max - ch.min, cx = 512 + R.near, cy = 498, r = 24;
+    const age = st.t - G.lastWork, al = clamp(1.6 - age / 1.6, 0, 1) * dark; if (al > 0) {
+      for (let j = 0; j < n; j++) { const a0 = Math.PI * .75 + j / n * Math.PI * 1.5, a1 = a0 + Math.PI * 1.5 / n * .7; g.strokeStyle = j < ch.applied - ch.min ? `rgba(232,178,100,${.9 * al})` : `rgba(200,210,206,${.25 * al})`; g.lineWidth = 3 * k; g.beginPath(); g.arc(X(cx), Y(cy), r * k, a0, a1); g.stroke(); }
+      const mark = (v, col, rr) => { const a = Math.PI * .75 + (v - ch.min + .35) / n * Math.PI * 1.5; g.strokeStyle = col; g.lineWidth = 1.5 * k; g.beginPath(); g.moveTo(X(cx + Math.cos(a) * (r + 4)), Y(cy + Math.sin(a) * (r + 4))); g.lineTo(X(cx + Math.cos(a) * (r + rr)), Y(cy + Math.sin(a) * (r + rr))); g.stroke(); };
+      mark(ch.applied, `rgba(240,240,236,${al})`, 12); if (ch.target !== ch.applied) mark(ch.target, `rgba(232,178,100,${al})`, 8);
+      const [role, val] = G.ringRole(G.RINGS[1]); g.fillStyle = `rgba(200,210,206,${.8 * al})`; g.font = `500 ${Math.max(9, 11 * k)}px Oswald, sans-serif`; g.textAlign = 'center'; g.fillText(t, X(cx), Y(cy + r + 20)); g.fillStyle = `rgba(232,178,100,${.9 * al})`; g.fillText(val, X(cx), Y(cy + r + 34)); } }
+  // the selected thing's handles, while it is being worked (the reticle): points as rings, segments as lines
+  if (extra.marks) { const t = GAME.TARGETS[G.sel], al = clamp(1.6 - (st.t - G.lastWork) / 1.6, 0, 1) * dark; if (al > 0) {
+    const fn = SCENE.GROUPS[t] || (h => h.surf === 'flame' && /tip|side/.test(h.id)); g.strokeStyle = `rgba(225,232,229,${.75 * al})`; g.lineWidth = 1;
+    G.H.filter(fn).forEach(h => { const q = R.S.T[h.id], sft = h.surf === 'face' ? R.far : R.near; if (h.kind === 'p') { g.beginPath(); g.arc(X(q[0] + sft), Y(q[1]), 3.2, 0, TAU); g.stroke(); } else { g.beginPath(); g.moveTo(X(q[0] + sft), Y(q[1])); g.lineTo(X(q[2] + sft), Y(q[3])); g.stroke(); } }); } }
+  // label (comparison panels) and the game's state
+  g.textAlign = 'left'; g.font = `500 ${p.w > 300 ? 13 : 10}px Oswald, sans-serif`;
+  if (extra.label) { g.fillStyle = extra.hi ? 'rgba(232,178,100,.95)' : 'rgba(200,210,206,.85)'; g.fillText(extra.label, p.x + 10, p.y + 18); if (extra.sub) { g.fillStyle = 'rgba(140,150,146,.9)'; g.font = `400 ${p.w > 300 ? 11 : 9}px Oswald, sans-serif`; g.fillText(extra.sub, p.x + 10, p.y + 33); } }
+  if (extra.state) { g.textAlign = 'center'; g.font = `500 ${p.w > 300 ? 14 : 11}px Oswald, sans-serif`;
+    const lit = st.flames.filter(f => f.lit > .5).length, txt = extra.state;
+    if (txt) { g.fillStyle = `rgba(232,178,100,${.95 * dark})`; g.fillText(txt, X(300), Y(478)); } }
+  g.restore();
+}
+/* =============================================================== LAYOUT of the view: one panel (yours), or four (yours + the three families) */
+let COMPARE = PROOF;
+function panels() { if (!COMPARE) return [{ x: 0, y: 0, w: VW, h: VH, wi: 0 }];
+  const n = 4, best = [1, 2, 4].map(cols => { const rows = Math.ceil(n / cols), w = VW / cols, h = VH / rows, s = Math.min(w / .62, h); return { cols, rows, s }; }).sort((a, b) => b.s - a.s)[0];
+  const w = VW / best.cols, h = VH / best.rows; return [0, 1, 2, 3].map(i => ({ x: (i % best.cols) * w + 1, y: Math.floor(i / best.cols) * h + 1, w: w - 2, h: h - 2, wi: i })); }
+function stateText(wi) { const w = G.worlds[wi], lit = w.lit.reduce((a, b) => a + b, 0);
+  if (wi === 0 && G.result) return G.result; if (G.breaths === 0) return ''; return G.breath ? `BREATH ${G.breaths} OF 3` : `${7 - lit} OF 7 OUT · BREATH ${G.breaths} OF 3`; }
+function render() {
+  ox.clearRect(0, 0, VW, VH);
+  panels().forEach(p => { const w = G.worlds[p.wi], st = G.worldState(p.wi), fam = w.fam;
+    const R = drawPanel(p, st, fam, { dark: G.dark, alpha: G.alpha });
+    const sub = p.wi === 0 ? `FACE ${fam.face.toUpperCase()} · FLAMES ${fam.flame.toUpperCase()} · STREAMER ${fam.paper.toUpperCase()}` : 'ALL SURFACES';
+    overlay(p, st, R, { dark: G.dark, arc: p.wi === 0, marks: p.wi === 0, label: COMPARE ? (p.wi === 0 ? 'YOURS' : w.name) : null, sub: COMPARE ? sub : null, hi: p.wi === 0, state: stateText(p.wi) }); });
+}
+/* =============================================================== THE DEVICE: ana's barrel of rings, drawn and turned the same way */
+const devEl = document.getElementById('dev'), DC = document.createElement('canvas'); devEl.append(DC); const dx = DC.getContext('2d'); let DW = 0, DH = 0, BANDS = [], BTNS = [];
+function layoutDev() { const r = devEl.getBoundingClientRect(), pr = PROOF ? 1 : Math.min(2, devicePixelRatio); DW = r.width; DH = r.height; DC.width = DW * pr; DC.height = DH * pr; dx.setTransform(pr, 0, 0, pr, 0, 0);
+  const L = Math.min(DW - 24, 980), x0 = (DW - L) / 2, cy = DH * .44, rad = Math.min(DH * .3, L * .13); const w = f => f * L;
+  let x = x0; const seg = (kind, f, extra) => { const b = Object.assign({ kind, x, w: w(f), cy, rad }, extra || {}); x += w(f); return b; };
+  BANDS = [seg('collarL', .12), seg('scale', .2, { ring: G.RINGS[0] }), seg('redline', .06), seg('knurl', .14, { ring: G.RINGS[1] }), seg('tri', .2, { ring: G.RINGS[2] }), seg('chrome', .08), seg('collarR', .2)];
+  const cl = BANDS[0], cr = BANDS[6]; BTNS = [{ id: 'play', x: cl.x + cl.w * .5, y: cy - rad * .42, r: rad * .2 }, { id: 'clear', x: cl.x + cl.w * .5, y: cy + rad * .42, r: rad * .2 },
+    { id: 'select', x: cr.x + cr.w * .38, y: cy - rad * .5, r: rad * .22 }, { id: 'hold', x: cr.x + cr.w * .38, y: cy + rad * .38, r: rad * .26 }, { id: 'info', x: cr.x + cr.w * .82, y: cy - rad * .78, r: rad * .13 }]; }
+function cylShade(b, base, hi) { const g = dx.createLinearGradient(0, b.cy - b.rad, 0, b.cy + b.rad); g.addColorStop(0, '#0b0c0c'); g.addColorStop(.18, base); g.addColorStop(.42, hi); g.addColorStop(.62, base); g.addColorStop(1, '#070807'); return g; }
+function marksOn(b, list) { list.forEach(([a, fn]) => { const th = (a - b.ring.ang) * Math.PI / 180, c = Math.cos(th); if (c <= .05) return; fn(b.cy - Math.sin(th) * b.rad * .92, c); }); }
+const SCALE_NUMS = [[0, '00'], [18, '18'], [35, '35'], [60, '60'], [90, '90'], [120, '120'], [150, '150'], [180, '180'], [220, '220'], [255, '255'], [280, '280'], [300, '300'], [330, '330']];
+function fitText(s, x, y, w, px, col) { let f = px; dx.font = `500 ${f}px Oswald, sans-serif`; while (dx.measureText(s).width > w && f > 7) { f -= 1; dx.font = `500 ${f}px Oswald, sans-serif`; } dx.fillStyle = col; dx.fillText(s, x, y); }
+let pressAt = null;
+function drawDev() { dx.clearRect(0, 0, DW, DH);
+  BANDS.forEach(b => { const top = b.cy - b.rad, h = b.rad * 2;
+    if (b.kind === 'collarL' || b.kind === 'collarR') { dx.fillStyle = cylShade(b, '#3c4341', '#a9b2af'); dx.fillRect(b.x, top + h * .04, b.w, h * .92); }
+    else if (b.kind === 'scale') { dx.fillStyle = cylShade(b, '#1e2322', '#59615f'); dx.fillRect(b.x, top, b.w, h); dx.textAlign = 'center'; dx.textBaseline = 'middle';
+      marksOn(b, SCALE_NUMS.map(([a, s]) => [-a, (y, c) => { dx.save(); dx.translate(b.x + b.w * .5, y); dx.scale(1, c); dx.fillStyle = `rgba(232,238,236,${.35 + .6 * c})`; dx.font = `400 ${Math.round(b.rad * .26)}px Oswald, sans-serif`; dx.fillText(s, 0, 0); dx.fillRect(-b.w * .42, -1, b.w * .1, 2); dx.restore(); }]));
+      for (let a = 0; a < 360; a += 5) marksOn(b, [[-a, (y, c) => { dx.fillStyle = `rgba(200,210,206,${.3 * c})`; dx.fillRect(b.x + b.w * .86, y - .5, b.w * (a % 15 ? .06 : .12), 1); }]]); dx.textBaseline = 'alphabetic'; }
+    else if (b.kind === 'redline') { dx.fillStyle = cylShade(b, '#2a302e', '#78817e'); dx.fillRect(b.x, top, b.w, h); dx.fillStyle = '#c2453a'; for (let k = -2; k <= 2; k++) { const y = b.cy - Math.sin(k * .5) * b.rad * .9; dx.fillRect(b.x + b.w * .2, y - 1, b.w * .6, 2); } }
+    else if (b.kind === 'knurl') { dx.fillStyle = cylShade(b, '#2b3130', '#7c8683'); dx.fillRect(b.x, top, b.w, h); for (let a = 0; a < 360; a += 4) marksOn(b, [[a, (y, c) => { dx.fillStyle = `rgba(8,9,9,${.55 * c})`; dx.fillRect(b.x + 3, y - 1.2 * c, b.w - 6, 2.4 * c); }]]); }
+    else if (b.kind === 'tri') { dx.fillStyle = cylShade(b, '#4b5452', '#bcc5c2'); dx.fillRect(b.x, top, b.w, h);
+      for (let a = 0; a < 360; a += 12) marksOn(b, [[a, (y, c) => { const s = b.rad * .07 * c; dx.fillStyle = 'rgba(10,11,11,.85)'; [[.32, 1], [.68, 1.4]].forEach(([fx, k]) => { dx.beginPath(); dx.moveTo(b.x + b.w * fx - s * k, y); dx.lineTo(b.x + b.w * fx + s * k * .6, y - s * k * .8); dx.lineTo(b.x + b.w * fx + s * k * .6, y + s * k * .8); dx.fill(); }); dx.fillStyle = `rgba(90,98,96,${.6 * c})`; dx.fillRect(b.x + b.w * .4, y - .5, b.w * .14, 1); }]]); }
+    else if (b.kind === 'chrome') { const g = dx.createLinearGradient(b.x, 0, b.x + b.w, 0); g.addColorStop(0, '#d8dfdc'); g.addColorStop(.5, '#7d8784'); g.addColorStop(1, '#eef3f1'); dx.fillStyle = g; dx.fillRect(b.x, top + h * .02, b.w, h * .96);
+      dx.save(); dx.translate(b.x + b.w * .5, b.cy); dx.rotate(Math.PI / 2); dx.fillStyle = 'rgba(20,22,22,.75)'; dx.font = `500 ${Math.round(b.rad * .16)}px Oswald, sans-serif`; dx.textAlign = 'center'; dx.textBaseline = 'middle'; dx.fillText('VR — T0 — 0', 0, 0); dx.restore(); dx.textBaseline = 'alphabetic'; }
+    if (b.ring) { const c = G.C[G.chanFor(b.ring)], busy = c.target !== c.applied; dx.fillStyle = busy ? 'rgba(232,178,100,.9)' : 'rgba(200,210,206,.35)'; dx.fillRect(b.x + 4, top - 7, b.w - 8, 2);
+      const [role, val] = G.ringRole(b.ring); dx.textAlign = 'center'; fitText(role, b.x + b.w / 2, top + h + 15, b.w - 4, 11, 'rgba(120,130,126,.9)'); fitText(val, b.x + b.w / 2, top + h + 30, b.w - 4, 13, 'rgba(225,232,229,.92)'); }
+  });
+  BTNS.forEach(bt => { const g = dx.createRadialGradient(bt.x - bt.r * .3, bt.y - bt.r * .3, 1, bt.x, bt.y, bt.r); g.addColorStop(0, '#e8eeec'); g.addColorStop(.6, '#8f9996'); g.addColorStop(1, '#3a403e'); dx.fillStyle = g; dx.beginPath(); dx.arc(bt.x, bt.y, bt.r, 0, TAU); dx.fill();
+    dx.fillStyle = 'rgba(15,16,16,.85)'; if (bt.id === 'play') { dx.beginPath(); dx.moveTo(bt.x - bt.r * .3, bt.y - bt.r * .4); dx.lineTo(bt.x + bt.r * .45, bt.y); dx.lineTo(bt.x - bt.r * .3, bt.y + bt.r * .4); dx.fill(); }
+    if (bt.id === 'clear') dx.fillRect(bt.x - bt.r * .4, bt.y - bt.r * .08, bt.r * .8, bt.r * .16);
+    if (pressAt && pressAt.id === bt.id) { const u = clamp((G.now - pressAt.t) / .6, 0, 1); dx.strokeStyle = 'rgba(232,178,100,.95)'; dx.lineWidth = 2; dx.beginPath(); dx.arc(bt.x, bt.y, bt.r + 4, -Math.PI / 2, -Math.PI / 2 + TAU * u); dx.stroke(); }
+    if (bt.id === 'hold' && G.breath) { dx.strokeStyle = 'rgba(232,178,100,.95)'; dx.lineWidth = 2; dx.beginPath(); dx.arc(bt.x, bt.y, bt.r + 4, 0, TAU); dx.stroke(); }
+    if (bt.id === 'info') { dx.fillRect(bt.x - 1, bt.y - bt.r * .1, 2, bt.r * .6); dx.fillRect(bt.x - 1, bt.y - bt.r * .5, 2, 2); }
+    const lab = { select: 'SELECT', hold: 'HOLD', play: 'SCENE', clear: 'CLEAR' }[bt.id]; if (lab) { dx.font = `500 ${Math.round(Math.max(9, bt.r * .5))}px Oswald, sans-serif`; dx.textAlign = 'center';
+      if (bt.id === 'select') { const w = dx.measureText(lab).width + 10; dx.fillStyle = '#b8352c'; dx.fillRect(bt.x - w / 2, bt.y - bt.r - 20, w, 15); dx.fillStyle = '#f4e9e3'; dx.fillText(lab, bt.x, bt.y - bt.r - 9); }
+      else { dx.fillStyle = 'rgba(160,170,166,.85)'; dx.fillText(lab, bt.x, bt.y + bt.r + 13); } } });
+  const t = GAME.TARGETS[G.sel], surf = GAME.SURF_OF[t]; dx.textAlign = 'left'; const lx = BANDS[6].x + BANDS[6].w * .6, lw = BANDS[6].x + BANDS[6].w - lx - 2;
+  fitText(t, lx, BTNS[3].y + 2, lw, 13, 'rgba(232,178,100,.9)'); fitText(G.worlds[0].fam[surf].toUpperCase(), lx, BTNS[3].y + 17, lw, 11, 'rgba(200,210,206,.85)');
+  fitText(G.script ? 'THE SCENE' : 'YOURS', lx, BTNS[3].y + 31, lw, 10, 'rgba(120,130,126,.85)'); }
+/* hand on the rings */
+let drag = null;
+function userInput() { G.script = null; G.anims = []; }
+DC.addEventListener('pointerdown', e => { ac(); const r = DC.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+  const bt = BTNS.find(b => Math.hypot(b.x - x, b.y - y) < b.r + 10); if (bt) { if (bt.id === 'info') { openInfo(); return; } pressAt = { id: bt.id, t: G.now }; DC.setPointerCapture(e.pointerId); return; }
+  const band = BANDS.find(b => b.ring && x >= b.x && x <= b.x + b.w && Math.abs(y - b.cy) < b.rad * 1.15); if (band) { userInput(); drag = { band, y }; DC.setPointerCapture(e.pointerId); } });
+DC.addEventListener('pointermove', e => { if (!drag) return; const y = e.clientY - DC.getBoundingClientRect().top, d = y - drag.y; drag.y = y; G.handTurn(drag.band.ring, -d / drag.band.rad * 57.3 * .9); });
+function release() { drag = null; if (pressAt) { const long = G.now - pressAt.t > .6, id = pressAt.id; pressAt = null; if (id !== 'play') userInput(); G.press(id, long); } }
+DC.addEventListener('pointerup', release); DC.addEventListener('pointercancel', () => { drag = null; pressAt = null; });
+DC.addEventListener('wheel', e => { e.preventDefault(); ac(); const r = DC.getBoundingClientRect(), x = e.clientX - r.left; const band = BANDS.find(b => b.ring && x >= b.x && x <= b.x + b.w); if (band) { userInput(); G.handTurn(band.ring, -Math.sign(e.deltaY) * band.ring.deg); } }, { passive: false });
+addEventListener('keydown', e => { const k = e.key.toLowerCase(); if (k === ' ') { ac(); userInput(); G.press('hold', false); } if (k === 's') { ac(); userInput(); G.press('select', e.shiftKey); } });
+/* the info sheet (behind the device's small button): what each part does, why each family, and the comparison */
+function openInfo() { document.getElementById('info').classList.add('on');
+  document.getElementById('why').innerHTML = Object.values(SCENE.SURF).map(s => `<tr><td>${s.name} &middot; ${s.family.toUpperCase()}</td><td>${s.why}</td></tr>`).join('');
+  const rows = G.worlds.filter(w => w.meas).map(w => { const out = w.plan ? w.plan.filter(p => p.s >= 1).length : 0; return `<tr><td>${w.name} (face ${w.fam.face})</td><td>cheek discs +${(w.meas.cheek * 100).toFixed(1)}% area &middot; mouth opening ${w.meas.mouth.toFixed(0)} px&sup2;, ${w.meas.width.toFixed(1)} px wide &middot; breath strong enough for ${out} of the candles it reached</td></tr>`; });
+  if (rows.length) document.getElementById('meas').innerHTML = rows.join(''); }
+document.getElementById('infoClose').onclick = () => document.getElementById('info').classList.remove('on');
+document.getElementById('cmp').onclick = () => { COMPARE = !COMPARE; document.getElementById('cmp').textContent = COMPARE ? 'BACK TO ONE VIEW' : 'COMPARE THE FAMILIES SIDE BY SIDE'; document.getElementById('info').classList.remove('on'); };
+/* =============================================================== EVERY FRAME */
+function resize() { const r = viewEl.getBoundingClientRect(); DPR = PROOF || STRIP ? 1 : Math.min(2, devicePixelRatio); VW = r.width; VH = r.height; GLC.width = OV.width = VW * DPR; GLC.height = OV.height = VH * DPR; ox.setTransform(DPR, 0, 0, DPR, 0, 0); if (!STRIP) layoutDev(); }
+addEventListener('resize', resize);
+let last = performance.now();
+function frame(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; G.update(dt); render(); drawDev(); requestAnimationFrame(frame); }
+/* the comparison strip: the same handles in the three families, per surface, at one moment (and the face at three weight exponents) */
+function renderStrip() { const fams = SCENE.FAMILIES, tw = 420, th = 300, top = 40;
+  const st = { face: { fill: 1, purse: .6, open: .9, aim: 0, smile: 0 }, curl: 1, lift: 0, t: 1.3, yaw: 0, flames: SCENE.CANDLES.map((cd, i) => ({ W: 1.05, dir: Math.atan2(cd.x - 300, cd.y - 331), lit: 1, size: 1, outAt: null })) };
+  const rows = [['FACE: CHEEKS FULL, LIPS PURSED AND OPEN', [170, 222, 260, 185.7], 1], ['FLAMES: AT THE PEAK OF THE BREATH', [112, 430, 376, 268.6], 1], ['STREAMER: WRAPPED ROUND THE CAKE', [92, 600, 416, 297], 1]];
+  ox.fillStyle = 'rgba(200,210,206,.9)'; ox.font = '500 16px Oswald, sans-serif'; ox.fillText('THE SAME HANDLES, THREE MLS FAMILIES (ALPHA 1). LAST ROW: THE FACE IN SIMILARITY AT ALPHA 0.5, 1, 2.', 10, 26);
+  rows.forEach(([name, crop], ri) => fams.forEach((f, ci) => { const p = { x: 10 + ci * (tw + 10), y: top + ri * (th + 10), w: tw, h: th, crop };
+    const R = drawPanel(p, st, { face: f, flame: f, paper: f }, { wire: true }); overlay(p, st, R, { label: `${f.toUpperCase()}${f === SCENE.SURF[['face', 'flame', 'paper'][ri]].family ? ' (CHOSEN)' : ''}`, sub: name, hi: f === SCENE.SURF[['face', 'flame', 'paper'][ri]].family }); }));
+  [.5, 1, 2].forEach((a, ci) => { const p = { x: 10 + ci * (tw + 10), y: top + 3 * (th + 10), w: tw, h: th - 110, crop: [170, 250, 260, 260 * (th - 110) / tw] };
+    const R = drawPanel(p, st, { face: 'similarity', flame: 'affine', paper: 'rigid' }, { wire: true, alpha: a }); overlay(p, st, R, { label: `SIMILARITY, ALPHA ${a}`, hi: a === 1 }); });
+}
+window.PAGE = { render, drawDev, renderStrip, G, setCompare: v => { COMPARE = v; } };
+(document.fonts ? document.fonts.load('500 20px Oswald').then(() => document.fonts.load('400 20px Oswald')) : Promise.resolve()).catch(() => { }).then(() => {
+  initPicture(); resize();
+  if (STRIP) { renderStrip(); window.READY = true; return; }
+  if (PROOF) { render(); drawDev(); window.READY = true; return; }
+  requestAnimationFrame(frame); window.READY = true; });
+</script></body></html>

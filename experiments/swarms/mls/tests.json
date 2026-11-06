@@ -1,0 +1,286 @@
+{
+ "demo": {
+  "result": "ALL SEVEN OUT IN TWO BREATHS",
+  "lit": {
+   "YOURS": 0,
+   "AFFINE": 1,
+   "SIMILARITY": 0,
+   "RIGID": 0
+  },
+  "events": [
+   [
+    0.167,
+    "select",
+    null
+   ],
+   [
+    2.067,
+    "select",
+    null
+   ],
+   [
+    3.267,
+    "select",
+    null
+   ],
+   [
+    4.267,
+    "blow",
+    null
+   ],
+   [
+    4.933,
+    "out",
+    4
+   ],
+   [
+    4.967,
+    "out",
+    3
+   ],
+   [
+    4.967,
+    "out",
+    5
+   ],
+   [
+    4.967,
+    "out",
+    6
+   ],
+   [
+    5,
+    "out",
+    2
+   ],
+   [
+    5.767,
+    "select",
+    null
+   ],
+   [
+    7.033,
+    "blow",
+    null
+   ],
+   [
+    7.733,
+    "out",
+    0
+   ],
+   [
+    7.733,
+    "out",
+    1
+   ],
+   [
+    8.733,
+    "wash",
+    null
+   ]
+  ]
+ },
+ "landmarks": {
+  "affine": {
+   "point_exact_px": 0,
+   "point_0p25_away_excess_px": 0,
+   "line_samples_px": 0.163
+  },
+  "similarity": {
+   "point_exact_px": 0,
+   "point_0p25_away_excess_px": 0,
+   "line_samples_px": 0.178
+  },
+  "rigid": {
+   "point_exact_px": 0,
+   "point_0p25_away_excess_px": 0,
+   "line_samples_px": 0.179
+  }
+ },
+ "foldovers": {
+  "affine": {
+   "face": {
+    "min_jacobian": 0.102,
+    "folded_triangles": 0
+   },
+   "paper": {
+    "min_jacobian": -0.041,
+    "folded_triangles": 94
+   },
+   "flame": {
+    "min_jacobian": -1.113,
+    "folded_triangles": 14861
+   }
+  },
+  "similarity": {
+   "face": {
+    "min_jacobian": 0.046,
+    "folded_triangles": 0
+   },
+   "paper": {
+    "min_jacobian": 0.081,
+    "folded_triangles": 0
+   },
+   "flame": {
+    "min_jacobian": -0.158,
+    "folded_triangles": 536
+   }
+  },
+  "rigid": {
+   "face": {
+    "min_jacobian": -0.165,
+    "folded_triangles": 7
+   },
+   "paper": {
+    "min_jacobian": 0.131,
+    "folded_triangles": 0
+   },
+   "flame": {
+    "min_jacobian": -1.917,
+    "folded_triangles": 3896
+   }
+  }
+ },
+ "foldover_states": "every 3rd demo frame (100 states) of the player world inputs + 4 extreme states (all rings at end stops, full breath at peak, flames 124%)",
+ "contour_stability": {
+  "affine": {
+   "face": {
+    "max_contour_accel_px": 3.48,
+    "max_handle_accel_px": 3.74,
+    "ratio": 0.928,
+    "frames_with_contour_reversal_but_no_handle_reversal": 0
+   },
+   "paper": {
+    "max_contour_accel_px": 25.33,
+    "max_handle_accel_px": 25.33,
+    "ratio": 1,
+    "frames_with_contour_reversal_but_no_handle_reversal": 0
+   },
+   "flame": {
+    "max_contour_accel_px": 27.2,
+    "max_handle_accel_px": 25.05,
+    "ratio": 1.086,
+    "frames_with_contour_reversal_but_no_handle_reversal": 2
+   }
+  },
+  "similarity": {
+   "face": {
+    "max_contour_accel_px": 3.44,
+    "max_handle_accel_px": 3.74,
+    "ratio": 0.918,
+    "frames_with_contour_reversal_but_no_handle_reversal": 0
+   },
+   "paper": {
+    "max_contour_accel_px": 25.33,
+    "max_handle_accel_px": 25.33,
+    "ratio": 1,
+    "frames_with_contour_reversal_but_no_handle_reversal": 0
+   },
+   "flame": {
+    "max_contour_accel_px": 27.18,
+    "max_handle_accel_px": 25.05,
+    "ratio": 1.085,
+    "frames_with_contour_reversal_but_no_handle_reversal": 3
+   }
+  },
+  "rigid": {
+   "face": {
+    "max_contour_accel_px": 3.41,
+    "max_handle_accel_px": 3.74,
+    "ratio": 0.91,
+    "frames_with_contour_reversal_but_no_handle_reversal": 0
+   },
+   "paper": {
+    "max_contour_accel_px": 25.33,
+    "max_handle_accel_px": 25.33,
+    "ratio": 1,
+    "frames_with_contour_reversal_but_no_handle_reversal": 0
+   },
+   "flame": {
+    "max_contour_accel_px": 24.67,
+    "max_handle_accel_px": 25.05,
+    "ratio": 0.985,
+    "frames_with_contour_reversal_but_no_handle_reversal": 25
+   }
+  }
+ },
+ "best_single_breath": {
+  "affine": {
+   "out": 5,
+   "purse": 7,
+   "aim": -4,
+   "cheek_gain": 0.2849,
+   "mouth_px2": 337.2
+  },
+  "similarity": {
+   "out": 7,
+   "purse": 3,
+   "aim": 0,
+   "cheek_gain": 0.3138,
+   "mouth_px2": 416.4
+  },
+  "rigid": {
+   "out": 5,
+   "purse": 3,
+   "aim": -8,
+   "cheek_gain": 0.2868,
+   "mouth_px2": 412.3
+  }
+ },
+ "machine_step_interval_s": [
+  0.085,
+  0.085,
+  0.0842,
+  0.085
+ ],
+ "machine_rate_hz": 11.79,
+ "solve_ms_per_world_frame": 2.58,
+ "vertex_counts": {
+  "face": 1628,
+  "paper": 555,
+  "flames": 833
+ },
+ "handles": {
+  "points": 63,
+  "lines": 32,
+  "by_surface": {
+   "face": 39,
+   "flame": 42,
+   "paper": 14
+  }
+ },
+ "checks": [
+  {
+   "name": "point handles hit their targets exactly (< 0.001 px), every family",
+   "ok": true
+  },
+  {
+   "name": "line handles: segment samples land within 1.0 px of the target segment (numerical integration), every family",
+   "ok": true
+  },
+  {
+   "name": "no fold-overs in the chosen family of each surface (demo + extremes)",
+   "ok": false
+  },
+  {
+   "name": "contours never reverse where their handles do not, chosen families",
+   "ok": false
+  },
+  {
+   "name": "contour acceleration at most 1.5x the handles' own, chosen families",
+   "ok": true
+  },
+  {
+   "name": "machine steps at 11.8/s (within 1%)",
+   "ok": true
+  },
+  {
+   "name": "the demo ends with all seven out",
+   "ok": true
+  },
+  {
+   "name": "only the chosen face family can put out all seven in one breath",
+   "ok": true
+  }
+ ]
+}

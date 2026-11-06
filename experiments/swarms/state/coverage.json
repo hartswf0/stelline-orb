@@ -1,0 +1,153 @@
+{
+ "runs": 200,
+ "seconds": 80,
+ "transitionsTaken": {
+  "watch>hide": 156,
+  "hide>watch": 47,
+  "watch>retreat": 62,
+  "retreat>refuse": 82,
+  "refuse>watch": 100,
+  "watch>refuse": 90,
+  "refuse>hide": 160,
+  "watch>approach": 26,
+  "approach>blow": 17,
+  "hide>retreat": 20,
+  "approach>refuse": 3,
+  "hide>refuse": 147,
+  "approach>watch": 5,
+  "blow>watch": 14,
+  "blow>refuse": 3,
+  "watch>blow": 1
+ },
+ "notTaken": [
+  "approach>retreat",
+  "retreat>watch",
+  "retreat>hide",
+  "refuse>retreat"
+ ],
+ "reached": [
+  "watch",
+  "hide",
+  "retreat",
+  "refuse",
+  "approach",
+  "blow"
+ ],
+ "snapshots": 400,
+ "exitsBy": {
+  "invite": 70,
+  "call": 238,
+  "wait": 88
+ },
+ "results": [
+  {
+   "name": "obedient-default: callOnly (60 s of calling) never produces approach or blow",
+   "ok": true,
+   "detail": "states: watch, refuse; calls heard: 67"
+  },
+  {
+   "name": "calling produces refusal: callOnly",
+   "ok": true,
+   "detail": "first refuse at 1.033 s"
+  },
+  {
+   "name": "obedient-default: callInGoodRoom (60 s of calling) never produces approach or blow",
+   "ok": true,
+   "detail": "states: watch, refuse; calls heard: 24"
+  },
+  {
+   "name": "calling produces refusal: callInGoodRoom",
+   "ok": true,
+   "detail": "first refuse at 6.8 s"
+  },
+  {
+   "name": "push-cake: pushing the cake at her produces retreat or refusal within 1 s, never approach",
+   "ok": true,
+   "detail": "first: retreat.back at 1.067 s"
+  },
+  {
+   "name": "wait-only: 60 s of waiting in the bright room with you standing never produces approach",
+   "ok": true,
+   "detail": "states: watch, hide"
+  },
+  {
+   "name": "earned: dim + children singing + cake back and low + kneeling + waiting produces approach, then blow, all 7 candles out",
+   "ok": true,
+   "detail": "approach 13.933 s, blow 17.133 s, candles out by 18.70 s"
+  },
+  {
+   "name": "earned: approach chosen after the last input (no input caused it directly)",
+   "ok": true,
+   "detail": "last input 8.8 s, approach 13.933 s"
+  },
+  {
+   "name": "impatient: a call during approach makes her leave approach for refusal",
+   "ok": true,
+   "detail": "approach.slow -> refuse.turn at 13.433 s"
+  },
+  {
+   "name": "impatient: she comes again later (refusal is not absorbing)",
+   "ok": true,
+   "detail": "approach again at 16.7 s"
+  },
+  {
+   "name": "blow-interrupt: calling during the inhale cuts the blow short into refusal, candles stay lit",
+   "ok": true,
+   "detail": "blow.inhale -> refuse.turn at 17.533 s; candles lit 7"
+  },
+  {
+   "name": "state-conditioned: with approach the best utility, watch -> approach but hide -> watch and refuse -> watch (approach is not declared from hide or refuse)",
+   "ok": true,
+   "detail": "watch->approach, hide->watch, refuse->watch"
+  },
+  {
+   "name": "state-conditioned: action windows — inside refusal's 1.6 s dwell she stays; from watch the same utilities move her",
+   "ok": true,
+   "detail": "refuse(dwell)->refuse, watch->watch"
+  },
+  {
+   "name": "perception: kneeling behind her back is not known until she turns her head (belief lags truth while vis < 0.2)",
+   "ok": false,
+   "detail": "belief before 1.55 m; max vis of you in the first 1 s 0.00; learned at +null s in null"
+  },
+  {
+   "name": "reachable: watch",
+   "ok": true
+  },
+  {
+   "name": "reachable: approach",
+   "ok": true
+  },
+  {
+   "name": "reachable: retreat",
+   "ok": true
+  },
+  {
+   "name": "reachable: hide",
+   "ok": true
+  },
+  {
+   "name": "reachable: refuse",
+   "ok": true
+  },
+  {
+   "name": "reachable: blow",
+   "ok": true
+  },
+  {
+   "name": "declared: every transition taken in 200 random runs x 80 s is in the declared table",
+   "ok": true,
+   "detail": "933 transitions taken, 0 undeclared"
+  },
+  {
+   "name": "locomotion continuity: position moves only by walking (max 0.5 m/s), body turn <= 4.2 rad/s, sit changes <= 1/0.65 per s",
+   "ok": true,
+   "detail": "max speed 0.450 m/s, max turn 4.20 rad/s, max sit rate 1.54/s"
+  },
+  {
+   "name": "no unintended absorbing state: each of 400 sampled moments leaves its state under wait, invite or call within 40 s",
+   "ok": false,
+   "detail": "left by wait 88, invite 70, call 238; stuck 4 e.g. {\"i\":314,\"st\":\"refuse\",\"sub\":\"sulk\",\"t\":54.29999999999948,\"val\":{\"scale\":4,\"ROOM_k\":5,\"CAKE_k\":0,\"CAKE_t\":5,\"CHILDREN_k\":0,\"CHILDREN_t\":0,\"HER_k\":1},\"after\":true}"
+  }
+ ]
+}

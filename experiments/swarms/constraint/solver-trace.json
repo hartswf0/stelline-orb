@@ -1,0 +1,4633 @@
+{
+ "about": "One entry per machine step of the proof passage (index.html?proof, proof-script.js). Units m, deg, s. residual_goal = taper flame to pen; hard_max = worst hard-constraint residual.",
+ "fps": 30,
+ "trace": [
+  {
+   "t": 0.4667,
+   "step": 1,
+   "fast": false,
+   "moved": [
+    "handY"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.405,
+    0.695
+   ],
+   "tip": [
+    -0.405,
+    0.695
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 2.202e-8,
+   "hard_max": 1.97e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 110.7,
+   "lean_deg": 1.2,
+   "com_x": -0.6161,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 0.5667,
+   "step": 2,
+   "fast": false,
+   "moved": [
+    "handX",
+    "handY"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.39,
+    0.71
+   ],
+   "tip": [
+    -0.39,
+    0.71
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 2.076e-8,
+   "hard_max": 1.99e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 107.3,
+   "lean_deg": 1.2,
+   "com_x": -0.6156,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0212,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 0.6333,
+   "step": 3,
+   "fast": false,
+   "moved": [
+    "handX",
+    "handY"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.375,
+    0.725
+   ],
+   "tip": [
+    -0.375,
+    0.725
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 1.918e-8,
+   "hard_max": 1.998e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 104.2,
+   "lean_deg": 1.2,
+   "com_x": -0.6151,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0212,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 0.7333,
+   "step": 4,
+   "fast": false,
+   "moved": [
+    "handX",
+    "handY"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.36,
+    0.74
+   ],
+   "tip": [
+    -0.36,
+    0.74
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 1.729e-8,
+   "hard_max": 1.832e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 101.3,
+   "lean_deg": 1.2,
+   "com_x": -0.6145,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0212,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 0.8,
+   "step": 5,
+   "fast": false,
+   "moved": [
+    "handX",
+    "handY"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.345,
+    0.755
+   ],
+   "tip": [
+    -0.345,
+    0.755
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 1.509e-8,
+   "hard_max": 1.833e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 98.7,
+   "lean_deg": 1.2,
+   "com_x": -0.6139,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0212,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 0.9,
+   "step": 6,
+   "fast": true,
+   "moved": [
+    "handX",
+    "handY"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.33,
+    0.77
+   ],
+   "tip": [
+    -0.33,
+    0.77
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 1.28e-8,
+   "hard_max": 1.834e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 96.6,
+   "lean_deg": 1.2,
+   "com_x": -0.6133,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0212,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 0.9,
+   "step": 7,
+   "fast": true,
+   "moved": [
+    "handX",
+    "handY"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.315,
+    0.785
+   ],
+   "tip": [
+    -0.315,
+    0.785
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 1.073e-8,
+   "hard_max": 1.835e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 95,
+   "lean_deg": 1.2,
+   "com_x": -0.6127,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0212,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 0.9333,
+   "step": 8,
+   "fast": true,
+   "moved": [
+    "handX",
+    "handY"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.3,
+    0.8
+   ],
+   "tip": [
+    -0.3,
+    0.8
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 9.323e-9,
+   "hard_max": 1.836e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 94,
+   "lean_deg": 1.2,
+   "com_x": -0.612,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0212,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 0.9667,
+   "step": 9,
+   "fast": true,
+   "moved": [
+    "handX",
+    "handY"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.285,
+    0.815
+   ],
+   "tip": [
+    -0.285,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 9.081e-9,
+   "hard_max": 1.838e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 93.6,
+   "lean_deg": 1.2,
+   "com_x": -0.6113,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0212,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.0333,
+   "step": 10,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.27,
+    0.815
+   ],
+   "tip": [
+    -0.27,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 1.194e-8,
+   "hard_max": 1.84e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 94.4,
+   "lean_deg": 1.2,
+   "com_x": -0.6107,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.0667,
+   "step": 11,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.255,
+    0.815
+   ],
+   "tip": [
+    -0.255,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 1.743e-8,
+   "hard_max": 1.843e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 96.2,
+   "lean_deg": 1.2,
+   "com_x": -0.61,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.1,
+   "step": 12,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.24,
+    0.815
+   ],
+   "tip": [
+    -0.24,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 2.553e-8,
+   "hard_max": 1.848e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 98.8,
+   "lean_deg": 1.2,
+   "com_x": -0.6094,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.1333,
+   "step": 13,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.225,
+    0.815
+   ],
+   "tip": [
+    -0.225,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 3.591e-8,
+   "hard_max": 1.852e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 102.3,
+   "lean_deg": 1.1,
+   "com_x": -0.6087,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.2,
+   "step": 14,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.21,
+    0.815
+   ],
+   "tip": [
+    -0.21,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 4.827e-8,
+   "hard_max": 1.856e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 106.4,
+   "lean_deg": 1.1,
+   "com_x": -0.608,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.2333,
+   "step": 15,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.815
+   ],
+   "tip": [
+    -0.195,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 6.242e-8,
+   "hard_max": 1.858e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 111.3,
+   "lean_deg": 1.1,
+   "com_x": -0.6073,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0154,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.2667,
+   "step": 16,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.18,
+    0.815
+   ],
+   "tip": [
+    -0.18,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 7.831e-8,
+   "hard_max": 1.858e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 116.8,
+   "lean_deg": 1.1,
+   "com_x": -0.6066,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0161,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.3,
+   "step": 17,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.165,
+    0.815
+   ],
+   "tip": [
+    -0.165,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 9.594e-8,
+   "hard_max": 1.852e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 123.1,
+   "lean_deg": 1.1,
+   "com_x": -0.6059,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.017,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.3667,
+   "step": 18,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.15,
+    0.815
+   ],
+   "tip": [
+    -0.15,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 1.152e-7,
+   "hard_max": 1.837e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 130.3,
+   "lean_deg": 1.1,
+   "com_x": -0.6052,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0183,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.4,
+   "step": 19,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.135,
+    0.815
+   ],
+   "tip": [
+    -0.135,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 1.35e-7,
+   "hard_max": 1.97e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 138.6,
+   "lean_deg": 1,
+   "com_x": -0.6045,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0203,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.4333,
+   "step": 20,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.12,
+    0.815
+   ],
+   "tip": [
+    -0.12,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 1.834e-7,
+   "hard_max": 1.874e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 148.5,
+   "lean_deg": 1,
+   "com_x": -0.6036,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0236,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.5,
+   "step": 21,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.105,
+    0.815
+   ],
+   "tip": [
+    -0.105,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 1.909e-7,
+   "hard_max": 1.944e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 160.3,
+   "lean_deg": 1.1,
+   "com_x": -0.6023,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0291,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.5333,
+   "step": 22,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.09,
+    0.815
+   ],
+   "tip": [
+    -0.09,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 2.028e-7,
+   "hard_max": 1.883e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 171.8,
+   "lean_deg": 1.9,
+   "com_x": -0.599,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0332,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.5667,
+   "step": 23,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.075,
+    0.815
+   ],
+   "tip": [
+    -0.075,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 1.986e-7,
+   "hard_max": 1.949e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 178.1,
+   "lean_deg": 3.8,
+   "com_x": -0.5925,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0257,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.6,
+   "step": 24,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.06,
+    0.815
+   ],
+   "tip": [
+    -0.06,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 1.477e-7,
+   "hard_max": 1.774e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 179.9,
+   "lean_deg": 6.1,
+   "com_x": -0.5848,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0168,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.6667,
+   "step": 25,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.045,
+    0.815
+   ],
+   "tip": [
+    -0.045,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 8.536e-8,
+   "hard_max": 1.861e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 8.3,
+   "com_x": -0.577,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0151,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.7,
+   "step": 26,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.03,
+    0.815
+   ],
+   "tip": [
+    -0.03,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 9.996e-9,
+   "hard_max": 1.857e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 10.6,
+   "com_x": -0.5693,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.7333,
+   "step": 27,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.015,
+    0.815
+   ],
+   "tip": [
+    -0.015,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 7.416e-8,
+   "hard_max": 1.863e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 12.8,
+   "com_x": -0.5616,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.7667,
+   "step": 28,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0,
+    0.815
+   ],
+   "tip": [
+    0,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 2.052e-7,
+   "hard_max": 1.721e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 14.9,
+   "com_x": -0.5539,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.8333,
+   "step": 29,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.015,
+    0.815
+   ],
+   "tip": [
+    0.015,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 2.875e-7,
+   "hard_max": 1.961e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 17,
+   "com_x": -0.546,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.8667,
+   "step": 30,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.03,
+    0.815
+   ],
+   "tip": [
+    0.03,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 3.428e-7,
+   "hard_max": 1.882e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 19,
+   "com_x": -0.5379,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.9,
+   "step": 31,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.045,
+    0.815
+   ],
+   "tip": [
+    0.045,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 3.677e-7,
+   "hard_max": 1.812e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 20.8,
+   "com_x": -0.5295,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 1.9667,
+   "step": 32,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.06,
+    0.815
+   ],
+   "tip": [
+    0.06,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 6.034e-7,
+   "hard_max": 1.774e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 22.6,
+   "com_x": -0.5208,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 2,
+   "step": 33,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.075,
+    0.815
+   ],
+   "tip": [
+    0.075,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 6.151e-7,
+   "hard_max": 1.862e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 24.2,
+   "com_x": -0.5118,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 2.0333,
+   "step": 34,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.09,
+    0.815
+   ],
+   "tip": [
+    0.09,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 6.362e-7,
+   "hard_max": 1.616e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 25.7,
+   "com_x": -0.5026,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 2.0667,
+   "step": 35,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.105,
+    0.815
+   ],
+   "tip": [
+    0.105,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 6.859e-7,
+   "hard_max": 1.538e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 27.1,
+   "com_x": -0.4931,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 2.1333,
+   "step": 36,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.12,
+    0.815
+   ],
+   "tip": [
+    0.12,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 7.908e-7,
+   "hard_max": 1.653e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 28.5,
+   "com_x": -0.4834,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 2.1667,
+   "step": 37,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.135,
+    0.815
+   ],
+   "tip": [
+    0.135,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 9.988e-7,
+   "hard_max": 1.404e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 29.7,
+   "com_x": -0.4735,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 2.2,
+   "step": 38,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.15,
+    0.815
+   ],
+   "tip": [
+    0.15,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 0.000001062,
+   "hard_max": 1.455e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 33.5,
+   "com_x": -0.4706,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0162,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 2.2333,
+   "step": 39,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.165,
+    0.815
+   ],
+   "tip": [
+    0.165,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 0.000001279,
+   "hard_max": 1.629e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 40.1,
+   "com_x": -0.4733,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0217,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 2.3,
+   "step": 40,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.18,
+    0.815
+   ],
+   "tip": [
+    0.18,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 0.000001676,
+   "hard_max": 1.53e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 45,
+   "com_x": -0.4723,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0207,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 2.3333,
+   "step": 41,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.195,
+    0.815
+   ],
+   "tip": [
+    0.195,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 0.000001971,
+   "hard_max": 1.74e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.4711,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0249,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 2.4333,
+   "step": 42,
+   "fast": false,
+   "moved": [
+    "handX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.21,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 0.01301,
+   "hard_max": 1.984e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.004,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 2.5,
+   "step": 43,
+   "fast": false,
+   "moved": [
+    "handX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.225,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 0.02801,
+   "hard_max": 9.034e-9,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 2.6,
+   "step": 44,
+   "fast": false,
+   "moved": [
+    "handX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.24,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 0.04301,
+   "hard_max": 4.114e-9,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 2.6667,
+   "step": 45,
+   "fast": false,
+   "moved": [
+    "handX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.255,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": 0.21,
+   "cakeTurn": 125,
+   "residual_goal": 0.05801,
+   "hard_max": 1.873e-9,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 2.7667,
+   "step": 46,
+   "fast": false,
+   "moved": [
+    "handX",
+    "cakeX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.27,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": 0.195,
+   "cakeTurn": 125,
+   "residual_goal": 0.07301,
+   "hard_max": 8.53e-10,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 2.8333,
+   "step": 47,
+   "fast": false,
+   "moved": [
+    "handX",
+    "cakeX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": 0.18,
+   "cakeTurn": 125,
+   "residual_goal": 0.08801,
+   "hard_max": 3.884e-10,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 2.9333,
+   "step": 48,
+   "fast": false,
+   "moved": [
+    "cakeX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": 0.165,
+   "cakeTurn": 125,
+   "residual_goal": 0.08801,
+   "hard_max": 1.769e-10,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 3,
+   "step": 49,
+   "fast": false,
+   "moved": [
+    "cakeX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": 0.15,
+   "cakeTurn": 125,
+   "residual_goal": 0.08801,
+   "hard_max": 8.054e-11,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 3.1,
+   "step": 50,
+   "fast": false,
+   "moved": [
+    "cakeX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": 0.135,
+   "cakeTurn": 125,
+   "residual_goal": 0.08801,
+   "hard_max": 3.667e-11,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 3.1333,
+   "step": 51,
+   "fast": true,
+   "moved": [
+    "cakeX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": 0.12,
+   "cakeTurn": 125,
+   "residual_goal": 0.08801,
+   "hard_max": 1.67e-11,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 3.1667,
+   "step": 52,
+   "fast": true,
+   "moved": [
+    "cakeX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": 0.105,
+   "cakeTurn": 125,
+   "residual_goal": 0.08801,
+   "hard_max": 7.604e-12,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 3.2333,
+   "step": 53,
+   "fast": true,
+   "moved": [
+    "cakeX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": 0.09,
+   "cakeTurn": 125,
+   "residual_goal": 0.08801,
+   "hard_max": 3.463e-12,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 3.2667,
+   "step": 54,
+   "fast": true,
+   "moved": [
+    "cakeX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": 0.075,
+   "cakeTurn": 125,
+   "residual_goal": 0.08801,
+   "hard_max": 1.577e-12,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 3.3,
+   "step": 55,
+   "fast": true,
+   "moved": [
+    "cakeX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": 0.06,
+   "cakeTurn": 125,
+   "residual_goal": 0.08801,
+   "hard_max": 7.18e-13,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 3.3333,
+   "step": 56,
+   "fast": true,
+   "moved": [
+    "cakeX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": 0.045,
+   "cakeTurn": 125,
+   "residual_goal": 0.08801,
+   "hard_max": 3.269e-13,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 3.4,
+   "step": 57,
+   "fast": true,
+   "moved": [
+    "cakeX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": 0.03,
+   "cakeTurn": 125,
+   "residual_goal": 0.08801,
+   "hard_max": 1.489e-13,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 3.4333,
+   "step": 58,
+   "fast": true,
+   "moved": [
+    "cakeX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": 0.015,
+   "cakeTurn": 125,
+   "residual_goal": 0.08801,
+   "hard_max": 6.783e-14,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 3.4667,
+   "step": 59,
+   "fast": true,
+   "moved": [
+    "cakeX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": 0,
+   "cakeTurn": 125,
+   "residual_goal": 0.08801,
+   "hard_max": 3.092e-14,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 3.5333,
+   "step": 60,
+   "fast": true,
+   "moved": [
+    "cakeX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": -0.015,
+   "cakeTurn": 125,
+   "residual_goal": 0.08801,
+   "hard_max": 1.41e-14,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 3.6,
+   "step": 61,
+   "fast": false,
+   "moved": [
+    "cakeX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": -0.03,
+   "cakeTurn": 125,
+   "residual_goal": 0.08801,
+   "hard_max": 6.439e-15,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 3.7,
+   "step": 62,
+   "fast": false,
+   "moved": [
+    "cakeX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": -0.045,
+   "cakeTurn": 125,
+   "residual_goal": 0.08801,
+   "hard_max": 2.998e-15,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 3.7667,
+   "step": 63,
+   "fast": false,
+   "moved": [
+    "cakeX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": -0.06,
+   "cakeTurn": 125,
+   "residual_goal": 0.08801,
+   "hard_max": 1.388e-15,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 3.8667,
+   "step": 64,
+   "fast": false,
+   "moved": [
+    "cakeX",
+    "cakeTurn"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": -0.075,
+   "cakeTurn": 130,
+   "residual_goal": 0.08801,
+   "hard_max": 6.661e-16,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 3.9333,
+   "step": 65,
+   "fast": false,
+   "moved": [
+    "cakeX",
+    "cakeTurn"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": -0.09,
+   "cakeTurn": 135,
+   "residual_goal": 0.08801,
+   "hard_max": 3.886e-16,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 4.0333,
+   "step": 66,
+   "fast": false,
+   "moved": [
+    "cakeX",
+    "cakeTurn"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 140,
+   "residual_goal": 0.08801,
+   "hard_max": 3.886e-16,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 4.1,
+   "step": 67,
+   "fast": false,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 145,
+   "residual_goal": 0.08801,
+   "hard_max": 3.886e-16,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 4.2,
+   "step": 68,
+   "fast": false,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 150,
+   "residual_goal": 0.08801,
+   "hard_max": 3.886e-16,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 4.2667,
+   "step": 69,
+   "fast": false,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 155,
+   "residual_goal": 0.08801,
+   "hard_max": 3.886e-16,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 4.3667,
+   "step": 70,
+   "fast": false,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 160,
+   "residual_goal": 0.08801,
+   "hard_max": 3.886e-16,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 4.4667,
+   "step": 71,
+   "fast": false,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.285,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 0.08801,
+   "hard_max": 3.886e-16,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 4.7333,
+   "step": 72,
+   "fast": false,
+   "moved": [
+    "handX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.27,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 0.07301,
+   "hard_max": 3.886e-16,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 4.8333,
+   "step": 73,
+   "fast": false,
+   "moved": [
+    "handX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.255,
+    0.815
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 0.05801,
+   "hard_max": 3.886e-16,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 4.9,
+   "step": 74,
+   "fast": false,
+   "moved": [
+    "handX",
+    "handY"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.24,
+    0.8
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 0.04555,
+   "hard_max": 3.886e-16,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 4.9667,
+   "step": 75,
+   "fast": true,
+   "moved": [
+    "handX",
+    "handY"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.225,
+    0.785
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 0.04105,
+   "hard_max": 3.886e-16,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 5,
+   "step": 76,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.21,
+    0.785
+   ],
+   "tip": [
+    0.197,
+    0.815
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 0.0327,
+   "hard_max": 3.886e-16,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 5.0333,
+   "step": 77,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "UNSOLVABLE",
+   "tier": 2,
+   "goal": [
+    0.195,
+    0.785
+   ],
+   "tip": [
+    0.197,
+    0.8149
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 0.03,
+   "hard_max": 1.987e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 50,
+   "com_x": -0.47,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0001,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ],
+   "lit": []
+  },
+  {
+   "t": 5.0667,
+   "step": 78,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.18,
+    0.785
+   ],
+   "tip": [
+    0.18,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 0.000001239,
+   "hard_max": 1.822e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 46.8,
+   "com_x": -0.4724,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0344,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 5.1,
+   "step": 79,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.165,
+    0.785
+   ],
+   "tip": [
+    0.165,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 0.000001519,
+   "hard_max": 1.735e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 42.1,
+   "com_x": -0.4732,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0204,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 5.1667,
+   "step": 80,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.15,
+    0.785
+   ],
+   "tip": [
+    0.15,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 0.000001159,
+   "hard_max": 1.946e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 35.9,
+   "com_x": -0.4706,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0212,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 5.2,
+   "step": 81,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.135,
+    0.785
+   ],
+   "tip": [
+    0.135,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 8.511e-7,
+   "hard_max": 1.998e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 32,
+   "com_x": -0.4731,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0163,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 5.2333,
+   "step": 82,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.12,
+    0.785
+   ],
+   "tip": [
+    0.12,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 8.207e-7,
+   "hard_max": 1.736e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 30,
+   "com_x": -0.481,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 5.3,
+   "step": 83,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.105,
+    0.785
+   ],
+   "tip": [
+    0.105,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 5.993e-7,
+   "hard_max": 1.805e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 28.5,
+   "com_x": -0.4899,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 5.3333,
+   "step": 84,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.09,
+    0.785
+   ],
+   "tip": [
+    0.09,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 5.204e-7,
+   "hard_max": 1.682e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 27,
+   "com_x": -0.4991,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 5.3667,
+   "step": 85,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.075,
+    0.785
+   ],
+   "tip": [
+    0.075,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 4.879e-7,
+   "hard_max": 1.79e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 25.5,
+   "com_x": -0.5081,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 5.4,
+   "step": 86,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.06,
+    0.785
+   ],
+   "tip": [
+    0.06,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 4.716e-7,
+   "hard_max": 1.594e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 23.9,
+   "com_x": -0.5169,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 5.4667,
+   "step": 87,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.045,
+    0.785
+   ],
+   "tip": [
+    0.045,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 4.446e-7,
+   "hard_max": 1.91e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 22.1,
+   "com_x": -0.5254,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 5.5,
+   "step": 88,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.03,
+    0.785
+   ],
+   "tip": [
+    0.03,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 3.95e-7,
+   "hard_max": 1.813e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 20.3,
+   "com_x": -0.5336,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 5.5333,
+   "step": 89,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0.015,
+    0.785
+   ],
+   "tip": [
+    0.015,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 3.131e-7,
+   "hard_max": 1.678e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 18.3,
+   "com_x": -0.5415,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 5.5667,
+   "step": 90,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    0,
+    0.785
+   ],
+   "tip": [
+    0,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 2.064e-7,
+   "hard_max": 1.77e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 16.2,
+   "com_x": -0.5491,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 5.6333,
+   "step": 91,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.015,
+    0.785
+   ],
+   "tip": [
+    -0.015,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 9.617e-8,
+   "hard_max": 1.736e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 14,
+   "com_x": -0.5565,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 5.6667,
+   "step": 92,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.03,
+    0.785
+   ],
+   "tip": [
+    -0.03,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 1.063e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 11.7,
+   "com_x": -0.5637,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 5.7,
+   "step": 93,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.045,
+    0.785
+   ],
+   "tip": [
+    -0.045,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 1.018e-7,
+   "hard_max": 1.929e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 9.4,
+   "com_x": -0.571,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 5.7667,
+   "step": 94,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.06,
+    0.785
+   ],
+   "tip": [
+    -0.06,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 1.401e-7,
+   "hard_max": 1.921e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 7.1,
+   "com_x": -0.5784,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 5.8,
+   "step": 95,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.075,
+    0.785
+   ],
+   "tip": [
+    -0.075,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 2.178e-7,
+   "hard_max": 1.917e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 4.8,
+   "com_x": -0.586,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 5.8333,
+   "step": 96,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.09,
+    0.785
+   ],
+   "tip": [
+    -0.09,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 1.97e-7,
+   "hard_max": 1.981e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 180,
+   "lean_deg": 2.6,
+   "com_x": -0.5939,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 5.8667,
+   "step": 97,
+   "fast": true,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.105,
+    0.785
+   ],
+   "tip": [
+    -0.105,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 1.642e-7,
+   "hard_max": 1.845e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 176.7,
+   "lean_deg": 0.8,
+   "com_x": -0.6011,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0166,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 5.9667,
+   "step": 98,
+   "fast": false,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.12,
+    0.785
+   ],
+   "tip": [
+    -0.12,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 1.068e-7,
+   "hard_max": 1.945e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 164.1,
+   "lean_deg": 0.9,
+   "com_x": -0.6026,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.0253,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 6.0333,
+   "step": 99,
+   "fast": false,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.135,
+    0.785
+   ],
+   "tip": [
+    -0.135,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 6.345e-8,
+   "hard_max": 1.952e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 156.6,
+   "lean_deg": 1,
+   "com_x": -0.6027,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 6.1333,
+   "step": 100,
+   "fast": false,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.15,
+    0.785
+   ],
+   "tip": [
+    -0.15,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 4.28e-8,
+   "hard_max": 1.915e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 151.7,
+   "lean_deg": 1,
+   "com_x": -0.6028,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 6.2333,
+   "step": 101,
+   "fast": false,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.165,
+    0.785
+   ],
+   "tip": [
+    -0.165,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 2.781e-8,
+   "hard_max": 1.866e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 148.1,
+   "lean_deg": 1,
+   "com_x": -0.6028,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 6.3,
+   "step": 102,
+   "fast": false,
+   "moved": [
+    "handX"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.18,
+    0.785
+   ],
+   "tip": [
+    -0.18,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 1.644e-8,
+   "hard_max": 2e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 145.6,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": [
+    0
+   ]
+  },
+  {
+   "t": 6.4,
+   "step": 103,
+   "fast": false,
+   "moved": [
+    "handX"
+   ],
+   "status": "SOLVED",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 165,
+   "residual_goal": 7.39e-9,
+   "hard_max": 1.974e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.8,
+   "lean_deg": 1.1,
+   "com_x": -0.603,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0.015,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 6.7667,
+   "step": 104,
+   "fast": false,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 170,
+   "residual_goal": 8.821e-9,
+   "hard_max": 1.959e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.603,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 6.8667,
+   "step": 105,
+   "fast": false,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 175,
+   "residual_goal": 8.803e-9,
+   "hard_max": 1.952e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.603,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 6.9333,
+   "step": 106,
+   "fast": false,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 180,
+   "residual_goal": 8.795e-9,
+   "hard_max": 1.949e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.603,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 7.0333,
+   "step": 107,
+   "fast": true,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 185,
+   "residual_goal": 8.791e-9,
+   "hard_max": 1.948e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 7.0333,
+   "step": 108,
+   "fast": true,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 190,
+   "residual_goal": 8.79e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 7.1,
+   "step": 109,
+   "fast": false,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 195,
+   "residual_goal": 8.789e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 7.2,
+   "step": 110,
+   "fast": false,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 200,
+   "residual_goal": 8.788e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 7.2667,
+   "step": 111,
+   "fast": false,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 205,
+   "residual_goal": 8.788e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": [
+    6
+   ]
+  },
+  {
+   "t": 7.3667,
+   "step": 112,
+   "fast": false,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 210,
+   "residual_goal": 8.788e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 7.4333,
+   "step": 113,
+   "fast": false,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "SOLVED",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 215,
+   "residual_goal": 8.788e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 7.9333,
+   "step": 114,
+   "fast": false,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 220,
+   "residual_goal": 8.788e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 8.0333,
+   "step": 115,
+   "fast": false,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 225,
+   "residual_goal": 8.788e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 8.1,
+   "step": 116,
+   "fast": false,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 230,
+   "residual_goal": 8.788e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 8.1667,
+   "step": 117,
+   "fast": true,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 235,
+   "residual_goal": 8.788e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 8.2,
+   "step": 118,
+   "fast": true,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 240,
+   "residual_goal": 8.788e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 8.2333,
+   "step": 119,
+   "fast": true,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 245,
+   "residual_goal": 8.788e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 8.2667,
+   "step": 120,
+   "fast": true,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 250,
+   "residual_goal": 8.787e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 8.3,
+   "step": 121,
+   "fast": true,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 255,
+   "residual_goal": 8.787e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 8.3667,
+   "step": 122,
+   "fast": true,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 260,
+   "residual_goal": 8.787e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 8.4,
+   "step": 123,
+   "fast": true,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 265,
+   "residual_goal": 8.787e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 8.4333,
+   "step": 124,
+   "fast": true,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 270,
+   "residual_goal": 8.787e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 8.5,
+   "step": 125,
+   "fast": true,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 275,
+   "residual_goal": 8.787e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 8.5333,
+   "step": 126,
+   "fast": true,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 280,
+   "residual_goal": 8.787e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 8.5667,
+   "step": 127,
+   "fast": true,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 285,
+   "residual_goal": 8.787e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 8.6667,
+   "step": 128,
+   "fast": false,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 290,
+   "residual_goal": 8.787e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 8.7333,
+   "step": 129,
+   "fast": false,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 295,
+   "residual_goal": 8.787e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 8.8333,
+   "step": 130,
+   "fast": false,
+   "moved": [
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 300,
+   "residual_goal": 8.787e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 8.9,
+   "step": 131,
+   "fast": false,
+   "moved": [
+    "view",
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 305,
+   "residual_goal": 8.787e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 9,
+   "step": 132,
+   "fast": false,
+   "moved": [
+    "view",
+    "cakeTurn"
+   ],
+   "status": "MOVING",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 310,
+   "residual_goal": 8.787e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": [
+    4
+   ]
+  },
+  {
+   "t": 9.0667,
+   "step": 133,
+   "fast": false,
+   "moved": [
+    "view",
+    "cakeTurn"
+   ],
+   "status": "SOLVED",
+   "tier": 1,
+   "goal": [
+    -0.195,
+    0.785
+   ],
+   "tip": [
+    -0.195,
+    0.785
+   ],
+   "cakeX": -0.105,
+   "cakeTurn": 315,
+   "residual_goal": 8.786e-9,
+   "hard_max": 1.947e-8,
+   "worst_length": "ankleF-kneeF",
+   "elbow_deg": 143.7,
+   "lean_deg": 1.1,
+   "com_x": -0.6029,
+   "support": [
+    -0.71,
+    -0.47
+   ],
+   "max_point_move": 0,
+   "binding": [],
+   "lit": []
+  },
+  {
+   "t": 9.2333,
+   "step": 134,
+   "moved": [
+    "view"
+   ],
+   "view": -20
+  }
+ ],
+ "events": [
+  {
+   "t": 2.3667,
+   "kind": "select",
+   "sel": "CAKE"
+  },
+  {
+   "t": 2.4333,
+   "kind": "strain",
+   "residual": 0.013,
+   "binding": [
+    "ARM AT FULL LENGTH",
+    "BALANCE AT TOES",
+    "WAIST AT LIMIT"
+   ]
+  },
+  {
+   "t": 4.3333,
+   "kind": "select",
+   "sel": "HAND"
+  },
+  {
+   "t": 5.0667,
+   "kind": "satisfied",
+   "what": "pen"
+  },
+  {
+   "t": 6.3,
+   "kind": "lit",
+   "k": 0,
+   "count": 1
+  },
+  {
+   "t": 6.3667,
+   "kind": "select",
+   "sel": "CAKE"
+  },
+  {
+   "t": 6.4,
+   "kind": "settled"
+  },
+  {
+   "t": 7.2667,
+   "kind": "lit",
+   "k": 6,
+   "count": 2
+  },
+  {
+   "t": 7.4333,
+   "kind": "settled"
+  },
+  {
+   "t": 9,
+   "kind": "lit",
+   "k": 4,
+   "count": 3
+  },
+  {
+   "t": 9.0667,
+   "kind": "settled"
+  }
+ ]
+}

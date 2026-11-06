@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Constraint Birthday Operator</title>
+<style>
+@font-face { font-family: 'Oswald'; src: url('../../../ana/assets/oswald-latin-500-normal.woff2') format('woff2'); font-weight: 500; }
+:root { --bg: #050606; --ink: #d9e2de; --dim: #8a9792; --amber: #e8b264; --ok: #7fd3a2; --line: #1c201e; }
+* { box-sizing: border-box; } body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 -apple-system, Arial, sans-serif; }
+main { max-width: 760px; margin: 0 auto; padding: 16px; }
+h1, h2 { font: 500 15px 'Oswald', sans-serif; letter-spacing: .1em; margin: 18px 0 6px; } h1 { color: var(--amber); font-size: 17px; margin-top: 4px; }
+video { width: 100%; display: block; background: #000; border: 1px solid var(--line); }
+.row { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+a.b { display: inline-block; padding: 10px 14px; border: 1px solid #2a302d; border-radius: 4px; color: var(--ink); text-decoration: none; font: 500 13px 'Oswald', sans-serif; letter-spacing: .1em; background: #121514; }
+.v { color: var(--amber); font-weight: 600; } .ok { color: var(--ok); } p, li { color: #b3bdb9; } td { padding: 4px 6px; border-bottom: 1px solid var(--line); vertical-align: top; } table { border-collapse: collapse; width: 100%; }
+</style></head><body><main>
+<h1>CONSTRAINT BIRTHDAY · OPERATOR</h1>
+<p>Revision 1, 2026-11-06 (uncommitted; the coordinator commits). SCION // IVAN SUTHERLAND swarm.</p>
+<video src="proof.mp4" controls playsinline preload="metadata"></video>
+<div class="row"><a class="b" href="index.html">PLAY THE GAME</a><a class="b" href="proof.mp4">PROOF FILM</a><a class="b" href="solver-trace.json">SOLVER TRACE</a><a class="b" href="README.md">README</a><a class="b" href="tests.js">TESTS</a></div>
+<h2>CRITIC VERDICT</h2>
+<p><span class="v">NONE YET.</span> The builder could not spawn an independent critic (no agent tool). The verdict is open until a separate critic watches proof.mp4.</p>
+<h2>NEXT BLOCKING FAILURE</h2>
+<p>Readability: the figure is about 380 px tall in a 720 px frame and the candle lightings are small; a viewer may not see that the taper met a wick without the device readout. Repair condition: at 6.3 s, 7.3 s and 9.0 s a viewer can point to the candle that lit without reading the device.</p>
+<h2>MEASURED</h2>
+<table>
+<tr><td>Unit tests</td><td class="ok">22 passed, 0 failed (node tests.js)</td></tr>
+<tr><td>Worst hard residual, every step</td><td>2e-8 m (tolerance 1e-4)</td></tr>
+<tr><td>Feet drift</td><td>0 (pinned)</td></tr>
+<tr><td>Largest point move per machine step</td><td>3.4 cm (limit 5)</td></tr>
+<tr><td>Unreachable shown</td><td>from 2.43 s, residual up to 88 mm, limits named</td></tr>
+<tr><td>Candles lit in the proof</td><td>3 of 7 (6.30, 7.27, 9.00 s)</td></tr>
+<tr><td>1 mm pen change</td><td>moves no point more than 1.18 mm</td></tr>
+</table>
+<h2>HOW TO PLAY</h2>
+<ul><li>SELECT picks HAND or CAKE.</li><li>HAND: knurled ring moves the pen along, triangle ring up and down. The taper's flame follows the pen if her body can reach it.</li>
+<li>CAKE: knurled ring slides it along the table, triangle ring turns it. A candle can be lit only when it lies on the dashed line (her reach plane).</li>
+<li>Scale ring: where you kneel. HOLD once all seven are lit: she blows them out. SCENE plays the proof. The i button opens the residual panel.</li></ul>
+</main></body></html>
