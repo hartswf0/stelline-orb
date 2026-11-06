@@ -42,7 +42,7 @@ So the family you choose for the flames decides whether they can go out: affine 
 <script src="mls.js"></script><script src="scene.js"></script><script src="game.js"></script><script src="sound.js"></script><script src="textures.js"></script>
 <script>
 'use strict';
-const Q = new URLSearchParams(location.search), PROOF = Q.has('proof'), STRIP = Q.has('strip');
+const Q = new URLSearchParams(location.search), PROOF = Q.has('proof'), FORK = Q.has('forkstrip'), STRIP = Q.has('strip') || FORK;
 if (PROOF) document.body.classList.add('proof'); if (STRIP) document.body.classList.add('strip');
 const TAU = Math.PI * 2, clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 /* =============================================================== SOUND: the device's grains (ana/device-sounds.wav) and the shared mixer */
@@ -228,10 +228,17 @@ function renderStrip() { const fams = SCENE.FAMILIES, tw = 420, th = 300, top = 
   [.5, 1, 2].forEach((a, ci) => { const p = { x: 10 + ci * (tw + 10), y: top + 3 * (th + 10), w: tw, h: th - 110, crop: [170, 250, 260, 260 * (th - 110) / tw] };
     const R = drawPanel(p, st, { face: 'similarity', flame: 'affine', paper: 'rigid' }, { wire: true, alpha: a }); overlay(p, st, R, { label: `SIMILARITY, ALPHA ${a}`, hi: a === 1 }); });
 }
+function renderForkStrip() { const fams = SCENE.FAMILIES, tw = 420, th = 300, top = 40, crop = [170, 222, 260, 185.7];
+  const st = { face: { fill: 1, purse: .6, open: 0, aim: 0, smile: 0 }, curl: 0, lift: 0, t: 1.3, yaw: 0, flames: SCENE.CANDLES.map(() => ({ W: 0, dir: 0, lit: 1, size: 1, outAt: null })) };
+  ox.fillStyle = 'rgba(200,210,206,.9)'; ox.font = '500 16px Oswald, sans-serif'; ox.fillText('THE FORK: CHEEKS 100 %, PURSE 60 %. ROW 1 BRANCH A (DENSE HANDLES, ALPHA 1). ROW 2 BRANCH B (SPARSE HANDLES, ALPHA 3).', 10, 26);
+  [['dense', 'A'], ['sparse', 'B']].forEach(([set, name], ri) => { SCENE.setFaceSet(set); G.H = SCENE.buildHandles();
+    fams.forEach((f, ci) => { const p = { x: 10 + ci * (tw + 10), y: top + ri * (th + 10), w: tw, h: th, crop };
+      const R = drawPanel(p, st, { face: f, flame: 'affine', paper: 'rigid' }, { wire: true }); overlay(p, st, R, { label: `${name}: ${f.toUpperCase()}${f === 'similarity' ? ' (CHOSEN)' : ''}`, sub: set === 'dense' ? '35 POINTS + 15 SEGMENTS, ALPHA 1' : '19 POINTS + 5 SEGMENTS, ALPHA 3', hi: f === 'similarity' }); }); });
+  SCENE.setFaceSet('dense'); G.H = SCENE.buildHandles(); }
 window.PAGE = { render, drawDev, renderStrip, G, setCompare: v => { COMPARE = v; } };
 (document.fonts ? document.fonts.load('500 20px Oswald').then(() => document.fonts.load('400 20px Oswald')) : Promise.resolve()).catch(() => { }).then(() => {
   initPicture(); resize();
-  if (STRIP) { renderStrip(); window.READY = true; return; }
+  if (STRIP) { if (FORK) renderForkStrip(); else renderStrip(); window.READY = true; return; }
   if (PROOF) { render(); drawDev(); window.READY = true; return; }
   requestAnimationFrame(frame); window.READY = true; });
 </script></body></html>

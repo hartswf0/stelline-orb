@@ -90,7 +90,7 @@
   function iou(a, b) { let i = 0, u = 0; for (let k = 0; k < a.length; k++) { if (a[k] && b[k]) i++; if (a[k] || b[k]) u++; } return u ? i / u : 0; }
   /* ------------------------------------------------------------------ fitness */
   const HEAD_GRID = [60, 50, -.6, .6, 0, 1], CAKE_GRID = [88, 48, -.55, .55, 0, .6];
-  const W_HEAD = { iou: .5, lm: .5, lmScale: .2 }, W_CAKE = { iou: .6, hist: .4 };
+  const W_HEAD = { iou: .5, lm: .5, lmScale: .2 }, W_CAKE = { iou: .6, hist: .4, emdScale: .25 };
   const cache = new WeakMap();
   function refMask(ref, kind) { let c = cache.get(ref); if (!c) { c = {}; cache.set(ref, c); } if (!c[kind]) { const gr = grid(...(kind === 'head' ? HEAD_GRID : CAKE_GRID)); c[kind] = rasterPoly(ref[kind].outline, gr); } return c[kind]; }
   function evalHead(G, ref) { const mesh = headMesh(G), S = project(mesh, 0), bb = bbox(S), s = bb.y1 - bb.y0, norm = { cx: (bb.x0 + bb.x1) / 2, top: bb.y0, s };
@@ -116,11 +116,12 @@
       if (y > 1 - (.04 + .1 * g.fill)) return sh(1);                                         // icing creeps over the top edge
       for (let L = 1; L < layers; L++) if (Math.abs(y - L / layers) < .035 + .05 * g.fill) return sh(2);   // filling lines between layers
       if (((hash(r, c) % 1000) / 1000) < g.beads * .22) return sh(3); return sh(0); });
-    const I = iou(gr.m, refMask(ref, 'cake')), h = new Float64Array(BINS ** 3); let n = 0;
-    for (let i = 0; i < gr.m.length; i++) if (gr.m[i] && gr.c[i] >= 0) { const lit = lightK(g, (gr.c[i] >> 3) / 15), c = pal[gr.c[i] & 7];   // soft (trilinear) binning, as in extract-refs.py
-      const f = c.map(v => clamp(v * lit * BINS / 256 - .5, 0, BINS - 1)), lo = f.map(x => Math.min(BINS - 2, Math.floor(x))), t = f.map((x, k) => x - lo[k]);
-      for (let d = 0; d < 8; d++) { const dr = d >> 2 & 1, dg = d >> 1 & 1, db = d & 1; h[((lo[0] + dr) * BINS + lo[1] + dg) * BINS + lo[2] + db] += (dr ? t[0] : 1 - t[0]) * (dg ? t[1] : 1 - t[1]) * (db ? t[2] : 1 - t[2]); } n++; }
-    let bc = 0; const R = ref.cake.hist; for (let i = 0; i < h.length; i++) bc += Math.sqrt((n ? h[i] / n : 0) * R[i]); const hel = Math.sqrt(Math.max(0, 1 - bc));   // Hellinger distance
+    const I = iou(gr.m, refMask(ref, 'cake')), MB = 32, mg = [new Float64Array(MB), new Float64Array(MB), new Float64Array(MB)]; let n = 0;
+    for (let i = 0; i < gr.m.length; i++) if (gr.m[i] && gr.c[i] >= 0) { const lit = lightK(g, (gr.c[i] >> 3) / 15), c = pal[gr.c[i] & 7];
+      for (let ch = 0; ch < 3; ch++) { const v = clamp(c[ch] * lit, 0, 255) * MB / 256 - .5, lo = clamp(Math.floor(v), 0, MB - 1), hi = Math.min(MB - 1, lo + 1), t = clamp(v - lo, 0, 1); mg[ch][lo] += 1 - t; mg[ch][hi] += t; } n++; }
+    // colour distance: per-channel 1-D earth mover's distance between the form's colours and the reference's, averaged, in units of the full 0..255 range
+    let emd = 0; const RM = ref.cake.marginals; for (let ch = 0; ch < 3; ch++) { let ca = 0, cb = 0; for (let b = 0; b < MB; b++) { ca += n ? mg[ch][b] / n : 0; cb += RM[ch][b]; emd += Math.abs(ca - cb) / MB; } } emd /= 3;
+    const hel = Math.min(1, emd / W_CAKE.emdScale);
     const fit = 1 - (W_CAKE.iou * (1 - I) + W_CAKE.hist * hel);
     return { fit, iou: I, hist: hel, mask: gr.m, grid: CAKE_GRID };
   }

@@ -285,7 +285,7 @@
   0.085
  ],
  "machine_rate_hz": 11.79,
- "solve_ms_per_world_frame": 14.48,
+ "solve_ms_per_world_frame": 6.25,
  "vertex_counts": {
   "face": 1628,
   "paper": 555,

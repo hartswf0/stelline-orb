@@ -51,6 +51,8 @@
   }
  },
  "alpha": 1,
+ "face_alpha": 1,
+ "face_set": "dense",
  "line_weight_unit_px": 8,
  "handles": [
   {
@@ -1601,6 +1603,7 @@
  "breath": {
   "k": 0.85,
   "cheekRef": 0.4,
+  "cheekRefSparse": 0.513,
   "mouthRef": 580,
   "spread0": 0.05,
   "spreadW": 0.5,

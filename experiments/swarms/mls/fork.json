@@ -98,13 +98,13 @@
  "sparse": {
   "alpha": 3,
   "handles": {
-   "points": 15,
+   "points": 19,
    "segments": 5
   },
   "fam": {
    "affine": {
     "plate_border_px": 0,
-    "neck_px": 0.078,
+    "neck_px": 0.12,
     "cheek_outline_out_px": 21.98,
     "features": {
      "eyeL": {
@@ -118,43 +118,43 @@
       "height_ratio": 1
      },
      "nose": {
-      "area_ratio": 1,
-      "width_ratio": 0.999,
+      "area_ratio": 0.997,
+      "width_ratio": 0.996,
       "height_ratio": 1.001
      }
     },
-    "min_jacobian": -0.141,
+    "min_jacobian": -0.139,
     "folded_triangles": 36,
-    "cheek_disc_gain": 0.506
+    "cheek_disc_gain": 0.507
    },
    "similarity": {
     "plate_border_px": 0,
-    "neck_px": 0.032,
-    "cheek_outline_out_px": 20.49,
+    "neck_px": 0.062,
+    "cheek_outline_out_px": 20.68,
     "features": {
      "eyeL": {
-      "area_ratio": 1.006,
+      "area_ratio": 1.005,
       "width_ratio": 1.003,
       "height_ratio": 1.004
      },
      "eyeR": {
-      "area_ratio": 1.006,
+      "area_ratio": 1.005,
       "width_ratio": 1.003,
       "height_ratio": 1.004
      },
      "nose": {
-      "area_ratio": 0.998,
-      "width_ratio": 0.997,
-      "height_ratio": 1.001
+      "area_ratio": 0.992,
+      "width_ratio": 0.993,
+      "height_ratio": 1
      }
     },
-    "min_jacobian": -1.067,
-    "folded_triangles": 6,
-    "cheek_disc_gain": 0.683
+    "min_jacobian": 0.191,
+    "folded_triangles": 0,
+    "cheek_disc_gain": 0.687
    },
    "rigid": {
     "plate_border_px": 0,
-    "neck_px": 0.032,
+    "neck_px": 0.061,
     "cheek_outline_out_px": 22.02,
     "features": {
      "eyeL": {
@@ -168,17 +168,17 @@
       "height_ratio": 1
      },
      "nose": {
-      "area_ratio": 0.998,
-      "width_ratio": 0.998,
+      "area_ratio": 0.995,
+      "width_ratio": 0.995,
       "height_ratio": 1
      }
     },
-    "min_jacobian": -0.614,
-    "folded_triangles": 52,
-    "cheek_disc_gain": 0.516
+    "min_jacobian": -0.134,
+    "folded_triangles": 36,
+    "cheek_disc_gain": 0.515
    }
   },
-  "cheek_outline_family_diff_px": 4.22,
+  "cheek_outline_family_diff_px": 4.11,
   "at": [
    "affine",
    "similarity",
@@ -188,7 +188,7 @@
   "repair_condition": {
    "locality_ok": true,
    "divergence_ok": true,
-   "chosen_no_folds": false
+   "chosen_no_folds": true
   }
  },
  "dense3": {

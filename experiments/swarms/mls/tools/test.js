@@ -2,6 +2,7 @@
 const path = require('path'), fs = require('fs');
 const DIR = path.join(__dirname, '..');
 const MLS = require(path.join(DIR, 'mls.js')), S = require(path.join(DIR, 'scene.js')), { Game, DEMO } = require(path.join(DIR, 'game.js'));
+const SET = process.env.FACE_SET || 'dense'; S.setFaceSet(SET); const SUFFIX = SET === 'dense' ? '' : '-' + SET; // branch A: dense (default); branch B: FACE_SET=sparse
 const H = S.buildHandles(), F = S.SURF, FAMS = S.FAMILIES, R = {};
 const meshes = { face: MLS.grid(...F.face.rect, ...F.face.grid), paper: MLS.grid(...F.paper.rect, ...F.paper.grid),
   flames: S.CANDLES.map(cd => MLS.grid(cd.x + F.flame.rect[0], cd.y + F.flame.rect[1], F.flame.rect[2], F.flame.rect[3], ...F.flame.grid)) };
@@ -12,7 +13,7 @@ const CONT = { face: Float64Array.from([...ell(300, 262, 116, 150, 64), ...ell(3
   paper: (() => { const a = []; for (let k = 0; k <= 110; k++) { a.push(25 + 5 * k, S.PAPER_Y - 18, 25 + 5 * k, S.PAPER_Y + 18); } return Float64Array.from(a); })(),
   flame: i => { const cd = S.CANDLES[i], a = []; for (let k = 0; k <= 20; k++) { const y = -90 + 90 * k / 20, w = 10 * Math.sin(Math.PI * k / 20); a.push(cd.x - w, cd.y + y, cd.x + w, cd.y + y); } return Float64Array.from(a); } };
 
-function solveSurf(T, surf, fam, verts, inst) { return MLS.solve(S.pack(H, T, surf, inst), verts, new Float64Array(verts.length), fam, 1); }
+function solveSurf(T, surf, fam, verts, inst) { return MLS.solve(S.pack(H, T, surf, inst), verts, new Float64Array(verts.length), fam, surf === 'face' ? S.faceAlpha() : 1); }
 
 // ---------------------------------------------------------------- run the demo at 30 fps, recording each world's state per frame
 const G = new Game(); G.playScript(); const frames = [];
@@ -80,7 +81,7 @@ for (const fam of FAMS) {
 R.contour_stability = stab;
 
 // ---------------------------------------------------------------- 4: what each family can do with the breath (the game's coupling)
-const best = {}, outs = (flame, p, a, fill) => { const pre = S.measureFace(MLS, H, { fill, purse: p / 10, open: 0, aim: a * 4 }, 'similarity', 1), op = S.measureFace(MLS, H, { fill: fill * .85, purse: p / 10, open: 1, aim: a * 4 }, 'similarity', 1);
+const best = {}, outs = (flame, p, a, fill) => { const pre = S.measureFace(MLS, H, { fill, purse: p / 10, open: 0, aim: a * 4 }, 'similarity', S.faceAlpha()), op = S.measureFace(MLS, H, { fill: fill * .85, purse: p / 10, open: 1, aim: a * 4 }, 'similarity', S.faceAlpha());
   const pl = S.breathPlan({ cheek: pre.cheek, mouth: op.mouth, width: op.width }, a * 4); return pl.filter((q, i) => S.flameThin(MLS, H, i, Math.min(1.3, q.s), q.dir, flame) < S.FLAME_TEAR).length; };
 const winners = [];
 for (const fam of FAMS) { let b = { out: -1 };
@@ -135,10 +136,10 @@ const checks = [
   ['a win needs fewer than a quarter of the ring settings', R.winning_settings_affine_flames.count > 0 && R.winning_settings_affine_flames.count < 11 * 13 / 4],
 ];
 R.checks = checks.map(([name, ok]) => ({ name, ok }));
-fs.writeFileSync(path.join(DIR, 'tests.json'), JSON.stringify(R, null, 1));
+fs.writeFileSync(path.join(DIR, 'tests' + SUFFIX + '.json'), JSON.stringify(R, null, 1));
 // the handle set
-fs.writeFileSync(path.join(DIR, 'handles.json'), JSON.stringify({ about: 'THE BLOW handle set. Scene px, 600 x 1000 page, y down. Points are [x,y]; segments [ax,ay,bx,by]. Poses are offsets at full amount; the game scales CHEEKS by fill, PURSE by purse, OPEN by the breath. Flame and streamer handles are driven by the breath and the WRAP ring (see scene.js).',
-  families: Object.fromEntries(Object.entries(F).map(([k, v]) => [k, { family: v.family, why: v.why, mesh: { rect: v.rect, grid: v.grid } }])), alpha: 1, line_weight_unit_px: MLS.LINE_UNIT,
+fs.writeFileSync(path.join(DIR, 'handles' + SUFFIX + '.json'), JSON.stringify({ about: 'THE BLOW handle set. Scene px, 600 x 1000 page, y down. Points are [x,y]; segments [ax,ay,bx,by]. Poses are offsets at full amount; the game scales CHEEKS by fill, PURSE by purse, OPEN by the breath. Flame and streamer handles are driven by the breath and the WRAP ring (see scene.js).',
+  families: Object.fromEntries(Object.entries(F).map(([k, v]) => [k, { family: v.family, why: v.why, mesh: { rect: v.rect, grid: v.grid } }])), alpha: 1, face_alpha: S.faceAlpha(), face_set: SET, line_weight_unit_px: MLS.LINE_UNIT,
   handles: H.map(h => ({ id: h.id, surface: h.surf, kind: h.kind === 'p' ? 'point' : 'segment', rest: h.rest.map(v => +v.toFixed(2)), anchor: !!h.anchor })), poses: S.POSES, breath: S.BREATH, groups: { STREAMER: 'surface paper', CHEEKS: 'cheek|jaw|ala|brow|lower lids', LIPS: 'mouth|lip', FLAMES: 'flame tips and sides' } }, null, 1));
 console.log(JSON.stringify({ foldovers: jac, locality: R.cheek_locality, divergence: R.cheek_family_divergence, thinning: R.flame_thinning_at_W1, best, winners: R.winning_settings_affine_flames, maxall: R.max_everything, two: R.demo_frames_with_two_steps, machine_rate_hz: R.machine_rate_hz, solve_ms: R.solve_ms_per_world_frame, demo: R.demo.result, demo_lit: R.demo.lit }, null, 1));
 R.checks.forEach(c => console.log((c.ok ? 'PASS ' : 'FAIL ') + c.name));

@@ -46,6 +46,12 @@ for p, m in zip(c.getdata(), cm.getdata()):
                 hist[((lo[0] + dr) * B + lo[1] + dg) * B + lo[2] + db] += w
     n += 1
 hist = [round(h / n, 5) for h in hist]
+# per-channel marginals, 32 bins each (what the fitness uses: their 1-D earth mover's distance has a slope everywhere)
+M = 32; marg = [[0] * M for _ in range(3)]
+for p, m in zip(c.getdata(), cm.getdata()):
+    if m:
+        for ch in range(3): marg[ch][p[ch] * M // 256] += 1
+marg = [[round(v / n, 5) for v in ch] for ch in marg]
 # check overlays (stay in the work dir)
 for img, poly, name, lm in [(g, head_outline, 'check_head.png', head_lm), (c, cake_outline, 'check_cake.png', None)]:
     o = img.copy(); d = ImageDraw.Draw(o); d.line(poly + [poly[0]], fill=(0, 255, 255), width=1)
@@ -57,7 +63,8 @@ json.dump({
     'cake': 'frame at 155.0 s: the birthday cake on the hexagonal table, wide shot, camera about 7 degrees above the cake; outline (cake and board, candles excluded) hand-traced; normalised by its width',
     'skin': 'mean sRGB inside an ellipse spanning the eyes to above the chin, frame 214.0 s',
     'cakeHist': '6x6x6 sRGB histogram (trilinear soft binning) of pixels inside the traced cake outline, frame 155.0 s, fractions summing to 1',
+    'cakeMarginals': 'per-channel sRGB histograms, 32 bins each, same pixels as cakeHist',
     'note': 'derived numbers only; the frames are not in the repo'},
   'head': {'outline': ho, 'landmarks': hl, 'skin': skin},
-  'cake': {'outline': co, 'elevationDeg': 7, 'hist': hist, 'bins': B}}, open(out, 'w'))
+  'cake': {'outline': co, 'elevationDeg': 7, 'hist': hist, 'bins': B, 'marginals': marg}}, open(out, 'w'))
 print('skin', skin, 'cake px', n, 'top bins', sorted(((h, i) for i, h in enumerate(hist)), reverse=True)[:6])

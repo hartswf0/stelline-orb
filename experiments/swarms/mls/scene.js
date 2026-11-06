@@ -38,6 +38,7 @@
     ['eyeL', 'p', [254, 217]], ['eyeR', 'p', [346, 217]], ['noseTip', 'p', [300, 282]],
     ['mouthL', 'p', [272, 330]], ['mouthR', 'p', [328, 330]], ['lipUin', 'p', [300, 328]], ['lipLin', 'p', [300, 334]],
     ['lipUout', 'p', [300, 318]], ['lipLout', 'p', [300, 346]],
+    ['lipUqL', 'p', [286, 326]], ['lipLqL', 'p', [286, 336]], ['lipUqR', 'p', [314, 326]], ['lipLqR', 'p', [314, 336]],
     ['cheekInL', 'p', [262, 300]], ['cheekInR', 'p', [338, 300]], ['cheekL', 'p', [214, 304]], ['cheekR', 'p', [386, 304]],
   ];
   let FACE_SET = (root && root.FACE_SET) || 'dense';
@@ -83,8 +84,8 @@
   // branch B poses: the cheek is one point pushed out, and the cheek-to-mouth segment pushed out AND turned (its mouth end follows the corner)
   const POSES_SPARSE = {
     CHEEKS: { cheekL: [-22, -3], cheekR: [22, -3], lipUin: [0, 3], lipLin: [0, -3] },
-    PURSE: { mouthL: [14, 1], mouthR: [-14, 1] },
-    OPEN: { lipUin: [0, -8], lipLin: [0, 13], lipUout: [0, -5], lipLout: [0, 10] },
+    PURSE: { mouthL: [14, 1], mouthR: [-14, 1], lipUqL: [7, 0], lipLqL: [7, 0], lipUqR: [-7, 0], lipLqR: [-7, 0] },
+    OPEN: { lipUin: [0, -8], lipLin: [0, 13], lipUout: [0, -5], lipLout: [0, 10], lipUqL: [0, -4], lipLqL: [0, 6], lipUqR: [0, -4], lipLqR: [0, 6] },
     SMILE: { mouthL: [-5, -6], mouthR: [5, -6], cheekL: [-2, -5], cheekR: [2, -5] },
   };
   const MOUTH_IDS = /^(mouth|lip)/;
@@ -185,7 +186,7 @@
 
   // the breath: from measured cheeks + aperture + aim, a strength for every candle. (Jet: speed grows with the air held and
   // with a smaller opening; spread grows with the opening's width.) Returns per-candle { s, dir, delay }.
-  const BREATH = { k: 0.85, cheekRef: 0.40, cheekRefSparse: 0.633, mouthRef: 580, spread0: .05, spreadW: .5, widthRef: 50, lean: -8 };
+  const BREATH = { k: 0.85, cheekRef: 0.40, cheekRefSparse: 0.513, mouthRef: 580, spread0: .05, spreadW: .5, widthRef: 50, lean: -8 };
   function breathPlan(meas, aimDeg) {
     const V = Math.max(0, meas.cheek) / (FACE_SET === 'sparse' ? BREATH.cheekRefSparse : BREATH.cheekRef);            // 1 = a full similarity breath
     const jet = BREATH.k * V * Math.pow(BREATH.mouthRef / Math.max(60, meas.mouth), .5);
