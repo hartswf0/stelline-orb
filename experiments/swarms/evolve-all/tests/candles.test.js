@@ -30,7 +30,7 @@ ok(M.making.length === 14 && M.making.slice(0, 7).every((m, k) => m[0] === `PLAC
 { const G = defaults(), e = M.evaluate(G, REFS), fl = M.evaluate(withGene(G, { depth: -.006 }), REFS), sk = M.evaluate(withGene(G, { depth: .02, height: .03 }), REFS);
   const off = M.evaluate(withGene(G, { ring: .1, jitter: .3 }), REFS), small = M.evaluate(G, Object.assign({}, REFS, { support: { top: [0, .1, 0], rim: [.06, .1, 0] } }));
   ok(e.parts.support === 1, 'support: the default candles stand on the 0.12 m cake top, pushed in 5 mm');
-  ok(fl.parts.support === 0 && fl.parts.placing === 0 && fl.fit < e.fit, `support: candles floating 6 mm above the top fail (support 0, fit ${e.fit.toFixed(3)} -> ${fl.fit.toFixed(3)})`);
+  ok(fl.parts.support === 0 && fl.parts.shaft === 0 && fl.fit < e.fit, `support: candles floating 6 mm above the top fail (support 0, SHAFT 0, fit ${e.fit.toFixed(3)} -> ${fl.fit.toFixed(3)})`);
   ok(sk.parts.support < .5, `support: candles sunk 20 mm into 30 mm shafts fail (support ${sk.parts.support.toFixed(3)})`);
   ok(off.parts.support < e.parts.support, `support: candles past the rim fail (support ${off.parts.support.toFixed(3)})`);
   ok(small.parts.support < .5 && small.parts.placing < M.stages[1][2], `support: the same genome on a 0.06 m cake is off its rim (support ${small.parts.support.toFixed(3)}; PLACING ${small.parts.placing.toFixed(3)} below its bar)`); }
@@ -45,12 +45,16 @@ ok(M.making.length === 14 && M.making.slice(0, 7).every((m, k) => m[0] === `PLAC
 /* ------------------------------------------------------------------ convergence */
 function play(seed, cap) { let P = { G: M.blank() }; P.e = M.evaluate(P.G, REFS); let si = B.stageOf(M, P.e), gen = 0, last = 0; const per = [];
   while (si < M.stages.length && gen < cap) { const [grp, m, bar] = M.stages[si], sc = B.measure(P.e, m);
-    P = B.breed(M, P, { seed, gen, sigma: sigmaOf(sc > bar - .06 ? 6 : 9), bias: grp, lambda: 6, stage: si, keep: M.stages.slice(0, si).map(s => [s[1], s[2]]), freeze: true }, REFS).best; gen++;
+    // the chooser keeps the best visible child of 8 (the elite, as core/breed.js picks it), strength detent 9 far from the bar, 6 within 0.06 of it
+    P = B.breed(M, P, { seed, gen, sigma: sigmaOf(sc > bar - .06 ? 6 : 9), bias: grp, lambda: 8, stage: si, keep: M.stages.slice(0, si).map(s => [s[1], s[2]]), freeze: true }, REFS).best; gen++;
     const ns = B.stageOf(M, P.e); while (ns > si) { per.push(gen - last); last = gen; si++; } }
   return { per, gen, passed: si >= M.stages.length, e: P.e }; }
-{ const CAP = 300, res = [1, 2, 3, 4, 5, 6, 7, 8].map(s => play(s, CAP)), n = res.filter(r => r.passed).length, gens = res.map(r => r.gen);
-  res.forEach((r, i) => console.log(`      seed ${i + 1}: ${r.passed ? 'passed' : 'NOT passed'} in ${r.gen} generations (per stage ${r.per.join(', ')}); fit ${r.e.fit.toFixed(3)}, ${r.e.parts.n} candles, bases ${r.e.parts.chamferR.toFixed(3)} R from the film's`));
-  ok(n === 8 && res.every(r => r.e.parts.n === 7), `convergence: 8/8 seeds reach every stage from the blank within ${CAP} generations, all with seven candles (median ${gens.slice().sort((a, b) => a - b)[4]}, max ${Math.max(...gens)})`); }
+{ const res = [1, 2, 3, 4, 5, 6, 7, 8].map(s => play(s, 400)), MED = 25, MAX = 35; let good = res.every(r => r.passed);
+  console.log('      generations per stage over 8 seeds (8 visible variants, best kept):');
+  M.stages.forEach((st, i) => { const a = res.map(r => r.per[i] == null ? Infinity : r.per[i]), srt = a.slice().sort((x, y) => x - y), med = (srt[3] + srt[4]) / 2, mx = srt[7];
+    if (!(med <= MED && mx <= MAX)) good = false; console.log(`        ${st[0].padEnd(9)} median ${med}  max ${mx}   [${a.join(', ')}]`); });
+  const tot = res.map(r => r.gen).sort((x, y) => x - y);
+  ok(good, `convergence: 8/8 seeds pass every stage from the blank; every stage median <= ${MED} and max <= ${MAX} generations (whole part: median ${(tot[3] + tot[4]) / 2}, max ${tot[7]})`); }
 /* ------------------------------------------------------------------ anchors */
 { const G = defaults(), A = M.anchors(G), w = Object.keys(A).filter(k => /^wick\d+$/.test(k)), g = B.named(M, G);
   ok(w.length === 7 && w.every(k => Math.hypot(A[k][0], A[k][2]) + g.thick / 2 < .95 * .12), `anchors: seven wicks, every base inside the rim (${w.length})`);

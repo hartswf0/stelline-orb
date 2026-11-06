@@ -38,12 +38,16 @@ const strokesPerChar = REFS.chars.map(c => REFS.medians[c].length); ok(strokesPe
 /* ------------------------------------------------------------------ convergence: blank -> every stage, careful policy */
 function play(seed, cap) { let P = { G: M.blank() }; P.e = M.evaluate(P.G, REFS); let si = B.stageOf(M, P.e), gen = 0, last = 0; const per = [];
   while (si < M.stages.length && gen < cap) { const [grp, m, bar] = M.stages[si], sc = B.measure(P.e, m);
-    P = B.breed(M, P, { seed, gen, sigma: sigmaOf(sc > bar - .06 ? 6 : 9), bias: grp, lambda: 6, stage: si, keep: M.stages.slice(0, si).map(s => [s[1], s[2]]), freeze: true }, REFS).best; gen++;
+    // the chooser keeps the best visible child of 8 (the elite, as core/breed.js picks it), strength detent 9 far from the bar, 6 within 0.06 of it
+    P = B.breed(M, P, { seed, gen, sigma: sigmaOf(sc > bar - .06 ? 6 : 9), bias: grp, lambda: 8, stage: si, keep: M.stages.slice(0, si).map(s => [s[1], s[2]]), freeze: true }, REFS).best; gen++;
     const ns = B.stageOf(M, P.e); while (ns > si) { per.push(gen - last); last = gen; si++; } }
   return { per, gen, passed: si >= M.stages.length, e: P.e }; }
-{ const CAP = 250, res = [1, 2, 3, 4, 5, 6, 7, 8].map(s => play(s, CAP)), n = res.filter(r => r.passed).length, gens = res.map(r => r.gen);
-  res.forEach((r, i) => console.log(`      seed ${i + 1}: ${r.passed ? 'passed' : 'NOT passed'} in ${r.gen} generations (per stage ${r.per.join(', ')}); fit ${r.e.fit.toFixed(3)}`));
-  ok(n === 8, `convergence: 8/8 seeds reach every stage from the blank within ${CAP} generations (median ${gens.slice().sort((a, b) => a - b)[4]}, max ${Math.max(...gens)})`); }
+{ const res = [1, 2, 3, 4, 5, 6, 7, 8].map(s => play(s, 400)), MED = 25, MAX = 35; let good = res.every(r => r.passed);
+  console.log('      generations per stage over 8 seeds (8 visible variants, best kept):');
+  M.stages.forEach((st, i) => { const a = res.map(r => r.per[i] == null ? Infinity : r.per[i]), srt = a.slice().sort((x, y) => x - y), med = (srt[3] + srt[4]) / 2, mx = srt[7];
+    if (!(med <= MED && mx <= MAX)) good = false; console.log(`        ${st[0].padEnd(9)} median ${med}  max ${mx}   [${a.join(', ')}]`); });
+  const tot = res.map(r => r.gen).sort((x, y) => x - y);
+  ok(good, `convergence: 8/8 seeds pass every stage from the blank; every stage median <= ${MED} and max <= ${MAX} generations (whole part: median ${(tot[3] + tot[4]) / 2}, max ${tot[7]})`); }
 /* ------------------------------------------------------------------ support: the cake under it */
 { const G = defaults(), on = M.evaluate(G, REFS), small = M.evaluate(G, Object.assign({}, REFS, { support: { top: [0, .1, 0], rim: [.06, .1, 0] } }));
   ok(on.parts.support > .99 && small.parts.support < .9 && small.fit < on.fit, `support: on the 0.12 m cake ${on.parts.support.toFixed(3)}; the same writing on a 0.06 m cake runs off the rim (support ${small.parts.support.toFixed(3)}, fit ${on.fit.toFixed(3)} -> ${small.fit.toFixed(3)})`);

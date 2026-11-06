@@ -29,7 +29,7 @@
   const groups = ['COUNT', 'PLACING', 'SHAFT', 'STRIPES', 'CREAM', 'RED', 'FLAME', 'FLICKER'];   // CREAM holds the shaft colour and the pale blue stripe (under the film's grade the blue stripe is a cool off-white)   // groups of 1-5 genes, one stage each, so a stage passes in about 8-25 generations
   const named = G => { const o = {}; genes.forEach((g, i) => o[g[0]] = G[i]); return o; };
   const BLANK = { count: 1, ring: 0, arc: 0, mid: 0, jitter: 0, depth: 0, height: .012, thick: .006, striped: 0, turns: 0, cool: 0,
-    cr: .9, cg: .9, cb: .9, sr: .9, sg: .9, sb: .9, br: .9, bg: .9, bb: .9, wick: 0, flame: 0, fw: .5, lean: 0, flicker: .25 };   // one plain white stub in the middle, unlit, no wick
+    cr: .9, cg: .9, cb: .9, sr: .6, sg: .6, sb: .6, br: .9, bg: .9, bb: .9, wick: 0, flame: 0, fw: .5, lean: 0, flicker: .25 };   // one plain white stub in the middle, unlit, no wick
   function blank() { return Float64Array.from(genes.map(g => BLANK[g[0]])); }
   /* ------------------------------------------------------------------ references and support */
   function refOf(refs) { const r = refs && (refs.bases ? refs : refs.candles && refs.candles.bases ? refs.candles : null); if (r || BUNDLED) return r || BUNDLED;
