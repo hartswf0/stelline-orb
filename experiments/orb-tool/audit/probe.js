@@ -140,8 +140,11 @@ const LEGIBLE = () => {
   for (const cv of canv) {
     const dclip = { x: Math.round(cv.x), y: Math.round(Math.max(0, cv.y)), width: Math.round(cv.w), height: Math.round(Math.min(cv.h, VH - Math.max(0, cv.y))) };
     const dshot = () => page.screenshot({ clip: dclip, type: 'png' }).catch(() => null);
-    for (let gy = 0; gy < GY; gy++) for (let gx = 0; gx < GX; gx++) {
-      const px = cv.x + cv.w * (gx + .5) / GX, py = Math.max(0, cv.y) + dclip.height * (gy + .5) / GY;
+    // rows to probe: either an even grid, or (AUTOROW) the brightest row of the device canvas, where a lit barrel of rings sits
+    let rows = Array.from({ length: GY }, (_, gy) => (gy + .5) / GY);
+    if (process.env.AUTOROW) { const img = await dshot(); if (img) { const fr = await helper.evaluate(async A => { const bm = await createImageBitmap(await (await fetch('data:image/png;base64,' + A)).blob()); const c = new OffscreenCanvas(64, 128); const x = c.getContext('2d'); x.drawImage(bm, 0, 0, 64, 128); const d = x.getImageData(0, 0, 64, 128).data; let best = 0, bi = 64; for (let y = 0; y < 128; y++) { let s = 0; for (let k = 16; k < 48; k++) { const i = (y * 64 + k) * 4; s += d[i] + d[i + 1] + d[i + 2]; } if (s > best) { best = s; bi = y; } } return (bi + .5) / 128; }, img.toString('base64')); rows = [fr]; R.autorow = R.autorow || {}; R.autorow[cv.id || 'canvas'] = +fr.toFixed(3); } }
+    for (const fy of rows) for (let gx = 0; gx < GX; gx++) {
+      const px = cv.x + cv.w * (gx + .5) / GX, py = Math.max(0, cv.y) + dclip.height * fy;
       if (over()) { R.budgetHit = 'grid'; break; }
       for (const kind of (process.env.KINDS || 'tap,dragUp,dragLeft').split(',')) {
         const before = await shot(), dB = await dshot(); const a0 = await audit(); const errN = errors.length; const tA = Date.now();
@@ -150,7 +153,7 @@ const LEGIBLE = () => {
         await page.mouse.up();
         await settle(6); const s100 = await shot(); const t100 = Date.now() - tA; await page.waitForTimeout(R.manual ? 0 : Math.max(0, 1000 - (Date.now() - tA))); await settle(54); const s1 = await shot(); const dA = await dshot();
         const d100 = await diff(before, s100), d1 = await diff(before, s1), dd = await diff(dB, dA); const a1 = await audit();
-        const r = { canvas: cv.id, gx, gy, px: Math.round(px), py: Math.round(py), kind, firstShotMs: t100, d100, d1s: d1, deviceDiff: dd, sound: (a1.audioStarts || 0) - (a0.audioStarts || 0), newErrors: errors.slice(errN) };
+        const r = { canvas: cv.id, gx, fy: +fy.toFixed(3), px: Math.round(px), py: Math.round(py), kind, firstShotMs: t100, d100, d1s: d1, deviceDiff: dd, sound: (a1.audioStarts || 0) - (a0.audioStarts || 0), newErrors: errors.slice(errN) };
         r.visible100 = (d100 ? d100.changedFrac : 0) > Math.max(0.01, idle100 * 1.5 + 0.005); r.visible1s = (d1 ? d1.changedFrac : 0) > Math.max(0.01, idle1s * 1.5 + 0.005); r.deviceChanged = (dd ? dd.changedFrac : 0) > 0.01;
         grid.push(r); save();
         if (page.url().split('#')[0] !== startURL.split('#')[0]) { r.navigatedTo = page.url(); await page.goto(startURL, { waitUntil: 'commit' }).catch(() => { }); await page.waitForTimeout(1500); }

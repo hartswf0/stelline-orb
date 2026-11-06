@@ -15,7 +15,7 @@ The user named hand-orb-v5 as the most usable page and maker.html as having no c
 | ring 3 KNURL | the selection's value: which cake, the making stage, how much of the inscription is written, the number of candles, how far a child has arrived, the light |
 | ring 4 TRIANGLES | the selection's second value: tilt, height, candles lit, a child's time (earlier or later in her performance), the place |
 | SELECT | the next thing to work on (held: the previous one): cake, make, inscription, candles, child 1-3, room |
-| HOLD | freeze every performance / release; releasing when the three children are there and the candles lit blows them out. Held down: switch the memory off; pressed again: on |
+| HOLD | with an agent's ghost waiting: accept it. Otherwise freeze every performance / release; releasing when the three children are there and the candles lit blows them out. Held down: switch the memory off; pressed again: on |
 | MAKE | the next making stage of the cake (held: back to nothing) |
 | ACCEPT | accept the agent's oldest proposal (held: reject it). Turning the ring that sets the same thing turns the proposal instead |
 | UNDO / REDO | one history step (UNDO held: to the start; REDO held: play the history from here at the pace it was made, again to stop) |
@@ -43,6 +43,6 @@ The history strip: one cell per history entry, amber for the hand, cyan for an a
 - `index.html` the shell. `tests/core.test.js` the node tests.
 
 ## Tests
-`node experiments/orb-tool/tests/core.test.js` runs 10 tests: op validation, clamping, undo/redo round-trip, authors and proposals, the hand turning an agent's ghost, replay determinism and save/load, device-to-op mapping, the machine's timing, a whole birthday from nothing to the blow through ops only, and the words each op answers with. All 10 passed on Nov 6 2026.
+`node experiments/orb-tool/tests/core.test.js` runs 13 tests: op validation, clamping, undo/redo round-trip, authors and proposals, the hand turning an agent's ghost, replay determinism and save/load, device-to-op mapping, the machine's timing, a whole birthday from nothing to the blow through ops only, the words each op answers with, press timing from event timestamps, turnable candles/camera/look ghosts with HOLD accepting, and one-ghost batches. All 13 passed on Nov 6 2026.
 
 Measured in Chromium (Playwright, 390x844, stub renderer, flames and performances stopped with `window.__orbStill`): real pointer drags on each of the four rings under six selections (24 cases) and presses of SELECT, HOLD, MAKE, ACCEPT, UNDO, REDO, KEEP and BREED each changed the view's pixels; the time from the operation to the first changed frame was 2 to 51 ms in every case. Session restore and long-REDO playback were checked in the same browser (3 steps restored with their authors; playback reached the end). The pixel probe reads a 2D canvas, so it was run on the stub renderer only, not on scene/. A ring at the end of its range does not move further, so a probe has to turn away from the end stop.

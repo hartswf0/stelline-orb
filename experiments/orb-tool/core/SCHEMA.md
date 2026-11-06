@@ -86,9 +86,10 @@ Every operation is `{ op, args }`. `ORB.do(op, { author })` validates, applies, 
 | `switchOff` / `switchOn` | `{}` | the memory goes dark / comes back |
 | `look` | `{ look?, place?, light? }` | scene look |
 | `camera` | `{ yaw?, kneel?, focus?, turn? }` | `turn` is relative degrees |
-| `propose` | `{ op, args, note? }` | adds a ghost to `proposals` (the inner op is validated first) |
+| `propose` | `{ op, args, note? }` or `{ ops, note? }` | adds a ghost to `proposals` (the inner op is validated first); with `ops`, one ghost of op `batch` |
+| `batch` | `{ ops }` | several proposable ops as one (all or nothing) |
 | `amend` | `{ id, args }` | change a pending proposal's args (the person turning a ghost) |
-| `accept` | `{ id? }` | apply the proposal (oldest if no id) and remove it; history entry records `via: id` |
+| `accept` | `{ id? }` | apply the proposal (oldest if no id) and remove it; history entry records `via: id`. On the device: ACCEPT, or HOLD while a ghost waits |
 | `reject` | `{ id? }` | drop the proposal (oldest if no id) |
 | `snapshot` | `{ name }` | push a named mark |
 | `load` | `{ memory }` | replace the whole state with a saved memory's state (undoable) |
@@ -135,7 +136,7 @@ Rings: 1 SCALE (camera.yaw, 5 degrees a detent), 2 KNEEL (camera.kneel), 3 KNURL
 | child-n | people.child-n.arrived | people.child-n.offset |
 | room | scene.light | scene.place (index) |
 
-If a pending `set` proposal targets the path a ring would set, turning that ring amends the ghost instead (the person turns the agent's suggestion); ACCEPT applies it.
+If a pending proposal sets the path a ring would set (`set`, or the count of `candles`, yaw/kneel of `camera`, light/place of `look`), turning that ring amends the ghost instead (the person turns the agent's suggestion); ACCEPT or HOLD applies it, long ACCEPT rejects it. Presses are timed from the events' timeStamps.
 
 ## 6. Hooks for the other roles
 - SCENE: define `window.ORB_SCENE = { create(container, ORB) -> { frame(nowMs), resize() } }` in `scene/scene.js`. The shell uses it if present, else `core/stub-scene.js` (same interface, global `ORB_STUB_SCENE`). Draw `ORB.view()`; draw `state.proposals` as ghosts; listen to `ORB.on('change')` for state-change flashes.
@@ -149,5 +150,6 @@ Probes may set `window.__orbStill = true` to stop the stub's flames and performa
 
 ## Change log
 - v1 (Nov 6 2026): first publication.
+- v1.3 (after docs/agent.md): (a) button presses are timed from the pointer events' own `timeStamp` (down to up, 650 ms = long, `CORE_DEVMAP.isLong`), so a slow frame no longer turns a tap into a long press. (b) HOLD with a ghost waiting accepts it (a short press); long HOLD still switches off; ACCEPT / long ACCEPT stay. (c) `candles`, `camera` (yaw, kneel) and `look` (light, place) ghosts turn on the rings like `set` ghosts (`CORE_OPS.ghostArg(proposal, path)`). (d) new op `batch { ops }`, and `propose { ops: [...] , note }` makes ONE ghost of several steps (op 'batch'), so `cake target` can be proposed as one ghost that shows only where it ends; `ORB.propose([op, op], note)` also works. (e) `CORE_OPS.ghostState(state, proposal)` returns the state a proposal would make without touching the real one; renderers should draw ghosts from it. (f) the shell loads `agent/bridge.js` and calls `ORB_BRIDGE.attach(ORB)` (JSON-RPC over postMessage; `?bridge=ws://localhost:PORT` for the relay); `ORB.bridge` is the server. (g) the device's height follows its frame, so no empty band is left under the history strip on a phone.
 - v1.2 (after AUDIT.md): log records carry `t` (ms since the bus started, for playback only; replay ignores it) and `label` (what happened in words: `undid cake.kind 3`, `candles 5 (accepted p2)`); `'log'` now fires after the change for applied ops; history entries carry `t`; `'seek'` passes `(n, from)` and the machine steps a one-step move instead of jumping; long REDO plays the history from the cursor at its recorded pace (`ORB.playback()`); the shell writes the session to localStorage 1 s after each change and offers RESTORE on the next visit (`?fresh` skips it); the glass strip says every op in words, from either hand, and a page error is reported there.
 - v1.1: added `switchOn`, `amend`, `reset` to the op table (they were in ops.js from the start); section 7 (the shell); `postMessage` also takes `{ orb: 'command', line }` and `{ orb: 'history' }`; `blow` refused with no cake.
