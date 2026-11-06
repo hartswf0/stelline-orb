@@ -17,10 +17,17 @@ Source: "The Memory Maker" clip, seconds from the start of the clip. Seen = on s
 
 Seen once, not understood: the crescent has no readable label in any frame; the marks above the girls are only glimpsed. What each does is our inference.
 
+## Revised reading: lettering is its own operation
+
+Stepped through frame by frame (clip 2:20-2:26): red icing builds stroke by stroke into 生日快乐, then a flourish underneath; the candles and the rim do not move while it builds; then the lettered cake tilts, with the lettering attached.
+So three things are separate and testable: a mark added to a surface, the object turned with that mark on it, and a child's reaction retimed while both hold.
+The side arc is on screen during both the lettering and the tilt, so it belongs to the cake as a readout of whatever the orb is on, more than to a variant picker. What it shows (version, surface, orientation) is our reading.
+Open: whether the lettering is freehand piping, typed text, or a prepared inscription revealed in order; whether the tilt turns the cake or inspects the party from another side.
+
 ## What we build from it
 
 `arcs.html`: Ana's working view of the moment before the breath.
-- One arc, above and to the side of the cake: three detents (low cake, tall candles, homemade). Rolling one detent swaps the cake in place; the instant holds. It reads what that cake does to the view ("eyes clear" is how much of the birthday girl's eyes the candles leave open from where the camera is).
+- One arc, above and to the side of the cake, always on screen. Its inner tick reads what the orb is on: the cake's version (low, tall candles, homemade), its surface (the inscription building stroke by stroke), or its orientation (tilt, with the lettering attached). Rolling changes only that; the instant, the candles, the table and the view hold. "Eyes clear" is how much of the birthday girl's eyes the candles leave open from where the camera is.
 - One arc above each child: a notch where the flame goes out, a marker where her reaction lands, a ring for where the party is now. Rolling shifts only her reaction; the cake holds.
 - V moves the camera to the birthday girl's seat, and the same take is read from there.
 
