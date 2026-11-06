@@ -15,14 +15,16 @@
     if (/^cake\.genome\./.test(path) && s.cake.kind >= 0) s.cake.kind = -2;   // an edited genome is no longer the library's
     if (/^people\..*\.arrived$/.test(path) && c.value > 0) s.table.up = 1;
     return null; }
+  // AUDIT R2: what the rings work on is always in view: selecting a child turns the view to her, the cake's parts to the cake
+  function frameSelection(s) { const sel = s.selection; if (/^child-/.test(sel)) { if (s.people.some(p => p.id === sel)) s.camera.focus = sel; } else if (sel !== 'room') s.camera.focus = 'cake'; }
   // a small deterministic generator for breeding
   function rand(seed) { let t = (seed >>> 0) || 1; return () => { t += 0x6d2b79f5; let r = Math.imul(t ^ (t >>> 15), 1 | t); r ^= r + Math.imul(r ^ (r >>> 7), 61 | r); return ((r ^ (r >>> 14)) >>> 0) / 4294967296; }; }
   const hex = c => [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16)), unhex = a => '#' + a.map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('');
   const OPS = {
     select(s, a) { if (!isObj(a)) return 'select needs { target } or { by }';
-      if (a.by != null) { const i = S.SELECTIONS.indexOf(s.selection), n = S.SELECTIONS.length; s.selection = S.SELECTIONS[(((i + Math.round(a.by)) % n) + n) % n]; return null; }
+      if (a.by != null) { const i = S.SELECTIONS.indexOf(s.selection), n = S.SELECTIONS.length; s.selection = S.SELECTIONS[(((i + Math.round(a.by)) % n) + n) % n]; frameSelection(s); return null; }
       if (!S.SELECTIONS.includes(a.target)) return 'select target is one of ' + S.SELECTIONS.join(', ');
-      s.selection = a.target; return null; },
+      s.selection = a.target; frameSelection(s); return null; },
     set(s, a) { if (!isObj(a)) return 'set needs { path, value }'; return setPath(s, a.path, a.value); },
     nudge(s, a) { if (!isObj(a) || typeof a.path !== 'string' || typeof a.by !== 'number' || !isFinite(a.by)) return 'nudge needs { path, by }';
       const sp = S.spec(a.path); if (!sp) return 'unknown path ' + a.path; const cur = S.get(s, a.path); if (cur === undefined) return 'nothing at ' + a.path;
@@ -43,14 +45,14 @@
       return 'nothing called ' + a.id; },
     make(s, a) { a = a || {}; if (a.to != null) return setPath(s, 'cake.stage', a.to); if (s.cake.stage >= 4) return 'the cake is finished';
       if (s.cake.kind === -1) s.cake.kind = -2; s.cake.stage++; return null; },
-    breed(s, a) { if (!isObj(a)) return 'breed needs { a, b, seed }'; const A = s.library[a.a], B = s.library[a.b]; if (!A || !B) return 'breed a and b are library indexes 0..' + (s.library.length - 1);
+    breed(s, a, ctx) { if (!isObj(a)) return 'breed needs { a, b, seed }'; const A = s.library[a.a], B = s.library[a.b]; if (!A || !B) return 'breed a and b are library indexes 0..' + (s.library.length - 1);
       const r = rand(a.seed == null ? s.seq + 1 : a.seed), ga = A.genome, gb = B.genome, mixc = (x, y) => { const p = hex(x), q = hex(y), t = r(); return unhex(p.map((v, i) => v + (q[i] - v) * t + (r() - 0.5) * 30)); };
       const g = { form: r() < 0.5 ? ga.form : gb.form, side: mixc(ga.side, gb.side), top: mixc(ga.top, gb.top), dots: +Math.min(1, Math.max(0, (r() < 0.5 ? ga.dots : gb.dots) + (r() - 0.5) * 0.4)).toFixed(1),
         height: +Math.min(0.16, Math.max(0.06, (ga.height + gb.height) / 2 + (r() - 0.5) * 0.04)).toFixed(2), radius: +Math.min(0.16, Math.max(0.08, (ga.radius + gb.radius) / 2 + (r() - 0.5) * 0.03)).toFixed(2),
         layers: Math.max(1, Math.min(3, Math.round((ga.layers + gb.layers) / 2 + (r() - 0.5) * 2))) };
-      s.cake.genome = g; s.cake.kind = -2; if (s.cake.stage === 0) s.cake.stage = 4; s.seq++; return null; },
-    keep(s, a) { a = a || {}; if (s.cake.stage === 0) return 'there is no cake to keep'; if (s.library.length >= 64) return 'the library is full';
-      s.library.push({ name: typeof a.name === 'string' && a.name ? a.name.slice(0, 32) : 'kept ' + (s.library.length - 4), genome: S.clone(s.cake.genome) }); s.cake.kind = s.library.length - 1; return null; },
+      s.cake.genome = g; s.cake.kind = -2; if (s.cake.stage === 0) s.cake.stage = 4; s.seq++; if (ctx) (ctx.from = ctx.from || {}).cake = 'bred from ' + A.name + ' x ' + B.name + ', seed ' + (a.seed == null ? s.seq : a.seed); return null; },
+    keep(s, a, ctx) { a = a || {}; if (s.cake.stage === 0) return 'there is no cake to keep'; if (s.library.length >= 64) return 'the library is full';
+      s.library.push({ name: typeof a.name === 'string' && a.name ? a.name.slice(0, 32) : 'kept ' + (s.library.length - 4), genome: S.clone(s.cake.genome), source: 'kept by ' + ((ctx && ctx.author) || 'agent:api') + (s.cake.source ? ' from ' + s.cake.source.from : '') }); s.cake.kind = s.library.length - 1; return null; },
     write(s, a) { if (!isObj(a) || typeof a.text !== 'string') return 'write needs { text }'; const e = setPath(s, 'inscription.text', a.text); if (e) return e; s.inscription.written = 24; return null; },
     candles(s, a) { if (!isObj(a)) return 'candles needs { count }'; const e = setPath(s, 'candles.count', a.count); if (e) return e; s.candles.lit = s.candles.count; s.time.blown = false; return null; },
     hold(s) { s.time.hold = true; return null; },
@@ -81,6 +83,9 @@
     snapshot(s, a, ctx) { if (!isObj(a) || typeof a.name !== 'string' || !a.name) return 'snapshot needs { name }'; s.marks.push({ name: a.name.slice(0, 32), at: ctx && ctx.at != null ? ctx.at : 0 }); return null; },
     load(s, a) { if (!isObj(a) || !isObj(a.memory)) return 'load needs { memory }'; const m = a.memory.state || a.memory; const err = check(m); if (err) return 'not a memory: ' + err;
       for (const k of Object.keys(s)) delete s[k]; Object.assign(s, S.clone(m)); return null; },
+    // a measured gate value posted by a renderer or a critic (e.g. FILM-BAR match), kept in the memory
+    measure(s, a, ctx) { if (!isObj(a) || typeof a.test !== 'string' || !/^[a-z0-9 -]{1,40}$/.test(a.test) || typeof a.value !== 'number' || !isFinite(a.value)) return 'measure needs { test, value }';
+      s.measures = s.measures || {}; s.measures[a.test] = { value: +a.value.toFixed(4), by: (ctx && ctx.author) || 'agent:api', note: typeof a.note === 'string' ? a.note.slice(0, 120) : '' }; return null; },
     reset(s) { const e = S.empty(); for (const k of Object.keys(s)) delete s[k]; Object.assign(s, e); return null; }
   };
   const PROPOSABLE = ['batch', 'select', 'set', 'nudge', 'add', 'remove', 'make', 'breed', 'keep', 'write', 'candles', 'hold', 'release', 'blow', 'switchOff', 'switchOn', 'look', 'camera'];
@@ -90,12 +95,19 @@
     if (!m.library.length) return 'empty library'; return null; }
   const META = ['undo', 'redo'];
   const NAMES = Object.keys(OPS).concat(META);
+  // AUDIT R10: every made thing names its source. After an op, each thing that changed is stamped { by: author, from }
+  const GROUPS = ['cake', 'inscription', 'candles', 'table'];
+  const bare = o => { if (!o) return ''; const c = Object.assign({}, o); delete c.source; return JSON.stringify(c); };
+  function stamp(prev, next, author, lab, ctx) { const from = (ctx && ctx.from) || {};
+    for (const g of GROUPS) if (bare(prev[g]) !== bare(next[g])) next[g].source = { by: author, from: from[g] || (g === 'cake' && next.cake.kind >= 0 && next.library[next.cake.kind] ? next.library[next.cake.kind].name + ' (' + next.library[next.cake.kind].source + ')' : lab) };
+    for (const list of ['people', 'props']) for (const q of next[list]) { const o = prev[list].find(x => x.id === q.id); if (!o || bare(o) !== bare(q)) q.source = { by: author, from: o ? lab : 'added: ' + lab }; } }
   // a short plain label for the history strip
   function label(op, args) { args = args || {};
     switch (op) { case 'set': return args.path + ' ' + JSON.stringify(args.value); case 'nudge': return args.path + (args.by > 0 ? ' +' : ' ') + args.by;
       case 'select': return 'select ' + (args.target || (args.by > 0 ? 'next' : 'previous')); case 'propose': return 'propose ' + label(args.op, args.args);
       case 'write': return 'write ' + args.text; case 'candles': return 'candles ' + args.count; case 'add': return 'add ' + args.kind; case 'remove': return 'remove ' + args.id;
       case 'camera': return 'camera ' + Object.keys(args).map(k => k + ' ' + args[k]).join(' '); case 'look': return 'look ' + Object.keys(args).map(k => args[k]).join(' ');
+      case 'measure': return 'measure ' + args.test + ' ' + args.value;
       case 'batch': return (args.ops || []).map(x => label(x.op, x.args)).join(', ');
       default: return op; } }
   // the state a proposal would make, without touching the real one (renderers draw ghosts from this)
@@ -103,6 +115,6 @@
   // which argument of a proposal a ring path turns: a ghost of these ops can be turned on the device like a `set` ghost
   const GHOST_ARG = { candles: { 'candles.count': 'count' }, camera: { 'camera.yaw': 'yaw', 'camera.kneel': 'kneel' }, look: { 'scene.light': 'light', 'scene.place': 'place' } };
   function ghostArg(p, path) { if (p.op === 'set') return p.args.path === path ? 'value' : null; const m = GHOST_ARG[p.op]; const k = m && m[path]; return k && p.args[k] != null ? k : null; }
-  const API = { OPS, NAMES, META, PROPOSABLE, label, check, ghostState, ghostArg };
+  const API = { OPS, NAMES, META, PROPOSABLE, label, check, ghostState, ghostArg, stamp };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.CORE_OPS = API;
 })(typeof window !== 'undefined' ? window : globalThis);
