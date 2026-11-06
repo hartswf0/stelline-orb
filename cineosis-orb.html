@@ -2,244 +2,32 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>CINEOSIS-ORB · Tizita Multiplane Memory & Cutout Instrument</title>
-<meta name="description" content="CINEOSIS-ORB: 12 soulful birthdays across time and space (Tizita anthology), 32 segmented video cutouts around the table and across 6 depth planes, live OLED optical reference monitor, Tizita x Stelline audio mixes, motion-coupled sound engine, Etch-A-Sketch piping, and accordion particle flight.">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>CINEOSIS-ORB · Diegetic Multiplane Memory & Onion-Tube Instrument</title>
+<meta name="description" content="CINEOSIS-ORB: 100% Diegetic Teenage Engineering x Edward Tufte Multiplane Memory Instrument. Zero floating UI; all operations bound to the tactile 5-ring Orb, 12 mechanical keys, and 2400x620 Onion-Tube Bridge Display.">
 <style>
-  html, body { margin: 0; height: 100%; background: #050605; color: #e8f2ee; overflow: hidden; user-select: none; -webkit-user-select: none; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  html, body { margin: 0; height: 100%; background: #070908; color: #111; overflow: hidden; user-select: none; -webkit-user-select: none; font-family: "IBM Plex Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  .app { height: 100dvh; display: grid; grid-template-rows: minmax(0, 1fr) clamp(250px, 38vh, 390px); transition: grid-template-rows .28s cubic-bezier(.2,.8,.2,1); }
+  /* Zero floating UI: 100% viewport allocated to 3D Stage (#room) and Diegetic Field Console (#orb) */
+  .app { height: 100dvh; display: grid; grid-template-rows: minmax(0, 1fr) clamp(310px, 46vh, 470px); }
   #room, #orb { position: relative; overflow: hidden; touch-action: none; }
   #room canvas, #orb canvas { display: block; width: 100%; height: 100%; }
-  #orb { background: radial-gradient(120% 140% at 50% 0%, #161a18 0%, #0a0c0b 55%, #040504 100%); border-top: 1px solid #1b2220; }
-  @media (max-width: 700px) { .app { grid-template-rows: minmax(0, 1fr) 46%; } }
-  /* Phone controller mode (?orb): 100% tactile orb + bellows bar */
+  #orb { background: #0c0e0d; border-top: 2px solid #1e2422; }
+  @media (max-width: 720px) { .app { grid-template-rows: minmax(0, 1fr) 52%; } }
   body.phone .app { grid-template-rows: 1fr !important; }
   body.phone #room { display: none !important; }
-  /* Paired / Stage-Only mode on desktop: collapse bottom orb so 3D chamber is 100% of main screen */
   body.paired .app { grid-template-rows: 1fr 0px !important; }
   body.paired #orb { height: 0 !important; border-top: 0 !important; overflow: hidden !important; pointer-events: none !important; }
   body.film .app { grid-template-rows: 1fr !important; }
-  body.film #orb { position: fixed; left: 32vw; bottom: -.5vw; width: 36vw; height: 13.5vw; background: none; border: 0; }
-
-  /* Subtle top-bar pills for Stage-Only toggle, Accordion Register, and Phone Pairing */
-  #hudTop { position: fixed; top: 10px; left: 12px; right: 12px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; z-index: 30; gap: 8px; flex-wrap: wrap; }
-  .pillBar { display: flex; align-items: center; gap: 6px; pointer-events: auto; }
-  .pill { background: rgba(6, 11, 10, 0.84); border: 1px solid rgba(95, 240, 220, 0.28); color: #bfece4; padding: 5px 10px; border-radius: 999px; font-size: 11px; letter-spacing: 1.1px; cursor: pointer; backdrop-filter: blur(6px); transition: all .15s; }
-  .pill:hover { border-color: #5ff0dc; color: #fff; background: rgba(14, 32, 28, 0.92); }
-  .pill.hot { background: rgba(22, 62, 54, 0.92); border-color: #5ff0dc; color: #5ff0dc; font-weight: 700; }
-  .pill.amber { border-color: rgba(240, 176, 64, 0.45); color: #f6c978; }
-  body.film #hudTop { display: none; }
-
-  /* Accordion Bellows Strip (works on both desktop and mobile ?orb) */
-  #bellowsBar { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: min(560px, 88vw); height: 28px; background: rgba(6, 11, 10, 0.86); border: 1px solid rgba(95, 240, 220, 0.28); border-radius: 999px; display: flex; align-items: center; padding: 0 12px; gap: 10px; z-index: 25; backdrop-filter: blur(6px); }
-  #bellowsBar .lbl { font-size: 10px; letter-spacing: 1.2px; color: #8fe9dc; white-space: nowrap; min-width: 128px; }
-  #bellowsTrack { flex: 1; height: 8px; background: #0d1917; border-radius: 99px; position: relative; cursor: ew-resize; overflow: hidden; }
-  #bellowsFill { height: 100%; width: 0%; background: linear-gradient(90deg, #5ff0dc 0%, #f0b040 65%, #ff6b4a 100%); border-radius: 99px; }
-  #bellowsBar .reg { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #f0b040; min-width: 110px; text-align: right; white-space: nowrap; }
-
-  /* Flat Scannable QR Modal */
-  #qrModal { position: fixed; inset: 0; background: rgba(3, 6, 5, 0.82); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 100; }
-  #qrModal.show { display: flex; }
-  #qrCard { background: #080d0c; border: 1px solid #5ff0dc; border-radius: 16px; padding: 24px 28px; max-width: 440px; width: 92vw; text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.75); }
-  #qrCard h3 { margin: 0 0 6px; color: #5ff0dc; font-size: 16px; letter-spacing: 2px; }
-  #qrCard .roomCode { font-size: 36px; font-weight: 700; letter-spacing: 8px; color: #fff; margin: 6px 0 14px; }
-  #qrBox { background: #fff; padding: 14px; border-radius: 10px; display: inline-block; margin-bottom: 14px; }
-  #qrBox canvas, #qrBox img { display: block; width: 200px; height: 200px; image-rendering: pixelated; }
-  #qrUrl { display: block; color: #8fe9dc; font-size: 11px; word-break: break-all; text-decoration: underline; margin-bottom: 14px; }
-  #qrClose { background: #142e2a; color: #5ff0dc; border: 1px solid #5ff0dc; padding: 8px 20px; border-radius: 99px; font-family: inherit; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; cursor: pointer; }
-
-  /* SCION Builders Game HUD & Remix/Import Studio Modal */
-  #scionHud { position: fixed; left: 12px; bottom: clamp(258px, 39vh, 398px); z-index: 28; background: rgba(5, 11, 10, 0.88); border: 1px solid rgba(95, 240, 220, 0.36); border-radius: 12px; padding: 8px 11px; width: min(355px, 92vw); backdrop-filter: blur(8px); box-shadow: 0 12px 32px rgba(0,0,0,0.65); transition: bottom .28s cubic-bezier(.2,.8,.2,1), opacity .2s; pointer-events: auto; }
-  body.paired #scionHud { bottom: 14px; }
-  body.phone #scionHud, body.film #scionHud { display: none !important; }
-  #scionHud .shTop { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 5px; }
-  #scionHud .shTitle { font-size: 10px; font-weight: 700; letter-spacing: 1.3px; color: #5ff0dc; }
-  #scionHud .shBadge { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 99px; background: rgba(240, 176, 64, 0.18); border: 1px solid #f0b040; color: #f6c978; }
-  #scionHud .shBadge.pass { background: rgba(95, 240, 220, 0.18); border-color: #5ff0dc; color: #5ff0dc; }
-  #scionHud .shBars { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 6px; }
-  #scionHud .shBarItem { background: #0a1513; border-radius: 4px; padding: 3px 4px; text-align: center; border: 1px solid #152c28; }
-  #scionHud .shBarLbl { font-size: 8px; color: #8fe9dc; letter-spacing: 0.7px; display: block; }
-  #scionHud .shBarTrack { height: 4px; background: #050a09; border-radius: 99px; overflow: hidden; margin-top: 2px; }
-  #scionHud .shBarFill { height: 100%; background: linear-gradient(90deg, #5ff0dc, #f0b040); width: 50%; }
-  #scionHud .shGap { font-size: 10px; color: #d8ece8; line-height: 1.35; margin-bottom: 7px; min-height: 26px; }
-  #scionHud .shActions { display: flex; gap: 5px; flex-wrap: wrap; }
-  #scionHud .shBtn { flex: 1; background: #102622; border: 1px solid rgba(95, 240, 220, 0.4); color: #dff7f2; padding: 4px 6px; border-radius: 6px; font-family: inherit; font-size: 9.5px; font-weight: 700; letter-spacing: 0.8px; cursor: pointer; text-align: center; white-space: nowrap; }
-  #scionHud .shBtn:hover { background: #193c36; border-color: #5ff0dc; color: #fff; }
-  #scionHud .shBtn.amber { background: rgba(60, 42, 12, 0.85); border-color: rgba(240, 176, 64, 0.55); color: #f6c978; }
-  #scionHud .shBtn.amber:hover { border-color: #f0b040; color: #fff; }
-
-  /* Full Drag-and-Drop Overlay */
-  #dropBanner { position: fixed; inset: 16px; border: 2px dashed #5ff0dc; border-radius: 18px; background: rgba(4, 12, 10, 0.86); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; flex-direction: column; z-index: 120; pointer-events: none; text-align: center; }
-  #dropBanner.show { display: flex; }
-  #dropBanner h2 { color: #5ff0dc; font-size: 22px; letter-spacing: 2px; margin: 0 0 8px; }
-  #dropBanner p { color: #f6c978; font-size: 13px; letter-spacing: 1px; margin: 0; }
-
-  /* SCION Studio Modal (Import Assets, Independent Critic, Share & Remix Birthdays) */
-  #scionModal { position: fixed; inset: 0; background: rgba(3, 6, 5, 0.86); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 110; padding: 14px; }
-  #scionModal.show { display: flex; }
-  #scionCard { background: #070d0c; border: 1px solid #5ff0dc; border-radius: 16px; padding: 18px 22px; max-width: 820px; width: 96vw; max-height: 90dvh; overflow-y: auto; box-shadow: 0 24px 70px rgba(0,0,0,0.85); color: #e8f2ee; }
-  #scionCard h3 { margin: 0; color: #5ff0dc; font-size: 15px; letter-spacing: 2px; }
-  .scGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 12px; }
-  @media (max-width: 720px) { .scGrid { grid-template-columns: 1fr; } }
-  .scPanel { background: #0b1412; border: 1px solid #1b3833; border-radius: 10px; padding: 12px; }
-  .scPanel h4 { margin: 0 0 8px; font-size: 11px; letter-spacing: 1.4px; color: #f0b040; }
-  .dropZone { border: 1.5px dashed rgba(95, 240, 220, 0.5); border-radius: 10px; padding: 14px 10px; text-align: center; cursor: pointer; background: rgba(12, 28, 25, 0.55); transition: all .15s; margin-bottom: 8px; }
-  .dropZone:hover { border-color: #5ff0dc; background: rgba(18, 44, 39, 0.8); }
-  .scRow { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
-  .scInput { background: #060b0a; border: 1px solid #254b44; color: #e8f2ee; padding: 6px 9px; border-radius: 6px; font-family: inherit; font-size: 11px; flex: 1; min-width: 120px; }
-  .remixList { max-height: 210px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding-right: 4px; }
-  .remixItem { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: #070e0d; border: 1px solid #17302c; border-radius: 7px; padding: 6px 8px; font-size: 10.5px; }
-  .remixItem .rmMeta { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .remixItem .rmBtns { display: flex; gap: 4px; }
-
+  body.film #orb { position: fixed; left: 26vw; bottom: 0; width: 48vw; height: 18vw; background: none; border: 0; }
 </style>
 </head>
 <body>
-<div id="hudTop">
-  <div class="pillBar" id="modePills">
-    <button class="pill amber" data-mode="TIZITA">0 TIZITA · 12 BIRTHDAYS</button>
-    <button class="pill hot" data-mode="HERO">1 HERO</button>
-    <button class="pill" data-mode="CAST">2 CAST · TABLE</button>
-    <button class="pill" data-mode="MESS">3 MESS · PLACE</button>
-    <button class="pill" data-mode="ETCH">4 ETCH</button>
-    <button class="pill" data-mode="LIGHT">5 LIGHT</button>
-    <button class="pill amber" data-mode="FLIGHT">6 FLIGHT</button>
-    <button class="pill amber" data-mode="SCION">7 SCION · GAME</button>
-  </div>
-  <div class="pillBar">
-    <button class="pill amber" id="btnImportTop" title="Import your own Video, Photo, Audio, or .birthday.json">+ IMPORT MEDIA</button>
-    <button class="pill amber" id="btnRemixTop" title="Open SCION Remix, Share & Independent Critic Studio">REMIX · SHARE</button>
-    <button class="pill" id="btnPlaceQuick">+ PLACE</button>
-    <button class="pill" id="btnAddQuick">+ ADD CUTOUT</button>
-    <button class="pill amber" id="btnMixToggle">MIX 1 · TIZITA × STELLINE</button>
-    <button class="pill" id="btnClipToggle">CLIP · WALK TO WORK</button>
-    <button class="pill" id="btnStageOnly">STAGE ONLY</button>
-    <button class="pill amber" id="btnPairTop">PHONE QR</button>
-  </div>
-</div>
-
 <div class="app">
   <div id="room"></div>
-  <div id="orb">
-    <div id="bellowsBar" title="Drag or pinch barrel ends to expand/compress the Accordion Bellows">
-      <span class="lbl" id="bellowsLbl">ACCORDION · 0%</span>
-      <div id="bellowsTrack"><div id="bellowsFill"></div></div>
-      <span class="reg" id="bellowsReg">MATTER CRAFT</span>
-    </div>
-  </div>
+  <div id="orb"></div>
 </div>
-
-<div id="qrModal">
-  <div id="qrCard">
-    <h3>CINEOSIS-ORB · PHONE CONTROLLER</h3>
-    <div class="roomCode" id="qrRoomTxt">····</div>
-    <div id="qrBox"></div>
-    <a id="qrUrl" href="#" target="_blank" rel="noopener">OPEN CONTROLLER LINK</a>
-    <div style="font-size:11px;color:#9ab8b2;margin-bottom:14px">When your phone connects, the main screen automatically becomes a full-viewport 3D stage.</div>
-    <button id="qrClose">CLOSE</button>
-  </div>
-</div>
-
 <input type="file" id="fileImporter" multiple accept="image/*,video/*,audio/*,.json,.glb,.gltf" style="display:none">
-
-<div id="dropBanner">
-  <h2>DROP MEDIA INTO THE MEMORY CHAMBER</h2>
-  <p>VIDEO (.MP4/.WEBM) · PHOTO (.PNG/.JPG/.WEBP) · AUDIO (.MP3/.WAV) · CARTRIDGE (.BIRTHDAY.JSON)</p>
-</div>
-
-<div id="scionHud">
-  <div class="shTop">
-    <span class="shTitle" id="shLineageTxt">SCION CRITIC · GEN 1</span>
-    <span class="shBadge" id="shScoreBadge">82 / 100 · CANDIDATE</span>
-  </div>
-  <div class="shBars">
-    <div class="shBarItem"><span class="shBarLbl">MESS</span><div class="shBarTrack"><div class="shBarFill" id="shBarMess"></div></div></div>
-    <div class="shBarItem"><span class="shBarLbl">DEPTH</span><div class="shBarTrack"><div class="shBarFill" id="shBarDepth"></div></div></div>
-    <div class="shBarItem"><span class="shBarLbl">LIGHT</span><div class="shBarTrack"><div class="shBarFill" id="shBarLight"></div></div></div>
-    <div class="shBarItem"><span class="shBarLbl">TRACE</span><div class="shBarTrack"><div class="shBarFill" id="shBarTrace"></div></div></div>
-    <div class="shBarItem"><span class="shBarLbl">BREATH</span><div class="shBarTrack"><div class="shBarFill" id="shBarBreath"></div></div></div>
-  </div>
-  <div class="shGap" id="shGapTxt">Evaluating multiplane depth, untidy table details, and personal trace...</div>
-  <div class="shActions">
-    <button class="shBtn amber" id="btnScionRepair" title="Execute bounded repair for the critic's primary gap">REPAIR GAP</button>
-    <button class="shBtn" id="btnScionSwarm" title="Run autonomous Scion swarm to stage cutouts, mess, and piping">SWARM BUILD</button>
-    <button class="shBtn" id="btnScionPeak" title="Save or restore strongest Peak Checkpoint">SAVE PEAK</button>
-    <button class="shBtn amber" id="btnScionStudio" title="Import personal media, fork/remix birthdays, or share link">IMPORT · REMIX</button>
-  </div>
-</div>
-
-<div id="scionModal">
-  <div id="scionCard">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid #1a3530;padding-bottom:10px">
-      <div>
-        <h3>SCION · AUTONOMOUS BIRTHDAY MEMORY STUDIO & REMIX ENGINE</h3>
-        <div style="font-size:10.5px;color:#8fe9dc;margin-top:3px">Import personal video/photos/audio · Independent Critic verification · Fork, mashup & share birthdays</div>
-      </div>
-      <button class="pill" id="scionModalClose">CLOSE [ESC]</button>
-    </div>
-
-    <div class="scGrid">
-      <!-- PANEL 1: IMPORT PERSONAL VIDEO / IMAGES / AUDIO -->
-      <div class="scPanel">
-        <h4>1. IMPORT YOUR VIDEO, PHOTOS, AUDIO OR CARTRIDGE</h4>
-        <div class="dropZone" id="modalDropZone">
-          <div style="font-size:12px;font-weight:700;color:#5ff0dc;margin-bottom:4px">+ CLICK OR DROP FILES HERE</div>
-          <div style="font-size:10px;color:#9ab8b2">Video becomes a live 3D cutout + OLED clip · Photo auto-segments into a table figure + Polaroid · Audio drives the Tizita spectrum</div>
-        </div>
-        <div class="scRow">
-          <span style="font-size:10px;color:#8fe9dc">PHOTO MATTE:</span>
-          <button class="pill hot" data-matte="CUTOUT" id="matteCutout">AUTO CUTOUT</button>
-          <button class="pill" data-matte="POLAROID" id="mattePolaroid">POLAROID</button>
-          <button class="pill" data-matte="RAW" id="matteRaw">RAW ALPHA</button>
-        </div>
-        <div class="scRow">
-          <button class="pill amber" id="btnSpawnDemoAsset" style="width:100%;text-align:center">+ GENERATE INSTANT CUSTOM POLAROID & VIDEO CUTOUT</button>
-        </div>
-      </div>
-
-      <!-- PANEL 2: SCION INDEPENDENT CRITIC & SWARM -->
-      <div class="scPanel">
-        <h4>2. SCION INDEPENDENT CRITIC & PEAK CHECKPOINT</h4>
-        <div id="modalCriticBox" style="font-size:11px;line-height:1.45;background:#060b0a;border:1px solid #17302c;border-radius:8px;padding:9px;margin-bottom:8px">
-          <div><strong style="color:#5ff0dc">VERDICT:</strong> <span id="mcVerdict">...</span></div>
-          <div style="margin-top:4px"><strong style="color:#f0b040">PRIMARY GAP:</strong> <span id="mcGap">...</span></div>
-          <div style="margin-top:4px"><strong style="color:#8fe9dc">ACCEPTANCE:</strong> <span id="mcAccept">...</span></div>
-          <div style="margin-top:4px"><strong style="color:#9ab8b2">PROTECTED:</strong> <span id="mcStrengths">...</span></div>
-        </div>
-        <div class="scRow">
-          <button class="pill amber" id="btnModalRepair">REPAIR PRIMARY GAP</button>
-          <button class="pill" id="btnModalSwarm">SWARM AUTO-BUILD</button>
-          <button class="pill" id="btnModalSavePeak">SAVE PEAK</button>
-          <button class="pill" id="btnModalRestorePeak">RESTORE PEAK</button>
-        </div>
-      </div>
-
-      <!-- PANEL 3: SHARE, EXPORT & COLLABORATIVE LINEAGE -->
-      <div class="scPanel">
-        <h4>3. SAVE, SHARE URL, QR & .BIRTHDAY.JSON CARTRIDGE</h4>
-        <div class="scRow" style="margin-top:0">
-          <input class="scInput" id="inpBdayTitle" placeholder="Birthday Title (e.g. 1999 Kitchen Wish)" value="MY TIZITA BIRTHDAY">
-          <input class="scInput" id="inpBdayAuthor" placeholder="Builder Handle" value="STELLINE-BUILDER" style="max-width:145px">
-        </div>
-        <div class="scRow">
-          <button class="pill amber" id="btnSaveLocalBday">SAVE TO REMIX DECK</button>
-          <button class="pill" id="btnCopyShareUrl">COPY SHARE LINK</button>
-          <button class="pill" id="btnExportCartridge">EXPORT .BIRTHDAY.JSON</button>
-        </div>
-        <div class="scRow">
-          <input class="scInput" id="inpShareUrlOut" readonly placeholder="Shareable #bday=... link appears here">
-        </div>
-      </div>
-
-      <!-- PANEL 4: REMIX, FORK & MASHUP DECK -->
-      <div class="scPanel">
-        <h4>4. REMIX, FORK & MASHUP BIRTHDAYS (<span id="deckCountTxt">12</span> IN DECK)</h4>
-        <div class="remixList" id="remixDeckList"></div>
-      </div>
-    </div>
-  </div>
-</div>
 
 <script src="assets/three.min.js"></script>
 <script src="assets/GLTFExporter.js"></script>
@@ -263,31 +51,44 @@ roomEl.append(R.domElement);
 const scene = new T.Scene(); scene.background = new T.Color(0x090c0b); scene.fog = new T.FogExp2(0x090c0b, 0.024);
 const cam = new T.PerspectiveCamera(38, 1, 0.02, 80);
 
-/* =============================================================== 1. DOME & MULTIPLANE RINGS */
+/* =============================================================== 1. DOME, ONION-TUBE RINGS & TUFTE DRAFTING GRID */
 const PLANE_Z = [0.46, 0.66, 0.92, 1.38, 2.25, 3.60];
-const PLANE_NAMES = ['Z1 FORE · 0.46M', 'Z2 TABLE RIM · 0.66M', 'Z3 TABLE MID · 0.92M', 'Z4 CAST RING · 1.38M', 'Z5 ARCHIVE · 2.25M', 'Z6 CANOPY · 3.60M'];
+const PLANE_NAMES = ['Z1 FORE · 0.46M', 'Z2 TABLE · 0.66M', 'Z3 MID · 0.92M', 'Z4 CAST · 1.38M', 'Z5 ARCHIVE · 2.25M', 'Z6 CANOPY · 3.60M'];
+const PLANE_HEX = [0xe85d04, 0x2a9d8f, 0x1d70b8, 0x2b9348, 0x7209b7, 0xe0483a];
+const PLANE_CSS = ['#e85d04', '#2a9d8f', '#1d70b8', '#2b9348', '#7209b7', '#e0483a'];
 const planeGuides = new T.Group(); scene.add(planeGuides);
+let domeMesh = null, floorMesh = null, gridLines = null;
+
 (function buildDome() {
-  scene.add(new T.Mesh(new T.SphereGeometry(14, 64, 32, 0, TAU, 0, Math.PI / 2), new T.MeshStandardMaterial({ color: 0x111514, roughness: 1, side: T.BackSide })));
-  const fl = new T.Mesh(new T.CircleGeometry(14, 96), new T.MeshStandardMaterial({ color: 0x0b0e0d, roughness: 0.58, metalness: 0.25 }));
-  fl.rotation.x = -Math.PI / 2; fl.receiveShadow = true; scene.add(fl);
-  const ring = (r, t, y, c, op) => {
-    const m = new T.Mesh(new T.TorusGeometry(r, t, 6, 240), new T.MeshBasicMaterial({ color: c, transparent: op < 1, opacity: op, depthWrite: op >= 1, toneMapped: false }));
-    m.rotation.x = Math.PI / 2; m.position.y = y; scene.add(m); return m;
-  };
-  ring(12.5, 0.02, 0.58, 0xeef5f1, 0.95); ring(12.5, 0.16, 0.58, 0x8fb4ad, 0.1);
-  const seam = new T.LineBasicMaterial({ color: 0x1a201e });
-  for (let k = 0; k < 12; k++) {
-    const a = k / 12 * TAU, p = [];
-    for (let j = 0; j <= 24; j++) { const e = 0.06 + j / 24 * 1.42; p.push(new T.Vector3(Math.cos(a) * Math.cos(e) * 13.8, Math.sin(e) * 13.8, Math.sin(a) * Math.cos(e) * 13.8)); }
-    scene.add(new T.Line(new T.BufferGeometry().setFromPoints(p), seam));
+  domeMesh = new T.Mesh(new T.SphereGeometry(14, 64, 32, 0, TAU, 0, Math.PI / 2), new T.MeshStandardMaterial({ color: 0x111514, roughness: 1, side: T.BackSide }));
+  scene.add(domeMesh);
+  floorMesh = new T.Mesh(new T.CircleGeometry(14, 96), new T.MeshStandardMaterial({ color: 0x0b0e0d, roughness: 0.62, metalness: 0.18 }));
+  floorMesh.rotation.x = -Math.PI / 2; floorMesh.receiveShadow = true; scene.add(floorMesh);
+
+  // Tufte / c-bus architectural radial & cartesian drafting grid on the floor
+  const gPts = [];
+  for (let k = -8; k <= 8; k++) {
+    gPts.push(new T.Vector3(k * 0.5, 0.002, -4), new T.Vector3(k * 0.5, 0.002, 4));
+    gPts.push(new T.Vector3(-4, 0.002, k * 0.5), new T.Vector3(4, 0.002, k * 0.5));
   }
+  for (let a = 0; a < 12; a++) {
+    const ang = a / 12 * TAU;
+    gPts.push(new T.Vector3(Math.cos(ang) * 0.35, 0.003, Math.sin(ang) * 0.35), new T.Vector3(Math.cos(ang) * 3.8, 0.003, Math.sin(ang) * 3.8));
+  }
+  gridLines = new T.LineSegments(new T.BufferGeometry().setFromPoints(gPts), new T.LineBasicMaterial({ color: 0x283632, transparent: true, opacity: 0.42 }));
+  scene.add(gridLines);
+
+  // 6 Concentric Onion-Tube Rings (Z1..Z6) with color-coded arcs
   PLANE_Z.forEach((r, idx) => {
-    const m = new T.Mesh(new T.RingGeometry(r - 0.008, r + 0.008, 128), new T.MeshBasicMaterial({ color: idx === 1 ? 0xf0b040 : 0x5ff0dc, side: T.DoubleSide, transparent: true, opacity: 0.0, toneMapped: false }));
-    m.rotation.x = -Math.PI / 2; m.position.y = 0.004; planeGuides.add(m);
+    const m = new T.Mesh(
+      new T.RingGeometry(r - 0.011, r + 0.011, 128),
+      new T.MeshBasicMaterial({ color: PLANE_HEX[idx], side: T.DoubleSide, transparent: true, opacity: 0.38, toneMapped: false })
+    );
+    m.rotation.x = -Math.PI / 2; m.position.y = 0.005; planeGuides.add(m);
   });
 })();
-scene.add(new T.HemisphereLight(0x9ab0a8, 0x090705, 0.16));
+const hemiLight = new T.HemisphereLight(0x9ab0a8, 0x090705, 0.22);
+scene.add(hemiLight);
 
 /* =============================================================== 2. MIST SHADER & 32K PARTICLE CLOUD */
 const MU = { uMist: { value: 0 }, uTime: { value: 0 }, uCurl: { value: 0.35 } };
@@ -1074,7 +875,7 @@ function buildProps() {
   });
 }
 
-/* =============================================================== 7. SEGMENTED VIDEO CUTOUT ENGINE (25 ANIMATED TRACKS) */
+/* =============================================================== 7. SEGMENTED VIDEO CUTOUT ENGINE + TUFTE SC-0XX CALLOUT FLAGS */
 const baseCutoutTex = {};
 function getCutoutBaseTex(clipIdx, onReady) {
   const info = CUTOUT_CLIPS[clamp(clipIdx, 0, CUTOUT_CLIPS.length - 1)];
@@ -1088,16 +889,41 @@ function getCutoutBaseTex(clipIdx, onReady) {
   return info;
 }
 
+function makeTufteCalloutTex(scCode, subTxt, hexCol, isSel) {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 72;
+  const x = c.getContext('2d');
+  x.fillStyle = isSel ? '#111111' : '#faf8f2';
+  x.fillRect(2, 2, 252, 68);
+  x.strokeStyle = '#111111'; x.lineWidth = 4;
+  x.strokeRect(2, 2, 252, 68);
+  x.fillStyle = hexCol || '#e85d04';
+  x.fillRect(2, 2, 14, 68);
+  x.font = '900 26px "IBM Plex Mono", Menlo, monospace';
+  x.fillStyle = isSel ? '#ffffff' : '#111111';
+  x.fillText(scCode, 24, 34);
+  x.font = '700 17px "IBM Plex Mono", Menlo, monospace';
+  x.fillStyle = isSel ? '#5ff0dc' : '#444444';
+  x.fillText(subTxt.slice(0, 18), 24, 58);
+  const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding;
+  return t;
+}
+
 const cutoutActors = [];
 function syncCutouts(dt) {
   while (cutoutActors.length > DOC.cutouts.length) {
     const old = cutoutActors.pop(); CAST_G.remove(old.mesh);
+    if (old.tag) CAST_G.remove(old.tag);
   }
   DOC.cutouts.forEach((c, idx) => {
     const info = CUTOUT_CLIPS[clamp(c.clip, 0, CUTOUT_CLIPS.length - 1)];
     let act = cutoutActors[idx];
+    const isSel = idx === S.castIdx;
+    const pIdx = clamp(c.plane || 0, 0, PLANE_Z.length - 1);
+    const scCode = 'SC-' + String(c.clip + 1).padStart(3, '0');
+    const tagKey = scCode + '|' + pIdx + '|' + isSel;
+
     if (!act || act.clipIdx !== c.clip) {
-      if (act) CAST_G.remove(act.mesh);
+      if (act) { CAST_G.remove(act.mesh); if (act.tag) CAST_G.remove(act.tag); }
       const placeholderMat = mistify(new T.MeshStandardMaterial({
         color: 0xffffff, transparent: true, alphaTest: 0.25, side: T.DoubleSide,
         roughness: 0.85, emissive: 0xffffff, emissiveIntensity: 0.22
@@ -1105,7 +931,14 @@ function syncCutouts(dt) {
       const mesh = new T.Mesh(new T.PlaneGeometry(1, 1), placeholderMat);
       mesh.castShadow = true; mesh.userData.cutoutIdx = idx;
       CAST_G.add(mesh);
-      act = cutoutActors[idx] = { mesh, clipIdx: c.clip, tex: null, frames: info.frames, fps: info.fps, aspect: info.aspect };
+
+      const tagMat = new T.SpriteMaterial({ map: makeTufteCalloutTex(scCode, 'Z' + (pIdx + 1) + '=' + PLANE_Z[pIdx] + 'm', PLANE_CSS[pIdx], isSel), toneMapped: false });
+      const tag = new T.Sprite(tagMat);
+      tag.scale.set(0.22, 0.062, 1);
+      tag.userData.cutoutIdx = idx;
+      CAST_G.add(tag);
+
+      act = cutoutActors[idx] = { mesh, tag, tagKey, clipIdx: c.clip, tex: null, frames: info.frames, fps: info.fps, aspect: info.aspect };
       getCutoutBaseTex(c.clip, (bTex, inf) => {
         const cloned = bTex.clone(); cloned.needsUpdate = true; cloned.encoding = T.sRGBEncoding;
         cloned.repeat.set(1 / inf.frames, 1);
@@ -1113,18 +946,20 @@ function syncCutouts(dt) {
         placeholderMat.map = cloned; placeholderMat.emissiveMap = cloned; placeholderMat.needsUpdate = true;
       });
     }
-    mesh = act.mesh; mesh.userData.cutoutIdx = idx;
-    // Step animated sprite strip frame or live user video cutout!
+    if (act.tagKey !== tagKey && act.tag) {
+      act.tagKey = tagKey;
+      act.tag.material.map = makeTufteCalloutTex(scCode, 'Z' + (pIdx + 1) + '=' + PLANE_Z[pIdx] + 'm', PLANE_CSS[pIdx], isSel);
+      act.tag.material.needsUpdate = true;
+    }
+
+    const mesh = act.mesh; mesh.userData.cutoutIdx = idx;
     if (info && info.liveVideo && info.liveCtx && act.tex) {
-      if (info.liveVideo.readyState >= 2) {
-        info.liveDraw();
-        act.tex.needsUpdate = true;
-      }
+      if (info.liveVideo.readyState >= 2) { info.liveDraw(); act.tex.needsUpdate = true; }
     } else if (act.tex && act.frames > 1) {
       const fIdx = Math.floor(NOW * act.fps * (c.speed == null ? 1 : c.speed) + idx * 3) % act.frames;
       act.tex.offset.x = ((fIdx + act.frames) % act.frames) / act.frames;
     }
-    const r = PLANE_Z[clamp(c.plane || 0, 0, PLANE_Z.length - 1)];
+    const r = PLANE_Z[pIdx];
     const h = (info.h || 0.56) * (c.s || 1);
     const w = h * (info.aspect || 1);
     mesh.scale.set(w, h, 1);
@@ -1134,13 +969,19 @@ function syncCutouts(dt) {
     const wp = mesh.getWorldPosition(new T.Vector3());
     mesh.lookAt(cam.position.x, wp.y, cam.position.z);
     mesh.rotateY((c.face || 0) * Math.PI / 180);
+
+    if (act.tag) {
+      act.tag.position.set(Math.sin(c.a) * r, baseElev + h + 0.055, Math.cos(c.a) * r);
+      act.tag.visible = !FILM;
+    }
   });
 
-  // Highlight active depth plane ring when in CAST mode or mid-bellows
+  // Keep Onion-Tube floor rings crisp and legible in Paper Draft / CAST / ONION modes
   planeGuides.children.forEach((ringMesh, pIdx) => {
     const selCut = DOC.cutouts[S.castIdx];
-    const isTarget = (S.mode === 'CAST' && selCut && selCut.plane === pIdx) || (DOC.bellows > 0.28 && DOC.bellows < 0.72);
-    ringMesh.material.opacity = lerp(ringMesh.material.opacity, isTarget ? (selCut && selCut.plane === pIdx ? 0.48 : 0.16) : 0.0, Math.min(1, dt * 8));
+    const baseOp = S.paperMode ? 0.72 : (S.mode === 'CAST' || S.view.preset === 'ONION' ? 0.45 : 0.22);
+    const targetOp = (selCut && selCut.plane === pIdx) ? Math.min(0.95, baseOp + 0.35) : baseOp;
+    ringMesh.material.opacity = lerp(ringMesh.material.opacity, targetOp, Math.min(1, dt * 8));
   });
 }
 
@@ -1390,22 +1231,24 @@ function v01(r) {
   return clamp((v - r.lo) / Math.max(1e-6, r.hi - r.lo), 0, 1);
 }
 
-/* =============================================================== 11. THE TACTILE 3D ORB BARREL & OLED */
+/* =============================================================== 11. DIEGETIC TEENAGE-ENGINEERING × TUFTE FIELD CONSOLE (#orb) */
 const orbEl = document.getElementById('orb');
-const OR = new T.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+const OR = new T.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: true });
 OR.setPixelRatio(Math.min(2, devicePixelRatio)); OR.outputEncoding = T.sRGBEncoding;
-OR.toneMapping = T.ACESFilmicToneMapping; OR.toneMappingExposure = 1.08;
+OR.toneMapping = T.ACESFilmicToneMapping; OR.toneMappingExposure = 1.06;
 orbEl.append(OR.domElement);
-const OS = new T.Scene(), OC = new T.PerspectiveCamera(26, 2, 0.1, 20);
+const OS = new T.Scene(); OS.background = new T.Color(0x0c0e0d);
+// Near-orthographic narrow-FOV camera so the hardware deck & Tufte typography fill ~95% of #orb with zero distortion
+const OC = new T.PerspectiveCamera(13.5, 2, 0.1, 30);
 
 (function studio() {
   const s = new T.Scene();
-  s.add(new T.Mesh(new T.SphereGeometry(10, 32, 16), new T.MeshBasicMaterial({ color: 0x0b0c0b, side: T.BackSide })));
+  s.add(new T.Mesh(new T.SphereGeometry(10, 32, 16), new T.MeshBasicMaterial({ color: 0x141716, side: T.BackSide })));
   const box = (w, h, x, y, z, c) => { const m = new T.Mesh(new T.PlaneGeometry(w, h), new T.MeshBasicMaterial({ color: c, side: T.DoubleSide })); m.position.set(x, y, z); m.lookAt(0, 0, 0); s.add(m); };
-  box(8, 2.2, 0, 6, 2, 0xffffff); box(3, 6, -6, 2, 3, 0x9fb0bb); box(3, 6, 6, 1.5, 2, 0xffe2c0); box(2, 2, 0, 3, -6, 0x5ff0dc);
+  box(10, 3, 0, 6, 3, 0xffffff); box(4, 6, -6, 2, 3, 0xcfd8d5); box(4, 6, 6, 2, 2, 0xfff0d8);
   const pm = new T.PMREMGenerator(OR); OS.environment = pm.fromScene(s, 0.04).texture;
 })();
-const OK = new T.DirectionalLight(0xffffff, 0.85); OK.position.set(1.5, 3, 2.5); OS.add(OK, new T.AmbientLight(0x404040, 0.45));
+const OK = new T.DirectionalLight(0xffffff, 0.95); OK.position.set(1.2, 4, 3.5); OS.add(OK, new T.AmbientLight(0x606562, 0.65));
 
 function normalTex(fn, W, H) {
   const h = new Float32Array(W * H);
@@ -1420,48 +1263,75 @@ function normalTex(fn, W, H) {
   x2.putImageData(id, 0, 0); const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; return t;
 }
 const PAT = [
-  (u, v) => 0.5 + 0.5 * Math.cos(u * TAU * 160),
-  (u, v) => Math.max(Math.abs(Math.sin((u * 90 + v * 6) * Math.PI)), Math.abs(Math.sin((u * 90 - v * 6) * Math.PI))),
-  (u, v) => Math.pow(0.5 + 0.5 * Math.cos(u * TAU * 40), 0.4),
-  (u, v) => { const a = (u * 120) % 1 - 0.5, b = (v * 8 + Math.floor(u * 120) * 0.5) % 1 - 0.5; return Math.max(0, 1 - Math.hypot(a, b * 1.1) * 3.2); },
-  (u, v) => 0.5 + 0.5 * Math.cos((u * 70 + v * 3.2) * TAU)
+  (u, v) => 0.5 + 0.5 * Math.cos(u * TAU * 140),
+  (u, v) => Math.max(Math.abs(Math.sin((u * 80 + v * 5) * Math.PI)), Math.abs(Math.sin((u * 80 - v * 5) * Math.PI))),
+  (u, v) => Math.pow(0.5 + 0.5 * Math.cos(u * TAU * 45), 0.4),
+  (u, v) => { const a = (u * 110) % 1 - 0.5, b = (v * 8 + Math.floor(u * 110) * 0.5) % 1 - 0.5; return Math.max(0, 1 - Math.hypot(a, b * 1.1) * 3.2); },
+  (u, v) => 0.5 + 0.5 * Math.cos((u * 65 + v * 3.0) * TAU)
 ];
 
 const ORB = new T.Group(); OS.add(ORB);
-const alu = new T.MeshPhysicalMaterial({ color: 0xc9c6bf, metalness: 1, roughness: 0.32, clearcoat: 0.3 });
-const darkAlu = new T.MeshPhysicalMaterial({ color: 0x252826, metalness: 0.9, roughness: 0.45 });
-const RX = [-0.46, -0.23, 0, 0.23, 0.46], RW = 0.205, RR = 0.27, BODY = 0.238;
+const alu = new T.MeshPhysicalMaterial({ color: 0xd4d1c8, metalness: 0.92, roughness: 0.28, clearcoat: 0.25 });
+const darkAlu = new T.MeshPhysicalMaterial({ color: 0x1b1e1d, metalness: 0.85, roughness: 0.42 });
+const RX = [-0.50, -0.25, 0, 0.25, 0.50], RW = 0.232, RR = 0.245, BODY = 0.225;
+let LEFT_FLANGE = null, RIGHT_FLANGE = null;
+const BELLOWS_RIBS = [];
 
-(function buildOrbBody() {
-  const prof = [[0, -1.02], [0.16, -1.02], [0.236, -0.97], [0.25, -0.93], [0.25, -0.6], [BODY, -0.58], [BODY, 0.58], [0.25, 0.6], [0.25, 0.9], [0.262, 0.92], [0.262, 1.0], [0.2, 1.02]];
-  const m = new T.Mesh(new T.LatheGeometry(prof.map(p => new T.Vector2(p[0], p[1])), 96), alu);
-  m.rotation.z = Math.PI / 2; ORB.add(m);
-  const lensG = new T.Group(); lensG.position.x = 1.02; lensG.userData.lens = true; ORB.add(lensG);
-  const lens = new T.Mesh(new T.SphereGeometry(0.2, 40, 20, 0, TAU, 0, Math.PI / 2), new T.MeshPhysicalMaterial({ color: 0x0a1414, roughness: 0.05, clearcoat: 1 }));
-  lens.rotation.z = -Math.PI / 2; lens.scale.set(1, 0.35, 1); lensG.add(lens);
-  const iris = new T.Mesh(new T.RingGeometry(0.06, 0.095, 48), new T.MeshBasicMaterial({ color: 0x5ff0dc, transparent: true, opacity: 0.9, side: T.DoubleSide }));
-  iris.rotation.y = Math.PI / 2; iris.position.x = 0.075; lensG.add(iris); ORB.userData.iris = iris;
-  const capT = normalTex(PAT[1], 256, 64); capT.repeat.set(3, 1);
-  const cap = new T.Mesh(new T.CylinderGeometry(0.252, 0.252, 0.3, 72, 1, true), new T.MeshPhysicalMaterial({ color: 0x9a978f, metalness: 1, roughness: 0.38, normalMap: capT }));
-  cap.rotation.z = Math.PI / 2; cap.position.x = -0.8; cap.userData.grip = true; ORB.add(cap);
+(function buildOrbChassis() {
+  // Anodized lower barrel core
+  const core = new T.Mesh(new T.CylinderGeometry(BODY, BODY, 2.28, 72), darkAlu);
+  core.rotation.z = Math.PI / 2; core.position.y = -0.24; ORB.add(core);
+
+  // Internal copper/cyan accordion harmonic ribs (visible when bellows expand)
+  for (let k = -8; k <= 8; k++) {
+    const rib = new T.Mesh(
+      new T.TorusGeometry(BODY + 0.006, 0.004, 8, 64),
+      new T.MeshBasicMaterial({ color: k % 2 === 0 ? 0xe85d04 : 0x2a9d8f, transparent: true, opacity: 0.25, toneMapped: false })
+    );
+    rib.rotation.y = Math.PI / 2; rib.position.set(k * 0.07, -0.24, 0);
+    ORB.add(rib); BELLOWS_RIBS.push(rib);
+  }
+
+  // Left & Right Telescoping Accordion End-Flanges (drag horizontally to expand/compress Accordion Bellows!)
+  const capT = normalTex(PAT[1], 256, 64); capT.repeat.set(2, 1);
+  const flangeMat = new T.MeshPhysicalMaterial({ color: 0xb8b4aa, metalness: 0.9, roughness: 0.34, normalMap: capT });
+
+  LEFT_FLANGE = new T.Group(); LEFT_FLANGE.position.set(-1.12, -0.24, 0); LEFT_FLANGE.userData.lens = true; ORB.add(LEFT_FLANGE);
+  const lfCyl = new T.Mesh(new T.CylinderGeometry(RR, RR * 0.96, 0.12, 64), flangeMat);
+  lfCyl.rotation.z = Math.PI / 2; lfCyl.userData.lens = true; LEFT_FLANGE.add(lfCyl);
+  const lfStripe = new T.Mesh(new T.TorusGeometry(RR + 0.002, 0.004, 8, 64), new T.MeshBasicMaterial({ color: 0xe85d04, toneMapped: false }));
+  lfStripe.rotation.y = Math.PI / 2; lfStripe.position.x = 0.04; LEFT_FLANGE.add(lfStripe);
+
+  RIGHT_FLANGE = new T.Group(); RIGHT_FLANGE.position.set(1.12, -0.24, 0); RIGHT_FLANGE.userData.lens = true; ORB.add(RIGHT_FLANGE);
+  const rfCyl = new T.Mesh(new T.CylinderGeometry(RR * 0.96, RR, 0.12, 64), flangeMat);
+  rfCyl.rotation.z = Math.PI / 2; rfCyl.userData.lens = true; RIGHT_FLANGE.add(rfCyl);
+  const rfIris = new T.Mesh(new T.RingGeometry(0.06, 0.11, 48), new T.MeshBasicMaterial({ color: 0x2a9d8f, side: T.DoubleSide, toneMapped: false }));
+  rfIris.rotation.y = Math.PI / 2; rfIris.position.x = 0.065; RIGHT_FLANGE.add(rfIris); ORB.userData.iris = rfIris;
 })();
 
+// 5 Wide Knurled Encoder Barrels + Flat High-Contrast Tufte Data Collars (520x250px each)
 const RINGS = [], FLAT = []; let PORTRAIT = false;
+const RING_OP_CODES = ['MOVE', 'TRIM', 'ROLL', 'LIFT', 'STORE'];
+const RING_ACCENTS = ['#e85d04', '#2a9d8f', '#1d70b8', '#2b9348', '#d62828'];
+
 RX.forEach((x, i) => {
-  const g = new T.Group(); g.position.x = x; g.userData.ring = i; ORB.add(g);
-  const nt = normalTex(PAT[i], 512, 64); nt.repeat.set(i === 0 ? 1 : 2, 1);
-  const m = new T.Mesh(new T.CylinderGeometry(RR, RR, RW - 0.012, 96, 1, true), new T.MeshPhysicalMaterial({
-    color: [0xd2cfc8, 0xc3c0b8, 0xd8d5ce, 0xc8c5bd, 0xcfccc4][i], metalness: 1, roughness: [0.26, 0.36, 0.22, 0.34, 0.28][i], normalMap: nt, normalScale: new T.Vector2(1.2, 1.2)
+  const g = new T.Group(); g.position.set(x, -0.24, 0); g.userData.ring = i; ORB.add(g);
+  const nt = normalTex(PAT[i], 512, 64); nt.repeat.set(2, 1);
+  const m = new T.Mesh(new T.CylinderGeometry(RR, RR, RW - 0.010, 96, 1, true), new T.MeshPhysicalMaterial({
+    color: [0xd8d5ce, 0xcac7bf, 0xdcd9d2, 0xcecbc3, 0xd6d3cc][i], metalness: 0.95, roughness: 0.28, normalMap: nt, normalScale: new T.Vector2(1.3, 1.3)
   }));
   m.rotation.z = Math.PI / 2; m.userData.ring = i; g.add(m);
-  const lit = new T.Mesh(new T.TorusGeometry(RR + 0.002, 0.0028, 8, 96), new T.MeshBasicMaterial({ color: 0x5ff0dc, toneMapped: false }));
+
+  const lit = new T.Mesh(new T.TorusGeometry(RR + 0.002, 0.0035, 8, 96), new T.MeshBasicMaterial({ color: PLANE_HEX[i], toneMapped: false }));
   lit.rotation.y = Math.PI / 2; g.add(lit);
-  const lc = document.createElement('canvas'); lc.width = 320; lc.height = 140;
-  const lt = new T.CanvasTexture(lc); lt.encoding = T.sRGBEncoding; lt.anisotropy = 4;
-  const la = 0.5, lp = new T.Mesh(new T.PlaneGeometry(RW * 0.95, RW * 0.95 * 140 / 320), new T.MeshBasicMaterial({ map: lt, transparent: true, toneMapped: false }));
-  lp.position.set(0, Math.sin(la) * (RR + 0.012), Math.cos(la) * (RR + 0.012)); lp.rotation.x = -la;
+
+  // Flat-facing Tufte Data Collar over the front of each ring for 100% un-warped legibility
+  const lc = document.createElement('canvas'); lc.width = 520; lc.height = 250;
+  const lt = new T.CanvasTexture(lc); lt.encoding = T.sRGBEncoding; lt.anisotropy = 8;
+  const lp = new T.Mesh(new T.PlaneGeometry(RW * 0.96, RW * 0.96 * (250 / 520)), new T.MeshBasicMaterial({ map: lt, transparent: false, toneMapped: false }));
+  lp.position.set(0, 0.02, RR + 0.015);
   lp.userData.ring = i; lp.userData.keepW = true; FLAT.push(lp);
-  const lg = new T.Group(); lg.position.x = x; lg.add(lp); ORB.add(lg);
+  const lg = new T.Group(); lg.position.set(x, -0.24, 0); lg.add(lp); ORB.add(lg);
   RINGS.push({ g, m, lit, ang: 0, target: 0, lc, lt, lp, lg, key: '', x0: x });
 });
 
@@ -1469,95 +1339,187 @@ function drawDialLabels() {
   const RS = rings();
   RINGS.forEach((R0, i) => {
     const r = RS[i], hot = i === S.lastRing || i === S.hoverRing;
-    const col = DOC.bellows > 0.68 ? '#ff8a47' : i === 0 ? '#f0b040' : '#5ff0dc';
-    const valStr = r ? String(r.f(r.v())) : '';
-    const key = r ? r.n + '|' + valStr + '|' + hot + '|' + col : '-';
+    const accent = RING_ACCENTS[i];
+    const opVerb = RING_OP_CODES[i];
+    const valStr = r ? String(r.f(r.v())) : '—';
+    const key = r ? (r.n + '|' + valStr + '|' + hot + '|' + DOC.bellows.toFixed(2)) : '-';
     if (key === R0.key) return; R0.key = key;
-    const x = R0.lc.getContext('2d'), W = 320, H = 140; x.clearRect(0, 0, W, H);
-    if (!r) { R0.lp.visible = false; R0.lt.needsUpdate = true; return; }
-    R0.lp.visible = true;
-    x.fillStyle = hot ? 'rgba(12,44,38,.94)' : 'rgba(5,9,8,.86)';
-    x.fillRect(4, 4, W - 8, H - 8);
-    x.fillStyle = col; x.fillRect(4, 4, 10, H - 8);
-    x.textAlign = 'center'; x.font = '700 25px ui-monospace, Menlo, monospace';
-    x.fillText((i + 1) + ' ' + r.n, W / 2 + 4, 38);
-    x.fillStyle = hot ? '#ffffff' : '#dff7f2';
-    let fs = 42; x.font = '700 ' + fs + 'px ui-monospace, Menlo, monospace';
-    while (x.measureText(valStr).width > W - 28 && fs > 20) { fs -= 2; x.font = '700 ' + fs + 'px ui-monospace, Menlo, monospace'; }
-    x.fillText(valStr, W / 2 + 4, 94);
+
+    const x = R0.lc.getContext('2d'), W = 520, H = 250;
+    // Crisp Tufte Paper-Ink Collar (inverts header when active!)
+    x.fillStyle = hot ? '#ffffff' : '#f4f1ea';
+    x.fillRect(0, 0, W, H);
+    x.strokeStyle = '#111111'; x.lineWidth = 8;
+    x.strokeRect(4, 4, W - 8, H - 8);
+
+    // Top Black/Accent Header Bar
+    x.fillStyle = hot ? '#111111' : '#222625';
+    x.fillRect(8, 8, W - 16, 54);
+    x.fillStyle = accent;
+    x.fillRect(8, 8, 88, 54);
+    x.font = '900 26px "IBM Plex Mono", Menlo, monospace';
+    x.fillStyle = '#ffffff'; x.textAlign = 'center';
+    x.fillText(opVerb, 52, 44);
+    x.textAlign = 'left'; x.font = '800 25px "IBM Plex Mono", Menlo, monospace';
+    x.fillStyle = '#ffffff';
+    x.fillText(r ? r.n.slice(0, 16) : '', 108, 44);
+
+    // Center Main Value Readout (Massive High-Contrast Typography)
+    x.textAlign = 'center';
+    x.fillStyle = '#111111';
+    let fs = 58;
+    x.font = '900 ' + fs + 'px "IBM Plex Mono", Menlo, monospace';
+    while (x.measureText(valStr).width > W - 36 && fs > 24) {
+      fs -= 2;
+      x.font = '900 ' + fs + 'px "IBM Plex Mono", Menlo, monospace';
+    }
+    x.fillText(valStr, W / 2, 146);
+
+    // Bottom Tufte Quantitative Scale + Tick Marks
     const u = v01(r);
-    x.fillStyle = '#123630'; x.fillRect(24, 114, W - 40, 8);
-    x.fillStyle = col; x.fillRect(24, 114, (W - 40) * u, 8);
+    const bx = 28, by = 188, bw = W - 56, bh = 22;
+    x.fillStyle = '#dedad0'; x.fillRect(bx, by, bw, bh);
+    x.fillStyle = accent; x.fillRect(bx, by, Math.max(8, bw * u), bh);
+    x.strokeStyle = '#111111'; x.lineWidth = 3; x.strokeRect(bx, by, bw, bh);
+    for (let t = 1; t < 10; t++) {
+      const tx = bx + (bw * t) / 10;
+      x.beginPath(); x.moveTo(tx, by); x.lineTo(tx, by + (t === 5 ? bh : 8)); x.stroke();
+    }
+    // Numeric percentage / index sub-caption
+    x.font = '700 18px "IBM Plex Mono", Menlo, monospace';
+    x.fillStyle = '#444444'; x.textAlign = 'left';
+    x.fillText('R' + (i + 1) + ' KNURL', bx, 234);
+    x.textAlign = 'right';
+    x.fillText(Math.round(u * 100) + '%', bx + bw, 234);
     R0.lt.needsUpdate = true;
   });
 }
 
-// OLED Display above the barrel (lowered slightly so it is NEVER clipped at the top edge!)
-const OLED = document.createElement('canvas'); OLED.width = 1600; OLED.height = 360;
-const ox = OLED.getContext('2d'), oledTex = new T.CanvasTexture(OLED); oledTex.encoding = T.sRGBEncoding;
-const oledG = new T.Group(); oledG.position.set(0, 0.46, -0.18); oledG.rotation.x = -0.32; ORB.add(oledG);
-oledG.add(new T.Mesh(new T.BoxGeometry(1.34, 0.31, 0.04), darkAlu));
-const oledM = new T.Mesh(new T.PlaneGeometry(1.28, 0.28), new T.MeshBasicMaterial({ map: oledTex, toneMapped: false }));
-oledM.position.z = 0.022; oledG.add(oledM);
+// FULL-SPAN HIGH-DPI TUFTE × TEENAGE ENGINEERING BRIDGE DISPLAY (2400 x 620 px)
+const OLED = document.createElement('canvas'); OLED.width = 2400; OLED.height = 620;
+const ox = OLED.getContext('2d'), oledTex = new T.CanvasTexture(OLED);
+oledTex.encoding = T.sRGBEncoding; oledTex.anisotropy = 8; oledTex.minFilter = T.LinearFilter;
+const oledG = new T.Group(); oledG.position.set(0, 0.25, 0.08); ORB.add(oledG);
+const oledBack = new T.Mesh(new T.BoxGeometry(2.34, 0.61, 0.03), darkAlu); oledG.add(oledBack);
+const oledM = new T.Mesh(new T.PlaneGeometry(2.30, 0.594), new T.MeshBasicMaterial({ map: oledTex, toneMapped: false }));
+oledM.position.z = 0.017; oledM.userData.oled = true; oledG.add(oledM);
 
-// Tactile Buttons on the Orb Grip & Lens Ends
+// 12 SQUARE TEENAGE-ENGINEERING MECHANICAL KEYS (6 Left Cap + 6 Right Cap)
 const BTN = {};
-function makeBtnLabel(txt, col) {
-  const c = document.createElement('canvas'); c.width = 256; c.height = 80; const x = c.getContext('2d');
-  x.fillStyle = 'rgba(6,11,10,.92)'; x.fillRect(0, 0, 256, 80);
-  x.strokeStyle = col; x.lineWidth = 4; x.strokeRect(2, 2, 252, 76);
-  x.font = '700 38px ui-monospace, Menlo, monospace'; x.fillStyle = '#e8f4f0'; x.textAlign = 'center'; x.textBaseline = 'middle';
-  x.fillText(txt, 128, 42);
-  const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; return t;
+function makeKeyCapTex(code, sub, accentHex, isDark) {
+  const c = document.createElement('canvas'); c.width = 280; c.height = 150;
+  const x = c.getContext('2d');
+  x.fillStyle = isDark ? '#141716' : '#f4f1ea';
+  x.fillRect(0, 0, 280, 150);
+  x.strokeStyle = '#111111'; x.lineWidth = 8;
+  x.strokeRect(4, 4, 272, 142);
+  x.fillStyle = accentHex;
+  x.fillRect(8, 8, 264, 18);
+  x.font = '900 44px "IBM Plex Mono", Menlo, monospace';
+  x.fillStyle = isDark ? '#ffffff' : '#111111';
+  x.textAlign = 'center';
+  x.fillText(code, 140, 82);
+  x.font = '700 22px "IBM Plex Mono", Menlo, monospace';
+  x.fillStyle = isDark ? '#8fe9dc' : '#444444';
+  x.fillText(sub, 140, 122);
+  const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.anisotropy = 4;
+  return t;
 }
-[['MODE', -0.88, -0.06, 0x5ff0dc], ['UNDO', -0.75, 0.08, 0xd9d5cc], ['PAIR', -0.64, -0.08, 0xf0b040],
- ['ADD', 0.65, -0.09, 0x5ff0dc], ['DEL', 0.77, 0.05, 0xd9d5cc], ['KEEP', 0.89, -0.09, 0x5ff0dc]].forEach(([n, x, dz, col]) => {
-  const a = 0.95 + dz * 2, y = Math.cos(a) * 0.25, z = Math.sin(a) * 0.25;
-  const g = new T.Group(); g.position.set(x, y, z); g.lookAt(x, y * 3, z * 3); g.userData.keepW = true; ORB.add(g);
-  const cap = new T.Mesh(new T.SphereGeometry(0.038, 24, 12, 0, TAU, 0, Math.PI / 2), new T.MeshPhysicalMaterial({ color: col, metalness: 0.7, roughness: 0.3 }));
-  cap.rotation.x = Math.PI / 2; cap.scale.set(1, 0.42, 1); cap.position.z = 0.006; cap.userData.btn = n; g.add(cap);
-  const lab = new T.Mesh(new T.PlaneGeometry(0.16, 0.05), new T.MeshBasicMaterial({ map: makeBtnLabel(n === 'PAIR' ? 'PHONE' : n, '#' + col.toString(16).padStart(6, '0')), transparent: true, toneMapped: false }));
-  lab.position.set(0, -0.068, 0.004); lab.userData.btn = n; g.add(lab); FLAT.push(lab);
-  BTN[n] = { g, cap, lab, z0: 0.006, down: 0 };
+
+const KEY_DEFS = [
+  // Left 2x3 Mechanical Key Matrix (x = -0.96, -0.76)
+  ['MODE',  'CYCLE 0-7', -0.96, -0.09, '#e85d04', true],
+  ['VIEW',  'DRAFT/3D',  -0.76, -0.09, '#1d70b8', false],
+  ['ADD',   '+ CUTOUT',  -0.96, -0.24, '#2a9d8f', false],
+  ['PLACE', '+ MESS',    -0.76, -0.24, '#2b9348', false],
+  ['IMP',   'LOAD FILE', -0.96, -0.39, '#e0483a', false],
+  ['UNDO',  'STEP BACK', -0.76, -0.39, '#555555', false],
+  // Right 2x3 Mechanical Key Matrix (x = +0.76, +0.96)
+  ['MIX',   'AUDIO 1-3',  0.76, -0.09, '#e85d04', false],
+  ['CLIP',  'OLED REEL',  0.96, -0.09, '#1d70b8', false],
+  ['SWARM', 'AUTO-BUILD', 0.76, -0.24, '#2a9d8f', true],
+  ['FORK',  'REMIX GEN',  0.96, -0.24, '#7209b7', false],
+  ['PAIR',  'PHONE QR',   0.76, -0.39, '#e0483a', false],
+  ['KEEP',  'EXPORT OUT', 0.96, -0.39, '#2b9348', false]
+];
+
+KEY_DEFS.forEach(([n, sub, kx, ky, acc, isDark]) => {
+  const g = new T.Group(); g.position.set(kx, ky, RR + 0.01); g.userData.keepW = true; ORB.add(g);
+  const bezel = new T.Mesh(new T.BoxGeometry(0.182, 0.132, 0.03), darkAlu);
+  bezel.userData.btn = n; g.add(bezel);
+  const cap = new T.Mesh(new T.PlaneGeometry(0.172, 0.122), new T.MeshBasicMaterial({ map: makeKeyCapTex(n, sub, acc, isDark), toneMapped: false }));
+  cap.position.z = 0.017; cap.userData.btn = n; g.add(cap); FLAT.push(cap);
+  BTN[n] = { g, cap, z0: 0.017, down: 0 };
 });
 
 function fitOrb() {
   const w = Math.max(2, orbEl.clientWidth), h = Math.max(2, orbEl.clientHeight);
   OR.setSize(w, h, false); OC.aspect = w / h;
-  const pt = h > w * 1.15;
-  if (pt !== PORTRAIT) {
-    PORTRAIT = pt; oledG.visible = !pt;
-    OC.up.set(pt ? 1 : 0, pt ? 0 : 1, 0);
-    FLAT.forEach(m => m.rotation.z = pt ? -Math.PI / 2 : 0);
-  }
-  const stretch = 1 + DOC.bellows * 0.58;
-  let needW = 2.24 * stretch, needH = 1.18;
-  if (pt) { const t = needW; needW = needH * 1.15; needH = t; }
+  const stretch = 1 + DOC.bellows * 0.22;
+  const needW = 2.44 * stretch, needH = 1.06;
   const vf = OC.fov * Math.PI / 180;
-  const d = Math.max(needH / 2 / Math.tan(vf / 2), needW / 2 / (Math.tan(vf / 2) * OC.aspect)) * 1.06;
-  OC.position.set(0, d * 0.38, d * 0.92); OC.lookAt(0, 0.16, 0); OC.updateProjectionMatrix();
+  const d = Math.max(needH / 2 / Math.tan(vf / 2), needW / 2 / (Math.tan(vf / 2) * OC.aspect)) * 1.02;
+  OC.position.set(0, 0.01, d);
+  OC.lookAt(0, 0.01, 0);
+  OC.updateProjectionMatrix();
 }
 
-/* =============================================================== 12. ACCORDION BELLOWS & LOCAL+REMOTE CONTROLLER ACTIONS */
+/* =============================================================== 12. ACCORDION BELLOWS, VIEW MODES & DIEGETIC ACTIONS */
+S.paperMode = false;
+S.futuresMode = 'POSSIBLE';
+S.showQrOnOled = false;
+const FUTURES_MODES = ['POSSIBLE', 'PLAUSIBLE', 'PROBABLE', 'PREFERRED'];
+VIEWS.ONION = { yaw: 0, pitch: 1.48, dist: 2.35, fov: 44 };
+
+function toggleStageViewMode() {
+  const order = ['EYE', 'PAPER', 'ONION', 'WIDE', 'MACRO'];
+  S.viewCycleIdx = ((S.viewCycleIdx || 0) + 1) % order.length;
+  const pick = order[S.viewCycleIdx];
+  if (pick === 'PAPER') {
+    S.paperMode = true;
+    scene.background.setHex(0xf6f3ec);
+    scene.fog.color.setHex(0xf6f3ec); scene.fog.density = 0.004;
+    if (domeMesh) domeMesh.material.color.setHex(0xf6f3ec);
+    if (floorMesh) floorMesh.material.color.setHex(0xf0ece1);
+    if (gridLines) { gridLines.material.color.setHex(0x111111); gridLines.material.opacity = 0.25; }
+    setView('WIDE');
+    say('VIEW · TUFTE ARCHITECTURAL PAPER DRAFT (C-BUS)');
+  } else if (pick === 'ONION') {
+    S.paperMode = true;
+    scene.background.setHex(0xfaf8f2);
+    scene.fog.color.setHex(0xfaf8f2); scene.fog.density = 0.002;
+    if (domeMesh) domeMesh.material.color.setHex(0xfaf8f2);
+    if (floorMesh) floorMesh.material.color.setHex(0xf4f1ea);
+    if (gridLines) { gridLines.material.color.setHex(0x111111); gridLines.material.opacity = 0.35; }
+    setView('ONION');
+    say('VIEW · ONION TUBE AXIAL MULTIPLANE BARREL');
+  } else {
+    S.paperMode = false;
+    scene.background.setHex(0x090c0b);
+    scene.fog.color.setHex(0x090c0b); scene.fog.density = 0.024;
+    if (domeMesh) domeMesh.material.color.setHex(0x111514);
+    if (floorMesh) floorMesh.material.color.setHex(0x0b0e0d);
+    if (gridLines) { gridLines.material.color.setHex(0x283632); gridLines.material.opacity = 0.42; }
+    setView(pick);
+    say('VIEW · STELLINE CHAMBER (' + pick + ')');
+  }
+  oledDirty = true;
+}
+
 function setBellows(v, fromRemote) {
   const prev = DOC.bellows;
   DOC.bellows = clamp(v, 0, 1);
   MU.uMist.value = Math.pow(DOC.bellows, 1.25) * 0.88;
   mistPts.material.opacity = Math.pow(DOC.bellows, 0.85) * 0.85;
-  const stretch = 1 + DOC.bellows * 0.58;
-  ORB.scale.x = stretch;
-  ORB.traverse(o => { if (o.userData.keepW) o.scale.x = 1 / stretch; });
-  RINGS.forEach((r, i) => { r.g.position.x = r.lg.position.x = r.x0 * (1 + DOC.bellows * 0.22); });
+  if (LEFT_FLANGE) LEFT_FLANGE.position.x = -1.12 - DOC.bellows * 0.22;
+  if (RIGHT_FLANGE) RIGHT_FLANGE.position.x = 1.12 + DOC.bellows * 0.22;
+  RINGS.forEach((r, i) => { r.g.position.x = r.lg.position.x = r.x0 * (1 + DOC.bellows * 0.16); r.key = ''; });
+  BELLOWS_RIBS.forEach((rib, idx) => {
+    rib.position.x = (idx - 8) * 0.07 * (1 + DOC.bellows * 0.22);
+    rib.material.opacity = 0.2 + DOC.bellows * 0.75;
+  });
   fitOrb();
 
-  // Update Bellows UI bar
-  const pct = Math.round(DOC.bellows * 100);
-  document.getElementById('bellowsFill').style.width = pct + '%';
-  document.getElementById('bellowsLbl').textContent = 'ACCORDION · ' + pct + '%';
-  const reg = DOC.bellows < 0.32 ? 'MATTER CRAFT' : DOC.bellows < 0.68 ? 'MULTIPLANE STAGE' : 'FLIGHT & MIST';
-  document.getElementById('bellowsReg').textContent = reg;
-
-  // Auto-engage FLIGHT mode when pulled wide open, or return when compressed
   if (DOC.bellows > 0.72 && prev <= 0.72 && S.mode !== 'FLIGHT') {
     setMode('FLIGHT', true);
     say('ACCORDION OPEN · FLIGHT & SPACETIME MIST REGISTER');
@@ -1566,33 +1528,31 @@ function setBellows(v, fromRemote) {
     say('ACCORDION COMPRESSED · MATTER CRAFT REGISTER');
   }
   if (Math.abs(DOC.bellows - prev) > 0.025) accordionChord(DOC.bellows, (DOC.bellows - prev) * 10);
-  oledDirty = true;
+  oledDirty = true; drawDialLabels();
   if (!fromRemote && window.REMOTE) window.REMOTE({ k: 'bellows', v: DOC.bellows });
 }
 
 function setMode(m, fromInternal) {
   if (!MODES.includes(m)) return;
   S.mode = m; oledDirty = true;
-  document.querySelectorAll('#modePills .pill').forEach(b => b.classList.toggle('hot', b.dataset.mode === m));
   RINGS.forEach(r => r.key = '');
   drawDialLabels();
-  if (!fromInternal) say('MODE · ' + m);
+  if (!fromInternal) say('OPERATION REGISTER · ' + m);
 }
 
-let orbPitchV = 0; ORB.rotation.x = 0.18;
-ORB.spin = (i, steps) => { if (RINGS[i]) RINGS[i].target += steps * TAU / 36; orbPitchV += Math.sign(steps) * 0.02; };
-ORB.push = b => { if (BTN[b]) { BTN[b].down = 1; orbPitchV -= 0.02; } };
+let orbPitchV = 0; ORB.rotation.x = 0.0;
+ORB.spin = (i, steps) => { if (RINGS[i]) RINGS[i].target += steps * TAU / 36; };
+ORB.push = b => { if (BTN[b]) { BTN[b].down = 1; } };
 
 let scrubAcc = [0, 0, 0, 0, 0];
 function turn(i, steps, fromRemote) {
-  // CRITICAL: Always execute locally FIRST (even on ?orb mobile!) so modes and ring values update in 0ms on the phone!
   const r = rings()[i];
   if (!r) { tick('dead'); return; }
   tick('ring', i); snap();
   r.set(r.v() + r.st * steps);
   motionNote(v01(r), (i - 2) * 0.4, steps * 0.25);
   S.lastRing = i; S.retT = NOW; ORB.spin(i, steps); oledDirty = true;
-  drawDialLabels(); if (typeof updateScionHud === 'function') updateScionHud();
+  drawDialLabels();
   if (!fromRemote && window.REMOTE) window.REMOTE({ k: 'turn', i, steps });
 }
 
@@ -1617,6 +1577,27 @@ function press(b, long, fromRemote) {
   if (b === 'MODE') {
     const idx = (MODES.indexOf(S.mode) + 1) % MODES.length;
     setMode(MODES[idx]);
+  } else if (b === 'VIEW') {
+    toggleStageViewMode();
+  } else if (b === 'PLACE') {
+    snap(true);
+    const i = DOC.props.length;
+    DOC.props.push({ kind: i % PROP_KINDS.length, a: Math.random() * TAU, r: 0.22 + Math.random() * 0.30, rot: Math.random() * TAU, s: 0.92 + Math.random() * 0.22 });
+    S.propIdx = DOC.props.length - 1; dirty.props = true;
+    motionNote((i % 10) / 10, Math.sin(DOC.props[S.propIdx].a), 0.35);
+    say('PLACED ON TABLE · ' + PROP_KINDS[DOC.props[S.propIdx].kind] + ' (' + DOC.props.length + ' ITEMS)');
+  } else if (b === 'IMP') {
+    const fi = document.getElementById('fileImporter');
+    if (long || !fi) spawnDemoCustomAsset();
+    else fi.click();
+  } else if (b === 'MIX') {
+    cycleAudioMix();
+  } else if (b === 'CLIP') {
+    cycleMonitorClip();
+  } else if (b === 'SWARM') {
+    if (typeof scionSwarmAutoBuild === 'function') scionSwarmAutoBuild();
+  } else if (b === 'FORK') {
+    if (typeof forkBirthdayFromChapter === 'function') forkBirthdayFromChapter((S.tizitaIdx + 1) % TIZITA_CHAPTERS.length, false);
   } else if (b === 'ADD') {
     snap(true);
     if (S.mode === 'CAST') {
@@ -1631,42 +1612,33 @@ function press(b, long, fromRemote) {
       S.propIdx = DOC.props.length - 1; dirty.props = true;
       say('ADDED TABLE PROP · ' + PROP_KINDS[DOC.props[S.propIdx].kind]);
     } else if (S.mode === 'ETCH') {
-      for (let t = 0; t <= 24; t++) {
-        const a = t / 24 * TAU;
-        pushEtchStep(Math.cos(a) * 0.08, Math.sin(a) * 0.08);
-      }
+      for (let t = 0; t <= 24; t++) { const a = t / 24 * TAU; pushEtchStep(Math.cos(a) * 0.08, Math.sin(a) * 0.08); }
       say('ETCHED ROSETTE RING');
     } else {
-      // Cycle to next hero object or add a cutout
-      DOC.hero.preset = (DOC.hero.preset + 1) % HERO_PRESETS.length;
-      dirty.hero = true;
-      say('HERO · ' + HERO_PRESETS[DOC.hero.preset].name);
+      const nextClip = (DOC.cutouts.length * 3 + 1) % CUTOUT_CLIPS.length;
+      const info = CUTOUT_CLIPS[nextClip];
+      DOC.cutouts.push({ clip: nextClip, a: (Math.random() - 0.5) * 2.0 + Math.PI, plane: info.plane, face: 0, s: 1, speed: 1 });
+      S.castIdx = DOC.cutouts.length - 1;
+      say('ADDED CUTOUT · ' + info.name);
     }
   } else if (b === 'DEL') {
     snap(true);
-    if (S.mode === 'CAST' && DOC.cutouts.length > 0) {
+    if (DOC.cutouts.length > 1) {
       const rem = DOC.cutouts.splice(S.castIdx, 1)[0];
       S.castIdx = Math.max(0, S.castIdx - 1);
       say('REMOVED CUTOUT · ' + CUTOUT_CLIPS[rem.clip].name);
-    } else if (S.mode === 'MESS' && DOC.props.length > 0) {
-      DOC.props.splice(S.propIdx, 1); S.propIdx = Math.max(0, S.propIdx - 1); dirty.props = true;
-      say('REMOVED TABLE PROP');
-    } else if (S.mode === 'ETCH') {
-      DOC.etch.pts = []; dirty.etch = true; say('CLEARED ETCH TRAIL');
-    } else {
-      DOC.hero.candles = Math.max(0, DOC.hero.candles - 1); dirty.hero = true;
-      say('CANDLES · ' + DOC.hero.candles);
     }
   } else if (b === 'UNDO') {
     const from = long ? REDO : UNDO, to = long ? UNDO : REDO, s = from.pop();
     if (!s) { tick('dead'); say('NOTHING TO UNDO'); }
     else { to.push(JSON.stringify(DOC)); DOC = JSON.parse(s); dirty.hero = dirty.table = dirty.props = dirty.etch = true; setBellows(DOC.bellows || 0, true); say('UNDONE'); }
   } else if (b === 'KEEP') {
-    keepGLB();
+    if (typeof copyBirthdayShareLink === 'function') copyBirthdayShareLink();
+    if (typeof exportBirthdayCartridge === 'function') exportBirthdayCartridge();
   } else if (b === 'PAIR') {
     PAIR.open();
   }
-  oledDirty = true; drawDialLabels(); if (typeof updateScionHud === 'function') updateScionHud();
+  oledDirty = true; drawDialLabels();
   if (!fromRemote && window.REMOTE) window.REMOTE({ k: 'press', b, long });
 }
 
@@ -1675,20 +1647,19 @@ function keepGLB() {
     new T.GLTFExporter().parse(MEM, r => {
       const a = document.createElement('a');
       a.href = URL.createObjectURL(new Blob([r], { type: 'model/gltf-binary' }));
-      a.download = 'cineosi-memory.glb'; document.body.append(a); a.click();
-      setTimeout(() => a.remove(), 1000); say('EXPORTED · CINEOSI-MEMORY.GLB');
+      a.download = 'cineosis-memory.glb'; document.body.append(a); a.click();
+      setTimeout(() => a.remove(), 1000); say('EXPORTED · CINEOSIS-MEMORY.GLB');
     }, { binary: true });
-  } catch (e) { say('EXPORT READY'); }
+  } catch (e) {}
 }
 
 function setView(p) {
   const V = S.view; V.preset = p; const P = VIEWS[p];
   if (P) { V.yaw = P.yaw; V.pitch = P.pitch; V.dist = P.dist; V.fov = P.fov; V.roll = 0; V.pan.set(0, 0, 0); }
-  say('CAMERA · ' + p);
 }
 function viewBy(dyaw, dpitch, dzoom, panx, pany, fromRemote) {
   const V = S.view; V.preset = 'FREE';
-  V.yaw += dyaw || 0; V.pitch = clamp(V.pitch + (dpitch || 0), -0.25, 1.48);
+  V.yaw += dyaw || 0; V.pitch = clamp(V.pitch + (dpitch || 0), -0.25, 1.52);
   V.dist = clamp(V.dist * Math.exp(-(dzoom || 0)), 0.28, 5.5);
   if (panx || pany) {
     const r = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion), u = new T.Vector3(0, 1, 0).applyQuaternion(cam.quaternion);
@@ -1698,7 +1669,8 @@ function viewBy(dyaw, dpitch, dzoom, panx, pany, fromRemote) {
   if (!fromRemote && window.REMOTE) window.REMOTE({ k: 'view', dx: dyaw, dy: dpitch, dc: dzoom, px: panx, py: pany });
 }
 
-/* =============================================================== 13. PAIRING ENGINE (MQTT + BroadcastChannel + Auto Full-Stage) */
+/* =============================================================== 13. DIEGETIC PAIRING ENGINE (QR RENDERED DIRECTLY ON ORB OLED) */
+let qrCanvasCache = null;
 const PAIR = (function () {
   const uid = () => Math.random().toString(36).slice(2, 10), dev = uid(), TE = new TextEncoder(), TD = new TextDecoder(), SEEN = new Set();
   let MID = 0, room = new URLSearchParams(location.search).get('room') || '', socks = [], urls = new Set(), peers = new Map();
@@ -1745,12 +1717,9 @@ const PAIR = (function () {
     SEEN.add(m.mid);
     const was = peers.size; peers.set(m.from, { role: m.role, at: performance.now() });
     if (!PHONE && m.role === 'orb') {
-      // Automatically collapse the desktop bottom orb so the 3D stage fills 100% of the main screen!
       if (!document.body.classList.contains('paired')) {
         document.body.classList.add('paired');
-        document.getElementById('btnStageOnly').classList.add('hot');
-        document.getElementById('btnStageOnly').textContent = 'SHOW ORB';
-        document.getElementById('qrModal').classList.remove('show');
+        S.showQrOnOled = false;
         resize();
       }
       if (!was) say('PHONE CONTROLLER PAIRED · FULL STAGE ACTIVE');
@@ -1776,24 +1745,24 @@ const PAIR = (function () {
     get room() { return room; },
     url: () => base() + '?orb&room=' + room,
     open() {
-      if (!room) {
-        room = Array.from({ length: 4 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.random() * 24 | 0]).join('');
+      S.showQrOnOled = !S.showQrOnOled;
+      if (S.showQrOnOled) {
+        if (!room) room = Array.from({ length: 4 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.random() * 24 | 0]).join('');
+        join(room);
+        try {
+          const u = P.url();
+          const q = qrcode(0, 'M'); q.addData(u); q.make();
+          const n = q.getModuleCount(), cell = 6, sz = (n + 2) * cell;
+          const cv = document.createElement('canvas'); cv.width = cv.height = sz;
+          const cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, sz, sz); cx.fillStyle = '#111';
+          for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) cx.fillRect((c + 1) * cell, (r + 1) * cell, cell, cell);
+          qrCanvasCache = cv;
+        } catch (e) {}
+        say('DIEGETIC QR ACTIVE ON BRIDGE DISPLAY · ROOM ' + room);
+      } else {
+        say('DIEGETIC QR CLOSED');
       }
-      join(room);
-      const modal = document.getElementById('qrModal');
-      document.getElementById('qrRoomTxt').textContent = room;
-      const u = P.url();
-      const link = document.getElementById('qrUrl'); link.href = u; link.textContent = u;
-      const box = document.getElementById('qrBox'); box.innerHTML = '';
-      try {
-        const q = qrcode(0, 'M'); q.addData(u); q.make();
-        const n = q.getModuleCount(), cell = 6, sz = (n + 2) * cell;
-        const cv = document.createElement('canvas'); cv.width = cv.height = sz;
-        const cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, sz, sz); cx.fillStyle = '#000';
-        for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) cx.fillRect((c + 1) * cell, (r + 1) * cell, cell, cell);
-        box.append(cv);
-      } catch (e) {}
-      modal.classList.add('show');
+      oledDirty = true;
     },
     sendAct: a => send(Object.assign({ type: 'act' }, a))
   };
@@ -1802,16 +1771,132 @@ const PAIR = (function () {
   return P;
 })();
 
-/* =============================================================== 14. INTERACTION: ORB, BELLOWS BAR, AND DIRECT 3D DRAGGING IN ROOM */
+/* =============================================================== 14. DIEGETIC INTERACTION: OLED RAYCAST ZONES, RINGS, KEYS & 3D STAGE */
 const oray = new T.Raycaster(), ondc = new T.Vector2(); let odrag = null; const optrs = new Map();
 function orbHit(e) {
   const r = OR.domElement.getBoundingClientRect();
   ondc.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
   oray.setFromCamera(ondc, OC);
-  const h = oray.intersectObjects(ORB.children, true)[0]; if (!h) return null;
+  const hits = oray.intersectObjects(ORB.children, true);
+  if (!hits.length) return null;
+  const h = hits[0];
   let o = h.object;
+  if (o.userData && o.userData.oled && h.uv) {
+    return { oled: true, px: h.uv.x * OLED.width, py: (1 - h.uv.y) * OLED.height };
+  }
   while (o && o.userData.ring == null && !o.userData.btn && !o.userData.grip && !o.userData.lens) o = o.parent;
   return o ? o.userData : null;
+}
+
+// Handle direct clicks & drags inside the 4 zones of the 2400x620 Bridge Display!
+function handleOledClick(px, py, isDrag) {
+  // ZONE 1 (px: 0..550): Optical Monitor, Loupe, Futures Cone & Audio Mix
+  if (px < 550) {
+    if (isDrag) return;
+    if (py < 430) {
+      cycleMonitorClip();
+    } else if (py < 525) {
+      const fIdx = clamp(Math.floor((px - 14) / 130), 0, 3);
+      S.futuresMode = FUTURES_MODES[fIdx];
+      const targetMist = [0.0, 0.08, 0.22, 0.48][fIdx];
+      setBellows(targetMist);
+      say('FUTURES CONE · ' + S.futuresMode + ' (' + Math.round(targetMist * 100) + '% MIST)');
+    } else {
+      cycleAudioMix();
+    }
+    oledDirty = true;
+    return;
+  }
+
+  // ZONE 2 (px: 550..1240): Concentric Onion Tube (c-bus) Multiplane Radar + Bound Verb Strip
+  if (px >= 550 && px < 1240) {
+    const cx = 895, cy = 268, maxR = 218;
+    if (py >= 522 && !isDrag) {
+      // Bottom bound verb strip: MOVE | TRIM | ROLL | LIFT | SPLIT | ROUTE | STORE
+      const verbs = ['MOVE', 'TRIM', 'ROLL', 'LIFT', 'SPLIT', 'ROUTE', 'STORE'];
+      const vIdx = clamp(Math.floor((px - 564) / ((1226 - 564) / 7)), 0, 6);
+      const vb = verbs[vIdx];
+      tick('press');
+      if (vb === 'MOVE') { setMode('CAST'); S.lastRing = 0; say('BOUND · MOVE CUTOUT AROUND TABLE'); }
+      else if (vb === 'TRIM') { setMode('CAST'); S.lastRing = 4; say('BOUND · TRIM CUTOUT SCALE / SPEED'); }
+      else if (vb === 'ROLL') { setMode('CAST'); S.lastRing = 2; turn(2, 3); say('BOUND · ROLL AZIMUTH +15°'); }
+      else if (vb === 'LIFT') {
+        setMode('CAST');
+        const c = DOC.cutouts[S.castIdx];
+        if (c) { c.plane = (c.plane + 1) % PLANE_Z.length; say('BOUND · LIFT TO ' + PLANE_NAMES[c.plane]); }
+      }
+      else if (vb === 'SPLIT') { press('ADD'); }
+      else if (vb === 'ROUTE') { loadTizitaChapter((S.tizitaIdx + 1) % TIZITA_CHAPTERS.length); }
+      else if (vb === 'STORE') { if (typeof savePeakCheckpoint === 'function') savePeakCheckpoint(); }
+      oledDirty = true; drawDialLabels();
+      return;
+    }
+    // Inside the circular Onion Tube radar: select or drag cutout angle & depth ring!
+    const dx = px - cx, dy = py - cy;
+    const dist = Math.hypot(dx, dy);
+    const ang = Math.atan2(dx, dy); // matches Math.sin(a), Math.cos(a)
+    let bestP = 0, bestD = 999;
+    PLANE_Z.forEach((z, pi) => {
+      const rPx = 38 + pi * 33;
+      if (Math.abs(dist - rPx) < bestD) { bestD = Math.abs(dist - rPx); bestP = pi; }
+    });
+    if (!isDrag) {
+      // Find closest cutout in radar
+      let bestC = S.castIdx, minDist = 999;
+      DOC.cutouts.forEach((c, idx) => {
+        const rPx = 38 + clamp(c.plane || 0, 0, 5) * 33;
+        const ux = cx + Math.sin(c.a) * rPx, uy = cy + Math.cos(c.a) * rPx;
+        const d = Math.hypot(px - ux, py - uy);
+        if (d < minDist) { minDist = d; bestC = idx; }
+      });
+      if (minDist < 48) {
+        S.castIdx = bestC; setMode('CAST', true);
+        say('SELECTED ' + CUTOUT_CLIPS[DOC.cutouts[bestC].clip].name);
+      } else if (DOC.cutouts[S.castIdx]) {
+        DOC.cutouts[S.castIdx].a = ang;
+        DOC.cutouts[S.castIdx].plane = bestP;
+        motionNote(((ang % TAU) + TAU) % TAU / TAU, clamp(dx / maxR, -1, 1), 0.3);
+      }
+    } else if (DOC.cutouts[S.castIdx]) {
+      DOC.cutouts[S.castIdx].a = ang;
+      DOC.cutouts[S.castIdx].plane = bestP;
+      motionNote(((ang % TAU) + TAU) % TAU / TAU, clamp(dx / maxR, -1, 1), 0.25);
+    }
+    oledDirty = true; drawDialLabels();
+    return;
+  }
+
+  // ZONE 3 (px: 1240..1830): Birthday Chapter Header, SCION 5-Invariant Bars, Spectrum & Diegetic Action Pads
+  if (px >= 1240 && px < 1830 && !isDrag) {
+    tick('press');
+    if (S.showQrOnOled) { S.showQrOnOled = false; oledDirty = true; return; }
+    if (py < 110) {
+      loadTizitaChapter((S.tizitaIdx + 1) % TIZITA_CHAPTERS.length);
+    } else if (py < 410) {
+      if (typeof scionRepairPrimaryGap === 'function') scionRepairPrimaryGap();
+    } else if (py >= 515) {
+      const actIdx = clamp(Math.floor((px - 1252) / 140), 0, 3);
+      if (actIdx === 0 && typeof scionSwarmAutoBuild === 'function') scionSwarmAutoBuild();
+      else if (actIdx === 1 && typeof savePeakCheckpoint === 'function') savePeakCheckpoint();
+      else if (actIdx === 2 && typeof forkBirthdayFromChapter === 'function') forkBirthdayFromChapter((S.tizitaIdx + 1) % TIZITA_CHAPTERS.length, false);
+      else if (actIdx === 3 && typeof spawnDemoCustomAsset === 'function') spawnDemoCustomAsset();
+    }
+    oledDirty = true; drawDialLabels();
+    return;
+  }
+
+  // ZONE 4 (px: 1830..2400): LIVE BOUND OPERATIONS 8-Row Table
+  if (px >= 1830 && !isDrag) {
+    if (py >= 58 && py < 538) {
+      const rowIdx = clamp(Math.floor((py - 58) / 60), 0, MODES.length - 1);
+      tick('press');
+      setMode(MODES[rowIdx]);
+    } else if (py >= 538) {
+      if (px < 2115) press('IMP');
+      else press('KEEP');
+    }
+    oledDirty = true; drawDialLabels();
+  }
 }
 
 OR.domElement.addEventListener('pointerdown', e => {
@@ -1823,6 +1908,11 @@ OR.domElement.addEventListener('pointerdown', e => {
   }
   const u = orbHit(e); if (!u) return;
   OR.domElement.setPointerCapture(e.pointerId);
+  if (u.oled) {
+    handleOledClick(u.px, u.py, false);
+    odrag = { oled: true };
+    return;
+  }
   if (u.btn) { odrag = { btn: u.btn, t: performance.now() }; BTN[u.btn].down = 1; return; }
   if (u.grip || u.lens) { odrag = { grip: !!u.grip, lens: !!u.lens, x: e.clientX, y: e.clientY }; return; }
   odrag = { ring: u.ring, x: e.clientX, y: e.clientY, acc: 0, lock: null };
@@ -1837,16 +1927,21 @@ OR.domElement.addEventListener('pointermove', e => {
     if (hr !== S.hoverRing) { S.hoverRing = hr; oledDirty = true; drawDialLabels(); }
     return;
   }
+  if (odrag.oled) {
+    const u = orbHit(e);
+    if (u && u.oled) handleOledClick(u.px, u.py, true);
+    return;
+  }
   if (odrag.pinch != null && optrs.size === 2) {
     const [p, q] = [...optrs.values()], d = Math.hypot(p.x - q.x, p.y - q.y);
     setBellows(odrag.b0 + (d - odrag.pinch) / 220);
     return;
   }
   const rx = e.clientX - (odrag.x || 0), ry = e.clientY - (odrag.y || 0);
-  if (odrag.grip) { odrag.x = e.clientX; odrag.y = e.clientY; viewBy(-(PORTRAIT ? ry : rx) * 0.01, (PORTRAIT ? -rx : ry) * 0.006, 0); return; }
-  if (odrag.lens) { odrag.x = e.clientX; odrag.y = e.clientY; setBellows(DOC.bellows + (PORTRAIT ? -ry : rx) * 0.0045); return; }
+  if (odrag.grip) { odrag.x = e.clientX; odrag.y = e.clientY; viewBy(-rx * 0.01, ry * 0.006, 0); return; }
+  if (odrag.lens) { odrag.x = e.clientX; odrag.y = e.clientY; setBellows(DOC.bellows + rx * 0.0045); return; }
   if (odrag.ring == null) return;
-  const dx = PORTRAIT ? -ry : rx, dy = PORTRAIT ? rx : -ry;
+  const dx = rx, dy = -ry;
   odrag.x = e.clientX; odrag.y = e.clientY;
   if (!odrag.lock) {
     odrag.ax = (odrag.ax || 0) + Math.abs(dx); odrag.ay = (odrag.ay || 0) + Math.abs(dy);
@@ -1863,19 +1958,6 @@ OR.domElement.addEventListener('wheel', e => {
   if (u.ring != null) turn(u.ring, e.deltaY < 0 ? 1 : -1);
 }, { passive: false });
 
-// Bellows Slider Bar interaction
-const bTrack = document.getElementById('bellowsTrack');
-let bDragging = false;
-bTrack.addEventListener('pointerdown', e => {
-  bDragging = true; bTrack.setPointerCapture(e.pointerId);
-  const r = bTrack.getBoundingClientRect(); setBellows((e.clientX - r.left) / r.width);
-});
-bTrack.addEventListener('pointermove', e => {
-  if (!bDragging) return;
-  const r = bTrack.getBoundingClientRect(); setBellows((e.clientX - r.left) / r.width);
-});
-bTrack.addEventListener('pointerup', () => bDragging = false);
-
 // Direct 3D Room Manipulation: Drag Cutouts around table/planes, Drag Props on tabletop, or Orbit Camera!
 const rray = new T.Raycaster(), rndc = new T.Vector2(), floorPlane = new T.Plane(new T.Vector3(0, 1, 0), -TOP);
 let rdrag = null;
@@ -1886,7 +1968,6 @@ R.domElement.addEventListener('pointerdown', e => {
   rndc.set((e.clientX - rect.left) / rect.width * 2 - 1, -(e.clientY - rect.top) / rect.height * 2 + 1);
   rray.setFromCamera(rndc, cam);
 
-  // Check if user clicked a segmented video cutout!
   const cHits = rray.intersectObjects(CAST_G.children, true);
   if (cHits.length) {
     let o = cHits[0].object; while (o && o.userData.cutoutIdx == null) o = o.parent;
@@ -1897,7 +1978,6 @@ R.domElement.addEventListener('pointerdown', e => {
       return;
     }
   }
-  // Check if user clicked a table prop!
   const pHits = rray.intersectObjects(MESS_G.children, true);
   if (pHits.length) {
     let o = pHits[0].object; while (o && o.userData.propIdx == null) o = o.parent;
@@ -1952,162 +2032,327 @@ R.domElement.addEventListener('pointermove', e => {
 R.domElement.addEventListener('pointerup', () => rdrag = null);
 R.domElement.addEventListener('wheel', e => { e.preventDefault(); viewBy(0, 0, -e.deltaY * 0.0015); }, { passive: false });
 
-// Top HUD buttons & keyboard shortcuts
-document.querySelectorAll('#modePills .pill').forEach(b => {
-  b.addEventListener('click', () => { setMode(b.dataset.mode); if (window.REMOTE) window.REMOTE({ k: 'mode', m: b.dataset.mode }); });
-});
-document.getElementById('btnAddQuick').addEventListener('click', () => { setMode('CAST', true); press('ADD'); });
-document.getElementById('btnPlaceQuick').addEventListener('click', () => {
-  snap(true);
-  const i = DOC.props.length;
-  DOC.props.push({ kind: i % PROP_KINDS.length, a: Math.random() * TAU, r: 0.22 + Math.random() * 0.30, rot: Math.random() * TAU, s: 0.92 + Math.random() * 0.22 });
-  S.propIdx = DOC.props.length - 1; dirty.props = true;
-  motionNote((i % 10) / 10, Math.sin(DOC.props[S.propIdx].a), 0.35);
-  say('PLACED ON TABLE · ' + PROP_KINDS[DOC.props[S.propIdx].kind] + ' (' + DOC.props.length + ' ITEMS)');
-  oledDirty = true; drawDialLabels();
-});
-document.getElementById('btnMixToggle').addEventListener('click', () => cycleAudioMix());
-document.getElementById('btnClipToggle').addEventListener('click', () => cycleMonitorClip());
-document.getElementById('btnStageOnly').addEventListener('click', () => {
-  const on = document.body.classList.toggle('paired');
-  const btn = document.getElementById('btnStageOnly');
-  btn.classList.toggle('hot', on);
-  btn.textContent = on ? 'SHOW ORB' : 'STAGE ONLY';
-  resize();
-});
-document.getElementById('btnPairTop').addEventListener('click', () => PAIR.open());
-document.getElementById('qrClose').addEventListener('click', () => document.getElementById('qrModal').classList.remove('show'));
-
 addEventListener('keydown', e => {
   if (e.key === '[') setBellows(DOC.bellows - 0.08);
   else if (e.key === ']') setBellows(DOC.bellows + 0.08);
   else if (e.key === 'Tab') { e.preventDefault(); press('MODE'); }
-  else if (e.key === 'o' || e.key === 'O') document.getElementById('btnStageOnly').click();
+  else if (e.key === 'v' || e.key === 'V') toggleStageViewMode();
   else if (e.key === 'p' || e.key === 'P') PAIR.open();
 });
 
-/* =============================================================== 15. OLED DISPLAY & RENDER LOOP */
+/* =============================================================== 15. TUFTE × TEENAGE ENGINEERING 2400x620 BRIDGE DISPLAY */
 function drawOLED() {
   const W = OLED.width, H = OLED.height, x = ox;
-  x.fillStyle = '#030605'; x.fillRect(0, 0, W, H);
-  x.strokeStyle = '#1d463f'; x.lineWidth = 4; x.strokeRect(6, 6, W - 12, H - 12);
-  const CY = '#5ff0dc', AMB = '#f0b040', MID = '#8fe9dc';
+  // High-Contrast Architectural Paper Canvas (#FAF8F2) with Brutalist 3px Black Framing
+  x.fillStyle = '#faf8f2'; x.fillRect(0, 0, W, H);
+  x.strokeStyle = '#111111'; x.lineWidth = 6; x.strokeRect(3, 3, W - 6, H - 6);
 
-  // 1. LEFT OPTICAL MONITOR VIEWPORT (x: 18..438, y: 18..342): Real Stelline Film Clip + Cutout PiP
-  const vx = 18, vy = 18, vw = 420, vh = 236;
-  x.fillStyle = '#060c0a'; x.fillRect(vx, vy, vw, vh);
+  const ch = TIZITA_CHAPTERS[S.tizitaIdx || 0];
+  const clipInfo = MONITOR_CLIPS[curClipIdx] || MONITOR_CLIPS[0];
+  const activeCut = DOC.cutouts[S.castIdx] || DOC.cutouts[0];
+  const activeClipObj = activeCut ? CUTOUT_CLIPS[clamp(activeCut.clip, 0, CUTOUT_CLIPS.length - 1)] : CUTOUT_CLIPS[0];
+
+  // =========================================================================
+  // ZONE 1 (x: 0..550): OPTICAL MONITOR, SC-0XX LOUPE & FUTURES CONE BAR
+  // =========================================================================
+  x.strokeStyle = '#111111'; x.lineWidth = 4;
+  x.beginPath(); x.moveTo(550, 0); x.lineTo(550, H); x.stroke();
+
+  // Top Brutalist Callout Header (F1 · HOLD 2x POSSIBLE + Red Timecode Badge)
+  x.fillStyle = '#111111'; x.fillRect(14, 14, 376, 52);
+  x.font = '900 22px "IBM Plex Mono", Menlo, monospace'; x.fillStyle = '#ffffff'; x.textAlign = 'left';
+  x.fillText('F' + ((S.tizitaIdx || 0) + 1) + ' · ' + S.futuresMode + ' · ' + clipInfo.label.slice(0, 16), 24, 47);
+  // Vermilion Timecode Badge (00:57:00)
+  x.fillStyle = '#e0483a'; x.fillRect(398, 14, 138, 52);
+  x.fillStyle = '#ffffff'; x.textAlign = 'center'; x.font = '900 23px "IBM Plex Mono", Menlo, monospace';
+  const tcSec = Math.floor(oledVideo && oledVideo.currentTime ? oledVideo.currentTime : NOW) % 60;
+  x.fillText('00:57:' + String(tcSec).padStart(2, '0'), 467, 47);
+
+  // Optical Video Monitor (x: 14..536, y: 74..416)
+  const vx = 14, vy = 74, vw = 522, vh = 342;
+  x.fillStyle = '#0c100f'; x.fillRect(vx, vy, vw, vh);
   try {
     const walkTex = baseCutoutTex['stelline_walk'] || getCutoutBaseTex(0, () => {});
-    if (oledVideo && oledVideo.readyState >= 2 && oledVideo.currentTime > 0.5) {
+    if (oledVideo && oledVideo.readyState >= 2 && oledVideo.currentTime > 0.3) {
       x.drawImage(oledVideo, vx, vy, vw, vh);
     } else if (walkTex && walkTex.image) {
       const fw = walkTex.image.width / 8, fh = walkTex.image.height, fi = Math.floor(NOW * 6) % 8;
-      x.drawImage(walkTex.image, fi * fw, 0, fw, fh, vx + 60, vy + 4, vw - 120, vh - 8);
+      x.drawImage(walkTex.image, fi * fw, 0, fw, fh, vx + 80, vy + 8, vw - 160, vh - 16);
     }
   } catch (e) {}
-  // Subtle optical scanline & crosshair overlay on the video monitor
-  x.fillStyle = 'rgba(4, 12, 10, 0.24)'; x.fillRect(vx, vy, vw, vh);
-  x.strokeStyle = '#5ff0dc'; x.lineWidth = 2; x.strokeRect(vx, vy, vw, vh);
-  // Draw active segmented cutout PiP thumbnail in bottom-right of video monitor
-  const activeCut = DOC.cutouts[S.castIdx] || DOC.cutouts[0];
-  if (activeCut) {
-    const cInfo = CUTOUT_CLIPS[clamp(activeCut.clip, 0, CUTOUT_CLIPS.length - 1)];
-    const bTex = baseCutoutTex[cInfo.id];
+  x.strokeStyle = '#111111'; x.lineWidth = 4; x.strokeRect(vx, vy, vw, vh);
+
+  // Top-Right Cutout Loupe Box (SC-0XX) overlapping the monitor corner (c-bus style!)
+  if (activeCut && activeClipObj) {
+    const lx = vx + vw - 168, ly = vy + 10, lw = 158, lh = 142;
+    x.fillStyle = '#faf8f2'; x.fillRect(lx, ly, lw, lh);
+    x.strokeStyle = '#111111'; x.lineWidth = 4; x.strokeRect(lx, ly, lw, lh);
+    const bTex = baseCutoutTex[activeClipObj.id];
     if (bTex && bTex.image) {
-      const pw = 92, ph = 92, px = vx + vw - pw - 8, py = vy + vh - ph - 8;
-      x.fillStyle = 'rgba(3, 8, 7, 0.82)'; x.fillRect(px, py, pw, ph);
-      const fw = bTex.image.width / (cInfo.frames || 1), fh = bTex.image.height;
-      const fIdx = Math.floor(NOW * (cInfo.fps || 8)) % (cInfo.frames || 1);
-      x.drawImage(bTex.image, fIdx * fw, 0, fw, fh, px + 4, py + 4, pw - 8, ph - 8);
-      x.strokeStyle = AMB; x.lineWidth = 1.5; x.strokeRect(px, py, pw, ph);
+      const fw = bTex.image.width / (activeClipObj.frames || 1), fh = bTex.image.height;
+      const fIdx = Math.floor(NOW * (activeClipObj.fps || 8)) % (activeClipObj.frames || 1);
+      x.drawImage(bTex.image, fIdx * fw, 0, fw, fh, lx + 12, ly + 26, lw - 24, lh - 34);
     }
-  }
-  const clipInfo = MONITOR_CLIPS[curClipIdx] || MONITOR_CLIPS[0];
-  x.fillStyle = 'rgba(3, 7, 6, 0.78)'; x.fillRect(vx + 2, vy + 2, vw - 4, 28);
-  x.textAlign = 'left'; x.font = '700 17px ui-monospace, Menlo, monospace'; x.fillStyle = CY;
-  x.fillText(clipInfo.label, vx + 10, vy + 21);
-
-  // Caption under video monitor (y: 262..342)
-  const ch = TIZITA_CHAPTERS[S.tizitaIdx || 0];
-  x.fillStyle = '#071311'; x.fillRect(vx, 260, vw, 82);
-  x.strokeStyle = '#183832'; x.strokeRect(vx, 260, vw, 82);
-  x.font = '700 17px ui-monospace, Menlo, monospace'; x.fillStyle = AMB;
-  x.fillText(ch.title.slice(0, 38), vx + 10, 284);
-  x.font = '500 15px ui-monospace, Menlo, monospace'; x.fillStyle = '#d4f0ea';
-  x.fillText(clipInfo.quote.slice(0, 46), vx + 10, 308);
-  x.fillStyle = MID;
-  x.fillText(AUDIO_MIXES[curMixIdx].label, vx + 10, 330);
-
-  // 2. CENTER & RIGHT TELEMETRY + LIVE AUDIO WAVEFORM (x: 454..1580)
-  const rx0 = 454, rw = W - rx0 - 18;
-  const RS = rings();
-  x.textAlign = 'left'; x.font = '700 25px ui-monospace, Menlo, monospace';
-  x.fillStyle = S.mode === 'FLIGHT' ? '#ff8a47' : AMB;
-  const regName = DOC.bellows < 0.32 ? 'MATTER REGISTER' : DOC.bellows < 0.68 ? 'MULTIPLANE REGISTER' : 'FLIGHT & MIST REGISTER';
-  x.fillText('CINEOSIS-ORB · ' + S.mode + ' · ' + regName, rx0, 44);
-
-  const heroTitle = S.mode === 'TIZITA' ? ch.title
-    : S.mode === 'HERO' ? HERO_PRESETS[DOC.hero.preset].name
-    : S.mode === 'CAST' ? (CUTOUT_CLIPS[(DOC.cutouts[S.castIdx] || { clip: 0 }).clip].name)
-    : S.mode === 'MESS' ? (DOC.props.length + ' TABLE PROPS · ' + TABLE_STYLES[DOC.table.style][0])
-    : S.mode === 'ETCH' ? ('ETCH-A-SKETCH · ' + ETCH_PHRASES[DOC.etch.phrase])
-    : S.mode === 'LIGHT' ? ('CAMERA ' + S.view.preset + ' · ' + Math.round(lerp(6500, 2200, DOC.light.warm)) + 'K')
-    : ('BELLOWS ' + Math.round(DOC.bellows * 100) + '% · 32K PARTICLES');
-  x.font = '700 34px ui-monospace, Menlo, monospace'; x.fillStyle = '#eaf6f3';
-  x.fillText(heroTitle.slice(0, 26), rx0, 92);
-
-  // Live Audio Spectrum / Motion Waveform Strip (x: 454..1120, y: 112..162)
-  if (mixAnalyser) { try { mixAnalyser.getByteFrequencyData(mixData); } catch (e) {} }
-  const nBars = 36, bw = 16, bx0 = rx0;
-  for (let b = 0; b < nBars; b++) {
-    const raw = mixAnalyser ? (mixData[b] / 255) : 0;
-    const synthPulse = Math.max(0, 1 - (performance.now() - lastMotionSndT) / 280) * (0.35 + 0.35 * Math.sin(NOW * 18 + b * 0.7));
-    const amp = clamp(Math.max(raw, synthPulse, 0.08 + 0.06 * Math.sin(NOW * 4 + b * 0.4)), 0.06, 1.0);
-    const bh = Math.round(amp * 44);
-    x.fillStyle = b % 3 === 0 ? AMB : CY;
-    x.fillRect(bx0 + b * (bw + 2), 160 - bh, bw, bh);
+    x.fillStyle = '#111111'; x.fillRect(lx + lw - 86, ly, 86, 26);
+    x.fillStyle = '#ffffff'; x.font = '900 17px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
+    x.fillText('SC-' + String(activeCut.clip + 1).padStart(3, '0'), lx + lw - 43, ly + 19);
   }
 
-  // Active Ring Readout on Top-Right
-  const r = RS[S.lastRing] || RS[0];
-  if (r) {
-    x.textAlign = 'right'; x.font = '600 22px ui-monospace, Menlo, monospace'; x.fillStyle = MID;
-    x.fillText('RING ' + (S.lastRing + 1) + ' · ' + r.n, W - 26, 44);
-    x.font = '700 34px ui-monospace, Menlo, monospace'; x.fillStyle = CY;
-    x.fillText(String(r.f(r.v())).slice(0, 15), W - 26, 92);
-  }
+  // Dialogue Subtitle Bar inside bottom of Monitor
+  x.fillStyle = 'rgba(17, 17, 17, 0.86)'; x.fillRect(vx + 2, vy + vh - 38, vw - 4, 36);
+  x.fillStyle = '#faf8f2'; x.font = '700 17px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'left';
+  x.fillText(clipInfo.quote.slice(0, 46), vx + 12, vy + vh - 14);
 
-  // 5-Ring Summary Strip across the right-bottom of the OLED (x: 454..1580, y: 174..292)
-  const colW = rw / 5;
-  RS.forEach((ri, idx) => {
-    if (!ri) return;
-    const cx = rx0 + idx * colW + colW / 2, hot = idx === S.lastRing;
-    x.fillStyle = hot ? 'rgba(20,64,56,0.92)' : 'rgba(10,22,20,0.78)';
-    x.fillRect(rx0 + idx * colW + 3, 174, colW - 6, 114);
-    x.strokeStyle = hot ? CY : '#183832'; x.lineWidth = 2;
-    x.strokeRect(rx0 + idx * colW + 3, 174, colW - 6, 114);
-    x.textAlign = 'center'; x.font = '600 18px ui-monospace, Menlo, monospace';
-    x.fillStyle = hot ? AMB : MID; x.fillText((idx + 1) + ' ' + ri.n.slice(0, 12), cx, 204);
-    x.font = '700 24px ui-monospace, Menlo, monospace'; x.fillStyle = '#fff';
-    x.fillText(String(ri.f(ri.v())).slice(0, 12), cx, 252);
+  // Futures Cone Selector Strip (y: 428..490): POSSIBLE | PLAUSIBLE | PROBABLE | PREFERRED
+  const fw = 127;
+  FUTURES_MODES.forEach((fm, idx) => {
+    const fx = 14 + idx * (fw + 4), fy = 428, fh = 56;
+    const on = S.futuresMode === fm;
+    x.fillStyle = on ? '#111111' : '#ffffff';
+    x.fillRect(fx, fy, fw, fh);
+    x.strokeStyle = '#111111'; x.lineWidth = 3; x.strokeRect(fx, fy, fw, fh);
+    x.fillStyle = on ? '#ffffff' : '#111111';
+    x.font = '900 18px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
+    x.fillText(fm, fx + fw / 2, fy + 35);
   });
 
-  // Bottom Lyric / Dialogue / Status Ticker (x: 454..1580, y: 328)
-  x.textAlign = 'left'; x.font = '600 21px ui-monospace, Menlo, monospace'; x.fillStyle = CY;
-  const bottomTxt = (NOW - S.msgT < 4.0 && S.msg) ? S.msg : ch.lyric;
-  x.fillText(bottomTxt.slice(0, 68), rx0, 328);
+  // Bottom Audio Mix & Layer Strip (y: 496..602)
+  x.fillStyle = '#111111'; x.fillRect(14, 498, 522, 46);
+  x.fillStyle = '#f6c978'; x.font = '900 19px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'left';
+  x.fillText(AUDIO_MIXES[curMixIdx].label + ' [CLICK TO CYCLE]', 26, 527);
+
+  x.fillStyle = '#eae6dc'; x.fillRect(14, 552, 522, 50);
+  x.strokeStyle = '#111111'; x.lineWidth = 2; x.strokeRect(14, 552, 522, 50);
+  x.fillStyle = '#111111'; x.font = '800 18px "IBM Plex Mono", Menlo, monospace';
+  const statusStr = (NOW - S.msgT < 4.5 && S.msg) ? S.msg : ch.lyric;
+  x.fillText(statusStr.slice(0, 48), 24, 583);
+
+  // =========================================================================
+  // ZONE 2 (x: 550..1240): CONCENTRIC ONION TUBE (C-BUS) MULTIPLANE RADAR
+  // =========================================================================
+  x.strokeStyle = '#111111'; x.lineWidth = 4;
+  x.beginPath(); x.moveTo(1240, 0); x.lineTo(1240, H); x.stroke();
+
+  const rcx = 895, rcy = 268;
+  // Architectural millimeter graph grid inside Zone 2
+  x.strokeStyle = '#e5e0d4'; x.lineWidth = 1;
+  for (let gx = 565; gx < 1235; gx += 28) { x.beginPath(); x.moveTo(gx, 10); x.lineTo(gx, 515); x.stroke(); }
+  for (let gy = 14; gy < 515; gy += 28) { x.beginPath(); x.moveTo(555, gy); x.lineTo(1235, gy); x.stroke(); }
+
+  // Perspective vanishing rays from center toward top-right loupe (exact c-bus tunnel rays!)
+  x.save();
+  x.strokeStyle = 'rgba(29, 112, 184, 0.25)'; x.lineWidth = 1.5;
+  for (let k = -4; k <= 4; k++) {
+    x.beginPath(); x.moveTo(rcx, rcy); x.lineTo(1235, 70 + k * 22); x.stroke();
+  }
+  x.restore();
+
+  // 6 Concentric Multiplane Rings (Z1..Z6)
+  PLANE_Z.forEach((zVal, pi) => {
+    const rad = 38 + pi * 33;
+    x.strokeStyle = PLANE_CSS[pi];
+    x.lineWidth = (activeCut && activeCut.plane === pi) ? 4.5 : 2.5;
+    x.beginPath(); x.arc(rcx, rcy, rad, 0, TAU); x.stroke();
+  });
+
+  // Red Vertical Timecode / Optical Axis Line (00:57:00)
+  x.strokeStyle = '#e0483a'; x.lineWidth = 3;
+  x.beginPath(); x.moveTo(rcx, 22); x.lineTo(rcx, 512); x.stroke();
+  x.fillStyle = '#e0483a'; x.fillRect(rcx - 54, 14, 108, 30);
+  x.fillStyle = '#ffffff'; x.font = '900 17px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
+  x.fillText('Z1..Z6 TUBE', rcx, 35);
+
+  // Draw Curved Arc Cells & SC-0XX Callout Boxes for each Segmented Cutout on its Ring!
+  DOC.cutouts.forEach((c, idx) => {
+    const pi = clamp(c.plane || 0, 0, 5);
+    const rad = 38 + pi * 33;
+    const aCenter = Math.PI / 2 - c.a; // map 3D azimuth to radar canvas angle
+    const arcSpan = 0.36;
+    const isSel = idx === S.castIdx;
+
+    // Curved storyboard cell arc
+    x.strokeStyle = PLANE_CSS[pi];
+    x.lineWidth = isSel ? 18 : 12;
+    x.beginPath(); x.arc(rcx, rcy, rad, aCenter - arcSpan, aCenter + arcSpan); x.stroke();
+
+    // Callout Box SC-0XX
+    const bx = rcx + Math.sin(c.a) * rad, by = rcy + Math.cos(c.a) * rad;
+    const scTxt = 'SC-' + String(c.clip + 1).padStart(3, '0');
+    x.fillStyle = isSel ? '#111111' : '#ffffff';
+    x.fillRect(bx - 38, by - 14, 76, 28);
+    x.strokeStyle = '#111111'; x.lineWidth = 2.5;
+    x.strokeRect(bx - 38, by - 14, 76, 28);
+    x.fillStyle = isSel ? '#ffffff' : '#111111';
+    x.font = '900 16px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
+    x.fillText(scTxt, bx, by + 6);
+  });
+
+  // Bottom Bound Verb Bar inside Zone 2 (y: 524..598): MOVE | TRIM | ROLL | LIFT | SPLIT | ROUTE | STORE
+  const verbs = [
+    ['MOVE', '#2b9348'], ['TRIM', '#2a9d8f'], ['ROLL', '#1d70b8'],
+    ['LIFT', '#1d70b8'], ['SPLIT', '#2b9348'], ['ROUTE', '#e85d04'], ['STORE', '#e85d04']
+  ];
+  const vw2 = 94;
+  verbs.forEach(([vb, vcol], vi) => {
+    const vx2 = 562 + vi * (vw2 + 2), vy2 = 528, vh2 = 68;
+    const hot = vi === S.lastRing;
+    x.fillStyle = hot ? vcol : '#ffffff';
+    x.fillRect(vx2, vy2, vw2, vh2);
+    x.strokeStyle = '#111111'; x.lineWidth = 3; x.strokeRect(vx2, vy2, vw2, vh2);
+    x.fillStyle = hot ? '#ffffff' : vcol;
+    x.font = '900 20px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
+    x.fillText(vb, vx2 + vw2 / 2, vy2 + 42);
+  });
+
+  // =========================================================================
+  // ZONE 3 (x: 1240..1830): SCION CRITIC, TUFTE SPARKLINES, SPECTRUM & QR
+  // =========================================================================
+  x.strokeStyle = '#111111'; x.lineWidth = 4;
+  x.beginPath(); x.moveTo(1830, 0); x.lineTo(1830, H); x.stroke();
+
+  const z3x = 1254, z3w = 562;
+  const ev = typeof evaluateScionMemory === 'function' ? evaluateScionMemory() : { total: 92, messScore: 18, depthScore: 22, lightScore: 19, traceScore: 18, breathScore: 15, verdict: 'BAR MET', primaryGap: 'Ready' };
+
+  // Top Chapter & Lineage Header (Click to cycle 12 Tizita Birthdays)
+  x.fillStyle = '#111111'; x.fillRect(z3x, 14, z3w, 84);
+  x.fillStyle = '#e85d04'; x.fillRect(z3x, 14, 14, 84);
+  x.textAlign = 'left'; x.font = '900 22px "IBM Plex Mono", Menlo, monospace'; x.fillStyle = '#ffffff';
+  x.fillText(ch.title.slice(0, 34), z3x + 26, 48);
+  x.font = '700 17px "IBM Plex Mono", Menlo, monospace'; x.fillStyle = '#f6c978';
+  const genNum = (DOC.meta && DOC.meta.generation) || 1;
+  x.fillText('GEN ' + genNum + ' · SCION ' + ev.total + '/100 (' + ev.verdict + ') [CLICK NEXT]', z3x + 26, 80);
+
+  if (S.showQrOnOled && qrCanvasCache) {
+    // Diegetic QR Code rendered directly inside Zone 3!
+    x.fillStyle = '#ffffff'; x.fillRect(z3x, 108, z3w, 490);
+    x.strokeStyle = '#111111'; x.lineWidth = 4; x.strokeRect(z3x, 108, z3w, 490);
+    x.drawImage(qrCanvasCache, z3x + 135, 124, 290, 290);
+    x.fillStyle = '#111111'; x.font = '900 26px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
+    x.fillText('ROOM CODE · ' + (PAIR.room || 'SYNC'), z3x + z3w / 2, 448);
+    x.font = '700 17px "IBM Plex Mono", Menlo, monospace'; x.fillStyle = '#444444';
+    x.fillText(PAIR.url().slice(0, 44), z3x + z3w / 2, 480);
+    x.fillStyle = '#e0483a'; x.fillText('[CLICK HERE OR PRESS PAIR KEY TO CLOSE QR]', z3x + z3w / 2, 514);
+  } else {
+    // 5 SCION Invariant Tufte Horizon Bars (y: 112..330)
+    const bars = [
+      ['MESS (UNTIDY)', ev.messScore, 20, '#e85d04'],
+      ['DEPTH (Z1..Z6)', ev.depthScore, 25, '#2a9d8f'],
+      ['LIGHT (KELVIN)', ev.lightScore, 20, '#1d70b8'],
+      ['TRACE (PIPING)', ev.traceScore, 20, '#7209b7'],
+      ['BREATH (MIST)',  ev.breathScore, 15, '#2b9348']
+    ];
+    bars.forEach(([blbl, bval, bmax, bcol], bi) => {
+      const by = 114 + bi * 42;
+      x.textAlign = 'left'; x.font = '800 18px "IBM Plex Mono", Menlo, monospace'; x.fillStyle = '#111111';
+      x.fillText(blbl, z3x + 4, by + 24);
+      const tx = z3x + 190, tw = 285, th = 24;
+      x.fillStyle = '#e4e0d5'; x.fillRect(tx, by + 4, tw, th);
+      x.fillStyle = bcol; x.fillRect(tx, by + 4, (tw * bval) / bmax, th);
+      x.strokeStyle = '#111111'; x.lineWidth = 2.5; x.strokeRect(tx, by + 4, tw, th);
+      x.textAlign = 'right'; x.fillStyle = '#111111';
+      x.fillText(bval + '/' + bmax, z3x + z3w - 4, by + 24);
+    });
+
+    // Primary Gap Diagnosis Box (Click to execute Bounded Repair)
+    x.fillStyle = '#f0ece1'; x.fillRect(z3x, 330, z3w, 72);
+    x.strokeStyle = '#111111'; x.lineWidth = 2.5; x.strokeRect(z3x, 330, z3w, 72);
+    x.textAlign = 'left'; x.font = '800 16px "IBM Plex Mono", Menlo, monospace'; x.fillStyle = '#e0483a';
+    x.fillText('CRITIC [CLICK TO REPAIR]: ' + ev.primaryGap.slice(0, 38), z3x + 10, 356);
+    x.fillStyle = '#222222'; x.font = '600 15px "IBM Plex Mono", Menlo, monospace';
+    x.fillText(ev.primaryGap.slice(38, 92) || ev.acceptance.slice(0, 54), z3x + 10, 384);
+
+    // 44-Band Tizita Audio Spectrum & Accordion Expansion Readout (y: 412..506)
+    if (mixAnalyser) { try { mixAnalyser.getByteFrequencyData(mixData); } catch (e) {} }
+    x.fillStyle = '#111111'; x.fillRect(z3x, 412, z3w, 92);
+    const nB = 40, bw3 = 11;
+    for (let b = 0; b < nB; b++) {
+      const raw = mixAnalyser ? (mixData[b] / 255) : 0;
+      const synthPulse = Math.max(0, 1 - (performance.now() - lastMotionSndT) / 280) * (0.4 + 0.35 * Math.sin(NOW * 18 + b * 0.7));
+      const amp = clamp(Math.max(raw, synthPulse, 0.1 + 0.06 * Math.sin(NOW * 4 + b * 0.4)), 0.08, 1.0);
+      const bh3 = Math.round(amp * 58);
+      x.fillStyle = b % 4 === 0 ? '#e85d04' : '#5ff0dc';
+      x.fillRect(z3x + 12 + b * (bw3 + 2.5), 494 - bh3, bw3, bh3);
+    }
+    x.fillStyle = '#ffffff'; x.font = '800 16px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'right';
+    x.fillText('ACCORDION EXP ' + Math.round(DOC.bellows * 100) + '% · k×' + (1 + DOC.bellows * 1.15).toFixed(2), z3x + z3w - 12, 434);
+
+    // 4 Diegetic Action Pads at bottom of Zone 3 (y: 514..600)
+    const acts = [['SWARM BUILD', '#2a9d8f'], ['SAVE PEAK', '#1d70b8'], ['FORK REMIX', '#7209b7'], ['+DEMO PHOTO', '#e85d04']];
+    const aw = 136;
+    acts.forEach(([albl, acol], ai) => {
+      const ax = z3x + ai * (aw + 6), ay = 516, ah = 82;
+      x.fillStyle = acol; x.fillRect(ax, ay, aw, ah);
+      x.strokeStyle = '#111111'; x.lineWidth = 3; x.strokeRect(ax, ay, aw, ah);
+      x.fillStyle = '#ffffff'; x.font = '900 18px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
+      x.fillText(albl, ax + aw / 2, ay + 48);
+    });
+  }
+
+  // =========================================================================
+  // ZONE 4 (x: 1830..2400): LIVE BOUND OPERATIONS (8-ROW BRUTALIST TABLE)
+  // =========================================================================
+  const z4x = 1830, z4w = W - z4x;
+  x.fillStyle = '#111111'; x.fillRect(z4x, 0, z4w, 58);
+  x.fillStyle = '#ffffff'; x.font = '900 25px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'left';
+  x.fillText('LIVE BOUND OPERATIONS', z4x + 20, 38);
+
+  const OP_ROWS = [
+    ['tizita', 'TIZITA', '12 BIRTHDAYS ARCHIVE — ' + (S.tizitaIdx + 1) + '/12'],
+    ['hero',   'HERO',   'CENTER PLATE / CAKE — ' + HERO_PRESETS[DOC.hero.preset].name.slice(0, 14)],
+    ['cast',   'CAST',   'MULTIPLANE CUTOUTS — ' + DOC.cutouts.length + ' ACTIVE'],
+    ['mess',   'MESS',   'UNTIDY TABLE PROPS — ' + DOC.props.length + ' ITEMS'],
+    ['etch',   'ETCH',   '3D ICING FILAMENT — ' + ETCH_PHRASES[DOC.etch.phrase]],
+    ['light',  'LIGHT',  'CHIAROSCURO & FLAME — ' + Math.round(lerp(6500, 2200, DOC.light.warm)) + 'K'],
+    ['flight', 'FLIGHT', 'ACCORDION MIST — ' + Math.round(DOC.bellows * 100) + '%'],
+    ['scion',  'SCION',  'SWARM & CRITIC GAME — ' + ev.total + ' PT']
+  ];
+
+  OP_ROWS.forEach(([code, title, desc], ri) => {
+    const ry = 58 + ri * 60, rh = 60;
+    const isAct = S.mode === title;
+    x.fillStyle = isAct ? '#111111' : '#faf8f2';
+    x.fillRect(z4x, ry, z4w, rh);
+    x.strokeStyle = '#111111'; x.lineWidth = 2.5;
+    x.beginPath(); x.moveTo(z4x, ry + rh); x.lineTo(W, ry + rh); x.stroke();
+
+    x.font = '900 20px "IBM Plex Mono", Menlo, monospace';
+    x.fillStyle = isAct ? '#5ff0dc' : '#111111';
+    x.textAlign = 'left';
+    x.fillText(code, z4x + 16, ry + 28);
+
+    x.font = '800 18px "IBM Plex Mono", Menlo, monospace';
+    x.fillStyle = isAct ? '#ffffff' : '#111111';
+    x.fillText(title, z4x + 112, ry + 24);
+
+    x.font = '600 15px "IBM Plex Mono", Menlo, monospace';
+    x.fillStyle = isAct ? '#d4ece8' : '#555555';
+    x.fillText(desc.slice(0, 34), z4x + 112, ry + 48);
+  });
+
+  // Bottom Import / Export Row (y: 538..620)
+  x.fillStyle = '#e85d04'; x.fillRect(z4x + 8, 544, 272, 64);
+  x.strokeStyle = '#111111'; x.lineWidth = 3; x.strokeRect(z4x + 8, 544, 272, 64);
+  x.fillStyle = '#ffffff'; x.font = '900 20px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
+  x.fillText('IMP · LOAD MEDIA', z4x + 144, 583);
+
+  x.fillStyle = '#111111'; x.fillRect(z4x + 288, 544, 272, 64);
+  x.strokeStyle = '#111111'; x.lineWidth = 3; x.strokeRect(z4x + 288, 544, 272, 64);
+  x.fillStyle = '#5ff0dc'; x.font = '900 20px "IBM Plex Mono", Menlo, monospace';
+  x.fillText('OUT · SHARE JSON', z4x + 424, 583);
+
   oledTex.needsUpdate = true;
 }
 
 const rt = new T.WebGLRenderTarget(16, 16); rt.texture.encoding = T.sRGBEncoding;
 const grade = new T.ShaderMaterial({
-  uniforms: { tC: { value: rt.texture }, gt: { value: 0 } }, depthTest: false, depthWrite: false,
+  uniforms: { tC: { value: rt.texture }, gt: { value: 0 }, uPaper: { value: 0 } }, depthTest: false, depthWrite: false,
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }',
-  fragmentShader: `uniform sampler2D tC; uniform float gt; varying vec2 vUv; void main(){
-    vec3 c = texture2D(tC, vUv).rgb; vec2 q = vUv - .5; c *= 1. - dot(q, q) * 0.95;
-    float l = dot(c, vec3(.299, .587, .114)); c = mix(vec3(l), c, .88);
-    c = vec3(.028, .036, .032) + c * vec3(.98, 1., .96); c = c / (c + .72) * 1.62;
-    c += (fract(sin(dot(vUv * vec2(1913., 2711.) + gt, vec2(12.9898, 78.233))) * 43758.5453) - .5) * .025;
+  fragmentShader: `uniform sampler2D tC; uniform float gt, uPaper; varying vec2 vUv; void main(){
+    vec3 c = texture2D(tC, vUv).rgb;
+    if (uPaper > 0.5) { gl_FragColor = vec4(c, 1.); return; }
+    vec2 q = vUv - .5; c *= 1. - dot(q, q) * 0.85;
+    float l = dot(c, vec3(.299, .587, .114)); c = mix(vec3(l), c, .90);
+    c = vec3(.024, .032, .028) + c * vec3(.98, 1., .96); c = c / (c + .70) * 1.60;
     gl_FragColor = vec4(c, 1.); }`
 });
 const gQ = new T.Scene(), gC = new T.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -2123,12 +2368,12 @@ addEventListener('resize', resize);
 
 function update(dt) {
   NOW += dt; MU.uTime.value = NOW;
+  grade.uniforms.uPaper.value = S.paperMode ? 1.0 : 0.0;
   if (dirty.hero) { buildHero(); dirty.hero = false; }
   if (dirty.table) { buildTable(); dirty.table = false; }
   if (dirty.props) { buildProps(); dirty.props = false; }
   if (dirty.etch) { buildEtch(); dirty.etch = false; }
 
-  // Rotate Bench cake turntable sprite based on camera yaw
   if (benchHeroSprite && benchHeroSprite.tex) {
     const normYaw = (((CAM.yaw % TAU) + TAU) % TAU) / TAU;
     const frame = Math.floor(normYaw * benchHeroSprite.frames) % benchHeroSprite.frames;
@@ -2138,10 +2383,9 @@ function update(dt) {
 
   syncCutouts(dt);
 
-  // Animate 32K mist particles when Accordion Bellows > 0
   if (DOC.bellows > 0.01) {
     const pos = mistGeo.attributes.position.array, b = DOC.bellows, curl = DOC.flight.curl || 0.35;
-    for (let i = 0; i < MIST_N; i += 4) { // step subset per frame for 60fps
+    for (let i = 0; i < MIST_N; i += 4) {
       const idx = (i + Math.floor(NOW * 60) % 4) % MIST_N;
       const s0 = mistSeed[idx * 3], sp = mistSeed[idx * 3 + 1], r0 = mistSeed[idx * 3 + 2] * (1 + b * 0.8);
       const a = s0 + NOW * sp * 0.25 * (0.3 + b);
@@ -2152,12 +2396,12 @@ function update(dt) {
     mistGeo.attributes.position.needsUpdate = true;
   }
 
-  // Lighting & candle flicker
   const Lt = DOC.light, cw = new T.Vector3(0, TOP + 0.05, 0), la = Lt.a * Math.PI / 180;
   key.position.set(cw.x + Math.sin(la) * 1.15, cw.y + Lt.h, cw.z + Math.cos(la) * 1.15);
   key.target.position.copy(cw);
   key.color.setRGB(lerp(0.72, 1, Lt.warm), lerp(0.84, 0.72, Lt.warm), lerp(1, 0.45, Lt.warm));
-  key.intensity = Lt.k;
+  key.intensity = S.paperMode ? 1.85 : Lt.k;
+  if (hemiLight) hemiLight.intensity = S.paperMode ? 0.95 : 0.22;
   keyMark.position.copy(key.position); keyMark.visible = S.mode === 'LIGHT' && !FILM;
 
   const lit = FLAMES.length;
@@ -2168,7 +2412,6 @@ function update(dt) {
     f.scale.set(0.018 * k, 0.036 * (2 - k), 1);
   });
 
-  // Camera & Accordion Flight physics
   const V = S.view;
   if (DOC.bellows > 0.68 || S.mode === 'FLIGHT') {
     V.yaw += (DOC.flight.swoop || 0.18 * DOC.bellows) * dt * 0.55;
@@ -2193,19 +2436,16 @@ function update(dt) {
   cam.lookAt(CAM.tgt);
   if (Math.abs(cam.fov - CAM.fov) > 0.01) { cam.fov = CAM.fov; cam.updateProjectionMatrix(); }
 
-  // Orb rings & button animations
   RINGS.forEach((r, i) => {
     r.ang += (r.target - r.ang) * Math.min(1, dt * 18);
     r.g.rotation.x = r.ang;
-    r.lit.material.color.setHex(i === S.lastRing ? 0x8ffff0 : DOC.bellows > 0.68 ? 0xff8a47 : i === 0 ? 0xf0b040 : 0x2fae9f);
+    r.lit.material.color.setHex(i === S.lastRing ? 0xe85d04 : PLANE_HEX[i]);
   });
   for (const bKey in BTN) {
     const b = BTN[bKey];
     if (odrag && odrag.btn === bKey) b.down = 1; else b.down = Math.max(0, b.down - dt * 6);
     b.cap.position.z = b.z0 - b.down * 0.008;
   }
-  orbPitchV += ((0.18 - ORB.rotation.x) * 42 - orbPitchV * 9) * dt;
-  ORB.rotation.x += orbPitchV * dt;
   drawDialLabels();
   if (oledDirty || Math.floor(NOW * 15) !== Math.floor((NOW - dt) * 15)) { drawOLED(); oledDirty = false; }
 }
@@ -2227,7 +2467,6 @@ function loop(now) {
   update(dt); render(); requestAnimationFrame(loop);
 }
 resize(); requestAnimationFrame(loop);
-
 
 /* =============================================================== 16. SCION ENGINE: USER ASSET IMPORTER, INDEPENDENT CRITIC & REMIX STUDIO */
 S.matteMode = 'CUTOUT';
@@ -2862,55 +3101,24 @@ function renderRemixDeck() {
 }
 
 function openScionModal() {
-  updateScionHud();
-  renderRemixDeck();
-  document.getElementById('scionModal').classList.add('show');
+  setMode(7); oledDirty = true; drawDialLabels();
 }
 function closeScionModal() {
-  document.getElementById('scionModal').classList.remove('show');
+  oledDirty = true;
 }
 
-// Wire up SCION HUD, Modal, File Input & Global Drag-and-Drop
+// Wire up hidden File Input & Global Drag-and-Drop (100% Diegetic — no floating UI!)
 const fileImp = document.getElementById('fileImporter');
-fileImp.addEventListener('change', e => { importUserFiles(e.target.files); fileImp.value = ''; });
-document.getElementById('btnImportTop').addEventListener('click', () => openScionModal());
-document.getElementById('btnRemixTop').addEventListener('click', () => openScionModal());
-document.getElementById('btnScionStudio').addEventListener('click', () => openScionModal());
-document.getElementById('scionModalClose').addEventListener('click', () => closeScionModal());
-document.getElementById('modalDropZone').addEventListener('click', () => fileImp.click());
-document.getElementById('btnSpawnDemoAsset').addEventListener('click', () => spawnDemoCustomAsset());
-
-['matteCutout', 'mattePolaroid', 'matteRaw'].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.addEventListener('click', () => {
-    S.matteMode = el.dataset.matte;
-    ['matteCutout', 'mattePolaroid', 'matteRaw'].forEach(k => document.getElementById(k).classList.toggle('hot', k === id));
-    say('PHOTO IMPORT MATTE · ' + S.matteMode);
-  });
-});
-
-document.getElementById('btnScionRepair').addEventListener('click', () => scionRepairPrimaryGap());
-document.getElementById('btnScionSwarm').addEventListener('click', () => scionSwarmAutoBuild());
-document.getElementById('btnScionPeak').addEventListener('click', () => {
-  if (!S.peakDoc || evaluateScionMemory().total >= S.peakScore) savePeakCheckpoint();
-  else restorePeakCheckpoint();
-});
-document.getElementById('btnModalRepair').addEventListener('click', () => scionRepairPrimaryGap());
-document.getElementById('btnModalSwarm').addEventListener('click', () => scionSwarmAutoBuild());
-document.getElementById('btnModalSavePeak').addEventListener('click', () => savePeakCheckpoint());
-document.getElementById('btnModalRestorePeak').addEventListener('click', () => restorePeakCheckpoint());
-document.getElementById('btnSaveLocalBday').addEventListener('click', () => saveToLocalRemixDeck());
-document.getElementById('btnCopyShareUrl').addEventListener('click', () => copyBirthdayShareLink());
-document.getElementById('btnExportCartridge').addEventListener('click', () => exportBirthdayCartridge());
+if (fileImp) fileImp.addEventListener('change', e => { importUserFiles(e.target.files); fileImp.value = ''; });
 
 // Global Drag-and-Drop Media & Cartridge handler
 let dragDepth = 0;
-addEventListener('dragenter', e => { e.preventDefault(); dragDepth++; document.getElementById('dropBanner').classList.add('show'); });
+addEventListener('dragenter', e => { e.preventDefault(); dragDepth++; say('DROP MEDIA FILE TO IMPORT INTO CHAMBER'); });
 addEventListener('dragover', e => { e.preventDefault(); });
-addEventListener('dragleave', e => { e.preventDefault(); dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) document.getElementById('dropBanner').classList.remove('show'); });
+addEventListener('dragleave', e => { e.preventDefault(); dragDepth = Math.max(0, dragDepth - 1); });
 addEventListener('drop', e => {
   e.preventDefault(); dragDepth = 0;
-  document.getElementById('dropBanner').classList.remove('show');
+  
   if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
     importUserFiles(e.dataTransfer.files);
   }
@@ -2922,7 +3130,7 @@ setTimeout(() => { updateScionHud(); }, 120);
 
 window.CINEOSIS = window.CINEOSI = {
   S, get DOC() { return DOC; }, setMode, setBellows, loadTizitaChapter, cycleAudioMix, cycleMonitorClip, motionNote,
-  turn, scrub, press, viewBy, setView, rings,
+  turn, scrub, press, viewBy, setView, toggleStageViewMode, handleOledClick, rings,
   evaluateScionMemory, scionRepairPrimaryGap, scionSwarmAutoBuild, savePeakCheckpoint, restorePeakCheckpoint,
   spawnDemoCustomAsset, importUserFiles, forkBirthdayFromChapter, serializeBirthdayCartridge, importBirthdayCartridge, copyBirthdayShareLink, openScionModal, closeScionModal,
   TIZITA_CHAPTERS, AUDIO_MIXES, MONITOR_CLIPS, HERO_PRESETS, CUTOUT_CLIPS, PROP_KINDS, PLANE_NAMES, PAIR,
