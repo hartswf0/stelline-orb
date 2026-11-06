@@ -73,7 +73,8 @@ function score(T) { let s = 0, fails = 0, worst = 0, wk = ''; for (const k in T)
 
 async function evalGenome(page, g, film, keep) {
   const res = {}; let all = {};
-  for (const s of ['A', 'B']) { const r = await page.evaluate(([s, g, d]) => { LOOKTEST.frame(s, g); return LOOKTEST.measure(s, d); }, [s, g, REGIONS[s]]); res[s] = r; Object.assign(all, terms(r, film[s], s)); }
+  try { for (const s of ['A', 'B']) { const r = await page.evaluate(([s, g, d]) => { LOOKTEST.frame(s, g); return LOOKTEST.measure(s, d); }, [s, g, REGIONS[s]]); res[s] = r; Object.assign(all, terms(r, film[s], s)); } }
+  catch (e) { console.error('eval failed', e.message.slice(0, 200)); return { score: 1e9, fails: 99, worst: 99, worstKey: 'error', terms: {} }; }
   const sc = score(all); return Object.assign(sc, { terms: all, raw: keep ? res : undefined });
 }
 
