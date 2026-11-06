@@ -10,11 +10,10 @@
   #gl{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
   #ret,#menu{display:none}
   #ov{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;mix-blend-mode:screen}
-  #ov text{font:500 8.5px "Barlow Semi Condensed","DIN Alternate",Arial,sans-serif;letter-spacing:.1em;fill:#fff}
-  #ov .a{fill:none;stroke:#fff;stroke-width:1.4;opacity:.45}#ov .sel .a{opacity:1;stroke-width:2.6}
+  #ov text{font:500 7.5px "Barlow Semi Condensed","DIN Alternate",Arial,sans-serif;letter-spacing:.1em;fill:#fff}
+  #ov .a{fill:none;stroke:#fff;stroke-width:1.6;opacity:.4}#ov .sel .a{opacity:.95;stroke-width:4.5;stroke-dasharray:16 3}
   #ov .n{stroke:#fff;stroke-width:1.2;opacity:.8}
-  #state{position:fixed;left:16px;bottom:14px;opacity:.85;pointer-events:none;line-height:1.7}
-  #hint{position:fixed;right:16px;bottom:14px;opacity:.5;pointer-events:none;text-align:right;line-height:1.7}
+  #state,#hint{position:fixed;bottom:14px;opacity:.7;pointer-events:none;line-height:1.7;display:none}#state{left:16px}#hint{right:16px;text-align:right}body.help #state,body.help #hint{display:block}
 </style>
 </head>
 <body>
@@ -32,23 +31,27 @@
   var ST = window.STAGE, T = ST.T, N = ST.nodes, C = ST.C, clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
   var TE = 5.5, TEND = 7.4, PAUSE = TE - .7;                      // the flame goes out at TE; Ana stops the party just before the breath
   var VARIANTS = [
-    { name: 'LOW', t: { r: 1.7, h: .5 }, drip: .3, gloss: .5, shells: 52, candles: 5, ch: .32, ring: .62, lean: 0 },
-    { name: 'TALL CANDLES', t: { r: 1.25, h: .75 }, drip: .5, gloss: .5, shells: 38, candles: 5, ch: 1.2, ring: .5, lean: 0 },
-    { name: 'HOMEMADE', t: { r: 1.45, h: .8 }, drip: .95, gloss: .1, shells: 22, candles: 4, ch: .62, ring: .6, lean: 1 }
+    { name: 'LOW', t: { r: 1.55, h: .62 }, drip: .3, gloss: .5, shells: 52, candles: 5, ch: .3, ring: .6, lean: 0 },
+    { name: 'TALL CANDLES', t: { r: 1.25, h: 1.0 }, drip: .5, gloss: .5, shells: 38, candles: 5, ch: 1.1, ring: .5, lean: 0 },
+    { name: 'HOMEMADE', t: { r: 1.4, h: .95 }, drip: .95, gloss: .1, shells: 22, candles: 4, ch: .55, ring: .6, lean: 1 }
   ];
-  var PERF = [   // each child: a cut-out played from her clip; key = the moment of her performance that matters; delay = how late it lands against the shared event
-    { id: 'A', name: 'BIRTHDAY GIRL', clip: 'girl_a', key: 5.5, keyName: 'BREATH OUT', delay: 0, x: 0, z: -1.7, hh: 2.7, face: .3 },
-    { id: 'C', name: 'GUEST', clip: 'boy_c', key: .6, keyName: 'SMILE', delay: 3.4, x: -2.2, z: -1.5, hh: 2.3, face: .3 }
+  var PERF = [   // the children, cut out of the film's own wide shot (213-216 s). Two carry a timing arc; the rest simply hold their place around the cake.
+    { id: 'A', name: 'BIRTHDAY GIRL', clip: 'wide_a', key: 1.6, keyName: 'BREATH OUT', delay: 0, x: .1, z: -1.9, hh: 2.2, face: .33, arc: true },
+    { id: 'C', name: 'GIRL AT RIGHT', clip: 'wide_c', key: 1.7, keyName: 'GLANCE', delay: -.3, x: 1.75, z: -1.7, hh: 2.1, face: .33, arc: true },
+    { id: 'B', name: 'LEFT', clip: 'wide_b', key: 0, keyName: '', delay: 0, x: -1.95, z: -1.5, hh: 2.0, face: .33 },
+    { id: 'D', name: 'BOY', clip: 'wide_d', key: 0, keyName: '', delay: 0, x: 2.45, z: -.5, hh: 1.5, face: .33 },
+    { id: 'E', name: 'BACK', clip: 'wide_e', key: 0, keyName: '', delay: 0, x: -.95, z: -2.5, hh: 2.0, face: .33 }
   ];
   var v = 0, ins = 0, tilt = 0, autoIns = 0, view = 'ana', held = true, t = PAUSE, sel = 'ver', clips = {}, imgs = {}, cards = {}, start0 = null;
   /* the cards: cut-outs standing in the room */
   PERF.forEach(function (p) { var cv = document.createElement('canvas'), tex = new T.CanvasTexture(cv); tex.encoding = T.sRGBEncoding; var m = new T.MeshBasicMaterial({ map: tex, alphaTest: .4, side: T.DoubleSide, color: 0x100a05 }), mesh = new T.Mesh(new T.PlaneGeometry(1, 1), m); mesh.visible = false; ST.SETA.add(mesh); cards[p.id] = { cv: cv, g: cv.getContext('2d'), tex: tex, mat: m, mesh: mesh }; });
-  fetch('assets/girls/boys.json').then(function (r) { return r.json(); }).then(function (j) { var need = j.clips.length, done = 0; j.clips.forEach(function (c) { clips[c.id] = c; var i = new Image(); i.onload = function () { if (++done === need) go(); }; i.src = 'assets/girls/' + c.id + '.webp'; imgs[c.id] = i; }); });
+  fetch('assets/wide/boys.json').then(function (r) { return r.json(); }).then(function (j) { var need = j.clips.length, done = 0; j.clips.forEach(function (c) { clips[c.id] = c; var i = new Image(); i.onload = function () { if (++done === need) go(); }; i.src = 'assets/wide/' + c.id + '.webp'; imgs[c.id] = i; }); });
   /* the cake: built once, then swapped in place */
   function cake() {
     var g = 0; while (ST.S.history.length && g++ < 40) ST.undo(); var V = VARIANTS[v];
-    N.tier1.p = { r: V.t.r, h: V.t.h }; N.icing.p = { t: .06, drip: V.drip, gloss: V.gloss }; N.border.p = { size: .11, count: V.shells }; N.candles.p = { n: 0, h: V.ch, ring: V.ring, rot: .4 };
+    N.tier1.p = { r: V.t.r, h: V.t.h }; N.icing.p = { t: .06, drip: V.drip, gloss: V.gloss }; N.border.p = { size: .11, count: V.shells }; N.candles.p = { n: 0, h: V.ch, ring: V.ring, rot: .4, rad: .022 };
     ['table', 'tier', 'icing', 'border'].forEach(function (s) { ST.place(s); }); for (var i = 0; i < V.candles; i++) ST.place('candle'); ST.place('flame');
+    N.tier1.body.material = dotMat; N.table.obj.material = goldMat; N.candles.p.rad = .022; N.flames.p = { s: .5, f: .9, lt: 1 };
     ST.instant(); if (V.lean) N.tier1.obj.scale.set(1.1, 1, .92); inscribe(); orient();
     if (t >= TE) N.flames.exists = false;
   }
@@ -61,6 +64,8 @@
     [[[1.8, 5.6], [1.0, 4.2]], [[1.0, 4.2], [3.4, 4.2], [3.2, 3.4]], [[2.2, 4.2], [2.2, 0.6], [1.6, 0.2]], [[1.2, 2.6], [0.6, 1.8]], [[3.2, 2.6], [3.8, 1.8]]]
   ];
   var FLOUR = [[0.2, -0.8], [3, -1.3], [6.5, -0.6], [10, -1.2], [14, -0.7], [18, -1.0]];
+  var dotTex = (function () { var c = document.createElement('canvas'); c.width = 256; c.height = 128; var g = c.getContext('2d'); g.fillStyle = '#e9dfc4'; g.fillRect(0, 0, 256, 128); for (var y = 0; y < 5; y++) for (var x = 0; x < 12; x++) { var cx = x * 22 + (y % 2) * 11 + 8, cy = y * 26 + 14; g.fillStyle = 'rgba(40,24,14,.85)'; g.beginPath(); g.arc(cx, cy, 4.2, 0, 7); g.fill(); } var t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(2, 1); return t; })();
+  var dotMat = new T.MeshStandardMaterial({ map: dotTex, roughness: .75 }), goldMat = new T.MeshStandardMaterial({ color: 0xd9a63c, emissive: 0x2a1805, roughness: .6 });
   var insG = null, insMat = new T.MeshStandardMaterial({ color: 0xc8301e, roughness: .32 });
   function inscribe() {
     if (insG) { ST.cakeG.remove(insG); insG.traverse(function (o) { if (o.geometry) o.geometry.dispose(); }); insG = null; } if (ins <= 0) return;
@@ -74,9 +79,9 @@
   /* orientation: the cake turns in the air about its middle, the lettering and the candles with it; the table and the room stay */
   function orient() { var th = tilt * Math.PI / 180, py = (N.tier1.exists ? N.tier1.p.h * .5 : .4) + .09; ST.cakeG.rotation.z = th; ST.cakeG.position.set(py * Math.sin(th), py * (1 - Math.cos(th)) + (tilt ? .25 * Math.sin(th) : 0), 0); }
   function setView(w) {
-    view = w; if (w === 'ana') Object.assign(C, { yaw: 0, pitch: 7, roll: 0, D: 9.4, ty: 1.6, tx: 0, tz: 0, focal: 42, stop: 2.8 });
+    view = w; if (w === 'ana') Object.assign(C, { yaw: 0, pitch: 5, roll: 0, D: 10.2, ty: 1.35, tx: 0, tz: 0, focal: 50, stop: 2.2 });
     else Object.assign(C, { yaw: 180, pitch: -3, roll: 0, D: 4.9, ty: 1.35, tx: 0, tz: 2.0, focal: 30, stop: 2.8 });
-    C.foff = view === 'ana' ? 1.7 : -2.0; C.iy = C.ip = C.ir = 0;
+    C.foff = view === 'ana' ? 0 : -2.0; C.iy = C.ip = C.ir = 0;
   }
   /* world points to the screen */
   var _v = new T.Vector3(); function scr(x, y, z) { _v.set(x, y, z); ST.SETA.localToWorld(_v); _v.project(ST.cam); return [(_v.x * .5 + .5) * innerWidth, (-_v.y * .5 + .5) * innerHeight]; }
@@ -87,23 +92,23 @@
   function draw() {
     while (ov.firstChild) ov.removeChild(ov.firstChild);
     // the cake's arc: it stays beside the cake while the cake is worked on. Its inner tick reads whichever property the orb is on: version, surface, orientation.
-    var ti = ST.topInfo(), ca = scr(1.9, ti.y + 1.5, 0.2), g = el('g', { 'class': (sel === 'ver' || sel === 'ins' || sel === 'tilt') ? 'sel' : '' }); ov.appendChild(g);
+    var ti = ST.topInfo(), ca = scr(2.9, ti.y + 2.4, 0.2), g = el('g', { 'class': (sel === 'ver' || sel === 'ins' || sel === 'tilt') ? 'sel' : '' }); ov.appendChild(g);
     var R = 86, a0 = -150, a1 = -30, mode = sel === 'ins' ? 'ins' : sel === 'tilt' ? 'tilt' : 'ver', cy2 = ca[1] + R * .6, pos = function (u, r) { var a = (a0 + (a1 - a0) * u) * Math.PI / 180; return [ca[0] + Math.cos(a) * r, cy2 + Math.sin(a) * r, a]; };
     g.appendChild(el('path', { d: arcPath(ca[0], cy2, R, a0, a1), 'class': 'a' })); g.appendChild(el('path', { d: arcPath(ca[0], cy2, R - 9, a0, a1), 'class': 'a', opacity: .25 }));
     var marks = mode === 'ver' ? VARIANTS.map(function (V, i) { return [i / 2, V.name]; }) : mode === 'ins' ? [[.0, ''], ['生日快乐'.length ? .22 : 0, '生'], [.44, '日'], [.66, '快'], [.82, '乐'], [1, '~']] : [[0, '0'], [.5, '30'], [1, '60']];
     marks.forEach(function (m, i) { var p = pos(m[0], R), q = pos(m[0], R + 9); g.appendChild(el('line', { x1: p[0], y1: p[1], x2: q[0], y2: q[1], 'class': 'n' })); if (m[1]) g.appendChild(el('text', { x: q[0] + Math.cos(q[2]) * 4, y: q[1] - 4, 'text-anchor': m[0] < .2 ? 'end' : m[0] > .8 ? 'start' : 'middle', opacity: .6 }, m[1])); });
     var u = mode === 'ver' ? v / 2 : mode === 'ins' ? ins : tilt / 60, tp = pos(u, R), ti2 = pos(u, R - 9); g.appendChild(el('circle', { cx: tp[0], cy: tp[1], r: 4.5, fill: '#fff' })); g.appendChild(el('line', { x1: tp[0], y1: tp[1], x2: ti2[0], y2: ti2[1], stroke: '#fff', 'stroke-width': 2 }));
-    var label = mode === 'ver' ? 'CAKE · VERSION · ' + VARIANTS[v].name : mode === 'ins' ? 'CAKE · SURFACE · 生日快乐 ' + Math.round(ins * 100) + '%' : 'CAKE · ORIENTATION · ' + Math.round(tilt) + '°';
-    g.appendChild(el('text', { x: ca[0], y: cy2 + 20, 'text-anchor': 'middle', opacity: .95 }, label)); g.appendChild(el('text', { x: ca[0], y: cy2 + 33, 'text-anchor': 'middle', opacity: .75 }, 'EYES CLEAR ' + Math.round(lastClear) + '%'));
+    var label = mode === 'ver' ? VARIANTS[v].name : mode === 'ins' ? '生日快乐 ' + Math.round(ins * 100) + '%' : Math.round(tilt) + '°';
+    g.appendChild(el('text', { x: ca[0], y: cy2 + 20, 'text-anchor': 'middle', opacity: .95 }, label)); 
     // the arc over each child: when she reacts, against when the flame goes out
     PERF.forEach(function (p) {
-      var cd = cards[p.id]; if (!cd.mesh.visible) return; var top = scr(p.x + .2, .62 + p.hh + .15, p.z), W2 = 70, g2 = el('g', { 'class': sel === p.id ? 'sel' : '' }); ov.appendChild(g2);
+      var cd = cards[p.id]; if (!p.arc || !cd.mesh.visible) return; var top = scr(p.x + .2, .62 + p.hh + .35, p.z), W2 = 70, g2 = el('g', { 'class': sel === p.id ? 'sel' : '' }); ov.appendChild(g2);
       var xs = function (tt) { return top[0] - W2 + 2 * W2 * clamp(tt / TEND, 0, 1); }, ys = function (tt) { var u = clamp(tt / TEND, 0, 1); return top[1] - 22 * Math.sin(u * Math.PI); };
       var d = ''; for (var i = 0; i <= 20; i++) d += (i ? 'L' : 'M') + xs(i / 20 * TEND).toFixed(1) + ' ' + ys(i / 20 * TEND).toFixed(1); g2.appendChild(el('path', { d: d, 'class': 'a' }));
-      g2.appendChild(el('line', { x1: xs(TE), y1: ys(TE) - 9, x2: xs(TE), y2: ys(TE) + 9, 'class': 'n', stroke: '#fff' })); g2.appendChild(el('text', { x: xs(TE), y: ys(TE) - 13, 'text-anchor': 'middle', opacity: .7 }, 'FLAME OUT'));
+      g2.appendChild(el('line', { x1: xs(TE), y1: ys(TE) - 9, x2: xs(TE), y2: ys(TE) + 9, 'class': 'n', stroke: '#fff' })); g2.appendChild(el('text', { x: xs(TE), y: ys(TE) - 13, 'text-anchor': 'middle', opacity: .7 }, 'OUT'));
       var kt = p.key + p.delay; g2.appendChild(el('path', { d: 'M' + xs(kt) + ' ' + (ys(kt) - 7) + 'l5 7l-5 7l-5 -7z', fill: '#fff' }));
       g2.appendChild(el('circle', { cx: xs(t), cy: ys(t), r: 3, fill: 'none', stroke: '#fff', 'stroke-width': 1.6 }));
-      var dd = kt - TE; g2.appendChild(el('text', { x: top[0], y: top[1] + 22, 'text-anchor': 'middle', opacity: .9 }, p.name + ' · ' + p.keyName + (Math.abs(dd) < .05 ? ' ON THE FLAME' : ' ' + Math.abs(dd).toFixed(1) + ' S ' + (dd < 0 ? 'BEFORE' : 'AFTER') + ' THE FLAME')));
+      var dd = kt - TE; g2.appendChild(el('text', { x: top[0], y: top[1] + 22, 'text-anchor': 'middle', opacity: .9 }, p.keyName + (Math.abs(dd) < .05 ? ' ON' : ' ' + (dd < 0 ? '−' : '+') + Math.abs(dd).toFixed(1) + ' S')));
     });
   }
   /* does a candle cross the birthday girl's eyes, from where the camera is? */
@@ -121,7 +126,7 @@
       if (autoIns) { ins = Math.min(1, ins + dt / 4); inscribe(); if (ins >= 1) autoIns = 0; }
       // the shared event: the flame goes out
       var out = t >= TE; if (N.flames.exists === out) { N.flames.exists = !out; if (!out) N.flames.lit = 1; }
-      PERF.forEach(function (p) { var cd = cards[p.id], c = clips[p.clip], im = imgs[p.clip]; if (!c || !im.naturalWidth) return; var ct = clamp(t - p.delay, 0, c.n / c.fps - .01), k = clamp(Math.floor(ct * c.fps), 0, c.n - 1);
+      PERF.forEach(function (p) { var cd = cards[p.id], c = clips[p.clip], im = imgs[p.clip]; if (!c || !im.naturalWidth) return; var ct = clamp(t - PAUSE + .9 - p.delay, 0, c.n / c.fps - .01), k = clamp(Math.floor(ct * c.fps), 0, c.n - 1);
         if (cd.cv.width !== c.w) { cd.cv.width = c.w; cd.cv.height = c.h; } cd.g.clearRect(0, 0, c.w, c.h); cd.g.drawImage(im, (k % c.cols) * c.w, Math.floor(k / c.cols) * c.h, c.w, c.h, 0, 0, c.w, c.h); cd.tex.needsUpdate = true;
         var hh = p.hh, ww = hh * c.w / c.h; cd.mesh.scale.set(ww, hh, 1); cd.mesh.position.set(p.x, .62 + hh / 2, p.z); cd.mesh.visible = !(view === 'seat' && p.id === 'A');
         var ki = ST.keyLight.intensity, f = .08 + clamp(ki / 5, 0, 1.2) * .9; cd.mat.color.setRGB(f, f * .82, f * .6); });
@@ -136,7 +141,7 @@
     else if (sel === 'tilt') { tilt = clamp(tilt + d * 3, 0, 60); orient(); }
     else { var p = PERF.filter(function (q) { return q.id === sel; })[0]; p.delay = clamp(p.delay + d * .1, -1, 7); }
   }
-  addEventListener('keydown', function (e) { var k = e.key; if (k === ']' || k === 'ArrowRight') roll(1); else if (k === '[' || k === 'ArrowLeft') roll(-1); else if (k === 'Tab') { e.preventDefault(); var ids = ['ver', 'ins', 'tilt'].concat(PERF.map(function (p) { return p.id; })); sel = ids[(ids.indexOf(sel) + 1) % ids.length]; } else if (k === ' ') { e.preventDefault(); held = !held; if (!held && t >= TEND - .01) t = PAUSE; } else if (k.toLowerCase() === 'v') setView(view === 'ana' ? 'seat' : 'ana'); else if (k.toLowerCase() === 'r') { t = PAUSE; held = true; } else if (k.toLowerCase() === 'b') { sel = 'ins'; ins = 0; autoIns = 1; } });
+  addEventListener('keydown', function (e) { var k = e.key; if (k === ']' || k === 'ArrowRight') roll(1); else if (k === '[' || k === 'ArrowLeft') roll(-1); else if (k === 'Tab') { e.preventDefault(); var ids = ['ver', 'ins', 'tilt'].concat(PERF.map(function (p) { return p.id; })); sel = ids[(ids.indexOf(sel) + 1) % ids.length]; } else if (k === ' ') { e.preventDefault(); held = !held; if (!held && t >= TEND - .01) t = PAUSE; } else if (k.toLowerCase() === 'v') setView(view === 'ana' ? 'seat' : 'ana'); else if (k.toLowerCase() === 'r') { t = PAUSE; held = true; } else if (k.toLowerCase() === 'b') { sel = 'ins'; ins = 0; autoIns = 1; } else if (k === '?' || k === '/') document.body.classList.toggle('help'); });
   addEventListener('wheel', function (e) { roll(e.deltaY > 0 ? 1 : -1); }, { passive: true });
   var sx = null; document.getElementById('gl').addEventListener('pointerdown', function (e) { sx = e.clientX; }); addEventListener('pointermove', function (e) { if (sx == null) return; if (Math.abs(e.clientX - sx) > 36) { roll(e.clientX > sx ? 1 : -1); sx = e.clientX; } }); addEventListener('pointerup', function () { sx = null; });
   window.__arcs = { roll: roll, sel: function (s) { sel = s; }, ins: function (x) { ins = x; inscribe(); }, tilt: function (x) { tilt = x; orient(); }, view: setView, hold: function (h) { held = h; }, t: function (x) { t = x; }, state: function () { return { v: v, ins: ins, tilt: tilt, t: t, clear: lastClear, delay: PERF.map(function (p) { return p.delay; }) }; } };

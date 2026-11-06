@@ -158,7 +158,7 @@
     for (let k = 0; k < p.n; k++) {
       const a = (p.n === 1 ? 0 : k / p.n * Math.PI * 2) + p.rot, rr = p.n === 1 ? 0 : ti.r * p.ring;
       const c = new T.Group(); c.position.set(Math.cos(a) * rr, ti.y, Math.sin(a) * rr);
-      const cyl = new T.Mesh(new T.CylinderGeometry(.04, .04, p.h, 14), M.candle); cyl.position.y = p.h / 2; cyl.castShadow = true; c.add(cyl);
+      const cr = p.rad || .04, cyl = new T.Mesh(new T.CylinderGeometry(cr, cr, p.h, 14), M.candle); cyl.position.y = p.h / 2; cyl.castShadow = true; c.add(cyl);
       const wick = new T.Mesh(new T.CylinderGeometry(.006, .006, .06, 5), M.wick); wick.position.y = p.h + .03; c.add(wick);
       const fl = new T.Sprite(new T.SpriteMaterial({ map: flameTex, transparent: true, blending: T.AdditiveBlending, depthWrite: false, opacity: nodes.flames.exists ? 1 : 0 })); fl.scale.set(.22, .44, 1); fl.position.y = p.h + .22; c.add(fl); fl.userData.k = k;
       const gl = new T.Sprite(new T.SpriteMaterial({ map: glowTex, transparent: true, blending: T.AdditiveBlending, depthWrite: false, opacity: nodes.flames.exists ? .9 : 0 })); gl.scale.set(.8, .8, 1); gl.position.y = p.h + .2; c.add(gl);
@@ -200,7 +200,7 @@
   const tex = src => texCache[src] || (texCache[src] = (() => { const t = loader.load(src); t.encoding = T.sRGBEncoding; t.anisotropy = 4; return t; })());
   function card(src, w, h, cutoff) { const m = new T.MeshBasicMaterial({ map: tex(src), transparent: false, alphaTest: cutoff || .4, side: T.DoubleSide, color: 0xffffff }); const mesh = new T.Mesh(new T.PlaneGeometry(w, h), m); return mesh; }
   function kidsBuild() { const n = nodes.kids; if (n.obj) return; const c = card('assets/bench/kids.webp', 6.6, 6.6 * 483 / 680, .35); c.position.set(0, 2.3, -2.1); SETA.add(c); n.obj = c; n.p.lit = 0; }
-  function tableBuild() { const n = nodes.table; if (n.obj) return; const m = new T.Mesh(new T.CylinderGeometry(2.45, 2.45, .09, 6), M.table); m.rotation.y = Math.PI / 6; m.position.y = .045; m.receiveShadow = true; m.castShadow = false; n.obj = m; SETA.add(m); }
+  function tableBuild() { const n = nodes.table; if (n.obj) return; const m = new T.Mesh(new T.CylinderGeometry(2.2, 2.2, .09, 6), M.table); m.rotation.y = Math.PI / 6; m.position.y = .045; m.receiveShadow = true; m.castShadow = false; n.obj = m; SETA.add(m); }
   // the forest set: the film's own plates in depth
   (function forestInit() {
     const fov = 2 * Math.atan(12 / 40), asp = 16 / 9; const sizeAt = z => { const h = 2 * Math.tan(fov / 2) * (0.4 - z) * 1.0; return [h * asp, h]; };
