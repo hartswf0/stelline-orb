@@ -45,7 +45,7 @@
       case 'make': return orb.do(long ? { op: 'make', args: { to: 0 } } : { op: 'make', args: {} }, meta);
       case 'accept': return s.proposals.length ? orb.do({ op: long ? 'reject' : 'accept', args: {} }, meta) : { ok: false, error: 'no proposal waiting' };
       case 'undo': return long ? orb.seek(0) : orb.do({ op: 'undo', args: {} }, meta);
-      case 'redo': return long ? orb.seek(orb.history().length) : orb.do({ op: 'redo', args: {} }, meta);
+      case 'redo': return long ? { ok: true, ui: 'play' } : orb.do({ op: 'redo', args: {} }, meta);
       case 'keep': return orb.do({ op: 'keep', args: {} }, meta);
       case 'breed': { const n = s.library.length, a = s.cake.kind >= 0 ? s.cake.kind : (s.seq % n), b = (a + 1 + (s.seq % (n - 1 || 1))) % n;
         return orb.do({ op: 'breed', args: { a, b: b === a ? (a + 1) % n : b, seed: s.seq + 1 } }, meta); }

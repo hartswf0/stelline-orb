@@ -27,7 +27,7 @@
       while (clock >= period) { clock -= period; for (const k of b) if (stepOne(k, fast)) n++; }
       return n; }
     orb.on('change', (s, entry) => { if (entry && (entry.op === 'load' || entry.op === 'reset')) { tg = targets(s); snap(); } else onChange(s); });
-    orb.on('seek', () => { tg = targets(orb.raw()); snap(); });
+    orb.on('seek', (n, from) => { if (from != null && Math.abs(n - from) === 1) return; tg = targets(orb.raw()); snap(); });   // one step (playback, UNDO) steps; a scrub jumps
     orb.setView(s => { const v = S.clone(s); for (const k in shown) { const L = S.locate(v, k); if (L) L[0][L[1]] = shown[k]; } return v; });
     return { tick, snap, busy, shown: () => Object.assign({}, shown), RATE, FAST };
   }

@@ -32,10 +32,18 @@ const lookSrc = fs.readFileSync(path.join(HERE, '..', 'swarms', 'shared', 'look.
 const LOOK_G = JSON.parse(lookSrc.match(/const GENOME = (\{[^;]*\});/)[1]), LOOK_R = JSON.parse(lookSrc.match(/const RANGES = (\{[^;]*\});/)[1].replace(/(\w+):\[/g, '"$1":['));
 const SCENE_R = { tiltX: [-0.3, 0.7], tiltZ: [-0.5, 0.3], yaw: [-3.14, 3.14], lift: [-0.05, 0.2], cx: [-0.1, 0.1], cz: [-0.1, 0.1], scale: [0.7, 1.4],
   camX: [-0.15, 0.15], camY: [-0.15, 0.15], camZ: [-0.2, 0.2], lookX: [-0.1, 0.1], lookY: [-0.1, 0.1], fov: [0.8, 1.25],
-  tintR: [0.3, 1.6], tintG: [0.3, 1.6], tintB: [0.3, 1.6], flameW: [0.5, 2], flameH: [0.5, 2], halo: [0, 2.5], modFlame: [0, 1], room: [0, 1], bandY: [-0.3, 1.0], time: [0, 10], insLift: [0, 0.008] };
+  tintR: [0.3, 1.6], tintG: [0.3, 1.6], tintB: [0.3, 1.6], flameW: [0.5, 2], flameH: [0.5, 2], halo: [0, 2.5], modFlame: [0, 1], room: [0, 1], bandY: [-0.3, 1.0], time: [0, 10], insLift: [0, 0.008],
+  lump: [0, 0.01], lop: [-0.015, 0.015], rimW: [0.003, 0.01], dots: [10, 70], dotS: [0.003, 0.008], lean: [0, 15], flameGain: [0.6, 3], tableR: [0.25, 0.5], seed: [1, 999], lookIcing: [0, 1], metalBoard: [0, 1], modBeads: [0, 1] };
 const SCENE_A = { shot: 'A', tiltX: 0.12, tiltZ: -0.15, yaw: 0.4, lift: 0.06, cx: 0, cz: 0, scale: 1, camX: 0, camY: 0, camZ: 0, lookX: 0, lookY: 0, fov: 1,
   tintR: 1.2, tintG: 1, tintB: 0.8, flameW: 0.7, flameH: 0.8, halo: 0.4, modFlame: 0.3, room: 0.8, bandY: 0.45, time: 2, insLift: 0.003 };
 const SCENE_B = Object.assign({}, SCENE_A, { shot: 'B', tiltX: 0, tiltZ: 0, yaw: 0, lift: 0, scale: 0.9, camZ: 0.08, bandY: 0.25 });
+/* TOOL v2 (round 02): new hand-layer genes (render.html M1-M8) and the light/framing reset applied to every genome, elites included */
+const SCENE_V2 = { lump: 0.004, lop: 0.006, rimW: 0.006, dots: 34, dotS: 0.0048, lean: 7, flameGain: 1.6, tableR: 0.36, seed: 7, lookIcing: 1, metalBoard: 1, modBeads: 0 };
+const LOOK_V2 = { keySoft: 1, keyCone: 0.8, contrast: 0.9, saturation: 0.65, wbB: 1.0, ambient: 0.12, aperture: 1.4, keyIntensity: 1.2, keyHeight: 1.0, keyForward: 0.9 };
+const CAKE_V2 = { frostTop: 0.03, frostSide: 0.03 };
+const FRAME_V2 = { A: { fov: 1.12, lookY: 0.03 }, B: { lookY: 0.04, camZ: 0.12 } };
+function upgradeV2(G, r) { const o = clone(G); for (const k in SCENE_V2) if (o.scene[k] == null) o.scene[k] = SCENE_V2[k];
+  o.scene.seed = Math.round(1 + r() * 998); Object.assign(o.look, LOOK_V2); Object.assign(o.cake, CAKE_V2); Object.assign(o.scene, FRAME_V2[o.scene.shot]); o.tool = 2; return o; }
 const LOOK_SEED = { wbB: 0.95, wbR: 1.0, saturation: 0.72, flame: 2.2, halo: 0.6, tableTone: 0.22, keyIntensity: 1.6, grain: 0.04 };
 function rangeOf(part, key) { if (part === 'scene') return SCENE_R[key]; if (part === 'look') return LOOK_R[key]; const g = mods[part].genes.find(g => g[0] === key); return g && [g[2], g[3]]; }
 const INT = { 'cake.layers': 1, 'candles.count': 1 };
@@ -123,7 +131,9 @@ async function next(scoresFile) {
   if (best[0].score >= lowDecoy) { console.log('STOP: a candidate reached the lower decoy score'); return; }
   if (N >= 8) { console.log('STOP: 8 rounds'); return; }
   // select: elitist, keep top 2; 6 children biased to the named giveaways; keep both framings in the population
-  const M = N + 1, r = mulberry32(1000 + M), elite = best.slice(0, 2), kids = [];
+  const M = N + 1, r = mulberry32(1000 + M);
+  best.forEach(c => { if ((c.genome.tool || 1) < 2) c.genome = upgradeV2(c.genome, r); });
+  const elite = best.slice(0, 2), kids = [];
   const pool = best.slice(0, 4), byShot = s => best.filter(c => c.genome.scene.shot === s);
   const need = { A: 4 - elite.filter(c => c.genome.scene.shot === 'A').length, B: 4 - elite.filter(c => c.genome.scene.shot === 'B').length };
   for (const s of ['A', 'B']) { const ps = byShot(s); for (let k = 0; k < need[s]; k++) { const a = ps[Math.min(ps.length - 1, k % 2)], b = ps[Math.min(ps.length - 1, 1 + (k % 3))];
@@ -136,4 +146,4 @@ async function next(scoresFile) {
 const [cmd, arg] = process.argv.slice(2);
 (cmd === 'init' ? init() : cmd === 'next' ? next(arg) : cmd === 'write' ? (async () => { const t = loadTrace(), rd = t.rounds.find(x => x.round === +arg); await writeRound(rd.round, rd.candidates, rd.tool); })() : Promise.resolve(console.log('usage: node maker.js init | next <scores.json> | write <NN>')))
   .catch(e => { console.error(e); process.exit(1); });
-module.exports = { mutate, steer, seedGenome };
+module.exports = { mutate, steer, seedGenome, upgradeV2, mulberry32 };

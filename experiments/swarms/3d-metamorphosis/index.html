@@ -248,7 +248,7 @@ function liveTable() { const ms = TR.steps.filter(s => s.kind === 'morph'); cons
   document.getElementById('live').innerHTML = rows.map(([a, b]) => `<tr><td>${a}</td><td>${b}</td></tr>`).join(''); }
 /* =============================================================== THE SCENE: one path through the whole making, played on the same rings */
 function buildScript() { const A = []; let t = .6; const turn = (ring, n, dur) => { dur = dur || Math.max(.25, Math.abs(n) / 14); A.push([t, 'turn', ring, n, dur]); t += Math.max(dur, Math.abs(n) / 11.8) + .3; };
-  const sel = name => { A.push([t, 'sel', name]); t += .45; }, hold = (w) => { A.push([t, 'hold']); t += w || .55; };
+  const sel = name => { A.push([t, 'sel', name]); t += .4; }, hold = (w) => { A.push([t, 'hold']); t += w || .48; };
   let cur = null, pace = 1; const morph = name => { sel(name); const n = cur ? M.stepsFor(cur, name, pace) : 12; turn('knurl', n); hold(); cur = name; };
   morph('DOUGH'); morph('SPONGE'); morph('LAYERED');
   A.push([t, 'turn', 'tri', 1, .3]); t += .45; pace = 2; morph('ICED');
@@ -273,7 +273,11 @@ addEventListener('resize', resize);
 const pathEl = document.getElementById('path'), hintEl = document.getElementById('hint'); const m4 = new T.Matrix4(), q0 = new T.Quaternion(), vS = new T.Vector3();
 function updateSurface() { const s = currentSurface(), pos = geo.attributes.position.array, col = geo.attributes.color.array;
   for (let i = 0; i < NU; i++) for (let j = 0; j <= NT; j++) { const k = i * NT + (j % NT), q = i * NC + j; pos[q * 3] = s.R[k] * COS[j]; pos[q * 3 + 1] = s.Y[k]; pos[q * 3 + 2] = s.R[k] * SIN[j]; col[q * 3] = s.C[k * 3]; col[q * 3 + 1] = s.C[k * 3 + 1]; col[q * 3 + 2] = s.C[k * 3 + 2]; }
-  geo.attributes.position.needsUpdate = geo.attributes.color.needsUpdate = true; geo.computeVertexNormals(); geo.computeBoundingSphere();
+  geo.attributes.position.needsUpdate = geo.attributes.color.needsUpdate = true; geo.computeVertexNormals();
+  // the axis points (bottom and top centre) and the seam: set their normals so none is zero (a zero normal is a NaN pixel, and bloom spreads it)
+  { const nr = geo.attributes.normal.array; for (let j = 0; j <= NT; j++) { const b = j * 3, t = ((NU - 1) * NC + j) * 3; nr[b] = 0; nr[b + 1] = -1; nr[b + 2] = 0; nr[t] = 0; nr[t + 1] = 1; nr[t + 2] = 0; }
+    for (let i = 1; i < NU - 1; i++) { const a = i * NC * 3, z = (i * NC + NT) * 3; for (let c = 0; c < 3; c++) { const m = (nr[a + c] + nr[z + c]) / 2; nr[a + c] = nr[z + c] = m; } const l = Math.hypot(nr[a], nr[a + 1], nr[a + 2]) || 1; for (let c = 0; c < 3; c++) { nr[a + c] /= l; nr[z + c] = nr[a + c]; } } }
+  geo.computeBoundingSphere();
   const ip = igeo.attributes.position.array, iu = igeo.attributes.uv.array; for (let i = 0; i < CAPN; i++) for (let j = 0; j < NT; j++) { const k = (i + M.ROW_RIM) * NT + j, q = i * NT + j;
     ip[q * 3] = s.R[k] * COS[j]; ip[q * 3 + 1] = s.Y[k] + .0007; ip[q * 3 + 2] = s.R[k] * SIN[j]; iu[q * 2] = .5 + ip[q * 3] / .25; iu[q * 2 + 1] = .5 - ip[q * 3 + 2] / .25; }
   igeo.attributes.position.needsUpdate = igeo.attributes.uv.needsUpdate = true; igeo.computeVertexNormals(); igeo.computeBoundingSphere();

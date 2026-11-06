@@ -13,6 +13,7 @@
     const log = [];       // every op sent, in order: { seq, op, args, author, gesture, ok, error }
     const subs = {};
     let describeFn = null, viewFn = null;
+    const clock = opts.clock || (() => Date.now()), t0 = clock();   // log times are for playback only; replay ignores them
     const emit = (ev, ...a) => (subs[ev] || []).slice().forEach(f => { try { f(...a); } catch (e) { if (typeof console !== 'undefined') console.error(e); } });
     function on(ev, fn) { (subs[ev] = subs[ev] || []).push(fn); return () => { subs[ev] = subs[ev].filter(f => f !== fn); }; }
     const norm = o => (o && typeof o === 'object' && typeof o.op === 'string') ? { op: o.op, args: o.args == null ? {} : o.args } : null;
@@ -20,27 +21,30 @@
     function doOps(input, meta) {
       meta = meta || {}; const author = typeof meta.author === 'string' ? meta.author : 'agent:api', gesture = meta.gesture == null ? null : String(meta.gesture);
       const list = Array.isArray(input) ? input.map(norm) : [norm(input)];
-      const rec = { seq: log.length + 1, op: Array.isArray(input) ? 'batch' : (list[0] && list[0].op), args: Array.isArray(input) ? list : (list[0] && list[0].args), author, gesture };
+      const rec = { seq: log.length + 1, t: Math.round(clock() - t0), op: Array.isArray(input) ? 'batch' : (list[0] && list[0].op), args: Array.isArray(input) ? list : (list[0] && list[0].args), author, gesture };
       const refuse = error => { rec.ok = false; rec.error = error; log.push(rec); emit('log', rec); emit('refuse', input, error); return { ok: false, error }; };
       if (!list.length || list.some(x => !x)) return refuse('an op is { op, args }');
-      if (list.length === 1 && O.META.includes(list[0].op)) { const st = Math.max(1, Math.round((list[0].args && list[0].args.steps) || 1)); rec.ok = true; log.push(rec); emit('log', rec);
-        const n = list[0].op === 'undo' ? Math.max(0, cursor - st) : Math.min(hist.length, cursor + st); if (n === cursor) { rec.ok = false; rec.error = 'nothing to ' + list[0].op; emit('refuse', input, rec.error); return { ok: false, error: rec.error }; }
-        moveTo(n); return { ok: true }; }
+      if (list.length === 1 && O.META.includes(list[0].op)) { const st = Math.max(1, Math.round((list[0].args && list[0].args.steps) || 1));
+        const n = list[0].op === 'undo' ? Math.max(0, cursor - st) : Math.min(hist.length, cursor + st);
+        if (n === cursor) { rec.ok = false; rec.error = 'nothing to ' + list[0].op; log.push(rec); emit('log', rec); emit('refuse', input, rec.error); return { ok: false, error: rec.error }; }
+        const passed = (n < cursor ? hist.slice(n, cursor).reverse() : hist.slice(cursor, n)).map(h => h.label);
+        rec.ok = true; rec.label = (n < cursor ? 'undid ' : 'redid ') + (passed.length > 2 ? passed.length + ' steps, back to ' + (n ? hist[n - 1].label : 'the empty memory') : passed.join(', ')); log.push(rec);
+        moveTo(n); emit('log', rec); return { ok: true, label: rec.label }; }
       for (const x of list) if (!O.OPS[x.op]) return refuse('unknown op ' + x.op + '; ops are ' + O.NAMES.join(', '));
       const before = JSON.stringify(state), next = JSON.parse(before), ctx = { author, at: cursor };
       for (const x of list) { let e; try { e = O.OPS[x.op](next, S.clone(x.args), ctx); } catch (err) { e = 'failed: ' + err.message; } if (e) return refuse(x.op + ': ' + e); }
       const after = JSON.stringify(next); if (after === before && !(list.length === 1 && list[0].op === 'snapshot')) { rec.ok = true; rec.same = true; log.push(rec); emit('log', rec); return { ok: true, same: true }; }
-      rec.ok = true; log.push(rec); emit('log', rec);
       const lab = list.map(x => O.label(x.op, x.args)).join(', ');
+      rec.ok = true; rec.label = lab + (ctx.via ? ' (accepted ' + ctx.via + ')' : ''); log.push(rec);
       const prev = hist[cursor - 1], one = list.length === 1 ? list[0] : null;
       // a drag on one ring is one entry: the same gesture on the same path merges
-      if (gesture && one && MERGEABLE[one.op] && prev && cursor === hist.length && prev.gesture === gesture && prev.author === author && prev.path === one.args.path) { prev.after = after; prev.label = O.label('set', { path: one.args.path, value: S.get(next, one.args.path) }); prev.args = { path: one.args.path, value: S.get(next, one.args.path) }; prev.op = 'set'; }
-      else { hist.length = cursor; hist.push({ before, after, op: one ? one.op : 'batch', args: one ? one.args : list, author, via: ctx.via, gesture, path: one && one.args && one.args.path, label: lab }); cursor = hist.length; }
-      state = next; const entry = hist[cursor - 1]; emit('change', state, entry); return { ok: true, entry: pub(entry, cursor - 1) };
+      if (gesture && one && MERGEABLE[one.op] && prev && cursor === hist.length && prev.gesture === gesture && prev.author === author && prev.path === one.args.path) { prev.after = after; prev.label = O.label('set', { path: one.args.path, value: S.get(next, one.args.path) }); prev.args = { path: one.args.path, value: S.get(next, one.args.path) }; prev.op = 'set'; prev.t = rec.t; }
+      else { hist.length = cursor; hist.push({ t: rec.t, before, after, op: one ? one.op : 'batch', args: one ? one.args : list, author, via: ctx.via, gesture, path: one && one.args && one.args.path, label: lab }); cursor = hist.length; }
+      state = next; const entry = hist[cursor - 1]; emit('change', state, entry); emit('log', rec); return { ok: true, entry: pub(entry, cursor - 1) };
     }
-    function moveTo(n) { n = Math.max(0, Math.min(hist.length, n)); if (n === cursor) return; state = JSON.parse(n === 0 ? hist[0].before : hist[n - 1].after); const e = hist[n - 1] || null; cursor = n; emit('change', state, e); emit('seek', n); }
+    function moveTo(n) { n = Math.max(0, Math.min(hist.length, n)); if (n === cursor) return; state = JSON.parse(n === 0 ? hist[0].before : hist[n - 1].after); const e = hist[n - 1] || null, from = cursor; cursor = n; emit('change', state, e); emit('seek', n, from); }
     function seek(n) { n = Math.max(0, Math.min(hist.length, Math.round(n))); if (n === cursor) return { ok: true }; return doOps({ op: n < cursor ? 'undo' : 'redo', args: { steps: Math.abs(n - cursor) } }, { author: 'hand' }); }
-    const pub = (h, i) => ({ i, op: h.op, args: h.args, author: h.author, via: h.via, label: h.label });
+    const pub = (h, i) => ({ i, t: h.t, op: h.op, args: h.args, author: h.author, via: h.via, label: h.label });
     function describe() { if (describeFn) return describeFn(S.clone(state)); return defaultDescribe(state); }
     const api = {
       state: () => S.clone(state),
