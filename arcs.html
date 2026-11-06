@@ -67,7 +67,7 @@
     var g = 0; while (ST.S.history.length && g++ < 40) ST.undo(); var V = VARIANTS[v];
     N.tier1.p = { r: V.t.r, h: V.t.h }; N.icing.p = { t: .06, drip: V.drip, gloss: V.gloss }; N.border.p = { size: .11, count: V.shells }; N.candles.p = { n: 0, h: V.ch, ring: V.ring, rot: .4, rad: .042 };
     ['table', 'tier', 'icing', 'border'].forEach(function (s) { ST.place(s); }); for (var i = 0; i < V.candles; i++) ST.place('candle'); ST.place('flame');
-    N.tier1.body.material = dotMat; N.table.obj.material = goldMat; N.table.obj.scale.set(1.45, 1, 1.45); N.table.obj.position.x = 1.15; N.table.obj.rotation.y = Math.PI / 6; N.candles.p.rad = .042; N.flames.p = { s: .9, f: .9, lt: .85 }; ST.post.uniforms.exposure.value = .95; N.border.obj.castShadow = false; ST.keyLight.castShadow = false; dressTable(); ST.cakeG.traverse(function (o) { if (o.isMesh && o.material && o.material.color && o.material.map == null && o.material.roughness < .7) { o.material = creamMat; } }); ST.SETA.traverse(function (o) { if (o.geometry && (o.geometry.type === 'TorusGeometry' || (o.geometry.type === 'CircleGeometry' && o.geometry.parameters.radius === 30))) o.visible = false; });
+    N.tier1.body.material = dotMat; N.table.obj.material = goldMat; N.table.obj.scale.set(1.45, 1, 1.45); N.table.obj.position.x = 1.15; N.table.obj.rotation.y = Math.PI / 6; N.candles.p.rad = .042; N.flames.p = { s: .9, f: .9, lt: .45 }; N.candles.obj.traverse(function (o) { if (o.isMesh && o.geometry.type === 'CylinderGeometry' && o.geometry.parameters.radiusTop > .02) o.material = candleMat; }); ST.post.uniforms.exposure.value = .95; N.border.obj.castShadow = false; ST.keyLight.castShadow = false; dressTable(); ST.cakeG.traverse(function (o) { if (o.isMesh && o.material && o.material.color && o.material.map == null && o.material.roughness < .7) { o.material = creamMat; } }); ST.SETA.traverse(function (o) { if (o.geometry && (o.geometry.type === 'TorusGeometry' || (o.geometry.type === 'CircleGeometry' && o.geometry.parameters.radius === 30))) o.visible = false; });
     ST.instant(); if (V.lean) N.tier1.obj.scale.set(1.1, 1, .92); inscribe(); orient();
     ST.cakeG.visible = !film; patchMesh.visible = !film && plateReady;
     if (t >= TE) N.flames.exists = false;
@@ -82,9 +82,10 @@
   ];
   var FLOUR = [[0.2, -0.8], [3, -1.3], [6.5, -0.6], [10, -1.2], [14, -0.7], [18, -1.0]];
   var dotTex = (function () { var c = document.createElement('canvas'); c.width = 256; c.height = 128; var g = c.getContext('2d'); g.fillStyle = '#e9dfc4'; g.fillRect(0, 0, 256, 128); for (var y = 0; y < 5; y++) for (var x = 0; x < 12; x++) { var cx = x * 22 + (y % 2) * 11 + 8, cy = y * 26 + 14; g.fillStyle = 'rgba(40,24,14,.85)'; g.beginPath(); g.arc(cx, cy, 4.2, 0, 7); g.fill(); } var t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(2, 1); return t; })();
-  var dotMat = new T.MeshStandardMaterial({ map: dotTex, roughness: .9, color: 0x6c5d42 }), goldMat = new T.MeshStandardMaterial({ color: 0x8a6420, emissive: 0x0e0802, roughness: .7 });
+  var dotMat = new T.MeshStandardMaterial({ map: dotTex, roughness: .95, color: 0x54482f }), goldMat = new T.MeshStandardMaterial({ color: 0x8a6420, emissive: 0x0e0802, roughness: .7 });
   var creamTex = (function () { var c = document.createElement('canvas'); c.width = c.height = 256; var g = c.getContext('2d'); g.fillStyle = '#d6c498'; g.fillRect(0, 0, 256, 256); for (var i = 0; i < 700; i++) { var a = Math.random(); g.fillStyle = a < .5 ? 'rgba(255,244,214,.35)' : 'rgba(120,92,52,.25)'; g.beginPath(); g.ellipse(Math.random() * 256, Math.random() * 256, 2 + Math.random() * 7, 1.5 + Math.random() * 4, Math.random() * 3, 0, 7); g.fill(); } var t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(2, 2); return t; })();
-  var creamMat = new T.MeshStandardMaterial({ map: creamTex, roughness: .92, color: 0x9a8a64 });
+  var candleMat = new T.MeshStandardMaterial({ color: 0xe6d49a, roughness: .6 });
+  var creamMat = new T.MeshStandardMaterial({ map: creamTex, roughness: .95, color: 0x6a5c44 });
   var insG = null, insMat = new T.MeshStandardMaterial({ color: 0xc8301e, roughness: .32 });
   function inscribe() {
     if (insG) { ST.cakeG.remove(insG); insG.traverse(function (o) { if (o.geometry) o.geometry.dispose(); }); insG = null; } if (ins <= 0) return;
@@ -167,7 +168,7 @@
       PERF.forEach(function (p) { var cd = cards[p.id], c = slabs[p.id], im = imgs[p.id]; if (!c || !im.naturalWidth) return; var ct = clamp(t - PAUSE + .6 - p.delay, 0, c.n / c.fps - .01), k = clamp(Math.floor(ct * c.fps), 0, c.n - 1);
         if (cd.cv.width !== c.w) { cd.cv.width = c.w; cd.cv.height = c.h; } cd.g.clearRect(0, 0, c.w, c.h); cd.g.filter = 'blur(.9px)'; cd.g.drawImage(im, (k % c.cols) * c.w, Math.floor(k / c.cols) * c.h, c.w, c.h, 0, 0, c.w, c.h); cd.tex.needsUpdate = true;
         cd.mesh.visible = view === 'ana' && plateReady && !p.cake && Math.abs(p.delay) > .04; cd.mat.color.setRGB(1, 1, 1); });
-      ST.flameSprites.forEach(function (f) { f.gl.material.opacity = 0; });
+      ST.flameSprites.forEach(function (f) { f.gl.visible = false; });
       lastClear = clearEyes(); draw();
       document.getElementById('state').innerHTML = (view === 'ana' ? 'ANA, WORKING' : 'THE BIRTHDAY SEAT') + '<br>' + (held ? 'HELD' : out ? 'FLAME OUT' : 'PLAYING') + ' · ' + t.toFixed(1) + ' S<br>' + (sel === 'ver' ? 'ARC: CAKE · VERSION' : sel === 'ins' ? 'ARC: CAKE · SURFACE' : sel === 'tilt' ? 'ARC: CAKE · ORIENTATION' : 'ARC: ' + PERF.filter(function (p) { return p.id === sel; })[0].name);
     };
