@@ -22,13 +22,14 @@ ana's device):
 | selected | knurl | triangle |
 |---|---|---|
 | ROOM | overhead light, 0–8 | nothing (the label says so) |
-| CAKE | carried toward her, 14 cm a step | height above the table, 9 cm a step |
+| CAKE | carried toward her on a pedestal stand, 14 cm a step | height on its stand above the table, 6 cm a step |
 | CHILDREN | how many are brought in, 0–3 (each arrives over 1.2 s and sings) | their time in the song, ± beats |
 | HER | calling her, 0 silent … 6; each step up is a call, and Ana keeps calling while it is above 0 | nothing |
 
 The scale ring is where Ana is: standing, stooping, kneeling, sitting; past that, kneeling and moving round toward her side.
 HOLD freezes the children and their song (not her: she keeps living); a long HOLD switches the memory off and it starts again.
 SCENE (left collar) plays the proof's own input through the same rings; CLEAR starts again; (i) opens the machine panel.
+The end card opens by itself only after her birthday is over and a long HOLD has taken the memory dark; it is never laid over a live scene.
 Layout: memory on top, device below, no page scroll; works with touch, mouse drag or the wheel.
 
 ## The machine (memory.js)
@@ -42,9 +43,10 @@ Fixed ticks of 1/30 s; deterministic (seeded gaze scheduler). The same file runs
   1.6 m of her (faster ones more) add pressure.
 - **Drives.** P pressure (calls, the cake's velocity toward her when seen or within 0.6 m, nearby device steps; decays 1.4 s);
   U unease (a standing figure as she believes it, a bright room, a cake held up near her); F fear (from P, U, and M when pressed);
-  M memory of being pushed (+0.14 per push, never decays within a life); C curiosity (song onset, children arriving, the room
+  M memory of being pushed (+0.14 per push; good circumstances forgive it only at 0.004 × invitation per second); C curiosity (song onset, children arriving, the room
   dimming, the cake seen lowered); T trust (grows with the invitation — kneeling as seen, singing, cake low as seen, dark, quiet —
-  slowed by fear squared and by M, eaten by P); A the candles' pull (lit, low, against a dark room).
+  slowed by fear squared and by (1 − 0.8·M), eaten by P); A the candles' pull (lit, low, against a dark room). M also adds 0.15·M to
+  fear's target, raises the trust approach needs by 0.2·M, and lengthens the quiet the blow needs by 3·M seconds.
 - **Utilities.** watch = 0.35 + 0.45·C·(1−F); retreat = (1.6·push + 0.3·P)(0.5+F)·room behind; refuse = 1.3·P(0.5+F) + 0.9·M·P
   (+0.15 + 0.3·F once refusing: the sulk); hide = 0.95(U−0.3) + 0.45·F(1−2P) (+0.15 + 0.25·F once hidden);
   approach = 2.2(T−0.55) + 0.5·A + 0.2·C − 2F; blow = 1.8(T−0.45) + cue + 0.4·A + 0.3·(time at the table / 6 s) − 2F,
@@ -57,7 +59,7 @@ Fixed ticks of 1/30 s; deterministic (seeded gaze scheduler). The same file runs
   state may cut only when 0.25 higher; the blow is inhale 0.8 s (cuttable by pressure) + blow 1.1 s + after 1.3 s.
 - **Sub-states.** refuse {turn, sulk: back turned, arms crossed, head down; glance: looks back over her shoulder when curious and
   unpressed — the only way she can see you while refusing}; hide {lower, hidden: sitting, knees up, face down, almost blind;
-  peek: lifts her head, alternately toward the song and toward you}; approach {walk, slow, arrive}; blow {inhale, blow, after}.
+  peek: lifts her head, alternately toward the song and toward you}; approach {walk, pause: when M > 0.25 she stops short (0.3 + 0.35·M m from the table) with arms half crossed and looks back at Ana for 1 + 2.5·M s, then comes on slowly; slow; arrive}; blow {inhale, blow, after}.
 - **Body layer.** Position changes only by walking (≤ 0.45 m/s, backing at 0.38 facing the threat); body turns ≤ 3 rad/s
   (4.2 when turning away); a seated child cannot turn or walk until she has risen (0.65 s); head leads the body (0.12 s).
 
@@ -65,7 +67,7 @@ The girl is a paper cut-out drawn every frame from this body layer (legs from he
 crossed, round the knees, on the table, together; face shown only where her head faces Ana; a paper party hat). The other
 three children are the film cut-outs already in the repo (`ana/cut`), animating only while they sing.
 
-## Measured (test.js, 23 of 23 pass; headless node, the same memory.js)
+## Measured (test.js, 25 of 25 pass; headless node, the same memory.js)
 
 | check | result |
 |---|---|
@@ -73,7 +75,8 @@ three children are the film cut-outs already in the repo (`ana/cut`), animating 
 | calling in a good room (dim, cake low, children singing, kneeling) | never approach in 60 s; refuses at 6.8 s after tolerating the first calls |
 | pushing the cake at her, 5 times | first choice retreat at 1.07 s; never approach |
 | waiting only, 60 s | watch, then hide at 5.0 s; never approach |
-| earned path (proof input; last input at 8.8 s) | approach 13.93 s, blow 17.13 s, 7 candles out by 18.70 s |
+| earned path (proof input; last input at 8.8 s) | approach 14.83 s, blow 18.03 s, 7 candles out by 19.60 s |
+| lasting cost (critic round 1 condition): seed 7, call 6/6 for 6 s and push the cake to 112 cm, then the same setup | setup-to-approach 21.70 s against 3.53 s fresh (6.1×); she pauses short of the table and looks back at Ana at +22.70 s, blows at +28.47 s; fresh: no pause, blow at +8.90 s |
 | impatient player: one call while she comes | approach.slow → refuse.turn at 13.43 s; she comes again at 16.7 s |
 | a call during the inhale | blow.inhale → refuse.turn; 7 candles stay lit |
 | perception: kneel behind her back | for 5 s vis of Ana 0.00, belief stays 1.55 m (truth 0.92); learns at +6.17 s on a peek after the song starts |
@@ -82,15 +85,18 @@ three children are the film cut-outs already in the repo (`ana/cut`), animating 
 | no unintended absorbing state | 400 sampled moments, each leaves its state within 40 s under waiting, inviting or calling; 0 stuck |
 | locomotion continuity | max speed 0.45 m/s, max turn 4.20 rad/s, max sit rate 1.54/s, 0 jumps |
 
-The recorded proof, driven by real mouse pointer events on the device canvas, produced the same choices within one tick of
-the headless run: retreat 1.03, refuse 1.73, hide 6.83, watch 11.03, approach 13.90, blow 17.10 (inhale on "to", blow on
-"you": song beat 25.56 of 26), watch with all candles out 20.30 (`proof-trace.json`). Audio peak 0.96 before a 0.95 limit.
+The recorded proof, driven by real mouse pointer events on the device canvas, made the same choices as the headless run within
+one or two ticks: retreat 1.03, refuse 1.73, hide 7.47, watch 11.17, approach 14.80, blow 18.00, watch with all candles out 21.20
+(`proof-trace.json`); a long HOLD at 23 s takes the memory dark and the end card opens. `pressed.mp4` (48 s) films the critic's
+condition: calling 1–7 s, the cake pushed at 8 s, the setup done by 14.6 s; she hides, comes out at 20.7, approaches at 35.3,
+stops short and looks back at Ana 36.3–39.6, blows at 42.1 (`pressed-trace.json`).
 
 ## Files
 
 - `index.html` game · `memory.js` world, device, machine · `scenarios.js` scripted inputs
 - `test.js` → `traces.json` (six scenarios, every transition with all utilities, guards, drives, beliefs), `coverage.json`
-- `chart.js` → `state-chart.svg` · `record.js` → `proof.mp4`, `mobile-playtest.mp4`, `proof-trace.json`, `mobile-trace.json`
+- `chart.js` → `state-chart.svg` · `record.js` → `proof.mp4`, `mobile-playtest.mp4`, `pressed.mp4`, `proof-trace.json`, `mobile-trace.json`, `pressed-trace.json`
+- `critic-round1.md` the independent critic's first round
 - `operator.html` phone-readable operator page
 
 Remake: `python3 -m http.server 8765` at the repo root; `node test.js && node chart.js`;
@@ -107,13 +113,16 @@ voices and the song are drawn or synthesized here; the "Happy Birthday" melody i
 
 ## What is weak, unknown, not done
 
-- **No independent critic.** This builder had no tool to start a separate agent, so no critic has watched the proof or played
-  the page. Verdict: not run. That is the next blocking step.
+- **Critic round 1 (independent, run by the coordinator): pass, with one gap** — refusal left no lasting cost. Repaired at the
+  cause (M now slows trust, raises the approach threshold, adds standing wariness, and shows as a stop-short-and-look-back), plus the
+  three secondary gaps (end card only after the memory ends; inhale/lean/cheeks pose; the cake on a stand, never floating).
+  The repair has not been re-judged by the critic yet.
 - **No human playtests.** The phone recording is scripted touch input, not a person.
-- The pushed cake is held 54 cm up and from Ana's standing eye reads as floating far off, not coming at her (perceptually
-  judged by the builder on frames, not by a critic).
 - At phone size she is ~150 px tall; her face is a few pixels, so refusal and peeking read through posture, not expression.
 - She is a flat cut-out; the turnaround (front, profile, back) is drawn, not modelled, and reads stiff while turning.
 - Voices are formant-synthesized hums: "come here", "mm-mm", the song's vowels; they read as prosody, not words.
 - Retreat lasts 0.7 s before she turns away: a flinch more than a backing off.
 - Tuning was by hand against scripted scenarios (no search); timings could be tuned to feel, which is unknown until people play.
+- The lasting cost may now be too heavy: 6× the fresh time (about 21 s of waiting with everything right) may read as unfair.
+- `proof.mp4` and `mobile-playtest.mp4` were recorded before the last change to the pause (once paused she keeps the slow pace);
+  that change only acts when she pauses, which she does not in either recording (checked headless: same transitions).

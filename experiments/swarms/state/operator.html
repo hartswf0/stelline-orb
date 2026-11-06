@@ -17,15 +17,18 @@ ul { padding-left: 18px; margin: 4px 0; } li { margin: 3px 0; } .small { font-si
 <div class="small">Tap SCENE (left collar) to watch the proof's own input played through the device, or play it yourself: SELECT picks ROOM, CAKE, CHILDREN or HER; drag a ring up or down. The (i) shows the machine.</div>
 <h2>STATUS</h2>
 <div class="k">
-<div>revision</div><div class="v">r1 · 2026-11-06 · uncommitted (the coordinator commits)</div>
-<div>critic verdict</div><div class="v no">NOT RUN. The builder had no tool to start a separate agent; no independent critic has watched the proof or played the page.</div>
-<div>next blocking failure</div><div class="v">Independent critic run on proof.mp4 and the page. Builder's own guess at the largest gap (not a verdict): when the cake is pushed at her it is held 54 cm up and reads as floating far away, not coming at her; and at phone size she is small and her face is a few pixels.</div>
-<div>tests</div><div class="v ok">23 of 23 pass (node test.js) · measured</div>
+<div>revision</div><div class="v">r2 · 2026-11-06 · repairs after critic round 1 · uncommitted</div>
+<div>critic verdict</div><div class="v ok">Round 1: PASS with one gap (refusal had no lasting cost). <a href="critic-round1.md">critic-round1.md</a>. Repaired in r2; not yet re-judged.</div>
+<div>next blocking failure</div><div class="v">Critic round 2 on the repairs. Builder's own concern (not a verdict): the lasting cost may be too heavy (6x the fresh wait), and at phone size her face is a few pixels.</div>
+<div>tests</div><div class="v ok">25 of 25 pass (node test.js), including the critic's condition: pressed setup-to-approach 21.7 s vs 3.5 s fresh (6.1x), pause and look back before the blow · measured</div>
 <div>playtests</div><div class="v">Two scripted recordings (proof: mouse; phone: touch). No human playtests.</div>
 </div>
 <h2>THE PROOF (25 s, sound)</h2>
 <video src="proof.mp4" controls playsinline preload="metadata"></video>
-<div class="small">The cake pushed at her: she backs away, then turns her back. Ana calls: she stays turned, then sits and hides. Ana dims the room, brings the cake back slowly and lowers it, brings the three children in to sing, kneels. She peeks, looks, stands, comes, and blows on the last "you". End card from 21.7 s.</div>
+<div class="small">The cake pushed at her: she backs away, then turns her back. Ana calls: she stays turned, then sits and hides. Ana dims the room, brings the cake back slowly and lowers it, brings the three children in to sing, kneels. She peeks, looks, stands, comes, and blows on the last "you". A long HOLD at 23 s ends the memory; the end card opens once it is dark.</div>
+<h2>AFTER BEING PRESSED (48 s, the critic's condition)</h2>
+<video src="pressed.mp4" controls playsinline preload="metadata"></video>
+<div class="small">Ana calls at full strength for 6 s and pushes the cake at her, then sets the same good room as the proof. She hides much longer, comes out at 20.7 s, and on her way stops short of the table with her arms half crossed, looks back at Ana for 3 s, then comes on slowly and blows at 42 s.</div>
 <h2>PHONE PLAYTEST (scripted, 390 x 844, touch)</h2>
 <video src="mobile-playtest.mp4" controls playsinline preload="metadata"></video>
 <div class="small">An impatient player: calls, then sets the right circumstances, then calls once more while she is coming. She stops and turns away, and comes again later.</div>
@@ -38,6 +41,7 @@ ul { padding-left: 18px; margin: 4px 0; } li { margin: 3px 0; } .small { font-si
 <li><a href="scenarios.js">scenarios.js</a>: scripted player input as device actions</li>
 <li><a href="test.js">test.js</a>, <a href="coverage.json">coverage.json</a>: model-based tests and what they covered</li>
 <li><a href="traces.json">traces.json</a>: decision traces of six scenarios; <a href="proof-trace.json">proof-trace.json</a>, <a href="mobile-trace.json">mobile-trace.json</a>: traces from the recordings</li>
+<li><a href="critic-round1.md">critic-round1.md</a>, <a href="pressed-trace.json">pressed-trace.json</a></li>
 <li><a href="state-chart.svg">state-chart.svg</a> (from <a href="chart.js">chart.js</a>), <a href="record.js">record.js</a>, <a href="README.md">README.md</a></li>
 </ul>
 </body></html>

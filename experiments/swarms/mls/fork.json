@@ -1,0 +1,192 @@
+{
+ "dense": {
+  "handles": {
+   "points": 35,
+   "segments": 15
+  },
+  "fam": {
+   "affine": {
+    "plate_border_px": 0.053,
+    "neck_px": 0.272,
+    "cheek_outline_out_px": 21.49,
+    "features": {
+     "eyeL": {
+      "area_ratio": 0.974,
+      "width_ratio": 1,
+      "height_ratio": 0.918
+     },
+     "eyeR": {
+      "area_ratio": 0.974,
+      "width_ratio": 1,
+      "height_ratio": 0.918
+     },
+     "nose": {
+      "area_ratio": 1.211,
+      "width_ratio": 1.188,
+      "height_ratio": 1.02
+     }
+    },
+    "min_jacobian": 0.255,
+    "folded_triangles": 0,
+    "cheek_disc_gain": 0.428
+   },
+   "similarity": {
+    "plate_border_px": 0.068,
+    "neck_px": 0.244,
+    "cheek_outline_out_px": 21.43,
+    "features": {
+     "eyeL": {
+      "area_ratio": 0.974,
+      "width_ratio": 1,
+      "height_ratio": 0.919
+     },
+     "eyeR": {
+      "area_ratio": 0.974,
+      "width_ratio": 1,
+      "height_ratio": 0.919
+     },
+     "nose": {
+      "area_ratio": 1.211,
+      "width_ratio": 1.188,
+      "height_ratio": 1.02
+     }
+    },
+    "min_jacobian": 0.274,
+    "folded_triangles": 0,
+    "cheek_disc_gain": 0.432
+   },
+   "rigid": {
+    "plate_border_px": 0.075,
+    "neck_px": 0.18,
+    "cheek_outline_out_px": 21.36,
+    "features": {
+     "eyeL": {
+      "area_ratio": 0.972,
+      "width_ratio": 1,
+      "height_ratio": 0.92
+     },
+     "eyeR": {
+      "area_ratio": 0.972,
+      "width_ratio": 1,
+      "height_ratio": 0.92
+     },
+     "nose": {
+      "area_ratio": 1.209,
+      "width_ratio": 1.188,
+      "height_ratio": 1.018
+     }
+    },
+    "min_jacobian": 0.267,
+    "folded_triangles": 0,
+    "cheek_disc_gain": 0.421
+   }
+  },
+  "cheek_outline_family_diff_px": 0.95,
+  "at": [
+   "affine",
+   "rigid",
+   209,
+   330
+  ],
+  "repair_condition": {
+   "locality_ok": true,
+   "divergence_ok": false,
+   "chosen_no_folds": true
+  }
+ },
+ "sparse": {
+  "handles": {
+   "points": 11,
+   "segments": 7
+  },
+  "fam": {
+   "affine": {
+    "plate_border_px": 0.017,
+    "neck_px": 0.225,
+    "cheek_outline_out_px": 4.48,
+    "features": {
+     "eyeL": {
+      "area_ratio": 1.006,
+      "width_ratio": 1.009,
+      "height_ratio": 0.998
+     },
+     "eyeR": {
+      "area_ratio": 1.006,
+      "width_ratio": 1.009,
+      "height_ratio": 0.998
+     },
+     "nose": {
+      "area_ratio": 1.078,
+      "width_ratio": 1.075,
+      "height_ratio": 1.003
+     }
+    },
+    "min_jacobian": -0.093,
+    "folded_triangles": 2,
+    "cheek_disc_gain": 0.071
+   },
+   "similarity": {
+    "plate_border_px": 0.021,
+    "neck_px": 0.198,
+    "cheek_outline_out_px": 4.52,
+    "features": {
+     "eyeL": {
+      "area_ratio": 1.006,
+      "width_ratio": 1.008,
+      "height_ratio": 0.999
+     },
+     "eyeR": {
+      "area_ratio": 1.006,
+      "width_ratio": 1.008,
+      "height_ratio": 0.999
+     },
+     "nose": {
+      "area_ratio": 1.077,
+      "width_ratio": 1.072,
+      "height_ratio": 1.005
+     }
+    },
+    "min_jacobian": -0.1,
+    "folded_triangles": 2,
+    "cheek_disc_gain": 0.078
+   },
+   "rigid": {
+    "plate_border_px": 0.025,
+    "neck_px": 0.168,
+    "cheek_outline_out_px": 4.51,
+    "features": {
+     "eyeL": {
+      "area_ratio": 1.005,
+      "width_ratio": 1.008,
+      "height_ratio": 0.998
+     },
+     "eyeR": {
+      "area_ratio": 1.005,
+      "width_ratio": 1.008,
+      "height_ratio": 0.998
+     },
+     "nose": {
+      "area_ratio": 1.073,
+      "width_ratio": 1.07,
+      "height_ratio": 1.003
+     }
+    },
+    "min_jacobian": -0.102,
+    "folded_triangles": 2,
+    "cheek_disc_gain": 0.073
+   }
+  },
+  "cheek_outline_family_diff_px": 0.12,
+  "at": [
+   "affine",
+   "similarity",
+   213,
+   337
+  ],
+  "repair_condition": {
+   "locality_ok": true,
+   "divergence_ok": false,
+   "chosen_no_folds": false
+  }
+ }
+}

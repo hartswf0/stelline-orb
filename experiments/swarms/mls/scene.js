@@ -30,6 +30,14 @@
     ['lipLL', 'l', [272, 330, 300, 344]], ['lipLR', 'l', [300, 344, 328, 330]],
     ['cheekLineL', 'l', [262, 300, 266, 334]], ['cheekLineR', 'l', [338, 300, 334, 334]],
   ];
+  // BRANCH B: a sparse face. 9 points + the cheek-to-mouth segment on each side, plus the same pinned plate and neck lines.
+  const FACE_SPARSE = [
+    ['eyeL', 'p', [254, 217]], ['eyeR', 'p', [346, 217]], ['noseTip', 'p', [300, 282]],
+    ['mouthL', 'p', [272, 330]], ['mouthR', 'p', [328, 330]], ['lipUin', 'p', [300, 328]], ['lipLin', 'p', [300, 334]],
+    ['cheekL', 'p', [236, 304]], ['cheekR', 'p', [364, 304]],
+    ['cheekMouthL', 'l', [226, 296, 262, 326]], ['cheekMouthR', 'l', [374, 296, 338, 326]],
+  ];
+  let FACE_SET = (root && root.FACE_SET) || 'dense';
   const ANCHORS = new Set(['plateTL', 'plateTR', 'plateBL', 'plateBR', 'crown', 'templeL', 'templeR', 'earL', 'earR', 'neckL', 'neckR']);
   const GROUPS = { // which handles each SELECT target owns (drawn as marks while it is worked)
     STREAMER: h => h.surf === 'paper',
@@ -44,7 +52,7 @@
 
   function buildHandles() {
     const H = [];
-    for (const [id, k, c] of FACE) H.push({ id, surf: 'face', kind: k, rest: c.slice(), anchor: ANCHORS.has(id) });
+    for (const [id, k, c] of (FACE_SET === 'sparse' ? FACE_SPARSE : FACE)) H.push({ id, surf: 'face', kind: k, rest: c.slice(), anchor: ANCHORS.has(id) });
     // feature protection: the plate's printed edge and the neck are pinned by fixed segments, so a cheek cannot bow the print
     for (const [id, r] of [['plateTop', [128, 28, 472, 28]], ['plateBot', [128, 442, 472, 442]], ['plateLeft', [128, 28, 128, 442]], ['plateRight', [472, 28, 472, 442]], ['neckBase', [250, 446, 350, 446]]])
       H.push({ id, surf: 'face', kind: 'l', rest: r, anchor: true });
@@ -69,14 +77,23 @@
     SMILE: { mouthL: [-5, -6], mouthR: [5, -6], 'lipUL:a': [-5, -6], 'lipUR:b': [5, -6], 'lipLL:a': [-5, -6], 'lipLR:b': [5, -6], lipLin: [0, 1], 'lipLL:b': [0, 1], 'lipLR:a': [0, 1],
       cheekL: [-3, -6], cheekR: [3, -6], 'cheekLineL:a': [-2, -3], 'cheekLineR:a': [2, -3], eyeLlo: [0, -3], eyeRlo: [0, -3], eyeLup: [0, 1], eyeRup: [0, 1] },
   };
+  // branch B poses: the cheek is one point pushed out, and the cheek-to-mouth segment pushed out AND turned (its mouth end follows the corner)
+  const POSES_SPARSE = {
+    CHEEKS: { cheekL: [-22, -4], cheekR: [22, -4], 'cheekMouthL:a': [-20, -6], 'cheekMouthL:b': [-6, 2], 'cheekMouthR:a': [20, -6], 'cheekMouthR:b': [6, 2],
+      lipUin: [0, 3], lipLin: [0, -3] },
+    PURSE: { mouthL: [14, 1], mouthR: [-14, 1], 'cheekMouthL:b': [12, 2], 'cheekMouthR:b': [-12, 2] },
+    OPEN: { lipUin: [0, -8], lipLin: [0, 13] },
+    SMILE: { mouthL: [-5, -6], mouthR: [5, -6], 'cheekMouthL:b': [-4, -5], 'cheekMouthR:b': [4, -5], cheekL: [-2, -6], cheekR: [2, -6] },
+  };
   const MOUTH_IDS = /^(mouth|lip)/;
 
   // face offsets for a face state {fill, purse, open, smile, aim}. aim in degrees of breath direction (+ = to her left, our right)
   function faceOffsets(f) {
     const out = {}; const add = (P, k) => { if (!k) return; for (const key in P) { const o = out[key] || (out[key] = [0, 0]); o[0] += P[key][0] * k; o[1] += P[key][1] * k; } };
-    add(POSES.CHEEKS, f.fill); add(POSES.PURSE, f.purse); add(POSES.OPEN, f.open); add(POSES.SMILE, (f.smile || 0) * (1 - f.fill)); // she smiles with empty cheeks (full cheeks + smile folded the mesh)
+    const PZ = FACE_SET === 'sparse' ? POSES_SPARSE : POSES;
+    add(PZ.CHEEKS, f.fill); add(PZ.PURSE, f.purse); add(PZ.OPEN, f.open); add(PZ.SMILE, (f.smile || 0) * (1 - f.fill)); // she smiles with empty cheeks (full cheeks + smile folded the mesh)
     const ax = (f.aim || 0) * .55; // the mouth slides toward the aim
-    for (const [id, k] of FACE) if (MOUTH_IDS.test(id)) { if (k === 'p') add({ [id]: [ax, 0] }, 1); else add({ [id + ':a']: [ax, 0], [id + ':b']: [ax, 0] }, 1); }
+    for (const [id, k] of (FACE_SET === 'sparse' ? FACE_SPARSE : FACE)) if (MOUTH_IDS.test(id)) { if (k === 'p') add({ [id]: [ax, 0] }, 1); else add({ [id + ':a']: [ax, 0], [id + ':b']: [ax, 0] }, 1); }
     add({ noseTip: [ax * .4, 0] }, 1);
     return out;
   }
@@ -194,7 +211,7 @@
   function vnoise(x) { const i = Math.floor(x), f = x - i, u = f * f * (3 - 2 * f); return hash(i) * (1 - u) + hash(i + 1) * u; }
   function smooth(x) { x = x < 0 ? 0 : x > 1 ? 1 : x; return x * x * (3 - 2 * x); }
 
-  const api = { STEP_HZ, SURF, FAMILIES, CANDLES, GROUPS, POSES, PAPER_N, PAPER_Y, PAPER_HALF, buildHandles, faceOffsets, targets, pack, paperSpine,
+  const api = { setFaceSet: v => { FACE_SET = v; }, faceSet: () => FACE_SET, POSES_SPARSE, STEP_HZ, SURF, FAMILIES, CANDLES, GROUPS, POSES, PAPER_N, PAPER_Y, PAPER_HALF, buildHandles, faceOffsets, targets, pack, paperSpine,
     measureFace, breathPlan, flameThin, FLAME_TEAR, BREATH, CHEEK_L, CHEEK_R, GAP, area, smooth, vnoise, hash };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.SCENE = api;
 })(typeof self !== 'undefined' ? self : this);
