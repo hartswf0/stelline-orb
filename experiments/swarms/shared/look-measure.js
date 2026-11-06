@@ -63,17 +63,18 @@ function terms(r, f, s) { const T = {}, M = (a, b) => Math.abs(a - b);
     T[`${s}.${k}.L`] = M(a.L, b.L) / TOL.L; T[`${s}.${k}.a`] = M(a.a, b.a) / TOL.a; T[`${s}.${k}.b`] = M(a.b, b.b) / TOL.b;
     T[`${s}.${k}.sL`] = M(a.sL, b.sL) / Math.max(TOL.spreadMin, TOL.spreadRel * b.sL);
     if (k !== 'bg') T[`${s}.${k}.sb`] = M(a.sb, b.sb) / Math.max(TOL.spreadMin, TOL.spreadRel * b.sb); }
-  if (s === 'A') T['A.top.rb'] = M(r.regions.top.rb, f.regions.top.rb) / TOL.rb;
+  if (s === 'A' && r.regions.top) T['A.top.rb'] = M(r.regions.top.rb, f.regions.top.rb) / TOL.rb;
   const emd = (h1, h2) => { let c1 = 0, c2 = 0, x = 0; for (let i = 0; i < h1.length; i++) { c1 += h1[i]; c2 += h2[i]; x += Math.abs(c1 - c2) * 100 / h1.length; } return x; };
   T[`${s}.hist`] = emd(r.hist, f.hist) / TOL.hist;
   T[`${s}.bloom`] = M(r.bloom.r, f.bloom.r) / (TOL.bloomRel * f.bloom.r);
-  T[`${s}.hf`] = M(r.tex.hf, f.tex.hf) / Math.max(TOL.hfMin, TOL.hfRel * f.tex.hf);
+  T[`${s}.hf`] = !r.tex || !isFinite(r.tex.hf) ? 9 : M(r.tex.hf, f.tex.hf) / Math.max(TOL.hfMin, TOL.hfRel * f.tex.hf);
   return T; }
 function score(T) { let s = 0, fails = 0, worst = 0, wk = ''; for (const k in T) { const v = Math.min(T[k], 6); s += v * v; if (v > 1) fails++; if (v > worst) { worst = v; wk = k; } } return { score: s + 4 * fails, fails, worst, worstKey: wk }; }
 
 async function evalGenome(page, g, film, keep) {
   const res = {}; let all = {};
-  for (const s of ['A', 'B']) { const r = await page.evaluate(([s, g, d]) => { LOOKTEST.frame(s, g); return LOOKTEST.measure(s, d); }, [s, g, REGIONS[s]]); res[s] = r; Object.assign(all, terms(r, film[s], s)); }
+  try { for (const s of ['A', 'B']) { const r = await page.evaluate(([s, g, d]) => { LOOKTEST.frame(s, g); return LOOKTEST.measure(s, d); }, [s, g, REGIONS[s]]); res[s] = r; Object.assign(all, terms(r, film[s], s)); } }
+  catch (e) { console.error('eval failed', e.message.slice(0, 200)); return { score: 1e9, fails: 99, worst: 99, worstKey: 'error', terms: {} }; }
   const sc = score(all); return Object.assign(sc, { terms: all, raw: keep ? res : undefined });
 }
 

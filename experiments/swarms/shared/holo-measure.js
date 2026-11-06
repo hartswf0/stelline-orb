@@ -9,7 +9,7 @@ const fs = require('fs'), path = require('path'), { execFileSync } = require('ch
 const HERE = __dirname, WORK = '/home/claude/stelline-work', FOR = WORK + '/forensic', FILM = WORK + '/film/memory.mp4', OUT = WORK + '/holo';
 const SCR = process.env.HOLO_SCRATCH || '/tmp/claude-0/-home-claude/5dcbf124-08aa-5357-a87a-ec1f490e8f81/scratchpad/holo';
 const arg = (k, d) => { const i = process.argv.indexOf('--' + k); return i < 0 ? d : (process.argv[i + 1] && !process.argv[i + 1].startsWith('--') ? process.argv[i + 1] : true); };
-const GENS = +arg('gens', 40), SEED = +arg('seed', 7), EVOLVE = !arg('no-evolve', false);
+const GENS = +arg('gens', 40), SEED = +arg('seed', 7), STRIP_ONLY = !!arg('strip-only', false), EVOLVE = !arg('no-evolve', false) && !STRIP_ONLY;
 const HOLO = require('./holo.js');
 fs.mkdirSync(SCR + '/f', { recursive: true }); fs.mkdirSync(OUT, { recursive: true });
 
@@ -213,14 +213,15 @@ function evolve(G0, seed, gens, onGen) { const rnd = HOLO.prng(seed); const clon
   trace.after = best.r; trace.log = log; trace.tolerances = await pg.evaluate(() => TOL);
   // 3. strips (film pixels: only to stelline-work/holo)
   const strip = await pg.evaluate(async ([fr, G]) => { const W = ROI.w, H = ROI.h, c = new OffscreenCanvas(W * 4, H * 2), x = c.getContext('2d'); x.fillStyle = '#000'; x.fillRect(0, 0, W * 4, H * 2);
-    const show = [10, 40, 62, 84]; for (let k = 0; k < 4; k++) { const img = await loadImg(fr[show[k]]); x.drawImage(img, -ROI.x + k * W, -ROI.y, 1280, 720); x.save(); x.beginPath(); x.rect(k * W, 0, W, H); x.clip(); x.restore();
-      const m = FM.marks[show[k] - FM.markOffset]; const r = renderArc(G.arc, FM.F, m === null || m === undefined ? null : m - FM.markBias, G.fit.dx, G.fit.dy); x.drawImage(r.c, k * W, H);
-      const o = HOLO.readout(null, null, { genome: { readout: G.readout }, auto: false, seed: 3 }); o.type(3); for (let i = 0; i < 10 + k * 6; i++) o.update(1 / 24); x.globalCompositeOperation = 'lighter'; HOLO.draw.readout(x, k * W + RD.x + FM.read.x0, H + RD.y + FM.read.y0, 1, G.readout, o.lines, o.typed, 1); x.globalCompositeOperation = 'source-over'; }
+    const show = [10, 40, 62, 84]; for (let k = 0; k < 4; k++) { const img = await loadImg(fr[show[k]]); x.save(); x.beginPath(); x.rect(k * W, 0, W, H); x.clip(); x.drawImage(img, -ROI.x + k * W, -ROI.y, 1280, 720); x.restore();
+      const m = FM.marks[show[k] - FM.markOffset]; const r = renderArc(G.arc, FM.F, m === null || m === undefined ? null : m - FM.markBias, G.fit.dx, G.fit.dy); x.save(); x.beginPath(); x.rect(k * W, H, W, H); x.clip(); x.drawImage(r.c, k * W, H);
+      const o = HOLO.readout(null, null, { genome: { readout: G.readout }, auto: false, seed: 3 }); o.type(3); for (let i = 0; i < 10 + k * 6; i++) o.update(1 / 24); x.globalCompositeOperation = 'lighter'; HOLO.draw.readout(x, k * W + RD.x + FM.read.x0, H + RD.y + FM.read.y0, 1, G.readout, o.lines, o.typed, 1); x.globalCompositeOperation = 'source-over'; x.restore(); }
     // brighten for reading
     const d = x.getImageData(0, 0, W * 4, H * 2); for (let i = 0; i < d.data.length; i += 4) for (let j = 0; j < 3; j++) d.data[i + j] = Math.min(255, d.data[i + j] * 2.2); x.putImageData(d, 0, 0);
     const b = await c.convertToBlob({ type: 'image/png' }); const ab = new Uint8Array(await b.arrayBuffer()); let s = ''; for (let i = 0; i < ab.length; i++) s += String.fromCharCode(ab[i]); return btoa(s); }, [frames, best.G]);
   fs.writeFileSync(OUT + '/strip-arc.png', Buffer.from(strip, 'base64')); trace.strip = OUT + '/strip-arc.png (top: film, bottom: HOLO at the same framing; brightened x2.2)';
   await br.close();
+  if (STRIP_ONLY) { console.log('strip written'); return; }
   // 4. write genome, inject into holo.js, write trace
   const G = best.G; G.device = gd; const gtxt = JSON.stringify(G, null, 1);
   fs.writeFileSync(path.join(HERE, 'holo-genome.json'), gtxt + '\n');

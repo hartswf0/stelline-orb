@@ -20,7 +20,7 @@
   /* simulate one part played with UI genome U by a style. Returns measured metrics (the same names the browser records). */
   function simulatePart(mod, refs, U, styleName, seed, opts) {
     opts = opts || {}; const style = STYLES[styleName], ui = UIG.decode(U), r = BREED.mulberry32(BREED.hash(seed, 99, mod.name, styleName)), rnd = () => BREED.gauss(r);
-    const M = UIG.blankMetrics(), maxG = opts.maxGens || 160; let P = { G: BREED.blank(mod) }; P.e = mod.evaluate(P.G, refs); let si = BREED.stageOf(mod, P.e);
+    const M = UIG.blankMetrics(), maxG = opts.maxGens || 160; let P = { G: BREED.blank(mod) }; P.e = mod.evaluate(P.G, refs); let si = BREED.advance(mod, P.e, 0);
     const ring = { strength: { ang: ui.sigma0 * ui.detent, last: 0 }, bias: { ang: 0, last: 0 } }; let biasStage = -1;
     const turn = (key, goal) => { const R = ring[key], g = gestures(style, R.ang, goal, ui.detent, rnd); g.list.forEach(d => { M.moves++; M.time += style.turnTime; if (R.last && Math.sign(d) !== Math.sign(R.last)) M.reversals++; R.last = d; }); R.ang = g.ang;
       const roleRing = ui.map[key === 'strength' ? 'STRENGTH' : 'BIAS']; if (g.list.length && roleRing !== style.thumb) M.moves++; };   // reaching for the wrong ring first
@@ -35,8 +35,8 @@
       if (style.waitsAll) { n = ui.lambda; M.idle += n * (style.compare[ui.layout] + Math.max(0, ui.rate - 12) * style.strain) + style.react; M.time += reveal; }
       else { n = Math.min(ui.lambda, 1 + Math.floor(style.react * ui.rate)); M.idle += Math.max(0, style.react - reveal); M.time += style.react; }
       // the player chooses: SELECT moves the highlight from the first variant onward (the parent is the last stop), HOLD keeps it
-      const target = chooseChild(style, res.kids.slice(0, n).map(k => k.score), res.parentScore, r); M.moves += target; M.gens++;
-      if (target < n) { M.accepted++; P = { G: res.kids[target].G, e: res.kids[target].e }; if (target !== bestOf(res.kids.slice(0, n).map(k => k.score))) M.offBest = (M.offBest || 0) + 1; } const ns = BREED.stageOf(mod, P.e); if (ns > si) M.stages += ns - si; si = Math.max(si, ns); }
+      const target = chooseChild(style, res.kids.slice(0, n).map(k => k.ok === false ? -1 : k.score), res.parentScore, r);   // a variant that breaks a passed stage is shown as such and passed over M.moves += target; M.gens++;
+      if (target < n) { M.accepted++; P = { G: res.kids[target].G, e: res.kids[target].e }; if (target !== bestOf(res.kids.slice(0, n).map(k => k.score))) M.offBest = (M.offBest || 0) + 1; } const ns = BREED.advance(mod, P.e, si); if (ns > si) M.stages += ns - si; si = ns; }
     M.time += M.idle; M.passed = si >= mod.stages.length; M.fit = +P.e.fit.toFixed(4); return M; }
   /* what the player's eye picks: the hint (the stage's measure per variant) read with the style's own error; index n = keep the parent */
   function chooseChild(style, scores, parentScore, r) { const eye = style.name === 'HASTY' ? .015 : .004; let best = scores.length, bv = parentScore + eye * BREED.gauss(r);
@@ -52,7 +52,7 @@
     if (!v.brood) return v.since > style.react ? { kind: 'hold' } : { kind: 'wait' };          // the first HOLD of a part breeds
     const ready = style.waitsAll ? !v.revealing && v.since > style.react + v.lambda * (style.compare[v.ui.layout] + Math.max(0, v.ui.rate - 12) * style.strain) : v.sinceHold > style.react;
     if (!ready) return { kind: 'wait' };
-    if (v.target == null) return { kind: 'decide', target: chooseChild(style, v.hints, v.parentScore, v.rng) };
+    if (v.target == null) return { kind: 'decide', target: chooseChild(style, v.hints, v.parentScore, v.rng) };   // hints of inadmissible variants arrive as -1
     if (v.hi !== v.target) return v.sinceSelect > (style.name === 'HASTY' ? .1 : .22) ? { kind: 'select' } : { kind: 'wait' };
     return v.sinceSelect > (style.name === 'HASTY' ? .1 : .3) ? { kind: 'hold' } : { kind: 'wait' }; }
   /* which candidate the scripted player picks between parts: every third time it plays the elite again (a re-measurement), otherwise it explores one of the two new variants; elitism by measured play decides */

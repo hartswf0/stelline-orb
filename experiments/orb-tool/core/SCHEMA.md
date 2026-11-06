@@ -3,7 +3,7 @@
 Owner: CORE. SCENE and AGENT build against this file. Changes are additive only and are logged at the bottom.
 
 All core files are plain scripts that work in the browser (they set a global) and in node (`module.exports`).
-Load order in a page: `core/state.js`, `core/ops.js`, `core/bus.js`, `core/machine.js`, then `core/sound.js`, `core/device.js`, `core/stub-scene.js`.
+Load order in a page: `core/state.js`, `core/ops.js`, `core/bus.js`, `core/machine.js`, `core/devmap.js` (the device as ops, pure), then `core/sound.js`, `core/device.js`, `core/stub-scene.js`.
 
 ## 1. The memory state (one JSON object)
 
@@ -82,7 +82,7 @@ Every operation is `{ op, args }`. `ORB.do(op, { author })` validates, applies, 
 | `write` | `{ text }` | set inscription text and set `written` to 24 (the machine writes it in) |
 | `candles` | `{ count }` | set count, all lit |
 | `hold` / `release` | `{}` | freeze / let go every performance. `release` when all three children have arrived (10) and candles are lit also blows them out (time.blown, candles.lit = 0) |
-| `blow` | `{}` | candles.lit = 0, time.blown = true |
+| `blow` | `{}` | candles.lit = 0, time.blown = true (refused with no cake or no lit candle) |
 | `switchOff` / `switchOn` | `{}` | the memory goes dark / comes back |
 | `look` | `{ look?, place?, light? }` | scene look |
 | `camera` | `{ yaw?, kneel?, focus?, turn? }` | `turn` is relative degrees |

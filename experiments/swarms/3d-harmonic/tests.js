@@ -34,6 +34,15 @@ const pattern = H.STAGES.filter(d => !d.auto), randGears = () => { const g = {};
   const tubes = H.inscription().map(s => [s.ch + s.stroke, s.pts]).concat([['shells', H.pass(H.STAGES[3], H.targetGears(H.STAGES[3]), 720).pts]]);
   stops.forEach((c, i) => tubes.forEach(([nm, pts]) => pts.forEach(p => { const g = Math.hypot(p.x - c.x, p.z - c.z) - CR - p.r; if (g < worst) { worst = g; who = 'candle ' + i + ' / ' + nm; } })));
   check('4 seven candles, each clear of every inscription stroke and shell (min gap, metres)', stops.length === 7 && worst > 0, { candles: stops.length, min_gap_m: +worst.toFixed(5), at: who }); }
+// 7 both film cakes are reachable through the reducer: the nozzle at COAT picks the recipe; each stage then needs that recipe's gears
+{ const out = {}; ['white', 'choc'].forEach(rc => { const G = H.newGame(); let guard = 0;
+    while (!G.over && guard++ < 40) { const d = H.STAGES[G.stage]; if (d.id === 'COAT') H.setGear(G, 'n', rc === 'choc' ? H.CHOC_NOZZLE : H.R11, 0);
+      if (!d.auto) { const T = H.targetGears(d, G.recipe); d.need.forEach(id => H.setGear(G, id, T[id].ri, T[id].ph)); } H.commit(G); }
+    // and the other recipe's gears are rejected at every patterned stage that differs
+    const other = rc === 'choc' ? 'white' : 'choc', G2 = H.newGame(); H.setGear(G2, 'n', rc === 'choc' ? H.CHOC_NOZZLE : H.R11, 0); H.commit(G2); H.commit(G2); H.setGear(G2, 'n', rc === 'choc' ? H.CHOC_NOZZLE : H.R11, 0);
+    const d = H.STAGES[G2.stage], T = H.targetGears(d, other); d.need.forEach(id => H.setGear(G2, id, T[id].ri, T[id].ph)); const r = H.commit(G2);
+    out[rc] = { over: G.over, recipe: G.recipe, passes: G.passes.length, otherRecipeBeadsRejected: !r.ok }; });
+  check('7 both film cakes reachable (white sponge / chocolate with orange top), and each rejects the other\'s bead ring', out.white.over && out.choc.over && out.white.recipe === 'white' && out.choc.recipe === 'choc' && out.white.otherRecipeBeadsRejected && out.choc.otherRecipeBeadsRejected, out); }
 // 5 reproducibility from the trace
 const tracePath = path.join(__dirname, 'trace.json');
 if (fs.existsSync(tracePath)) { const tr = JSON.parse(fs.readFileSync(tracePath, 'utf8')); const G = H.newGame();

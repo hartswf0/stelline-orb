@@ -18,16 +18,17 @@ const TAU = Math.PI * 2, D2R = Math.PI / 180, clamp = (v, a, b) => Math.max(a, M
 const hasDOM = typeof document !== 'undefined';
 
 /* ------------------------------------------------------------------ THE GENOME (evolved; holo-genome.json holds the same numbers) */
-const GENOME = /*GENOME*/{"arc":{"R":84,"asp":0.86,"thick":17,"a0":-104,"a1":46,"tail":14,"capA0":-104,"capA1":-76,"capGain":1.55,"bandIn":0.18,"bandOut":0.62,"edge":1.2,"gaps":[-62,-40,-25,-8,5,15,28,40],"gapW":2.4,"gapDepth":0.75,"hairR":0.8,"hairA":0.32,"hairW":1,"col":[196,204,188],"glow":2.2,"glowA":0.35,"markW":8,"markH":6,"markOff":1,"markGain":1.35,"tickLen":13,"tickDots":4,"tickDot":2,"tickGap":4.5,"needles":[[-79,0.52,1.06,0.55],[33,0.74,1.1,0.45]],"needleW":1},"steps":{"marks":[-23.2,-19.3,-10,-0.7,6],"blinkFrames":3.75,"drift":2.4,"driftTime":0.5},"readout":{"glyphH":2.4,"lineGap":6.4,"charW":1.7,"charGap":0.9,"wordMin":3,"wordMax":9,"spaceW":3.2,"lineW":96,"maxLines":3,"typeRate":64,"burst":0.083,"alpha":0.72,"col":[206,214,200],"clearHold":0.45},"child":{"R":13,"asp":0.9,"thick":4.2,"a0":-110,"a1":70,"capGain":1.6,"barW":9,"barH":12,"leader":16,"leaderA":135,"alpha":0.8},"device":{"detentDeg":9,"rate":11.8,"fastRate":23.6,"fastAfter":10,"latency":0.35,"handGain":0.22,"stepGain":0.75,"fastGain":0.3,"clickRate":1.6,"handRate":1.442},"fit":{"dx":0,"dy":0}}/*END*/;
+const GENOME = /*GENOME*/{"arc":{"R":85.186,"asp":0.89,"thick":15.985,"a0":-107.284,"a1":48.998,"tail":12.934,"capA0":-104,"capA1":-73.139,"capGain":1.586,"bandIn":0.156,"bandOut":0.362,"edge":1.2,"gaps":[-22,-9,6.3,15.1,29.8,40],"gapW":2.4,"gapDepth":0.75,"hairR":0.801,"hairA":0.305,"hairW":1,"col":[196,198.878,197.994],"glow":1.968,"glowA":0.29,"markW":8.082,"markH":6,"markOff":0.852,"markGain":1.35,"tickLen":13,"tickDots":4,"tickDot":2,"tickGap":4.5,"needles":[[-79,0.52,1.06,0.55],[33,0.74,1.1,0.45]],"needleW":1},"steps":{"marks":[-23.2,-19.3,-10,-0.7,6],"blinkFrames":3.85,"drift":2.339,"driftTime":0.5},"readout":{"glyphH":2.4,"lineGap":5.956,"charW":1.7,"charGap":0.9,"wordMin":3,"wordMax":9,"spaceW":3.2,"lineW":102.179,"maxLines":3,"typeRate":74.595,"burst":0.096,"alpha":0.72,"col":[206,214,200],"clearHold":0.45},"child":{"R":13,"asp":0.9,"thick":4.2,"a0":-110,"a1":70,"capGain":1.6,"barW":9,"barH":12,"leader":16,"leaderA":135,"alpha":0.8},"device":{"detentDeg":9,"rate":11.7098,"fastRate":16,"fastAfter":8,"latency":0.423,"handGain":0.1672,"stepGain":0.7851,"fastGain":0.1638,"clickRate":1.6,"handRate":1.442},"fit":{"dx":0.39,"dy":0}}/*END*/;
 
 /* ------------------------------------------------------------------ small helpers */
 function prng(seed) { let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 function rgba(c, a) { return `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${clamp(a, 0, 1).toFixed(3)})`; }
 function merge(base, over) { const o = JSON.parse(JSON.stringify(base)); if (!over) return o; for (const k in over) { if (over[k] && typeof over[k] === 'object' && !Array.isArray(over[k]) && o[k]) o[k] = merge(o[k], over[k]); else o[k] = over[k]; } return o; }
 
+const LAYERS = {}; function layer(w, h) { const k = w + 'x' + h; if (!LAYERS[k]) LAYERS[k] = typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(w, h) : Object.assign(document.createElement('canvas'), { width: w, height: h }); return LAYERS[k]; }
 /* ================================================================== 2D RENDERERS (pure; the measurement draws these at the film's framing)
    drawArc(ctx, cx, cy, s, g, st): s = pixels per film pixel; st = { mark: deg or null, alpha, segOn: [0..1 per segment] } */
-function drawArc(ctx, cx, cy, s, g, st) {
+function drawArc(ctx, cx, cy, s, g, st) { // eslint-disable-line
   st = st || {}; const A = st.alpha == null ? 1 : st.alpha; if (A <= 0.002) return;
   const R = g.R * s, th = g.thick * s, col = g.col;
   // the segments, from the band's top end to its lower end, cut by the gaps
@@ -41,7 +42,7 @@ function drawArc(ctx, cx, cy, s, g, st) {
       for (let k = 0; k < nr; k++) { const u = (k + 0.5) / nr, r = R - th + u * th; // u: 0 inner -> 1 outer
         let a = lerp(g.bandIn, g.bandOut, Math.pow(u, 1.3)); if (u > 1 - g.edge / g.thick) a *= 0.55; // a softer outer lip
         // the lower end fades out over 'tail' degrees; the cap at the upper end is brighter
-        const steps = Math.max(2, Math.ceil((p1 - p0) / 2));
+        const steps = Math.max(2, Math.ceil((p1 - p0) / 3));
         for (let j = 0; j < steps; j++) { const q0 = p0 + (p1 - p0) * j / steps, q1 = p0 + (p1 - p0) * (j + 1) / steps, qm = (q0 + q1) / 2;
           let k2 = a; if (qm > g.a1 - g.tail) k2 *= clamp((g.a1 - qm) / g.tail, 0, 1); if (qm >= g.capA0 && qm <= g.capA1) k2 *= g.capGain * (0.75 + 0.25 * Math.sin(Math.PI * (qm - g.capA0) / (g.capA1 - g.capA0)));
           ctx.strokeStyle = rgba(col, k2 * A * on * alphaK); ctx.lineWidth = th / nr + 0.6; ctx.beginPath(); ctx.arc(0, 0, r, q0 * D2R, q1 * D2R + 0.002); ctx.stroke(); } }
@@ -49,8 +50,11 @@ function drawArc(ctx, cx, cy, s, g, st) {
     // the gaps do not cut clean: a dark notch with a little of the band left in it
     ctx.globalCompositeOperation = 'source-over';
   };
-  if (g.glow > 0 && ctx.filter !== undefined) { ctx.filter = `blur(${(g.glow * s).toFixed(2)}px)`; band(g.glowA); ctx.filter = 'none'; }
-  band(1);
+  // the band is drawn once into a layer; the glow is that layer blurred, laid under it
+  const cw = ctx.canvas.width, ch = ctx.canvas.height; const lay = layer(cw, ch), lx = lay.getContext('2d'); lx.setTransform(1, 0, 0, 1, 0, 0); lx.clearRect(0, 0, cw, ch); lx.setTransform(ctx.getTransform()); lx.lineCap = 'butt';
+  const keep = ctx; ctx = lx; band(1); ctx = keep; ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (g.glow > 0 && ctx.filter !== undefined) { ctx.filter = `blur(${(g.glow * s).toFixed(2)}px)`; ctx.globalAlpha = g.glowA; ctx.drawImage(lay, 0, 0); ctx.filter = 'none'; ctx.globalAlpha = 1; }
+  ctx.drawImage(lay, 0, 0); ctx.restore();
   // inner hairline, concentric, the full height of the band
   ctx.strokeStyle = rgba(col, g.hairA * A); ctx.lineWidth = Math.max(0.5, g.hairW * s) / g.asp; ctx.beginPath(); ctx.arc(0, 0, R * g.hairR, (g.a0 + 18) * D2R, (g.a1 - 6) * D2R); ctx.stroke();
   ctx.restore();

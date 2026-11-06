@@ -92,7 +92,7 @@ function cakeB() { const g = new T.Group(), r = 0.11, h = 0.1;
   const top = new T.Mesh(new T.CircleGeometry(r, 96), cream); top.rotation.x = -Math.PI / 2; top.position.y = h; g.add(tag(top, 'top'));
   const rim = new T.Mesh(new T.TorusGeometry(r - 0.003, 0.007, 10, 96), cream); rim.rotation.x = Math.PI / 2; rim.position.y = h; g.add(tag(rim, 'top'));
   beads(g, dark, r + 0.003, i => 0.018 + (i % 3) * 0.03, 36, 0.0055, 'side', true);
-  for (let k = 0; k < 9; k++) { const a = k / 9 * TAU, b = new T.Mesh(new T.SphereGeometry(0.009, 10, 6), red); b.scale.set(1.3, 0.35, 0.8); b.position.set(Math.cos(a) * 0.06, h + 0.002, Math.sin(a) * 0.06); b.rotation.y = -a; g.add(tag(b, 'top')); }
+  for (let k = 0; k < 7; k++) { const a = k / 7 * TAU + 0.3, b = new T.Mesh(new T.SphereGeometry(0.006, 10, 6), red); b.scale.set(1.4, 0.3, 0.7); b.position.set(Math.cos(a) * 0.06, h + 0.002, Math.sin(a) * 0.06); b.rotation.y = -a; g.add(tag(b, 'top')); }
   const board = new T.Mesh(new T.CylinderGeometry(r + 0.025, r + 0.025, 0.006, 64), LOOK.material('board')); board.position.y = -0.003; g.add(tag(board, 'board'));
   const spots = [[-0.06, -0.05], [-0.045, -0.02], [-0.03, -0.06], [-0.01, -0.04], [0.005, -0.065], [-0.02, -0.075], [0.05, -0.04]];
   const cd = candles(g, spots, h); return { g, flames: cd.flames }; }
