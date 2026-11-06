@@ -48,10 +48,18 @@ scene.add(new T.HemisphereLight(0x8a9894, 0x080604, .07));
 
 /* =============================================================== MIST: every made thing can come apart into points of light */
 const MU = { uMist: { value: 0 }, uTime: { value: 0 } };
-function mistify(mat) { mat.onBeforeCompile = sh => { Object.assign(sh.uniforms, MU);
+/* PROJECTION (after BUF's notes on the film): holographic matter appears and disappears in spots of light; going away it shuts off in banks ordered by distance,
+   as a corridor of neon goes dark; a cake that is changed flares and decays like a spent magnesium flash, with a light vibration and a hue shift.
+   Each material carries its own uRev (0 gone, 1 whole), uRevO (where the order starts), uRevD (how much distance orders it), uFl (flash, 0-1). */
+function mistify(mat) { const U = mat.userData; U.rev = { value: 1 }; U.revO = { value: new T.Vector3(0, .7, 0) }; U.revD = { value: 0 }; U.fl = { value: 0 };
+  mat.onBeforeCompile = sh => { Object.assign(sh.uniforms, MU, { uRev: U.rev, uRevO: U.revO, uRevD: U.revD, uFl: U.fl });
     sh.vertexShader = 'varying vec3 vMW;\n' + sh.vertexShader.replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\n vMW = (modelMatrix * vec4(transformed, 1.0)).xyz;');
-    sh.fragmentShader = 'uniform float uMist, uTime; varying vec3 vMW;\nfloat mh(vec3 p){ return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }\n' + sh.fragmentShader.replace('void main() {', 'void main() {\n if (uMist > 0.001 && mh(floor(vMW * 640.0)) < uMist) discard;'); };
-  mat.customProgramCacheKey = () => 'mist' + (mat.alphaTest ? 'a' : ''); return mat; }
+    sh.fragmentShader = 'uniform float uMist, uTime, uRev, uRevD, uFl; uniform vec3 uRevO; varying vec3 vMW;\nfloat mh(vec3 p){ return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }\n'
+      + sh.fragmentShader.replace('void main() {', 'void main() {\n if (uMist > 0.001 && mh(floor(vMW * 640.0)) < uMist) discard;\n float spotG = 0.0; if (uRev < 0.999) { vec3 gq = vMW * 160.0; vec3 cid = floor(gq); float cell = mh(cid); float th = mix(cell, clamp(length(vMW - uRevO) / 1.1, 0.0, 1.0) * 0.85 + cell * 0.15, uRevD) * 0.8 + 0.02; float r = clamp((uRev - th) / 0.18, 0.0, 1.0); float dd = length(fract(gq) - 0.5); if (dd > r * 0.87) discard; spotG = (1.0 - r) * (1.0 - smoothstep(0.0, 0.5, dd)) + 0.25 * (1.0 - r); }')
+        .replace('#include <dithering_fragment>', '#include <dithering_fragment>\n gl_FragColor.rgb += spotG * vec3(1.0, 0.86, 0.62) * 1.6;\n if (uFl > 0.001) { float v = 0.82 + 0.18 * sin(uTime * 95.0) * sin(uTime * 37.0); vec3 hue = mix(vec3(1.0, 0.42, 0.78), mix(vec3(1.0, 0.72, 0.38), vec3(1.0, 0.98, 0.92), smoothstep(0.55, 1.0, uFl)), smoothstep(0.0, 0.55, uFl)); gl_FragColor.rgb = mix(gl_FragColor.rgb, hue * 1.7 * v, uFl * 0.85); }'); };
+  mat.customProgramCacheKey = () => 'mist2' + (mat.alphaTest ? 'a' : ''); return mat; }
+function revTo(o, k, origin, order) { o.traverse(x => { const ms = x.material ? (Array.isArray(x.material) ? x.material : [x.material]) : []; ms.forEach(mt => { const U = mt.userData;
+  if (U.rev) { U.rev.value = k; U.revD.value = order || 0; if (origin) U.revO.value.copy(origin); } else { if (U.op0 == null) { U.op0 = mt.opacity; U.tr0 = mt.transparent; } const tr = k < 1 ? true : U.tr0; if (mt.transparent !== tr) { mt.transparent = tr; mt.needsUpdate = true; } mt.opacity = U.op0 * k; } }); }); }
 
 /* =============================================================== THE MEMORY: a pivot the grip turns, and what is made inside it */
 const TOP = .62;                                     // where the cake sits: in the air, and later on the table
@@ -59,7 +67,7 @@ const PIV = new T.Group(); PIV.position.set(0, TOP + .05, 0); scene.add(PIV); co
 const CAKE = new T.Group(); CAKE.position.y = TOP; MEM.add(CAKE);
 const TABLE = new T.Group(); MEM.add(TABLE); const KIDG = new T.Group(); MEM.add(KIDG);
 const key = new T.SpotLight(0xffb878, 0, 5, .42, .6, 1.3); key.castShadow = true; key.shadow.mapSize.set(1024, 1024); key.shadow.bias = -.0012; scene.add(key, key.target);
-const candleLight = new T.PointLight(0xffa04a, 0, 2.2, 1.7); scene.add(candleLight);
+const candleLight = new T.PointLight(0xffa04a, 0, 3.2, 1.6); scene.add(candleLight);
 const keyMark = new T.Group(); scene.add(keyMark); { const m = new T.Mesh(new T.SphereGeometry(.018, 16, 10), new T.MeshBasicMaterial({ color: 0xffe2b0, toneMapped: false })); keyMark.add(m); }
 const keyLine = new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(), new T.Vector3(0, 1, 0)]), new T.LineBasicMaterial({ color: 0xffe2b0, transparent: true, opacity: .35 })); scene.add(keyLine);
 
@@ -92,7 +100,9 @@ const cMats = {}; function cMat(k) { if (cMats[k]) return cMats[k]; const o = CT
 function digitTex(d) { const c = document.createElement('canvas'); c.width = 96; c.height = 128; const x = c.getContext('2d'); x.font = '900 118px Georgia, serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.lineWidth = 10; x.strokeStyle = '#fff6e0'; x.strokeText(d, 48, 68); x.fillStyle = '#d9a640'; x.fillText(d, 48, 68); const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; return t; }
 function candleSpot(c, F, k) { const P = (c.per || {})[k] || {}, n = c.candles, a = k / n * TAU + .3 + (P.da || 0), r0 = n === 1 ? 0 : F.cr * (c.spread || 1), r = clamp(n === 1 ? (P.r || 0) : r0 * (P.rf == null ? 1 : P.rf), 0, F.edge - .012);
   return { a, r, x: Math.cos(a) * r, z: Math.sin(a) * r, y: F.domed ? F.top - .004 - (r / F.edge) ** 2 * .03 : F.top, out: c.out >= n || !!P.out }; }
-function addFlame(g, y, sparkle) { const f = new T.Sprite(sparkle ? sparkMat : flameMat); f.scale.set(sparkle ? .05 : .016, sparkle ? .05 : .034, 1); f.position.y = y; f.userData.sparkle = sparkle; g.add(f); FLAMES.push(f); }
+const haloMat = new T.SpriteMaterial({ map: (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'), g = x.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(255,190,110,.55)'); g.addColorStop(.35, 'rgba(255,140,60,.16)'); g.addColorStop(1, 'rgba(255,120,40,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64); return new T.CanvasTexture(c); })(), blending: T.AdditiveBlending, depthWrite: false, transparent: true });
+function addFlame(g, y, sparkle) { const f = new T.Sprite(sparkle ? sparkMat : flameMat); f.scale.set(sparkle ? .05 : .021, sparkle ? .05 : .044, 1); f.position.y = y; f.userData.sparkle = sparkle; g.add(f); FLAMES.push(f);
+  if (!sparkle) { const h = new T.Sprite(haloMat); h.scale.set(.13, .13, 1); h.position.y = y + .004; g.add(h); } }
 function buildCandles(c, F) { const n = c.candles; if (!n) return; const ty = CTYPES[c.ctype || 0][0];
   if (ty === 'NUMBER') { const ds = String(n).split(''); ds.forEach((d, k) => { const g = new T.Group(); g.userData.candle = k; g.position.set((k - (ds.length - 1) / 2) * .042, F.domed ? F.top - .006 : F.top, 0); const pl = new T.Mesh(new T.PlaneGeometry(.045, .06), mistify(new T.MeshStandardMaterial({ map: digitTex(d), transparent: true, alphaTest: .4, side: T.DoubleSide, roughness: .4 }))); pl.position.y = .03; pl.castShadow = true; g.add(pl);
       const w = new T.Mesh(new T.CylinderGeometry(.0006, .0006, .007, 4), wickMat); w.position.y = .063; g.add(w); if (!(c.out >= n)) addFlame(g, .078); CAKE.add(g); }); return; }
@@ -173,7 +183,7 @@ function buildSketch(sk, F) { SKETCHG.clear(); penMark.visible = false; if (!sk 
   const flush = () => { if (run.length > 1) { const m = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(run), Math.max(4, run.length * 3), .0019, 6), mat); m.castShadow = true; SKETCHG.add(m); } run = []; };
   sk.pts.forEach(p => { if (p[2]) run.push(at(p[0], p[1])); else flush(); }); flush(); penMark.position.copy(at(sk.u, sk.v)); penMark.visible = true; penMark.material.color.setHex(sk.down ? 0xff6050 : 0xffffff); }
 
-/* =============================================================== the film's look: lifted grey-green blacks, soft contrast, grain, vignette */
+/* =============================================================== the film's look: true blacks (the dome in the film is 56% near-black), full colour, soft highlights, grain, vignette */
 const rt = new T.WebGLRenderTarget(16, 16); rt.texture.encoding = T.sRGBEncoding;
 const grade = new T.ShaderMaterial({ uniforms: { tC: { value: rt.texture }, gt: { value: 0 }, mist: { value: 0 }, era: { value: 0 }, px: { value: new T.Vector2(1 / 1280, 1 / 720) } }, depthTest: false, depthWrite: false,
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }',
@@ -187,7 +197,7 @@ const grade = new T.ShaderMaterial({ uniforms: { tC: { value: rt.texture }, gt: 
       else { c *= vec3(.96, 1., 1.05); gr = .6; }
       c = max(c, vec3(0.)); }
     vec2 q = vUv - .5; c *= 1. - dot(q, q) * (era > .5 && era < 2.5 ? 1.9 : 1.1);
-    float l = dot(c, vec3(.299, .587, .114)); c = mix(vec3(l), c, .86); c = vec3(.034, .043, .038) + c * vec3(.97, 1., .95); c = c / (c + .72) * 1.62;
+    float l = dot(c, vec3(.299, .587, .114)); c = mix(vec3(l), c, 1.02); c = vec3(.006, .008, .007) + c * vec3(.98, 1., .95); c = c / (c + .72) * 1.62;
     c += (fract(sin(dot(vUv * vec2(1913., 2711.) + gt, vec2(12.9898, 78.233))) * 43758.5453) - .5) * .03 * gr; gl_FragColor = vec4(c, 1.); }` });
 const gQ = new T.Scene(), gC = new T.OrthographicCamera(-1, 1, 1, -1, 0, 1); gQ.add(new T.Mesh(new T.PlaneGeometry(2, 2), grade));
 
@@ -281,7 +291,7 @@ function tone(f0, f1, dur, vol, type) { if (window.SNDLOG) window.SNDLOG.push({ 
 const PRESETS = [['PLAIN SPONGE', 'DRUM', 0, 0], ['WHITE DRUM', 'DRUM', 2, 1], ['GRANDMOTHER’S CREAM', 'DRUM', 1, 1], ['ROSE DRUM', 'DRUM', 3, 1], ['CHOCOLATE DRUM', 'DRUM', 4, 4], ['LEMON DRUM', 'DRUM', 5, 1], ['MINT DRUM', 'DRUM', 6, 1],
   ['WHITE DOME', 'DOME', 2, 0], ['CHOCOLATE DOME', 'DOME', 4, 3], ['ROSE DOME', 'DOME', 3, 2], ['LEMON DOME', 'DOME', 5, 4], ['WHITE TIERS', 'TIERS', 2, 1], ['CREAM TIERS', 'TIERS', 1, 4], ['ROSE TIERS', 'TIERS', 3, 1],
   ['CHOCOLATE TIERS', 'TIERS', 4, 4], ['WEDDING WHITE', 'TIERS', 2, 4], ['SPONGE RING', 'RING', 0, 0], ['CHOCOLATE RING', 'RING', 4, 0], ['GLAZED RING', 'RING', 2, 0], ['LEMON RING', 'RING', 5, 0],
-  ['MINT TIERS', 'TIERS', 6, 2], ['ROSE AND GOLD', 'DRUM', 3, 4], ['CHOCOLATE AND CREAM', 'DOME', 4, 1], ['THE FILM’S CAKE', 'DRUM', 1, 1],
+  ['MINT TIERS', 'TIERS', 6, 2], ['ROSE AND GOLD', 'DRUM', 3, 4], ['CHOCOLATE AND CREAM', 'DOME', 4, 1], ['THE FILM’S CAKE', 'DRUM', 0, 1],
   ['CARAMEL DRUM', 'DRUM', 7, 3], ['CARAMEL RING', 'RING', 7, 0], ['LAVENDER DOME', 'DOME', 8, 1], ['LAVENDER TIERS', 'TIERS', 8, 4], ['RED VELVET DRUM', 'DRUM', 9, 1], ['RED VELVET TIERS', 'TIERS', 9, 1],
   ['COCONUT DOME', 'DOME', 10, 0], ['COCONUT DRUM', 'DRUM', 10, 4], ['SCHOOL SHEET', 'DRUM', 2, 2], ['FARMHOUSE SPONGE', 'DRUM', 0, 1], ['CHURCH-HALL WHITE', 'TIERS', 2, 0], ['NIGHT-SHIFT CHOCOLATE', 'RING', 4, 4],
   ['GARDEN LEMON', 'DOME', 5, 1], ['DINER CARAMEL', 'TIERS', 7, 1], ['MIDSUMMER MINT', 'DRUM', 6, 2], ['WINTER COCONUT', 'TIERS', 10, 4]];
@@ -361,13 +371,13 @@ function rings() {
   props.forEach((r, i) => { if (r) { r.undoable = true; out[i + 1] = r; } }); return out; }
 function placeRings(p, dc) { const C = DOC.cake, Lt = DOC.light;
   if (p.key === 'light') return [num('AROUND', () => Lt.a, v => Lt.a = v, -180, 180, 10, v => Math.round(v) + '°', true), num('HEIGHT', () => Lt.h, v => Lt.h = v, .05, 1.6, .05, cm)];
-  if (p.key === 'cake') return [num('SIZE', () => C.size, v => { C.size = v; dc(); }, .6, 1.8, .05, v => '×' + v.toFixed(2))];
+  if (p.key === 'cake') return [num('SIZE', () => C.size, v => { C.size = v; dc(); }, .6, 1.8, .05, v => '×' + v.toFixed(2)), num('TURN', () => C.turn || 0, v => { C.turn = v; }, -180, 180, 10, v => Math.round(v) + '°', true)];
   if (p.key === 'table') return [num('WIDTH', () => DOC.table.w, v => { DOC.table.w = v; dirty.table = dirty.mess = true; }, .6, 1.6, .05, v => Math.round(120 * v) + ' CM')];
   if (p.key === 'candles') return candleRings(DOC.candles, dc, true);
   if (p.key === 'sketch') return sketchRings(DOC.sketch, dc);
   if (!p.it) return []; const it = p.it, di = () => dirty.items = true, pl = it.plane, lim = pl === 'FLOOR' ? 3 : pl === 'BACK' ? 3 : .9;
   return [num('ACROSS', () => it.x, v => { it.x = v; di(); }, -lim, lim, .01, cm), pl === 'AIR' || pl === 'BACK' ? num('UP', () => it.up, v => { it.up = v; di(); }, -.4, 2.2, .01, cm) : num('DEPTH', () => it.z, v => { it.z = v; di(); }, -lim, lim, .01, cm),
-    pl === 'BACK' ? num('DISTANCE', () => it.z, v => { it.z = v; di(); }, -9, -1, .1, v => (-v).toFixed(1) + ' M') : num('TURN', () => it.turn, v => { it.turn = Math.round(v); di(); }, -180, 180, 5, v => Math.round(v) + '°', true),
+    pl === 'BACK' ? num('DISTANCE', () => it.z, v => { it.z = v; di(); }, -9, -1, .1, v => (-v).toFixed(1) + ' M') : it.type === 'cut' ? num('TURN', () => it.turn, v => { it.turn = Math.round(v); di(); }, -35, 35, 5, v => Math.round(v) + '° OF ±35') : num('TURN', () => it.turn, v => { it.turn = Math.round(v); di(); }, -180, 180, 5, v => Math.round(v) + '°', true),
     num('SIZE', () => it.size, v => { it.size = v; di(); }, .2, 4, .05, v => '×' + v.toFixed(2))]; }
 // SHAPE: a made thing is sculpted (height, width, taper, swell, lean); a cut-out is a card, so it is tilted, curled and lit
 function shapeRings(p, dc) { const pct = v => Math.round(v * 100) + '%', x2 = v => '×' + v.toFixed(2);
@@ -431,7 +441,8 @@ function press(b, long) { if (window.REMOTE) { tick('press'); ORB.push(b); retur
     const card = pk && pk.it && pk.it.type === 'cut'; say(S.mode === 'PLACE' ? 'PLACE · WHERE IT IS' : S.mode === 'SHAPE' ? (card ? 'SHAPE · BEND AND TILT THE CARD' : 'SHAPE · SCULPT IT') : S.mode === 'STYLE' ? 'STYLE · WHAT IT IS LIKE' : 'VIEW · HOW IT IS SEEN'); }
   else if (b === 'ADD') { if (!S.add) { if (S.mode === 'VIEW') S.mode = 'PLACE'; S.add = { s: DOC.cake ? 2 : 0, i: 0 }; ghostDirty = true; say('RING 1 A SHELF · RING 2 THE THING · ADD AGAIN TO PUT IT IN'); }
     else { const sh = shelves()[S.add.s], x = sh && sh.items[S.add.i]; if (!x) return; snap(true); create(x.key); S.add = null; ghostDirty = true; chime(); if (!x.key.startsWith('bday')) say(x.name + ' · IN'); } }
-  else if (b === 'DEL') { if (S.add) { S.add = null; ghostDirty = true; say('CANCELLED'); return; } const p = picked(); if (!p || p.key === 'light' || p.key === 'room') { tick('dead'); return; } if (p.key === 'sketch' && DOC.sketch.pts.length && !long) { snap(true); DOC.sketch.pts = []; dirty.cake = true; say('SHAKEN CLEAN'); return; } snap(true); remove(p.key); setDoc(DOC); say(p.name + ' · OUT · UNDO BRINGS IT BACK'); }
+  else if (b === 'DEL') { if (S.add) { S.add = null; ghostDirty = true; say('CANCELLED'); return; }
+    if (long && (DOC.cake || DOC.items.length || DOC.table)) { snap(true); switchOff(1.6, () => setDoc(DOC0())); say('SWITCHED OFF · UNDO BRINGS IT BACK'); return; } const p = picked(); if (!p || p.key === 'light' || p.key === 'room') { tick('dead'); return; } if (p.key === 'sketch' && DOC.sketch.pts.length && !long) { snap(true); DOC.sketch.pts = []; dirty.cake = true; say('SHAKEN CLEAN'); return; } snap(true); remove(p.key); setDoc(DOC); say(p.name + ' · OUT · UNDO BRINGS IT BACK'); }
   else if (b === 'UNDO') { if (S.add) { S.add = null; ghostDirty = true; say('CANCELLED'); return; } const from = long ? REDO : UNDO, to = long ? UNDO : REDO, s = from.pop(); if (!s) { tick('dead'); say(long ? 'NOTHING TO REDO' : 'NOTHING TO UNDO'); return; } to.push(JSON.stringify(DOC)); setDoc(JSON.parse(s)); say(long ? 'REDONE' : 'UNDONE'); }
   else if (b === 'KEEP') keep(); else if (b === 'PAIR') PAIR.open();
   oledDirty = true; }
@@ -598,12 +609,19 @@ function placeItem(m, it, dt) { const e = it.type === 'cut' ? CATBY[it.ref] : nu
     if (it.lean) { const b = hh / 2 - feet * hh; m.translateY(-b); m.rotateX(-it.lean * Math.PI / 180); m.translateY(b); } return; }
   m.scale.set(it.size * (it.wide || 1), it.size * (it.tall || 1), it.size * (it.wide || 1)); m.rotation.set(0, it.turn * Math.PI / 180, (it.lean || 0) * Math.PI / 180, 'YXZ'); if (pl === 'AIR') m.position.set(it.x, TOP + it.up + (it.ref === 'BALLOON' ? .45 : 0) + Math.sin(NOW * .8 + it.id) * .006, it.z); else if (pl === 'BACK') m.position.set(it.x, it.up, it.z); else m.position.set(it.x, y, it.z); }
 /* MATERIALIZING: whatever is put in comes up out of the dark over a second, as the projection finds it; a place fades in behind over two */
-const BORN = new Map(); let had = { cake: false, table: false, place: null };
+const BORN = new Map(); let had = { cake: false, table: false, place: null, preset: null }, FLASH = 0, OFF = null;
+// switching a memory off: everything shuts down in banks from the far side toward the eye, then the dome is dark
+function switchOff(dur, then) { const far = new T.Vector3(0, .7, 0).sub(cam.position).setY(0).normalize().multiplyScalar(1.3).add(new T.Vector3(0, .7, 0)); OFF = { t0: NOW, dur: dur || 1.6, o: far, then }; BORN.clear(); }
 function fadeTo(o, k) { o.traverse(x => { const ms = x.material ? (Array.isArray(x.material) ? x.material : [x.material]) : []; ms.forEach(mt => { const u = mt.userData; if (u.op0 == null) { u.op0 = mt.opacity; u.tr0 = mt.transparent; }
   const tr = k < 1 ? true : u.tr0; if (mt.transparent !== tr) { mt.transparent = tr; mt.needsUpdate = true; } mt.opacity = u.op0 * k; }); }); }
-function materialize() { if (!!DOC.cake !== had.cake) { had.cake = !!DOC.cake; if (had.cake) BORN.set(CAKE, NOW); } if (!!DOC.table !== had.table) { had.table = !!DOC.table; if (had.table) BORN.set(TABLE, NOW); }
+function materialize() { const pre = DOC.cake ? DOC.cake.preset + ':' + DOC.cake.form + ':' + DOC.cake.icing : null;
+  if (had.cake && DOC.cake && pre !== had.preset) { FLASH = 1; BORN.set(CAKE, NOW - .35); } had.preset = pre;
+  if (FLASH > 0) { FLASH = Math.max(0, FLASH - 1 / 30 / .75); CAKE.traverse(x => { const m = x.material; if (m && m.userData && m.userData.fl) m.userData.fl.value = FLASH * FLASH; }); }
+  if (OFF) { const u = clamp((NOW - OFF.t0) / OFF.dur, 0, 1), k = 1 - u * u * (3 - 2 * u); [CAKE, TABLE, ITEMG, KIDG].forEach(o => revTo(o, k, OFF.o, 1)); revTo(PLACEG, k);
+    if (u >= 1) { const f = OFF.then; OFF = null; if (f) f(); [CAKE, TABLE, ITEMG, KIDG].forEach(o => revTo(o, 1)); revTo(PLACEG, 1); } return; }
+  if (!!DOC.cake !== had.cake) { had.cake = !!DOC.cake; if (had.cake) BORN.set(CAKE, NOW); } if (!!DOC.table !== had.table) { had.table = !!DOC.table; if (had.table) BORN.set(TABLE, NOW); }
   if (DOC.room.place !== had.place) { had.place = DOC.room.place; if (had.place) BORN.set(PLACEG, NOW); }
-  BORN.forEach((t0, o) => { const dur = o === PLACEG ? 2.2 : 1.1, u = clamp((NOW - t0) / dur, 0, 1), k = u * u * (3 - 2 * u); fadeTo(o, k); if (u >= 1) BORN.delete(o); }); }
+  BORN.forEach((t0, o) => { const dur = o === PLACEG ? 2.2 : 1.2, u = clamp((NOW - t0) / dur, 0, 1), k = u * u * (3 - 2 * u); revTo(o, k, null, 0); if (u >= 1) BORN.delete(o); }); }
 function syncItems(dt) { const ids = new Set(DOC.items.map(it => it.id)); for (const id in ITEMM) if (!ids.has(+id) || dirty.items && ITEMM[id].userData.rebuild) { ITEMG.remove(ITEMM[id]); delete ITEMM[id]; }
   DOC.items.forEach(it => { let m = ITEMM[it.id]; const sig = it.type + it.ref + (it.color || 0); if (m && m.userData.sig !== sig) { ITEMG.remove(m); m = null; }
     if (!m) { m = it.type === 'cut' ? cutMesh(it) : propMesh(it); if (!m) return; BORN.set(m, NOW); m.userData.item = it.id; m.userData.sig = sig; m.traverse(o => o.userData.item = it.id); ITEMM[it.id] = m; ITEMG.add(m); }
@@ -618,14 +636,15 @@ function apply(dt) { const cd = DOC.candles;
   if (dirty.cake) { buildCake(DOC.cake ? Object.assign({}, DOC.cake, { candles: cd ? cd.n : 0, out: cd && !cd.lit ? cd.n : 0, spread: cd ? cd.spread : 1, clen: cd ? cd.len : 1, ctype: cd ? cd.ctype || 0 : 0, per: cd ? cd.per : {}, writing: DOC.writing, sketch: DOC.sketch }) : null); dirty.cake = false; }
   if (dirty.table) { buildTable(DOC.table); dirty.table = false; dirty.mess = true; } if (dirty.mess) { buildMess(DOC.room.mess, DOC.table ? DOC.table.w : 0); dirty.mess = false; }
   if (DOC.table) { DOC.table.k = Math.min(1, (DOC.table.k || 0) + dt * 1.5); tableMat.opacity = legMat.opacity = DOC.table.k; tableMat.transparent = legMat.transparent = DOC.table.k < 1; }
-  syncItems(dt); materialize(); updGhost(); GHOST.children.forEach(m => { const it = m.userData.ghost; if (it) placeItem(m, it, dt); });
+  syncItems(dt); materialize(); if (DOC.cake) { const want = (DOC.cake.turn || 0) * Math.PI / 180, d = ((want - CAKE.rotation.y + Math.PI) % TAU + TAU) % TAU - Math.PI; CAKE.rotation.y += d * Math.min(1, dt * 4); } updGhost(); GHOST.children.forEach(m => { const it = m.userData.ghost; if (it) placeItem(m, it, dt); });
   const Lt = DOC.light, cw = new T.Vector3(0, TOP + .05, 0), la = Lt.a * Math.PI / 180;
   key.position.set(Math.sin(la) * .95, cw.y + Lt.h, Math.cos(la) * .95); key.target.position.copy(cw); key.color.setRGB(lerp(.72, 1, Lt.warm), lerp(.82, .72, Lt.warm), lerp(1, .45, Lt.warm)); key.intensity = Lt.k;
-  keyMark.position.copy(key.position); keyMark.visible = keyLine.visible = S.mode !== 'VIEW' && S.pick === 'light' && !FILM; keyLine.geometry.setFromPoints([key.position, cw]);
-  const lit = FLAMES.filter(f => !f.userData.sparkle).length; candleLight.position.set(0, cw.y + .15, 0); candleLight.intensity = lit ? (.25 + Math.min(lit, 12) * .12) * (.94 + Math.sin(NOW * 21) * .04 + Math.sin(NOW * 7) * .03) : 0;
+  keyMark.position.copy(key.position); keyMark.visible = keyLine.visible = S.mode !== 'VIEW' && S.pick === 'light' && !FILM && !window.CAMOVR; keyLine.geometry.setFromPoints([key.position, cw]);
+  const lit = FLAMES.filter(f => !f.userData.sparkle).length; candleLight.position.set(0, cw.y + .15, 0); candleLight.intensity = lit ? (.45 + Math.min(lit, 12) * .2) * (.94 + Math.sin(NOW * 21) * .04 + Math.sin(NOW * 7) * .03) : 0;
   FLAMES.forEach((f, i) => { if (f.userData.sparkle) { const k = .7 + Math.random() * .6; f.scale.set(.05 * k, .05 * k, 1); f.material.rotation = Math.random() * TAU; return; } const k = 1 + Math.sin(NOW * 13 + i * 1.7) * .06 + Math.sin(NOW * 31 + i) * .04; f.scale.set(.016 * k, .034 * (2 - k), 1); });
   grade.uniforms.mist.value = DOC.room.mist; grade.uniforms.era.value = DOC.room.era || 0; buildPlace(DOC.room.place); scene.fog.density = .028 + DOC.room.mist * .09; }
-function placeCam(dt) { const V = S.view, P = VIEWS[V.preset], eye = (P && P.eye) || (V.preset === 'FREE' && V.eyeHold), k = Math.min(1, (dt || 1) * 6); if (P && P.fly) V.yaw += (dt || 0) * .22;
+function placeCam(dt) { const O = window.CAMOVR; if (O) { cam.position.fromArray(O.pos); cam.lookAt(new T.Vector3().fromArray(O.look)); if (Math.abs(cam.fov - O.fov) > .01) { cam.fov = O.fov; cam.updateProjectionMatrix(); } return; }
+  const V = S.view, P = VIEWS[V.preset], eye = (P && P.eye) || (V.preset === 'FREE' && V.eyeHold), k = Math.min(1, (dt || 1) * 6); if (P && P.fly) V.yaw += (dt || 0) * .22;
   let bc = new T.Vector3(0, TOP + .07, 0); if (!eye) { const b = sceneBox(); if (b) bc = b.getCenter(new T.Vector3()); } const tgt = (eye ? new T.Vector3(0, .69, 0) : bc).add(V.pan); if (P && P.fly) tgt.y += Math.sin(NOW * .5) * .05;
   CAM.yaw += (((V.yaw - CAM.yaw + Math.PI) % TAU + TAU) % TAU - Math.PI) * k; CAM.pitch += (V.pitch - CAM.pitch) * k; CAM.dist += (V.dist - CAM.dist) * k; CAM.fov += (V.fov - CAM.fov) * k; CAM.tgt.lerp(tgt, k);
   cam.position.set(CAM.tgt.x + Math.sin(CAM.yaw) * Math.cos(CAM.pitch) * CAM.dist, CAM.tgt.y + Math.sin(CAM.pitch) * CAM.dist, CAM.tgt.z + Math.cos(CAM.yaw) * Math.cos(CAM.pitch) * CAM.dist); cam.lookAt(CAM.tgt);
@@ -644,7 +663,7 @@ function render() { if (!PHONE) { grade.uniforms.gt.value = (NOW * 37.1) % 100; 
 let last = performance.now(), auto = true;
 function loop(now) { if (!auto) return; const dt = Math.min(.05, (now - last) / 1000); last = now; update(dt); render(); requestAnimationFrame(loop); }
 resize(); requestAnimationFrame(loop);
-window.FORGE = { S, get DOC() { return DOC; }, get CAT() { return CAT; }, turn, scrub, press, viewBy, setView, setSqueeze, rings, things, shelves, pickKey, now: () => NOW, flames: () => FLAMES.length, manual() { auto = false; }, advance(dt) { update(dt); render(); }, step(dt) { update(dt); }, PAIR, touch() { for (const d in dirty) dirty[d] = true; } };
+window.FORGE = { S, switchOff, get DOC() { return DOC; }, get CAT() { return CAT; }, turn, scrub, press, viewBy, setView, setSqueeze, rings, things, shelves, pickKey, now: () => NOW, flames: () => FLAMES.length, manual() { auto = false; }, advance(dt) { update(dt); render(); }, step(dt) { update(dt); }, PAIR, touch() { for (const d in dirty) dirty[d] = true; } };
 
 </script>
 </body>
