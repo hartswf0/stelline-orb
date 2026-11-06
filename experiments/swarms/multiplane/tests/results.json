@@ -1,0 +1,482 @@
+{
+ "when": "2026-11-06T07:52:22.830Z",
+ "viewport": "390x780 css px, device scale 1",
+ "tests": {
+  "parallax_proportional_to_inverse_depth": {
+   "pass": false,
+   "planes": 33,
+   "worstPlane": "floor12",
+   "worstErrorPx": -2.84,
+   "worstPredictedPx": -189.15,
+   "constantFdb": 307.4,
+   "expectedFdb": 307.4,
+   "eyeMoveM": 0.5435,
+   "maxRelativeSpread": 0.032,
+   "rows": [
+    {
+     "config": "start",
+     "plane": "wall",
+     "depth": 9,
+     "predictedPx": 84.07,
+     "measuredPx": 84.02,
+     "errorPx": -0.05,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "floor0",
+     "depth": 9,
+     "predictedPx": 84.07,
+     "measuredPx": 84.05,
+     "errorPx": -0.02,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "floor1",
+     "depth": 6.5,
+     "predictedPx": 70.93,
+     "measuredPx": 70.96,
+     "errorPx": 0.02,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "floor2",
+     "depth": 5,
+     "predictedPx": 56.75,
+     "measuredPx": 56.34,
+     "errorPx": -0.4,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "floor3",
+     "depth": 4,
+     "predictedPx": 41.38,
+     "measuredPx": 41.71,
+     "errorPx": 0.33,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "floor4",
+     "depth": 3.3,
+     "predictedPx": 25.08,
+     "measuredPx": 24.28,
+     "errorPx": -0.79,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "floor5",
+     "depth": 2.8,
+     "predictedPx": 8.44,
+     "measuredPx": 8.32,
+     "errorPx": -0.12,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "floor6",
+     "depth": 2.4,
+     "predictedPx": -9.85,
+     "measuredPx": -9.97,
+     "errorPx": -0.12,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "floor7",
+     "depth": 2.05,
+     "predictedPx": -31.72,
+     "measuredPx": -31.97,
+     "errorPx": -0.25,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "floor8",
+     "depth": 1.75,
+     "predictedPx": -57.42,
+     "measuredPx": -56.07,
+     "errorPx": 1.35,
+     "ok": false
+    },
+    {
+     "config": "start",
+     "plane": "floor9",
+     "depth": 1.5,
+     "predictedPx": -86.7,
+     "measuredPx": -87.94,
+     "errorPx": -1.25,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "floor10",
+     "depth": 1.3,
+     "predictedPx": -118.22,
+     "measuredPx": -119.97,
+     "errorPx": -1.75,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "floor11",
+     "depth": 1.12,
+     "predictedPx": -156.22,
+     "measuredPx": -156.01,
+     "errorPx": 0.22,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "floor12",
+     "depth": 1,
+     "predictedPx": -189.15,
+     "measuredPx": -192,
+     "errorPx": -2.84,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "child3",
+     "depth": 2.9,
+     "predictedPx": 12.23,
+     "measuredPx": 12.14,
+     "errorPx": -0.09,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "child1",
+     "depth": 3,
+     "predictedPx": 15.76,
+     "measuredPx": 15.84,
+     "errorPx": 0.08,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "tabletop",
+     "depth": 2.78,
+     "predictedPx": 7.65,
+     "measuredPx": 7.82,
+     "errorPx": 0.17,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "cake",
+     "depth": 2.6,
+     "predictedPx": 0,
+     "measuredPx": 0,
+     "errorPx": 0,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "candles",
+     "depth": 2.6,
+     "predictedPx": 0,
+     "measuredPx": 0,
+     "errorPx": 0,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "tablefront",
+     "depth": 2.36,
+     "predictedPx": -12.02,
+     "measuredPx": -12.01,
+     "errorPx": 0.01,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "child2",
+     "depth": 1.95,
+     "predictedPx": -39.41,
+     "measuredPx": -39.29,
+     "errorPx": 0.12,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "bench",
+     "depth": 1.85,
+     "predictedPx": -47.93,
+     "measuredPx": -47.97,
+     "errorPx": -0.04,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "lantern1",
+     "depth": 1.25,
+     "predictedPx": -127.68,
+     "measuredPx": -127.76,
+     "errorPx": -0.08,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "lantern2",
+     "depth": 2.15,
+     "predictedPx": -24.74,
+     "measuredPx": -24.88,
+     "errorPx": -0.14,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "lantern3",
+     "depth": 3.6,
+     "predictedPx": 32.84,
+     "measuredPx": 32.94,
+     "errorPx": 0.1,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "lantern4",
+     "depth": 5.6,
+     "predictedPx": 63.33,
+     "measuredPx": 63.25,
+     "errorPx": -0.08,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "string",
+     "depth": 1.02,
+     "predictedPx": -183.13,
+     "measuredPx": -183.07,
+     "errorPx": 0.06,
+     "ok": true
+    },
+    {
+     "config": "start",
+     "plane": "chair",
+     "depth": 0.86,
+     "predictedPx": -239.19,
+     "measuredPx": -239.16,
+     "errorPx": 0.03,
+     "ok": true
+    },
+    {
+     "config": "moved",
+     "plane": "child3",
+     "depth": 3.6,
+     "predictedPx": 32.84,
+     "measuredPx": 32.93,
+     "errorPx": 0.09,
+     "ok": true
+    },
+    {
+     "config": "moved",
+     "plane": "child1",
+     "depth": 3.9,
+     "predictedPx": 39.41,
+     "measuredPx": 39.36,
+     "errorPx": -0.05,
+     "ok": true
+    },
+    {
+     "config": "moved",
+     "plane": "child2",
+     "depth": 1.4,
+     "predictedPx": -101.33,
+     "measuredPx": -101.21,
+     "errorPx": 0.12,
+     "ok": true
+    },
+    {
+     "config": "moved",
+     "plane": "bench",
+     "depth": 1.3,
+     "predictedPx": -118.22,
+     "measuredPx": -118.16,
+     "errorPx": 0.07,
+     "ok": true
+    },
+    {
+     "config": "moved",
+     "plane": "string",
+     "depth": 2.2,
+     "predictedPx": -21.49,
+     "measuredPx": -21.47,
+     "errorPx": 0.03,
+     "ok": true
+    }
+   ]
+  },
+  "occlusion_order_follows_depth": {
+   "pass": true,
+   "views": 55,
+   "pixelsChecked": 10535800,
+   "wrongPixels": 0,
+   "examples": []
+  },
+  "no_gaps_or_seams": {
+   "pass": true,
+   "views": 55,
+   "uncoveredPixels": 0,
+   "tableSeamPixels": 0,
+   "cakeFloatingPixels": 0
+  },
+  "cut_edges_never_seen": {
+   "pass": true,
+   "views": 55,
+   "pixelsOfChildrensCutBandsSeen": 0,
+   "band": "near child: lowest 27% of her card (shirt hem, matte cut, dark shoulder); far children: lowest 25%"
+  },
+  "game_needs_viewpoint_and_depth": {
+   "pass": true,
+   "winsFromStart": [],
+   "winsWithChildRightAt3_6m": [
+    -30,
+    -28,
+    -26,
+    -24,
+    -22,
+    -20,
+    -18
+   ],
+   "proofBlow": {
+    "k": "blow",
+    "candles": 7,
+    "faces": 3,
+    "t": 6.8667
+   },
+   "proofEndPhase": "kept"
+  },
+  "machine_steps_at_11_8_per_second": {
+   "pass": true,
+   "trains": [
+    {
+     "start": 0.4,
+     "steps": 5,
+     "perSecond": 12,
+     "firstDetent": 0.3333
+    },
+    {
+     "start": 1.2,
+     "steps": 17,
+     "perSecond": 11.71,
+     "firstDetent": 0.3333
+    },
+    {
+     "start": 3.5,
+     "steps": 14,
+     "perSecond": 11.82,
+     "firstDetent": 3.4333
+    },
+    {
+     "start": 8.2333,
+     "steps": 6,
+     "perSecond": 11.54,
+     "firstDetent": 8.1667
+    }
+   ],
+   "note": "step times are the 30 fps frame on which each step fell, so a train rate carries up to 1/30 s error at each end"
+  },
+  "view_glides_between_steps": {
+   "pass": true,
+   "movingFrames": 120,
+   "movingFramesWithoutAStep": 92,
+   "maxDegPerFrame": 0.857,
+   "maxChangeOfDegPerFrame": 0.196
+  },
+  "depth_heard_as_separate_bands": {
+   "pass": true,
+   "window": "1.0-2.6 s of the proof (the long scale sweep), each voice rendered alone",
+   "voices": [
+    {
+     "voice": "wall+lantern4",
+     "depth": 7.3,
+     "bandHz": 1745,
+     "rmsDb": -52,
+     "zeroCrossHz": 2209
+    },
+    {
+     "voice": "child1+child3+lantern3",
+     "depth": 3.17,
+     "bandHz": 614,
+     "rmsDb": -39.6,
+     "zeroCrossHz": 1057
+    },
+    {
+     "voice": "tabletop+cake+tablefront+lantern2",
+     "depth": 2.47,
+     "bandHz": 451,
+     "rmsDb": -35.7,
+     "zeroCrossHz": 847
+    },
+    {
+     "voice": "child2+bench",
+     "depth": 1.9,
+     "bandHz": 324,
+     "rmsDb": -31.2,
+     "zeroCrossHz": 683
+    },
+    {
+     "voice": "string+lantern1",
+     "depth": 1.14,
+     "bandHz": 170,
+     "rmsDb": -23.3,
+     "zeroCrossHz": 428
+    },
+    {
+     "voice": "chair",
+     "depth": 0.86,
+     "bandHz": 120,
+     "rmsDb": -20.7,
+     "zeroCrossHz": 382
+    }
+   ]
+  },
+  "nearer_voices_pass_faster": {
+   "pass": true,
+   "voiceDepths": [
+    7.3,
+    3.17,
+    2.47,
+    1.9,
+    1.14,
+    0.86
+   ],
+   "meanScreenSpeedPxPerS": [
+    71.3,
+    156.9,
+    201,
+    259.3,
+    438.2,
+    572.4
+   ],
+   "audioRmsDb": {
+    "sweep_1_0_to_2_6s": "-16.429716",
+    "still_4_9_to_5_3s": "-32.763765",
+    "afterBlow_8_6_to_9_2s": "-21.454820"
+   }
+  },
+  "critic_condition_child_opaque_over_table": {
+   "pass": true,
+   "viewport": "1440x900",
+   "patchesInsideHerOverTheTable": 43,
+   "worstPatch": {
+    "yaw": 0,
+    "x": 720,
+    "y": 330,
+    "lumWithTable": 7.16,
+    "lumTableHidden": 7.16,
+    "change": 0
+   }
+  }
+ },
+ "summary": {
+  "failed": 1,
+  "passed": 9
+ }
+}

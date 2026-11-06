@@ -1,5 +1,82 @@
 [
   {
+    "id": "stelline_candle_face",
+    "label": "CANDLE WISH \u00b7 CLOSEUP",
+    "pack": "stelline",
+    "file": "assets/cutouts/stelline_candle_face.webp",
+    "frames": 8,
+    "w": 256,
+    "h": 256,
+    "plane": 1,
+    "seat": "northeast"
+  },
+  {
+    "id": "stelline_child_right",
+    "label": "TABLE GIRL \u00b7 EAST SEAT",
+    "pack": "stelline",
+    "file": "assets/cutouts/stelline_child_right.webp",
+    "frames": 8,
+    "w": 256,
+    "h": 256,
+    "plane": 2,
+    "seat": "east"
+  },
+  {
+    "id": "stelline_child_center",
+    "label": "BIRTHDAY BOY \u00b7 CENTER SEAT",
+    "pack": "stelline",
+    "file": "assets/cutouts/stelline_child_center.webp",
+    "frames": 8,
+    "w": 256,
+    "h": 256,
+    "plane": 2,
+    "seat": "north"
+  },
+  {
+    "id": "stelline_child_left",
+    "label": "TABLE CHILD \u00b7 WEST SEAT",
+    "pack": "stelline",
+    "file": "assets/cutouts/stelline_child_left.webp",
+    "frames": 8,
+    "w": 256,
+    "h": 256,
+    "plane": 2,
+    "seat": "west"
+  },
+  {
+    "id": "stelline_hands_orb",
+    "label": "ANA \u00b7 HANDS ON ORB",
+    "pack": "stelline",
+    "file": "assets/cutouts/stelline_hands_orb.webp",
+    "frames": 8,
+    "w": 256,
+    "h": 256,
+    "plane": 1,
+    "seat": "south"
+  },
+  {
+    "id": "stelline_talk",
+    "label": "ANA \u00b7 UNTIDY DETAILS",
+    "pack": "stelline",
+    "file": "assets/cutouts/stelline_talk.webp",
+    "frames": 8,
+    "w": 256,
+    "h": 256,
+    "plane": 3,
+    "seat": "northwest"
+  },
+  {
+    "id": "stelline_walk",
+    "label": "ANA \u00b7 WALK TO WORK",
+    "pack": "stelline",
+    "file": "assets/cutouts/stelline_walk.webp",
+    "frames": 8,
+    "w": 256,
+    "h": 256,
+    "plane": 4,
+    "seat": "north"
+  },
+  {
     "id": "stelline_child1",
     "name": "CHILD 1 \u00b7 LEFT TABLE",
     "source": "STELLINE FILM",

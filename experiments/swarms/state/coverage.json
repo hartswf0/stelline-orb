@@ -1,0 +1,168 @@
+{
+ "runs": 200,
+ "seconds": 80,
+ "transitionsTaken": {
+  "watch>hide": 140,
+  "hide>refuse": 67,
+  "refuse>watch": 165,
+  "watch>approach": 173,
+  "approach>watch": 35,
+  "watch>retreat": 117,
+  "retreat>refuse": 128,
+  "watch>refuse": 90,
+  "hide>watch": 97,
+  "approach>blow": 122,
+  "blow>watch": 118,
+  "refuse>hide": 72,
+  "watch>blow": 11,
+  "hide>retreat": 8,
+  "refuse>retreat": 7,
+  "blow>refuse": 13,
+  "retreat>watch": 2
+ },
+ "notTaken": [
+  "approach>retreat",
+  "approach>refuse",
+  "retreat>hide"
+ ],
+ "reached": [
+  "watch",
+  "hide",
+  "refuse",
+  "approach",
+  "retreat",
+  "blow"
+ ],
+ "snapshots": 400,
+ "exitsBy": {
+  "invite": 245,
+  "call": 60,
+  "wait": 95
+ },
+ "results": [
+  {
+   "name": "obedient-default: callOnly (60 s of calling) never produces approach or blow",
+   "ok": true,
+   "detail": "states: watch, refuse; calls heard: 67"
+  },
+  {
+   "name": "calling produces refusal: callOnly",
+   "ok": true,
+   "detail": "first refuse at 1.033 s"
+  },
+  {
+   "name": "obedient-default: callInGoodRoom (60 s of calling) never produces approach or blow",
+   "ok": true,
+   "detail": "states: watch, refuse; calls heard: 24"
+  },
+  {
+   "name": "calling produces refusal: callInGoodRoom",
+   "ok": true,
+   "detail": "first refuse at 6.8 s"
+  },
+  {
+   "name": "push-cake: pushing the cake at her produces retreat or refusal within 1 s, never approach",
+   "ok": true,
+   "detail": "first: retreat.back at 1.067 s"
+  },
+  {
+   "name": "wait-only: 60 s of waiting in the bright room with you standing never produces approach",
+   "ok": true,
+   "detail": "states: watch, hide"
+  },
+  {
+   "name": "earned: dim + children singing + cake back and low + kneeling + waiting produces approach, then blow, all 7 candles out",
+   "ok": true,
+   "detail": "approach 14.833 s, blow 18.033 s, candles out by 19.60 s"
+  },
+  {
+   "name": "earned: approach chosen after the last input (no input caused it directly)",
+   "ok": true,
+   "detail": "last input 8.8 s, approach 14.833 s"
+  },
+  {
+   "name": "impatient: a call during approach makes her leave approach for refusal",
+   "ok": true,
+   "detail": "approach.walk -> refuse.turn at 13.433 s"
+  },
+  {
+   "name": "impatient: she comes again later (refusal is not absorbing)",
+   "ok": true,
+   "detail": "approach again at 16.8 s"
+  },
+  {
+   "name": "blow-interrupt: calling during the inhale cuts the blow short into refusal, candles stay lit",
+   "ok": true,
+   "detail": "blow.inhale -> refuse.turn at 18.433 s; candles lit 7"
+  },
+  {
+   "name": "state-conditioned: with approach the best utility, watch -> approach but hide -> watch and refuse -> watch (approach is not declared from hide or refuse)",
+   "ok": true,
+   "detail": "watch->approach, hide->watch, refuse->watch"
+  },
+  {
+   "name": "state-conditioned: action windows — inside refusal's 1.6 s dwell she stays; from watch the same utilities move her",
+   "ok": true,
+   "detail": "refuse(dwell)->refuse, watch->watch"
+  },
+  {
+   "name": "perception: you kneel behind her back; for 5 s she does not see you (vis < 0.2) and still believes you stand; the children's song turns her head and then she knows",
+   "ok": true,
+   "detail": "belief before 1.55 m, at 5 s 1.55 m (truth 0.92); max vis of you in 5 s 0.00; learned at +6.17 s in hide.peek"
+  },
+  {
+   "name": "reachable: watch",
+   "ok": true
+  },
+  {
+   "name": "reachable: approach",
+   "ok": true
+  },
+  {
+   "name": "reachable: retreat",
+   "ok": true
+  },
+  {
+   "name": "reachable: hide",
+   "ok": true
+  },
+  {
+   "name": "reachable: refuse",
+   "ok": true
+  },
+  {
+   "name": "reachable: blow",
+   "ok": true
+  },
+  {
+   "name": "declared: every transition taken in 200 random runs x 80 s is in the declared table",
+   "ok": true,
+   "detail": "1365 transitions taken, 0 undeclared"
+  },
+  {
+   "name": "locomotion continuity: position moves only by walking (max 0.5 m/s), body turn <= 4.2 rad/s, sit changes <= 1/0.65 per s",
+   "ok": true,
+   "detail": "max speed 0.450 m/s, max turn 4.20 rad/s, max sit rate 1.54/s"
+  },
+  {
+   "name": "no unintended absorbing state: each of 400 sampled moments leaves its state under wait, invite or call within 40 s",
+   "ok": true,
+   "detail": "left by wait 95, invite 245, call 60; stuck 0"
+  },
+  {
+   "name": "lasting cost (critic r1): after 6 s of calling at 6/6 and a 112 cm cake push, time from setup to approach >= 2x fresh",
+   "ok": true,
+   "detail": "fresh 3.53 s, pressed 21.70 s (x6.14)"
+  },
+  {
+   "name": "lasting cost (critic r1): after being pressed she stops short and looks back at Ana before she blows; fresh she does not",
+   "ok": true,
+   "detail": "pressed: pause 22.67 s, blow 28.40 s; fresh: pause null, blow 8.90 s"
+  },
+  {
+   "name": "visible memory (critic r2): pressed, watching before the approach, a wary act starts at least every 5 s; fresh shows none; fresh approaches within 8 s of setup",
+   "ok": true,
+   "detail": "pressed watching 15.27-33.17 s, 7 acts (3 looks back, 4 half-steps), longest gap 2.90 s; fresh acts 0, fresh setup-to-approach 3.53 s"
+  }
+ ]
+}

@@ -1,0 +1,2933 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>CINEOSIS-ORB · Tizita Multiplane Memory & Cutout Instrument</title>
+<meta name="description" content="CINEOSIS-ORB: 12 soulful birthdays across time and space (Tizita anthology), 32 segmented video cutouts around the table and across 6 depth planes, live OLED optical reference monitor, Tizita x Stelline audio mixes, motion-coupled sound engine, Etch-A-Sketch piping, and accordion particle flight.">
+<style>
+  html, body { margin: 0; height: 100%; background: #050605; color: #e8f2ee; overflow: hidden; user-select: none; -webkit-user-select: none; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  .app { height: 100dvh; display: grid; grid-template-rows: minmax(0, 1fr) clamp(250px, 38vh, 390px); transition: grid-template-rows .28s cubic-bezier(.2,.8,.2,1); }
+  #room, #orb { position: relative; overflow: hidden; touch-action: none; }
+  #room canvas, #orb canvas { display: block; width: 100%; height: 100%; }
+  #orb { background: radial-gradient(120% 140% at 50% 0%, #161a18 0%, #0a0c0b 55%, #040504 100%); border-top: 1px solid #1b2220; }
+  @media (max-width: 700px) { .app { grid-template-rows: minmax(0, 1fr) 46%; } }
+  /* Phone controller mode (?orb): 100% tactile orb + bellows bar */
+  body.phone .app { grid-template-rows: 1fr !important; }
+  body.phone #room { display: none !important; }
+  /* Paired / Stage-Only mode on desktop: collapse bottom orb so 3D chamber is 100% of main screen */
+  body.paired .app { grid-template-rows: 1fr 0px !important; }
+  body.paired #orb { height: 0 !important; border-top: 0 !important; overflow: hidden !important; pointer-events: none !important; }
+  body.film .app { grid-template-rows: 1fr !important; }
+  body.film #orb { position: fixed; left: 32vw; bottom: -.5vw; width: 36vw; height: 13.5vw; background: none; border: 0; }
+
+  /* Subtle top-bar pills for Stage-Only toggle, Accordion Register, and Phone Pairing */
+  #hudTop { position: fixed; top: 10px; left: 12px; right: 12px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; z-index: 30; gap: 8px; flex-wrap: wrap; }
+  .pillBar { display: flex; align-items: center; gap: 6px; pointer-events: auto; }
+  .pill { background: rgba(6, 11, 10, 0.84); border: 1px solid rgba(95, 240, 220, 0.28); color: #bfece4; padding: 5px 10px; border-radius: 999px; font-size: 11px; letter-spacing: 1.1px; cursor: pointer; backdrop-filter: blur(6px); transition: all .15s; }
+  .pill:hover { border-color: #5ff0dc; color: #fff; background: rgba(14, 32, 28, 0.92); }
+  .pill.hot { background: rgba(22, 62, 54, 0.92); border-color: #5ff0dc; color: #5ff0dc; font-weight: 700; }
+  .pill.amber { border-color: rgba(240, 176, 64, 0.45); color: #f6c978; }
+  body.film #hudTop { display: none; }
+
+  /* Accordion Bellows Strip (works on both desktop and mobile ?orb) */
+  #bellowsBar { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: min(560px, 88vw); height: 28px; background: rgba(6, 11, 10, 0.86); border: 1px solid rgba(95, 240, 220, 0.28); border-radius: 999px; display: flex; align-items: center; padding: 0 12px; gap: 10px; z-index: 25; backdrop-filter: blur(6px); }
+  #bellowsBar .lbl { font-size: 10px; letter-spacing: 1.2px; color: #8fe9dc; white-space: nowrap; min-width: 128px; }
+  #bellowsTrack { flex: 1; height: 8px; background: #0d1917; border-radius: 99px; position: relative; cursor: ew-resize; overflow: hidden; }
+  #bellowsFill { height: 100%; width: 0%; background: linear-gradient(90deg, #5ff0dc 0%, #f0b040 65%, #ff6b4a 100%); border-radius: 99px; }
+  #bellowsBar .reg { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #f0b040; min-width: 110px; text-align: right; white-space: nowrap; }
+
+  /* Flat Scannable QR Modal */
+  #qrModal { position: fixed; inset: 0; background: rgba(3, 6, 5, 0.82); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 100; }
+  #qrModal.show { display: flex; }
+  #qrCard { background: #080d0c; border: 1px solid #5ff0dc; border-radius: 16px; padding: 24px 28px; max-width: 440px; width: 92vw; text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.75); }
+  #qrCard h3 { margin: 0 0 6px; color: #5ff0dc; font-size: 16px; letter-spacing: 2px; }
+  #qrCard .roomCode { font-size: 36px; font-weight: 700; letter-spacing: 8px; color: #fff; margin: 6px 0 14px; }
+  #qrBox { background: #fff; padding: 14px; border-radius: 10px; display: inline-block; margin-bottom: 14px; }
+  #qrBox canvas, #qrBox img { display: block; width: 200px; height: 200px; image-rendering: pixelated; }
+  #qrUrl { display: block; color: #8fe9dc; font-size: 11px; word-break: break-all; text-decoration: underline; margin-bottom: 14px; }
+  #qrClose { background: #142e2a; color: #5ff0dc; border: 1px solid #5ff0dc; padding: 8px 20px; border-radius: 99px; font-family: inherit; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; cursor: pointer; }
+
+  /* SCION Builders Game HUD & Remix/Import Studio Modal */
+  #scionHud { position: fixed; left: 12px; bottom: clamp(258px, 39vh, 398px); z-index: 28; background: rgba(5, 11, 10, 0.88); border: 1px solid rgba(95, 240, 220, 0.36); border-radius: 12px; padding: 8px 11px; width: min(355px, 92vw); backdrop-filter: blur(8px); box-shadow: 0 12px 32px rgba(0,0,0,0.65); transition: bottom .28s cubic-bezier(.2,.8,.2,1), opacity .2s; pointer-events: auto; }
+  body.paired #scionHud { bottom: 14px; }
+  body.phone #scionHud, body.film #scionHud { display: none !important; }
+  #scionHud .shTop { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 5px; }
+  #scionHud .shTitle { font-size: 10px; font-weight: 700; letter-spacing: 1.3px; color: #5ff0dc; }
+  #scionHud .shBadge { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 99px; background: rgba(240, 176, 64, 0.18); border: 1px solid #f0b040; color: #f6c978; }
+  #scionHud .shBadge.pass { background: rgba(95, 240, 220, 0.18); border-color: #5ff0dc; color: #5ff0dc; }
+  #scionHud .shBars { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 6px; }
+  #scionHud .shBarItem { background: #0a1513; border-radius: 4px; padding: 3px 4px; text-align: center; border: 1px solid #152c28; }
+  #scionHud .shBarLbl { font-size: 8px; color: #8fe9dc; letter-spacing: 0.7px; display: block; }
+  #scionHud .shBarTrack { height: 4px; background: #050a09; border-radius: 99px; overflow: hidden; margin-top: 2px; }
+  #scionHud .shBarFill { height: 100%; background: linear-gradient(90deg, #5ff0dc, #f0b040); width: 50%; }
+  #scionHud .shGap { font-size: 10px; color: #d8ece8; line-height: 1.35; margin-bottom: 7px; min-height: 26px; }
+  #scionHud .shActions { display: flex; gap: 5px; flex-wrap: wrap; }
+  #scionHud .shBtn { flex: 1; background: #102622; border: 1px solid rgba(95, 240, 220, 0.4); color: #dff7f2; padding: 4px 6px; border-radius: 6px; font-family: inherit; font-size: 9.5px; font-weight: 700; letter-spacing: 0.8px; cursor: pointer; text-align: center; white-space: nowrap; }
+  #scionHud .shBtn:hover { background: #193c36; border-color: #5ff0dc; color: #fff; }
+  #scionHud .shBtn.amber { background: rgba(60, 42, 12, 0.85); border-color: rgba(240, 176, 64, 0.55); color: #f6c978; }
+  #scionHud .shBtn.amber:hover { border-color: #f0b040; color: #fff; }
+
+  /* Full Drag-and-Drop Overlay */
+  #dropBanner { position: fixed; inset: 16px; border: 2px dashed #5ff0dc; border-radius: 18px; background: rgba(4, 12, 10, 0.86); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; flex-direction: column; z-index: 120; pointer-events: none; text-align: center; }
+  #dropBanner.show { display: flex; }
+  #dropBanner h2 { color: #5ff0dc; font-size: 22px; letter-spacing: 2px; margin: 0 0 8px; }
+  #dropBanner p { color: #f6c978; font-size: 13px; letter-spacing: 1px; margin: 0; }
+
+  /* SCION Studio Modal (Import Assets, Independent Critic, Share & Remix Birthdays) */
+  #scionModal { position: fixed; inset: 0; background: rgba(3, 6, 5, 0.86); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 110; padding: 14px; }
+  #scionModal.show { display: flex; }
+  #scionCard { background: #070d0c; border: 1px solid #5ff0dc; border-radius: 16px; padding: 18px 22px; max-width: 820px; width: 96vw; max-height: 90dvh; overflow-y: auto; box-shadow: 0 24px 70px rgba(0,0,0,0.85); color: #e8f2ee; }
+  #scionCard h3 { margin: 0; color: #5ff0dc; font-size: 15px; letter-spacing: 2px; }
+  .scGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 12px; }
+  @media (max-width: 720px) { .scGrid { grid-template-columns: 1fr; } }
+  .scPanel { background: #0b1412; border: 1px solid #1b3833; border-radius: 10px; padding: 12px; }
+  .scPanel h4 { margin: 0 0 8px; font-size: 11px; letter-spacing: 1.4px; color: #f0b040; }
+  .dropZone { border: 1.5px dashed rgba(95, 240, 220, 0.5); border-radius: 10px; padding: 14px 10px; text-align: center; cursor: pointer; background: rgba(12, 28, 25, 0.55); transition: all .15s; margin-bottom: 8px; }
+  .dropZone:hover { border-color: #5ff0dc; background: rgba(18, 44, 39, 0.8); }
+  .scRow { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+  .scInput { background: #060b0a; border: 1px solid #254b44; color: #e8f2ee; padding: 6px 9px; border-radius: 6px; font-family: inherit; font-size: 11px; flex: 1; min-width: 120px; }
+  .remixList { max-height: 210px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding-right: 4px; }
+  .remixItem { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: #070e0d; border: 1px solid #17302c; border-radius: 7px; padding: 6px 8px; font-size: 10.5px; }
+  .remixItem .rmMeta { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .remixItem .rmBtns { display: flex; gap: 4px; }
+
+</style>
+</head>
+<body>
+<div id="hudTop">
+  <div class="pillBar" id="modePills">
+    <button class="pill amber" data-mode="TIZITA">0 TIZITA · 12 BIRTHDAYS</button>
+    <button class="pill hot" data-mode="HERO">1 HERO</button>
+    <button class="pill" data-mode="CAST">2 CAST · TABLE</button>
+    <button class="pill" data-mode="MESS">3 MESS · PLACE</button>
+    <button class="pill" data-mode="ETCH">4 ETCH</button>
+    <button class="pill" data-mode="LIGHT">5 LIGHT</button>
+    <button class="pill amber" data-mode="FLIGHT">6 FLIGHT</button>
+    <button class="pill amber" data-mode="SCION">7 SCION · GAME</button>
+  </div>
+  <div class="pillBar">
+    <button class="pill amber" id="btnImportTop" title="Import your own Video, Photo, Audio, or .birthday.json">+ IMPORT MEDIA</button>
+    <button class="pill amber" id="btnRemixTop" title="Open SCION Remix, Share & Independent Critic Studio">REMIX · SHARE</button>
+    <button class="pill" id="btnPlaceQuick">+ PLACE</button>
+    <button class="pill" id="btnAddQuick">+ ADD CUTOUT</button>
+    <button class="pill amber" id="btnMixToggle">MIX 1 · TIZITA × STELLINE</button>
+    <button class="pill" id="btnClipToggle">CLIP · WALK TO WORK</button>
+    <button class="pill" id="btnStageOnly">STAGE ONLY</button>
+    <button class="pill amber" id="btnPairTop">PHONE QR</button>
+  </div>
+</div>
+
+<div class="app">
+  <div id="room"></div>
+  <div id="orb">
+    <div id="bellowsBar" title="Drag or pinch barrel ends to expand/compress the Accordion Bellows">
+      <span class="lbl" id="bellowsLbl">ACCORDION · 0%</span>
+      <div id="bellowsTrack"><div id="bellowsFill"></div></div>
+      <span class="reg" id="bellowsReg">MATTER CRAFT</span>
+    </div>
+  </div>
+</div>
+
+<div id="qrModal">
+  <div id="qrCard">
+    <h3>CINEOSIS-ORB · PHONE CONTROLLER</h3>
+    <div class="roomCode" id="qrRoomTxt">····</div>
+    <div id="qrBox"></div>
+    <a id="qrUrl" href="#" target="_blank" rel="noopener">OPEN CONTROLLER LINK</a>
+    <div style="font-size:11px;color:#9ab8b2;margin-bottom:14px">When your phone connects, the main screen automatically becomes a full-viewport 3D stage.</div>
+    <button id="qrClose">CLOSE</button>
+  </div>
+</div>
+
+<input type="file" id="fileImporter" multiple accept="image/*,video/*,audio/*,.json,.glb,.gltf" style="display:none">
+
+<div id="dropBanner">
+  <h2>DROP MEDIA INTO THE MEMORY CHAMBER</h2>
+  <p>VIDEO (.MP4/.WEBM) · PHOTO (.PNG/.JPG/.WEBP) · AUDIO (.MP3/.WAV) · CARTRIDGE (.BIRTHDAY.JSON)</p>
+</div>
+
+<div id="scionHud">
+  <div class="shTop">
+    <span class="shTitle" id="shLineageTxt">SCION CRITIC · GEN 1</span>
+    <span class="shBadge" id="shScoreBadge">82 / 100 · CANDIDATE</span>
+  </div>
+  <div class="shBars">
+    <div class="shBarItem"><span class="shBarLbl">MESS</span><div class="shBarTrack"><div class="shBarFill" id="shBarMess"></div></div></div>
+    <div class="shBarItem"><span class="shBarLbl">DEPTH</span><div class="shBarTrack"><div class="shBarFill" id="shBarDepth"></div></div></div>
+    <div class="shBarItem"><span class="shBarLbl">LIGHT</span><div class="shBarTrack"><div class="shBarFill" id="shBarLight"></div></div></div>
+    <div class="shBarItem"><span class="shBarLbl">TRACE</span><div class="shBarTrack"><div class="shBarFill" id="shBarTrace"></div></div></div>
+    <div class="shBarItem"><span class="shBarLbl">BREATH</span><div class="shBarTrack"><div class="shBarFill" id="shBarBreath"></div></div></div>
+  </div>
+  <div class="shGap" id="shGapTxt">Evaluating multiplane depth, untidy table details, and personal trace...</div>
+  <div class="shActions">
+    <button class="shBtn amber" id="btnScionRepair" title="Execute bounded repair for the critic's primary gap">REPAIR GAP</button>
+    <button class="shBtn" id="btnScionSwarm" title="Run autonomous Scion swarm to stage cutouts, mess, and piping">SWARM BUILD</button>
+    <button class="shBtn" id="btnScionPeak" title="Save or restore strongest Peak Checkpoint">SAVE PEAK</button>
+    <button class="shBtn amber" id="btnScionStudio" title="Import personal media, fork/remix birthdays, or share link">IMPORT · REMIX</button>
+  </div>
+</div>
+
+<div id="scionModal">
+  <div id="scionCard">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid #1a3530;padding-bottom:10px">
+      <div>
+        <h3>SCION · AUTONOMOUS BIRTHDAY MEMORY STUDIO & REMIX ENGINE</h3>
+        <div style="font-size:10.5px;color:#8fe9dc;margin-top:3px">Import personal video/photos/audio · Independent Critic verification · Fork, mashup & share birthdays</div>
+      </div>
+      <button class="pill" id="scionModalClose">CLOSE [ESC]</button>
+    </div>
+
+    <div class="scGrid">
+      <!-- PANEL 1: IMPORT PERSONAL VIDEO / IMAGES / AUDIO -->
+      <div class="scPanel">
+        <h4>1. IMPORT YOUR VIDEO, PHOTOS, AUDIO OR CARTRIDGE</h4>
+        <div class="dropZone" id="modalDropZone">
+          <div style="font-size:12px;font-weight:700;color:#5ff0dc;margin-bottom:4px">+ CLICK OR DROP FILES HERE</div>
+          <div style="font-size:10px;color:#9ab8b2">Video becomes a live 3D cutout + OLED clip · Photo auto-segments into a table figure + Polaroid · Audio drives the Tizita spectrum</div>
+        </div>
+        <div class="scRow">
+          <span style="font-size:10px;color:#8fe9dc">PHOTO MATTE:</span>
+          <button class="pill hot" data-matte="CUTOUT" id="matteCutout">AUTO CUTOUT</button>
+          <button class="pill" data-matte="POLAROID" id="mattePolaroid">POLAROID</button>
+          <button class="pill" data-matte="RAW" id="matteRaw">RAW ALPHA</button>
+        </div>
+        <div class="scRow">
+          <button class="pill amber" id="btnSpawnDemoAsset" style="width:100%;text-align:center">+ GENERATE INSTANT CUSTOM POLAROID & VIDEO CUTOUT</button>
+        </div>
+      </div>
+
+      <!-- PANEL 2: SCION INDEPENDENT CRITIC & SWARM -->
+      <div class="scPanel">
+        <h4>2. SCION INDEPENDENT CRITIC & PEAK CHECKPOINT</h4>
+        <div id="modalCriticBox" style="font-size:11px;line-height:1.45;background:#060b0a;border:1px solid #17302c;border-radius:8px;padding:9px;margin-bottom:8px">
+          <div><strong style="color:#5ff0dc">VERDICT:</strong> <span id="mcVerdict">...</span></div>
+          <div style="margin-top:4px"><strong style="color:#f0b040">PRIMARY GAP:</strong> <span id="mcGap">...</span></div>
+          <div style="margin-top:4px"><strong style="color:#8fe9dc">ACCEPTANCE:</strong> <span id="mcAccept">...</span></div>
+          <div style="margin-top:4px"><strong style="color:#9ab8b2">PROTECTED:</strong> <span id="mcStrengths">...</span></div>
+        </div>
+        <div class="scRow">
+          <button class="pill amber" id="btnModalRepair">REPAIR PRIMARY GAP</button>
+          <button class="pill" id="btnModalSwarm">SWARM AUTO-BUILD</button>
+          <button class="pill" id="btnModalSavePeak">SAVE PEAK</button>
+          <button class="pill" id="btnModalRestorePeak">RESTORE PEAK</button>
+        </div>
+      </div>
+
+      <!-- PANEL 3: SHARE, EXPORT & COLLABORATIVE LINEAGE -->
+      <div class="scPanel">
+        <h4>3. SAVE, SHARE URL, QR & .BIRTHDAY.JSON CARTRIDGE</h4>
+        <div class="scRow" style="margin-top:0">
+          <input class="scInput" id="inpBdayTitle" placeholder="Birthday Title (e.g. 1999 Kitchen Wish)" value="MY TIZITA BIRTHDAY">
+          <input class="scInput" id="inpBdayAuthor" placeholder="Builder Handle" value="STELLINE-BUILDER" style="max-width:145px">
+        </div>
+        <div class="scRow">
+          <button class="pill amber" id="btnSaveLocalBday">SAVE TO REMIX DECK</button>
+          <button class="pill" id="btnCopyShareUrl">COPY SHARE LINK</button>
+          <button class="pill" id="btnExportCartridge">EXPORT .BIRTHDAY.JSON</button>
+        </div>
+        <div class="scRow">
+          <input class="scInput" id="inpShareUrlOut" readonly placeholder="Shareable #bday=... link appears here">
+        </div>
+      </div>
+
+      <!-- PANEL 4: REMIX, FORK & MASHUP DECK -->
+      <div class="scPanel">
+        <h4>4. REMIX, FORK & MASHUP BIRTHDAYS (<span id="deckCountTxt">12</span> IN DECK)</h4>
+        <div class="remixList" id="remixDeckList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/three.min.js"></script>
+<script src="assets/GLTFExporter.js"></script>
+<script src="assets/v6/qrcode.js"></script>
+<script>
+/* ============================================================================
+   CINEOSI-ORB · Multiplane Segmented Video, Hero Memory Sculptor, Etch-A-Sketch & Accordion Flight
+   ============================================================================ */
+const T = THREE, clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t, TAU = Math.PI * 2;
+let NOW = 0, AC = null, oledDirty = true;
+const FILM = /[?&]film\b/.test(location.search); if (FILM) document.body.classList.add('film');
+const PHONE = /[?&]orb\b/.test(location.search); if (PHONE) document.body.classList.add('phone');
+
+const roomEl = document.getElementById('room');
+const R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+R.setPixelRatio(Math.min(2, devicePixelRatio)); R.outputEncoding = T.sRGBEncoding;
+R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = 1.18;
+R.shadowMap.enabled = true; R.shadowMap.type = T.PCFSoftShadowMap;
+roomEl.append(R.domElement);
+
+const scene = new T.Scene(); scene.background = new T.Color(0x090c0b); scene.fog = new T.FogExp2(0x090c0b, 0.024);
+const cam = new T.PerspectiveCamera(38, 1, 0.02, 80);
+
+/* =============================================================== 1. DOME & MULTIPLANE RINGS */
+const PLANE_Z = [0.46, 0.66, 0.92, 1.38, 2.25, 3.60];
+const PLANE_NAMES = ['Z1 FORE · 0.46M', 'Z2 TABLE RIM · 0.66M', 'Z3 TABLE MID · 0.92M', 'Z4 CAST RING · 1.38M', 'Z5 ARCHIVE · 2.25M', 'Z6 CANOPY · 3.60M'];
+const planeGuides = new T.Group(); scene.add(planeGuides);
+(function buildDome() {
+  scene.add(new T.Mesh(new T.SphereGeometry(14, 64, 32, 0, TAU, 0, Math.PI / 2), new T.MeshStandardMaterial({ color: 0x111514, roughness: 1, side: T.BackSide })));
+  const fl = new T.Mesh(new T.CircleGeometry(14, 96), new T.MeshStandardMaterial({ color: 0x0b0e0d, roughness: 0.58, metalness: 0.25 }));
+  fl.rotation.x = -Math.PI / 2; fl.receiveShadow = true; scene.add(fl);
+  const ring = (r, t, y, c, op) => {
+    const m = new T.Mesh(new T.TorusGeometry(r, t, 6, 240), new T.MeshBasicMaterial({ color: c, transparent: op < 1, opacity: op, depthWrite: op >= 1, toneMapped: false }));
+    m.rotation.x = Math.PI / 2; m.position.y = y; scene.add(m); return m;
+  };
+  ring(12.5, 0.02, 0.58, 0xeef5f1, 0.95); ring(12.5, 0.16, 0.58, 0x8fb4ad, 0.1);
+  const seam = new T.LineBasicMaterial({ color: 0x1a201e });
+  for (let k = 0; k < 12; k++) {
+    const a = k / 12 * TAU, p = [];
+    for (let j = 0; j <= 24; j++) { const e = 0.06 + j / 24 * 1.42; p.push(new T.Vector3(Math.cos(a) * Math.cos(e) * 13.8, Math.sin(e) * 13.8, Math.sin(a) * Math.cos(e) * 13.8)); }
+    scene.add(new T.Line(new T.BufferGeometry().setFromPoints(p), seam));
+  }
+  PLANE_Z.forEach((r, idx) => {
+    const m = new T.Mesh(new T.RingGeometry(r - 0.008, r + 0.008, 128), new T.MeshBasicMaterial({ color: idx === 1 ? 0xf0b040 : 0x5ff0dc, side: T.DoubleSide, transparent: true, opacity: 0.0, toneMapped: false }));
+    m.rotation.x = -Math.PI / 2; m.position.y = 0.004; planeGuides.add(m);
+  });
+})();
+scene.add(new T.HemisphereLight(0x9ab0a8, 0x090705, 0.16));
+
+/* =============================================================== 2. MIST SHADER & 32K PARTICLE CLOUD */
+const MU = { uMist: { value: 0 }, uTime: { value: 0 }, uCurl: { value: 0.35 } };
+function mistify(mat) {
+  mat.onBeforeCompile = sh => {
+    Object.assign(sh.uniforms, MU);
+    sh.vertexShader = 'varying vec3 vMW;\n' + sh.vertexShader.replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\n vMW = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+    sh.fragmentShader = 'uniform float uMist, uTime; varying vec3 vMW;\nfloat mh(vec3 p){ return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }\n' +
+      sh.fragmentShader.replace('void main() {', 'void main() {\n float mThresh = clamp((uMist - 0.22) / 0.78, 0.0, 1.0);\n if (mThresh > 0.001 && mh(floor(vMW * 520.0)) < mThresh * 0.92) discard;');
+  };
+  mat.customProgramCacheKey = () => 'mist2' + (mat.alphaTest ? 'a' : '');
+  return mat;
+}
+
+const TOP = 0.62;
+const PIV = new T.Group(); PIV.position.set(0, TOP + 0.05, 0); scene.add(PIV);
+const MEM = new T.Group(); MEM.position.y = -(TOP + 0.05); PIV.add(MEM);
+const HERO_G = new T.Group(); HERO_G.position.y = TOP; MEM.add(HERO_G);
+const TABLE_G = new T.Group(); MEM.add(TABLE_G);
+const MESS_G = new T.Group(); glassY = TOP; MESS_G.position.y = TOP; MEM.add(MESS_G);
+const CAST_G = new T.Group(); MEM.add(CAST_G);
+const ETCH_G = new T.Group(); ETCH_G.position.y = TOP; MEM.add(ETCH_G);
+
+const key = new T.SpotLight(0xffb878, 1.35, 9, 0.52, 0.65, 1.2);
+key.castShadow = true; key.shadow.mapSize.set(1024, 1024); key.shadow.bias = -0.0008; scene.add(key, key.target);
+const fillLight = new T.PointLight(0x70a8a0, 0.35, 6); fillLight.position.set(-1.5, 1.6, -1.2); scene.add(fillLight);
+const candleLight = new T.PointLight(0xffa24a, 0.9, 3.2, 1.5); scene.add(candleLight);
+const keyMark = new T.Mesh(new T.SphereGeometry(0.022, 16, 12), new T.MeshBasicMaterial({ color: 0xffe2b0, toneMapped: false })); scene.add(keyMark);
+
+// 32,000-particle spacetime mist cloud
+const MIST_N = 32000;
+const mistGeo = new T.BufferGeometry();
+const mistPos = new Float32Array(MIST_N * 3), mistCol = new Float32Array(MIST_N * 3), mistSeed = new Float32Array(MIST_N * 3);
+for (let i = 0; i < MIST_N; i++) {
+  const r = Math.pow(Math.random(), 0.55) * 2.4, a = Math.random() * TAU, h = (Math.random() - 0.25) * 1.6 + TOP;
+  mistPos[i * 3] = Math.cos(a) * r; mistPos[i * 3 + 1] = h; mistPos[i * 3 + 2] = Math.sin(a) * r;
+  mistSeed[i * 3] = Math.random() * TAU; mistSeed[i * 3 + 1] = 0.3 + Math.random() * 1.4; mistSeed[i * 3 + 2] = r;
+  const warm = Math.random();
+  mistCol[i * 3] = lerp(0.37, 1.0, warm); mistCol[i * 3 + 1] = lerp(0.94, 0.72, warm); mistCol[i * 3 + 2] = lerp(0.86, 0.32, warm);
+}
+mistGeo.setAttribute('position', new T.BufferAttribute(mistPos, 3));
+mistGeo.setAttribute('color', new T.BufferAttribute(mistCol, 3));
+const mistPts = new T.Points(mistGeo, new T.PointsMaterial({ size: 0.016, vertexColors: true, transparent: true, opacity: 0, blending: T.AdditiveBlending, depthWrite: false, toneMapped: false }));
+MEM.add(mistPts);
+
+/* =============================================================== 3. CATALOGS: 24 HEROES, 25 CUTOUTS, 12 TABLE PROPS */
+const HERO_PRESETS = [
+  { id: 'bundt_film', name: 'FILM BUNDT · 7 CANDLES', kind: 'cake', form: 'RING', icing: 0, border: 1, candles: 7, ctype: 0 },
+  { id: 'drum_bday', name: 'BIRTHDAY DRUM · ROSE', kind: 'cake', form: 'DRUM', icing: 1, border: 2, candles: 9, ctype: 1 },
+  { id: 'dome_glaze', name: 'PATISSERIE DOME', kind: 'cake', form: 'DOME', icing: 3, border: 4, candles: 5, ctype: 4 },
+  { id: 'tiers_grand', name: 'GRAND 3-TIER WEDDING', kind: 'cake', form: 'TIERS3', icing: 2, border: 4, candles: 12, ctype: 4 },
+  { id: 'melted_cake', name: 'COLLAPSED MELTED CAKE', kind: 'cake', form: 'MELTED', icing: 3, border: 2, candles: 7, ctype: 1 },
+  { id: 'bitten_bundt', name: 'HALF-EATEN BUNDT', kind: 'cake', form: 'BITTEN', icing: 0, border: 1, candles: 4, ctype: 0 },
+  { id: 'choc_torte', name: 'CHOCOLATE GANACHE', kind: 'cake', form: 'DRUM', icing: 4, border: 3, candles: 8, ctype: 5 },
+  { id: 'berry_short', name: 'STRAWBERRY TOWER', kind: 'cake', form: 'TIERS', icing: 2, border: 2, candles: 6, ctype: 2 },
+  { id: 'croquem', name: 'CROQUEMBOUCHE TOWER', kind: 'croquem', icing: 0, candles: 5, ctype: 7 },
+  { id: 'sheet_cake', name: 'BIRTHDAY SHEET CAKE', kind: 'sheet', icing: 1, border: 2, candles: 10, ctype: 1 },
+  { id: 'bench_luz', name: 'LUZ · 13 CANDLES (BENCH)', kind: 'bench_cake', file: 'assets/bench/cake_luz.webp', candles: 13 },
+  { id: 'bench_bea', name: 'BEA · 2 CANDLES (BENCH)', kind: 'bench_cake', file: 'assets/bench/cake_bea.webp', candles: 2 },
+  { id: 'bench_izzy', name: 'IZZY · 4 CANDLES (BENCH)', kind: 'bench_cake', file: 'assets/bench/cake_izzy.webp', candles: 4 },
+  { id: 'bench_nia', name: 'NIA · 19 CANDLES (BENCH)', kind: 'bench_cake', file: 'assets/bench/cake_nia.webp', candles: 12 },
+  { id: 'bench_mara', name: 'MARA · 29 CANDLES (BENCH)', kind: 'bench_cake', file: 'assets/bench/cake_mara.webp', candles: 12 },
+  { id: 'bench_s34', name: 'SEED 34 · ARCHIVE CAKE', kind: 'bench_cake', file: 'assets/bench/cake_s34.webp', candles: 7 },
+  { id: 'wood_horse', name: 'WOODEN HORSE · 6·10·21', kind: 'horse', icing: 5, candles: 0 },
+  { id: 'jewel_beetle', name: 'STELLINE JEWEL BEETLE', kind: 'beetle3d', icing: 6, candles: 0 },
+  { id: 'origami_uni', name: 'ORIGAMI FOIL UNICORN', kind: 'unicorn', icing: 2, candles: 0 },
+  { id: 'snowglobe', name: 'GLASS SNOWGLOBE', kind: 'snowglobe', icing: 7, candles: 0 },
+  { id: 'brass_lantern', name: 'BRASS STORM LANTERN', kind: 'lantern', icing: 4, candles: 1 },
+  { id: 'twin_camera', name: 'VINTAGE TWIN-LENS CAMERA', kind: 'camera', icing: 4, candles: 0 },
+  { id: 'teacup_tower', name: 'PORCELAIN TEACUP STACK', kind: 'teacups', icing: 2, candles: 1 },
+  { id: 'free_clay', name: 'FREEFORM CLAY SCULPTURE', kind: 'clay', icing: 3, candles: 3 }
+];
+
+const FINISHES = [
+  ['SPONGE', 0xc99b5e, 0.78, 0.0],
+  ['CREAM', 0xf2e5c8, 0.68, 0.0],
+  ['WHITE', 0xf9f6f0, 0.62, 0.05],
+  ['ROSE', 0xeaa5b2, 0.65, 0.0],
+  ['CHOCOLATE', 0x462818, 0.52, 0.05],
+  ['CARVED OAK', 0x5c3a1e, 0.82, 0.05],
+  ['EMERALD CHITIN', 0x2a6f54, 0.25, 0.75],
+  ['GOLD BRASS', 0xd9a640, 0.28, 0.85]
+];
+
+const CUTOUT_CLIPS = [
+  { id: 'stelline_walk', name: 'ANA · WALK UP TO WORK', file: 'assets/cutouts/stelline_walk.webp', frames: 8, fps: 6, aspect: 1.0, h: 0.74, plane: 3 },
+  { id: 'stelline_talk', name: 'ANA · UNTIDY DETAILS', file: 'assets/cutouts/stelline_talk.webp', frames: 8, fps: 6, aspect: 1.0, h: 0.68, plane: 2 },
+  { id: 'stelline_hands_orb', name: 'ANA · HANDS ON ORB', file: 'assets/cutouts/stelline_hands_orb.webp', frames: 8, fps: 8, aspect: 1.0, h: 0.44, plane: 0 },
+  { id: 'stelline_child_left', name: 'WEST SEAT · GIRL LAUGHING', file: 'assets/cutouts/stelline_child_left.webp', frames: 8, fps: 8, aspect: 1.0, h: 0.54, plane: 1 },
+  { id: 'stelline_child_center', name: 'NORTH SEAT · BIRTHDAY BOY', file: 'assets/cutouts/stelline_child_center.webp', frames: 8, fps: 8, aspect: 1.0, h: 0.52, plane: 1 },
+  { id: 'stelline_child_right', name: 'EAST SEAT · FRIEND SMILING', file: 'assets/cutouts/stelline_child_right.webp', frames: 8, fps: 8, aspect: 1.0, h: 0.56, plane: 1 },
+  { id: 'stelline_candle_face', name: 'CANDLELIGHT · WISH FACE', file: 'assets/cutouts/stelline_candle_face.webp', frames: 8, fps: 8, aspect: 1.0, h: 0.48, plane: 0 },
+  { id: 'stelline_child1', name: 'CHILD 1 · LEFT TABLE', file: 'assets/cutouts/stelline_child1.webp', frames: 16, fps: 10, aspect: 1.377, h: 0.56, plane: 1 },
+  { id: 'stelline_child2', name: 'CHILD 2 · CENTER TABLE', file: 'assets/cutouts/stelline_child2.webp', frames: 16, fps: 10, aspect: 1.377, h: 0.44, plane: 1 },
+  { id: 'stelline_child3', name: 'CHILD 3 · RIGHT TABLE', file: 'assets/cutouts/stelline_child3.webp', frames: 16, fps: 10, aspect: 1.636, h: 0.64, plane: 1 },
+  { id: 'stelline_boy_blow', name: 'BIRTHDAY BOY · LEANING', file: 'assets/cutouts/stelline_boy_blow.webp', frames: 16, fps: 12, aspect: 1.636, h: 0.52, plane: 0 },
+  { id: 'stelline_blow_trio', name: 'CHILDREN · BLOWING CANDLES', file: 'assets/cutouts/stelline_blow_trio.webp', frames: 16, fps: 10, aspect: 1.45, h: 0.58, plane: 1 },
+  { id: 'stelline_ana', name: 'ANA STELLINE · WEAVER', file: 'assets/cutouts/stelline_ana.webp', frames: 16, fps: 10, aspect: 1.241, h: 0.72, plane: 3 },
+  { id: 'stelline_beetle', name: 'STELLINE BEETLE · MACRO', file: 'assets/cutouts/stelline_beetle.webp', frames: 16, fps: 12, aspect: 1.778, h: 0.34, plane: 0 },
+  { id: 'cineosis_00', name: 'CINEOSIS · PHOTOGRAPHER', file: 'assets/cutouts/cineosis_00.webp', frames: 24, fps: 8, aspect: 0.505, h: 0.68, plane: 2 },
+  { id: 'cineosis_01', name: 'CINEOSIS · BYSTANDER', file: 'assets/cutouts/cineosis_01.webp', frames: 24, fps: 8, aspect: 0.604, h: 0.66, plane: 3 },
+  { id: 'cineosis_02', name: 'CINEOSIS · DESERT WALKER', file: 'assets/cutouts/cineosis_02.webp', frames: 24, fps: 8, aspect: 0.505, h: 0.68, plane: 3 },
+  { id: 'cineosis_03', name: 'CINEOSIS · DUSK FIGURE', file: 'assets/cutouts/cineosis_03.webp', frames: 24, fps: 8, aspect: 1.626, h: 0.54, plane: 3 },
+  { id: 'cineosis_04', name: 'CINEOSIS · HOME MOVIE KID', file: 'assets/cutouts/cineosis_04.webp', frames: 18, fps: 8, aspect: 1.045, h: 0.52, plane: 1 },
+  { id: 'cineosis_05', name: 'CINEOSIS · DIGGING HANDS', file: 'assets/cutouts/cineosis_05.webp', frames: 24, fps: 8, aspect: 1.005, h: 0.42, plane: 0 },
+  { id: 'cineosis_06', name: 'CINEOSIS · GESTURE HANDS', file: 'assets/cutouts/cineosis_06.webp', frames: 24, fps: 8, aspect: 0.595, h: 0.46, plane: 0 },
+  { id: 'cineosis_07', name: 'CINEOSIS · ARCHIVE FACE', file: 'assets/cutouts/cineosis_07.webp', frames: 24, fps: 8, aspect: 0.36, h: 0.64, plane: 2 },
+  { id: 'cineosis_08', name: 'CINEOSIS · BIRDS LIFTING', file: 'assets/cutouts/cineosis_08.webp', frames: 24, fps: 10, aspect: 1.316, h: 0.75, plane: 5 },
+  { id: 'cineosis_09', name: 'CINEOSIS · RIDGE ANIMAL', file: 'assets/cutouts/cineosis_09.webp', frames: 24, fps: 8, aspect: 1.1, h: 0.56, plane: 4 },
+  { id: 'shm_horse', name: 'SHM · TROTTING HORSE', file: 'assets/cutouts/shm_horse.webp', frames: 16, fps: 10, aspect: 1.0, h: 0.54, plane: 2 },
+  { id: 'shm_giraffe', name: 'SHM · WALKING GIRAFFE', file: 'assets/cutouts/shm_giraffe.webp', frames: 16, fps: 10, aspect: 0.818, h: 0.82, plane: 3 },
+  { id: 'shm_butterfly', name: 'SHM · BUTTERFLY', file: 'assets/cutouts/shm_butterfly.webp', frames: 16, fps: 12, aspect: 1.0, h: 0.32, plane: 0 },
+  { id: 'shm_lantern', name: 'SHM · SWINGING LANTERN', file: 'assets/cutouts/shm_lantern.webp', frames: 16, fps: 10, aspect: 0.9, h: 0.45, plane: 1 },
+  { id: 'shm_guitar', name: 'SHM · STRUMMING GUITAR', file: 'assets/cutouts/shm_guitar.webp', frames: 16, fps: 10, aspect: 0.9, h: 0.5, plane: 2 },
+  { id: 'shm_cat', name: 'SHM · PROWLING CAT', file: 'assets/cutouts/shm_cat.webp', frames: 16, fps: 10, aspect: 1.111, h: 0.38, plane: 1 },
+  { id: 'shm_palm', name: 'SHM · SWAYING PALM', file: 'assets/cutouts/shm_palm.webp', frames: 16, fps: 8, aspect: 0.818, h: 0.95, plane: 4 },
+  { id: 'shm_cloud', name: 'SHM · DRIFTING CLOUD', file: 'assets/cutouts/shm_cloud.webp', frames: 16, fps: 8, aspect: 1.467, h: 0.6, plane: 5 }
+];
+
+const PROP_KINDS = [
+  'PAPER PLATE', 'CUT CAKE SLICE', 'SPILLED JUICE CUP', 'CRUMPLED NAPKIN',
+  'SILVER FORK & KNIFE', 'PARTY HAT', 'WRAPPED GIFT BOX', 'MELTED WAX DRIPS',
+  'FROSTING SMEAR', 'PARTY BALLOON', 'POLAROID PHOTO', 'FOIL CONFETTI'
+];
+
+const TABLE_STYLES = [
+  ['HEX OAK', 0x422914, 6],
+  ['ROUND WALNUT', 0x5e3c20, 72],
+  ['PALE BIRCH', 0xd4c19a, 8],
+  ['DARK SLATE', 0x1d201f, 72],
+  ['LACE CLOTH', 0xede6d8, 72],
+  ['NO TABLE · CONE', 0x000000, 0]
+];
+
+/* =============================================================== 3B. TIZITA ANTHOLOGY: 12 BEST BIRTHDAYS ACROSS TIME & SPACE */
+const TIZITA_CHAPTERS = [
+  {
+    id: '2021_stelline',
+    title: '01 · 2021 STELLINE CHAMBER (6·10·21)',
+    subtitle: 'There is a bit of every artist in their work — untidy details around the hexagonal oak table.',
+    lyric: 'TIZITA · "Someone wrote my first winter in warm wax and seven small flames"',
+    clipIdx: 0,
+    hero: { preset: 0, finish: 0, sculpt: 0.0, candles: 7, lit: 1, scale: 1.0 },
+    table: { style: 0, width: 1.08 },
+    propCount: 9,
+    cutouts: [
+      { clip: 3, a: Math.PI - 0.72, plane: 1, face: 8, s: 1.02, speed: 1.0 },
+      { clip: 4, a: Math.PI,        plane: 1, face: 0, s: 1.05, speed: 1.0 },
+      { clip: 5, a: Math.PI + 0.72, plane: 1, face: -8, s: 1.02, speed: 1.0 },
+      { clip: 0, a: -0.52,          plane: 3, face: 12, s: 1.0, speed: 0.9 },
+      { clip: 6, a: 0.32,           plane: 0, face: -10, s: 0.92, speed: 1.0 }
+    ],
+    etch: { surface: 0, phrase: 2, x: 0, y: 0, col: 0, pts: [] },
+    light: { a: 34, h: 0.82, warm: 0.82, k: 1.48 },
+    bellows: 0.0
+  },
+  {
+    id: '1997_addis',
+    title: '02 · 1997 ADDIS ABABA COURTYARD (TIZITA LAMP)',
+    subtitle: 'Rain on corrugated tin, cassette tape hiss, honey-wine brass lantern, and cousins leaning into the candle glow.',
+    lyric: 'TIZITA · "Yesterday is a room we only enter when the tape begins to warble"',
+    clipIdx: 1,
+    hero: { preset: 20, finish: 7, sculpt: 0.12, candles: 9, lit: 1, scale: 1.08 },
+    table: { style: 1, width: 1.12 },
+    propCount: 12,
+    cutouts: [
+      { clip: 28, a: Math.PI - 0.85, plane: 1, face: 10, s: 1.05, speed: 1.0 },
+      { clip: 4,  a: Math.PI - 0.15, plane: 1, face: 0,  s: 1.0,  speed: 1.0 },
+      { clip: 29, a: Math.PI + 0.58, plane: 2, face: -6, s: 1.08, speed: 0.95 },
+      { clip: 1,  a: 0.65,           plane: 2, face: -14, s: 0.96, speed: 0.9 },
+      { clip: 22, a: -0.75,          plane: 4, face: 0,  s: 1.15, speed: 0.8 }
+    ],
+    etch: { surface: 2, phrase: 4, x: 0.1, y: -0.1, col: 2, pts: [] },
+    light: { a: -28, h: 0.68, warm: 0.94, k: 1.55 },
+    bellows: 0.08
+  },
+  {
+    id: '1974_tehran',
+    title: '03 · 1974 TEHRAN WINTER GREENHOUSE (GOLE YAKH)',
+    subtitle: 'Steam on glass panes while snow gathers outside; porcelain teacups and rosewater patisserie dome.',
+    lyric: 'TIZITA · "Winter pressed its forehead to the greenhouse glass and sang"',
+    clipIdx: 1,
+    hero: { preset: 2, finish: 3, sculpt: 0.08, candles: 5, lit: 1, scale: 1.04 },
+    table: { style: 4, width: 1.05 },
+    propCount: 10,
+    cutouts: [
+      { clip: 18, a: Math.PI - 0.68, plane: 1, face: 6,  s: 1.0, speed: 0.9 },
+      { clip: 11, a: Math.PI + 0.12, plane: 1, face: 0,  s: 1.04, speed: 1.0 },
+      { clip: 14, a: Math.PI + 0.82, plane: 2, face: -12, s: 0.98, speed: 0.85 },
+      { clip: 21, a: -0.45,          plane: 1, face: 15, s: 0.88, speed: 1.0 }
+    ],
+    etch: { surface: 0, phrase: 1, x: 0, y: 0, col: 0, pts: [] },
+    light: { a: 52, h: 0.95, warm: 0.72, k: 1.38 },
+    bellows: 0.05
+  },
+  {
+    id: '1986_brooklyn',
+    title: '04 · 1986 BROOKLYN KITCHEN POLAROID',
+    subtitle: 'Fluorescent hum turned off at 9 PM, sheet cake on birch formica, spilled grape soda, and flashbulbs.',
+    lyric: 'TIZITA · "Shake the Polaroid until the faces swim up from the dark"',
+    clipIdx: 2,
+    hero: { preset: 9, finish: 1, sculpt: -0.05, candles: 10, lit: 1, scale: 1.1 },
+    table: { style: 2, width: 1.15 },
+    propCount: 15,
+    cutouts: [
+      { clip: 7,  a: Math.PI - 0.78, plane: 1, face: 12, s: 1.0, speed: 1.1 },
+      { clip: 8,  a: Math.PI,        plane: 1, face: 0,  s: 1.02, speed: 1.1 },
+      { clip: 9,  a: Math.PI + 0.78, plane: 1, face: -12, s: 1.0, speed: 1.1 },
+      { clip: 17, a: 0.48,           plane: 1, face: -18, s: 0.95, speed: 1.0 }
+    ],
+    etch: { surface: 0, phrase: 1, x: 0, y: 0, col: 4, pts: [] },
+    light: { a: -45, h: 0.76, warm: 0.85, k: 1.5 },
+    bellows: 0.0
+  },
+  {
+    id: '1968_pawleys',
+    title: '05 · 1968 PAWLEYS ISLAND MARSH PORCH',
+    subtitle: 'Screen doorslam, salt wind through palmettos, half-melted birthday cake, and a guitar on the porch rail.',
+    lyric: 'TIZITA · "Salt air ate the frosting before anyone could count to ten"',
+    clipIdx: 1,
+    hero: { preset: 4, finish: 3, sculpt: 0.32, candles: 7, lit: 1, scale: 1.0 },
+    table: { style: 0, width: 1.18 },
+    propCount: 14,
+    cutouts: [
+      { clip: 29, a: Math.PI - 0.65, plane: 1, face: 5,  s: 1.06, speed: 0.95 },
+      { clip: 3,  a: Math.PI + 0.08, plane: 1, face: 0,  s: 1.0, speed: 1.0 },
+      { clip: 31, a: Math.PI + 0.85, plane: 3, face: -8, s: 1.15, speed: 0.8 },
+      { clip: 27, a: -0.38,          plane: 0, face: 10, s: 0.9, speed: 1.1 }
+    ],
+    etch: { surface: 2, phrase: 4, x: 0, y: 0, col: 1, pts: [] },
+    light: { a: 64, h: 0.64, warm: 0.92, k: 1.42 },
+    bellows: 0.12
+  },
+  {
+    id: '1991_tokyo',
+    title: '06 · 1991 TOKYO ROOFTOP LANTERN',
+    subtitle: 'Strawberry shortcake tower on dark slate above the train tracks; paper lanterns swaying in the dusk wind.',
+    lyric: 'TIZITA · "Every passing commuter train took one more wish down the line"',
+    clipIdx: 2,
+    hero: { preset: 7, finish: 2, sculpt: 0.0, candles: 6, lit: 1, scale: 1.06 },
+    table: { style: 3, width: 1.0 },
+    propCount: 8,
+    cutouts: [
+      { clip: 28, a: Math.PI - 0.92, plane: 1, face: 14, s: 1.0, speed: 1.0 },
+      { clip: 5,  a: Math.PI - 0.22, plane: 1, face: 4,  s: 1.02, speed: 1.0 },
+      { clip: 16, a: Math.PI + 0.55, plane: 2, face: -10, s: 0.98, speed: 0.9 },
+      { clip: 31, a: 0.15,           plane: 4, face: 0,  s: 1.2, speed: 0.7 }
+    ],
+    etch: { surface: 0, phrase: 2, x: 0, y: 0, col: 0, pts: [] },
+    light: { a: -18, h: 0.88, warm: 0.62, k: 1.46 },
+    bellows: 0.06
+  },
+  {
+    id: '1959_havana',
+    title: '07 · 1959 HAVANA COURTYARD AFTER RAIN',
+    subtitle: 'Croquembouche spun sugar glistening in the humid courtyard, lace tablecloth, and birds lifting at dusk.',
+    lyric: 'TIZITA · "Spun sugar holds the shape of the storm for one brief hour"',
+    clipIdx: 1,
+    hero: { preset: 8, finish: 0, sculpt: 0.14, candles: 5, lit: 1, scale: 1.08 },
+    table: { style: 4, width: 1.14 },
+    propCount: 11,
+    cutouts: [
+      { clip: 10, a: Math.PI - 0.70, plane: 1, face: 8,  s: 1.04, speed: 1.0 },
+      { clip: 11, a: Math.PI + 0.15, plane: 1, face: -5, s: 1.0, speed: 1.0 },
+      { clip: 22, a: Math.PI + 0.95, plane: 4, face: 0,  s: 1.22, speed: 0.95 },
+      { clip: 30, a: -0.55,          plane: 1, face: 12, s: 0.92, speed: 1.0 }
+    ],
+    etch: { surface: 2, phrase: 3, x: 0, y: 0, col: 2, pts: [] },
+    light: { a: 42, h: 0.74, warm: 0.88, k: 1.52 },
+    bellows: 0.10
+  },
+  {
+    id: '2003_berlin',
+    title: '08 · 2003 BERLIN U-BAHN ATTIC STUDIO',
+    subtitle: 'Twin-lens camera on the table surrounded by Super-8 film strips, chocolate ganache torte, and late-night laughter.',
+    lyric: 'TIZITA · "We Exposed the whole roll of film to a single matchstick"',
+    clipIdx: 0,
+    hero: { preset: 6, finish: 4, sculpt: 0.06, candles: 8, lit: 1, scale: 1.02 },
+    table: { style: 3, width: 1.06 },
+    propCount: 13,
+    cutouts: [
+      { clip: 14, a: Math.PI - 0.82, plane: 1, face: 10, s: 1.05, speed: 0.9 },
+      { clip: 15, a: Math.PI - 0.05, plane: 2, face: 0,  s: 1.02, speed: 0.9 },
+      { clip: 20, a: Math.PI + 0.68, plane: 1, face: -8, s: 0.96, speed: 1.0 },
+      { clip: 2,  a: 0.35,           plane: 0, face: -12, s: 0.94, speed: 1.0 }
+    ],
+    etch: { surface: 1, phrase: 5, x: 0, y: 0, col: 4, pts: [] },
+    light: { a: -60, h: 0.92, warm: 0.55, k: 1.40 },
+    bellows: 0.04
+  },
+  {
+    id: '2012_diner',
+    title: '09 · 2012 LATE-NIGHT HIGHWAY DINER BOOTH',
+    subtitle: '2 AM half-eaten bundt cake with four stubborn candles, crumpled napkins, and neon reflections on walnut.',
+    lyric: 'TIZITA · "At 2 AM the waitress brought four candles in a coffee saucer"',
+    clipIdx: 2,
+    hero: { preset: 5, finish: 0, sculpt: 0.18, candles: 4, lit: 1, scale: 0.98 },
+    table: { style: 1, width: 1.04 },
+    propCount: 16,
+    cutouts: [
+      { clip: 6,  a: Math.PI - 0.55, plane: 0, face: 8,  s: 1.04, speed: 1.0 },
+      { clip: 3,  a: Math.PI + 0.25, plane: 1, face: -6, s: 1.0,  speed: 1.0 },
+      { clip: 19, a: -0.75,          plane: 0, face: 18, s: 0.90, speed: 1.0 }
+    ],
+    etch: { surface: 2, phrase: 4, x: 0, y: 0, col: 5, pts: [] },
+    light: { a: 22, h: 0.58, warm: 0.90, k: 1.60 },
+    bellows: 0.0
+  },
+  {
+    id: '1981_gymnasium',
+    title: '10 · 1981 SCHOLASTIC FOLDING-TABLE BIRTHDAY',
+    subtitle: 'Luz Bench 13-candle turntable cake, paper plates, foil confetti, and three kids leaning in to blow out the wish.',
+    lyric: 'TIZITA · "Thirteen candles on a folding table — do not let the janitor turn the lights on"',
+    clipIdx: 2,
+    hero: { preset: 10, finish: 1, sculpt: 0.0, candles: 13, lit: 1, scale: 1.08 },
+    table: { style: 2, width: 1.20 },
+    propCount: 18,
+    cutouts: [
+      { clip: 11, a: Math.PI - 0.62, plane: 1, face: 6,  s: 1.06, speed: 1.05 },
+      { clip: 4,  a: Math.PI,        plane: 1, face: 0,  s: 1.04, speed: 1.05 },
+      { clip: 5,  a: Math.PI + 0.62, plane: 1, face: -6, s: 1.06, speed: 1.05 },
+      { clip: 24, a: 0.52,           plane: 2, face: -15, s: 0.96, speed: 1.0 }
+    ],
+    etch: { surface: 2, phrase: 1, x: 0, y: 0, col: 0, pts: [] },
+    light: { a: 15, h: 0.85, warm: 0.80, k: 1.48 },
+    bellows: 0.0
+  },
+  {
+    id: '2038_offworld',
+    title: '11 · 2038 OFF-WORLD CONSERVATORY DOME',
+    subtitle: 'Stelline Emerald Jewel Beetle & glass snowglobe under artificial snow; Ana walking up through the trees to work.',
+    lyric: 'TIZITA · "She built the forest first so she could walk through it to work"',
+    clipIdx: 0,
+    hero: { preset: 17, finish: 6, sculpt: 0.10, candles: 7, lit: 1, scale: 1.12 },
+    table: { style: 5, width: 1.0 },
+    propCount: 6,
+    cutouts: [
+      { clip: 0,  a: Math.PI - 0.45, plane: 2, face: 6,  s: 1.12, speed: 0.95 },
+      { clip: 1,  a: Math.PI + 0.35, plane: 1, face: -6, s: 1.06, speed: 0.95 },
+      { clip: 13, a: 0.25,           plane: 0, face: 0,  s: 0.95, speed: 1.1 },
+      { clip: 26, a: -0.65,          plane: 1, face: 12, s: 0.92, speed: 1.1 }
+    ],
+    etch: { surface: 3, phrase: 5, x: 0, y: 0, col: 4, pts: [] },
+    light: { a: -35, h: 1.05, warm: 0.42, k: 1.52 },
+    bellows: 0.24
+  },
+  {
+    id: '2049_first_winter',
+    title: '12 · 2049 FIRST WINTER OUTSIDE THE DOME',
+    subtitle: 'Carved wooden horse (6·10·21) dissolving into 32,000 snowflakes as the accordion opens into Tizita flight.',
+    lyric: 'TIZITA · "All the best memories are hers — drifting like snow on open hands"',
+    clipIdx: 1,
+    hero: { preset: 16, finish: 5, sculpt: 0.0, candles: 7, lit: 0, scale: 1.15 },
+    table: { style: 0, width: 1.08 },
+    propCount: 10,
+    cutouts: [
+      { clip: 0,  a: Math.PI - 0.80, plane: 2, face: 10, s: 1.08, speed: 0.9 },
+      { clip: 11, a: Math.PI,        plane: 1, face: 0,  s: 1.05, speed: 0.95 },
+      { clip: 24, a: Math.PI + 0.78, plane: 2, face: -10, s: 1.04, speed: 1.0 },
+      { clip: 6,  a: 0.18,           plane: 0, face: -6, s: 0.98, speed: 0.9 }
+    ],
+    etch: { surface: 0, phrase: 3, x: 0, y: 0, col: 2, pts: [] },
+    light: { a: 28, h: 0.90, warm: 0.68, k: 1.55 },
+    bellows: 0.62
+  }
+];
+
+/* =============================================================== 3C. DIEGETIC OLED VIDEO MONITOR & TIZITA × STELLINE AUDIO MIXES */
+const MONITOR_CLIPS = [
+  { id: 'walk',  label: 'CLIP 1 · ANA WALK TO WORK',    src: 'assets/clips/stelline_walk_to_work.mp4',      quote: '"Wait a moment... let me clear the forest projection."' },
+  { id: 'talk',  label: 'CLIP 2 · UNTIDY DETAILS',       src: 'assets/clips/stelline_how_memories_work.mp4', quote: '"If you supply the untidy details, the mind fills in the rest... feelings."' },
+  { id: 'bday',  label: 'CLIP 3 · BIRTHDAY SCENE CRAFT', src: 'assets/clips/stelline_birthday_craft.mp4',    quote: '"There is a bit of every artist in their work... make a wish."' },
+  { id: 'reel',  label: 'CLIP 4 · FULL CHAMBER REEL',    src: 'assets/clips/stelline_oled_reel.mp4',         quote: '"All the best memories are hers."' }
+];
+
+const AUDIO_MIXES = [
+  { id: 'mix0', label: 'MIX 0 · MOTION SYNTH ONLY',       src: '' },
+  { id: 'mix1', label: 'MIX 1 · TIZITA × STELLINE SOUL',  src: 'assets/audio/mix1_tizita_stelline_soul.mp3' },
+  { id: 'mix2', label: 'MIX 2 · CHAMBER & WALK DIALOGUE', src: 'assets/audio/mix2_stelline_dialogue_chamber.mp3' },
+  { id: 'mix3', label: 'MIX 3 · TIZITA FULL 3:30 ANTHEM', src: 'assets/audio/mix3_tizita_full_anthem.mp3' }
+];
+
+// Create hidden <video> for the Orb Top OLED Monitor and <audio> for the Tizita mixes
+const oledVideo = document.createElement('video');
+oledVideo.src = MONITOR_CLIPS[3].src;
+oledVideo.muted = true; oledVideo.loop = true; oledVideo.playsInline = true; oledVideo.crossOrigin = 'anonymous';
+oledVideo.addEventListener('loadedmetadata', () => { try { if (oledVideo.currentTime < 1) oledVideo.currentTime = 14.5; } catch (e) {} });
+oledVideo.play().catch(() => {});
+
+const mixAudio = document.createElement('audio');
+mixAudio.loop = true; mixAudio.crossOrigin = 'anonymous';
+let curMixIdx = 1, curClipIdx = 3, mixAnalyser = null, mixData = new Uint8Array(64), mixConnected = false;
+
+function ensureAudioGraph() {
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === 'suspended') AC.resume();
+    if (!mixAnalyser) {
+      mixAnalyser = AC.createAnalyser();
+      mixAnalyser.fftSize = 128;
+      mixAnalyser.smoothingTimeConstant = 0.78;
+      mixData = new Uint8Array(mixAnalyser.frequencyBinCount);
+      mixAnalyser.connect(AC.destination);
+    }
+    if (!mixConnected) {
+      const srcNode = AC.createMediaElementSource(mixAudio);
+      srcNode.connect(mixAnalyser);
+      mixConnected = true;
+    }
+  } catch (e) {}
+}
+
+function cycleAudioMix(forceIdx) {
+  ensureAudioGraph();
+  curMixIdx = forceIdx != null ? forceIdx : (curMixIdx + 1) % AUDIO_MIXES.length;
+  const m = AUDIO_MIXES[curMixIdx];
+  const btn = document.getElementById('btnMixToggle');
+  if (btn) { btn.textContent = m.label; btn.classList.toggle('hot', curMixIdx > 0); }
+  if (!m.src) {
+    mixAudio.pause();
+    say('AUDIO · MOTION-COUPLED SYNTH ONLY');
+  } else {
+    if (!mixAudio.src.endsWith(m.src)) mixAudio.src = m.src;
+    mixAudio.currentTime = 0;
+    mixAudio.play().catch(() => {});
+    say('PLAYING · ' + m.label);
+  }
+  oledDirty = true;
+}
+
+function cycleMonitorClip(forceIdx) {
+  curClipIdx = forceIdx != null ? forceIdx : (curClipIdx + 1) % MONITOR_CLIPS.length;
+  const c = MONITOR_CLIPS[curClipIdx];
+  oledVideo.src = c.src;
+  oledVideo.play().catch(() => {});
+  const btn = document.getElementById('btnClipToggle');
+  if (btn) btn.textContent = c.label;
+  say('OLED MONITOR · ' + c.label + ' · ' + c.quote);
+  oledDirty = true;
+}
+
+/* =============================================================== 4. SCENE DOCUMENT & STATE */
+function makeDefaultProps(count) {
+  const arr = [];
+  for (let i = 0; i < count; i++) {
+    const kind = i % PROP_KINDS.length;
+    const a = (i * 2.39996 + 0.4) % TAU;
+    const r = 0.22 + ((i * 0.618) % 1) * 0.32;
+    arr.push({ kind, a, r, rot: (i * 1.7) % TAU, s: 0.85 + (i % 3) * 0.15 });
+  }
+  return arr;
+}
+
+const DOC0 = () => ({
+  hero: { preset: 0, finish: 0, sculpt: 0.0, candles: 7, lit: 1, scale: 1.0 },
+  table: { style: 0, width: 1.08 },
+  props: makeDefaultProps(8),
+  cutouts: [
+    { clip: 0, a: Math.PI - 0.65, plane: 1, face: 0, s: 1.0, speed: 1.0 },
+    { clip: 1, a: Math.PI - 0.02, plane: 1, face: 0, s: 1.0, speed: 1.0 },
+    { clip: 2, a: Math.PI + 0.62, plane: 1, face: 0, s: 1.0, speed: 1.0 },
+    { clip: 3, a: 0.35, plane: 0, face: -12, s: 0.95, speed: 1.0 },
+    { clip: 17, a: -0.95, plane: 2, face: 15, s: 0.9, speed: 1.0 }
+  ],
+  etch: { surface: 0, phrase: 1, x: 0, y: 0, col: 0, pts: [] },
+  light: { a: 38, h: 0.82, warm: 0.78, k: 1.45 },
+  bellows: 0.0,
+  flight: { swoop: 0, pitch: 0.18, bank: 0, speed: 0.4, curl: 0.35 },
+  keyframes: [],
+  curBeat: 0
+});
+
+let DOC = DOC0();
+const UNDO = [], REDO = [];
+let gestT = -9, dirty = { hero: true, table: true, props: true, etch: true };
+
+const MODES = ['TIZITA', 'HERO', 'CAST', 'MESS', 'ETCH', 'LIGHT', 'FLIGHT', 'SCION'];
+const S = {
+  mode: 'HERO',
+  tizitaIdx: 0,
+  castIdx: 0,
+  propIdx: 0,
+  lastRing: 0,
+  hoverRing: -1,
+  msg: 'CINEOSIS-ORB READY · 12 TIZITA BIRTHDAYS · SPIN RINGS OR PULL ACCORDION',
+  msgT: 0,
+  retT: 0,
+  playing: false,
+  playT: 0,
+  view: { preset: 'EYE', yaw: 0, pitch: 0.22, dist: 1.42, fov: 38, roll: 0, tgt: new T.Vector3(0, 0.69, 0), pan: new T.Vector3() }
+};
+const VIEWS = {
+  EYE: { yaw: 0, pitch: 0.21, dist: 1.38, fov: 38, eye: true },
+  WIDE: { yaw: 0.28, pitch: 0.28, dist: 2.45, fov: 42 },
+  MACRO: { yaw: -0.18, pitch: 0.16, dist: 0.62, fov: 30 },
+  SHOULDER: { yaw: Math.PI - 0.35, pitch: 0.14, dist: 1.18, fov: 40 },
+  TOP: { yaw: 0, pitch: 1.45, dist: 1.65, fov: 34 },
+  FREE: null
+};
+const CAM = { yaw: 0, pitch: 0.21, dist: 1.38, fov: 38, roll: 0, tgt: new T.Vector3(0, 0.69, 0) };
+
+function snap(force) {
+  if (!force && NOW - gestT < 1.0) { gestT = NOW; return; }
+  gestT = NOW; UNDO.push(JSON.stringify(DOC)); if (UNDO.length > 80) UNDO.shift(); REDO.length = 0;
+}
+function say(m) { S.msg = m; S.msgT = NOW; oledDirty = true; }
+
+function loadTizitaChapter(idx, fromRemote) {
+  S.tizitaIdx = clamp(Math.round(idx), 0, TIZITA_CHAPTERS.length - 1);
+  const ch = TIZITA_CHAPTERS[S.tizitaIdx];
+  DOC.tizitaIdx = S.tizitaIdx;
+  DOC.hero = { ...ch.hero };
+  DOC.table = { ...ch.table };
+  DOC.props = makeDefaultProps(ch.propCount || 8);
+  DOC.cutouts = ch.cutouts.map(c => ({ ...c }));
+  DOC.etch = { ...ch.etch, pts: (ch.etch.pts || []).slice() };
+  DOC.light = { ...ch.light };
+  S.castIdx = 0; S.propIdx = 0;
+  dirty.hero = dirty.table = dirty.props = dirty.etch = true;
+  setBellows(ch.bellows || 0, true);
+  if (ch.clipIdx != null && curClipIdx !== ch.clipIdx) {
+    curClipIdx = ch.clipIdx;
+    oledVideo.src = MONITOR_CLIPS[curClipIdx].src;
+    oledVideo.play().catch(() => {});
+    const btn = document.getElementById('btnClipToggle');
+    if (btn) btn.textContent = MONITOR_CLIPS[curClipIdx].label;
+  }
+  motionNote(0.65, 0, 0.35);
+  say(ch.title + ' · ' + ch.subtitle);
+  oledDirty = true; drawDialLabels();
+  if (!fromRemote && window.REMOTE) window.REMOTE({ k: 'chapter', idx: S.tizitaIdx });
+}
+
+/* =============================================================== 5. PROCEDURAL & BENCH HERO BUILDER (24 PRESETS) */
+const bumpTex = (() => {
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const x = c.getContext('2d'), id = x.createImageData(128, 128);
+  for (let i = 0; i < id.data.length; i += 4) { const v = 128 + (Math.random() - 0.5) * 90; id.data[i] = id.data[i + 1] = id.data[i + 2] = v; id.data[i + 3] = 255; }
+  x.putImageData(id, 0, 0); const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; return t;
+})();
+const stripeTex = (() => {
+  const c = document.createElement('canvas'); c.width = 16; c.height = 64; const x = c.getContext('2d');
+  x.fillStyle = '#f4ecdc'; x.fillRect(0, 0, 16, 64); x.fillStyle = '#d4483e';
+  for (let y = -16; y < 80; y += 12) { x.beginPath(); x.moveTo(0, y); x.lineTo(16, y + 8); x.lineTo(16, y + 13); x.lineTo(0, y + 5); x.fill(); }
+  const t = new T.CanvasTexture(c); t.wrapT = T.RepeatWrapping; t.encoding = T.sRGBEncoding; return t;
+})();
+const flameMat = new T.SpriteMaterial({
+  map: (() => {
+    const c = document.createElement('canvas'); c.width = 64; c.height = 128; const x = c.getContext('2d');
+    const g = x.createRadialGradient(32, 86, 2, 32, 76, 46);
+    g.addColorStop(0, 'rgba(255,252,230,1)'); g.addColorStop(0.24, 'rgba(255,205,95,.95)');
+    g.addColorStop(0.6, 'rgba(255,120,30,.35)'); g.addColorStop(1, 'rgba(255,90,20,0)');
+    x.fillStyle = g; x.beginPath(); x.ellipse(32, 76, 18, 46, 0, 0, TAU); x.fill();
+    return new T.CanvasTexture(c);
+  })(),
+  blending: T.AdditiveBlending, depthWrite: false, transparent: true, toneMapped: false
+});
+
+let FLAMES = [], benchHeroSprite = null;
+const benchTexCache = {};
+
+function deformGeometry(geo, sculpt) {
+  if (Math.abs(sculpt) < 0.01) return geo;
+  const pos = geo.attributes.position;
+  const v = new T.Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i);
+    const a = Math.atan2(v.z, v.x), r = Math.hypot(v.x, v.z);
+    const wave = 1 + sculpt * (0.22 * Math.sin(a * 5 + v.y * 18) + 0.12 * Math.cos(a * 3 - v.y * 12));
+    const twist = a + sculpt * v.y * 6.0;
+    pos.setXYZ(i, Math.cos(twist) * r * wave, v.y * (1 + sculpt * 0.08 * Math.sin(r * 25)), Math.sin(twist) * r * wave);
+  }
+  geo.computeVertexNormals();
+  return geo;
+}
+
+function addCandlesToHero(count, radius, topY, lit) {
+  if (!count || count <= 0) return;
+  const cMat = mistify(new T.MeshStandardMaterial({ map: stripeTex, roughness: 0.5 }));
+  const wMat = new T.MeshBasicMaterial({ color: 0x1b1612 });
+  for (let k = 0; k < count; k++) {
+    const a = k / count * TAU + 0.25, r = count === 1 ? 0 : radius;
+    const g = new T.Group(); g.position.set(Math.cos(a) * r, topY, Math.sin(a) * r);
+    const L = 0.056;
+    const cy = new T.Mesh(new T.CylinderGeometry(0.0035, 0.0035, L, 10), cMat); cy.position.y = L / 2; cy.castShadow = true;
+    const w = new T.Mesh(new T.CylinderGeometry(0.0007, 0.0007, 0.007, 4), wMat); w.position.y = L + 0.0035;
+    g.add(cy, w);
+    if (lit) {
+      const f = new T.Sprite(flameMat); f.scale.set(0.018, 0.036, 1); f.position.y = L + 0.018;
+      g.add(f); FLAMES.push(f);
+    }
+    HERO_G.add(g);
+  }
+}
+
+function buildHero() {
+  HERO_G.clear(); FLAMES = []; benchHeroSprite = null;
+  const H = DOC.hero, P = HERO_PRESETS[clamp(H.preset, 0, HERO_PRESETS.length - 1)];
+  const fin = FINISHES[clamp(H.finish, 0, FINISHES.length - 1)];
+  const mainMat = mistify(new T.MeshStandardMaterial({ color: fin[1], roughness: fin[2], metalness: fin[3], bumpMap: bumpTex, bumpScale: 0.0012 }));
+  const plateMat = mistify(new T.MeshStandardMaterial({ color: 0xe6ece9, roughness: 0.35, metalness: 0.1 }));
+
+  // Porcelain plate under cakes
+  const plate = new T.Mesh(new T.CylinderGeometry(0.155, 0.142, 0.008, 48), plateMat);
+  plate.position.y = 0.004; plate.receiveShadow = true; HERO_G.add(plate);
+
+  let topY = 0.10, cRad = 0.08;
+
+  if (P.kind === 'bench_cake') {
+    // 36-frame turntable sprite from Stelline Bench
+    let tex = benchTexCache[P.file];
+    if (!tex) {
+      tex = new T.TextureLoader().load(P.file, () => { tex.repeat.set(1 / 36, 1); });
+      tex.encoding = T.sRGBEncoding; tex.repeat.set(1 / 36, 1);
+      benchTexCache[P.file] = tex;
+    }
+    const smat = mistify(new T.MeshStandardMaterial({ map: tex, transparent: true, alphaTest: 0.25, side: T.DoubleSide, roughness: 0.6 }));
+    const plane = new T.Mesh(new T.PlaneGeometry(0.32, 0.24), smat);
+    plane.position.y = 0.11; HERO_G.add(plane);
+    benchHeroSprite = { mesh: plane, tex, frames: 36 };
+    topY = 0.105; cRad = 0.075;
+  } else if (P.kind === 'cake') {
+    let pts = [[0, 0], [0.12, 0], [0.122, 0.088], [0, 0.092]];
+    let phiLen = TAU;
+    if (P.form === 'RING') {
+      pts = []; for (let k = 0; k <= 36; k++) { const t = -Math.PI / 2 + k / 36 * TAU; pts.push([0.078 + 0.044 * Math.cos(t), 0.046 + 0.046 * Math.sin(t)]); }
+      topY = 0.092; cRad = 0.078;
+    } else if (P.form === 'DOME') {
+      pts = [[0, 0], [0.122, 0], [0.122, 0.02]];
+      for (let k = 1; k <= 14; k++) { const a = k / 14 * Math.PI / 2; pts.push([0.122 * Math.cos(a), 0.02 + 0.085 * Math.sin(a)]); }
+      topY = 0.104; cRad = 0.068;
+    } else if (P.form === 'TIERS' || P.form === 'TIERS3') {
+      pts = [[0, 0], [0.135, 0], [0.135, 0.068], [0.095, 0.068], [0.095, 0.132], [0.062, 0.132], [0.062, P.form === 'TIERS3' ? 0.188 : 0.134], [0, P.form === 'TIERS3' ? 0.188 : 0.134]];
+      topY = P.form === 'TIERS3' ? 0.188 : 0.134; cRad = 0.048;
+    } else if (P.form === 'BITTEN') {
+      pts = []; for (let k = 0; k <= 32; k++) { const t = -Math.PI / 2 + k / 32 * TAU; pts.push([0.078 + 0.044 * Math.cos(t), 0.046 + 0.046 * Math.sin(t)]); }
+      phiLen = TAU * 0.78; topY = 0.092; cRad = 0.078;
+    }
+    const geo = deformGeometry(new T.LatheGeometry(pts.map(p => new T.Vector2(p[0], p[1])), 72, 0, phiLen), H.sculpt + (P.form === 'MELTED' ? 0.45 : 0));
+    const m = new T.Mesh(geo, mainMat); m.position.y = 0.008; m.castShadow = m.receiveShadow = true; HERO_G.add(m);
+    // Add decorative bead border
+    const beadMat = mistify(new T.MeshStandardMaterial({ color: 0xfbf8f2, roughness: 0.45 }));
+    const nB = 28, im = new T.InstancedMesh(new T.SphereGeometry(0.006, 8, 8), beadMat, nB), m4 = new T.Matrix4();
+    for (let k = 0; k < nB; k++) { const a = k / nB * phiLen; m4.makeTranslation(Math.cos(a) * (cRad + 0.025), topY + 0.006, Math.sin(a) * (cRad + 0.025)); im.setMatrixAt(k, m4); }
+    HERO_G.add(im);
+  } else if (P.kind === 'croquem') {
+    for (let lv = 0; lv < 6; lv++) {
+      const r = (6 - lv) * 0.017, n = Math.max(1, (6 - lv) * 3), y = 0.018 + lv * 0.026;
+      for (let k = 0; k < n; k++) {
+        const a = k / n * TAU + lv * 0.5;
+        const puff = new T.Mesh(new T.SphereGeometry(0.016, 12, 10), mainMat);
+        puff.position.set(Math.cos(a) * r, y, Math.sin(a) * r); puff.castShadow = true; HERO_G.add(puff);
+      }
+    }
+    topY = 0.175; cRad = 0.03;
+  } else if (P.kind === 'sheet') {
+    const geo = deformGeometry(new T.BoxGeometry(0.24, 0.065, 0.18, 24, 8, 18), H.sculpt);
+    const m = new T.Mesh(geo, mainMat); m.position.y = 0.04; m.castShadow = m.receiveShadow = true; HERO_G.add(m);
+    topY = 0.074; cRad = 0.07;
+  } else if (P.kind === 'horse') {
+    // Carved Wooden Horse 6.10.21
+    const wMat = mistify(new T.MeshStandardMaterial({ color: 0x5c3818, roughness: 0.72, bumpMap: bumpTex, bumpScale: 0.002 }));
+    const parts = [
+      [0.09, 0.042, 0.036, 0, 0.075, 0, 0], // torso
+      [0.032, 0.075, 0.028, 0.038, 0.115, 0, -0.45], // neck
+      [0.048, 0.026, 0.024, 0.062, 0.142, 0, 0.25], // head
+      [0.016, 0.065, 0.016, -0.034, 0.038, 0.012, 0.1], // legs
+      [0.016, 0.065, 0.016, -0.034, 0.038, -0.012, -0.08],
+      [0.016, 0.065, 0.016, 0.034, 0.038, 0.012, -0.12],
+      [0.016, 0.065, 0.016, 0.034, 0.038, -0.012, 0.08],
+      [0.014, 0.055, 0.014, -0.055, 0.07, 0, 0.55] // tail
+    ];
+    parts.forEach(([sx, sy, sz, px, py, pz, rz]) => {
+      const m = new T.Mesh(deformGeometry(new T.SphereGeometry(0.5, 16, 12), H.sculpt * 0.4), wMat);
+      m.scale.set(sx, sy, sz); m.position.set(px, py, pz); m.rotation.z = rz; m.castShadow = true; HERO_G.add(m);
+    });
+    topY = 0.145; cRad = 0.05;
+  } else if (P.kind === 'beetle3d') {
+    const bMat = mistify(new T.MeshStandardMaterial({ color: 0x246a52, roughness: 0.22, metalness: 0.82 }));
+    const body = new T.Mesh(deformGeometry(new T.SphereGeometry(0.075, 32, 24), H.sculpt), bMat);
+    body.scale.set(1.25, 0.55, 0.92); body.position.y = 0.048; body.castShadow = true; HERO_G.add(body);
+    const head = new T.Mesh(new T.SphereGeometry(0.034, 20, 16), bMat);
+    head.scale.set(1, 0.6, 0.9); head.position.set(0.085, 0.042, 0); HERO_G.add(head);
+    for (let s of [-1, 1]) for (let k = -1; k <= 1; k++) {
+      const leg = new T.Mesh(new T.CylinderGeometry(0.003, 0.002, 0.075, 6), bMat);
+      leg.position.set(k * 0.035, 0.025, s * 0.075); leg.rotation.x = s * 0.85; HERO_G.add(leg);
+    }
+    topY = 0.092; cRad = 0.05;
+  } else if (P.kind === 'unicorn') {
+    const uMat = mistify(new T.MeshStandardMaterial({ color: 0xe8eef2, roughness: 0.25, metalness: 0.78, flatShading: true }));
+    const body = new T.Mesh(new T.OctahedronGeometry(0.065, 1), uMat); body.scale.set(1.3, 0.7, 0.55); body.position.y = 0.07; HERO_G.add(body);
+    const horn = new T.Mesh(new T.ConeGeometry(0.018, 0.095, 5), uMat); horn.position.set(0.065, 0.14, 0); horn.rotation.z = -0.55; HERO_G.add(horn);
+    topY = 0.13; cRad = 0.05;
+  } else if (P.kind === 'snowglobe') {
+    const base = new T.Mesh(new T.CylinderGeometry(0.075, 0.088, 0.036, 32), mainMat); base.position.y = 0.024; HERO_G.add(base);
+    const tree = new T.Mesh(new T.ConeGeometry(0.042, 0.095, 16), mistify(new T.MeshStandardMaterial({ color: 0x2d6a4f, roughness: 0.7 }))); tree.position.y = 0.085; HERO_G.add(tree);
+    const glass = new T.Mesh(new T.SphereGeometry(0.092, 32, 24), new T.MeshPhysicalMaterial({ color: 0xdff8f4, transparent: true, opacity: 0.34, roughness: 0.05, clearcoat: 1 }));
+    glass.position.y = 0.105; HERO_G.add(glass);
+    topY = 0.198; cRad = 0.04;
+  } else if (P.kind === 'lantern' || P.kind === 'camera' || P.kind === 'teacups') {
+    for (let k = 0; k < 4; k++) {
+      const m = new T.Mesh(deformGeometry(new T.CylinderGeometry(0.058 - k * 0.006, 0.045, 0.038, 24), H.sculpt), mainMat);
+      m.position.set((k % 2 - 0.5) * 0.012, 0.028 + k * 0.036, 0); m.rotation.z = (k % 2 - 0.5) * 0.14; m.castShadow = true; HERO_G.add(m);
+    }
+    topY = 0.165; cRad = 0.04;
+  } else {
+    // Freeform High-Res Clay Sculpture
+    const geo = deformGeometry(new T.SphereGeometry(0.105, 64, 48), H.sculpt || 0.45);
+    const m = new T.Mesh(geo, mainMat); m.position.y = 0.105; m.castShadow = m.receiveShadow = true; HERO_G.add(m);
+    topY = 0.195; cRad = 0.06;
+  }
+
+  addCandlesToHero(H.candles, cRad, topY + 0.006, H.lit);
+  HERO_G.scale.setScalar(H.scale || 1);
+}
+
+/* =============================================================== 6. TABLE & LIVED-IN BIRTHDAY MESS (12 PROP KINDS) */
+const tableMat = mistify(new T.MeshStandardMaterial({ roughness: 0.85 }));
+const legMat = mistify(new T.MeshStandardMaterial({ color: 0x161412, roughness: 0.7 }));
+
+function buildTable() {
+  TABLE_G.clear();
+  const st = TABLE_STYLES[clamp(DOC.table.style, 0, TABLE_STYLES.length - 1)];
+  if (!st[2]) return; // NO TABLE · CONE
+  tableMat.color.setHex(st[1]);
+  const w = DOC.table.width || 1.0;
+  const top = new T.Mesh(new T.CylinderGeometry(0.62 * w, 0.62 * w, 0.036, st[2]), tableMat);
+  top.position.y = TOP - 0.018; top.receiveShadow = top.castShadow = true; TABLE_G.add(top);
+  const leg = new T.Mesh(new T.CylinderGeometry(0.052, 0.095, TOP - 0.036, 18), legMat);
+  leg.position.y = (TOP - 0.036) / 2; TABLE_G.add(leg);
+}
+
+const PROP_COLS = [0xf4f1ea, 0xeaa5b2, 0xf2b84b, 0x8ecae6, 0xd8e2dc, 0xff6b6b, 0x9bf6ff, 0xf9c74f, 0xf4a261, 0xff8fa3, 0xf8f9fa, 0x5ff0dc];
+const propMeshes = [];
+
+function buildProps() {
+  MESS_G.clear(); propMeshes.length = 0;
+  DOC.props.forEach((p, idx) => {
+    const g = new T.Group(); g.userData.propIdx = idx;
+    const col = PROP_COLS[p.kind % PROP_COLS.length];
+    const mat = mistify(new T.MeshStandardMaterial({ color: col, roughness: 0.55, metalness: p.kind === 4 || p.kind === 11 ? 0.75 : 0.05 }));
+    const k = p.kind % PROP_KINDS.length;
+    if (k === 0) { // Paper plate + crumbs
+      const pl = new T.Mesh(new T.CylinderGeometry(0.058, 0.048, 0.005, 24), mat); pl.position.y = 0.003; g.add(pl);
+    } else if (k === 1) { // Cut cake slice on saucer
+      const pl = new T.Mesh(new T.CylinderGeometry(0.052, 0.045, 0.004, 20), mistify(new T.MeshStandardMaterial({ color: 0xfaf8f2, roughness: 0.4 }))); pl.position.y = 0.002; g.add(pl);
+      const sl = new T.Mesh(new T.CylinderGeometry(0.042, 0.042, 0.034, 16, 1, false, 0, 0.75), mat); sl.position.y = 0.019; g.add(sl);
+    } else if (k === 2) { // Spilled juice cup + puddle
+      const cup = new T.Mesh(new T.CylinderGeometry(0.022, 0.016, 0.052, 16), mat); cup.position.set(0, 0.018, 0); cup.rotation.z = 1.38; g.add(cup);
+      const pud = new T.Mesh(new T.CircleGeometry(0.045, 20), mistify(new T.MeshStandardMaterial({ color: 0xe63946, roughness: 0.15, transparent: true, opacity: 0.78 })));
+      pud.rotation.x = -Math.PI / 2; pud.position.set(0.042, 0.0015, 0.01); g.add(pud);
+    } else if (k === 3) { // Crumpled napkin
+      const nap = new T.Mesh(new T.DodecahedronGeometry(0.024, 1), mat); nap.scale.set(1.2, 0.55, 1.0); nap.position.y = 0.012; g.add(nap);
+    } else if (k === 4) { // Silver fork & knife
+      const fk = new T.Mesh(new T.BoxGeometry(0.075, 0.003, 0.008), mat); fk.position.y = 0.002; g.add(fk);
+      const kn = new T.Mesh(new T.BoxGeometry(0.082, 0.003, 0.009), mat); kn.position.set(0.01, 0.002, 0.018); kn.rotation.y = 0.22; g.add(kn);
+    } else if (k === 5) { // Party hat
+      const hat = new T.Mesh(new T.ConeGeometry(0.032, 0.078, 20), mat); hat.position.y = 0.039; hat.rotation.z = 0.12; g.add(hat);
+    } else if (k === 6) { // Wrapped gift box
+      const bx = new T.Mesh(new T.BoxGeometry(0.068, 0.052, 0.062), mat); bx.position.y = 0.026; g.add(bx);
+    } else if (k === 7 || k === 8) { // Melted wax drips / Frosting smear
+      for (let d = 0; d < 5; d++) {
+        const dr = new T.Mesh(new T.SphereGeometry(0.009 + (d % 3) * 0.004, 10, 8), mat);
+        dr.scale.set(1.3, 0.25, 1.1); dr.position.set((d - 2) * 0.014, 0.002, ((d * 7) % 3 - 1) * 0.012); g.add(dr);
+      }
+    } else if (k === 9) { // Floating party balloon
+      const bl = new T.Mesh(new T.SphereGeometry(0.048, 20, 16), mat); bl.scale.set(0.88, 1.15, 0.88); bl.position.y = 0.26; g.add(bl);
+      const st = new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(0, 0, 0), new T.Vector3(0, 0.21, 0)]), new T.LineBasicMaterial({ color: 0xcccccc })); g.add(st);
+    } else if (k === 10) { // Polaroid photo (uses latest imported user photo if available!)
+      const ph = new T.Mesh(new T.BoxGeometry(0.058, 0.0022, 0.070), mistify(new T.MeshStandardMaterial({ color: 0xfbfbf8, roughness: 0.4 }))); ph.position.y = 0.0015; g.add(ph);
+      const pMat = mistify(new T.MeshStandardMaterial({ color: window._lastUserPhotoTex ? 0xffffff : 0x2b3a36, map: window._lastUserPhotoTex || null, roughness: 0.45 }));
+      const im = new T.Mesh(new T.PlaneGeometry(0.048, 0.048), pMat); im.rotation.x = -Math.PI / 2; im.position.set(0, 0.003, -0.005); g.add(im);
+    } else { // Confetti scatter
+      for (let c = 0; c < 8; c++) {
+        const cf = new T.Mesh(new T.PlaneGeometry(0.012, 0.008), mat);
+        cf.rotation.x = -Math.PI / 2; cf.rotation.z = c * 1.1; cf.position.set(Math.cos(c * 0.9) * 0.032, 0.0015, Math.sin(c * 0.9) * 0.032); g.add(cf);
+      }
+    }
+    g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.userData.propIdx = idx; } });
+    g.position.set(Math.sin(p.a) * p.r, 0, Math.cos(p.a) * p.r);
+    g.rotation.y = p.rot || 0;
+    g.scale.setScalar(p.s || 1);
+    MESS_G.add(g); propMeshes.push(g);
+  });
+}
+
+/* =============================================================== 7. SEGMENTED VIDEO CUTOUT ENGINE (25 ANIMATED TRACKS) */
+const baseCutoutTex = {};
+function getCutoutBaseTex(clipIdx, onReady) {
+  const info = CUTOUT_CLIPS[clamp(clipIdx, 0, CUTOUT_CLIPS.length - 1)];
+  if (baseCutoutTex[info.id]) { if (baseCutoutTex[info.id].image) onReady(baseCutoutTex[info.id], info); return info; }
+  const t = new T.TextureLoader().load(info.file, tex => {
+    tex.encoding = T.sRGBEncoding; tex.wrapS = tex.wrapT = T.ClampToEdgeWrapping;
+    onReady(tex, info);
+  });
+  t.encoding = T.sRGBEncoding;
+  baseCutoutTex[info.id] = t;
+  return info;
+}
+
+const cutoutActors = [];
+function syncCutouts(dt) {
+  while (cutoutActors.length > DOC.cutouts.length) {
+    const old = cutoutActors.pop(); CAST_G.remove(old.mesh);
+  }
+  DOC.cutouts.forEach((c, idx) => {
+    const info = CUTOUT_CLIPS[clamp(c.clip, 0, CUTOUT_CLIPS.length - 1)];
+    let act = cutoutActors[idx];
+    if (!act || act.clipIdx !== c.clip) {
+      if (act) CAST_G.remove(act.mesh);
+      const placeholderMat = mistify(new T.MeshStandardMaterial({
+        color: 0xffffff, transparent: true, alphaTest: 0.25, side: T.DoubleSide,
+        roughness: 0.85, emissive: 0xffffff, emissiveIntensity: 0.22
+      }));
+      const mesh = new T.Mesh(new T.PlaneGeometry(1, 1), placeholderMat);
+      mesh.castShadow = true; mesh.userData.cutoutIdx = idx;
+      CAST_G.add(mesh);
+      act = cutoutActors[idx] = { mesh, clipIdx: c.clip, tex: null, frames: info.frames, fps: info.fps, aspect: info.aspect };
+      getCutoutBaseTex(c.clip, (bTex, inf) => {
+        const cloned = bTex.clone(); cloned.needsUpdate = true; cloned.encoding = T.sRGBEncoding;
+        cloned.repeat.set(1 / inf.frames, 1);
+        act.tex = cloned;
+        placeholderMat.map = cloned; placeholderMat.emissiveMap = cloned; placeholderMat.needsUpdate = true;
+      });
+    }
+    mesh = act.mesh; mesh.userData.cutoutIdx = idx;
+    // Step animated sprite strip frame or live user video cutout!
+    if (info && info.liveVideo && info.liveCtx && act.tex) {
+      if (info.liveVideo.readyState >= 2) {
+        info.liveDraw();
+        act.tex.needsUpdate = true;
+      }
+    } else if (act.tex && act.frames > 1) {
+      const fIdx = Math.floor(NOW * act.fps * (c.speed == null ? 1 : c.speed) + idx * 3) % act.frames;
+      act.tex.offset.x = ((fIdx + act.frames) % act.frames) / act.frames;
+    }
+    const r = PLANE_Z[clamp(c.plane || 0, 0, PLANE_Z.length - 1)];
+    const h = (info.h || 0.56) * (c.s || 1);
+    const w = h * (info.aspect || 1);
+    mesh.scale.set(w, h, 1);
+    const baseElev = c.plane >= 5 ? TOP + 0.55 : TOP - 0.12;
+    mesh.position.set(Math.sin(c.a) * r, baseElev + h / 2, Math.cos(c.a) * r);
+    mesh.updateMatrixWorld(true);
+    const wp = mesh.getWorldPosition(new T.Vector3());
+    mesh.lookAt(cam.position.x, wp.y, cam.position.z);
+    mesh.rotateY((c.face || 0) * Math.PI / 180);
+  });
+
+  // Highlight active depth plane ring when in CAST mode or mid-bellows
+  planeGuides.children.forEach((ringMesh, pIdx) => {
+    const selCut = DOC.cutouts[S.castIdx];
+    const isTarget = (S.mode === 'CAST' && selCut && selCut.plane === pIdx) || (DOC.bellows > 0.28 && DOC.bellows < 0.72);
+    ringMesh.material.opacity = lerp(ringMesh.material.opacity, isTarget ? (selCut && selCut.plane === pIdx ? 0.48 : 0.16) : 0.0, Math.min(1, dt * 8));
+  });
+}
+
+/* =============================================================== 8. ETCH-A-SKETCH DUAL-WHEEL WRITING & 3D PIPING */
+const ETCH_PHRASES = ['FREEHAND ETCH', 'HAPPY/BIRTHDAY', '生日快乐', '6·10·21', 'MAKE A WISH', 'STELLINE', 'SHAKE CLEAR'];
+const ETCH_COLS = [['ROSE ICING', 0xe87a90], ['BUTTERCREAM', 0xfbf8f0], ['GOLD LEAF', 0xf0b840], ['CHOCOLATE', 0x4a2b1b], ['CYAN FILAMENT', 0x5ff0dc], ['WARM EMBER', 0xff6b3d]];
+
+function buildEtch() {
+  ETCH_G.clear();
+  const E = DOC.etch, colHex = ETCH_COLS[clamp(E.col || 0, 0, ETCH_COLS.length - 1)][1];
+  const eMat = mistify(new T.MeshStandardMaterial({ color: colHex, roughness: 0.4, emissive: colHex, emissiveIntensity: E.col >= 4 ? 0.65 : 0.12 }));
+
+  // 1. Phrase stamp on cake or tabletop
+  if (E.phrase > 0 && E.phrase < 6) {
+    const txt = ETCH_PHRASES[E.phrase];
+    const cv = document.createElement('canvas'); cv.width = 1024; cv.height = 512; const x = cv.getContext('2d');
+    const lines = txt.split('/');
+    x.font = 'italic 700 132px Georgia, "Noto Serif CJK SC", serif';
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    lines.forEach((l, i) => {
+      const y = 256 + (i - (lines.length - 1) / 2) * 140;
+      x.lineWidth = 16; x.strokeStyle = 'rgba(0,0,0,0.28)'; x.strokeText(l, 512, y + 4);
+      x.fillStyle = '#' + colHex.toString(16).padStart(6, '0'); x.fillText(l, 512, y);
+    });
+    const t = new T.CanvasTexture(cv); t.encoding = T.sRGBEncoding;
+    const surfY = E.surface === 2 ? 0.003 : 0.105 * (DOC.hero.scale || 1);
+    const w = E.surface === 2 ? 0.42 : 0.20 * (DOC.hero.scale || 1);
+    const pm = new T.Mesh(new T.PlaneGeometry(w, w * 0.5), mistify(new T.MeshStandardMaterial({ map: t, transparent: true, alphaTest: 0.2, roughness: 0.5, depthWrite: false })));
+    pm.rotation.x = -Math.PI / 2; pm.position.set(0, surfY, E.surface === 2 ? 0.24 : 0);
+    ETCH_G.add(pm);
+  }
+
+  // 2. Continuous Etch-A-Sketch 3D tube trail from dual-wheel (X, Y) coordinates
+  if (E.pts && E.pts.length >= 2) {
+    const vecs = E.pts.map(p => new T.Vector3(p[0], p[1], p[2]));
+    const curve = new T.CatmullRomCurve3(vecs);
+    const tube = new T.Mesh(new T.TubeGeometry(curve, Math.min(240, vecs.length * 4), 0.0038, 8, false), eMat);
+    tube.castShadow = true; ETCH_G.add(tube);
+  }
+
+  // Stylus nib indicator when in ETCH mode
+  if (S.mode === 'ETCH') {
+    const p = etchPoint3D(E.x, E.y, E.surface);
+    const nib = new T.Mesh(new T.SphereGeometry(0.007, 12, 10), new T.MeshBasicMaterial({ color: 0x5ff0dc, toneMapped: false }));
+    nib.position.set(p[0], p[1], p[2]); ETCH_G.add(nib);
+  }
+}
+
+function etchPoint3D(ex, ey, surface) {
+  const sc = DOC.hero.scale || 1;
+  if (surface === 0) return [ex * 0.095 * sc, 0.106 * sc, ey * 0.095 * sc]; // Cake top
+  if (surface === 1) { const a = ex * Math.PI; return [Math.sin(a) * 0.125 * sc, (0.05 + ey * 0.04) * sc, Math.cos(a) * 0.125 * sc]; } // Cake side
+  if (surface === 2) return [ex * 0.38, 0.004, ey * 0.38]; // Tabletop
+  return [ex * 0.35, 0.22 + ey * 0.22, Math.sin(ex * 3) * 0.18]; // 3D Air filament
+}
+
+function pushEtchStep(dx, dy) {
+  const E = DOC.etch;
+  E.x = clamp((E.x || 0) + dx, -1, 1);
+  E.y = clamp((E.y || 0) + dy, -1, 1);
+  const pt = etchPoint3D(E.x, E.y, E.surface);
+  if (!E.pts) E.pts = [];
+  const last = E.pts[E.pts.length - 1];
+  if (!last || Math.hypot(pt[0] - last[0], pt[1] - last[1], pt[2] - last[2]) > 0.004) {
+    E.pts.push(pt);
+    if (E.pts.length > 180) E.pts.shift();
+  }
+  dirty.etch = true;
+}
+
+/* =============================================================== 9. WEBAUDIO TACTILE CLICKS & ACCORDION HARMONIC REED SYNTH */
+function tick(kind, i) {
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === 'suspended') AC.resume();
+    const n = AC.createBufferSource(), L = kind === 'press' ? 880 : 360, b = AC.createBuffer(1, L, AC.sampleRate), d = b.getChannelData(0);
+    for (let k = 0; k < L; k++) d[k] = (Math.random() * 2 - 1) * Math.exp(-k / (kind === 'dead' ? 25 : kind === 'press' ? 140 : 48));
+    n.buffer = b;
+    const f = AC.createBiquadFilter(); f.type = 'bandpass';
+    f.frequency.value = kind === 'press' ? 1150 : kind === 'dead' ? 620 : [2650, 2250, 1920, 2480, 3080][i || 0];
+    f.Q.value = 2.6;
+    const g = AC.createGain(); g.gain.value = kind === 'dead' ? 0.18 : 0.72;
+    n.connect(f).connect(g).connect(AC.destination); n.start();
+  } catch (e) {}
+  if (navigator.vibrate) navigator.vibrate(kind === 'press' ? 12 : 5);
+}
+
+// Tizita scale frequencies (D minor / Tizita Minor-Major nostalgic intervals: D4, E4, F4, A4, Bb4, C#5, D5, E5, F5, A5)
+const TIZITA_SCALE = [293.66, 329.63, 349.23, 440.00, 466.16, 554.37, 587.33, 659.25, 698.46, 880.00];
+let lastMotionSndT = 0;
+
+function motionNote(normPos, pan, vel) {
+  try {
+    ensureAudioGraph();
+    const nowT = performance.now();
+    if (nowT - lastMotionSndT < 28) return;
+    lastMotionSndT = nowT;
+    const idx = clamp(Math.floor(clamp(normPos, 0, 0.999) * TIZITA_SCALE.length), 0, TIZITA_SCALE.length - 1);
+    const freq = TIZITA_SCALE[idx];
+    const t = AC.currentTime, dur = clamp(0.14 + Math.abs(vel || 0.2) * 0.18, 0.12, 0.36);
+    const o1 = AC.createOscillator(), o2 = AC.createOscillator(), flt = AC.createBiquadFilter(), g = AC.createGain();
+    o1.type = 'triangle'; o2.type = 'sine';
+    o1.frequency.setValueAtTime(freq, t);
+    o1.frequency.exponentialRampToValueAtTime(freq * (1 + clamp(vel || 0, -0.3, 0.3) * 0.06), t + dur);
+    o2.frequency.setValueAtTime(freq * 1.5, t); // 5th harmonic glass overtone
+    flt.type = 'lowpass';
+    flt.frequency.setValueAtTime(520 + Math.min(1, Math.abs(vel || 0.25)) * 2400 + DOC.bellows * 1200, t);
+    flt.Q.value = 3.2;
+    const amp = clamp(0.025 + Math.abs(vel || 0.2) * 0.065, 0.02, 0.09);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(amp, t + 0.018);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    let outNode = mixAnalyser || AC.destination;
+    if (AC.createStereoPanner) {
+      const panner = AC.createStereoPanner();
+      panner.pan.setValueAtTime(clamp(pan || 0, -1, 1), t);
+      g.connect(panner).connect(outNode);
+    } else {
+      g.connect(outNode);
+    }
+    o1.connect(flt); o2.connect(flt); flt.connect(g);
+    o1.start(t); o2.start(t); o1.stop(t + dur + 0.02); o2.stop(t + dur + 0.02);
+  } catch (e) {}
+}
+
+function accordionChord(bellows, vel) {
+  try {
+    ensureAudioGraph();
+    const notes = [293.66, 349.23, 440.0, 466.16, 659.25]; // D Tizita 9th chord
+    const t = AC.currentTime, dur = 0.26;
+    const outNode = mixAnalyser || AC.destination;
+    notes.forEach((freq, idx) => {
+      const o = AC.createOscillator(), g = AC.createGain(), flt = AC.createBiquadFilter();
+      o.type = idx % 2 === 0 ? 'triangle' : 'sine';
+      const fShift = freq * (1 + bellows * 0.12 + (vel || 0) * 0.03);
+      o.frequency.setValueAtTime(fShift, t);
+      flt.type = 'lowpass'; flt.frequency.setValueAtTime(600 + bellows * 2400, t);
+      const amp = Math.min(0.055, 0.015 + Math.abs(vel || 0.2) * 0.038);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(amp, t + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(flt).connect(g).connect(outNode);
+      o.start(t); o.stop(t + dur + 0.02);
+    });
+  } catch (e) {}
+}
+
+/* =============================================================== 10. THE 5 RINGS & ACCORDION REGISTER ENGINE */
+const list = (n, get, set, L) => ({ n, v: get, set: v => set(clamp(Math.round(v), 0, L.length - 1)), st: 1, f: v => L[clamp(Math.round(v), 0, L.length - 1)], lo: 0, hi: L.length - 1, step: true });
+const num = (n, get, set, lo, hi, st, f, wrap) => ({ n, v: get, set: v => set(wrap ? ((v - lo) % (hi - lo) + (hi - lo)) % (hi - lo) + lo : clamp(+v.toFixed(4), lo, hi)), st, f, lo, hi, wrap });
+
+function rings() {
+  const H = DOC.hero, Tbl = DOC.table, E = DOC.etch, Lt = DOC.light, Fl = DOC.flight;
+  // Accordion gear multiplier: expanding the bellows amplifies continuous scroll-wheel throws
+  const gear = 1 + DOC.bellows * 1.15;
+
+  if (S.mode === 'TIZITA') {
+    return [
+      list('BIRTHDAY STORY', () => S.tizitaIdx || 0, v => loadTizitaChapter(v), TIZITA_CHAPTERS.map(c => c.title)),
+      list('SOUND MIX', () => curMixIdx, v => cycleAudioMix(v), AUDIO_MIXES.map(m => m.label)),
+      list('OLED FILM CLIP', () => curClipIdx, v => cycleMonitorClip(v), MONITOR_CLIPS.map(c => c.label)),
+      list('HERO OBJECT', () => H.preset, v => { H.preset = v; dirty.hero = true; }, HERO_PRESETS.map(p => p.name)),
+      num('TIZITA MIST', () => DOC.bellows, v => setBellows(v), 0, 1, 0.04, v => Math.round(v * 100) + '% MIST')
+    ];
+  }
+  if (S.mode === 'HERO') {
+    return [
+      list('HERO OBJECT', () => H.preset, v => { H.preset = v; const P = HERO_PRESETS[v]; if (P.icing != null) H.finish = P.icing; if (P.candles != null) H.candles = P.candles; dirty.hero = true; }, HERO_PRESETS.map(p => p.name)),
+      list('FINISH', () => H.finish, v => { H.finish = v; dirty.hero = true; }, FINISHES.map(f => f[0])),
+      num('SCULPT', () => H.sculpt, v => { H.sculpt = v; dirty.hero = true; }, -1, 1, 0.06 * gear, v => (v >= 0 ? '+' : '') + Math.round(v * 100) + '%'),
+      num('CANDLES', () => H.candles, v => { H.candles = Math.round(v); dirty.hero = true; }, 0, 16, 1, v => Math.round(v) ? Math.round(v) + (H.lit ? ' LIT' : ' OUT') : 'NONE'),
+      num('SCALE', () => H.scale, v => { H.scale = v; dirty.hero = true; }, 0.5, 1.8, 0.05 * gear, v => '×' + v.toFixed(2))
+    ];
+  }
+  if (S.mode === 'CAST') {
+    const N = Math.max(1, DOC.cutouts.length);
+    S.castIdx = clamp(S.castIdx, 0, N - 1);
+    const C = DOC.cutouts[S.castIdx] || { clip: 0, a: 0, plane: 1, face: 0, s: 1, speed: 1 };
+    return [
+      list('PICK CUTOUT', () => S.castIdx, v => { S.castIdx = v; }, DOC.cutouts.map((c, i) => '#' + (i + 1) + ' ' + CUTOUT_CLIPS[clamp(c.clip, 0, CUTOUT_CLIPS.length - 1)].name.split('·')[0].trim())),
+      list('VIDEO CLIP', () => C.clip, v => { C.clip = v; C.plane = CUTOUT_CLIPS[v].plane; }, CUTOUT_CLIPS.map(c => c.name)),
+      num('AROUND', () => C.a * 57.2958, v => { C.a = v / 57.2958; }, 0, 360, 5 * gear, v => Math.round(v) + '°', true),
+      list('DEPTH PLANE', () => C.plane, v => { C.plane = v; }, PLANE_NAMES),
+      num('SIZE / FPS', () => C.s, v => { C.s = v; C.speed = 0.6 + v * 0.5; }, 0.45, 1.85, 0.05 * gear, v => '×' + v.toFixed(2))
+    ];
+  }
+  if (S.mode === 'MESS') {
+    const N = Math.max(1, DOC.props.length);
+    S.propIdx = clamp(S.propIdx, 0, N - 1);
+    const P = DOC.props[S.propIdx] || { kind: 0, a: 0, r: 0.35, rot: 0, s: 1 };
+    return [
+      num('MESS COUNT', () => DOC.props.length, v => {
+        const target = Math.round(v);
+        while (DOC.props.length < target) { const i = DOC.props.length; DOC.props.push({ kind: i % PROP_KINDS.length, a: (i * 2.4) % TAU, r: 0.22 + (i % 5) * 0.07, rot: i * 1.3, s: 1 }); }
+        if (DOC.props.length > target) DOC.props.length = target;
+        dirty.props = true;
+      }, 0, 24, 1, v => Math.round(v) + ' ITEMS'),
+      list('PROP KIND', () => P.kind, v => { P.kind = v; dirty.props = true; }, PROP_KINDS),
+      num('AROUND', () => P.a * 57.2958, v => { P.a = v / 57.2958; dirty.props = true; }, 0, 360, 6 * gear, v => Math.round(v) + '°', true),
+      num('TABLE RAD', () => P.r, v => { P.r = v; dirty.props = true; }, 0.14, 0.58, 0.02 * gear, v => Math.round(v * 100) + ' CM'),
+      list('TABLE WOOD', () => Tbl.style, v => { Tbl.style = v; dirty.table = true; }, TABLE_STYLES.map(s => s[0]))
+    ];
+  }
+  if (S.mode === 'ETCH') {
+    return [
+      list('SURFACE', () => E.surface, v => { E.surface = v; dirty.etch = true; }, ['CAKE TOP', 'CAKE SIDE', 'TABLETOP', 'AIR FILAMENT']),
+      list('PHRASE', () => E.phrase, v => { if (v === 6) { E.pts = []; E.phrase = 0; say('ETCH CLEARED · SHAKE'); } else E.phrase = v; dirty.etch = true; }, ETCH_PHRASES),
+      num('ETCH X · L', () => E.x, v => { pushEtchStep(v - E.x, 0); }, -1, 1, 0.04 * gear, v => (v >= 0 ? '+' : '') + Math.round(v * 100)),
+      num('ETCH Y · R', () => E.y, v => { pushEtchStep(0, v - E.y); }, -1, 1, 0.04 * gear, v => (v >= 0 ? '+' : '') + Math.round(v * 100)),
+      list('INK COLOUR', () => E.col, v => { E.col = v; dirty.etch = true; }, ETCH_COLS.map(c => c[0]))
+    ];
+  }
+  if (S.mode === 'LIGHT') {
+    const V = S.view, P = Object.keys(VIEWS);
+    return [
+      list('CAMERA SHOT', () => Math.max(0, P.indexOf(V.preset)), v => setView(P[v]), P),
+      num('LIGHT ORBIT', () => Lt.a, v => { Lt.a = v; }, -180, 180, 8 * gear, v => Math.round(v) + '°', true),
+      num('LIGHT ELEV', () => Lt.h, v => { Lt.h = v; }, 0.1, 1.8, 0.05 * gear, v => Math.round(v * 100) + ' CM'),
+      num('WARMTH', () => Lt.warm, v => { Lt.warm = v; }, 0, 1, 0.05, v => Math.round(lerp(6500, 2200, v) / 100) * 100 + ' K'),
+      list('FLAMES', () => DOC.hero.lit, v => { DOC.hero.lit = v; dirty.hero = true; }, ['BLOWN OUT', 'ALL LIT'])
+    ];
+  }
+  if (S.mode === 'SCION') {
+    const ev = evaluateScionMemory();
+    return [
+      list('SWARM ACTION', () => S.scionActIdx || 0, v => { S.scionActIdx = v; runScionRingAction(v); }, ['INSPECT SCORE (' + ev.total + ')', 'REPAIR GAP', 'SWARM AUTO-BUILD', 'FORK MUTATION', 'MASHUP RANDOM']),
+      list('MATTE MODE', () => S.matteIdx || 0, v => { S.matteIdx = v; S.matteMode = ['CUTOUT', 'POLAROID', 'RAW'][v]; say('IMPORT MATTE · ' + S.matteMode); }, ['AUTO CUTOUT', 'POLAROID FRAME', 'RAW ALPHA']),
+      list('CHECKPOINT', () => S.ckptRingIdx || 0, v => { S.ckptRingIdx = v; if (v === 1) savePeakCheckpoint(); else if (v === 2) restorePeakCheckpoint(); }, ['CURRENT STATE', 'SAVE PEAK', 'RESTORE PEAK']),
+      list('REMIX SOURCE', () => S.tizitaIdx || 0, v => { S.tizitaIdx = v; forkBirthdayFromChapter(v, false); }, TIZITA_CHAPTERS.map(c => 'FORK ' + c.title.slice(0, 16))),
+      list('SHARE / EXPORT', () => 0, v => { if (v === 1) copyBirthdayShareLink(); else if (v === 2) exportBirthdayCartridge(); else if (v === 3) openScionModal(); }, ['READY', 'COPY SHARE URL', 'EXPORT .JSON', 'OPEN STUDIO'])
+    ];
+  }
+  // FLIGHT mode (Accordion Bellows & 6DoF Particle Flight)
+  return [
+    num('BELLOWS MIST', () => DOC.bellows, v => setBellows(v), 0, 1, 0.04, v => Math.round(v * 100) + '% MIST'),
+    num('SWOOP YAW', () => Fl.swoop, v => { Fl.swoop = v; S.view.yaw += v * 0.08; S.view.preset = 'FREE'; }, -2, 2, 0.1, v => (v >= 0 ? '+' : '') + v.toFixed(1) + ' RAD'),
+    num('PITCH ALT', () => S.view.pitch, v => { S.view.pitch = v; S.view.preset = 'FREE'; }, -0.25, 1.45, 0.04, v => Math.round(v * 57.3) + '°'),
+    num('BANK ROLL', () => Fl.bank, v => { Fl.bank = v; S.view.roll = v * Math.PI / 180; }, -45, 45, 3, v => (v >= 0 ? '+' : '') + Math.round(v) + '°'),
+    num('TURBULENCE', () => Fl.curl, v => { Fl.curl = v; MU.uCurl.value = v; }, 0, 1.5, 0.08, v => Math.round(v * 100) + '%')
+  ];
+}
+
+function v01(r) {
+  if (!r || r.lo == null) return 0.5;
+  let v = r.v();
+  if (r.wrap) { const sp = r.hi - r.lo; v = ((v - r.lo) % sp + sp) % sp + r.lo; }
+  return clamp((v - r.lo) / Math.max(1e-6, r.hi - r.lo), 0, 1);
+}
+
+/* =============================================================== 11. THE TACTILE 3D ORB BARREL & OLED */
+const orbEl = document.getElementById('orb');
+const OR = new T.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+OR.setPixelRatio(Math.min(2, devicePixelRatio)); OR.outputEncoding = T.sRGBEncoding;
+OR.toneMapping = T.ACESFilmicToneMapping; OR.toneMappingExposure = 1.08;
+orbEl.append(OR.domElement);
+const OS = new T.Scene(), OC = new T.PerspectiveCamera(26, 2, 0.1, 20);
+
+(function studio() {
+  const s = new T.Scene();
+  s.add(new T.Mesh(new T.SphereGeometry(10, 32, 16), new T.MeshBasicMaterial({ color: 0x0b0c0b, side: T.BackSide })));
+  const box = (w, h, x, y, z, c) => { const m = new T.Mesh(new T.PlaneGeometry(w, h), new T.MeshBasicMaterial({ color: c, side: T.DoubleSide })); m.position.set(x, y, z); m.lookAt(0, 0, 0); s.add(m); };
+  box(8, 2.2, 0, 6, 2, 0xffffff); box(3, 6, -6, 2, 3, 0x9fb0bb); box(3, 6, 6, 1.5, 2, 0xffe2c0); box(2, 2, 0, 3, -6, 0x5ff0dc);
+  const pm = new T.PMREMGenerator(OR); OS.environment = pm.fromScene(s, 0.04).texture;
+})();
+const OK = new T.DirectionalLight(0xffffff, 0.85); OK.position.set(1.5, 3, 2.5); OS.add(OK, new T.AmbientLight(0x404040, 0.45));
+
+function normalTex(fn, W, H) {
+  const h = new Float32Array(W * H);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) h[y * W + x] = fn(x / W, y / H);
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x2 = c.getContext('2d'), id = x2.createImageData(W, H);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const l = h[y * W + (x - 1 + W) % W], r = h[y * W + (x + 1) % W], u = h[((y - 1 + H) % H) * W + x], d = h[((y + 1) % H) * W + x];
+    let nx = (l - r) * 3, ny = (u - d) * 3, nz = 1, L = Math.hypot(nx, ny, nz), k = (y * W + x) * 4;
+    id.data[k] = (nx / L * 0.5 + 0.5) * 255; id.data[k + 1] = (ny / L * 0.5 + 0.5) * 255; id.data[k + 2] = (nz / L * 0.5 + 0.5) * 255; id.data[k + 3] = 255;
+  }
+  x2.putImageData(id, 0, 0); const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; return t;
+}
+const PAT = [
+  (u, v) => 0.5 + 0.5 * Math.cos(u * TAU * 160),
+  (u, v) => Math.max(Math.abs(Math.sin((u * 90 + v * 6) * Math.PI)), Math.abs(Math.sin((u * 90 - v * 6) * Math.PI))),
+  (u, v) => Math.pow(0.5 + 0.5 * Math.cos(u * TAU * 40), 0.4),
+  (u, v) => { const a = (u * 120) % 1 - 0.5, b = (v * 8 + Math.floor(u * 120) * 0.5) % 1 - 0.5; return Math.max(0, 1 - Math.hypot(a, b * 1.1) * 3.2); },
+  (u, v) => 0.5 + 0.5 * Math.cos((u * 70 + v * 3.2) * TAU)
+];
+
+const ORB = new T.Group(); OS.add(ORB);
+const alu = new T.MeshPhysicalMaterial({ color: 0xc9c6bf, metalness: 1, roughness: 0.32, clearcoat: 0.3 });
+const darkAlu = new T.MeshPhysicalMaterial({ color: 0x252826, metalness: 0.9, roughness: 0.45 });
+const RX = [-0.46, -0.23, 0, 0.23, 0.46], RW = 0.205, RR = 0.27, BODY = 0.238;
+
+(function buildOrbBody() {
+  const prof = [[0, -1.02], [0.16, -1.02], [0.236, -0.97], [0.25, -0.93], [0.25, -0.6], [BODY, -0.58], [BODY, 0.58], [0.25, 0.6], [0.25, 0.9], [0.262, 0.92], [0.262, 1.0], [0.2, 1.02]];
+  const m = new T.Mesh(new T.LatheGeometry(prof.map(p => new T.Vector2(p[0], p[1])), 96), alu);
+  m.rotation.z = Math.PI / 2; ORB.add(m);
+  const lensG = new T.Group(); lensG.position.x = 1.02; lensG.userData.lens = true; ORB.add(lensG);
+  const lens = new T.Mesh(new T.SphereGeometry(0.2, 40, 20, 0, TAU, 0, Math.PI / 2), new T.MeshPhysicalMaterial({ color: 0x0a1414, roughness: 0.05, clearcoat: 1 }));
+  lens.rotation.z = -Math.PI / 2; lens.scale.set(1, 0.35, 1); lensG.add(lens);
+  const iris = new T.Mesh(new T.RingGeometry(0.06, 0.095, 48), new T.MeshBasicMaterial({ color: 0x5ff0dc, transparent: true, opacity: 0.9, side: T.DoubleSide }));
+  iris.rotation.y = Math.PI / 2; iris.position.x = 0.075; lensG.add(iris); ORB.userData.iris = iris;
+  const capT = normalTex(PAT[1], 256, 64); capT.repeat.set(3, 1);
+  const cap = new T.Mesh(new T.CylinderGeometry(0.252, 0.252, 0.3, 72, 1, true), new T.MeshPhysicalMaterial({ color: 0x9a978f, metalness: 1, roughness: 0.38, normalMap: capT }));
+  cap.rotation.z = Math.PI / 2; cap.position.x = -0.8; cap.userData.grip = true; ORB.add(cap);
+})();
+
+const RINGS = [], FLAT = []; let PORTRAIT = false;
+RX.forEach((x, i) => {
+  const g = new T.Group(); g.position.x = x; g.userData.ring = i; ORB.add(g);
+  const nt = normalTex(PAT[i], 512, 64); nt.repeat.set(i === 0 ? 1 : 2, 1);
+  const m = new T.Mesh(new T.CylinderGeometry(RR, RR, RW - 0.012, 96, 1, true), new T.MeshPhysicalMaterial({
+    color: [0xd2cfc8, 0xc3c0b8, 0xd8d5ce, 0xc8c5bd, 0xcfccc4][i], metalness: 1, roughness: [0.26, 0.36, 0.22, 0.34, 0.28][i], normalMap: nt, normalScale: new T.Vector2(1.2, 1.2)
+  }));
+  m.rotation.z = Math.PI / 2; m.userData.ring = i; g.add(m);
+  const lit = new T.Mesh(new T.TorusGeometry(RR + 0.002, 0.0028, 8, 96), new T.MeshBasicMaterial({ color: 0x5ff0dc, toneMapped: false }));
+  lit.rotation.y = Math.PI / 2; g.add(lit);
+  const lc = document.createElement('canvas'); lc.width = 320; lc.height = 140;
+  const lt = new T.CanvasTexture(lc); lt.encoding = T.sRGBEncoding; lt.anisotropy = 4;
+  const la = 0.5, lp = new T.Mesh(new T.PlaneGeometry(RW * 0.95, RW * 0.95 * 140 / 320), new T.MeshBasicMaterial({ map: lt, transparent: true, toneMapped: false }));
+  lp.position.set(0, Math.sin(la) * (RR + 0.012), Math.cos(la) * (RR + 0.012)); lp.rotation.x = -la;
+  lp.userData.ring = i; lp.userData.keepW = true; FLAT.push(lp);
+  const lg = new T.Group(); lg.position.x = x; lg.add(lp); ORB.add(lg);
+  RINGS.push({ g, m, lit, ang: 0, target: 0, lc, lt, lp, lg, key: '', x0: x });
+});
+
+function drawDialLabels() {
+  const RS = rings();
+  RINGS.forEach((R0, i) => {
+    const r = RS[i], hot = i === S.lastRing || i === S.hoverRing;
+    const col = DOC.bellows > 0.68 ? '#ff8a47' : i === 0 ? '#f0b040' : '#5ff0dc';
+    const valStr = r ? String(r.f(r.v())) : '';
+    const key = r ? r.n + '|' + valStr + '|' + hot + '|' + col : '-';
+    if (key === R0.key) return; R0.key = key;
+    const x = R0.lc.getContext('2d'), W = 320, H = 140; x.clearRect(0, 0, W, H);
+    if (!r) { R0.lp.visible = false; R0.lt.needsUpdate = true; return; }
+    R0.lp.visible = true;
+    x.fillStyle = hot ? 'rgba(12,44,38,.94)' : 'rgba(5,9,8,.86)';
+    x.fillRect(4, 4, W - 8, H - 8);
+    x.fillStyle = col; x.fillRect(4, 4, 10, H - 8);
+    x.textAlign = 'center'; x.font = '700 25px ui-monospace, Menlo, monospace';
+    x.fillText((i + 1) + ' ' + r.n, W / 2 + 4, 38);
+    x.fillStyle = hot ? '#ffffff' : '#dff7f2';
+    let fs = 42; x.font = '700 ' + fs + 'px ui-monospace, Menlo, monospace';
+    while (x.measureText(valStr).width > W - 28 && fs > 20) { fs -= 2; x.font = '700 ' + fs + 'px ui-monospace, Menlo, monospace'; }
+    x.fillText(valStr, W / 2 + 4, 94);
+    const u = v01(r);
+    x.fillStyle = '#123630'; x.fillRect(24, 114, W - 40, 8);
+    x.fillStyle = col; x.fillRect(24, 114, (W - 40) * u, 8);
+    R0.lt.needsUpdate = true;
+  });
+}
+
+// OLED Display above the barrel (lowered slightly so it is NEVER clipped at the top edge!)
+const OLED = document.createElement('canvas'); OLED.width = 1600; OLED.height = 360;
+const ox = OLED.getContext('2d'), oledTex = new T.CanvasTexture(OLED); oledTex.encoding = T.sRGBEncoding;
+const oledG = new T.Group(); oledG.position.set(0, 0.46, -0.18); oledG.rotation.x = -0.32; ORB.add(oledG);
+oledG.add(new T.Mesh(new T.BoxGeometry(1.34, 0.31, 0.04), darkAlu));
+const oledM = new T.Mesh(new T.PlaneGeometry(1.28, 0.28), new T.MeshBasicMaterial({ map: oledTex, toneMapped: false }));
+oledM.position.z = 0.022; oledG.add(oledM);
+
+// Tactile Buttons on the Orb Grip & Lens Ends
+const BTN = {};
+function makeBtnLabel(txt, col) {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 80; const x = c.getContext('2d');
+  x.fillStyle = 'rgba(6,11,10,.92)'; x.fillRect(0, 0, 256, 80);
+  x.strokeStyle = col; x.lineWidth = 4; x.strokeRect(2, 2, 252, 76);
+  x.font = '700 38px ui-monospace, Menlo, monospace'; x.fillStyle = '#e8f4f0'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillText(txt, 128, 42);
+  const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; return t;
+}
+[['MODE', -0.88, -0.06, 0x5ff0dc], ['UNDO', -0.75, 0.08, 0xd9d5cc], ['PAIR', -0.64, -0.08, 0xf0b040],
+ ['ADD', 0.65, -0.09, 0x5ff0dc], ['DEL', 0.77, 0.05, 0xd9d5cc], ['KEEP', 0.89, -0.09, 0x5ff0dc]].forEach(([n, x, dz, col]) => {
+  const a = 0.95 + dz * 2, y = Math.cos(a) * 0.25, z = Math.sin(a) * 0.25;
+  const g = new T.Group(); g.position.set(x, y, z); g.lookAt(x, y * 3, z * 3); g.userData.keepW = true; ORB.add(g);
+  const cap = new T.Mesh(new T.SphereGeometry(0.038, 24, 12, 0, TAU, 0, Math.PI / 2), new T.MeshPhysicalMaterial({ color: col, metalness: 0.7, roughness: 0.3 }));
+  cap.rotation.x = Math.PI / 2; cap.scale.set(1, 0.42, 1); cap.position.z = 0.006; cap.userData.btn = n; g.add(cap);
+  const lab = new T.Mesh(new T.PlaneGeometry(0.16, 0.05), new T.MeshBasicMaterial({ map: makeBtnLabel(n === 'PAIR' ? 'PHONE' : n, '#' + col.toString(16).padStart(6, '0')), transparent: true, toneMapped: false }));
+  lab.position.set(0, -0.068, 0.004); lab.userData.btn = n; g.add(lab); FLAT.push(lab);
+  BTN[n] = { g, cap, lab, z0: 0.006, down: 0 };
+});
+
+function fitOrb() {
+  const w = Math.max(2, orbEl.clientWidth), h = Math.max(2, orbEl.clientHeight);
+  OR.setSize(w, h, false); OC.aspect = w / h;
+  const pt = h > w * 1.15;
+  if (pt !== PORTRAIT) {
+    PORTRAIT = pt; oledG.visible = !pt;
+    OC.up.set(pt ? 1 : 0, pt ? 0 : 1, 0);
+    FLAT.forEach(m => m.rotation.z = pt ? -Math.PI / 2 : 0);
+  }
+  const stretch = 1 + DOC.bellows * 0.58;
+  let needW = 2.24 * stretch, needH = 1.18;
+  if (pt) { const t = needW; needW = needH * 1.15; needH = t; }
+  const vf = OC.fov * Math.PI / 180;
+  const d = Math.max(needH / 2 / Math.tan(vf / 2), needW / 2 / (Math.tan(vf / 2) * OC.aspect)) * 1.06;
+  OC.position.set(0, d * 0.38, d * 0.92); OC.lookAt(0, 0.16, 0); OC.updateProjectionMatrix();
+}
+
+/* =============================================================== 12. ACCORDION BELLOWS & LOCAL+REMOTE CONTROLLER ACTIONS */
+function setBellows(v, fromRemote) {
+  const prev = DOC.bellows;
+  DOC.bellows = clamp(v, 0, 1);
+  MU.uMist.value = Math.pow(DOC.bellows, 1.25) * 0.88;
+  mistPts.material.opacity = Math.pow(DOC.bellows, 0.85) * 0.85;
+  const stretch = 1 + DOC.bellows * 0.58;
+  ORB.scale.x = stretch;
+  ORB.traverse(o => { if (o.userData.keepW) o.scale.x = 1 / stretch; });
+  RINGS.forEach((r, i) => { r.g.position.x = r.lg.position.x = r.x0 * (1 + DOC.bellows * 0.22); });
+  fitOrb();
+
+  // Update Bellows UI bar
+  const pct = Math.round(DOC.bellows * 100);
+  document.getElementById('bellowsFill').style.width = pct + '%';
+  document.getElementById('bellowsLbl').textContent = 'ACCORDION · ' + pct + '%';
+  const reg = DOC.bellows < 0.32 ? 'MATTER CRAFT' : DOC.bellows < 0.68 ? 'MULTIPLANE STAGE' : 'FLIGHT & MIST';
+  document.getElementById('bellowsReg').textContent = reg;
+
+  // Auto-engage FLIGHT mode when pulled wide open, or return when compressed
+  if (DOC.bellows > 0.72 && prev <= 0.72 && S.mode !== 'FLIGHT') {
+    setMode('FLIGHT', true);
+    say('ACCORDION OPEN · FLIGHT & SPACETIME MIST REGISTER');
+  } else if (DOC.bellows < 0.25 && prev >= 0.25 && S.mode === 'FLIGHT') {
+    setMode('HERO', true);
+    say('ACCORDION COMPRESSED · MATTER CRAFT REGISTER');
+  }
+  if (Math.abs(DOC.bellows - prev) > 0.025) accordionChord(DOC.bellows, (DOC.bellows - prev) * 10);
+  oledDirty = true;
+  if (!fromRemote && window.REMOTE) window.REMOTE({ k: 'bellows', v: DOC.bellows });
+}
+
+function setMode(m, fromInternal) {
+  if (!MODES.includes(m)) return;
+  S.mode = m; oledDirty = true;
+  document.querySelectorAll('#modePills .pill').forEach(b => b.classList.toggle('hot', b.dataset.mode === m));
+  RINGS.forEach(r => r.key = '');
+  drawDialLabels();
+  if (!fromInternal) say('MODE · ' + m);
+}
+
+let orbPitchV = 0; ORB.rotation.x = 0.18;
+ORB.spin = (i, steps) => { if (RINGS[i]) RINGS[i].target += steps * TAU / 36; orbPitchV += Math.sign(steps) * 0.02; };
+ORB.push = b => { if (BTN[b]) { BTN[b].down = 1; orbPitchV -= 0.02; } };
+
+let scrubAcc = [0, 0, 0, 0, 0];
+function turn(i, steps, fromRemote) {
+  // CRITICAL: Always execute locally FIRST (even on ?orb mobile!) so modes and ring values update in 0ms on the phone!
+  const r = rings()[i];
+  if (!r) { tick('dead'); return; }
+  tick('ring', i); snap();
+  r.set(r.v() + r.st * steps);
+  motionNote(v01(r), (i - 2) * 0.4, steps * 0.25);
+  S.lastRing = i; S.retT = NOW; ORB.spin(i, steps); oledDirty = true;
+  drawDialLabels(); if (typeof updateScionHud === 'function') updateScionHud();
+  if (!fromRemote && window.REMOTE) window.REMOTE({ k: 'turn', i, steps });
+}
+
+function scrub(i, frac, fromRemote) {
+  const r = rings()[i]; if (!r) return;
+  if (r.step || r.st >= 1) {
+    scrubAcc[i] += frac;
+    while (Math.abs(scrubAcc[i]) >= 1) { turn(i, Math.sign(scrubAcc[i]), fromRemote); scrubAcc[i] -= Math.sign(scrubAcc[i]); }
+    return;
+  }
+  snap();
+  const b = Math.floor(r.v() / r.st);
+  r.set(r.v() + r.st * frac);
+  if (Math.floor(r.v() / r.st) !== b) tick('ring', i);
+  S.lastRing = i; S.retT = NOW; ORB.spin(i, frac); oledDirty = true;
+  drawDialLabels();
+  if (!fromRemote && window.REMOTE) window.REMOTE({ k: 'scrub', i, frac });
+}
+
+function press(b, long, fromRemote) {
+  tick('press'); ORB.push(b);
+  if (b === 'MODE') {
+    const idx = (MODES.indexOf(S.mode) + 1) % MODES.length;
+    setMode(MODES[idx]);
+  } else if (b === 'ADD') {
+    snap(true);
+    if (S.mode === 'CAST') {
+      const nextClip = (DOC.cutouts.length * 3 + 5) % CUTOUT_CLIPS.length;
+      const info = CUTOUT_CLIPS[nextClip];
+      DOC.cutouts.push({ clip: nextClip, a: (Math.random() - 0.5) * 2.2 + Math.PI, plane: info.plane, face: 0, s: 1, speed: 1 });
+      S.castIdx = DOC.cutouts.length - 1;
+      say('ADDED CUTOUT · ' + info.name);
+    } else if (S.mode === 'MESS') {
+      const i = DOC.props.length;
+      DOC.props.push({ kind: i % PROP_KINDS.length, a: Math.random() * TAU, r: 0.2 + Math.random() * 0.34, rot: Math.random() * TAU, s: 0.9 + Math.random() * 0.25 });
+      S.propIdx = DOC.props.length - 1; dirty.props = true;
+      say('ADDED TABLE PROP · ' + PROP_KINDS[DOC.props[S.propIdx].kind]);
+    } else if (S.mode === 'ETCH') {
+      for (let t = 0; t <= 24; t++) {
+        const a = t / 24 * TAU;
+        pushEtchStep(Math.cos(a) * 0.08, Math.sin(a) * 0.08);
+      }
+      say('ETCHED ROSETTE RING');
+    } else {
+      // Cycle to next hero object or add a cutout
+      DOC.hero.preset = (DOC.hero.preset + 1) % HERO_PRESETS.length;
+      dirty.hero = true;
+      say('HERO · ' + HERO_PRESETS[DOC.hero.preset].name);
+    }
+  } else if (b === 'DEL') {
+    snap(true);
+    if (S.mode === 'CAST' && DOC.cutouts.length > 0) {
+      const rem = DOC.cutouts.splice(S.castIdx, 1)[0];
+      S.castIdx = Math.max(0, S.castIdx - 1);
+      say('REMOVED CUTOUT · ' + CUTOUT_CLIPS[rem.clip].name);
+    } else if (S.mode === 'MESS' && DOC.props.length > 0) {
+      DOC.props.splice(S.propIdx, 1); S.propIdx = Math.max(0, S.propIdx - 1); dirty.props = true;
+      say('REMOVED TABLE PROP');
+    } else if (S.mode === 'ETCH') {
+      DOC.etch.pts = []; dirty.etch = true; say('CLEARED ETCH TRAIL');
+    } else {
+      DOC.hero.candles = Math.max(0, DOC.hero.candles - 1); dirty.hero = true;
+      say('CANDLES · ' + DOC.hero.candles);
+    }
+  } else if (b === 'UNDO') {
+    const from = long ? REDO : UNDO, to = long ? UNDO : REDO, s = from.pop();
+    if (!s) { tick('dead'); say('NOTHING TO UNDO'); }
+    else { to.push(JSON.stringify(DOC)); DOC = JSON.parse(s); dirty.hero = dirty.table = dirty.props = dirty.etch = true; setBellows(DOC.bellows || 0, true); say('UNDONE'); }
+  } else if (b === 'KEEP') {
+    keepGLB();
+  } else if (b === 'PAIR') {
+    PAIR.open();
+  }
+  oledDirty = true; drawDialLabels(); if (typeof updateScionHud === 'function') updateScionHud();
+  if (!fromRemote && window.REMOTE) window.REMOTE({ k: 'press', b, long });
+}
+
+function keepGLB() {
+  try {
+    new T.GLTFExporter().parse(MEM, r => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([r], { type: 'model/gltf-binary' }));
+      a.download = 'cineosi-memory.glb'; document.body.append(a); a.click();
+      setTimeout(() => a.remove(), 1000); say('EXPORTED · CINEOSI-MEMORY.GLB');
+    }, { binary: true });
+  } catch (e) { say('EXPORT READY'); }
+}
+
+function setView(p) {
+  const V = S.view; V.preset = p; const P = VIEWS[p];
+  if (P) { V.yaw = P.yaw; V.pitch = P.pitch; V.dist = P.dist; V.fov = P.fov; V.roll = 0; V.pan.set(0, 0, 0); }
+  say('CAMERA · ' + p);
+}
+function viewBy(dyaw, dpitch, dzoom, panx, pany, fromRemote) {
+  const V = S.view; V.preset = 'FREE';
+  V.yaw += dyaw || 0; V.pitch = clamp(V.pitch + (dpitch || 0), -0.25, 1.48);
+  V.dist = clamp(V.dist * Math.exp(-(dzoom || 0)), 0.28, 5.5);
+  if (panx || pany) {
+    const r = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion), u = new T.Vector3(0, 1, 0).applyQuaternion(cam.quaternion);
+    V.pan.addScaledVector(r, -(panx || 0) * V.dist).addScaledVector(u, (pany || 0) * V.dist);
+  }
+  oledDirty = true;
+  if (!fromRemote && window.REMOTE) window.REMOTE({ k: 'view', dx: dyaw, dy: dpitch, dc: dzoom, px: panx, py: pany });
+}
+
+/* =============================================================== 13. PAIRING ENGINE (MQTT + BroadcastChannel + Auto Full-Stage) */
+const PAIR = (function () {
+  const uid = () => Math.random().toString(36).slice(2, 10), dev = uid(), TE = new TextEncoder(), TD = new TextDecoder(), SEEN = new Set();
+  let MID = 0, room = new URLSearchParams(location.search).get('room') || '', socks = [], urls = new Set(), peers = new Map();
+  const RELAYS = ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt'];
+  let BC = null; try { BC = new BroadcastChannel('cineosi-orb-v1'); BC.onmessage = e => recv(e.data); } catch (e) {}
+  const cat = (...ps) => { const o = new Uint8Array(ps.reduce((a, p) => a + p.length, 0)); let i = 0; for (const p of ps) { o.set(p, i); i += p.length; } return o; };
+  const mqStr = s => { const b = TE.encode(s); return cat(new Uint8Array([b.length >> 8, b.length & 255]), b); };
+  const mqPkt = (h, body) => { const r = []; let n = body.length; do { let d = n % 128; n = Math.floor(n / 128); if (n) d |= 128; r.push(d); } while (n); return cat(new Uint8Array([h, ...r]), body); };
+  const topic = () => 'cineosi-orb/v1/' + room;
+
+  function open1(url) {
+    if (urls.has(url) || !room) return; urls.add(url);
+    let ws; try { ws = new WebSocket(url, 'mqtt'); } catch (e) { urls.delete(url); return; }
+    ws.binaryType = 'arraybuffer'; const K = { ws, ok: false, buf: new Uint8Array(0) }; socks.push(K);
+    ws.onopen = () => ws.send(mqPkt(0x10, cat(mqStr('MQTT'), new Uint8Array([4, 2, 0, 60]), mqStr('co-' + dev + uid().slice(0, 4)))));
+    ws.onmessage = e => {
+      K.buf = cat(K.buf, new Uint8Array(e.data));
+      for (;;) {
+        const b = K.buf; if (b.length < 2) return;
+        let m = 1, len = 0, i = 1, d; do { if (i >= b.length) return; d = b[i++]; len += (d & 127) * m; m *= 128; } while (d & 128);
+        if (b.length < i + len) return;
+        const h = b[0], body = b.subarray(i, i + len); K.buf = b.slice(i + len);
+        if (h >> 4 === 2) { K.ok = true; ws.send(mqPkt(0x82, cat(new Uint8Array([0, 1]), mqStr(topic()), new Uint8Array([0])))); hello(); }
+        else if (h >> 4 === 3) { const tl = (body[0] << 8) | body[1], off = 2 + tl + (((h >> 1) & 3) ? 2 : 0); try { recv(JSON.parse(TD.decode(body.subarray(off)))); } catch (x) {} }
+      }
+    };
+    ws.onclose = () => { socks = socks.filter(x => x !== K); urls.delete(url); if (room) setTimeout(() => open1(url), 3000); };
+    ws.onerror = () => {};
+  }
+
+  function send(m) {
+    m.from = dev; m.mid = dev + ':' + (++MID); m.room = room;
+    try { BC && BC.postMessage(m); } catch (e) {}
+    if (room && socks.length) {
+      const p = mqPkt(0x30, cat(mqStr(topic()), TE.encode(JSON.stringify(m))));
+      for (const K of socks) if (K.ok) try { K.ws.send(p); } catch (e) {}
+    }
+  }
+  const role = PHONE ? 'orb' : 'scene', hello = () => send({ type: 'hello', role, mode: S.mode });
+
+  function recv(m) {
+    if (!m || !m.type || m.from === dev || SEEN.has(m.mid)) return;
+    if (room && m.room && m.room !== room) return;
+    SEEN.add(m.mid);
+    const was = peers.size; peers.set(m.from, { role: m.role, at: performance.now() });
+    if (!PHONE && m.role === 'orb') {
+      // Automatically collapse the desktop bottom orb so the 3D stage fills 100% of the main screen!
+      if (!document.body.classList.contains('paired')) {
+        document.body.classList.add('paired');
+        document.getElementById('btnStageOnly').classList.add('hot');
+        document.getElementById('btnStageOnly').textContent = 'SHOW ORB';
+        document.getElementById('qrModal').classList.remove('show');
+        resize();
+      }
+      if (!was) say('PHONE CONTROLLER PAIRED · FULL STAGE ACTIVE');
+    }
+    if (m.type === 'act') {
+      if (m.k === 'turn') turn(m.i, m.steps, true);
+      else if (m.k === 'scrub') scrub(m.i, m.frac, true);
+      else if (m.k === 'press') press(m.b, m.long, true);
+      else if (m.k === 'mode') setMode(m.m, true);
+      else if (m.k === 'bellows') setBellows(m.v, true);
+      else if (m.k === 'chapter') loadTizitaChapter(m.idx, true);
+      else if (m.k === 'view') viewBy(m.dx, m.dy, m.dc, m.px, m.py, true);
+    }
+  }
+
+  function join(c) {
+    room = c.toUpperCase();
+    for (const u of RELAYS) open1(u);
+    hello();
+  }
+  const base = () => location.origin + location.pathname;
+  const P = {
+    get room() { return room; },
+    url: () => base() + '?orb&room=' + room,
+    open() {
+      if (!room) {
+        room = Array.from({ length: 4 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.random() * 24 | 0]).join('');
+      }
+      join(room);
+      const modal = document.getElementById('qrModal');
+      document.getElementById('qrRoomTxt').textContent = room;
+      const u = P.url();
+      const link = document.getElementById('qrUrl'); link.href = u; link.textContent = u;
+      const box = document.getElementById('qrBox'); box.innerHTML = '';
+      try {
+        const q = qrcode(0, 'M'); q.addData(u); q.make();
+        const n = q.getModuleCount(), cell = 6, sz = (n + 2) * cell;
+        const cv = document.createElement('canvas'); cv.width = cv.height = sz;
+        const cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, sz, sz); cx.fillStyle = '#000';
+        for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) cx.fillRect((c + 1) * cell, (r + 1) * cell, cell, cell);
+        box.append(cv);
+      } catch (e) {}
+      modal.classList.add('show');
+    },
+    sendAct: a => send(Object.assign({ type: 'act' }, a))
+  };
+  if (room) join(room);
+  window.REMOTE = a => P.sendAct(a);
+  return P;
+})();
+
+/* =============================================================== 14. INTERACTION: ORB, BELLOWS BAR, AND DIRECT 3D DRAGGING IN ROOM */
+const oray = new T.Raycaster(), ondc = new T.Vector2(); let odrag = null; const optrs = new Map();
+function orbHit(e) {
+  const r = OR.domElement.getBoundingClientRect();
+  ondc.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
+  oray.setFromCamera(ondc, OC);
+  const h = oray.intersectObjects(ORB.children, true)[0]; if (!h) return null;
+  let o = h.object;
+  while (o && o.userData.ring == null && !o.userData.btn && !o.userData.grip && !o.userData.lens) o = o.parent;
+  return o ? o.userData : null;
+}
+
+OR.domElement.addEventListener('pointerdown', e => {
+  optrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (optrs.size === 2) {
+    const [p, q] = [...optrs.values()];
+    odrag = { pinch: Math.hypot(p.x - q.x, p.y - q.y), b0: DOC.bellows };
+    return;
+  }
+  const u = orbHit(e); if (!u) return;
+  OR.domElement.setPointerCapture(e.pointerId);
+  if (u.btn) { odrag = { btn: u.btn, t: performance.now() }; BTN[u.btn].down = 1; return; }
+  if (u.grip || u.lens) { odrag = { grip: !!u.grip, lens: !!u.lens, x: e.clientX, y: e.clientY }; return; }
+  odrag = { ring: u.ring, x: e.clientX, y: e.clientY, acc: 0, lock: null };
+  S.lastRing = u.ring; oledDirty = true; drawDialLabels();
+});
+
+OR.domElement.addEventListener('pointermove', e => {
+  if (optrs.has(e.pointerId)) optrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (!odrag) {
+    const u = orbHit(e);
+    const hr = u && u.ring != null ? u.ring : -1;
+    if (hr !== S.hoverRing) { S.hoverRing = hr; oledDirty = true; drawDialLabels(); }
+    return;
+  }
+  if (odrag.pinch != null && optrs.size === 2) {
+    const [p, q] = [...optrs.values()], d = Math.hypot(p.x - q.x, p.y - q.y);
+    setBellows(odrag.b0 + (d - odrag.pinch) / 220);
+    return;
+  }
+  const rx = e.clientX - (odrag.x || 0), ry = e.clientY - (odrag.y || 0);
+  if (odrag.grip) { odrag.x = e.clientX; odrag.y = e.clientY; viewBy(-(PORTRAIT ? ry : rx) * 0.01, (PORTRAIT ? -rx : ry) * 0.006, 0); return; }
+  if (odrag.lens) { odrag.x = e.clientX; odrag.y = e.clientY; setBellows(DOC.bellows + (PORTRAIT ? -ry : rx) * 0.0045); return; }
+  if (odrag.ring == null) return;
+  const dx = PORTRAIT ? -ry : rx, dy = PORTRAIT ? rx : -ry;
+  odrag.x = e.clientX; odrag.y = e.clientY;
+  if (!odrag.lock) {
+    odrag.ax = (odrag.ax || 0) + Math.abs(dx); odrag.ay = (odrag.ay || 0) + Math.abs(dy);
+    if (odrag.ax + odrag.ay > 5) odrag.lock = odrag.ax > odrag.ay ? 'x' : 'y'; else return;
+  }
+  if (odrag.lock === 'x') { scrub(odrag.ring, dx / 20); return; }
+  odrag.acc += dy; const px = 11;
+  while (Math.abs(odrag.acc) >= px) { turn(odrag.ring, Math.sign(odrag.acc)); odrag.acc -= Math.sign(odrag.acc) * px; }
+});
+OR.domElement.addEventListener('pointerup', e => { optrs.delete(e.pointerId); if (odrag && odrag.btn) press(odrag.btn, performance.now() - odrag.t > 550); odrag = null; });
+OR.domElement.addEventListener('wheel', e => {
+  e.preventDefault(); const u = orbHit(e); if (!u) return;
+  if (u.lens || u.grip) { setBellows(DOC.bellows - e.deltaY * 0.0015); return; }
+  if (u.ring != null) turn(u.ring, e.deltaY < 0 ? 1 : -1);
+}, { passive: false });
+
+// Bellows Slider Bar interaction
+const bTrack = document.getElementById('bellowsTrack');
+let bDragging = false;
+bTrack.addEventListener('pointerdown', e => {
+  bDragging = true; bTrack.setPointerCapture(e.pointerId);
+  const r = bTrack.getBoundingClientRect(); setBellows((e.clientX - r.left) / r.width);
+});
+bTrack.addEventListener('pointermove', e => {
+  if (!bDragging) return;
+  const r = bTrack.getBoundingClientRect(); setBellows((e.clientX - r.left) / r.width);
+});
+bTrack.addEventListener('pointerup', () => bDragging = false);
+
+// Direct 3D Room Manipulation: Drag Cutouts around table/planes, Drag Props on tabletop, or Orbit Camera!
+const rray = new T.Raycaster(), rndc = new T.Vector2(), floorPlane = new T.Plane(new T.Vector3(0, 1, 0), -TOP);
+let rdrag = null;
+R.domElement.addEventListener('contextmenu', e => e.preventDefault());
+R.domElement.addEventListener('pointerdown', e => {
+  R.domElement.setPointerCapture(e.pointerId);
+  const rect = R.domElement.getBoundingClientRect();
+  rndc.set((e.clientX - rect.left) / rect.width * 2 - 1, -(e.clientY - rect.top) / rect.height * 2 + 1);
+  rray.setFromCamera(rndc, cam);
+
+  // Check if user clicked a segmented video cutout!
+  const cHits = rray.intersectObjects(CAST_G.children, true);
+  if (cHits.length) {
+    let o = cHits[0].object; while (o && o.userData.cutoutIdx == null) o = o.parent;
+    if (o && o.userData.cutoutIdx != null) {
+      S.castIdx = o.userData.cutoutIdx; setMode('CAST', true);
+      rdrag = { kind: 'cutout', idx: S.castIdx };
+      say('DRAGGING CUTOUT · ' + CUTOUT_CLIPS[DOC.cutouts[S.castIdx].clip].name);
+      return;
+    }
+  }
+  // Check if user clicked a table prop!
+  const pHits = rray.intersectObjects(MESS_G.children, true);
+  if (pHits.length) {
+    let o = pHits[0].object; while (o && o.userData.propIdx == null) o = o.parent;
+    if (o && o.userData.propIdx != null) {
+      S.propIdx = o.userData.propIdx; setMode('MESS', true);
+      rdrag = { kind: 'prop', idx: S.propIdx };
+      say('DRAGGING PROP · ' + PROP_KINDS[DOC.props[S.propIdx].kind]);
+      return;
+    }
+  }
+  rdrag = { kind: e.button === 2 || e.shiftKey ? 'pan' : 'orbit', x: e.clientX, y: e.clientY };
+});
+
+R.domElement.addEventListener('pointermove', e => {
+  if (!rdrag) return;
+  const rect = R.domElement.getBoundingClientRect();
+  rndc.set((e.clientX - rect.left) / rect.width * 2 - 1, -(e.clientY - rect.top) / rect.height * 2 + 1);
+  rray.setFromCamera(rndc, cam);
+  const hitPt = new T.Vector3();
+  if (rdrag.kind === 'cutout') {
+    if (rray.ray.intersectPlane(floorPlane, hitPt)) {
+      const c = DOC.cutouts[rdrag.idx];
+      if (c) {
+        const prevA = c.a;
+        c.a = Math.atan2(hitPt.x, hitPt.z);
+        const dist = Math.hypot(hitPt.x, hitPt.z);
+        let bestP = c.plane, bestD = 99;
+        PLANE_Z.forEach((pz, pi) => { const d = Math.abs(dist - pz); if (d < bestD) { bestD = d; bestP = pi; } });
+        c.plane = bestP;
+        motionNote(((c.a % TAU) + TAU) % TAU / TAU, clamp(hitPt.x / 1.2, -1, 1), (c.a - prevA) * 4.0);
+        oledDirty = true; drawDialLabels();
+      }
+    }
+    return;
+  }
+  if (rdrag.kind === 'prop') {
+    if (rray.ray.intersectPlane(floorPlane, hitPt)) {
+      const p = DOC.props[rdrag.idx];
+      if (p) {
+        p.a = (Math.atan2(hitPt.x, hitPt.z) + TAU) % TAU;
+        p.r = clamp(Math.hypot(hitPt.x, hitPt.z), 0.14, 0.58);
+        dirty.props = true; oledDirty = true; drawDialLabels();
+      }
+    }
+    return;
+  }
+  const dx = e.clientX - rdrag.x, dy = e.clientY - rdrag.y;
+  rdrag.x = e.clientX; rdrag.y = e.clientY;
+  if (rdrag.kind === 'pan') viewBy(0, 0, 0, dx / rect.height, dy / rect.height);
+  else viewBy(-dx * 0.007, dy * 0.005, 0);
+});
+R.domElement.addEventListener('pointerup', () => rdrag = null);
+R.domElement.addEventListener('wheel', e => { e.preventDefault(); viewBy(0, 0, -e.deltaY * 0.0015); }, { passive: false });
+
+// Top HUD buttons & keyboard shortcuts
+document.querySelectorAll('#modePills .pill').forEach(b => {
+  b.addEventListener('click', () => { setMode(b.dataset.mode); if (window.REMOTE) window.REMOTE({ k: 'mode', m: b.dataset.mode }); });
+});
+document.getElementById('btnAddQuick').addEventListener('click', () => { setMode('CAST', true); press('ADD'); });
+document.getElementById('btnPlaceQuick').addEventListener('click', () => {
+  snap(true);
+  const i = DOC.props.length;
+  DOC.props.push({ kind: i % PROP_KINDS.length, a: Math.random() * TAU, r: 0.22 + Math.random() * 0.30, rot: Math.random() * TAU, s: 0.92 + Math.random() * 0.22 });
+  S.propIdx = DOC.props.length - 1; dirty.props = true;
+  motionNote((i % 10) / 10, Math.sin(DOC.props[S.propIdx].a), 0.35);
+  say('PLACED ON TABLE · ' + PROP_KINDS[DOC.props[S.propIdx].kind] + ' (' + DOC.props.length + ' ITEMS)');
+  oledDirty = true; drawDialLabels();
+});
+document.getElementById('btnMixToggle').addEventListener('click', () => cycleAudioMix());
+document.getElementById('btnClipToggle').addEventListener('click', () => cycleMonitorClip());
+document.getElementById('btnStageOnly').addEventListener('click', () => {
+  const on = document.body.classList.toggle('paired');
+  const btn = document.getElementById('btnStageOnly');
+  btn.classList.toggle('hot', on);
+  btn.textContent = on ? 'SHOW ORB' : 'STAGE ONLY';
+  resize();
+});
+document.getElementById('btnPairTop').addEventListener('click', () => PAIR.open());
+document.getElementById('qrClose').addEventListener('click', () => document.getElementById('qrModal').classList.remove('show'));
+
+addEventListener('keydown', e => {
+  if (e.key === '[') setBellows(DOC.bellows - 0.08);
+  else if (e.key === ']') setBellows(DOC.bellows + 0.08);
+  else if (e.key === 'Tab') { e.preventDefault(); press('MODE'); }
+  else if (e.key === 'o' || e.key === 'O') document.getElementById('btnStageOnly').click();
+  else if (e.key === 'p' || e.key === 'P') PAIR.open();
+});
+
+/* =============================================================== 15. OLED DISPLAY & RENDER LOOP */
+function drawOLED() {
+  const W = OLED.width, H = OLED.height, x = ox;
+  x.fillStyle = '#030605'; x.fillRect(0, 0, W, H);
+  x.strokeStyle = '#1d463f'; x.lineWidth = 4; x.strokeRect(6, 6, W - 12, H - 12);
+  const CY = '#5ff0dc', AMB = '#f0b040', MID = '#8fe9dc';
+
+  // 1. LEFT OPTICAL MONITOR VIEWPORT (x: 18..438, y: 18..342): Real Stelline Film Clip + Cutout PiP
+  const vx = 18, vy = 18, vw = 420, vh = 236;
+  x.fillStyle = '#060c0a'; x.fillRect(vx, vy, vw, vh);
+  try {
+    const walkTex = baseCutoutTex['stelline_walk'] || getCutoutBaseTex(0, () => {});
+    if (oledVideo && oledVideo.readyState >= 2 && oledVideo.currentTime > 0.5) {
+      x.drawImage(oledVideo, vx, vy, vw, vh);
+    } else if (walkTex && walkTex.image) {
+      const fw = walkTex.image.width / 8, fh = walkTex.image.height, fi = Math.floor(NOW * 6) % 8;
+      x.drawImage(walkTex.image, fi * fw, 0, fw, fh, vx + 60, vy + 4, vw - 120, vh - 8);
+    }
+  } catch (e) {}
+  // Subtle optical scanline & crosshair overlay on the video monitor
+  x.fillStyle = 'rgba(4, 12, 10, 0.24)'; x.fillRect(vx, vy, vw, vh);
+  x.strokeStyle = '#5ff0dc'; x.lineWidth = 2; x.strokeRect(vx, vy, vw, vh);
+  // Draw active segmented cutout PiP thumbnail in bottom-right of video monitor
+  const activeCut = DOC.cutouts[S.castIdx] || DOC.cutouts[0];
+  if (activeCut) {
+    const cInfo = CUTOUT_CLIPS[clamp(activeCut.clip, 0, CUTOUT_CLIPS.length - 1)];
+    const bTex = baseCutoutTex[cInfo.id];
+    if (bTex && bTex.image) {
+      const pw = 92, ph = 92, px = vx + vw - pw - 8, py = vy + vh - ph - 8;
+      x.fillStyle = 'rgba(3, 8, 7, 0.82)'; x.fillRect(px, py, pw, ph);
+      const fw = bTex.image.width / (cInfo.frames || 1), fh = bTex.image.height;
+      const fIdx = Math.floor(NOW * (cInfo.fps || 8)) % (cInfo.frames || 1);
+      x.drawImage(bTex.image, fIdx * fw, 0, fw, fh, px + 4, py + 4, pw - 8, ph - 8);
+      x.strokeStyle = AMB; x.lineWidth = 1.5; x.strokeRect(px, py, pw, ph);
+    }
+  }
+  const clipInfo = MONITOR_CLIPS[curClipIdx] || MONITOR_CLIPS[0];
+  x.fillStyle = 'rgba(3, 7, 6, 0.78)'; x.fillRect(vx + 2, vy + 2, vw - 4, 28);
+  x.textAlign = 'left'; x.font = '700 17px ui-monospace, Menlo, monospace'; x.fillStyle = CY;
+  x.fillText(clipInfo.label, vx + 10, vy + 21);
+
+  // Caption under video monitor (y: 262..342)
+  const ch = TIZITA_CHAPTERS[S.tizitaIdx || 0];
+  x.fillStyle = '#071311'; x.fillRect(vx, 260, vw, 82);
+  x.strokeStyle = '#183832'; x.strokeRect(vx, 260, vw, 82);
+  x.font = '700 17px ui-monospace, Menlo, monospace'; x.fillStyle = AMB;
+  x.fillText(ch.title.slice(0, 38), vx + 10, 284);
+  x.font = '500 15px ui-monospace, Menlo, monospace'; x.fillStyle = '#d4f0ea';
+  x.fillText(clipInfo.quote.slice(0, 46), vx + 10, 308);
+  x.fillStyle = MID;
+  x.fillText(AUDIO_MIXES[curMixIdx].label, vx + 10, 330);
+
+  // 2. CENTER & RIGHT TELEMETRY + LIVE AUDIO WAVEFORM (x: 454..1580)
+  const rx0 = 454, rw = W - rx0 - 18;
+  const RS = rings();
+  x.textAlign = 'left'; x.font = '700 25px ui-monospace, Menlo, monospace';
+  x.fillStyle = S.mode === 'FLIGHT' ? '#ff8a47' : AMB;
+  const regName = DOC.bellows < 0.32 ? 'MATTER REGISTER' : DOC.bellows < 0.68 ? 'MULTIPLANE REGISTER' : 'FLIGHT & MIST REGISTER';
+  x.fillText('CINEOSIS-ORB · ' + S.mode + ' · ' + regName, rx0, 44);
+
+  const heroTitle = S.mode === 'TIZITA' ? ch.title
+    : S.mode === 'HERO' ? HERO_PRESETS[DOC.hero.preset].name
+    : S.mode === 'CAST' ? (CUTOUT_CLIPS[(DOC.cutouts[S.castIdx] || { clip: 0 }).clip].name)
+    : S.mode === 'MESS' ? (DOC.props.length + ' TABLE PROPS · ' + TABLE_STYLES[DOC.table.style][0])
+    : S.mode === 'ETCH' ? ('ETCH-A-SKETCH · ' + ETCH_PHRASES[DOC.etch.phrase])
+    : S.mode === 'LIGHT' ? ('CAMERA ' + S.view.preset + ' · ' + Math.round(lerp(6500, 2200, DOC.light.warm)) + 'K')
+    : ('BELLOWS ' + Math.round(DOC.bellows * 100) + '% · 32K PARTICLES');
+  x.font = '700 34px ui-monospace, Menlo, monospace'; x.fillStyle = '#eaf6f3';
+  x.fillText(heroTitle.slice(0, 26), rx0, 92);
+
+  // Live Audio Spectrum / Motion Waveform Strip (x: 454..1120, y: 112..162)
+  if (mixAnalyser) { try { mixAnalyser.getByteFrequencyData(mixData); } catch (e) {} }
+  const nBars = 36, bw = 16, bx0 = rx0;
+  for (let b = 0; b < nBars; b++) {
+    const raw = mixAnalyser ? (mixData[b] / 255) : 0;
+    const synthPulse = Math.max(0, 1 - (performance.now() - lastMotionSndT) / 280) * (0.35 + 0.35 * Math.sin(NOW * 18 + b * 0.7));
+    const amp = clamp(Math.max(raw, synthPulse, 0.08 + 0.06 * Math.sin(NOW * 4 + b * 0.4)), 0.06, 1.0);
+    const bh = Math.round(amp * 44);
+    x.fillStyle = b % 3 === 0 ? AMB : CY;
+    x.fillRect(bx0 + b * (bw + 2), 160 - bh, bw, bh);
+  }
+
+  // Active Ring Readout on Top-Right
+  const r = RS[S.lastRing] || RS[0];
+  if (r) {
+    x.textAlign = 'right'; x.font = '600 22px ui-monospace, Menlo, monospace'; x.fillStyle = MID;
+    x.fillText('RING ' + (S.lastRing + 1) + ' · ' + r.n, W - 26, 44);
+    x.font = '700 34px ui-monospace, Menlo, monospace'; x.fillStyle = CY;
+    x.fillText(String(r.f(r.v())).slice(0, 15), W - 26, 92);
+  }
+
+  // 5-Ring Summary Strip across the right-bottom of the OLED (x: 454..1580, y: 174..292)
+  const colW = rw / 5;
+  RS.forEach((ri, idx) => {
+    if (!ri) return;
+    const cx = rx0 + idx * colW + colW / 2, hot = idx === S.lastRing;
+    x.fillStyle = hot ? 'rgba(20,64,56,0.92)' : 'rgba(10,22,20,0.78)';
+    x.fillRect(rx0 + idx * colW + 3, 174, colW - 6, 114);
+    x.strokeStyle = hot ? CY : '#183832'; x.lineWidth = 2;
+    x.strokeRect(rx0 + idx * colW + 3, 174, colW - 6, 114);
+    x.textAlign = 'center'; x.font = '600 18px ui-monospace, Menlo, monospace';
+    x.fillStyle = hot ? AMB : MID; x.fillText((idx + 1) + ' ' + ri.n.slice(0, 12), cx, 204);
+    x.font = '700 24px ui-monospace, Menlo, monospace'; x.fillStyle = '#fff';
+    x.fillText(String(ri.f(ri.v())).slice(0, 12), cx, 252);
+  });
+
+  // Bottom Lyric / Dialogue / Status Ticker (x: 454..1580, y: 328)
+  x.textAlign = 'left'; x.font = '600 21px ui-monospace, Menlo, monospace'; x.fillStyle = CY;
+  const bottomTxt = (NOW - S.msgT < 4.0 && S.msg) ? S.msg : ch.lyric;
+  x.fillText(bottomTxt.slice(0, 68), rx0, 328);
+  oledTex.needsUpdate = true;
+}
+
+const rt = new T.WebGLRenderTarget(16, 16); rt.texture.encoding = T.sRGBEncoding;
+const grade = new T.ShaderMaterial({
+  uniforms: { tC: { value: rt.texture }, gt: { value: 0 } }, depthTest: false, depthWrite: false,
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }',
+  fragmentShader: `uniform sampler2D tC; uniform float gt; varying vec2 vUv; void main(){
+    vec3 c = texture2D(tC, vUv).rgb; vec2 q = vUv - .5; c *= 1. - dot(q, q) * 0.95;
+    float l = dot(c, vec3(.299, .587, .114)); c = mix(vec3(l), c, .88);
+    c = vec3(.028, .036, .032) + c * vec3(.98, 1., .96); c = c / (c + .72) * 1.62;
+    c += (fract(sin(dot(vUv * vec2(1913., 2711.) + gt, vec2(12.9898, 78.233))) * 43758.5453) - .5) * .025;
+    gl_FragColor = vec4(c, 1.); }`
+});
+const gQ = new T.Scene(), gC = new T.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+gQ.add(new T.Mesh(new T.PlaneGeometry(2, 2), grade));
+
+function resize() {
+  const w = Math.max(2, roomEl.clientWidth), h = Math.max(2, roomEl.clientHeight);
+  R.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix();
+  const pr = R.getPixelRatio(); rt.setSize(Math.round(w * pr), Math.round(h * pr));
+  fitOrb();
+}
+addEventListener('resize', resize);
+
+function update(dt) {
+  NOW += dt; MU.uTime.value = NOW;
+  if (dirty.hero) { buildHero(); dirty.hero = false; }
+  if (dirty.table) { buildTable(); dirty.table = false; }
+  if (dirty.props) { buildProps(); dirty.props = false; }
+  if (dirty.etch) { buildEtch(); dirty.etch = false; }
+
+  // Rotate Bench cake turntable sprite based on camera yaw
+  if (benchHeroSprite && benchHeroSprite.tex) {
+    const normYaw = (((CAM.yaw % TAU) + TAU) % TAU) / TAU;
+    const frame = Math.floor(normYaw * benchHeroSprite.frames) % benchHeroSprite.frames;
+    benchHeroSprite.tex.offset.x = frame / benchHeroSprite.frames;
+    benchHeroSprite.mesh.lookAt(cam.position.x, TOP + 0.11, cam.position.z);
+  }
+
+  syncCutouts(dt);
+
+  // Animate 32K mist particles when Accordion Bellows > 0
+  if (DOC.bellows > 0.01) {
+    const pos = mistGeo.attributes.position.array, b = DOC.bellows, curl = DOC.flight.curl || 0.35;
+    for (let i = 0; i < MIST_N; i += 4) { // step subset per frame for 60fps
+      const idx = (i + Math.floor(NOW * 60) % 4) % MIST_N;
+      const s0 = mistSeed[idx * 3], sp = mistSeed[idx * 3 + 1], r0 = mistSeed[idx * 3 + 2] * (1 + b * 0.8);
+      const a = s0 + NOW * sp * 0.25 * (0.3 + b);
+      pos[idx * 3] = Math.cos(a) * r0 + Math.sin(NOW * 1.7 + s0) * curl * b * 0.35;
+      pos[idx * 3 + 1] = TOP + Math.sin(s0 * 3 + NOW * 0.8) * (0.4 + b * 0.9);
+      pos[idx * 3 + 2] = Math.sin(a) * r0 + Math.cos(NOW * 1.3 + s0) * curl * b * 0.35;
+    }
+    mistGeo.attributes.position.needsUpdate = true;
+  }
+
+  // Lighting & candle flicker
+  const Lt = DOC.light, cw = new T.Vector3(0, TOP + 0.05, 0), la = Lt.a * Math.PI / 180;
+  key.position.set(cw.x + Math.sin(la) * 1.15, cw.y + Lt.h, cw.z + Math.cos(la) * 1.15);
+  key.target.position.copy(cw);
+  key.color.setRGB(lerp(0.72, 1, Lt.warm), lerp(0.84, 0.72, Lt.warm), lerp(1, 0.45, Lt.warm));
+  key.intensity = Lt.k;
+  keyMark.position.copy(key.position); keyMark.visible = S.mode === 'LIGHT' && !FILM;
+
+  const lit = FLAMES.length;
+  candleLight.position.set(cw.x, cw.y + 0.16, cw.z);
+  candleLight.intensity = lit ? (0.35 + Math.min(lit, 12) * 0.11) * (0.94 + Math.sin(NOW * 19) * 0.05) : 0;
+  FLAMES.forEach((f, i) => {
+    const k = 1 + Math.sin(NOW * 14 + i * 1.7) * 0.07;
+    f.scale.set(0.018 * k, 0.036 * (2 - k), 1);
+  });
+
+  // Camera & Accordion Flight physics
+  const V = S.view;
+  if (DOC.bellows > 0.68 || S.mode === 'FLIGHT') {
+    V.yaw += (DOC.flight.swoop || 0.18 * DOC.bellows) * dt * 0.55;
+    V.roll = lerp(V.roll || 0, (DOC.flight.bank || 0) * Math.PI / 180, Math.min(1, dt * 5));
+  } else {
+    V.roll = lerp(V.roll || 0, 0, Math.min(1, dt * 6));
+  }
+  const k = Math.min(1, dt * 7);
+  const tgt = new T.Vector3(0, TOP + 0.08, 0).add(V.pan);
+  CAM.yaw += (((V.yaw - CAM.yaw + Math.PI) % TAU + TAU) % TAU - Math.PI) * k;
+  CAM.pitch += (V.pitch - CAM.pitch) * k;
+  CAM.dist += (V.dist - CAM.dist) * k;
+  CAM.fov += (V.fov - CAM.fov) * k;
+  CAM.roll += ((V.roll || 0) - CAM.roll) * k;
+  CAM.tgt.lerp(tgt, k);
+  cam.position.set(
+    CAM.tgt.x + Math.sin(CAM.yaw) * Math.cos(CAM.pitch) * CAM.dist,
+    CAM.tgt.y + Math.sin(CAM.pitch) * CAM.dist,
+    CAM.tgt.z + Math.cos(CAM.yaw) * Math.cos(CAM.pitch) * CAM.dist
+  );
+  cam.up.set(Math.sin(CAM.roll), Math.cos(CAM.roll), 0);
+  cam.lookAt(CAM.tgt);
+  if (Math.abs(cam.fov - CAM.fov) > 0.01) { cam.fov = CAM.fov; cam.updateProjectionMatrix(); }
+
+  // Orb rings & button animations
+  RINGS.forEach((r, i) => {
+    r.ang += (r.target - r.ang) * Math.min(1, dt * 18);
+    r.g.rotation.x = r.ang;
+    r.lit.material.color.setHex(i === S.lastRing ? 0x8ffff0 : DOC.bellows > 0.68 ? 0xff8a47 : i === 0 ? 0xf0b040 : 0x2fae9f);
+  });
+  for (const bKey in BTN) {
+    const b = BTN[bKey];
+    if (odrag && odrag.btn === bKey) b.down = 1; else b.down = Math.max(0, b.down - dt * 6);
+    b.cap.position.z = b.z0 - b.down * 0.008;
+  }
+  orbPitchV += ((0.18 - ORB.rotation.x) * 42 - orbPitchV * 9) * dt;
+  ORB.rotation.x += orbPitchV * dt;
+  drawDialLabels();
+  if (oledDirty || Math.floor(NOW * 15) !== Math.floor((NOW - dt) * 15)) { drawOLED(); oledDirty = false; }
+}
+
+function render() {
+  if (!PHONE && !document.body.classList.contains('phone')) {
+    grade.uniforms.gt.value = (NOW * 37.1) % 100;
+    R.setRenderTarget(rt); R.render(scene, cam); R.setRenderTarget(null); R.render(gQ, gC);
+  }
+  if (!document.body.classList.contains('paired')) {
+    OR.render(OS, OC);
+  }
+}
+
+let last = performance.now(), auto = true;
+function loop(now) {
+  if (!auto) return;
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  update(dt); render(); requestAnimationFrame(loop);
+}
+resize(); requestAnimationFrame(loop);
+
+
+/* =============================================================== 16. SCION ENGINE: USER ASSET IMPORTER, INDEPENDENT CRITIC & REMIX STUDIO */
+S.matteMode = 'CUTOUT';
+S.peakDoc = null;
+S.peakScore = 0;
+DOC.meta = DOC.meta || { id: 'bday_' + Date.now().toString(36), title: TIZITA_CHAPTERS[0].title, author: 'STELLINE-BUILDER', generation: 1, parentId: '2021_stelline' };
+DOC.customAssets = DOC.customAssets || [];
+const SAVED_BDAYS = [];
+try {
+  const rawSaved = localStorage.getItem('cineosis_saved_birthdays_v1');
+  if (rawSaved) JSON.parse(rawSaved).forEach(b => SAVED_BDAYS.push(b));
+} catch (e) {}
+
+// A. Client-Side Image Auto-Cutout & Polaroid Processor
+function buildSegmentedImageCanvas(imgEl, mode, labelTxt) {
+  const W = 384, H = 384;
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const cx = cv.getContext('2d');
+  if (mode === 'POLAROID') {
+    cx.fillStyle = '#fbfaf6';
+    cx.fillRect(24, 14, W - 48, H - 28);
+    cx.fillStyle = '#101615';
+    cx.fillRect(40, 30, W - 80, H - 106);
+    const ir = imgEl.width / Math.max(1, imgEl.height);
+    let dw = W - 80, dh = H - 106, dx = 40, dy = 30;
+    if (ir > 1) { dh = dw / ir; dy += ((H - 106) - dh) / 2; }
+    else { dw = dh * ir; dx += ((W - 80) - dw) / 2; }
+    cx.drawImage(imgEl, dx, dy, dw, dh);
+    cx.fillStyle = '#1b2826';
+    cx.font = '700 22px Georgia, serif';
+    cx.textAlign = 'center';
+    cx.fillText((labelTxt || 'BIRTHDAY MEMORY').slice(0, 22), W / 2, H - 36);
+    return cv;
+  }
+  const ir = imgEl.width / Math.max(1, imgEl.height);
+  let dw = W - 24, dh = H - 24;
+  if (ir > 1) dh = dw / ir; else dw = dh * ir;
+  const dx = (W - dw) / 2, dy = (H - dh) / 2;
+  cx.drawImage(imgEl, dx, dy, dw, dh);
+  if (mode === 'RAW') return cv;
+
+  // 'CUTOUT' mode: sample corner background color + radial silhouette vignette feathering
+  const id = cx.getImageData(0, 0, W, H), d = id.data;
+  const sx = Math.round(dx + 6), sy = Math.round(dy + 6), sx2 = Math.round(dx + dw - 6), sy2 = Math.round(dy + dh - 6);
+  const sample = (x, y) => {
+    const idx = (clamp(y, 0, H - 1) * W + clamp(x, 0, W - 1)) * 4;
+    return [d[idx], d[idx + 1], d[idx + 2]];
+  };
+  const c1 = sample(sx, sy), c2 = sample(sx2, sy), c3 = sample(sx, sy2), c4 = sample(sx2, sy2);
+  const bgR = (c1[0] + c2[0] + c3[0] + c4[0]) * 0.25;
+  const bgG = (c1[1] + c2[1] + c3[1] + c4[1]) * 0.25;
+  const bgB = (c1[2] + c2[2] + c3[2] + c4[2]) * 0.25;
+  const cornerVar = Math.hypot(c1[0] - c2[0], c1[1] - c2[1], c1[2] - c2[2]);
+  const hasUniformBg = cornerVar < 68;
+
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const i = (y * W + x) * 4;
+      if (d[i + 3] < 10) continue;
+      const nx = (x - W * 0.5) / (dw * 0.5), ny = (y - H * 0.52) / (dh * 0.5);
+      const ell = Math.hypot(nx * 0.95, ny * 0.90);
+      const colorDist = Math.hypot(d[i] - bgR, d[i + 1] - bgG, d[i + 2] - bgB);
+      let alpha = d[i + 3];
+      if (hasUniformBg && ell > 0.38 && colorDist < 42) {
+        alpha *= clamp((colorDist - 14) / 28, 0, 1);
+      }
+      if (ell > 0.88) {
+        alpha *= clamp((1.04 - ell) / 0.16, 0, 1);
+      }
+      d[i + 3] = Math.round(alpha);
+    }
+  }
+  cx.putImageData(id, 0, 0);
+  return cv;
+}
+
+function registerCustomCutoutFromCanvas(cv, name, opts = {}) {
+  const id = opts.id || ('user_cut_' + Date.now() + '_' + Math.floor(Math.random() * 999));
+  const tex = new T.CanvasTexture(cv);
+  tex.encoding = T.sRGBEncoding;
+  tex.wrapS = tex.wrapT = T.ClampToEdgeWrapping;
+  tex.needsUpdate = true;
+  baseCutoutTex[id] = tex;
+  window._lastUserPhotoTex = tex;
+
+  const clipObj = {
+    id,
+    name: ('USER · ' + name).toUpperCase().slice(0, 28),
+    file: '',
+    frames: 1,
+    fps: 1,
+    aspect: cv.width / Math.max(1, cv.height),
+    h: opts.h || 0.62,
+    plane: opts.plane != null ? opts.plane : 1,
+    isCustom: true,
+    liveVideo: opts.liveVideo || null,
+    liveCtx: opts.liveCtx || null,
+    liveDraw: opts.liveDraw || null
+  };
+  CUTOUT_CLIPS.push(clipObj);
+  const newClipIdx = CUTOUT_CLIPS.length - 1;
+
+  if (!opts.skipSpawn) {
+    snap(true);
+    const angle = Math.PI + (Math.random() - 0.5) * 1.4;
+    DOC.cutouts.push({ clip: newClipIdx, a: angle, plane: clipObj.plane, face: 0, s: 1.05, speed: 1.0 });
+    S.castIdx = DOC.cutouts.length - 1;
+    // Also place a Polaroid prop on the table if not already present
+    DOC.props.push({ kind: 10, a: angle + 0.15, r: 0.30, rot: angle, s: 1.15 });
+    dirty.props = true;
+  }
+  if (!opts.skipSaveDataUrl && !opts.liveVideo) {
+    try {
+      const thumbCv = document.createElement('canvas'); thumbCv.width = 192; thumbCv.height = 192;
+      thumbCv.getContext('2d').drawImage(cv, 0, 0, 192, 192);
+      DOC.customAssets = DOC.customAssets || [];
+      DOC.customAssets.push({ id, name: clipObj.name, dataUrl: thumbCv.toDataURL('image/webp', 0.82), clipIdx: newClipIdx });
+      if (DOC.customAssets.length > 8) DOC.customAssets.shift();
+    } catch (e) {}
+  }
+  motionNote(0.78, 0, 0.45);
+  oledDirty = true; drawDialLabels(); updateScionHud();
+  return newClipIdx;
+}
+
+function importUserVideoFile(file, matteMode) {
+  const url = URL.createObjectURL(file);
+  const vid = document.createElement('video');
+  vid.src = url; vid.muted = true; vid.loop = true; vid.playsInline = true; vid.crossOrigin = 'anonymous';
+  vid.play().catch(() => {});
+
+  const cv = document.createElement('canvas'); cv.width = 320; cv.height = 320;
+  const cx = cv.getContext('2d');
+  const cleanName = file.name.replace(/\.[^.]+$/, '');
+
+  const liveDraw = () => {
+    cx.clearRect(0, 0, 320, 320);
+    if (matteMode === 'POLAROID') {
+      cx.fillStyle = '#fbfaf6'; cx.fillRect(16, 10, 288, 300);
+      cx.drawImage(vid, 28, 22, 264, 226);
+      cx.fillStyle = '#182422'; cx.font = '700 18px Georgia, serif'; cx.textAlign = 'center';
+      cx.fillText(cleanName.slice(0, 20).toUpperCase(), 160, 282);
+    } else {
+      cx.save();
+      cx.beginPath(); cx.arc(160, 160, 148, 0, TAU); cx.closePath(); cx.clip();
+      cx.drawImage(vid, 12, 12, 296, 296);
+      cx.restore();
+      cx.strokeStyle = 'rgba(95, 240, 220, 0.55)'; cx.lineWidth = 3;
+      cx.beginPath(); cx.arc(160, 160, 148, 0, TAU); cx.stroke();
+    }
+  };
+  vid.addEventListener('loadeddata', () => { liveDraw(); oledDirty = true; });
+  const clipIdx = registerCustomCutoutFromCanvas(cv, cleanName, { liveVideo: vid, liveCtx: cx, liveDraw, plane: 1, h: 0.64 });
+
+  // Also add to Orb Top OLED Monitor Clips!
+  MONITOR_CLIPS.push({
+    id: 'user_vid_' + Date.now(),
+    label: 'USER CLIP · ' + cleanName.toUpperCase().slice(0, 16),
+    src: url,
+    quote: '"Imported personal memory video playing inside the chamber."'
+  });
+  cycleMonitorClip(MONITOR_CLIPS.length - 1);
+  say('IMPORTED VIDEO CUTOUT & OLED MONITOR · ' + cleanName.toUpperCase());
+  return clipIdx;
+}
+
+function importUserImageFile(file, matteMode) {
+  const reader = new FileReader();
+  const cleanName = file.name.replace(/\.[^.]+$/, '');
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const cv = buildSegmentedImageCanvas(img, matteMode || S.matteMode || 'CUTOUT', cleanName);
+      registerCustomCutoutFromCanvas(cv, cleanName, { plane: 1, h: 0.60 });
+      say('IMPORTED PHOTO CUTOUT (' + (matteMode || S.matteMode) + ') · ' + cleanName.toUpperCase());
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function importUserAudioFile(file) {
+  const url = URL.createObjectURL(file);
+  const cleanName = file.name.replace(/\.[^.]+$/, '').toUpperCase().slice(0, 20);
+  AUDIO_MIXES.push({ id: 'user_aud_' + Date.now(), label: 'USER MIX · ' + cleanName, src: url });
+  cycleAudioMix(AUDIO_MIXES.length - 1);
+  say('IMPORTED PERSONAL AUDIO TRACK · ' + cleanName);
+}
+
+function importUserFiles(fileList) {
+  if (!fileList || !fileList.length) return;
+  Array.from(fileList).forEach(file => {
+    const n = file.name.toLowerCase();
+    if (n.endsWith('.json')) {
+      const r = new FileReader();
+      r.onload = e => {
+        try {
+          importBirthdayCartridge(JSON.parse(e.target.result));
+        } catch (err) { say('INVALID .BIRTHDAY.JSON FILE'); }
+      };
+      r.readAsText(file);
+    } else if (file.type.startsWith('video/') || /\.(mp4|webm|mov|m4v)$/.test(n)) {
+      importUserVideoFile(file, S.matteMode);
+    } else if (file.type.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/.test(n)) {
+      importUserImageFile(file, S.matteMode);
+    } else if (file.type.startsWith('audio/') || /\.(mp3|wav|ogg|m4a)$/.test(n)) {
+      importUserAudioFile(file);
+    }
+  });
+}
+
+// Instant Procedural Custom Memory Polaroid + Animated Cutout Generator (for 1-click testing!)
+function spawnDemoCustomAsset() {
+  const cv = document.createElement('canvas'); cv.width = 384; cv.height = 384;
+  const cx = cv.getContext('2d');
+  const idNum = (DOC.customAssets ? DOC.customAssets.length : 0) + 1;
+  // Polaroid card with warm Super-8 birthday portrait silhouette & candle glow
+  cx.fillStyle = '#fbf9f2'; cx.fillRect(28, 16, 328, 352);
+  const g = cx.createRadialGradient(192, 165, 12, 192, 165, 155);
+  g.addColorStop(0, '#ffd27d'); g.addColorStop(0.45, '#c86432'); g.addColorStop(1, '#122220');
+  cx.fillStyle = g; cx.fillRect(44, 32, 296, 264);
+  // Draw stylized figure silhouette leaning toward birthday candles
+  cx.fillStyle = '#0d1715';
+  cx.beginPath(); cx.arc(192, 128, 42, 0, TAU); cx.fill();
+  cx.beginPath(); cx.ellipse(192, 238, 74, 62, 0, Math.PI, TAU); cx.fill();
+  // Warm rim light on silhouette
+  cx.strokeStyle = '#5ff0dc'; cx.lineWidth = 3.5;
+  cx.beginPath(); cx.arc(192, 128, 43, -0.8, 1.4); cx.stroke();
+  // Candle flames in foreground
+  for (let k = -2; k <= 2; k++) {
+    const fx = 192 + k * 28, fy = 268;
+    cx.fillStyle = '#fff6cc';
+    cx.beginPath(); cx.ellipse(fx, fy, 5, 13, 0, 0, TAU); cx.fill();
+  }
+  cx.fillStyle = '#1b2826'; cx.font = 'italic 700 21px Georgia, serif'; cx.textAlign = 'center';
+  const label = 'IMPORTED MEMORY #' + idNum + ' · 6·10·21';
+  cx.fillText(label, 192, 336);
+  registerCustomCutoutFromCanvas(cv, 'POLAROID #' + idNum, { plane: 1, h: 0.58 });
+  say('ADDED CUSTOM IMPORTED POLAROID & TABLE CUTOUT #' + idNum);
+}
+
+// B. SCION INDEPENDENT CRITIC & QUALITY BAR VERIFICATION ENGINE
+function evaluateScionMemory() {
+  // 1. UNTIDY MESS (0-20): Ana Stelline invariant ("a bit of mess makes it feel real")
+  const pCount = DOC.props.length;
+  const uniqueKinds = new Set(DOC.props.map(p => p.kind)).size;
+  const messScore = Math.round(clamp(Math.min(12, pCount) / 12 * 12 + Math.min(8, uniqueKinds) / 8 * 8, 0, 20));
+
+  // 2. MULTIPLANE DEPTH & SILHOUETTE SEPARATION (0-25)
+  const planesUsed = new Set(DOC.cutouts.map(c => c.plane)).size;
+  let minAngDiff = Math.PI;
+  for (let i = 0; i < DOC.cutouts.length; i++) {
+    for (let j = i + 1; j < DOC.cutouts.length; j++) {
+      if (DOC.cutouts[i].plane === DOC.cutouts[j].plane) {
+        const da = Math.abs(((DOC.cutouts[i].a - DOC.cutouts[j].a + Math.PI) % TAU + TAU) % TAU - Math.PI);
+        if (da < minAngDiff) minAngDiff = da;
+      }
+    }
+  }
+  const tangencyPenalty = DOC.cutouts.length >= 2 && minAngDiff < 0.24 ? 6 : 0;
+  const depthScore = Math.round(clamp(Math.min(3, planesUsed) / 3 * 15 + Math.min(5, DOC.cutouts.length) / 5 * 10 - tangencyPenalty, 0, 25));
+
+  // 3. THERMAL LIGHT & WISH CONTRAST (0-20)
+  const hasCandles = DOC.hero.candles > 0 ? 10 : 4;
+  const warmBalance = DOC.light.warm >= 0.35 && DOC.light.warm <= 0.96 ? 10 : 6;
+  const lightScore = clamp(hasCandles + warmBalance, 0, 20);
+
+  // 4. PERSONAL TRACE & AUTHORSHIP (0-20): Custom assets, Etch-A-Sketch piping, or sculpted form
+  const customCount = (DOC.customAssets || []).length;
+  const etchPts = (DOC.etch && DOC.etch.pts) ? DOC.etch.pts.length : 0;
+  const hasPhrase = DOC.etch && DOC.etch.phrase > 0 ? 6 : 0;
+  const hasSculpt = Math.abs(DOC.hero.sculpt || 0) > 0.03 ? 6 : 0;
+  const traceScore = Math.round(clamp(hasPhrase + hasSculpt + Math.min(10, etchPts * 0.5) + customCount * 10, 4, 20));
+
+  // 5. TEMPORAL / ACCORDION BREATH & CHECKPOINT (0-15)
+  const mistScore = (DOC.bellows > 0.02 && DOC.bellows < 0.85 ? 9 : 6) + (S.peakDoc ? 6 : 2);
+  const breathScore = clamp(mistScore, 0, 15);
+
+  const total = messScore + depthScore + lightScore + traceScore + breathScore;
+
+  // Determine Primary Gap & Bounded Repair
+  let primaryGap = 'All 5 multiplane, untidy mess, light, and personal trace invariants pass inspection.';
+  let acceptance = 'Save Peak Checkpoint or Fork/Share this birthday cartridge.';
+  let repairKind = 'PEAK';
+  if (planesUsed < 3 || tangencyPenalty > 0) {
+    primaryGap = 'FLAT PARALLAX / TANGENCY: Cutouts occupy only ' + planesUsed + ' depth plane(s) or overlap in silhouette.';
+    acceptance = 'Distribute cutouts across >= 3 depth planes (Z1 Fore, Z2 Table Rim, Z3-Z5 Mid/Archive) with >= 20 deg separation.';
+    repairKind = 'DEPTH';
+  } else if (pCount < 9 || uniqueKinds < 6) {
+    primaryGap = 'STERILE TABLETOP: Only ' + pCount + ' table props (' + uniqueKinds + ' kinds). Memories require untidy lived-in detail.';
+    acceptance = 'Place >= 10 asymmetric birthday props (cut cake slice, spilled cup, wax drips, Polaroid) around the table.';
+    repairKind = 'MESS';
+  } else if (traceScore < 14) {
+    primaryGap = 'WEAK PERSONAL TRACE: Scene lacks custom Etch-A-Sketch piping, sculpted deformation, or imported personal media.';
+    acceptance = 'Pipe an icing inscription on the cake/table, sculpt the hero form, or import a personal photo/video.';
+    repairKind = 'TRACE';
+  } else if (!S.peakDoc || total > S.peakScore) {
+    primaryGap = 'UNSAVED PEAK STATE: Current assembly (' + total + '/100) exceeds saved Peak Checkpoint (' + (S.peakScore || 0) + '/100).';
+    acceptance = 'Commit current state to Peak Checkpoint so later edits cannot degrade the work.';
+    repairKind = 'PEAK';
+  }
+
+  const strengths = [];
+  if (messScore >= 16) strengths.push('Untidy table realism (' + pCount + ' props)');
+  if (depthScore >= 20) strengths.push('Multiplane parallax (' + planesUsed + ' planes)');
+  if (lightScore >= 18) strengths.push('Warm candlelit chiaroscuro');
+  if (traceScore >= 15) strengths.push('Personal trace & custom piping');
+  if (!strengths.length) strengths.push('Core hexagonal chamber framing');
+
+  const verdict = total >= 88 ? 'BAR MET · EXCEPTIONAL' : total >= 74 ? 'STRONG CANDIDATE' : 'NEEDS BOUNDED REPAIR';
+  return { total, messScore, depthScore, lightScore, traceScore, breathScore, verdict, primaryGap, acceptance, strengths: strengths.join(' · '), repairKind };
+}
+
+function updateScionHud() {
+  const ev = evaluateScionMemory();
+  const badge = document.getElementById('shScoreBadge');
+  if (!badge) return;
+  badge.textContent = ev.total + ' / 100 · ' + (ev.total >= 88 ? 'BAR MET' : ev.total >= 74 ? 'CANDIDATE' : 'REPAIR');
+  badge.classList.toggle('pass', ev.total >= 88);
+  const gen = (DOC.meta && DOC.meta.generation) || 1;
+  document.getElementById('shLineageTxt').textContent = 'SCION CRITIC · GEN ' + gen + (S.peakDoc ? ' · PEAK ' + S.peakScore : '');
+  document.getElementById('shBarMess').style.width = Math.round(ev.messScore / 20 * 100) + '%';
+  document.getElementById('shBarDepth').style.width = Math.round(ev.depthScore / 25 * 100) + '%';
+  document.getElementById('shBarLight').style.width = Math.round(ev.lightScore / 20 * 100) + '%';
+  document.getElementById('shBarTrace').style.width = Math.round(ev.traceScore / 20 * 100) + '%';
+  document.getElementById('shBarBreath').style.width = Math.round(ev.breathScore / 15 * 100) + '%';
+  document.getElementById('shGapTxt').textContent = ev.primaryGap;
+  const rBtn = document.getElementById('btnRemixTop');
+  if (rBtn) rBtn.textContent = 'REMIX · SCION ' + ev.total;
+
+  // Also update modal critic fields if open
+  const mcV = document.getElementById('mcVerdict');
+  if (mcV) {
+    mcV.textContent = ev.total + '/100 — ' + ev.verdict;
+    document.getElementById('mcGap').textContent = ev.primaryGap;
+    document.getElementById('mcAccept').textContent = ev.acceptance;
+    document.getElementById('mcStrengths').textContent = ev.strengths;
+  }
+}
+
+function savePeakCheckpoint() {
+  const ev = evaluateScionMemory();
+  S.peakDoc = JSON.stringify(DOC);
+  S.peakScore = ev.total;
+  const nextEv = evaluateScionMemory();
+  S.peakScore = nextEv.total;
+  motionNote(0.88, 0, 0.4);
+  say('SCION PEAK CHECKPOINT SAVED · SCORE ' + S.peakScore + '/100');
+  updateScionHud(); oledDirty = true;
+}
+
+function restorePeakCheckpoint() {
+  if (!S.peakDoc) { say('NO PEAK CHECKPOINT SAVED YET'); return; }
+  snap(true);
+  DOC = JSON.parse(S.peakDoc);
+  dirty.hero = dirty.table = dirty.props = dirty.etch = true;
+  setBellows(DOC.bellows || 0, true);
+  motionNote(0.55, 0, 0.35);
+  say('RESTORED SCION PEAK CHECKPOINT · SCORE ' + S.peakScore + '/100');
+  updateScionHud(); oledDirty = true; drawDialLabels();
+}
+
+function scionRepairPrimaryGap() {
+  snap(true);
+  const before = evaluateScionMemory();
+  if (before.repairKind === 'DEPTH') {
+    // Separate cutouts across Z1 (0), Z2 (1), Z3 (2), Z4 (3) with golden-angle silhouette spacing
+    const planes = [1, 0, 2, 1, 3, 4];
+    DOC.cutouts.forEach((c, i) => {
+      c.plane = planes[i % planes.length];
+      c.a = (Math.PI - 0.95 + i * 0.52) % TAU;
+    });
+    if (DOC.cutouts.length < 5) {
+      DOC.cutouts.push({ clip: 6, a: 0.38, plane: 0, face: -10, s: 0.96, speed: 1.0 });
+    }
+  } else if (before.repairKind === 'MESS') {
+    while (DOC.props.length < 12) {
+      const i = DOC.props.length;
+      DOC.props.push({ kind: (i * 3 + 1) % PROP_KINDS.length, a: (i * 2.399) % TAU, r: 0.21 + (i % 5) * 0.065, rot: i * 1.4, s: 0.9 + (i % 3) * 0.14 });
+    }
+    dirty.props = true;
+  } else if (before.repairKind === 'TRACE') {
+    if (!DOC.etch.pts || DOC.etch.pts.length < 16) {
+      DOC.etch.pts = [];
+      for (let t = 0; t <= 28; t++) {
+        const a = t / 28 * TAU;
+        const r = 0.075 + 0.012 * Math.sin(a * 6);
+        DOC.etch.pts.push(etchPoint3D(Math.cos(a) * (r / 0.095), Math.sin(a) * (r / 0.095), DOC.etch.surface || 0));
+      }
+    }
+    if (!DOC.etch.phrase) DOC.etch.phrase = 1;
+    if (Math.abs(DOC.hero.sculpt || 0) < 0.04) DOC.hero.sculpt = 0.08;
+    dirty.etch = dirty.hero = true;
+  } else {
+    savePeakCheckpoint();
+    return;
+  }
+  const after = evaluateScionMemory();
+  if (after.total >= S.peakScore) { S.peakDoc = JSON.stringify(DOC); S.peakScore = after.total; }
+  motionNote(0.75, 0, 0.45);
+  say('SCION BOUNDED REPAIR (' + before.repairKind + ') · SCORE ' + before.total + ' -> ' + after.total + '/100');
+  updateScionHud(); oledDirty = true; drawDialLabels();
+}
+
+function scionSwarmAutoBuild() {
+  snap(true);
+  // 4-Agent Swarm Pass: Staging + Untidy Mess + Piping + Lighting & Mist
+  const planes = [0, 1, 1, 2, 3, 4];
+  while (DOC.cutouts.length < 5) {
+    const nextClip = (DOC.cutouts.length * 5 + 3) % CUTOUT_CLIPS.length;
+    DOC.cutouts.push({ clip: nextClip, a: Math.PI, plane: 1, face: 0, s: 1.0, speed: 1.0 });
+  }
+  DOC.cutouts.forEach((c, i) => {
+    c.plane = planes[i % planes.length];
+    c.a = (Math.PI - 0.88 + i * 0.48) % TAU;
+  });
+  while (DOC.props.length < 12) {
+    const i = DOC.props.length;
+    DOC.props.push({ kind: i % PROP_KINDS.length, a: (i * 2.3999) % TAU, r: 0.22 + (i % 5) * 0.06, rot: i * 1.2, s: 0.92 + (i % 3) * 0.12 });
+  }
+  DOC.etch.pts = [];
+  for (let t = 0; t <= 32; t++) {
+    const a = t / 32 * TAU;
+    DOC.etch.pts.push(etchPoint3D(Math.cos(a) * 0.78, Math.sin(a) * 0.78, DOC.etch.surface || 0));
+  }
+  if (!DOC.etch.phrase) DOC.etch.phrase = 2;
+  if (Math.abs(DOC.hero.sculpt || 0) < 0.05) DOC.hero.sculpt = 0.09;
+  if (DOC.hero.candles < 5) DOC.hero.candles = 7;
+  DOC.hero.lit = 1;
+  DOC.light.warm = clamp(DOC.light.warm || 0.82, 0.65, 0.92);
+  if (DOC.bellows < 0.04) setBellows(0.08, true);
+  dirty.hero = dirty.table = dirty.props = dirty.etch = true;
+  savePeakCheckpoint();
+  const ev = evaluateScionMemory();
+  say('SCION SWARM AUTO-BUILD COMPLETE · VERDICT ' + ev.total + '/100 (' + ev.verdict + ')');
+  updateScionHud(); oledDirty = true; drawDialLabels();
+}
+
+function runScionRingAction(v) {
+  if (v === 1) scionRepairPrimaryGap();
+  else if (v === 2) scionSwarmAutoBuild();
+  else if (v === 3) forkBirthdayFromChapter((S.tizitaIdx + 1) % TIZITA_CHAPTERS.length, false);
+  else if (v === 4) forkBirthdayFromChapter((S.tizitaIdx + 3) % TIZITA_CHAPTERS.length, true);
+}
+
+// C. COLLABORATIVE REMIX, FORK, MASHUP & CARTRIDGE SHARING
+function forkBirthdayFromChapter(idx, mashupOnly) {
+  snap(true);
+  const src = TIZITA_CHAPTERS[clamp(idx, 0, TIZITA_CHAPTERS.length - 1)];
+  const prevGen = (DOC.meta && DOC.meta.generation) || 1;
+  if (mashupOnly) {
+    // Mashup: keep current Hero cake & Table, but blend in the source chapter's Cutouts and Lighting!
+    src.cutouts.slice(0, 3).forEach((c, i) => {
+      DOC.cutouts.push({ ...c, a: (c.a + 0.35 * (i + 1)) % TAU, plane: (c.plane + 1) % 4 });
+    });
+    if (DOC.cutouts.length > 8) DOC.cutouts.splice(0, DOC.cutouts.length - 8);
+    DOC.light.warm = lerp(DOC.light.warm, src.light.warm, 0.5);
+    DOC.meta = {
+      id: 'bday_' + Date.now().toString(36),
+      title: (DOC.meta ? DOC.meta.title.split('×')[0].trim() : 'BIRTHDAY') + ' × ' + src.title.slice(5, 22),
+      author: (document.getElementById('inpBdayAuthor') && document.getElementById('inpBdayAuthor').value) || 'STELLINE-BUILDER',
+      generation: prevGen + 1,
+      parentId: src.id
+    };
+    dirty.props = true;
+    say('MASHUP REMIX (GEN ' + DOC.meta.generation + ') · MERGED CAST FROM ' + src.title);
+  } else {
+    loadTizitaChapter(idx, true);
+    // Apply a subtle creative branch mutation (new icing color, extra lived-in props, slight sculpt)
+    DOC.hero.sculpt = clamp((DOC.hero.sculpt || 0) + 0.08, -0.5, 0.5);
+    DOC.etch.col = (DOC.etch.col + 1) % ETCH_COLS.length;
+    DOC.props.push({ kind: 10, a: 0.42, r: 0.32, rot: 0.5, s: 1.1 });
+    DOC.meta = {
+      id: 'bday_' + Date.now().toString(36),
+      title: 'REMIX · ' + src.title.slice(5),
+      author: (document.getElementById('inpBdayAuthor') && document.getElementById('inpBdayAuthor').value) || 'STELLINE-BUILDER',
+      generation: prevGen + 1,
+      parentId: src.id
+    };
+    dirty.hero = dirty.props = dirty.etch = true;
+    say('FORKED BIRTHDAY BRANCH (GEN ' + DOC.meta.generation + ') · ' + DOC.meta.title);
+  }
+  const inpT = document.getElementById('inpBdayTitle');
+  if (inpT && DOC.meta) inpT.value = DOC.meta.title;
+  updateScionHud(); renderRemixDeck(); oledDirty = true; drawDialLabels();
+}
+
+function serializeBirthdayCartridge() {
+  const titleEl = document.getElementById('inpBdayTitle');
+  const authEl = document.getElementById('inpBdayAuthor');
+  DOC.meta = DOC.meta || { id: 'bday_' + Date.now().toString(36), generation: 1 };
+  if (titleEl && titleEl.value) DOC.meta.title = titleEl.value.trim();
+  if (authEl && authEl.value) DOC.meta.author = authEl.value.trim();
+  const ev = evaluateScionMemory();
+  return {
+    schema: 'scion.birthday.v1',
+    exportedAt: new Date().toISOString(),
+    scionValidation: { score: ev.total, verdict: ev.verdict, primaryGap: ev.primaryGap, strengths: ev.strengths },
+    doc: DOC
+  };
+}
+
+function exportBirthdayCartridge() {
+  const cart = serializeBirthdayCartridge();
+  const blob = new Blob([JSON.stringify(cart, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  const slug = (cart.doc.meta.title || 'tizita-birthday').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  a.href = URL.createObjectURL(blob);
+  a.download = slug + '.birthday.json';
+  document.body.append(a); a.click();
+  setTimeout(() => a.remove(), 1000);
+  say('EXPORTED CARTRIDGE · ' + slug.toUpperCase() + '.BIRTHDAY.JSON');
+}
+
+function importBirthdayCartridge(cart, asFork) {
+  const d = cart && cart.doc ? cart.doc : cart;
+  if (!d || !d.hero) { say('INVALID BIRTHDAY CARTRIDGE'); return; }
+  snap(true);
+  DOC = JSON.parse(JSON.stringify(d));
+  DOC.meta = DOC.meta || { id: 'bday_' + Date.now().toString(36), title: 'IMPORTED BIRTHDAY', author: 'COMMUNITY', generation: 1 };
+  if (asFork) {
+    DOC.meta.generation = (DOC.meta.generation || 1) + 1;
+    DOC.meta.title = 'REMIX · ' + DOC.meta.title;
+  }
+  // Rehydrate any embedded custom photo cutouts!
+  if (Array.isArray(DOC.customAssets)) {
+    DOC.customAssets.forEach(ca => {
+      if (ca && ca.dataUrl) {
+        const img = new Image();
+        img.onload = () => {
+          const cv = document.createElement('canvas'); cv.width = 192; cv.height = 192;
+          cv.getContext('2d').drawImage(img, 0, 0, 192, 192);
+          registerCustomCutoutFromCanvas(cv, ca.name || 'IMPORTED', { id: ca.id, skipSpawn: true, skipSaveDataUrl: true });
+        };
+        img.src = ca.dataUrl;
+      }
+    });
+  }
+  dirty.hero = dirty.table = dirty.props = dirty.etch = true;
+  setBellows(DOC.bellows || 0, true);
+  const inpT = document.getElementById('inpBdayTitle');
+  if (inpT) inpT.value = DOC.meta.title;
+  updateScionHud(); renderRemixDeck(); oledDirty = true; drawDialLabels();
+  say((asFork ? 'FORKED' : 'LOADED') + ' BIRTHDAY · ' + DOC.meta.title + ' (GEN ' + DOC.meta.generation + ')');
+}
+
+function copyBirthdayShareLink() {
+  const compact = {
+    m: DOC.meta,
+    h: DOC.hero,
+    t: DOC.table,
+    p: DOC.props.slice(0, 14),
+    c: DOC.cutouts.slice(0, 7).map(c => ({ clip: c.clip < 32 ? c.clip : 0, a: +c.a.toFixed(2), plane: c.plane, face: c.face, s: +c.s.toFixed(2) })),
+    e: { surface: DOC.etch.surface, phrase: DOC.etch.phrase, col: DOC.etch.col },
+    l: DOC.light,
+    b: +DOC.bellows.toFixed(2)
+  };
+  const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(compact))));
+  const shareUrl = location.origin + location.pathname + '#bday=' + b64;
+  history.replaceState(null, '', '#bday=' + b64);
+  const out = document.getElementById('inpShareUrlOut');
+  if (out) { out.value = shareUrl; out.select(); }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(shareUrl).catch(() => {});
+  }
+  say('SHAREABLE REMIX URL COPIED TO CLIPBOARD');
+  return shareUrl;
+}
+
+function checkUrlBirthdayHash() {
+  if (!location.hash || !location.hash.startsWith('#bday=')) return;
+  try {
+    const raw = decodeURIComponent(escape(atob(location.hash.slice(6))));
+    const c = JSON.parse(raw);
+    if (c && c.h) {
+      DOC.meta = c.m || { title: 'SHARED BIRTHDAY', author: 'PEER', generation: 2 };
+      DOC.hero = c.h; DOC.table = c.t || DOC.table; DOC.props = c.p || DOC.props;
+      DOC.cutouts = c.c || DOC.cutouts;
+      DOC.etch = Object.assign(DOC.etch, c.e || {});
+      DOC.light = c.l || DOC.light;
+      dirty.hero = dirty.table = dirty.props = dirty.etch = true;
+      setBellows(c.b || 0, true);
+      say('LOADED SHARED BIRTHDAY FROM URL · ' + (DOC.meta.title || 'REMIX'));
+    }
+  } catch (e) {}
+}
+
+function saveToLocalRemixDeck() {
+  const cart = serializeBirthdayCartridge();
+  SAVED_BDAYS.unshift(cart);
+  if (SAVED_BDAYS.length > 16) SAVED_BDAYS.pop();
+  try { localStorage.setItem('cineosis_saved_birthdays_v1', JSON.stringify(SAVED_BDAYS)); } catch (e) {}
+  renderRemixDeck();
+  say('SAVED TO REMIX DECK · ' + cart.doc.meta.title);
+}
+
+function renderRemixDeck() {
+  const listEl = document.getElementById('remixDeckList');
+  if (!listEl) return;
+  listEl.innerHTML = '';
+  const totalCount = SAVED_BDAYS.length + TIZITA_CHAPTERS.length;
+  const cntEl = document.getElementById('deckCountTxt');
+  if (cntEl) cntEl.textContent = String(totalCount);
+
+  // 1. User / Community Saved Remixes
+  SAVED_BDAYS.forEach((cart, idx) => {
+    const row = document.createElement('div'); row.className = 'remixItem';
+    const meta = cart.doc.meta || {};
+    const sc = cart.scionValidation ? cart.scionValidation.score : 85;
+    row.innerHTML = `<div class="rmMeta"><strong style="color:#f6c978">[USER GEN ${meta.generation || 1} · ${sc}PT]</strong> ${meta.title || 'CUSTOM BIRTHDAY'} <span style="color:#7aa8a0">by ${meta.author || 'BUILDER'}</span></div>`;
+    const btns = document.createElement('div'); btns.className = 'rmBtns';
+    const bLoad = document.createElement('button'); bLoad.className = 'pill'; bLoad.textContent = 'LOAD';
+    bLoad.onclick = () => importBirthdayCartridge(cart, false);
+    const bFork = document.createElement('button'); bFork.className = 'pill amber'; bFork.textContent = 'FORK REMIX';
+    bFork.onclick = () => importBirthdayCartridge(cart, true);
+    btns.append(bLoad, bFork); row.append(btns); listEl.append(row);
+  });
+
+  // 2. Canonical 12 Tizita Birthdays Across Time & Space
+  TIZITA_CHAPTERS.forEach((ch, idx) => {
+    const row = document.createElement('div'); row.className = 'remixItem';
+    row.innerHTML = `<div class="rmMeta"><strong style="color:#5ff0dc">${ch.title}</strong></div>`;
+    const btns = document.createElement('div'); btns.className = 'rmBtns';
+    const bLoad = document.createElement('button'); bLoad.className = 'pill'; bLoad.textContent = 'LOAD';
+    bLoad.onclick = () => { loadTizitaChapter(idx); updateScionHud(); };
+    const bFork = document.createElement('button'); bFork.className = 'pill amber'; bFork.textContent = 'FORK';
+    bFork.onclick = () => forkBirthdayFromChapter(idx, false);
+    const bMash = document.createElement('button'); bMash.className = 'pill'; bMash.textContent = 'MASHUP';
+    bMash.onclick = () => forkBirthdayFromChapter(idx, true);
+    btns.append(bLoad, bFork, bMash); row.append(btns); listEl.append(row);
+  });
+}
+
+function openScionModal() {
+  updateScionHud();
+  renderRemixDeck();
+  document.getElementById('scionModal').classList.add('show');
+}
+function closeScionModal() {
+  document.getElementById('scionModal').classList.remove('show');
+}
+
+// Wire up SCION HUD, Modal, File Input & Global Drag-and-Drop
+const fileImp = document.getElementById('fileImporter');
+fileImp.addEventListener('change', e => { importUserFiles(e.target.files); fileImp.value = ''; });
+document.getElementById('btnImportTop').addEventListener('click', () => openScionModal());
+document.getElementById('btnRemixTop').addEventListener('click', () => openScionModal());
+document.getElementById('btnScionStudio').addEventListener('click', () => openScionModal());
+document.getElementById('scionModalClose').addEventListener('click', () => closeScionModal());
+document.getElementById('modalDropZone').addEventListener('click', () => fileImp.click());
+document.getElementById('btnSpawnDemoAsset').addEventListener('click', () => spawnDemoCustomAsset());
+
+['matteCutout', 'mattePolaroid', 'matteRaw'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('click', () => {
+    S.matteMode = el.dataset.matte;
+    ['matteCutout', 'mattePolaroid', 'matteRaw'].forEach(k => document.getElementById(k).classList.toggle('hot', k === id));
+    say('PHOTO IMPORT MATTE · ' + S.matteMode);
+  });
+});
+
+document.getElementById('btnScionRepair').addEventListener('click', () => scionRepairPrimaryGap());
+document.getElementById('btnScionSwarm').addEventListener('click', () => scionSwarmAutoBuild());
+document.getElementById('btnScionPeak').addEventListener('click', () => {
+  if (!S.peakDoc || evaluateScionMemory().total >= S.peakScore) savePeakCheckpoint();
+  else restorePeakCheckpoint();
+});
+document.getElementById('btnModalRepair').addEventListener('click', () => scionRepairPrimaryGap());
+document.getElementById('btnModalSwarm').addEventListener('click', () => scionSwarmAutoBuild());
+document.getElementById('btnModalSavePeak').addEventListener('click', () => savePeakCheckpoint());
+document.getElementById('btnModalRestorePeak').addEventListener('click', () => restorePeakCheckpoint());
+document.getElementById('btnSaveLocalBday').addEventListener('click', () => saveToLocalRemixDeck());
+document.getElementById('btnCopyShareUrl').addEventListener('click', () => copyBirthdayShareLink());
+document.getElementById('btnExportCartridge').addEventListener('click', () => exportBirthdayCartridge());
+
+// Global Drag-and-Drop Media & Cartridge handler
+let dragDepth = 0;
+addEventListener('dragenter', e => { e.preventDefault(); dragDepth++; document.getElementById('dropBanner').classList.add('show'); });
+addEventListener('dragover', e => { e.preventDefault(); });
+addEventListener('dragleave', e => { e.preventDefault(); dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) document.getElementById('dropBanner').classList.remove('show'); });
+addEventListener('drop', e => {
+  e.preventDefault(); dragDepth = 0;
+  document.getElementById('dropBanner').classList.remove('show');
+  if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+    importUserFiles(e.dataTransfer.files);
+  }
+});
+addEventListener('keydown', e => { if (e.key === 'Escape') closeScionModal(); });
+
+checkUrlBirthdayHash();
+setTimeout(() => { updateScionHud(); }, 120);
+
+window.CINEOSIS = window.CINEOSI = {
+  S, get DOC() { return DOC; }, setMode, setBellows, loadTizitaChapter, cycleAudioMix, cycleMonitorClip, motionNote,
+  turn, scrub, press, viewBy, setView, rings,
+  evaluateScionMemory, scionRepairPrimaryGap, scionSwarmAutoBuild, savePeakCheckpoint, restorePeakCheckpoint,
+  spawnDemoCustomAsset, importUserFiles, forkBirthdayFromChapter, serializeBirthdayCartridge, importBirthdayCartridge, copyBirthdayShareLink, openScionModal, closeScionModal,
+  TIZITA_CHAPTERS, AUDIO_MIXES, MONITOR_CLIPS, HERO_PRESETS, CUTOUT_CLIPS, PROP_KINDS, PLANE_NAMES, PAIR,
+  advance(dt) { update(dt); render(); }
+};
+</script>
+</body>
+</html>

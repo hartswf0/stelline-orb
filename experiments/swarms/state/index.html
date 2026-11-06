@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Her Birthday</title>
+<style>
+@font-face { font-family: 'Oswald'; src: url('../../../ana/assets/oswald-latin-400-normal.woff2') format('woff2'); font-weight: 400; }
+@font-face { font-family: 'Oswald'; src: url('../../../ana/assets/oswald-latin-500-normal.woff2') format('woff2'); font-weight: 500; }
+:root { --bg: #050606; --ink: #d9e2de; --dim: #6f7c77; --amber: #e8b264; }
+* { box-sizing: border-box; } html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); overflow: hidden; }
+body { font: 13px/1.4 'Oswald', 'Arial Narrow', sans-serif; letter-spacing: .06em; -webkit-user-select: none; user-select: none; }
+.app { height: 100dvh; display: grid; grid-template-rows: minmax(0, 1fr) clamp(200px, 34vh, 330px); }
+#view { position: relative; overflow: hidden; } #view canvas { display: block; width: 100%; height: 100%; }
+#dev { position: relative; background: radial-gradient(120% 140% at 50% 0%, #121413 0%, #070807 60%, #030303 100%); border-top: 1px solid #161918; touch-action: none; }
+#dev canvas { display: block; width: 100%; height: 100%; }
+#op { position: absolute; inset: 0; background: rgba(4, 5, 5, .97); display: none; overflow: auto; padding: 10px 12px 16px; font: 12px/1.45 -apple-system, Arial, sans-serif; letter-spacing: 0; color: #b9c4c0; touch-action: pan-y; }
+#op.on { display: block; } #op h3 { font: 500 13px 'Oswald', sans-serif; letter-spacing: .12em; margin: 0 0 6px; color: var(--amber); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+#op .row { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 2px 0 6px; } #op b { color: var(--ink); font-weight: 600; }
+#op canvas { width: 100%; display: block; margin: 4px 0; } #op table { border-collapse: collapse; width: 100%; font-size: 11px; } #op td { padding: 2px 4px; border-bottom: 1px solid #161a19; vertical-align: top; white-space: nowrap; }
+#op td.w { white-space: normal; color: #7f8b87; }
+button.x { font: 500 11px 'Oswald', sans-serif; letter-spacing: .12em; color: var(--ink); background: #121514; border: 1px solid #2a302d; border-radius: 4px; padding: 6px 10px; cursor: pointer; }
+#touch { position: fixed; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; border: 2px solid rgba(232,178,100,.9); background: rgba(232,178,100,.18); pointer-events: none; display: none; z-index: 9; }
+</style></head><body>
+<div class="app"><div id="view"></div><div id="dev"><div id="op"></div></div></div>
+<div id="touch"></div>
+<script src="../../../ana/assets/three.min.js"></script>
+<script src="memory.js"></script>
+<script src="scenarios.js"></script>
+<script>
+'use strict';
+const T = THREE, TAU = Math.PI * 2, clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t;
+const Q = new URLSearchParams(location.search), REC = Q.has('rec');
+let W = Memory.createWorld({ seed: 7, keepEvents: true }), FT = 0;   // FT: frame time, seconds since the page opened
+/* =============================================================== SOUND: the device's own grains (ana/device-sounds.wav), her small sounds, the children's song, Ana's call */
+const SPR = { click: [[0, .065], [.115, .065], [.23, .065], [.345, .065], [.46, .065], [.575, .065], [.69, .065], [.805, .065], [.92, .065]], ratchet: [[1.035, .05], [1.135, .05], [1.235, .05], [1.335, .05]], tick: [[1.435, .04], [1.525, .04]], comb: [[1.615, .37]], whirr: [[2.035, .62]] };
+let AC = null, BUF = null, ROOM = null, WAVBYTES = null;
+fetch('../../../ana/device-sounds.wav').then(r => r.ok ? r.arrayBuffer() : null).then(b => { WAVBYTES = b; }).catch(() => { });
+function ac() { if (REC) return null; if (!AC) { AC = new (window.AudioContext || window.webkitAudioContext)(); if (WAVBYTES) AC.decodeAudioData(WAVBYTES.slice(0)).then(b => BUF = b); ROOM = roomTone(AC, AC.destination, 0); } if (AC.state === 'suspended') AC.resume(); return AC; }
+let RND = 1; const rnd = () => { RND = (RND * 16807) % 2147483647; return RND / 2147483647; };
+function noiseBuf(a, len) { const b = a.createBuffer(1, Math.max(1, Math.floor(a.sampleRate * len)), a.sampleRate), d = b.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = rnd() * 2 - 1; return b; }
+function nz(a, len) { const s = a.createBufferSource(); s.buffer = noiseBuf(a, len); return s; }
+function env(a, g, t, pk, at, dur) { g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(pk, t + at); g.gain.exponentialRampToValueAtTime(.0005, t + dur); }
+function grain(a, out, buf, t, kind, rate, vol) { if (buf) { const set = SPR[kind], [o, d] = set[Math.floor(rnd() * set.length)], s = a.createBufferSource(); s.buffer = buf; s.playbackRate.value = rate; const g = a.createGain(); g.gain.value = vol; s.connect(g).connect(out); s.start(t, o, d); return; }
+  const s = nz(a, .05), f = a.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = kind === 'tick' ? 6000 : 2600 * rate; f.Q.value = 2.2; const g = a.createGain(); env(a, g, t, vol, .002, .04); s.connect(f).connect(g).connect(out); s.start(t); }
+function voice(a, out, t, f0s, dur, formants, pk, type) { // a tiny formant voice: a pitch contour through band-pass formants
+  const o = a.createOscillator(); o.type = type || 'sawtooth'; o.frequency.setValueAtTime(f0s[0], t); f0s.slice(1).forEach((f, i) => o.frequency.linearRampToValueAtTime(f, t + dur * (i + 1) / (f0s.length - 1)));
+  const g = a.createGain(); env(a, g, t, pk, .03, dur); const sum = a.createGain(); sum.gain.value = 1; formants.forEach(([fr, q, amp]) => { const b = a.createBiquadFilter(); b.type = 'bandpass'; b.frequency.value = fr; b.Q.value = q; const ga = a.createGain(); ga.gain.value = amp; o.connect(b).connect(ga).connect(sum); });
+  sum.connect(g).connect(out); o.start(t); o.stop(t + dur + .05); }
+function roomTone(a, out, t) { const s = a.createBufferSource(); s.buffer = noiseBuf(a, 2); s.loop = true; const f = a.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 380; const g = a.createGain(); g.gain.value = .02;
+  const h = a.createOscillator(); h.frequency.value = 100; const hg = a.createGain(); hg.gain.value = .004; s.connect(f).connect(g).connect(out); h.connect(hg).connect(out); s.start(t); h.start(t); return { g, hg }; }
+const VOW = [[[800, 6, 1], [1250, 8, .5]], [[350, 6, 1], [2200, 9, .35]], [[500, 6, 1], [1500, 8, .45]], [[450, 6, 1], [1900, 8, .4]], [[320, 6, 1], [850, 8, .4]]];
+function play(a, out, buf, t, e) { const k = e.k;
+  if (k === 'click') grain(a, out, buf, t, e.fast ? 'ratchet' : 'click', 1 + ({ scale: 0, knurl: 1, tri: 2 }[e.ring]) * .045 + (rnd() - .5) * .02, .7);
+  else if (k === 'hand') grain(a, out, buf, t, 'click', 1.25 + ({ scale: 0, knurl: 1, tri: 2 }[e.ring]) * .03, .22);
+  else if (k === 'dead') grain(a, out, buf, t, 'click', .8, .08);
+  else if (k === 'select') { for (let i = 0; i < 5; i++) { const o = a.createOscillator(), g = a.createGain(), tt = t + i * .055; o.frequency.value = 12000; g.gain.setValueAtTime(0, tt); g.gain.linearRampToValueAtTime(.03, tt + .004); g.gain.linearRampToValueAtTime(0, tt + .03); o.connect(g).connect(out); o.start(tt); o.stop(tt + .04); } }
+  else if (k === 'hold') grain(a, out, buf, t, 'click', .9, .6);
+  else if (k === 'arrive' || k === 'out' || k === 'off' || k === 'songStart') { if (k === 'songStart') return; const s = nz(a, .7), f = a.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 2200; const g = a.createGain(); env(a, g, t, k === 'out' ? .25 : .18, .06, .6); s.connect(f).connect(g).connect(out); s.start(t); if (buf) grain(a, out, buf, t, 'comb', 1, .22); }
+  else if (k === 'call') { const v = e.v || 1, pk = .1 + .03 * v; voice(a, out, t, [235, 255], .2, VOW[0], pk); voice(a, out, t + .28, [300, 320, 215], .42, VOW[1], pk); }  // "come here"
+  else if (k === 'note') { const n = e.n || 1, vw = VOW[(e.ni + e.li) % 5]; for (let i = 0; i < n; i++) voice(a, out, t + i * .012, [e.f * Math.pow(2, (i - 1) * 9 / 1200), e.f * Math.pow(2, (i - 1) * 9 / 1200)], Math.max(.16, e.d * .92), vw, .05, i === 1 ? 'triangle' : 'sawtooth'); }
+  else if (k === 'hum') { voice(a, out, t, [400, 430], .2, [[300, 3, 1], [900, 4, .2]], .16, 'triangle'); voice(a, out, t + .3, [410, 330], .32, [[300, 3, 1], [900, 4, .2]], .16, 'triangle'); }   // "mm-mm"
+  else if (k === 'rustle') { const s = nz(a, .45), f = a.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 1800; f.Q.value = .7; const g = a.createGain(); env(a, g, t, .1, .05, .42); s.connect(f).connect(g).connect(out); s.start(t); play(a, out, buf, t + .3, { k: 'step' }); }
+  else if (k === 'gasp') { const s = nz(a, .3), f = a.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 2400; f.Q.value = 1.2; const g = a.createGain(); env(a, g, t, .12, .1, .25); s.connect(f).connect(g).connect(out); s.start(t); voice(a, out, t + .02, [520, 600], .14, VOW[0], .05); }
+  else if (k === 'step') { const o = a.createOscillator(), g = a.createGain(); o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(55, t + .07); env(a, g, t, e.soft ? .07 : .12, .004, .09); o.connect(g).connect(out); o.start(t); o.stop(t + .1); }
+  else if (k === 'breath') { const s = nz(a, .45), f = a.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 1300; f.Q.value = 1; const g = a.createGain(); env(a, g, t, e.soft ? .03 : .05, .15, .42); s.connect(f).connect(g).connect(out); s.start(t); }
+  else if (k === 'inhale') { const s = nz(a, .8), f = a.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 1.4; f.frequency.setValueAtTime(800, t); f.frequency.linearRampToValueAtTime(2200, t + .7); const g = a.createGain(); env(a, g, t, .09, .5, .78); s.connect(f).connect(g).connect(out); s.start(t); }
+  else if (k === 'blow') { const s = nz(a, 1.1), f = a.createBiquadFilter(); f.type = 'lowpass'; f.frequency.setValueAtTime(1500, t); f.frequency.linearRampToValueAtTime(500, t + 1); const g = a.createGain(); env(a, g, t, .22, .05, 1.05); s.connect(f).connect(g).connect(out); s.start(t); }
+  else if (k === 'puff') { const s = nz(a, .08), f = a.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 3200; const g = a.createGain(); env(a, g, t, .07, .003, .07); s.connect(f).connect(g).connect(out); s.start(t); }
+  else if (k === 'giggle') { for (let i = 0; i < 4; i++) voice(a, out, t + i * .13, [560 + i * 20, 520], .08, VOW[1], .07); }
+  else if (k === 'light' && ROOM && a === AC) { ROOM.g.gain.setTargetAtTime(.008 + .016 * e.L, a.currentTime, .2); ROOM.hg.gain.setTargetAtTime(.0045 * e.L, a.currentTime, .2); }
+}
+function sound(e) { const a = ac(); if (!a) return; try { play(a, a.destination, BUF, a.currentTime + .005, e); } catch (x) { } }
+/* the recorder's soundtrack: the logged events rendered offline through the same play() */
+async function renderAudio(t0, t1) { const sr = 48000, a = new OfflineAudioContext(2, Math.ceil((t1 - t0) * sr), sr); let buf = null; if (WAVBYTES) buf = await a.decodeAudioData(WAVBYTES.slice(0)); RND = 1;
+  const room = roomTone(a, a.destination, 0); let L = 1; room.g.gain.setValueAtTime(.008 + .016 * L, 0); room.hg.gain.setValueAtTime(.0045 * L, 0);
+  W.log.forEach(e => { if (e.t < t0 || e.t > t1) return; const t = e.t - t0; if (e.k === 'light') { room.g.gain.setTargetAtTime(.008 + .016 * e.L, t, .2); room.hg.gain.setTargetAtTime(.0045 * e.L, t, .2); } else play(a, a.destination, buf, t, e); });
+  const r = await a.startRendering(), L0 = r.getChannelData(0), R0 = r.getChannelData(1), n = L0.length, dv = new DataView(new ArrayBuffer(44 + n * 4));
+  const ws = (o, s) => { for (let i = 0; i < s.length; i++) dv.setUint8(o + i, s.charCodeAt(i)); }; ws(0, 'RIFF'); dv.setUint32(4, 36 + n * 4, true); ws(8, 'WAVEfmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 2, true); dv.setUint32(24, sr, true); dv.setUint32(28, sr * 4, true); dv.setUint16(32, 4, true); dv.setUint16(34, 16, true); ws(36, 'data'); dv.setUint32(40, n * 4, true);
+  let pk = 0; for (let i = 0; i < n; i++) pk = Math.max(pk, Math.abs(L0[i]), Math.abs(R0[i])); const gain = pk > .95 ? .95 / pk : 1;
+  for (let i = 0; i < n; i++) { dv.setInt16(44 + i * 4, clamp(L0[i] * gain, -1, 1) * 32767, true); dv.setInt16(46 + i * 4, clamp(R0[i] * gain, -1, 1) * 32767, true); }
+  const bytes = new Uint8Array(dv.buffer); let s = ''; for (let i = 0; i < bytes.length; i += 32768) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 32768)); return { b64: btoa(s), peak: pk }; }
+
+/* =============================================================== THE ROOM (as ana/index.html): black, the band of light, a ring on the floor; plus the overhead light the ROOM ring sets */
+const viewEl = document.getElementById('view'), R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: REC }); R.setPixelRatio(REC ? 1 : Math.min(2, devicePixelRatio)); R.outputEncoding = T.sRGBEncoding; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = 1.05; viewEl.append(R.domElement);
+const scene = new T.Scene(); scene.background = new T.Color(0x030404); scene.fog = new T.FogExp2(0x030404, .05);
+const cam = new T.PerspectiveCamera(40, 1, .02, 60);
+const floorMat = new T.MeshStandardMaterial({ color: 0x0b0c0c, roughness: .5, metalness: .2 });
+{ const fl = new T.Mesh(new T.CircleGeometry(9, 96), floorMat); fl.rotation.x = -Math.PI / 2; scene.add(fl); }
+const bandMat = new T.MeshBasicMaterial({ color: 0xdfe8e4 }), band = new T.Mesh(new T.TorusGeometry(7.5, .012, 6, 256), bandMat); band.rotation.x = Math.PI / 2; band.position.y = .42; scene.add(band);
+{ const ring = new T.Mesh(new T.RingGeometry(1.9, 1.91, 128), new T.MeshBasicMaterial({ color: 0x252b29 })); ring.rotation.x = -Math.PI / 2; ring.position.y = .002; scene.add(ring); }
+const hemi = new T.HemisphereLight(0x8a9894, 0x050403, .05); scene.add(hemi);
+const over = new T.DirectionalLight(0xdfe9ff, 0); over.position.set(.5, 6, 1.5); scene.add(over);
+const candleLight = new T.PointLight(0xffa04a, 0, 3.4, 1.5); scene.add(candleLight);
+/* the table (hexagonal, warm) and the cake on it; the cake's group follows the world's cake */
+const TT = Memory.GEO.tableTop;
+const TABLE = new T.Group(); scene.add(TABLE); { const hex = new T.Mesh(new T.CylinderGeometry(.4, .4, .03, 6), new T.MeshStandardMaterial({ color: 0x8a6232, roughness: .6 })); hex.position.y = TT - .015; TABLE.add(hex);
+  const leg = new T.Mesh(new T.CylinderGeometry(.05, .07, TT - .03, 16), new T.MeshStandardMaterial({ color: 0x1a1612, roughness: .8 })); leg.position.y = (TT - .03) / 2; TABLE.add(leg); }
+const CAKE = new T.Group(); scene.add(CAKE);
+{ const r = .12, h = .095, side = new T.MeshStandardMaterial({ color: 0x3b2014, roughness: .8 }), top = new T.MeshStandardMaterial({ color: 0xd9782c, roughness: .7 });
+  CAKE.add(new T.Mesh(new T.CylinderGeometry(r, r, h, 64, 1, false), [side, top, side]).translateY(h / 2));
+  const n = 60, im = new T.InstancedMesh(new T.SphereGeometry(.0045, 8, 6), new T.MeshStandardMaterial({ roughness: .5 }), n), m4 = new T.Matrix4(), cols = [0xe94b3c, 0xf2d14b, 0x4bb0e9, 0xf7f3ea, 0x6cc070];
+  for (let k = 0; k < n; k++) { const a = k * 2.399, y = .015 + ((k * 37) % 60) / 60 * (h - .03); m4.makeTranslation(Math.cos(a) * r, y, Math.sin(a) * r); im.setMatrixAt(k, m4); im.setColorAt(k, new T.Color(cols[k % 5])); } CAKE.add(im); }
+/* the cake stand: whenever the cake is lifted or carried off the table it stands on a pedestal, so it is held by something, never floating */
+const STAND = new T.Group(); scene.add(STAND); const standMat = new T.MeshStandardMaterial({ color: 0xb9b2a6, roughness: .35, metalness: .6 });
+const standCol = new T.Mesh(new T.CylinderGeometry(.018, .022, 1, 16), standMat), standBase = new T.Mesh(new T.CylinderGeometry(.13, .15, .02, 32), standMat), plate = new T.Mesh(new T.CylinderGeometry(.16, .15, .012, 48), standMat);
+STAND.add(standCol, standBase); CAKE.add(plate); plate.position.y = -.006;
+const stripe = (() => { const c = document.createElement('canvas'); c.width = 16; c.height = 64; const x = c.getContext('2d'); x.fillStyle = '#f2e9d6'; x.fillRect(0, 0, 16, 64); x.fillStyle = '#d4483e'; for (let y = -16; y < 80; y += 12) { x.beginPath(); x.moveTo(0, y); x.lineTo(16, y + 8); x.lineTo(16, y + 13); x.lineTo(0, y + 5); x.fill(); } const t = new T.CanvasTexture(c); t.wrapT = T.RepeatWrapping; t.encoding = T.sRGBEncoding; return t; })();
+const sprite = (stops, w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'), g = x.createRadialGradient(w / 2, h * .62, 1, w / 2, h * .55, h * .45); stops.forEach(([o, s]) => g.addColorStop(o, s)); x.fillStyle = g; x.fillRect(0, 0, w, h); return new T.CanvasTexture(c); };
+const flameMat = new T.SpriteMaterial({ map: sprite([[0, 'rgba(255,252,232,1)'], [.25, 'rgba(255,206,96,.95)'], [.6, 'rgba(255,120,30,.3)'], [1, 'rgba(255,90,20,0)']], 32, 64), blending: T.AdditiveBlending, depthWrite: false });
+const haloMat = new T.SpriteMaterial({ map: sprite([[0, 'rgba(255,190,110,.5)'], [.4, 'rgba(255,140,60,.12)'], [1, 'rgba(255,120,40,0)']], 64, 64), blending: T.AdditiveBlending, depthWrite: false });
+const smokeMat = new T.SpriteMaterial({ map: sprite([[0, 'rgba(200,205,205,.5)'], [1, 'rgba(200,205,205,0)']], 32, 32), transparent: true, depthWrite: false });
+const FLAMES = []; for (let k = 0; k < 7; k++) { const a = k / 7 * TAU + .3, r = k % 2 ? .052 : .088, g = new T.Group(); g.position.set(Math.cos(a) * r, .095, Math.sin(a) * r);
+  const c = new T.Mesh(new T.CylinderGeometry(.0028, .0028, .07, 10), new T.MeshStandardMaterial({ map: stripe, roughness: .5 })); c.position.y = .035; g.add(c);
+  const f = new T.Sprite(flameMat.clone()); f.scale.set(.016, .034, 1); f.position.y = .085; g.add(f); const hl = new T.Sprite(haloMat.clone()); hl.scale.set(.11, .11, 1); hl.position.y = .087; g.add(hl);
+  const sm = new T.Sprite(smokeMat.clone()); sm.scale.set(.02, .02, 1); sm.position.y = .09; sm.material.opacity = 0; g.add(sm);
+  FLAMES.push({ f, hl, sm, ph: k * 1.7, outAt: -9, v: 1 }); CAKE.add(g); }
+/* the other children: cards cut from the film (ana/cut), each with her own clock; they move only while they sing */
+const KIDS = [['../../../ana/cut/film-child-1-blow.webp', 9, 5, 43, 219, 300, .5], ['../../../ana/cut/film-child-2-blow.webp', 7, 7, 44, 270, 282, .46], ['../../../ana/cut/film-child-3-blow.webp', 10, 5, 43, 200, 300, .52]].map(([src, cols, rows, frames, fw, fh, h], i) => {
+  const tex = new T.TextureLoader().load(src); tex.encoding = T.sRGBEncoding; tex.repeat.set(1 / cols, 1 / rows);
+  const mat = new T.MeshBasicMaterial({ map: tex, transparent: true, alphaTest: .02, depthWrite: false, opacity: 0, color: 0xffe2c0 });
+  const [x, z] = Memory.GEO.kids[i], m = new T.Mesh(new T.PlaneGeometry(h * fw / fh, h), mat); m.position.set(x, TT + h / 2 - .15, z); scene.add(m); m.renderOrder = 2;
+  return { m, mat, tex, cols, rows, frames, t: i * .7 }; });
+function kidFrame(k) { const f = ((Math.floor(k.t * 11.73) % k.frames) + k.frames) % k.frames; k.tex.offset.set((f % k.cols) / k.cols, 1 - (Math.floor(f / k.cols) + 1) / k.rows); }
+
+/* =============================================================== HER: a paper cut-out child drawn every frame from her body layer, turned by where she faces against where you are */
+const GC = document.createElement('canvas'); GC.width = 320; GC.height = 420; const gx = GC.getContext('2d'), GT = new T.CanvasTexture(GC); GT.encoding = T.sRGBEncoding;
+const PXM = 340, GH = 420 / PXM, GWm = 320 / PXM, FOOT = 20 / PXM;
+const girlMat = new T.MeshBasicMaterial({ map: GT, transparent: true, depthWrite: false }), GIRL = new T.Mesh(new T.PlaneGeometry(GWm, GH), girlMat); GIRL.renderOrder = 3; scene.add(GIRL);
+const shadow = new T.Mesh(new T.CircleGeometry(.2, 32), new T.MeshBasicMaterial({ map: sprite([[0, 'rgba(0,0,0,.75)'], [1, 'rgba(0,0,0,0)']], 64, 64), transparent: true, depthWrite: false })); shadow.rotation.x = -Math.PI / 2; shadow.position.y = .003; shadow.scale.set(1.3, .8, 1); scene.add(shadow);
+const C = { dress: '#ece2cc', dressS: '#c9bda3', skin: '#e9b892', skinS: '#cf9c78', hair: '#3b2719', shoe: '#2a2220', tights: '#efe6d6', hat: '#d98f9c', hatS: '#f5ece6', mouth: '#7a2e2a', eye: '#1d1512', cheek: 'rgba(230,120,110,' };
+function drawGirl(g, v) { const X = x => 160 + x * PXM, Y = y => 400 - y * PXM, P = (x, y) => [X(x), Y(y)];
+  gx.clearRect(0, 0, 320, 420); const { c, sx, ch, sxh } = v, wf = .55 + .45 * Math.abs(c), sit = g.sit, cr = g.crouch * .6, mv = clamp(g.speed / .18, 0, 1);
+  const line = (pts, w, col) => { gx.strokeStyle = col; gx.lineWidth = w * PXM; gx.lineCap = 'round'; gx.lineJoin = 'round'; gx.beginPath(); pts.forEach((p, i) => i ? gx.lineTo(...P(...p)) : gx.moveTo(...P(...p))); gx.stroke(); };
+  const disc = (x, y, r, col) => { gx.fillStyle = col; gx.beginPath(); gx.arc(X(x), Y(y), r * PXM, 0, TAU); gx.fill(); };
+  const poly = (pts, col) => { gx.fillStyle = col; gx.beginPath(); pts.forEach((p, i) => i ? gx.lineTo(...P(...p)) : gx.moveTo(...P(...p))); gx.closePath(); gx.fill(); };
+  const leanX = sx * g.lean * .08, hipY = lerp(.5, .13, sit) - cr * .03, shY = hipY + .27 - cr * .035 + g.inhale * .04 - Math.max(0, g.lean) * .05, shX = leanX * 1.4;
+  // legs: walking from her own travel; sitting folds them to knees-up
+  const legs = [-1, 1].map(i => { const hx = i * .045 * wf, ph = g.leg + (i < 0 ? 0 : Math.PI), sw = Math.sin(ph) * .32 * mv, lift = Math.max(0, Math.cos(ph)) * .05 * mv;
+    const sF = [hx + sx * Math.sin(sw) * .46, .03 + lift], sK = [hx + sx * Math.sin(sw) * .26 + sx * .01, hipY - .23 + lift * .5];
+    const kx = hx + sx * .2 + i * .02 * Math.abs(c), sitK = [kx, hipY + .2], sitF = [hx + sx * .27 + i * .01, .03];
+    return { h: [hx, hipY], k: [lerp(sK[0], sitK[0], sit), lerp(sK[1], sitK[1], sit)], f: [lerp(sF[0], sitF[0], sit), lerp(sF[1], sitF[1], sit)] }; });
+  const knee = [(legs[0].k[0] + legs[1].k[0]) / 2, (legs[0].k[1] + legs[1].k[1]) / 2];
+  const head = [shX + sx * .05 * Math.max(0, g.lean) + sx * .05 * g.headDown + sx * .03 * cr + lerp(0, sx * .12, sit * g.headDown), shY + .11 - .05 * g.headDown - lerp(0, .07, sit * g.headDown)];
+  // arms: rest (swinging with the walk), crossed, round the knees, on the table, hands together
+  const wts = { cross: g.cross, hug: g.hug, table: g.tableHands, tog: g.together }; let ws = 0; for (const k in wts) ws += wts[k]; if (ws > 1) for (const k in wts) wts[k] /= ws; const wr = Math.max(0, 1 - Math.min(1, ws));
+  const arms = [-1, 1].map(i => { const sh = [shX + i * .075 * wf, shY - .02], ph = g.leg + (i < 0 ? Math.PI : 0);
+    const T_ = { rest: [i * .12 * wf + sx * Math.sin(ph) * .08 * mv, hipY - .02 + .03 * cr], cross: [shX - i * .05 * wf, shY - .1], hug: [knee[0] + i * .05, knee[1] - .03], table: [leanX + sx * .22 + i * .06 * wf, TT + .03], tog: [shX + i * .012, shY - .11] };
+    const hnd = [wr * T_.rest[0] + wts.cross * T_.cross[0] + wts.hug * T_.hug[0] + wts.table * T_.table[0] + wts.tog * T_.tog[0], wr * T_.rest[1] + wts.cross * T_.cross[1] + wts.hug * T_.hug[1] + wts.table * T_.table[1] + wts.tog * T_.tog[1]];
+    const el = [(sh[0] + hnd[0]) / 2 + i * .035 * wf, (sh[1] + hnd[1]) / 2 - .02]; return { sh, el, h: hnd }; });
+  const drawArms = (shade) => arms.forEach(a => { line([a.sh, a.el], .042, shade ? C.dressS : C.dress); line([a.el, a.h], .03, shade ? C.skinS : C.skin); disc(a.h[0], a.h[1], .019, shade ? C.skinS : C.skin); });
+  const drawLegs = () => legs.forEach(l => { line([l.h, l.k, l.f], .045, C.tights); gx.fillStyle = C.shoe; gx.beginPath(); gx.ellipse(X(l.f[0] + sx * .025), Y(l.f[1] - .005), (.03 + .02 * Math.abs(sx)) * PXM, .022 * PXM, 0, 0, TAU); gx.fill(); });
+  const hem = lerp(hipY - .13, hipY + .02, sit);
+  const drawDress = () => { poly([[shX - .07 * wf, shY], [shX + .07 * wf, shY], [leanX * .4 + .155 * wf, hem], [leanX * .4 - .155 * wf, hem]], C.dress);
+    if (sit > .3) poly([[-.09 * wf, hipY + .04], [.09 * wf, hipY + .04], [knee[0] + .06, knee[1] - .02], [knee[0] - .06, knee[1] - .02]], C.dress);
+    line([[shX - .06 * wf, shY - .005], [shX + .06 * wf, shY - .005]], .02, C.dress); };
+  if (c < -.15) { drawLegs(); drawArms(true); drawDress(); } else if (sit > .5) { drawDress(); drawLegs(); drawArms(false); } else { drawLegs(); drawDress(); drawArms(false); }
+  // the neck and head; her face shows only where her head faces you
+  line([[shX, shY - .01], [head[0], head[1] - .07]], .03, C.skinS);
+  const [hx, hy] = head, hr = .085; disc(hx - sxh * .016, hy + .008, hr * 1.1, C.hair); gx.fillStyle = C.hair; gx.beginPath(); gx.ellipse(X(hx - sxh * .03), Y(hy - .04), hr * 1.08 * PXM, hr * .75 * PXM, 0, 0, TAU); gx.fill();
+  const fa = clamp((ch + .3) / .5, 0, 1) * (1 - .9 * clamp((g.headDown - .5) * 2, 0, 1));
+  if (fa > .01) { gx.globalAlpha = fa; const fx = hx + sxh * .035, fw = .07 * (.5 + .5 * Math.max(0, ch)) + .012 * Math.abs(sxh), fy = hy - .012 - .025 * g.headDown;
+    gx.fillStyle = C.skin; gx.beginPath(); gx.ellipse(X(fx), Y(fy), fw * PXM, .072 * PXM, 0, 0, TAU); gx.fill();
+    if (Math.abs(sxh) > .55) disc(fx + sxh * (fw + .004), fy - .01, .011, C.skin);
+    gx.fillStyle = C.hair; gx.beginPath(); gx.ellipse(X(fx - sxh * .01), Y(fy + .055), fw * 1.05 * PXM, .03 * PXM, 0, 0, TAU); gx.fill();   // fringe
+    const eyeOpen = 1 - clamp(g.headDown * 1.4 - .3, 0, 1), es = Math.max(.25, ch) * .026;
+    [-1, 1].forEach(i => { const ex = fx + sxh * .022 + i * es, ey = fy + .005; if (Math.abs(i * es + sxh * .03) > fw * .95) return; gx.fillStyle = C.eye; gx.beginPath(); gx.ellipse(X(ex), Y(ey), .007 * PXM, Math.max(.0015, .0085 * eyeOpen) * PXM, 0, 0, TAU); gx.fill(); });
+    const mx = fx + sxh * .03, my = fy - .04; if (g.mouth > .15) { [-1, 1].forEach(i => disc(fx + i * fw * (.9 + .25 * g.mouth), fy - .028, .022 * g.mouth, C.skin)); disc(mx + sxh * .01, my, .013 * g.mouth + .004, C.mouth); gx.fillStyle = C.cheek + (.6 * g.mouth) + ')'; [-1, 1].forEach(i => { gx.beginPath(); gx.arc(X(fx + i * fw * .7), Y(fy - .028), .02 * PXM, 0, TAU); gx.fill(); }); }
+    else if (g.inhale > .3) { gx.fillStyle = C.mouth; gx.beginPath(); gx.ellipse(X(mx), Y(my), .012 * PXM, .006 * g.inhale * PXM, 0, 0, TAU); gx.fill(); }
+    else if (g.smile > .2) { gx.strokeStyle = C.mouth; gx.lineWidth = 2.2; gx.beginPath(); gx.arc(X(mx), Y(my + .01), .016 * PXM, .25 * Math.PI, .75 * Math.PI); gx.stroke(); }
+    else { gx.strokeStyle = C.mouth; gx.lineWidth = 2; gx.beginPath(); gx.moveTo(X(mx - .011), Y(my - .003 * g.crouch)); gx.lineTo(X(mx + .011), Y(my - .003 * g.crouch)); gx.stroke(); }
+    gx.globalAlpha = 1; }
+  // the birthday hat: a paper cone, tipping with her head
+  const tilt = -sxh * .25 + g.headDown * sx * .6, hb = [hx - sxh * .01, hy + hr * .78], tip = [hb[0] + Math.sin(tilt) * .12, hb[1] + Math.cos(tilt) * .12], perp = [Math.cos(tilt) * .045, -Math.sin(tilt) * .045];
+  poly([[hb[0] - perp[0], hb[1] - perp[1]], [hb[0] + perp[0], hb[1] + perp[1]], tip], C.hat); line([[hb[0] - perp[0] * .5 + (tip[0] - hb[0]) * .45, hb[1] - perp[1] * .5 + (tip[1] - hb[1]) * .45], [hb[0] + perp[0] * .5 + (tip[0] - hb[0]) * .45, hb[1] + perp[1] * .5 + (tip[1] - hb[1]) * .45]], .01, C.hatS); disc(tip[0], tip[1], .012, C.hatS);
+  GT.needsUpdate = true; }
+
+/* =============================================================== THE DEVICE (ana/index.html's barrel): three rings, SELECT, HOLD, the (i); left collar: SCENE, CLEAR */
+const devEl = document.getElementById('dev'), DC = document.createElement('canvas'); devEl.prepend(DC); const dx = DC.getContext('2d'); let DW = 0, DH = 0, BANDS = [], BTNS = [];
+const RV = { scale: { ang: 0, deg: 5, ix: 0 }, knurl: { ang: 0, deg: 9, ix: 1 }, tri: { ang: 0, deg: 6, ix: 2 } };
+function syncRings() { for (const r in RV) RV[r].ang = W.rings[r].target * RV[r].deg; }
+function layoutDev() { const r = devEl.getBoundingClientRect(), pr = REC ? 1 : Math.min(2, devicePixelRatio); DW = r.width; DH = r.height; DC.width = DW * pr; DC.height = DH * pr; DC.style.width = DW + 'px'; DC.style.height = DH + 'px'; dx.setTransform(pr, 0, 0, pr, 0, 0);
+  const L = Math.min(DW - 24, 980), x0 = (DW - L) / 2, cy = DH * .42, rad = Math.min(DH * .3, L * .13); const w = f => f * L;
+  let x = x0; const seg = (kind, f, extra) => { const b = Object.assign({ kind, x, w: w(f), cy, rad }, extra || {}); x += w(f); return b; };
+  BANDS = [seg('collarL', .12), seg('scale', .2, { ring: 'scale' }), seg('redline', .06), seg('knurl', .14, { ring: 'knurl' }), seg('tri', .2, { ring: 'tri' }), seg('chrome', .08), seg('collarR', .2)];
+  const cl = BANDS[0], cr = BANDS[6]; BTNS = [{ id: 'play', x: cl.x + cl.w * .5, y: cy - rad * .42, r: rad * .2 }, { id: 'clear', x: cl.x + cl.w * .5, y: cy + rad * .42, r: rad * .2 },
+    { id: 'select', x: cr.x + cr.w * .38, y: cy - rad * .5, r: rad * .22 }, { id: 'hold', x: cr.x + cr.w * .38, y: cy + rad * .38, r: rad * .26 }, { id: 'info', x: cr.x + cr.w * .82, y: cy - rad * .78, r: rad * .15 }]; }
+function cylShade(b, base, hi) { const g = dx.createLinearGradient(0, b.cy - b.rad, 0, b.cy + b.rad); g.addColorStop(0, '#0b0c0c'); g.addColorStop(.18, base); g.addColorStop(.42, hi); g.addColorStop(.62, base); g.addColorStop(1, '#070807'); return g; }
+function marksOn(b, list) { list.forEach(([a, fn]) => { const th = (a - RV[b.ring].ang) * Math.PI / 180, c = Math.cos(th); if (c <= .05) return; fn(b.cy - Math.sin(th) * b.rad * .92, c); }); }
+const SCALE_NUMS = [[0, '00'], [18, '18'], [35, '35'], [60, '60'], [90, '90'], [120, '120'], [150, '150'], [180, '180'], [220, '220'], [255, '255'], [280, '280'], [300, '300'], [330, '330']];
+function fitText(s, x, y, w, px, col) { let f = px; dx.font = `500 ${f}px Oswald, sans-serif`; while (dx.measureText(s).width > w && f > 7) { f -= 1; dx.font = `500 ${f}px Oswald, sans-serif`; } dx.fillStyle = col; dx.fillText(s, x, y); }
+function drawDev() { dx.clearRect(0, 0, DW, DH);
+  BANDS.forEach(b => { const top = b.cy - b.rad, h = b.rad * 2;
+    if (b.kind === 'collarL' || b.kind === 'collarR') { dx.fillStyle = cylShade(b, '#3c4341', '#a9b2af'); dx.fillRect(b.x, top + h * .04, b.w, h * .92); }
+    else if (b.kind === 'scale') { dx.fillStyle = cylShade(b, '#1e2322', '#59615f'); dx.fillRect(b.x, top, b.w, h); dx.textAlign = 'center'; dx.textBaseline = 'middle';
+      marksOn(b, SCALE_NUMS.map(([a, s]) => [-a, (y, c) => { dx.save(); dx.translate(b.x + b.w * .5, y); dx.scale(1, c); dx.fillStyle = `rgba(232,238,236,${.35 + .6 * c})`; dx.font = `400 ${Math.round(b.rad * .26)}px Oswald, sans-serif`; dx.fillText(s, 0, 0); dx.fillRect(-b.w * .42, -1, b.w * .1, 2); dx.restore(); }]));
+      for (let a = 0; a < 360; a += 5) marksOn(b, [[-a, (y, c) => { dx.fillStyle = `rgba(200,210,206,${.3 * c})`; dx.fillRect(b.x + b.w * .86, y - .5, b.w * (a % 15 ? .06 : .12), 1); }]]); dx.textBaseline = 'alphabetic'; }
+    else if (b.kind === 'redline') { dx.fillStyle = cylShade(b, '#2a302e', '#78817e'); dx.fillRect(b.x, top, b.w, h); dx.fillStyle = '#c2453a'; for (let k = -2; k <= 2; k++) { const y = b.cy - Math.sin(k * .5) * b.rad * .9; dx.fillRect(b.x + b.w * .2, y - 1, b.w * .6, 2); } }
+    else if (b.kind === 'knurl') { dx.fillStyle = cylShade(b, '#2b3130', '#7c8683'); dx.fillRect(b.x, top, b.w, h); for (let a = 0; a < 360; a += 4) marksOn(b, [[a, (y, c) => { dx.fillStyle = `rgba(8,9,9,${.55 * c})`; dx.fillRect(b.x + 3, y - 1.2 * c, b.w - 6, 2.4 * c); }]]); }
+    else if (b.kind === 'tri') { dx.fillStyle = cylShade(b, '#4b5452', '#bcc5c2'); dx.fillRect(b.x, top, b.w, h);
+      for (let a = 0; a < 360; a += 12) marksOn(b, [[a, (y, c) => { const s = b.rad * .07 * c; dx.fillStyle = 'rgba(10,11,11,.85)'; [[.32, 1], [.68, 1.4]].forEach(([fx, k]) => { dx.beginPath(); dx.moveTo(b.x + b.w * fx - s * k, y); dx.lineTo(b.x + b.w * fx + s * k * .6, y - s * k * .8); dx.lineTo(b.x + b.w * fx + s * k * .6, y + s * k * .8); dx.fill(); }); }]]); }
+    else if (b.kind === 'chrome') { const g = dx.createLinearGradient(b.x, 0, b.x + b.w, 0); g.addColorStop(0, '#d8dfdc'); g.addColorStop(.5, '#7d8784'); g.addColorStop(1, '#eef3f1'); dx.fillStyle = g; dx.fillRect(b.x, top + h * .02, b.w, h * .96);
+      dx.save(); dx.translate(b.x + b.w * .5, b.cy); dx.rotate(Math.PI / 2); dx.fillStyle = 'rgba(20,22,22,.75)'; dx.font = `500 ${Math.round(b.rad * .16)}px Oswald, sans-serif`; dx.textAlign = 'center'; dx.textBaseline = 'middle'; dx.fillText('VR — T0 — 0', 0, 0); dx.restore(); dx.textBaseline = 'alphabetic'; }
+    if (b.ring) { const R_ = W.rings[b.ring], busy = R_.target !== R_.applied, [rl, val] = Memory.role(W, b.ring), dead = rl === '—'; dx.fillStyle = busy ? 'rgba(232,178,100,.9)' : 'rgba(200,210,206,.35)'; dx.fillRect(b.x + 4, top - 7, b.w - 8, 2);
+      dx.textAlign = 'center'; fitText(dead ? 'NOTHING HERE' : rl, b.x + b.w / 2, top + h + 15, b.w - 4, 11, dead ? 'rgba(80,88,85,.8)' : 'rgba(120,130,126,.9)'); if (!dead) fitText(val, b.x + b.w / 2, top + h + 30, b.w - 4, 13, 'rgba(225,232,229,.92)'); } });
+  BTNS.forEach(bt => { const g = dx.createRadialGradient(bt.x - bt.r * .3, bt.y - bt.r * .3, 1, bt.x, bt.y, bt.r); g.addColorStop(0, '#e8eeec'); g.addColorStop(.6, '#8f9996'); g.addColorStop(1, '#3a403e'); dx.fillStyle = g; dx.beginPath(); dx.arc(bt.x, bt.y, bt.r, 0, TAU); dx.fill();
+    dx.fillStyle = 'rgba(15,16,16,.85)'; if (bt.id === 'play') { dx.beginPath(); dx.moveTo(bt.x - bt.r * .3, bt.y - bt.r * .4); dx.lineTo(bt.x + bt.r * .45, bt.y); dx.lineTo(bt.x - bt.r * .3, bt.y + bt.r * .4); dx.fill(); }
+    if (bt.id === 'clear') dx.fillRect(bt.x - bt.r * .4, bt.y - bt.r * .08, bt.r * .8, bt.r * .16);
+    if (bt.id === 'hold' && W.hold) { dx.strokeStyle = 'rgba(232,178,100,.95)'; dx.lineWidth = 2; dx.beginPath(); dx.arc(bt.x, bt.y, bt.r + 4, 0, TAU); dx.stroke(); }
+    if (bt.id === 'info') { dx.fillRect(bt.x - 1, bt.y - bt.r * .1, 2, bt.r * .6); dx.fillRect(bt.x - 1, bt.y - bt.r * .5, 2, 2); }
+    const lab = { select: 'SELECT', hold: 'HOLD', play: 'SCENE', clear: 'CLEAR' }[bt.id]; if (lab) { dx.font = `500 ${Math.round(Math.max(9, bt.r * .5))}px Oswald, sans-serif`; dx.textAlign = 'center';
+      if (bt.id === 'select') { const w = dx.measureText(lab).width + 10; dx.fillStyle = '#b8352c'; dx.fillRect(bt.x - w / 2, bt.y - bt.r - 20, w, 15); dx.fillStyle = '#f4e9e3'; dx.fillText(lab, bt.x, bt.y - bt.r - 9); }
+      else { dx.fillStyle = 'rgba(160,170,166,.85)'; dx.fillText(lab, bt.x, bt.y + bt.r + 13); } } });
+  dx.textAlign = 'left'; dx.fillStyle = 'rgba(232,178,100,.9)'; fitText(Memory.TARGETS[W.sel], BANDS[6].x + BANDS[6].w * .6, BTNS[3].y + 4, BANDS[6].w * .4, 13, 'rgba(232,178,100,.9)');
+  fitText(DEMO ? 'THE SCENE' : 'YOURS', BANDS[6].x + BANDS[6].w * .6, BTNS[3].y + 20, BANDS[6].w * .4, 11, 'rgba(120,130,126,.85)'); }
+/* hand on the rings: each detent passed is a quiet click; the device then steps to it at 11.8 a second */
+function handTurn(ring, dDeg) { const rv = RV[ring], before = Math.round(rv.ang / rv.deg); rv.ang += dDeg; const after = Math.round(rv.ang / rv.deg);
+  if (after !== before) { const d = Math.sign(after - before); for (let i = 0; i < Math.abs(after - before); i++) Memory.turn(W, ring, d); drainEvents(); rv.ang = clamp(rv.ang, (W.rings[ring].target - .49) * rv.deg, (W.rings[ring].target + .49) * rv.deg); } }
+let drag = null, holdDown = -1;
+const touchEl = document.getElementById('touch'); function showTouch(e, on) { if (!REC) return; touchEl.style.display = on ? 'block' : 'none'; touchEl.style.left = e.clientX + 'px'; touchEl.style.top = e.clientY + 'px'; }
+DC.addEventListener('pointerdown', e => { ac(); showTouch(e, 1); const r = DC.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+  const bt = BTNS.find(b => Math.hypot(b.x - x, b.y - y) < b.r + 10); if (bt) { press(bt.id); return; }
+  const band = BANDS.find(b => b.ring && x >= b.x && x <= b.x + b.w && Math.abs(y - b.cy) < b.rad * 1.3); if (band) { if (!REC) stopDemo(); drag = { band, y }; DC.setPointerCapture(e.pointerId); } });
+DC.addEventListener('pointermove', e => { showTouch(e, drag || holdDown >= 0); if (!drag) return; const y = e.clientY - DC.getBoundingClientRect().top, d = y - drag.y; drag.y = y; handTurn(drag.band.ring, -d / drag.band.rad * 57.3 * .9); });
+const up = e => { drag = null; showTouch(e, 0); if (holdDown >= 0) { const long = FT - holdDown > .7; holdDown = -1; Memory.holdPress(W, long); drainEvents(); } };
+DC.addEventListener('pointerup', up); DC.addEventListener('pointercancel', up);
+DC.addEventListener('wheel', e => { e.preventDefault(); ac(); const r = DC.getBoundingClientRect(), x = e.clientX - r.left; const band = BANDS.find(b => b.ring && x >= b.x && x <= b.x + b.w); if (band) { stopDemo(); handTurn(band.ring, -Math.sign(e.deltaY) * RV[band.ring].deg); } }, { passive: false });
+function press(id) { if (id === 'select') { if (!REC) stopDemo(); Memory.select(W, W.sel + 1); syncRings(); drainEvents(); } else if (id === 'hold') { holdDown = FT; }
+  else if (id === 'play') { restart(); DEMO = { t0: W.t, i: 0, acts: Scenarios.expand(Scenarios.earned.script) }; } else if (id === 'clear') { stopDemo(); restart(); } else if (id === 'info') toggleOp(); }
+function restart() { toggleOp(false); const log = W.log; W = Memory.createWorld({ seed: 7, keepEvents: true }); W.log = log; syncRings(); opEnd = false; FLAMES.forEach(f => { f.outAt = -9; f.v = 1; }); }
+/* SCENE: the proof's own input, played through the same device (every turn is a detent on a ring) */
+let DEMO = null; function stopDemo() { DEMO = null; }
+function runDemo() { if (!DEMO) return; const t = W.t - DEMO.t0; while (DEMO.i < DEMO.acts.length && DEMO.acts[DEMO.i][0] <= t) { const a = DEMO.acts[DEMO.i++]; if (a[1] === 'sel') { Memory.select(W, W.sel + 1); syncRings(); } else if (a[1] === 'turn') { Memory.turn(W, a[2], a[3]); RV[a[2]].ang = W.rings[a[2]].target * RV[a[2]].deg; } else if (a[1] === 'long') Memory.holdPress(W, 1); else if (a[1] === 'hold') Memory.holdPress(W, 0); } if (DEMO.i >= DEMO.acts.length && t > 26) DEMO = null; }
+let lastL = -1; function drainEvents() { if (W.val.ROOM_k / 8 !== lastL) { lastL = W.val.ROOM_k / 8; const e = { t: +W.t.toFixed(4), k: 'light', L: lastL }; W.log.push(e); W.events.push(e); }
+  W.events.forEach(e => { if (e.k === 'puff') FLAMES[e.i].outAt = FT; if (!REC) sound(e); }); W.events.length = 0; }
+
+/* =============================================================== THE OPERATOR PANEL (behind the (i), and the end card): the machine, never the memory */
+const opEl = document.getElementById('op'); let opOn = false, opEnd = false;
+function toggleOp(force) { opOn = force == null ? !opOn : force; opEl.classList.toggle('on', opOn); if (opOn) buildOp(); }
+const SCOL = { watch: '#8fa39c', approach: '#7fd3a2', retreat: '#e0a060', hide: '#7c8cc9', refuse: '#e0645a', blow: '#f2d16b' };
+function buildOp() { opEl.innerHTML = `<h3><span id="opT">THE MACHINE</span><span><button class="x" id="opDl">TRACE</button> <button class="x" id="opX">CLOSE</button></span></h3>
+  <div class="row" id="opNow"></div><canvas id="opU" height="120"></canvas><canvas id="opD" height="170"></canvas><table id="opTr"></table>
+  <p style="color:#6f7c77;margin:8px 0 0">This panel is the girl's machine: declared states and sub-states, the utilities she compares, the guards, her drives (P pressure, U unease, F fear, M memory of being pushed, C curiosity, T trust, A the candles' pull) and what she believes she has seen. The memory itself never shows these.</p>`;
+  document.getElementById('opX').onclick = () => toggleOp(false); document.getElementById('opDl').onclick = () => { const b = new Blob([JSON.stringify(traceOut(), null, 1)], { type: 'application/json' }), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'her-birthday-trace.json'; a.click(); };
+  drawOp(); }
+function drawOp() { if (!opOn) return; const g = W.girl, el = id => document.getElementById(id); if (!el('opNow')) return;
+  el('opT').textContent = opEnd ? 'END CARD · THE MACHINE, THIS TIME' : 'THE MACHINE · NOW';
+  const yes = b => b ? 'yes' : 'no', ana = Memory.anaPose(W.val.scale);
+  el('opNow').innerHTML = `<span>state <b>${g.st}.${g.sub}</b> for ${(g.t - g.since).toFixed(1)} s</span><span>believes you are <b>${Memory.anaWords(g.wm && g.wm.anaH > 1.1 ? 0 : 4)}</b> (eye ${(g.wm ? g.wm.anaH : 0).toFixed(2)} m; true ${ana.h.toFixed(2)} m)</span><span>believes cake <b>${g.wm && g.wm.cakeH < .12 ? 'low' : 'held up'}</b></span><span>sees: you ${g.vis.ana ? g.vis.ana.toFixed(2) : 0}, cake ${g.vis.cake ? g.vis.cake.toFixed(2) : 0}, children ${g.vis.kids ? g.vis.kids.toFixed(2) : 0}</span><span>candles ${W.candles.reduce((a, b) => a + b, 0)} of 7</span>`;
+  // utilities with guards
+  const cu = el('opU'), w = cu.clientWidth || 300; cu.width = w * 2; cu.height = 240; cu.style.height = '120px'; const x = cu.getContext('2d'); x.scale(2, 2); x.clearRect(0, 0, w, 120); x.font = '11px Arial';
+  Memory.STATES.forEach((s, i) => { const y = 6 + i * 18, u = g.u[s] || 0, ok = g.guards[s], allowed = s === g.st || Memory.ALLOWED[g.st].includes(s), bx = 74, bw = w - bx - 40, z = bx + bw * .4;
+    x.fillStyle = s === g.st ? SCOL[s] : '#9aa6a2'; x.fillText(s, 4, y + 10); x.fillStyle = '#1b201f'; x.fillRect(bx, y, bw, 12); x.fillStyle = ok && allowed ? SCOL[s] : '#3a403e'; const v = clamp(u, -1, 1.5);
+    x.fillRect(Math.min(z, z + v * bw * .4), y + 2, Math.abs(v) * bw * .4, 8); x.fillStyle = '#556'; x.fillRect(z, y - 1, 1, 14); x.fillStyle = '#9aa6a2'; x.fillText(u.toFixed(2), bx + bw + 4, y + 10);
+    if (!ok || !allowed) { x.fillStyle = '#6f7c77'; x.fillText(!allowed ? 'not from here' : 'guard', bx + 4, y + 10); } });
+  // drives over time with the state band
+  const cd = el('opD'), w2 = cd.clientWidth || 300; cd.width = w2 * 2; cd.height = 340; cd.style.height = '170px'; const d = cd.getContext('2d'); d.scale(2, 2); d.clearRect(0, 0, w2, 170);
+  const S = g.samples, span = opEnd ? Math.max(10, W.t) : 30, t1 = W.t, t0 = t1 - span, X = t => 4 + (t - t0) / span * (w2 - 8), Y = v => 150 - clamp(v, 0, 1.2) / 1.2 * 120;
+  S.forEach((s, i) => { if (s.t < t0) return; d.fillStyle = SCOL[s.st]; d.fillRect(X(s.t), 156, Math.max(1, (w2 - 8) / span * .1 + .5), 10); });
+  const DR = [['P', '#e0645a'], ['U', '#c98a5c'], ['F', '#ff9a8a'], ['M', '#b06ad0'], ['C', '#6fb6e0'], ['T', '#7fd3a2'], ['A', '#f2d16b']];
+  DR.forEach(([k, col], j) => { d.strokeStyle = col; d.lineWidth = 1.3; d.beginPath(); let st = false; S.forEach(s => { if (s.t < t0) return; st ? d.lineTo(X(s.t), Y(s[k])) : d.moveTo(X(s.t), Y(s[k])); st = true; }); d.stroke(); d.fillStyle = col; d.font = '10px Arial'; d.fillText(k, 6 + j * 16, 12); });
+  d.fillStyle = '#6f7c77'; d.fillText(`${span.toFixed(0)} s`, w2 - 30, 12);
+  g.trans.length; const rows = g.trans.slice(opEnd ? 0 : -8).reverse().map(t => { const why = Object.entries(t.util).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([k, v]) => `${k} ${v}`).join(', ');
+    return `<tr><td>${t.t.toFixed(2)} s</td><td>${t.from} → <b>${t.to}</b></td><td class="w">${why} · P ${t.drives.P} F ${t.drives.F} T ${t.drives.T}</td></tr>`; }).join('');
+  el('opTr').innerHTML = rows; }
+function traceOut() { return { page: 'experiments/swarms/state/index.html', seed: 7, t: +W.t.toFixed(3), candles: W.candles, transitions: W.girl.trans, samples: W.girl.samples, inputs: W.log.filter(e => ['hand', 'select', 'hold', 'off', 'dead'].includes(e.k)) }; }
+
+/* =============================================================== EVERY FRAME */
+function resize() { const r = viewEl.getBoundingClientRect(); R.setSize(r.width, r.height, false); cam.aspect = r.width / r.height;
+  const hf = (cam.aspect < 1 ? 52 : 64) * Math.PI / 180, vf = 2 * Math.atan(Math.tan(hf / 2) / cam.aspect) * 180 / Math.PI; cam.fov = Math.max(36, Math.min(62, vf)); cam.updateProjectionMatrix(); layoutDev(); }
+addEventListener('resize', resize);
+let camPos = null; const tv = new T.Vector3();
+function render(dt) { const ana = Memory.anaPose(W.val.scale), g = W.girl, lit = W.candles.reduce((a, b) => a + b, 0), L = W.val.ROOM_k / 8, dark = W.off;
+  if (!camPos) camPos = new T.Vector3(ana.x, ana.h, ana.z); camPos.lerp(tv.set(ana.x, ana.h, ana.z), 1 - Math.exp(-dt / .15)); cam.position.copy(camPos);
+  cam.lookAt(Memory.GEO.look.x + Math.sin(ana.yaw) * .15, lerp(.62, .5, clamp((1.55 - ana.h) / .9, 0, 1)), Memory.GEO.look.z);
+  // the light the ROOM ring sets; dark when switched off
+  over.intensity = L * 1.1 * (1 - dark); hemi.intensity = (.04 + .4 * L) * (1 - dark); bandMat.color.setScalar((.25 + .75 * L) * (1 - dark) * .88 + .02); scene.background.setRGB(.012 + .03 * L, .014 + .034 * L, .014 + .034 * L).multiplyScalar(1 - dark); scene.fog.color.copy(scene.background);
+  candleLight.position.set(W.cake.x, W.cake.y + .2, W.cake.z); candleLight.intensity = lit * .3 * (.95 + Math.sin(FT * 19) * .04) * (1 - dark);
+  CAKE.position.set(W.cake.x, W.cake.y + .012, W.cake.z); CAKE.visible = dark < 1;
+  { const rc = Math.hypot(W.cake.x, W.cake.z), bot = rc < .36 ? TT : 0, h = W.cake.y - bot; STAND.visible = dark < 1 && h > .015; standCol.scale.y = Math.max(.001, h); standCol.position.set(W.cake.x, bot + h / 2, W.cake.z); standBase.position.set(W.cake.x, bot + .01, W.cake.z); }
+  FLAMES.forEach((f, i) => { const on = W.candles[i] ? 1 : 0; f.v = on ? 1 : Math.max(0, f.v - dt / .12); const fl = .92 + Math.sin(FT * 23 + f.ph) * .05 + Math.sin(FT * 7.1 + f.ph) * .04;
+    const lean = W.girl.st === 'blow' && W.girl.sub === 'blow' ? .5 : 0; f.f.material.opacity = f.v * (1 - dark); f.hl.material.opacity = f.v * .9 * fl * (1 - dark); f.f.scale.set(.016 * (1 + lean * .4), .034 * fl * (1 - lean * .4), 1); f.f.material.rotation = lean * .6;
+    const sa = FT - f.outAt; f.sm.material.opacity = sa > 0 && sa < 1.6 ? .5 * (1 - sa / 1.6) * (1 - dark) : 0; f.sm.position.y = .09 + sa * .07; f.sm.scale.setScalar(.02 + sa * .03); });
+  KIDS.forEach((k, i) => { const p = W.kids[i]; if (p >= 1 && !W.hold && W.songBeat >= 0) k.t += dt; kidFrame(k); k.mat.opacity = (p >= 1 ? 1 : p * .55) * (1 - dark); k.m.visible = p > 0; k.m.quaternion.copy(cam.quaternion);
+    k.mat.color.setRGB(1, .89, .75).multiplyScalar(.45 + .55 * (lit / 7) + .3 * L); });
+  // her: placed by her machine, turned against your eye
+  const tc = new T.Vector2(cam.position.x - g.x, cam.position.z - g.z).normalize(), rgt = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion), rv = new T.Vector2(rgt.x, rgt.z).normalize();
+  const dh = new T.Vector2(Math.cos(g.th), Math.sin(g.th)), dhh = new T.Vector2(Math.cos(g.th + g.psi), Math.sin(g.th + g.psi));
+  drawGirl(g, { c: dh.dot(tc), sx: dh.dot(rv), ch: dhh.dot(tc), sxh: dhh.dot(rv) });
+  GIRL.position.set(g.x, GH / 2 - FOOT, g.z); GIRL.rotation.set(0, Math.atan2(tc.x, tc.y), 0); shadow.position.set(g.x, .003, g.z);
+  const dC = Math.hypot(g.x - W.cake.x, g.z - W.cake.z), warm = lit / 7 * .95 / (1 + 2.5 * dC * dC), amb = .1 + .75 * L, k = (1 - dark);
+  girlMat.color.setRGB(Math.min(1.1, amb * .95 + warm * 1.0) * k, Math.min(1.1, amb * .97 + warm * .78) * k, Math.min(1.1, amb + warm * .52) * k); girlMat.opacity = 1 - dark;
+  R.render(scene, cam); drawDev(); if (opOn && Math.floor(FT * 10) !== Math.floor((FT - dt) * 10)) drawOp(); }
+let acc = 0;
+function advance(dt) { FT += dt; acc += dt; while (acc >= Memory.DT - 1e-9) { acc -= Memory.DT; runDemo(); Memory.step(W); drainEvents(); }
+  if (W.ended && W.offAt && W.off >= 1 && !opEnd) { opEnd = true; toggleOp(true); } render(dt); }   // the end card only after her birthday is over and the memory has gone dark
+let last = performance.now(); function frame(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; advance(dt); requestAnimationFrame(frame); }
+document.fonts && document.fonts.load('400 20px Oswald').then(() => drawDev());
+resize(); syncRings(); drainEvents(); if (!REC) requestAnimationFrame(frame); else render(0);
+window.MM = { get W() { return W; }, advance, press, handTurn, renderAudio, traceOut, toggleOp, BANDS: () => BANDS, BTNS: () => BTNS, RV, devRect: () => DC.getBoundingClientRect(), ready: () => KIDS.every(k => k.tex.image) && !!WAVBYTES };
+</script></body></html>

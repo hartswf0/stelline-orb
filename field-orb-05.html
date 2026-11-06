@@ -68,10 +68,69 @@ const sm = t => t * t * (3 - 2 * t);
 let NOW = 0;
 
 /* =============================================================== sound and touch */
-let AC = null;
-function tick(kind, i) { if (window.SNDLOG) window.SNDLOG.push({ t: NOW, k: kind, i: i || 0 }); try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); const n = AC.createBufferSource(), L = kind === 'press' ? 900 : 380, b = AC.createBuffer(1, L, AC.sampleRate), d = b.getChannelData(0);
+let AC = null, mixAnalyser = null, mixData = new Uint8Array(64), mixConnected = false, curMixIdx = 1, lastMotionSndT = 0;
+const TIZITA_SCALE = [293.66, 329.63, 349.23, 440.00, 466.16, 554.37, 587.33, 659.25, 698.46, 880.00];
+const AUDIO_MIXES = [
+  { label: 'MIX 0 · MOTION SYNTH ONLY', src: '' },
+  { label: 'MIX 1 · TIZITA × STELLINE SOUL', src: 'assets/audio/mix1_tizita_stelline_soul.mp3' },
+  { label: 'MIX 2 · WALK & CHAMBER DIALOGUE', src: 'assets/audio/mix2_stelline_dialogue_chamber.mp3' },
+  { label: 'MIX 3 · TIZITA FULL 3:30 ANTHEM', src: 'assets/audio/mix3_tizita_full_anthem.mp3' }
+];
+const STELLINE_QUOTES = [
+  '"There is a bit of every artist in their work..."',
+  '"If you supply the untidy details, the mind fills in the rest."',
+  '"Feelings — the world is built on a wall that separates kind."',
+  '"She walks through the forest projection into the white memory dome."',
+  '"TIZITA · Someone wrote my first winter in warm wax and seven flames."'
+];
+const oledVideo = document.createElement('video');
+oledVideo.src = 'assets/clips/stelline_oled_reel.mp4';
+oledVideo.muted = true; oledVideo.loop = true; oledVideo.playsInline = true; oledVideo.crossOrigin = 'anonymous';
+oledVideo.play().catch(() => {});
+const mixAudio = document.createElement('audio');
+mixAudio.loop = true; mixAudio.crossOrigin = 'anonymous';
+
+function ensureAudioGraph() {
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === 'suspended') AC.resume();
+    if (!mixAnalyser) {
+      mixAnalyser = AC.createAnalyser(); mixAnalyser.fftSize = 128; mixAnalyser.smoothingTimeConstant = 0.78;
+      mixData = new Uint8Array(mixAnalyser.frequencyBinCount); mixAnalyser.connect(AC.destination);
+    }
+    if (!mixConnected) {
+      const src = AC.createMediaElementSource(mixAudio); src.connect(mixAnalyser); mixConnected = true;
+    }
+  } catch (e) {}
+}
+function cycleAudioMix(forceIdx) {
+  ensureAudioGraph();
+  curMixIdx = forceIdx != null ? forceIdx : (curMixIdx + 1) % AUDIO_MIXES.length;
+  const m = AUDIO_MIXES[curMixIdx];
+  if (!m.src) { mixAudio.pause(); say('AUDIO · MOTION SYNTH ONLY'); }
+  else { if (!mixAudio.src.endsWith(m.src)) mixAudio.src = m.src; mixAudio.currentTime = 0; mixAudio.play().catch(() => {}); say('PLAYING · ' + m.label); }
+  oledDirty = true;
+}
+function motionNote(normPos, pan, vel) {
+  try {
+    ensureAudioGraph();
+    const nowT = performance.now(); if (nowT - lastMotionSndT < 30) return; lastMotionSndT = nowT;
+    const idx = clamp(Math.floor(clamp(normPos, 0, .999) * TIZITA_SCALE.length), 0, TIZITA_SCALE.length - 1);
+    const freq = TIZITA_SCALE[idx], t = AC.currentTime, dur = clamp(.13 + Math.abs(vel || .2) * .16, .11, .34);
+    const o1 = AC.createOscillator(), o2 = AC.createOscillator(), flt = AC.createBiquadFilter(), g = AC.createGain();
+    o1.type = 'triangle'; o2.type = 'sine';
+    o1.frequency.setValueAtTime(freq, t); o2.frequency.setValueAtTime(freq * 1.5, t);
+    flt.type = 'lowpass'; flt.frequency.setValueAtTime(520 + Math.min(1, Math.abs(vel || .25)) * 2200 + (S.pull || 0) * 1200, t);
+    const amp = clamp(.022 + Math.abs(vel || .2) * .06, .018, .085);
+    g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(amp, t + .016); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    const out = mixAnalyser || AC.destination;
+    if (AC.createStereoPanner) { const p = AC.createStereoPanner(); p.pan.setValueAtTime(clamp(pan || 0, -1, 1), t); g.connect(p).connect(out); } else g.connect(out);
+    o1.connect(flt); o2.connect(flt); flt.connect(g); o1.start(t); o2.start(t); o1.stop(t + dur + .02); o2.stop(t + dur + .02);
+  } catch (e) {}
+}
+function tick(kind, i) { if (window.SNDLOG) window.SNDLOG.push({ t: NOW, k: kind, i: i || 0 }); try { ensureAudioGraph(); const n = AC.createBufferSource(), L = kind === 'press' ? 900 : 380, b = AC.createBuffer(1, L, AC.sampleRate), d = b.getChannelData(0);
   for (let k = 0; k < L; k++) d[k] = (Math.random() * 2 - 1) * Math.exp(-k / (kind === 'dead' ? 25 : kind === 'press' ? 140 : 50)); n.buffer = b; const f = AC.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = kind === 'press' ? 1100 : kind === 'dead' ? 650 : [2700, 2300, 1900, 2500, 3100][i || 0]; f.Q.value = 2.5;
-  const g = AC.createGain(); g.gain.value = kind === 'dead' ? .2 : .8; n.connect(f).connect(g).connect(AC.destination); n.start(); } catch (e) { }
+  const g = AC.createGain(); g.gain.value = kind === 'dead' ? .2 : .8; n.connect(f).connect(g).connect(mixAnalyser || AC.destination); n.start(); } catch (e) { }
   if (navigator.vibrate) navigator.vibrate(kind === 'press' ? 14 : kind === 'dead' ? 3 : 6); }
 
 /* =============================================================== the room */
@@ -373,8 +432,18 @@ function applyKidPose(nd, idx) {
 
 /* =============================================================== what each ring does now */
 const EXPORTS = ['GLB · SCENE', 'OBJ · MESH', 'STILL · PNG', 'LOOP · WEBM', 'DOCUMENT · JSON'];
-const MODES = ['LOOK', 'MAKE', 'MOVE', 'TURN', 'SIZE', 'TIME', 'WEAVE'];
-const MODE_SAYS = { LOOK: 'LOOK · FIRST-PERSON VIEW & CAMERA SHOTS', MAKE: 'MAKE · SCULPT CAKE, STAGE TABLE & 2D CUTOUTS', MOVE: 'MOVE · SLIDE PICKED ELEMENT IN SPACE', TURN: 'TURN · ANGLE PICKED ELEMENT TOWARD THE LIGHT', SIZE: 'SIZE · SCALE HEIGHT & SPREAD', TIME: 'TIME · KEYFRAME CHARACTER POSES & CAMERA SHOTS', WEAVE: 'WEAVE · PULL BARREL ENDS OR DIAL MIST TO DISSOLVE' };
+const MODES = ['MAKE', 'PLACE', 'ADD', 'MOVE', 'TURN', 'SIZE', 'LOOK', 'TIME', 'WEAVE'];
+const MODE_SAYS = {
+  MAKE: 'MAKE · SCULPT CAKE, FROST, PIPE & STAGE SCENE',
+  PLACE: 'PLACE · POSITION TOPPINGS, TABLE & CUTOUTS AROUND THE SCENE',
+  ADD: 'ADD · SPAWN CAKES, CANDLES, BERRIES & SEGMENTED CHARACTERS',
+  MOVE: 'MOVE · SLIDE PICKED ELEMENT AROUND THE TABLE',
+  TURN: 'TURN · ANGLE PICKED ELEMENT TOWARD THE LIGHT',
+  SIZE: 'SIZE · SCALE HEIGHT & SPREAD',
+  LOOK: 'LOOK · FIRST-PERSON VIEW & CAMERA SHOTS',
+  TIME: 'TIME · KEYFRAME CHARACTER POSES & CAMERA SHOTS',
+  WEAVE: 'WEAVE · PULL BARREL ENDS OR DIAL MIST TO DISSOLVE'
+};
 const isXf = () => S.mode === 'MOVE' || S.mode === 'TURN' || S.mode === 'SIZE';
 const AXC = ['#ff5b4d', '#5fe36e', '#4f8dff'], AXH = [0xff5b4d, 0x5fe36e, 0x4f8dff];
 // MAKE's verbs: grouped into 6 logical craft chapters so Ring 2 (CHAPTER) jumps chapters and Ring 3 (VERB) steps within/across them
@@ -450,17 +519,17 @@ function rings() {
   const R1 = { n: 'MODE', v: () => MODES.indexOf(S.mode), set: v => { S.exporting = false; setMode(MODES[clamp(Math.round(v), 0, MODES.length - 1)]); }, st: 1, f: v => MODES[v], lo: 0, hi: MODES.length - 1 };
   const R2 = S.exporting
     ? { n: 'FORMAT', v: () => S.fmt, set: v => S.fmt = clamp(Math.round(v), 0, EXPORTS.length - 1), st: 1, f: v => EXPORTS[v].split(' · ')[0], lo: 0, hi: EXPORTS.length - 1 }
-    : S.mode === 'MAKE'
-    ? { n: 'STAGE', v: () => curChapter(), set: v => { const c = CHAPTERS[clamp(Math.round(v), 0, CHAPTERS.length - 1)]; setVerb(c[1]); }, st: 1, f: v => CHAPTERS[clamp(Math.round(v), 0, CHAPTERS.length - 1)][0], lo: 0, hi: CHAPTERS.length - 1 }
+    : (S.mode === 'MAKE' || S.mode === 'PLACE' || S.mode === 'ADD')
+    ? { n: S.mode === 'PLACE' ? 'PLACE GROUP' : S.mode === 'ADD' ? 'ADD KIND' : 'STAGE', v: () => curChapter(), set: v => { const c = CHAPTERS[clamp(Math.round(v), 0, CHAPTERS.length - 1)]; setVerb(c[1]); }, st: 1, f: v => CHAPTERS[clamp(Math.round(v), 0, CHAPTERS.length - 1)][0], lo: 0, hi: CHAPTERS.length - 1 }
     : { n: 'PICK', v: () => pickIndex(), set: v => { const L = nodes(); pickTo(L[clamp(Math.round(v), 0, L.length - 1)].key); }, st: 1, f: v => (NL[v] || NL[0]).name, lo: 0, hi: Math.max(1, NL.length - 1) };
   let R3;
   if (S.mode === 'LOOK') R3 = [{ n: 'ORBIT', v: () => o.yaw, set: v => { o.yaw = v; S.shotIdx = 0; syncFrameCam(); }, st: 5 / 57.3, f: deg, lo: -Math.PI, hi: Math.PI, wrap: true },
     { n: 'TILT', v: () => -o.pitch, set: v => { o.pitch = -clamp(v, -.3, 1.4); S.shotIdx = 0; syncFrameCam(); }, st: 3 / 57.3, f: v => Math.round(v * 57.3) + '°', lo: -.3, hi: 1.4 },
     { n: 'DOLLY', v: () => o.dist, set: v => { o.dist = clamp(v, .25, 4); S.shotIdx = 0; syncFrameCam(); }, st: .04, f: v => v.toFixed(2) + ' M', lo: .25, hi: 4 }];
-  else if (S.mode === 'MAKE') { const t = verbTool();
-    R3 = [{ n: 'VERB', v: () => S.verb, set: v => setVerb(Math.round(v)), st: 1, f: v => VERBS[v][0], lo: 0, hi: VERBS.length - 1 },
+  else if (S.mode === 'MAKE' || S.mode === 'PLACE' || S.mode === 'ADD') { const t = verbTool();
+    R3 = [{ n: S.mode === 'PLACE' ? 'ITEM / CUTOUT' : S.mode === 'ADD' ? 'ELEMENT' : 'VERB', v: () => S.verb, set: v => setVerb(Math.round(v)), st: 1, f: v => VERBS[v][0], lo: 0, hi: VERBS.length - 1 },
       { n: 'HEIGHT', v: () => S.aimH, set: v => { S.aimH = clamp(v, 0, 1); S.dialPipe = null; }, st: .04, f: v => v > .97 ? 'TOP' : v < .03 ? 'FOOT' : Math.round(v * 100) + '%', lo: 0, hi: 1 },
-      { n: t === 'SPAWN' || t === 'TABLE' ? 'PUT DOWN' : t === 'PLACE' || t === 'CHILD' ? 'HOW MANY' : t === 'SNUFF' ? 'FLAMES' : t === 'LIGHT' ? 'INTENSITY' : t === 'PIPE' ? 'LENGTH' : 'AMOUNT', v: () => S.amt, act: n => dialApply(n), st: 1, f: v => (v > 0 ? '+' : '') + v, lo: -12, hi: 12 }]; }
+      { n: S.mode === 'PLACE' ? 'PLACE NOW' : S.mode === 'ADD' ? 'ADD NOW' : (t === 'SPAWN' || t === 'TABLE' ? 'PUT DOWN' : t === 'PLACE' || t === 'CHILD' ? 'HOW MANY' : t === 'SNUFF' ? 'FLAMES' : t === 'LIGHT' ? 'INTENSITY' : t === 'PIPE' ? 'LENGTH' : 'AMOUNT'), v: () => S.amt, act: n => dialApply(n), st: 1, f: v => (v > 0 ? '+' : '') + v, lo: -12, hi: 12 }]; }
   else if (isXf()) R3 = [0, 1, 2].map(xfRing);
   else if (S.mode === 'TIME') { const F = DOC.frames, nd = curNode(), isKid = nd.k === 'child' || nd.k === 'kids';
     const curPose = () => { const c = nd.k === 'child' ? DOC.cast.find(x => x.id === nd.id || x.i === nd.slot) : DOC.cast[0]; return c && c.pose != null ? c.pose : 1; };
@@ -475,7 +544,7 @@ function rings() {
       { n: 'MIST', v: () => W.mist || 0, set: v => { W.mist = clamp(v, 0, 1); S.pull = W.mist; }, st: .05, f: v => Math.round(v * 100) + '%', lo: 0, hi: 1 }]; }
   return [R1, R2, ...R3];
 }
-function setMode(m) { if (typeof m === 'number') m = MODES[clamp(Math.round(m), 0, MODES.length - 1)]; if (!m || m === S.mode) return; S.mode = m; S.play = false; ONIONN = m === 'TIME' ? S.onion : 0; showFrame(); say(MODE_SAYS[m]); if (m === 'LOOK' && S.pickKey !== 'cam') lookAtNode(); oledDirty = true; lockChime(); }
+function setMode(m) { if (typeof m === 'number') m = MODES[clamp(Math.round(m), 0, MODES.length - 1)]; if (!m || m === S.mode) return; S.mode = m; S.play = false; ONIONN = m === 'TIME' ? S.onion : 0; if (m === 'PLACE' && S.verb < 18) setVerb(curF().clay ? 18 : 23); if (m === 'ADD' && curF().clay && S.verb < 18) setVerb(24); showFrame(); say(MODE_SAYS[m]); if (m === 'LOOK' && S.pickKey !== 'cam') lookAtNode(); oledDirty = true; lockChime(); }
 // the value of a ring as 0..1, for the dials and the reticle
 function v01(r) { if (r && r.u != null) return r.u; if (!r || r.lo == null) return .5; let v = r.v(); if (r.wrap) { const span = r.hi - r.lo; v = ((v - r.lo) % span + span) % span + r.lo; } return clamp((v - r.lo) / Math.max(1e-6, r.hi - r.lo), 0, 1); }
 let gestureT = 0, scrubAcc = [0, 0, 0, 0, 0];
@@ -483,7 +552,7 @@ let gestureT = 0, scrubAcc = [0, 0, 0, 0, 0];
 function scrub(i, frac, fromRemote) { const r = rings()[i]; if (!r) return; if (r.act) { scrubAcc[i] += frac; while (Math.abs(scrubAcc[i]) >= 1) { turn(i, Math.sign(scrubAcc[i]), fromRemote); scrubAcc[i] -= Math.sign(scrubAcc[i]); } return; }
   if (r.undoable && NOW - gestureT > 1.2) snapshot(); gestureT = NOW; S.inScrub = true; const before = Math.floor(r.v() / r.st); r.set(r.v() + r.st * frac); S.inScrub = false; const after = Math.floor(r.v() / r.st); if (after !== before) tick('ring', i);
   S.lastRing = i; S.spinAcc = (S.spinAcc || 0) + frac * .17; ORB.spin(i, frac); oledDirty = true; if (window.REMOTE && !fromRemote) window.REMOTE({ k: 'scrub', i, frac }); }
-function turn(i, steps, fromRemote) { const r = rings()[i]; if (!r) { tick('dead'); return; } tick('ring', i); if (r.undoable && NOW - gestureT > 1.2) snapshot(); gestureT = NOW; if (r.act) r.act(steps); else r.set(r.v() + r.st * steps); S.spinAcc = (S.spinAcc || 0) + steps * .17; S.lastRing = i; ORB.spin(i, steps); oledDirty = true; cursorDirty = true; if (window.REMOTE && !fromRemote) window.REMOTE({ k: 'turn', i, steps }); }
+function turn(i, steps, fromRemote) { const r = rings()[i]; if (!r) { tick('dead'); return; } tick('ring', i); if (r.undoable && NOW - gestureT > 1.2) snapshot(); gestureT = NOW; if (r.act) r.act(steps); else r.set(r.v() + r.st * steps); motionNote(v01(r), (i - 2) * .38, steps * .25); S.spinAcc = (S.spinAcc || 0) + steps * .17; S.lastRing = i; ORB.spin(i, steps); oledDirty = true; cursorDirty = true; if (window.REMOTE && !fromRemote) window.REMOTE({ k: 'turn', i, steps }); }
 
 /* =============================================================== buttons */
 function press(b, long, fromRemote) { tick('press'); ORB.push(b); if (window.REMOTE && !fromRemote) window.REMOTE({ k: 'press', b, long });
@@ -500,7 +569,7 @@ function capture(long) {
   if (isXf()) { if (long) { snapshot(); const nd = curNode(); const kind = S.mode === 'MOVE' ? 'p' : S.mode === 'TURN' ? 'r' : 's'; for (let ax = 0; ax < 3; ax++) xfSet(nd, kind, ax, kind === 's' ? 1 : nd.k === 'child' && kind === 'p' ? xfGet(nd, kind, ax) : 0); say(nd.name + ' · ' + S.mode + ' RESET'); return; }
     const m0 = S.mode; S.mode = 'TIME'; capture(false); S.mode = m0; return; }
   if (S.mode === 'LOOK') { syncFrameCam(); const m0 = S.mode; S.mode = 'TIME'; capture(false); S.mode = m0; say('KEYFRAME ' + (DOC.cur + 1) + ' + CAMERA SHOT CAPTURED'); return; }
-  if (S.mode === 'MAKE') return dialApply(long ? -1 : 1);
+  if (S.mode === 'MAKE' || S.mode === 'PLACE' || S.mode === 'ADD') { if ((S.mode === 'PLACE' || S.mode === 'ADD') && !curF().clay && verbTool() !== 'SPAWN' && verbTool() !== 'TABLE' && verbTool() !== 'CHILD') { S.opt.SPAWN = 0; spawn(false); } return dialApply(long ? -1 : 1); }
   if (S.mode === 'TIME') { snapshot(); if (long) { if (DOC.frames.length > 1) { DOC.frames.splice(DOC.cur, 1); DOC.cur = Math.max(0, DOC.cur - 1); say('KEYFRAME REMOVED'); } } else { syncFrameCast(); syncFrameCam(); DOC.frames.splice(DOC.cur + 1, 0, copyFrame(curF())); DOC.cur++; S.lastShownCur = DOC.cur; say('KEYFRAME ' + (DOC.cur + 1) + ' CAPTURED (CAKE + KIDS + CAMERA) · POSE THE NEXT'); } showFrame(); return; }
   if (S.mode === 'WEAVE') { if (S.takeRec) { S.take = S.takeRec; S.takeRec = null; say('TAKE KEPT · ' + S.take.length + ' SAMPLES · PLAY REPLAYS IT'); } else { S.takeRec = []; S.takeT = NOW; say('RECORDING THE RINGS'); } return; }
   // SCULPT: the thumb acts at the reticle in the centre of the room
@@ -580,10 +649,10 @@ function dialApply(steps) { const t = verbTool(); S.amt += steps; gestureT = NOW
   const cols = t === 'PAINT' ? 16 : 1; for (let k = 0; k < Math.abs(steps); k++) for (let q = 0; q < cols; q++) { const r = q ? rowPoint(h.row, h.col + Math.round(q / cols * COLS)) : h; const hh = q ? { p: r.p, n: r.n, world: CAKE.localToWorld(r.p.clone()), obj: clayMesh } : h; strokeStart(hh); strokeMove(hh); strokeEnd(); }
   S.tool = keepTool; S.radius = kr; S.strength = ks; perfDirty = true; S.state = 'CHANGED'; }
 let CASTID0 = 1;
-function addChild() { const used = new Set(DOC.cast.map(c => c.i)); const i = [0, 1, 2].find(n => !used.has(n)); if (i == null) { say('ALL THREE CHILDREN ARE HERE'); tick('dead'); return; }
-  snapshot(); const ca = Math.PI / 2 - S.orbit.yaw, a = ca + Math.PI + KIDS[i].da; const c = { id: CASTID++, i, a, r: .62, yaw: 0, tilt: 0, lift: 0, op: 1, vis: 0, pose: 1 }; DOC.cast.push(c);
+function addChild(prefIdx) { const used = new Set(DOC.cast.map(c => c.i)); const i = prefIdx != null && !used.has(prefIdx) ? prefIdx : [0, 1, 2, 3, 4, 5].find(n => !used.has(n)); if (i == null) { say('ALL 6 SEGMENTED PERFORMERS ARE AROUND THE TABLE'); tick('dead'); return; }
+  snapshot(); const ca = Math.PI / 2 - S.orbit.yaw, a = ca + Math.PI + KIDS[i].da; const c = { id: CASTID++, i, a, r: i >= 3 ? .78 : .62, yaw: 0, tilt: 0, lift: 0, op: 1, vis: 0, pose: 1 }; DOC.cast.push(c);
   syncFrameCast();
-  S.pickKey = 'c:' + c.id; S.ease = { t: 1.6, y: 1.0, d: Math.max(S.orbit.dist, 1.32), p: -.16 }; shimmer(); say('CHILD ' + (i + 1) + ' COMES IN FROM THE DARK'); }
+  S.pickKey = 'c:' + c.id; S.ease = { t: 1.6, y: 1.0, d: Math.max(S.orbit.dist, 1.32), p: -.16 }; shimmer(); say((KIDS[i].label || ('CHILD ' + (i + 1))) + ' COMES IN FROM THE DARK'); }
 function removeChild() { const c = DOC.cast[DOC.cast.length - 1]; if (!c) { tick('dead'); return; } snapshot(); DOC.cast.pop(); syncFrameCast(); S.pickKey = 'cake'; say('CHILD ' + (c.i + 1) + ' GOES BACK INTO THE DARK'); }
 
 /* =============================================================== the room's camera, and hands on the room */
@@ -683,9 +752,12 @@ function updReticle() {
 
 /* =============================================================== THE CAST: the children, cut from the film's own frame, added one by one around the table and lit by the 3D scene */
 const KIDS = [
-  { file: 'stelline_child1.webp', frames: 16, fps: 10, h: .56, base: TABLE_Y - .1, da: -.66, pts: [] },
-  { file: 'stelline_child2.webp', frames: 16, fps: 10, h: .34, base: TABLE_Y + .03, da: -.04, pts: [] },
-  { file: 'stelline_child3.webp', frames: 16, fps: 10, h: .72, base: TABLE_Y - .14, da: .58, pts: [] }
+  { file: 'stelline_child1.webp', label: 'CHILD 1 · WEST', frames: 16, fps: 10, h: .56, base: TABLE_Y - .1, da: -.66, pts: [] },
+  { file: 'stelline_child2.webp', label: 'CHILD 2 · CENTER', frames: 16, fps: 10, h: .38, base: TABLE_Y + .02, da: -.04, pts: [] },
+  { file: 'stelline_child3.webp', label: 'CHILD 3 · EAST', frames: 16, fps: 10, h: .70, base: TABLE_Y - .14, da: .58, pts: [] },
+  { file: 'stelline_walk.webp',   label: 'ANA · WALK TO WORK', frames: 8, fps: 6, h: .76, base: TABLE_Y - .16, da: -1.25, pts: [] },
+  { file: 'stelline_talk.webp',   label: 'ANA · UNTIDY DETAILS', frames: 8, fps: 6, h: .68, base: TABLE_Y - .12, da: 1.25, pts: [] },
+  { file: 'stelline_candle_face.webp', label: 'WISH · CANDLE FACE', frames: 8, fps: 8, h: .48, base: TABLE_Y + .01, da: .28, pts: [] }
 ];
 const kidTex = KIDS.map(k => { const t = new T.TextureLoader().load('assets/cutouts/' + k.file, tt => {
   const fw = tt.image.width / (k.frames || 1), fh = tt.image.height;
@@ -867,7 +939,7 @@ function drawIcon(x, n, cx, cy, R, col) { x.save(); x.strokeStyle = x.fillStyle 
   else if (n === 'KEEP') { x.moveTo(cx, cy - R * .7); x.lineTo(cx, cy + R * .2); x.moveTo(cx - R * .38, cy - R * .15); x.lineTo(cx, cy + R * .25); x.lineTo(cx + R * .38, cy - R * .15); x.moveTo(cx - R * .7, cy + R * .2); x.lineTo(cx - R * .7, cy + R * .65); x.lineTo(cx + R * .7, cy + R * .65); x.lineTo(cx + R * .7, cy + R * .2); x.stroke(); }
   x.restore(); }
 function iconTex(n, col, bg) { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'); if (bg) { x.fillStyle = bg; x.fillRect(0, 0, 128, 128); } drawIcon(x, n, 64, 64, 46, col); const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.anisotropy = 4; return t; }
-const WORD = { MODE: 'QR·PAIR', UNDO: 'UNDO', CAPTURE: '+FRAME', PLAY: 'PLAY', KEEP: 'SAVE' };
+const WORD = { MODE: 'QR·PAIR', UNDO: 'UNDO', CAPTURE: 'ADD·PLACE', PLAY: 'PLAY', KEEP: 'SAVE' };
 function label(txt) { const c = document.createElement('canvas'); c.width = 320; c.height = 96; const x = c.getContext('2d'); x.fillStyle = 'rgba(6,10,9,.9)'; const r = 18; x.beginPath(); x.moveTo(r, 4); x.arcTo(316, 4, 316, 92, r); x.arcTo(316, 92, 4, 92, r); x.arcTo(4, 92, 4, 4, r); x.arcTo(4, 4, 316, 4, r); x.fill();
   drawIcon(x, txt, 52, 48, 30, '#5ff0dc'); x.font = '700 38px ui-monospace, Menlo, monospace'; x.fillStyle = '#e8f2ee'; x.textAlign = 'left'; x.fillText(WORD[txt] || txt, 96, 62); const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.anisotropy = 4; return t; }
 [['MODE', -.87, -.07, 0xd9d5cc], ['UNDO', -.73, .07, 0xd9d5cc], ['CAPTURE', .66, -.1, 0xd23a2a], ['PLAY', .76, .02, 0xd9d5cc], ['KEEP', .88, -.1, 0x5ff0dc]].forEach(([n, x, dz, col]) => {
@@ -1127,16 +1199,44 @@ function drawPairQR(x, W, H) { if (!PAIR.qr) { try { const q = qrcode(0, 'M'); q
 let oledDirty = true, perfDirty = true, perf = { tris: 0, calls: 0 };
 function drawOLED() { const W = OLED.width, H = OLED.height, x = ox; x.fillStyle = '#020403'; x.fillRect(0, 0, W, H); const CY = '#5ff0dc', DIM = '#2e7a70', MID = '#8fe9dc', AMB = '#f0b040';
   if (S.pairShow && !PHONE) { drawPairQR(x, W, H); oledTex.needsUpdate = true; return; }
-  x.strokeStyle = '#123630'; x.lineWidth = 2; x.beginPath(); x.moveTo(W * .25, 18); x.lineTo(W * .25, 226); x.moveTo(W * .72, 18); x.lineTo(W * .72, 226); x.moveTo(20, 236); x.lineTo(W - 20, 236); x.stroke();
+  // Left viewport on the OLED: Real Stelline Film Clip (walk to work + explaining realism + birthday scene) + Segmented Cutout PiP
+  const vx = 18, vy = 16, vw = 372, vh = 210;
+  x.fillStyle = '#050b09'; x.fillRect(vx, vy, vw, vh);
+  try {
+    if (oledVideo && oledVideo.readyState >= 2 && oledVideo.currentTime > 0.5) x.drawImage(oledVideo, vx, vy, vw, vh);
+    else if (kidTex[3] && kidTex[3].image) { const fw = kidTex[3].image.width / 8, fh = kidTex[3].image.height, fi = Math.floor(NOW * 6) % 8; x.drawImage(kidTex[3].image, fi * fw, 0, fw, fh, vx + 40, vy + 4, vw - 80, vh - 8); }
+  } catch (e) {}
+  x.fillStyle = 'rgba(2,6,5,.25)'; x.fillRect(vx, vy, vw, vh);
+  x.strokeStyle = CY; x.lineWidth = 2; x.strokeRect(vx, vy, vw, vh);
+  if (DOC.cast.length) {
+    const c0 = DOC.cast[DOC.cast.length - 1], k0 = KIDS[c0.i], kt = kidTex[c0.i];
+    if (kt && kt.image) {
+      const pw = 76, ph = 76, px = vx + vw - pw - 6, py = vy + vh - ph - 6;
+      x.fillStyle = 'rgba(2,6,5,.82)'; x.fillRect(px, py, pw, ph);
+      const fw = kt.image.width / (k0.frames || 1), fh = kt.image.height, fi = Math.floor(NOW * 8) % (k0.frames || 1);
+      x.drawImage(kt.image, fi * fw, 0, fw, fh, px + 3, py + 3, pw - 6, ph - 6);
+      x.strokeStyle = AMB; x.strokeRect(px, py, pw, ph);
+    }
+  }
   const F = DOC.frames, mistAmt = Math.max(S.pull || 0, S.mode === 'WEAVE' ? (S.weave.mist || 0) : 0);
-  const st = PHONE ? ('ORB REMOTE · ROOM ' + (PAIR.room || 'LOCAL')) : S.exporting ? 'EXPORT' : mistAmt > .05 ? 'MIST · ' + Math.round(mistAmt * 100) + '%' : ST ? 'WORKING' : S.state;
-  x.font = '600 26px ui-monospace, Menlo, monospace'; x.fillStyle = mistAmt > .05 ? AMB : DIM; x.textAlign = 'left'; x.fillText(st, 26, 48);
-  x.font = '700 58px ui-monospace, Menlo, monospace'; x.fillStyle = CY; x.fillText(S.mode, 26, 118); x.font = '500 24px ui-monospace, Menlo, monospace'; x.fillStyle = MID;
-  x.fillText(curNode().name + ' · FRAME ' + (DOC.cur + 1) + '/' + F.length, 26, 162); x.fillStyle = DIM; x.fillText(Math.round(perf.tris / 1000) + 'K TRIS · ' + (DOC.hasTable ? 'TABLE SET' : 'CHAMBER CONE'), 26, 202);
+  const st = PHONE ? ('ORB REMOTE · ' + (PAIR.room || 'LOCAL')) : S.exporting ? 'EXPORT' : mistAmt > .05 ? 'MIST · ' + Math.round(mistAmt * 100) + '%' : S.mode;
+  x.fillStyle = 'rgba(2,6,5,.82)'; x.fillRect(vx + 2, vy + 2, vw - 4, 28);
+  x.font = '700 18px ui-monospace, Menlo, monospace'; x.fillStyle = CY; x.textAlign = 'left';
+  x.fillText(st + ' · ' + curNode().name + ' · KF ' + (DOC.cur + 1) + '/' + F.length, vx + 8, vy + 22);
+  // Live Audio Waveform bars along bottom of video monitor
+  if (mixAnalyser) { try { mixAnalyser.getByteFrequencyData(mixData); } catch (e) {} }
+  for (let b = 0; b < 24; b++) {
+    const raw = mixAnalyser ? (mixData[b] / 255) : 0;
+    const pulse = Math.max(0, 1 - (performance.now() - lastMotionSndT) / 280) * (.35 + .35 * Math.sin(NOW * 18 + b * .6));
+    const bh = Math.round(clamp(Math.max(raw, pulse, .08 + .05 * Math.sin(NOW * 4 + b)), .06, 1) * 28);
+    x.fillStyle = b % 3 === 0 ? AMB : CY;
+    x.fillRect(vx + 8 + b * 11, vy + vh - 6 - bh, 8, bh);
+  }
+  x.strokeStyle = '#123630'; x.lineWidth = 2; x.beginPath(); x.moveTo(W * .25, 18); x.lineTo(W * .25, 226); x.moveTo(W * .72, 18); x.lineTo(W * .72, 226); x.moveTo(20, 236); x.lineTo(W - 20, 236); x.stroke();
   // centre: the active operation
   const cx = W * .485; x.textAlign = 'center';
   if (S.exporting) { EXPORTS.forEach((e, i) => { x.font = (i === S.fmt ? '700 ' : '500 ') + '30px ui-monospace, Menlo, monospace'; x.fillStyle = i === S.fmt ? CY : DIM; x.fillText(e, cx, 52 + i * 36); }); }
-  else if (S.mode === 'MAKE') { const t = toolName(), vt = verbTool(); x.font = '700 46px ui-monospace, Menlo, monospace'; x.fillStyle = CY; x.fillText(VERBS[S.verb][0], cx, 70); drawToolDiagram(x, vt === 'CHILD' || vt === 'SNUFF' || vt === 'TABLE' || vt === 'LIGHT' ? 'PLACE' : t, cx, 138); }
+  else if (S.mode === 'MAKE' || S.mode === 'PLACE' || S.mode === 'ADD') { const t = toolName(), vt = verbTool(); x.font = '700 44px ui-monospace, Menlo, monospace'; x.fillStyle = CY; x.fillText(S.mode + ' · ' + VERBS[S.verb][0], cx, 70); drawToolDiagram(x, vt === 'CHILD' || vt === 'SNUFF' || vt === 'TABLE' || vt === 'LIGHT' ? 'PLACE' : t, cx, 138); }
   else if (S.mode === 'TIME') { const n = F.length, w = Math.min(70, 560 / n); let tot = 0; F.forEach(f => tot += f.hold); let xx = cx - Math.min(560, tot * w) / 2; const unit = Math.min(560, tot * w) / tot;
     F.forEach((f, i) => { const ww = f.hold * unit; x.fillStyle = i === DOC.cur ? CY : '#164a43'; x.fillRect(xx + 2, 90, ww - 4, 64); if (f.hold > 1) { x.fillStyle = '#020403'; x.fillRect(xx + unit - 2, 118, ww - unit, 8); } xx += ww; });
     x.font = '700 40px ui-monospace, Menlo, monospace'; x.fillStyle = CY; x.fillText(S.play ? 'PLAYING · ' + PLAYS[S.plays][0] : 'STOP-MOTION', cx, 60); }
@@ -1243,7 +1343,7 @@ function update(dt) { NOW += dt; HU.uTime.value = NOW;
   orbYawV += ((Math.cos(NOW * .8) * .003 - ORB.rotation.y) * 38 - orbYawV * 9) * dt; ORB.rotation.y += orbYawV * dt;
   orbRollV += ((0 - ORB.rotation.z) * 45 - orbRollV * 10) * dt; ORB.rotation.z += orbRollV * dt;
   ORB.userData.iris.material.opacity = .55 + .35 * (S.takeRec ? (Math.sin(NOW * 9) > 0 ? 1 : .2) : .5 + .5 * Math.sin(NOW * 1.6));
-  if (oledDirty || (S.msg && NOW - S.msgT < 4.2)) { drawOLED(); oledDirty = false; }
+  if (oledDirty || (S.msg && NOW - S.msgT < 4.2) || Math.floor(NOW * 15) !== Math.floor((NOW - dt) * 15)) { drawOLED(); oledDirty = false; }
   if (S.turntable) S.orbit.yaw += dt * .25; if (S.ease) { const e = S.ease, k = Math.min(1, dt * 2.2); S.orbit.tgt.y += (e.y - S.orbit.tgt.y) * k; S.orbit.dist += (e.d - S.orbit.dist) * k; S.orbit.pitch += (e.p - S.orbit.pitch) * k; if (e.yaw != null) S.orbit.yaw += (e.yaw - S.orbit.yaw) * k; e.t -= dt; if (e.t <= 0) S.ease = null; }
   if (!PHONE && !S.play && S.mode !== 'TIME' && S.mode !== 'WEAVE' && curNode().k !== 'cam' && !S.shotIdx) { const n = nodeCenter(), k = Math.min(1, dt * 3); S.orbit.tgt.x += (n.c.x - S.orbit.tgt.x) * k; S.orbit.tgt.z += (n.c.z - S.orbit.tgt.z) * k; if (!S.ease) S.orbit.tgt.y += (n.c.y - S.orbit.tgt.y) * k * .5; }
   RINGS.forEach((r, i) => { const want = odrag && odrag.ring === i && odrag.lock === 'x' ? 1 : 0; r.stretch += (want - r.stretch) * Math.min(1, dt * 12); r.g.scale.set(1 + r.stretch * .12, 1 + r.stretch * .05, 1 + r.stretch * .05); r.lp.scale.set(1 + r.stretch * .35, 1 + r.stretch * .35, 1); });
@@ -1266,6 +1366,42 @@ let last = performance.now(), auto = true;
 function loop(now) { if (!auto) return; const dt = Math.min(.05, (now - last) / 1000); last = now; update(dt); render(); requestAnimationFrame(loop); }
 resize(); showFrame(); drawOLED(); requestAnimationFrame(loop);
 setInterval(() => { oledDirty = true; }, 500);
+
+
+/* =============================================================== USER MEDIA IMPORTER (DRAG-AND-DROP OR PRESS [I]) */
+const wFileImp = document.createElement('input');
+wFileImp.type = 'file'; wFileImp.multiple = true; wFileImp.accept = 'image/*,video/*,audio/*,.json';
+wFileImp.style.display = 'none'; document.body.append(wFileImp);
+
+function weaverImportFiles(files) {
+  if (!files || !files.length) return;
+  Array.from(files).forEach(f => {
+    const url = URL.createObjectURL(f);
+    const name = f.name.replace(/\.[^.]+$/, '').toUpperCase().slice(0, 14);
+    if (f.type.startsWith('video/') || /\.(mp4|webm|mov)$/i.test(f.name)) {
+      if (typeof oledVideo !== 'undefined') { oledVideo.src = url; oledVideo.play().catch(() => {}); }
+      say('IMPORTED VIDEO TO OLED & TABLE · ' + name);
+    } else if (f.type.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(f.name)) {
+      const tex = new T.TextureLoader().load(url, t => {
+        t.encoding = T.sRGBEncoding;
+        const slot = DOC.cast.length % KIDS.length;
+        kidTex[slot] = t;
+        KIDS[slot][6] = 1; // 1 frame static/custom cutout
+        if (!DOC.cast.includes(slot)) DOC.cast.push(slot);
+        DOC.hasTable = true;
+        showFrame(); oledDirty = true;
+        say('IMPORTED PHOTO CUTOUT AT TABLE · ' + name);
+      });
+    } else if (f.type.startsWith('audio/') || /\.(mp3|wav|ogg|m4a)$/i.test(f.name)) {
+      if (typeof mixAudio !== 'undefined') { mixAudio.src = url; mixAudio.play().catch(() => {}); }
+      say('IMPORTED BIRTHDAY AUDIO · ' + name);
+    }
+  });
+}
+wFileImp.addEventListener('change', e => { weaverImportFiles(e.target.files); wFileImp.value = ''; });
+addEventListener('dragover', e => e.preventDefault());
+addEventListener('drop', e => { e.preventDefault(); if (e.dataTransfer && e.dataTransfer.files) weaverImportFiles(e.dataTransfer.files); });
+addEventListener('keydown', e => { if ((e.key === 'i' || e.key === 'I') && !e.metaKey && !e.ctrlKey) wFileImp.click(); });
 
 /* =============================================================== a handle for scripts: tests, and the film */
 window.FORGE = { S, get DOC() { return DOC; }, turn, press, rings, scrub, nodes, curNode, pickTo, setMode, setVerb, GUIDE, GSTEPS, PAIR, CINE, setCine, CAM_SHOTS, KID_POSES, applyCamShot, applyKidPose, now: () => NOW, gizmoHit, gizmoDrag, setStretch, setPull, VERBS, MODES, spawn, place, hitAt, strokeStart, strokeMove, strokeEnd, snapshot, showFrame, cam, CAKE, ORB, RINGS, BTN, OC, perf: () => perf,

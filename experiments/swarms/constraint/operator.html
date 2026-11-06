@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Constraint Birthday Operator</title>
+<style>
+@font-face { font-family: 'Oswald'; src: url('../../../ana/assets/oswald-latin-500-normal.woff2') format('woff2'); font-weight: 500; }
+:root { --bg: #050606; --ink: #d9e2de; --dim: #8a9792; --amber: #e8b264; --ok: #7fd3a2; --line: #1c201e; }
+* { box-sizing: border-box; } body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 -apple-system, Arial, sans-serif; }
+main { max-width: 760px; margin: 0 auto; padding: 16px; }
+h1, h2 { font: 500 15px 'Oswald', sans-serif; letter-spacing: .1em; margin: 18px 0 6px; } h1 { color: var(--amber); font-size: 17px; margin-top: 4px; }
+video { width: 100%; display: block; background: #000; border: 1px solid var(--line); }
+.row { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+a.b { display: inline-block; padding: 10px 14px; border: 1px solid #2a302d; border-radius: 4px; color: var(--ink); text-decoration: none; font: 500 13px 'Oswald', sans-serif; letter-spacing: .1em; background: #121514; }
+.v { color: var(--amber); font-weight: 600; } .ok { color: var(--ok); } p, li { color: #b3bdb9; } td { padding: 4px 6px; border-bottom: 1px solid var(--line); vertical-align: top; } table { border-collapse: collapse; width: 100%; }
+</style></head><body><main>
+<h1>CONSTRAINT BIRTHDAY · OPERATOR</h1>
+<p>Revision 2, 2026-11-06 (after critic round 1; uncommitted; the coordinator commits). SCION // IVAN SUTHERLAND swarm.</p>
+<video src="proof.mp4" controls playsinline preload="metadata"></video>
+<div class="row"><a class="b" href="index.html">PLAY THE GAME</a><a class="b" href="proof.mp4">PROOF FILM 10 S</a><a class="b" href="birthday.mp4">WHOLE BIRTHDAY 29 S</a><a class="b" href="critic-round1.md">CRITIC ROUND 1</a><a class="b" href="solver-trace.json">SOLVER TRACE</a><a class="b" href="README.md">README</a><a class="b" href="tests.js">TESTS</a></div>
+<h2>CRITIC VERDICT</h2>
+<p><span class="v">ROUND 1: PASS</span>, with one gap: the elbow locked straight even when a candle was reachable, and during the lean she read as a folding mannequin. Repaired in revision 2 (comfort term, wrist limit, neck and skirt follow the body); the critic's condition is now a unit test and passes (lit elbows 113 to 114 deg). Round 2 not run.</p>
+<h2>NEXT BLOCKING FAILURE</h2>
+<p>Readability: she is about 380 px tall in a 720 px frame and the lightings are small. Repair condition: at each lit event in birthday.mp4 (10.2, 11.5, 13.7, 15.8, 18.0, 21.1, 23.2 s) a viewer can point to the candle that lit without reading the device.</p>
+<h2>MEASURED</h2>
+<table>
+<tr><td>Unit tests</td><td class="ok">25 passed, 0 failed (node tests.js)</td></tr><tr><td>Elbow at the seven lit events</td><td>112.6 to 114.2 deg (critic condition 100 to 165)</td></tr><tr><td>Steps at 11.8/s</td><td>224 of 224</td></tr>
+<tr><td>Worst hard residual, every step</td><td>2e-8 m (tolerance 1e-4)</td></tr>
+<tr><td>Feet drift</td><td>0 (pinned)</td></tr>
+<tr><td>Largest point move per machine step</td><td>3.5 cm (limit 5)</td></tr>
+<tr><td>Unreachable shown</td><td>from 2.77 s, residual up to 48 mm, limits named</td></tr>
+<tr><td>Candles lit</td><td>7 of 7, then blown out at 27.2 s (birthday.mp4)</td></tr>
+<tr><td>1 mm pen change</td><td>moves no point more than 1.11 mm</td></tr>
+</table>
+<h2>HOW TO PLAY</h2>
+<ul><li>SELECT picks HAND or CAKE.</li><li>HAND: knurled ring moves the pen along, triangle ring up and down. The taper's flame follows the pen if her body can reach it.</li>
+<li>CAKE: knurled ring slides it along the table, triangle ring turns it. A candle can be lit only when it lies on the dashed line (her reach plane).</li>
+<li>Scale ring: where you kneel. HOLD once all seven are lit: she blows them out. SCENE plays the proof. The i button opens the residual panel.</li></ul>
+</main></body></html>

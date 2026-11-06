@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Grown Birthday</title>
+<style>
+@font-face { font-family: 'Oswald'; src: url('../../../ana/assets/oswald-latin-400-normal.woff2') format('woff2'); font-weight: 400; }
+@font-face { font-family: 'Oswald'; src: url('../../../ana/assets/oswald-latin-500-normal.woff2') format('woff2'); font-weight: 500; }
+:root { --bg: #050606; --ink: #d9e2de; --dim: #6f7c77; --amber: #e8b264; }
+* { box-sizing: border-box; } html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); overflow: hidden; }
+body { font: 13px/1.4 'Oswald', 'Arial Narrow', sans-serif; letter-spacing: .06em; -webkit-user-select: none; user-select: none; }
+.app { height: 100dvh; display: grid; grid-template-rows: minmax(0, 1fr) clamp(200px, 34vh, 330px); }
+#view { position: relative; overflow: hidden; } #view canvas { display: block; width: 100%; height: 100%; }
+#dev { position: relative; background: radial-gradient(120% 140% at 50% 0%, #121413 0%, #070807 60%, #030303 100%); border-top: 1px solid #161918; touch-action: none; }
+#dev canvas { display: block; width: 100%; height: 100%; }
+#info { position: absolute; inset: 0; background: rgba(3, 4, 4, .95); display: none; overflow: auto; padding: 16px 16px 30px; font: 13px/1.5 -apple-system, Arial, sans-serif; letter-spacing: 0; z-index: 5; }
+#info.on { display: block; } #info h3 { font: 500 15px 'Oswald', sans-serif; letter-spacing: .1em; margin: 0 0 8px; color: var(--amber); }
+#info h4 { font: 500 12px 'Oswald', sans-serif; letter-spacing: .1em; margin: 16px 0 6px; color: var(--ink); }
+#info p { max-width: 760px; color: #a9b4b0; margin: 6px 0; } #info table { border-collapse: collapse; } #info td { padding: 2px 8px 2px 0; color: #b9c4c0; font-variant-numeric: tabular-nums; }
+#info .row { display: flex; gap: 14px; flex-wrap: wrap; } #info canvas { background: #000; border: 1px solid #1c201e; image-rendering: pixelated; width: 240px; }
+button.x { font: 500 12px 'Oswald', sans-serif; letter-spacing: .12em; color: var(--ink); background: #121514; border: 1px solid #2a302d; border-radius: 4px; padding: 7px 12px; cursor: pointer; margin: 10px 8px 0 0; }
+</style></head><body>
+<div class="app"><div id="view"></div><div id="dev"></div></div>
+<div id="info"><h3>GROWN BIRTHDAY &middot; OPERATOR</h3>
+<p>The head and the cake are not drawn. Each is a genome of numbers; each generation eight variants are bred around the current form and the closest to the reference is kept. The references are two frames of the film (3:34.0, the birthday girl; 2:35.0, her cake), reduced to traced outlines, five landmarks and a colour histogram. The frames are not shipped.</p>
+<p>HOLD (short): breed one generation. HOLD (long): switch the memory off. SELECT: head or cake, and which trait group mutates. KNURLED RING: mutation strength. TRIANGLE RING: lean the mutation toward one trait. SCALE RING: where you kneel.</p>
+<div id="opBody"></div>
+<button class="x" id="infoClose">CLOSE</button><button class="x" id="dlTrace">SAVE TRACE</button><button class="x" id="opReset">START AGAIN</button></div>
+<script src="../../../ana/assets/three.min.js"></script>
+<script src="evolve-core.js"></script>
+<script>
+'use strict';
+const T = THREE, TAU = Math.PI * 2, clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t, E = window.EVO;
+const Q = new URLSearchParams(location.search), REC = Q.has('rec'), SEED = +(Q.get('seed') || 2092);
+let NOW = 0, REF = null;
+/* =============================================================== SOUND: the device's own grains (ana/device-sounds.wav) and a tone that follows fitness */
+const SPR = { click: [[0, .065], [.115, .065], [.23, .065], [.345, .065], [.46, .065], [.575, .065], [.69, .065], [.805, .065], [.92, .065]], ratchet: [[1.035, .05], [1.135, .05], [1.235, .05], [1.335, .05]], tick: [[1.435, .04], [1.525, .04]], comb: [[1.615, .37]], whirr: [[2.035, .62]] };
+let AC = null, BUF = null, WAVBYTES = null, TONE = null; const LOG = [];
+fetch('../../../ana/device-sounds.wav').then(r => r.ok ? r.arrayBuffer() : null).then(b => { WAVBYTES = b; }).catch(() => { });
+let RND = 1; const rnd = () => { RND = (RND * 16807) % 2147483647; return RND / 2147483647; };
+function ac() { if (REC) return null; if (!AC) { AC = new (window.AudioContext || window.webkitAudioContext)(); if (WAVBYTES) AC.decodeAudioData(WAVBYTES.slice(0)).then(b => BUF = b); TONE = makeTone(AC, AC.destination); } if (AC.state === 'suspended') AC.resume(); return AC; }
+function makeTone(a, out) { const o = a.createOscillator(), o2 = a.createOscillator(), g = a.createGain(), f = a.createBiquadFilter(); o.type = 'sine'; o2.type = 'triangle'; o.frequency.value = 220; o2.frequency.value = 440; f.type = 'lowpass'; f.frequency.value = 1800; g.gain.value = 0;
+  const g2 = a.createGain(); g2.gain.value = .25; o.connect(g); o2.connect(g2).connect(g); g.connect(f).connect(out); o.start(0); o2.start(0); return { o, o2, g }; }
+function noiseBuf(a, len) { const b = a.createBuffer(1, Math.max(1, Math.floor(a.sampleRate * len)), a.sampleRate), d = b.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = rnd() * 2 - 1; return b; }
+function env(g, t, pk, at, dur) { g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(pk, t + at); g.gain.exponentialRampToValueAtTime(.0005, t + dur); }
+function grain(a, out, buf, t, kind, rate, vol) { if (buf) { const set = SPR[kind], [o, d] = set[Math.floor(rnd() * set.length)], s = a.createBufferSource(); s.buffer = buf; s.playbackRate.value = rate; const g = a.createGain(); g.gain.value = vol; s.connect(g).connect(out); s.start(t, o, d); return; }
+  const s = a.createBufferSource(); s.buffer = noiseBuf(a, .05); const f = a.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = kind === 'tick' ? 6000 : 2600 * rate; f.Q.value = 2.2; const g = a.createGain(); env(g, t, vol, .002, .04); s.connect(f).connect(g).connect(out); s.start(t); }
+const fitHz = f => 196 * Math.pow(2, clamp((f - .45) / .5, 0, 1) * 2);   // fitness 0.45 -> 196 Hz (G3), 0.95 -> 784 Hz (G5)
+function play(a, out, buf, t, e, tone) { const k = e.k;
+  if (k === 'click') grain(a, out, buf, t, e.fast ? 'ratchet' : 'click', 1 + e.ring * .045 + (rnd() - .5) * .02, .7);
+  else if (k === 'hand') grain(a, out, buf, t, 'click', 1.25 + e.ring * .03, .22);
+  else if (k === 'kid') { grain(a, out, buf, t, e.fast ? 'ratchet' : 'click', .92 + (rnd() - .5) * .02, .62); const o = a.createOscillator(), g = a.createGain(); o.frequency.value = fitHz(e.f) * 2; env(g, t, .018, .005, .12); o.connect(g).connect(out); o.start(t); o.stop(t + .15); }
+  else if (k === 'select') { for (let i = 0; i < 5; i++) { const o = a.createOscillator(), g = a.createGain(), tt = t + i * .055; o.frequency.value = 12000; g.gain.setValueAtTime(0, tt); g.gain.linearRampToValueAtTime(.03, tt + .004); g.gain.linearRampToValueAtTime(0, tt + .03); o.connect(g).connect(out); o.start(tt); o.stop(tt + .04); } }
+  else if (k === 'hold') grain(a, out, buf, t, 'click', .85, .6);
+  else if (k === 'wash' || k === 'off') { const s = a.createBufferSource(); s.buffer = noiseBuf(a, .7); const f = a.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 2200; const g = a.createGain(); env(g, t, (e.v || 1) * .2, .06, .6); s.connect(f).connect(g).connect(out); s.start(t); if (buf) grain(a, out, buf, t, 'comb', 1, .22); }
+  else if (k === 'match') { [0, .09, .18].forEach((d, i) => { const o = a.createOscillator(), g = a.createGain(); o.frequency.value = fitHz(e.f) * [1, 1.5, 2][i]; env(g, t + d, .05, .02, 1.6); o.connect(g).connect(out); o.start(t + d); o.stop(t + d + 1.7); }); if (buf) grain(a, out, buf, t, 'whirr', 1, .3); }
+  else if (k === 'light') { const s = a.createBufferSource(); s.buffer = noiseBuf(a, .25); const f = a.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 900; const g = a.createGain(); env(g, t, .12, .01, .22); s.connect(f).connect(g).connect(out); s.start(t); }
+  else if (k === 'tone' && tone) { tone.o.frequency.setTargetAtTime(e.hz, t, .06); tone.o2.frequency.setTargetAtTime(e.hz * 2, t, .06); tone.g.gain.setTargetAtTime(e.g, t, .12); }
+}
+function sound(e) { e.t = NOW; LOG.push(e); const a = ac(); if (!a) return; try { play(a, a.destination, BUF, a.currentTime + .005, e, TONE); } catch (x) { } }
+async function renderAudio(t0, t1) { const sr = 48000, a = new OfflineAudioContext(2, Math.ceil((t1 - t0) * sr), sr); let buf = null; if (WAVBYTES) buf = await a.decodeAudioData(WAVBYTES.slice(0)); RND = 1;
+  const tone = makeTone(a, a.destination); LOG.forEach(e => { if (e.t < t0 || e.t > t1) return; play(a, a.destination, buf, e.t - t0 + .001, e, tone); });
+  const r = await a.startRendering(), L0 = r.getChannelData(0), R0 = r.getChannelData(1), n = L0.length, dv = new DataView(new ArrayBuffer(44 + n * 4));
+  const ws = (o, s) => { for (let i = 0; i < s.length; i++) dv.setUint8(o + i, s.charCodeAt(i)); }; ws(0, 'RIFF'); dv.setUint32(4, 36 + n * 4, true); ws(8, 'WAVEfmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 2, true); dv.setUint32(24, sr, true); dv.setUint32(28, sr * 4, true); dv.setUint16(32, 4, true); dv.setUint16(34, 16, true); ws(36, 'data'); dv.setUint32(40, n * 4, true);
+  let pk = 0; for (let i = 0; i < n; i++) pk = Math.max(pk, Math.abs(L0[i]), Math.abs(R0[i])); const gain = pk > .95 ? .95 / pk : 1;
+  for (let i = 0; i < n; i++) { dv.setInt16(44 + i * 4, clamp(L0[i] * gain, -1, 1) * 32767, true); dv.setInt16(46 + i * 4, clamp(R0[i] * gain, -1, 1) * 32767, true); }
+  const bytes = new Uint8Array(dv.buffer); let s = ''; for (let i = 0; i < bytes.length; i += 32768) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 32768)); return { b64: btoa(s), peak: pk }; }
+/* =============================================================== THE ROOM (as in ana/index.html): black, a band of light where wall meets floor */
+const viewEl = document.getElementById('view'), R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: REC }); R.setPixelRatio(REC ? 1 : Math.min(2, devicePixelRatio)); R.outputEncoding = T.sRGBEncoding; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = 1.05; viewEl.append(R.domElement);
+const scene = new T.Scene(); scene.background = new T.Color(0x030404); scene.fog = new T.FogExp2(0x030404, .06);
+const cam = new T.PerspectiveCamera(34, 1, .02, 60);
+{ const fl = new T.Mesh(new T.CircleGeometry(9, 96), new T.MeshStandardMaterial({ color: 0x0b0c0c, roughness: .5, metalness: .2 })); fl.rotation.x = -Math.PI / 2; scene.add(fl);
+  const band = new T.Mesh(new T.TorusGeometry(7.5, .012, 6, 256), new T.MeshBasicMaterial({ color: 0xdfe8e4 })); band.rotation.x = Math.PI / 2; band.position.y = .42; scene.add(band);
+  const glow = new T.Mesh(new T.TorusGeometry(7.5, .09, 6, 256), new T.MeshBasicMaterial({ color: 0x7e8f89, transparent: true, opacity: .12 })); glow.rotation.x = Math.PI / 2; glow.position.y = .42; scene.add(glow);
+  const ring = new T.Mesh(new T.RingGeometry(1.9, 1.91, 128), new T.MeshBasicMaterial({ color: 0x252b29 })); ring.rotation.x = -Math.PI / 2; ring.position.y = .002; scene.add(ring); }
+scene.add(new T.HemisphereLight(0x6c7a76, 0x050403, .35)); const key = new T.DirectionalLight(0xcfd8d4, .35); key.position.set(.4, 1.6, 1.2); scene.add(key);
+const candleLight = new T.PointLight(0xffa04a, 0, 3.2, 1.5); scene.add(candleLight);
+/* =============================================================== THE FORMS: a neuroglow head (slices through a dark body, after neuroglow_v3-plus.html) and a cake */
+const CY = .6, HS = .0085, CS = .3;                      // where the forms hang; head mesh units -> metres; cake units -> metres
+const COOL = new T.Color(0x38c8ff), WARM = new T.Color(0xffb468);
+function lineMat(op) { return new T.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: op, blending: T.AdditiveBlending, depthWrite: false }); }
+function makeHeadView(slY, slX, op) { const g = new T.Group(); const geo = new T.BufferGeometry(); const body = new T.Mesh(geo, new T.MeshBasicMaterial({ color: 0x020405, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1, transparent: true, opacity: 1 }));
+  const lines = new T.LineSegments(new T.BufferGeometry(), lineMat(op)); g.add(body, lines); g.scale.setScalar(HS); return { g, body, lines, slY, slX, idx: false }; }
+function setHead(v, G) { const m = E.headMesh(G); if (!v.idx) { v.body.geometry.setIndex(E.indices(m.rows, m.cols)); v.idx = true; } v.body.geometry.setAttribute('position', new T.BufferAttribute(m.P, 3)); v.body.geometry.attributes.position.needsUpdate = true; v.body.geometry.computeBoundingSphere();
+  const a = E.slices(m, 'y', v.slY), b = v.slX ? E.slices(m, 'x', v.slX) : new Float32Array(0), all = new Float32Array(a.length + b.length); all.set(a); all.set(b, a.length);
+  v.lines.geometry.setAttribute('position', new T.BufferAttribute(all, 3)); v.lines.geometry.computeBoundingSphere(); return m; }
+const BEADMAT = new T.MeshBasicMaterial({ color: 0x0c0704 });
+function makeCakeView(slY, op, solid) { const g = new T.Group(); const body = new T.Mesh(new T.BufferGeometry(), new T.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: solid })); const lines = new T.LineSegments(new T.BufferGeometry(), lineMat(op));
+  const beads = new T.InstancedMesh(new T.SphereGeometry(.011, 6, 4), BEADMAT, 90); beads.count = 0; g.add(body, lines, beads); g.scale.setScalar(CS); return { g, body, lines, beads, slY, idx: 0 }; }
+function setCake(v, G) { const m = E.cakeMesh(G), n = m.P.length / 3, col = new Float32Array(n * 3), g = m.g, layers = 1 + Math.round(g.tiers * 2), C = m.colours;
+  for (let r = 0; r < m.rows; r++) { const p = m.parts[r], y = clamp(m.P[r * m.cols * 3 + 1] / m.H, 0, 1); let c = p === 'board' ? C.board : p === 'top' ? C.top : C.side;
+    if (p === 'side') { if (y > 1 - (.04 + .1 * g.fill)) c = C.top; else for (let L = 1; L < layers; L++) if (Math.abs(y - L / layers) < .035 + .05 * g.fill) c = C.fill; }
+    for (let j = 0; j < m.cols; j++) { const i = (r * m.cols + j) * 3, a = j / (m.cols - 1) * TAU, face = Math.max(0, Math.cos(a)), lit = E.lightK(g, p === 'top' ? .85 + .15 * face : (.18 + .82 * Math.pow(face, .8)) * (.55 + .45 * y)) * 1.15;
+      col[i] = Math.pow(clamp(c[0] * lit / 255, 0, 1), 2.2); col[i + 1] = Math.pow(clamp(c[1] * lit / 255, 0, 1), 2.2); col[i + 2] = Math.pow(clamp(c[2] * lit / 255, 0, 1), 2.2); } }
+  const geo = v.body.geometry; if (v.idx !== m.rows) { geo.setIndex(E.indices(m.rows, m.cols)); v.idx = m.rows; } geo.setAttribute('position', new T.BufferAttribute(m.P, 3)); geo.setAttribute('color', new T.BufferAttribute(col, 3)); geo.computeVertexNormals(); geo.computeBoundingSphere();
+  v.lines.geometry.setAttribute('position', new T.BufferAttribute(E.slices(m, 'y', v.slY), 3)); v.lines.geometry.computeBoundingSphere();
+  const nb = Math.round(g.beads * 90), m4 = new T.Matrix4(), rt = .5 * lerp(.8, 1.12, g.taper); v.beads.count = nb;
+  for (let k = 0; k < nb; k++) { const a = k * 2.399, y = (.08 + ((k * 37) % 90) / 90 * .8) * m.H, rr = lerp(.5, rt, y / m.H) + .004; m4.makeTranslation(Math.sin(a) * rr, y, Math.cos(a) * rr); v.beads.setMatrixAt(k, m4); } v.beads.instanceMatrix.needsUpdate = true; return m; }
+const FORM = new T.Group(); FORM.position.set(0, CY, 0); scene.add(FORM);
+const HEAD = makeHeadView(30, 11, .55), CAKE = makeCakeView(14, .16, 1); FORM.add(HEAD.g, CAKE.g);
+const HEADPIV = new T.Group(), CAKEPIV = new T.Group(); scene.add(HEADPIV, CAKEPIV); HEADPIV.add(HEAD.g); CAKEPIV.add(CAKE.g);
+// the target, faint and dotted, in the reference camera's plane (front, at yaw 0): the outline traced from the film frame, not the frame
+const GHOST = { head: new T.LineLoop(new T.BufferGeometry(), new T.LineDashedMaterial({ color: 0x9fb6b0, dashSize: .006, gapSize: .006, transparent: true, opacity: .0, depthWrite: false })),
+  cake: new T.LineLoop(new T.BufferGeometry(), new T.LineDashedMaterial({ color: 0x9fb6b0, dashSize: .006, gapSize: .006, transparent: true, opacity: .0, depthWrite: false })) };
+scene.add(GHOST.head, GHOST.cake);
+// the population: eight small variants on a ring around the form, shown one per machine step as a generation is bred
+const KIDV = { head: [], cake: [] }, KR = .2;
+for (let i = 0; i < E.LAMBDA; i++) { const h = makeHeadView(12, 0, .5), c = makeCakeView(6, .35, .9); [h, c].forEach(v => { v.g.scale.multiplyScalar(.32); v.g.visible = false; scene.add(v.g); }); KIDV.head.push(h); KIDV.cake.push(c); }
+// candles (as in ana/index.html): seven, on her cake, lit one by one when both forms have grown into their references
+const CANDLES = new T.Group(); scene.add(CANDLES); const FLAMES = [];
+const stripe = (() => { const c = document.createElement('canvas'); c.width = 16; c.height = 64; const x = c.getContext('2d'); x.fillStyle = '#f2e9d6'; x.fillRect(0, 0, 16, 64); x.fillStyle = '#d4483e'; for (let y = -16; y < 80; y += 12) { x.beginPath(); x.moveTo(0, y); x.lineTo(16, y + 8); x.lineTo(16, y + 13); x.lineTo(0, y + 5); x.fill(); } const t = new T.CanvasTexture(c); t.wrapT = T.RepeatWrapping; t.encoding = T.sRGBEncoding; return t; })();
+const sprite = (stops, w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'), g = x.createRadialGradient(w / 2, h * .62, 1, w / 2, h * .55, h * .45); stops.forEach(([o, s]) => g.addColorStop(o, s)); x.fillStyle = g; x.fillRect(0, 0, w, h); return new T.CanvasTexture(c); };
+const flameMat = new T.SpriteMaterial({ map: sprite([[0, 'rgba(255,252,232,1)'], [.25, 'rgba(255,206,96,.95)'], [.6, 'rgba(255,120,30,.3)'], [1, 'rgba(255,90,20,0)']], 32, 64), blending: T.AdditiveBlending, depthWrite: false });
+const haloMat = new T.SpriteMaterial({ map: sprite([[0, 'rgba(255,190,110,.5)'], [.4, 'rgba(255,140,60,.12)'], [1, 'rgba(255,120,40,0)']], 64, 64), blending: T.AdditiveBlending, depthWrite: false });
+for (let k = 0; k < 7; k++) { const a = k / 7 * TAU + .3, r = k % 2 ? .05 : .09, g = new T.Group(); g.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
+  const c = new T.Mesh(new T.CylinderGeometry(.0028, .0028, .06, 10), new T.MeshStandardMaterial({ map: stripe, roughness: .5, transparent: true })); c.position.y = .03; g.add(c);
+  const f = new T.Sprite(flameMat.clone()); f.scale.set(.016, .034, 1); f.position.y = .075; g.add(f); const hl = new T.Sprite(haloMat.clone()); hl.scale.set(.11, .11, 1); hl.position.y = .077; g.add(hl);
+  FLAMES.push({ g, c, f, hl, lit: 0, ph: k * 1.7 }); CANDLES.add(g); }
+/* =============================================================== THE EVOLUTION STATE */
+const TARGETS = [].concat(E.groupsOf('head').map(g => ['head', g]), E.groupsOf('cake').map(g => ['cake', g])); TARGETS.splice(0, 0, ['head', 'ALL']); TARGETS.splice(E.groupsOf('head').length + 1, 0, ['cake', 'ALL']);
+const SIG = k => .01 * Math.pow(40, (k - 1) / 11);    // knurl detent 1..12 -> mutation strength 0.010 .. 0.400
+const S = { target: 0, yaw: 35, dark: 0, offAt: 0, candlesAt: 0, lit: 0 };
+const POP = {}; let TRACE = [];
+function initPop() { ['head', 'cake'].forEach((k, i) => { const p = E.start(k, REF); POP[k] = { kind: k, knurl: 10, parent: p, shown: p.G.slice(), from: p.G.slice(), morphT: 1, gen: 0, seed: SEED + i * 1000, matched: false, matchAt: 0, kids: [], flash: 0, last: p.fit }; }); TRACE = []; S.candlesAt = 0; S.lit = 0; FLAMES.forEach(f => f.lit = 0);
+  setHead(HEAD, POP.head.shown); setCake(CAKE, POP.cake.shown); }
+const kindNow = () => TARGETS[S.target][0], groupNow = () => TARGETS[S.target][1];
+/* the rings: what the hand sets (target, in detents) and what the machine has reached (applied) */
+const RINGS = [
+  { id: 'scale', ang: 35, target: 7, applied: 7, deg: 5, min: -36, max: 36, ix: 0 },
+  { id: 'knurl', ang: 10 * 15, target: 10, applied: 10, deg: 15, min: 1, max: 12, ix: 1 },
+  { id: 'tri', ang: 0, target: 0, applied: 0, deg: 20, min: 0, max: 5, ix: 2 }];
+function geneIdx() { const k = kindNow(), g = groupNow(); return E.KIND[k].map((x, i) => i).filter(i => g === 'ALL' || E.KIND[k][i][1] === g); }
+function triRange() { return [0, geneIdx().length]; }
+function select(i, silent) { const was = POP.head ? kindNow() : null; S.target = (i + TARGETS.length) % TARGETS.length; const t = RINGS[2];
+  if (POP.head && kindNow() !== was) { const kr = RINGS[1]; kr.target = kr.applied = POP[kindNow()].knurl; kr.ang = kr.target * kr.deg; }  /* the knurl takes up the selected form's own mutation strength */
+  t.target = t.applied = 0; t.ang = 0; if (!silent) sound({ k: 'select' }); toneNow(); }
+/* breeding: HOLD queues a generation; the machine reveals its eight variants one step at a time, then keeps the best (elitist: never worse) */
+const JOBS = []; let JOB = null;
+function queueGen() { JOBS.push({ kind: kindNow(), group: groupNow(), bias: RINGS[2].applied, sigma: SIG(RINGS[1].applied) }); }
+function startJob() { const j = JOBS.shift(), P = POP[j.kind]; const opts = { seed: P.seed, gen: P.gen, sigma: j.sigma, group: j.group, bias: j.bias };
+  const res = E.breed(j.kind, P.parent, opts, REF); JOB = Object.assign(j, { res, opts, step: 0, parentFit: P.parent.fit, parentG: P.parent.G.slice() }); KIDV[j.kind].forEach(v => v.g.visible = false); }
+function jobStep(fast) { const j = JOB, P = POP[j.kind];
+  if (j.step < E.LAMBDA) { const kid = j.res.kids[j.step], v = KIDV[j.kind][j.step]; if (j.kind === 'head') setHead(v, kid.G); else setCake(v, kid.G); v.g.visible = true; v.fit = kid.fit; v.born = NOW; sound({ k: 'kid', f: kid.fit, fast }); j.step++; return; }
+  // the selection step: the best of parent and children becomes the parent; the form is re-sculpted toward it
+  const improved = j.res.best.fit > P.parent.fit; P.from = P.shown.slice(); P.parent = j.res.best; P.morphT = 0; P.gen++; P.chosen = j.res.bestIndex; P.flash = improved ? 1 : .3;
+  TRACE.push({ kind: j.kind, gen: j.opts.gen, seed: j.opts.seed, sigma: +j.opts.sigma.toFixed(5), group: j.opts.group, bias: j.opts.bias, parentFit: +j.parentFit.toFixed(5), parentG: j.parentG.map(v => +v.toFixed(5)),
+    kids: j.res.kids.map(k => +k.fit.toFixed(5)), bestIndex: j.res.bestIndex, fit: +P.parent.fit.toFixed(5), genome: P.parent.G.map(v => +v.toFixed(5)), t: +NOW.toFixed(3) });
+  sound({ k: 'hold', fast }); if (improved) sound({ k: 'wash', v: .45 }); toneNow();
+  if (!P.matched && P.parent.fit >= E.THRESH[j.kind]) { P.matched = true; P.matchAt = NOW; sound({ k: 'match', f: P.parent.fit }); }
+  if (POP.head.matched && POP.cake.matched && !S.candlesAt) S.candlesAt = NOW + 1.6;
+  JOB = null; }
+function toneNow() { const P = POP[kindNow()]; if (!P) return; sound({ k: 'tone', hz: fitHz(P.parent.fit), g: S.offAt ? 0 : .022 }); }
+let stepClock = 0;
+function machine(dt) { stepClock += dt; const busy = RINGS.filter(r => r.target !== r.applied); const breeding = JOB || JOBS.length;
+  if (!busy.length && !breeding) { stepClock = 0; return; }
+  const fast = busy.some(r => Math.abs(r.target - r.applied) > 6) || JOBS.length >= 1 && JOB != null, period = fast ? 1 / 23.6 : 1 / 11.8;
+  while (stepClock >= period) { stepClock -= period;
+    if (busy.length) { busy.forEach(r => { if (r.target === r.applied) return; r.applied += Math.sign(r.target - r.applied); if (r.id === 'scale') S.yaw = r.applied * 5; if (r.id === 'knurl') POP[kindNow()].knurl = r.applied; sound({ k: 'click', fast, ring: r.ix }); }); continue; }
+    if (!JOB && JOBS.length) startJob(); if (JOB) jobStep(fast); if (!JOB && !JOBS.length) break; } }
+/* candles: when both are grown, seven candles appear on her cake and light at the machine's pace */
+function candles(dt) { if (!S.candlesAt || NOW < S.candlesAt) return; const n = Math.min(7, Math.floor((NOW - S.candlesAt) * 11.8 / 3) + 1); while (S.lit < n) { FLAMES[S.lit].lit = 1; S.lit++; sound({ k: 'light' }); sound({ k: 'click', ring: 1 }); if (S.lit === 7) sound({ k: 'wash', v: 1 }); } }
+/* =============================================================== THE DEVICE: ana's barrel of rings, the left collar a readout of how close the form is */
+const devEl = document.getElementById('dev'), DC = document.createElement('canvas'); devEl.append(DC); const dx = DC.getContext('2d'); let DW = 0, DH = 0, BANDS = [], BTNS = [];
+function layoutDev() { const r = devEl.getBoundingClientRect(), pr = REC ? 1 : Math.min(2, devicePixelRatio); DW = r.width; DH = r.height; DC.width = DW * pr; DC.height = DH * pr; dx.setTransform(pr, 0, 0, pr, 0, 0);
+  const L = Math.min(DW - 24, 980), x0 = (DW - L) / 2, cy = DH * .44, rad = Math.min(DH * .3, L * .13); const w = f => f * L;
+  let x = x0; const seg = (kind, f, extra) => { const b = Object.assign({ kind, x, w: w(f), cy, rad }, extra || {}); x += w(f); return b; };
+  BANDS = [seg('collarL', .22), seg('scale', .16, { ring: RINGS[0] }), seg('redline', .04), seg('knurl', .14, { ring: RINGS[1] }), seg('tri', .17, { ring: RINGS[2] }), seg('chrome', .06), seg('collarR', .21)];
+  const cr = BANDS[6]; BTNS = [{ id: 'select', x: cr.x + cr.w * .3, y: cy - rad * .45, r: rad * .22 }, { id: 'hold', x: cr.x + cr.w * .3, y: cy + rad * .42, r: rad * .27 }, { id: 'info', x: cr.x + cr.w * .82, y: cy - rad * .78, r: rad * .14 }]; }
+function cylShade(b, base, hi) { const g = dx.createLinearGradient(0, b.cy - b.rad, 0, b.cy + b.rad); g.addColorStop(0, '#0b0c0c'); g.addColorStop(.18, base); g.addColorStop(.42, hi); g.addColorStop(.62, base); g.addColorStop(1, '#070807'); return g; }
+function marksOn(b, list) { list.forEach(([a, fn]) => { const th = (a - b.ring.ang) * Math.PI / 180, c = Math.cos(th); if (c <= .05) return; fn(b.cy - Math.sin(th) * b.rad * .92, c); }); }
+const SCALE_NUMS = [[0, '00'], [18, '18'], [35, '35'], [60, '60'], [90, '90'], [120, '120'], [150, '150'], [180, '180'], [220, '220'], [255, '255'], [280, '280'], [300, '300'], [330, '330']];
+function fitText(s, x, y, w, px, col, wt) { let f = px; dx.font = `${wt || 500} ${f}px Oswald, sans-serif`; while (dx.measureText(s).width > w && f > 7) { f -= 1; dx.font = `${wt || 500} ${f}px Oswald, sans-serif`; } dx.fillStyle = col; dx.fillText(s, x, y); }
+function drawDev() { dx.clearRect(0, 0, DW, DH);
+  BANDS.forEach(b => { const top = b.cy - b.rad, h = b.rad * 2;
+    if (b.kind === 'collarL') { dx.fillStyle = cylShade(b, '#3c4341', '#a9b2af'); dx.fillRect(b.x, top + h * .04, b.w, h * .92); drawReadout(b); }
+    else if (b.kind === 'collarR') { dx.fillStyle = cylShade(b, '#3c4341', '#a9b2af'); dx.fillRect(b.x, top + h * .04, b.w, h * .92); }
+    else if (b.kind === 'scale') { dx.fillStyle = cylShade(b, '#1e2322', '#59615f'); dx.fillRect(b.x, top, b.w, h); dx.textAlign = 'center'; dx.textBaseline = 'middle';
+      marksOn(b, SCALE_NUMS.map(([a, s]) => [-a, (y, c) => { dx.save(); dx.translate(b.x + b.w * .5, y); dx.scale(1, c); dx.fillStyle = `rgba(232,238,236,${.35 + .6 * c})`; dx.font = `400 ${Math.round(b.rad * .26)}px Oswald, sans-serif`; dx.fillText(s, 0, 0); dx.fillRect(-b.w * .42, -1, b.w * .1, 2); dx.restore(); }]));
+      for (let a = 0; a < 360; a += 5) marksOn(b, [[-a, (y, c) => { dx.fillStyle = `rgba(200,210,206,${.3 * c})`; dx.fillRect(b.x + b.w * .86, y - .5, b.w * (a % 15 ? .06 : .12), 1); }]]); dx.textBaseline = 'alphabetic'; }
+    else if (b.kind === 'redline') { dx.fillStyle = cylShade(b, '#2a302e', '#78817e'); dx.fillRect(b.x, top, b.w, h); dx.fillStyle = '#c2453a'; for (let k = -2; k <= 2; k++) { const y = b.cy - Math.sin(k * .5) * b.rad * .9; dx.fillRect(b.x + b.w * .2, y - 1, b.w * .6, 2); } }
+    else if (b.kind === 'knurl') { dx.fillStyle = cylShade(b, '#2b3130', '#7c8683'); dx.fillRect(b.x, top, b.w, h); for (let a = 0; a < 360; a += 4) marksOn(b, [[a, (y, c) => { dx.fillStyle = `rgba(8,9,9,${.55 * c})`; dx.fillRect(b.x + 3, y - 1.2 * c, b.w - 6, 2.4 * c); }]]); }
+    else if (b.kind === 'tri') { dx.fillStyle = cylShade(b, '#4b5452', '#bcc5c2'); dx.fillRect(b.x, top, b.w, h);
+      for (let a = 0; a < 360; a += 12) marksOn(b, [[a, (y, c) => { const s = b.rad * .07 * c; dx.fillStyle = 'rgba(10,11,11,.85)'; [[.32, 1], [.68, 1.4]].forEach(([fx, k]) => { dx.beginPath(); dx.moveTo(b.x + b.w * fx - s * k, y); dx.lineTo(b.x + b.w * fx + s * k * .6, y - s * k * .8); dx.lineTo(b.x + b.w * fx + s * k * .6, y + s * k * .8); dx.fill(); }); }]]); }
+    else if (b.kind === 'chrome') { const g = dx.createLinearGradient(b.x, 0, b.x + b.w, 0); g.addColorStop(0, '#d8dfdc'); g.addColorStop(.5, '#7d8784'); g.addColorStop(1, '#eef3f1'); dx.fillStyle = g; dx.fillRect(b.x, top + h * .02, b.w, h * .96); }
+    if (b.ring) { const busy = b.ring.target !== b.ring.applied; dx.fillStyle = busy ? 'rgba(232,178,100,.9)' : 'rgba(200,210,206,.35)'; dx.fillRect(b.x + 4, top - 7, b.w - 8, 2);
+      const [role, val] = ringRole(b.ring); dx.textAlign = 'center'; fitText(role, b.x + b.w / 2, top + h + 15, b.w - 4, 11, 'rgba(120,130,126,.9)'); fitText(val, b.x + b.w / 2, top + h + 30, b.w - 4, 13, 'rgba(225,232,229,.92)'); } });
+  BTNS.forEach(bt => { const g = dx.createRadialGradient(bt.x - bt.r * .3, bt.y - bt.r * .3, 1, bt.x, bt.y, bt.r); g.addColorStop(0, '#e8eeec'); g.addColorStop(.6, '#8f9996'); g.addColorStop(1, '#3a403e'); dx.fillStyle = g; dx.beginPath(); dx.arc(bt.x, bt.y, bt.r, 0, TAU); dx.fill();
+    dx.fillStyle = 'rgba(15,16,16,.85)'; if (bt.id === 'info') { dx.fillRect(bt.x - 1, bt.y - bt.r * .1, 2, bt.r * .6); dx.fillRect(bt.x - 1, bt.y - bt.r * .5, 2, 2); }
+    if (bt.id === 'hold' && (JOB || JOBS.length)) { dx.strokeStyle = 'rgba(232,178,100,.95)'; dx.lineWidth = 2; dx.beginPath(); dx.arc(bt.x, bt.y, bt.r + 4, 0, TAU); dx.stroke(); }
+    const lab = { select: 'SELECT', hold: 'HOLD' }[bt.id]; if (lab) { dx.font = `500 ${Math.round(Math.max(9, bt.r * .5))}px Oswald, sans-serif`; dx.textAlign = 'center';
+      if (bt.id === 'select') { const w = dx.measureText(lab).width + 10; dx.fillStyle = '#b8352c'; dx.fillRect(bt.x - w / 2, bt.y - bt.r - 20, w, 15); dx.fillStyle = '#f4e9e3'; dx.fillText(lab, bt.x, bt.y - bt.r - 9); }
+      else { dx.fillStyle = 'rgba(160,170,166,.85)'; dx.fillText(lab, bt.x, bt.y + bt.r + 13); } } });
+  const cr = BANDS[6], tx = cr.x + cr.w * .56, tw = cr.w * .42; dx.textAlign = 'left';
+  fitText(kindNow() === 'head' ? 'HER HEAD' : 'HER CAKE', tx, BTNS[1].y - 8, tw, 13, 'rgba(232,178,100,.95)'); fitText(groupNow(), tx, BTNS[1].y + 8, tw, 11, 'rgba(200,210,206,.85)');
+  fitText('HOLD: BREED', tx, BTNS[1].y + 26, tw, 9, 'rgba(120,130,126,.85)', 400); fitText('HOLD LONG: OFF', tx, BTNS[1].y + 38, tw, 9, 'rgba(120,130,126,.85)', 400); }
+function drawReadout(b) { const pad = 6, x = b.x + pad, y = b.cy - b.rad * .82, w = b.w - pad * 2, h = b.rad * 1.64; dx.fillStyle = 'rgba(4,7,7,.92)'; dx.fillRect(x, y, w, h); dx.strokeStyle = 'rgba(120,140,134,.4)'; dx.strokeRect(x + .5, y + .5, w - 1, h - 1);
+  const k = kindNow(), P = POP[k]; if (!P) return; const f = P.parent.fit, th = E.THRESH[k], lh = h / 5.2; dx.textAlign = 'left';
+  fitText((k === 'head' ? 'HEAD' : 'CAKE') + '   GEN ' + P.gen, x + 5, y + lh * .95, w - 10, 11, 'rgba(160,172,168,.9)');
+  fitText('MATCH ' + f.toFixed(3), x + 5, y + lh * 2.2, w - 10, 16, P.matched ? 'rgba(255,196,120,1)' : 'rgba(225,236,232,.95)');
+  const bx = x + 5, by = y + lh * 2.75, bw = w - 10, bh = Math.max(4, lh * .32), m0 = .4, sc = v => clamp((v - m0) / (1 - m0), 0, 1) * bw;
+  dx.fillStyle = 'rgba(80,92,88,.5)'; dx.fillRect(bx, by, bw, bh); dx.fillStyle = P.matched ? 'rgba(255,180,100,.95)' : 'rgba(80,200,255,.85)'; dx.fillRect(bx, by, sc(f), bh); dx.fillStyle = '#f2e9d6'; dx.fillRect(bx + sc(th) - 1, by - 3, 2, bh + 6);
+  fitText(P.matched ? 'GROWN (' + th.toFixed(2) + ')' : 'GROWN AT ' + th.toFixed(2), x + 5, y + lh * 4.0, w - 10, 10, 'rgba(160,172,168,.9)', 400);
+  const o = k === 'head' ? 'cake' : 'head', O = POP[o]; fitText((o === 'head' ? 'HEAD ' : 'CAKE ') + O.parent.fit.toFixed(3) + (O.matched ? '  GROWN' : ''), x + 5, y + lh * 5.0, w - 10, 10, 'rgba(120,130,126,.9)', 400); }
+function ringRole(r) { if (r.id === 'scale') return ['WHERE YOU KNEEL', `${((S.yaw % 360) + 360) % 360}°`];
+  if (r.id === 'knurl') return ['MUTATION', SIG(r.applied).toFixed(3)];
+  const gi = geneIdx(); return ['LEANS TOWARD', r.applied === 0 ? 'EVEN' : E.KIND[kindNow()][gi[(r.applied - 1) % gi.length]][2]]; }
+/* hand on the rings: dragging turns the ring under the fingers; each detent passed is a quiet click; the machine then steps to it */
+let drag = null;
+function handTurn(ring, dDeg) { const lim = ring.id === 'tri' ? triRange() : [ring.min, ring.max]; const before = Math.round(ring.ang / ring.deg);
+  ring.ang = clamp(ring.ang + dDeg, lim[0] * ring.deg, lim[1] * ring.deg); const after = Math.round(ring.ang / ring.deg); if (after !== before) { sound({ k: 'hand', ring: ring.ix }); ring.target = clamp(after, lim[0], lim[1]); } }
+DC.addEventListener('pointerdown', e => { ac(); const r = DC.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+  const bt = BTNS.find(b => Math.hypot(b.x - x, b.y - y) < b.r + 8); if (bt) { press(bt.id); return; }
+  const band = BANDS.find(b => b.ring && x >= b.x && x <= b.x + b.w && Math.abs(y - b.cy) < b.rad * 1.15); if (band) { drag = { band, y }; try { DC.setPointerCapture(e.pointerId); } catch (x) { } } });
+DC.addEventListener('pointermove', e => { if (!drag) return; const y = e.clientY - DC.getBoundingClientRect().top, d = y - drag.y; drag.y = y; handTurn(drag.band.ring, -d / drag.band.rad * 57.3 * .9); });
+DC.addEventListener('pointerup', () => { drag = null; }); DC.addEventListener('pointercancel', () => { drag = null; });
+DC.addEventListener('wheel', e => { e.preventDefault(); ac(); const r = DC.getBoundingClientRect(), x = e.clientX - r.left; const band = BANDS.find(b => b.ring && x >= b.x && x <= b.x + b.w); if (band) handTurn(band.ring, -Math.sign(e.deltaY) * band.ring.deg); }, { passive: false });
+let holdDown = 0;
+function press(id) { ac(); if (S.offAt && id !== 'info') { S.offAt = 0; S.dark = 0; toneNow(); return; }
+  if (id === 'select') select(S.target + 1);
+  else if (id === 'hold') { holdDown = NOW; const up = () => { removeEventListener('pointerup', up); if (NOW - holdDown > .7) switchOff(); else { sound({ k: 'hold' }); queueGen(); } }; addEventListener('pointerup', up); }
+  else if (id === 'info') { renderOp(); document.getElementById('info').classList.add('on'); } }
+function switchOff() { S.offAt = NOW; JOBS.length = 0; sound({ k: 'off', v: 1.2 }); sound({ k: 'tone', hz: fitHz(POP[kindNow()].parent.fit), g: 0 }); }
+document.getElementById('infoClose').onclick = () => document.getElementById('info').classList.remove('on');
+document.getElementById('opReset').onclick = () => { initPop(); select(0, true); renderOp(); };
+document.getElementById('dlTrace').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(traceOut(), null, 1)], { type: 'application/json' })); a.download = 'evolve-trace.json'; a.click(); };
+function traceOut() { return { seed: SEED, lambda: E.LAMBDA, thresholds: E.THRESH, weights: { head: E.W_HEAD, cake: E.W_CAKE }, genes: { head: E.KIND.head.map(g => g[0]), cake: E.KIND.cake.map(g => g[0]) }, generations: TRACE }; }
+/* the operator panel (behind i): the numbers behind the match, and the reference outline against the form's own silhouette */
+function renderOp() { const el = document.getElementById('opBody'); el.innerHTML = ''; ['head', 'cake'].forEach(k => { const P = POP[k], e = E.evaluate(k, P.parent.G, REF);
+  const d = document.createElement('div'); d.innerHTML = `<h4>${k.toUpperCase()} &middot; GENERATION ${P.gen} &middot; MATCH ${e.fit.toFixed(4)} (GROWN AT ${E.THRESH[k]})</h4>` +
+    `<p>${k === 'head' ? `silhouette overlap (IoU) ${e.iou.toFixed(3)} &middot; landmark error ${e.lm.toFixed(3)} (eyes ${e.per.eyeL}, ${e.per.eyeR}; nose ${e.per.nose}; mouth ${e.per.mouth}; chin ${e.per.chin}) &middot; match = 1 &minus; (0.5 (1 &minus; IoU) + 0.5 landmark error)` : `silhouette overlap (IoU) ${e.iou.toFixed(3)} &middot; colour distance (Hellinger, 6x6x6 RGB) ${e.hist.toFixed(3)} &middot; match = 1 &minus; (0.6 (1 &minus; IoU) + 0.4 colour distance)`}</p>`;
+  const row = document.createElement('div'); row.className = 'row'; const cv = document.createElement('canvas'), [W, H] = e.grid; cv.width = W; cv.height = H; const x = cv.getContext('2d'), im = x.createImageData(W, H);
+  const gr = { W, H, X0: e.grid[2], X1: e.grid[3], Y0: e.grid[4], Y1: e.grid[5] }; const sx = W / (gr.X1 - gr.X0), sy = H / (gr.Y1 - gr.Y0); const refm = new Uint8Array(W * H);
+  for (let yy = 0; yy < H; yy++) for (let xx = 0; xx < W; xx++) { const px = gr.X0 + (xx + .5) / sx, py = gr.Y0 + (yy + .5) / sy; let ins = false; const poly = REF[k].outline; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > py) !== (yj > py) && px < (xj - xi) * (py - yi) / (yj - yi) + xi) ins = !ins; } refm[yy * W + xx] = ins; }
+  for (let i = 0; i < W * H; i++) { const a = e.mask[i], b = refm[i]; im.data[i * 4] = b ? 230 : 0; im.data[i * 4 + 1] = a && b ? 200 : a ? 60 : b ? 120 : 0; im.data[i * 4 + 2] = a ? 255 : 0; im.data[i * 4 + 3] = 255; } x.putImageData(im, 0, 0);
+  const cap = document.createElement('p'); cap.textContent = 'blue: the form only; orange: the reference only; white: both'; row.append(cv, cap); d.append(row);
+  const tb = document.createElement('table'); tb.innerHTML = E.KIND[k].map((g, i) => `<tr><td>${g[1]}</td><td>${g[2]}</td><td>${P.parent.G[i].toFixed(3)}</td></tr>`).join(''); d.append(tb); el.append(d); });
+  const p = document.createElement('p'); p.textContent = `seed ${SEED} · ${TRACE.length} generations bred this session · eight variants each, elitist (the parent survives unless a child is closer)`; el.append(p); }
+/* =============================================================== EVERY FRAME */
+function resize() { const r = viewEl.getBoundingClientRect(); R.setSize(r.width, r.height, false); cam.aspect = r.width / r.height; cam.updateProjectionMatrix(); layoutDev(); }
+addEventListener('resize', resize);
+function ghostFor(k, m) { const L = GHOST[k], poly = REF[k].outline; const S2 = E.project(m, k === 'cake' ? REF.cake.elevationDeg : 0); let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9; for (let i = 0; i < S2.length; i += 3) { x0 = Math.min(x0, S2[i]); x1 = Math.max(x1, S2[i]); y0 = Math.min(y0, S2[i + 1]); y1 = Math.max(y1, S2[i + 1]); }
+  const s = k === 'head' ? y1 - y0 : x1 - x0, cx = (x0 + x1) / 2, sc = k === 'head' ? HS : CS, pts = poly.map(([x, y]) => new T.Vector3((cx + x * s) * sc, -(y0 + y * s) * sc, 0)); L.geometry.setFromPoints(pts); L.computeLineDistances(); }
+let lastMesh = { head: null, cake: null };
+function step(dt) { NOW += dt; machine(dt); candles(dt);
+  const yaw = S.yaw * Math.PI / 180, hf = 2 * Math.atan(Math.tan(cam.fov * Math.PI / 360) * cam.aspect), D = .3 / Math.sin(Math.min(cam.fov * Math.PI / 180, hf) / 2), ec = new T.Vector3(0, CY + .01, 0); cam.position.set(Math.sin(yaw) * D, CY + .1, Math.cos(yaw) * D); cam.lookAt(ec);
+  const both = POP.head.matched && POP.cake.matched, k = kindNow(), dark = S.offAt ? clamp((NOW - S.offAt) / 1.0, 0, 1) : 0; S.dark = dark;
+  // morph each form toward its parent genome: the sculpting is seen, not cut
+  ['head', 'cake'].forEach(kk => { const P = POP[kk]; if (P.morphT < 1) { P.morphT = Math.min(1, P.morphT + dt / .38); const u = P.morphT * P.morphT * (3 - 2 * P.morphT); P.shown = P.from.map((v, i) => lerp(v, P.parent.G[i], u)); lastMesh[kk] = kk === 'head' ? setHead(HEAD, P.shown) : setCake(CAKE, P.shown); }
+    if (!lastMesh[kk]) lastMesh[kk] = kk === 'head' ? setHead(HEAD, P.shown) : setCake(CAKE, P.shown); P.flash = Math.max(0, P.flash - dt * 2.2); });
+  // placement: the form being worked hangs in the middle; once both are grown they sit as the birthday (her head behind her cake)
+  const showH = both || k === 'head', showC = both || k === 'cake';
+  HEADPIV.position.lerp(both ? new T.Vector3(0, CY + .1, -.17) : new T.Vector3(0, CY + .02, 0), Math.min(1, dt * 3)); CAKEPIV.position.lerp(both ? new T.Vector3(0, CY - .14, .04) : new T.Vector3(0, CY - .07, 0), Math.min(1, dt * 3));
+  HEADPIV.visible = showH; CAKEPIV.visible = showC;
+  // the neuroglow: cool while far from the reference, warming as the match approaches the threshold
+  const hp = POP.head, hcol = COOL.clone().lerp(WARM, clamp((hp.parent.fit - .55) / (E.THRESH.head - .55), 0, 1)); HEAD.lines.material.color.copy(hcol).multiplyScalar((1 + hp.flash * .9) * (1 - dark)); HEAD.lines.material.opacity = .55 + .3 * hp.flash;
+  HEAD.body.material.opacity = 1 - dark; const cp = POP.cake; CAKE.lines.material.color.copy(COOL.clone().lerp(WARM, clamp((cp.parent.fit - .5) / (E.THRESH.cake - .5), 0, 1))).multiplyScalar((.6 + cp.flash) * (1 - dark)); CAKE.body.material.opacity = 1 - dark;
+  // the ghost of the reference: in the reference camera's plane, fades as you kneel away from it and once the form is grown
+  ['head', 'cake'].forEach(kk => { const L = GHOST[kk], P = POP[kk]; if (lastMesh[kk] && (P.morphT < 1 || !L.userData.ok)) { ghostFor(kk, lastMesh[kk]); L.userData.ok = 1; } const piv = kk === 'head' ? HEADPIV : CAKEPIV; L.position.copy(piv.position); L.position.z += kk === 'head' ? .0 : .0;
+    L.visible = piv.visible; L.material.opacity = (P.matched ? .08 : .32) * Math.max(0, Math.cos(yaw)) * (1 - dark) * (both ? 0 : 1); });
+  const camR = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion), camU = new T.Vector3(0, 1, 0).applyQuaternion(cam.quaternion), camF = new T.Vector3(0, 0, -1).applyQuaternion(cam.quaternion);
+  // the population ring: the generation's variants on a circle around the form, each glowing by its own match; the chosen one flies in
+  ['head', 'cake'].forEach(kk => { const P = POP[kk]; KIDV[kk].forEach((v, i) => { if (kk !== k || both) { v.g.visible = false; return; } const a = (i / E.LAMBDA) * TAU + Math.PI / E.LAMBDA, piv = kk === 'head' ? HEADPIV : CAKEPIV;
+    const p = piv.position.clone().addScaledVector(camR, Math.cos(a) * KR * 1.05).addScaledVector(camU, Math.sin(a) * KR * .78).addScaledVector(camF, .12);
+    const age = NOW - (v.born || -9), chosen = !JOB && P.chosen === i && P.morphT < 1; if (chosen) p.lerp(piv.position, P.morphT);
+    v.g.position.copy(p); v.g.rotation.y = 0; const rel = clamp(((v.fit || 0) - P.parent.fit + .06) / .08, 0, 1), fade = JOB && JOB.kind === kk ? 1 : clamp(1 - (NOW - (P.morphT < 1 ? NOW : (v.born || 0) + 1.6)), 0, 1);
+    v.lines.material.color.copy(COOL.clone().lerp(WARM, rel)).multiplyScalar(clamp(age * 6, 0, 1) * (1 - dark)); v.lines.material.opacity = .25 + .55 * rel; if (v.body.material) v.body.material.opacity = (kk === 'cake' ? .5 : 1) * (1 - dark);
+    if (!JOB && P.morphT >= 1 && NOW - (v.born || 0) > 2.5) v.g.visible = false; }); });
+  // candles on her cake once both are grown
+  const top = CAKEPIV.position.clone(); top.y += ((lastMesh.cake ? lastMesh.cake.H + lastMesh.cake.g.dome * Math.min(.5, lastMesh.cake.H * 1.2) * .3 : .3)) * CS; CANDLES.position.copy(top); CANDLES.visible = both;
+  FLAMES.forEach((f, i) => { const fl = .92 + Math.sin(NOW * 23 + f.ph) * .05 + Math.sin(NOW * 7.1 + f.ph) * .04; f.f.material.opacity = f.lit * (1 - dark); f.hl.material.opacity = f.lit * .9 * fl * (1 - dark); f.f.scale.y = .034 * fl; f.c.material.opacity = clamp((NOW - S.candlesAt + 1.6) / .8, 0, 1) * (1 - dark); });
+  candleLight.position.copy(top).add(new T.Vector3(0, .12, .05)); candleLight.intensity = S.lit * .22 * (.95 + Math.sin(NOW * 19) * .04) * (1 - dark);
+  R.render(scene, cam); drawDev(); }
+HEADPIV.position.set(0, CY + .02, 0); CAKEPIV.position.set(0, CY - .07, 0);
+let last = performance.now();
+function frame(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; step(dt); requestAnimationFrame(frame); }
+fetch('refs.json').then(r => r.json()).then(j => { REF = j; initPop(); resize(); select(0, true); if (document.fonts) document.fonts.load('400 20px Oswald').then(() => drawDev()); if (!REC) requestAnimationFrame(frame); });
+window.MM = { ready: () => !!REF && !!WAVBYTES && !!POP.head, advance: dt => { step(dt); }, press, handTurn, renderAudio, traceOut, POP, S, RINGS, TARGETS, BANDS: () => BANDS, BTNS: () => BTNS, devRect: () => DC.getBoundingClientRect(), NOW: () => NOW, E };
+</script></body></html>

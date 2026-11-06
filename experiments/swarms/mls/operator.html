@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Blow Operator</title>
+<style>
+@font-face { font-family: 'Oswald'; src: url('../../../ana/assets/oswald-latin-500-normal.woff2') format('woff2'); font-weight: 500; }
+:root { --bg: #050606; --ink: #d9e2de; --dim: #8b9893; --amber: #e8b264; --red: #e0715f; --green: #7fd3a2; --line: #1c201e; }
+* { box-sizing: border-box; } html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body { font: 15px/1.5 -apple-system, 'Segoe UI', Arial, sans-serif; padding: 16px; max-width: 760px; margin: 0 auto; }
+h1, h2 { font-family: 'Oswald', 'Arial Narrow', sans-serif; font-weight: 500; letter-spacing: .08em; }
+h1 { font-size: 22px; margin: 4px 0 2px; color: var(--amber); } h2 { font-size: 14px; margin: 22px 0 6px; color: var(--ink); }
+p { margin: 6px 0; color: #b6c1bd; } .dim { color: var(--dim); font-size: 13px; }
+video { width: 100%; display: block; background: #000; border: 1px solid var(--line); border-radius: 4px; }
+.v { border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; margin: 8px 0; }
+.v b { font-family: 'Oswald', sans-serif; letter-spacing: .08em; font-weight: 500; } .red { color: var(--red); } .green { color: var(--green); } .amber { color: var(--amber); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; } td { padding: 6px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
+td:last-child { white-space: nowrap; text-align: right; } a { color: var(--amber); }
+.links a { display: inline-block; margin: 4px 14px 4px 0; }
+img { width: 100%; border: 1px solid var(--line); border-radius: 4px; }
+</style></head><body>
+<h1>THE BLOW</h1>
+<p class="dim">Swarm: MLS deformation (after Schaefer, McPhail &amp; Warren 2006). Revision r4: the face was forked and branch B (sparse face, alpha 3) is promoted. 2026-11-06. Not committed.</p>
+
+<video src="proof.mp4" controls playsinline preload="metadata" poster=""></video>
+<p class="dim">Branch B. Ten seconds, 30 fps, with sound. Left panel: your world (face similarity, flames affine, streamer rigid). The other three: the same inputs with one family on every surface. Below: the memory maker's device, played by the demonstration.</p>
+<p><a href="index.html">Play it</a>: the device is the controller. SELECT picks the thing, the knurled ring sets its value, HOLD blows. She leans: aim about two detents to correct it.</p>
+
+<h2>CRITIC VERDICT</h2>
+<div class="v"><b class="amber">ROUND 1: INCONCLUSIVE, LEANING PASS.</b> "Filling the cheeks bends the whole plate, not the cheeks", and the three face families were nearly indistinguishable. <a href="critic-round1.md">critic-round1.md</a>.
+Round 2 has not been run on r3.</div>
+
+<h2>THE FORK</h2>
+<div class="v"><b class="green">B PROMOTED (builder's judgement; not yet reviewed by a critic).</b> Branch B meets the round-1 repair condition: the plate border moves 0.00 px and the neck 0.06 px, and the cheek outline differs by 4.11 px between face families. The chosen similarity face has no folds, and the eyes and nose are intact. A's families differ by 0.95 px. Cause: at weight exponent 1 the pinned plate lines dominated every family's fit. <a href="fork.md">fork.md</a> &middot; <a href="fork.mp4">fork.mp4</a> &middot; <a href="dense.html">branch A (dense.html)</a></div>
+<a href="fork-strip.png"><img src="fork-strip.png" alt="The face in affine, similarity and rigid MLS: branch A above, branch B below"></a>
+
+<h2>NEXT BLOCKING FAILURE</h2>
+<div class="v"><b class="amber">Critic round 2 on B</b>: does the round similarity cheek read as filling at normal speed, and are the creases of affine and rigid visible in the comparison panels? Also open: a flame's smallest area ratio is 0.010 (floor 0.05), and one contour reversal frame, both during a flame's 0.11 s fade-out.</div>
+
+<h2>MEASURED, BRANCH A (r3; tools/test.js, tests.json). B: tests-sparse.json</h2>
+<table>
+<tr><td>Cheeks 100 %, purse 60 %: plate border / neck movement (chosen face family)</td><td class="green">0.07 / 0.24 px</td></tr>
+<tr><td>Cheek outline moves outward when the cheeks fill</td><td class="green">21 px</td></tr>
+<tr><td>Outer cheek outline, largest difference between face families (needs 4)</td><td class="red">0.95 px</td></tr>
+<tr><td>Folded triangles, chosen families (face / flames / streamer)</td><td class="green">0 / 0 / 0</td></tr>
+<tr><td>Smallest triangle area ratio, chosen (floor 0.05): face / flames / streamer</td><td class="red">0.035 / 0.010 / 0.132</td></tr>
+<tr><td>Contour reversals not caused by a handle, chosen</td><td class="red">1 frame (a flame's fade-out)</td></tr>
+<tr><td>Machine: rate; film frames with two steps</td><td class="green">11.79 /s; 0</td></tr>
+<tr><td>Ring settings that win in one breath; maxing every ring</td><td class="green">6 of 143; 4-5 out</td></tr>
+<tr><td>Most candles out in one breath by flame family: affine / similarity / rigid</td><td>7 / 2 / 0</td></tr>
+<tr><td>Point handles on target; line-handle samples off target</td><td class="green">0.000 px; 0.36 px</td></tr>
+</table>
+
+<h2>THE SAME HANDLES, THREE FAMILIES</h2>
+<a href="strip.png"><img src="strip.png" alt="Comparison strip: face, flames, streamer in affine, similarity and rigid MLS, and the face at three weight exponents"></a>
+
+<h2>LINKS</h2>
+<p class="links"><a href="index.html">game</a><a href="proof.mp4">proof.mp4</a><a href="strip.png">strip.png</a><a href="handles.json">handles.json</a><a href="tests.json">tests.json</a><a href="README.md">README</a><a href="critic-round1.md">critic round 1</a><a href="fork.md">fork</a><a href="fork.mp4">fork.mp4</a><a href="dense.html">dense.html (A)</a><a href="tests-sparse.json">tests (B)</a><a href="handles-sparse.json">handles (B)</a><a href="mls.js">solver</a><a href="scene.js">handles and poses</a><a href="game.js">game</a></p>
+<p class="dim">Rights: the face, flames, streamer and cake are drawn by code on this page. Device sounds are ana/device-sounds.wav (already in the repo). No film frames or film audio are used or published.</p>
+</body></html>

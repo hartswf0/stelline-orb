@@ -1,0 +1,1619 @@
+{
+ "about": "THE BLOW handle set. Scene px, 600 x 1000 page, y down. Points are [x,y]; segments [ax,ay,bx,by]. Poses are offsets at full amount; the game scales CHEEKS by fill, PURSE by purse, OPEN by the breath. Flame and streamer handles are driven by the breath and the WRAP ring (see scene.js).",
+ "families": {
+  "face": {
+   "family": "similarity",
+   "why": "Cheeks must swell: a swell is a local scale, which similarity represents and rigid does not. With the plate edges and neck pinned by fixed segments (so a cheek cannot bow the print), the three families now agree on this face to within 1 px; the choice is by principle, not by a visible difference.",
+   "mesh": {
+    "rect": [
+     120,
+     20,
+     360,
+     430
+    ],
+    "grid": [
+     36,
+     43
+    ]
+   }
+  },
+  "flame": {
+   "family": "affine",
+   "why": "A flame is gas: under breath it leans, thins and stretches. Affine lets it thin to 0.6 of its width and tear out. Similarity thins it less (0.64-0.76) and rigid hardly at all (0.83), so they swing over like stiff petals and stay lit.",
+   "mesh": {
+    "rect": [
+     -20,
+     -92,
+     40,
+     100
+    ],
+    "grid": [
+     6,
+     16
+    ]
+   }
+  },
+  "paper": {
+   "family": "rigid",
+   "why": "Paper does not stretch. Rigid keeps the streamer one width round the bend and the letters one size. Similarity swells and pinches it along the curve. Affine has handles only along the spine, so across the strip it is under-determined and the width wanders.",
+   "mesh": {
+    "rect": [
+     25,
+     942,
+     550,
+     36
+    ],
+    "grid": [
+     110,
+     4
+    ]
+   }
+  }
+ },
+ "alpha": 1,
+ "face_alpha": 1,
+ "face_set": "dense",
+ "line_weight_unit_px": 8,
+ "handles": [
+  {
+   "id": "plateTL",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    128,
+    28
+   ],
+   "anchor": true
+  },
+  {
+   "id": "plateTR",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    472,
+    28
+   ],
+   "anchor": true
+  },
+  {
+   "id": "plateBL",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    128,
+    442
+   ],
+   "anchor": true
+  },
+  {
+   "id": "plateBR",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    472,
+    442
+   ],
+   "anchor": true
+  },
+  {
+   "id": "crown",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    300,
+    62
+   ],
+   "anchor": true
+  },
+  {
+   "id": "templeL",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    194,
+    176
+   ],
+   "anchor": true
+  },
+  {
+   "id": "templeR",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    406,
+    176
+   ],
+   "anchor": true
+  },
+  {
+   "id": "earL",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    160,
+    262
+   ],
+   "anchor": true
+  },
+  {
+   "id": "earR",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    440,
+    262
+   ],
+   "anchor": true
+  },
+  {
+   "id": "eyeLin",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    276,
+    218
+   ],
+   "anchor": false
+  },
+  {
+   "id": "eyeLout",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    232,
+    216
+   ],
+   "anchor": false
+  },
+  {
+   "id": "eyeLup",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    254,
+    208
+   ],
+   "anchor": false
+  },
+  {
+   "id": "eyeLlo",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    254,
+    227
+   ],
+   "anchor": false
+  },
+  {
+   "id": "eyeRin",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    324,
+    218
+   ],
+   "anchor": false
+  },
+  {
+   "id": "eyeRout",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    368,
+    216
+   ],
+   "anchor": false
+  },
+  {
+   "id": "eyeRup",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    346,
+    208
+   ],
+   "anchor": false
+  },
+  {
+   "id": "eyeRlo",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    346,
+    227
+   ],
+   "anchor": false
+  },
+  {
+   "id": "noseTip",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    300,
+    282
+   ],
+   "anchor": false
+  },
+  {
+   "id": "alaL",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    284,
+    288
+   ],
+   "anchor": false
+  },
+  {
+   "id": "alaR",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    316,
+    288
+   ],
+   "anchor": false
+  },
+  {
+   "id": "mouthL",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    272,
+    330
+   ],
+   "anchor": false
+  },
+  {
+   "id": "mouthR",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    328,
+    330
+   ],
+   "anchor": false
+  },
+  {
+   "id": "lipUin",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    300,
+    328
+   ],
+   "anchor": false
+  },
+  {
+   "id": "lipLin",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    300,
+    334
+   ],
+   "anchor": false
+  },
+  {
+   "id": "cheekL",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    242,
+    300
+   ],
+   "anchor": false
+  },
+  {
+   "id": "cheekR",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    358,
+    300
+   ],
+   "anchor": false
+  },
+  {
+   "id": "cheekLout",
+   "surface": "face",
+   "kind": "segment",
+   "rest": [
+    206,
+    286,
+    206,
+    322
+   ],
+   "anchor": false
+  },
+  {
+   "id": "cheekLlo",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    231,
+    332
+   ],
+   "anchor": false
+  },
+  {
+   "id": "cheekLup",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    234,
+    272
+   ],
+   "anchor": false
+  },
+  {
+   "id": "cheekRout",
+   "surface": "face",
+   "kind": "segment",
+   "rest": [
+    394,
+    286,
+    394,
+    322
+   ],
+   "anchor": false
+  },
+  {
+   "id": "cheekRlo",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    369,
+    332
+   ],
+   "anchor": false
+  },
+  {
+   "id": "cheekRup",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    366,
+    272
+   ],
+   "anchor": false
+  },
+  {
+   "id": "chin",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    300,
+    398
+   ],
+   "anchor": false
+  },
+  {
+   "id": "neckL",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    262,
+    438
+   ],
+   "anchor": true
+  },
+  {
+   "id": "neckR",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    338,
+    438
+   ],
+   "anchor": true
+  },
+  {
+   "id": "browL",
+   "surface": "face",
+   "kind": "segment",
+   "rest": [
+    228,
+    194,
+    278,
+    190
+   ],
+   "anchor": false
+  },
+  {
+   "id": "browR",
+   "surface": "face",
+   "kind": "segment",
+   "rest": [
+    322,
+    190,
+    372,
+    194
+   ],
+   "anchor": false
+  },
+  {
+   "id": "lipUL",
+   "surface": "face",
+   "kind": "segment",
+   "rest": [
+    272,
+    330,
+    300,
+    320
+   ],
+   "anchor": false
+  },
+  {
+   "id": "lipUR",
+   "surface": "face",
+   "kind": "segment",
+   "rest": [
+    300,
+    320,
+    328,
+    330
+   ],
+   "anchor": false
+  },
+  {
+   "id": "lipLL",
+   "surface": "face",
+   "kind": "segment",
+   "rest": [
+    272,
+    330,
+    300,
+    344
+   ],
+   "anchor": false
+  },
+  {
+   "id": "lipLR",
+   "surface": "face",
+   "kind": "segment",
+   "rest": [
+    300,
+    344,
+    328,
+    330
+   ],
+   "anchor": false
+  },
+  {
+   "id": "cheekLineL",
+   "surface": "face",
+   "kind": "segment",
+   "rest": [
+    262,
+    300,
+    266,
+    334
+   ],
+   "anchor": false
+  },
+  {
+   "id": "cheekLineR",
+   "surface": "face",
+   "kind": "segment",
+   "rest": [
+    338,
+    300,
+    334,
+    334
+   ],
+   "anchor": false
+  },
+  {
+   "id": "plateTop",
+   "surface": "face",
+   "kind": "segment",
+   "rest": [
+    128,
+    28,
+    472,
+    28
+   ],
+   "anchor": true
+  },
+  {
+   "id": "plateBot",
+   "surface": "face",
+   "kind": "segment",
+   "rest": [
+    128,
+    442,
+    472,
+    442
+   ],
+   "anchor": true
+  },
+  {
+   "id": "plateLeft",
+   "surface": "face",
+   "kind": "segment",
+   "rest": [
+    128,
+    28,
+    128,
+    442
+   ],
+   "anchor": true
+  },
+  {
+   "id": "plateRight",
+   "surface": "face",
+   "kind": "segment",
+   "rest": [
+    472,
+    28,
+    472,
+    442
+   ],
+   "anchor": true
+  },
+  {
+   "id": "neckBase",
+   "surface": "face",
+   "kind": "segment",
+   "rest": [
+    250,
+    446,
+    350,
+    446
+   ],
+   "anchor": true
+  },
+  {
+   "id": "neckL2",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    256,
+    414
+   ],
+   "anchor": true
+  },
+  {
+   "id": "neckR2",
+   "surface": "face",
+   "kind": "point",
+   "rest": [
+    344,
+    414
+   ],
+   "anchor": true
+  },
+  {
+   "id": "f0.wick",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    198.61,
+    598
+   ],
+   "anchor": true
+  },
+  {
+   "id": "f0.tip",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    198.61,
+    514
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f0.sideL",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    190.61,
+    572
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f0.sideR",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    206.61,
+    572
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f0.crownL",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    193.61,
+    532
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f0.crownR",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    203.61,
+    532
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f0.spineLo",
+   "surface": "flame",
+   "kind": "segment",
+   "rest": [
+    198.61,
+    598,
+    198.61,
+    564
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f0.spineHi",
+   "surface": "flame",
+   "kind": "segment",
+   "rest": [
+    198.61,
+    564,
+    198.61,
+    534
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f1.wick",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    218.69,
+    618
+   ],
+   "anchor": true
+  },
+  {
+   "id": "f1.tip",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    218.69,
+    534
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f1.sideL",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    210.69,
+    592
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f1.sideR",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    226.69,
+    592
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f1.crownL",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    213.69,
+    552
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f1.crownR",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    223.69,
+    552
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f1.spineLo",
+   "surface": "flame",
+   "kind": "segment",
+   "rest": [
+    218.69,
+    618,
+    218.69,
+    584
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f1.spineHi",
+   "surface": "flame",
+   "kind": "segment",
+   "rest": [
+    218.69,
+    584,
+    218.69,
+    554
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f2.wick",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    254.88,
+    598
+   ],
+   "anchor": true
+  },
+  {
+   "id": "f2.tip",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    254.88,
+    514
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f2.sideL",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    246.88,
+    572
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f2.sideR",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    262.88,
+    572
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f2.crownL",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    249.88,
+    532
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f2.crownR",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    259.88,
+    532
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f2.spineLo",
+   "surface": "flame",
+   "kind": "segment",
+   "rest": [
+    254.88,
+    598,
+    254.88,
+    564
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f2.spineHi",
+   "surface": "flame",
+   "kind": "segment",
+   "rest": [
+    254.88,
+    564,
+    254.88,
+    534
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f3.wick",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    300,
+    618
+   ],
+   "anchor": true
+  },
+  {
+   "id": "f3.tip",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    300,
+    534
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f3.sideL",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    292,
+    592
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f3.sideR",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    308,
+    592
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f3.crownL",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    295,
+    552
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f3.crownR",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    305,
+    552
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f3.spineLo",
+   "surface": "flame",
+   "kind": "segment",
+   "rest": [
+    300,
+    618,
+    300,
+    584
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f3.spineHi",
+   "surface": "flame",
+   "kind": "segment",
+   "rest": [
+    300,
+    584,
+    300,
+    554
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f4.wick",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    345.12,
+    598
+   ],
+   "anchor": true
+  },
+  {
+   "id": "f4.tip",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    345.12,
+    514
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f4.sideL",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    337.12,
+    572
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f4.sideR",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    353.12,
+    572
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f4.crownL",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    340.12,
+    532
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f4.crownR",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    350.12,
+    532
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f4.spineLo",
+   "surface": "flame",
+   "kind": "segment",
+   "rest": [
+    345.12,
+    598,
+    345.12,
+    564
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f4.spineHi",
+   "surface": "flame",
+   "kind": "segment",
+   "rest": [
+    345.12,
+    564,
+    345.12,
+    534
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f5.wick",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    381.31,
+    618
+   ],
+   "anchor": true
+  },
+  {
+   "id": "f5.tip",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    381.31,
+    534
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f5.sideL",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    373.31,
+    592
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f5.sideR",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    389.31,
+    592
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f5.crownL",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    376.31,
+    552
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f5.crownR",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    386.31,
+    552
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f5.spineLo",
+   "surface": "flame",
+   "kind": "segment",
+   "rest": [
+    381.31,
+    618,
+    381.31,
+    584
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f5.spineHi",
+   "surface": "flame",
+   "kind": "segment",
+   "rest": [
+    381.31,
+    584,
+    381.31,
+    554
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f6.wick",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    401.39,
+    598
+   ],
+   "anchor": true
+  },
+  {
+   "id": "f6.tip",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    401.39,
+    514
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f6.sideL",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    393.39,
+    572
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f6.sideR",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    409.39,
+    572
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f6.crownL",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    396.39,
+    532
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f6.crownR",
+   "surface": "flame",
+   "kind": "point",
+   "rest": [
+    406.39,
+    532
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f6.spineLo",
+   "surface": "flame",
+   "kind": "segment",
+   "rest": [
+    401.39,
+    598,
+    401.39,
+    564
+   ],
+   "anchor": false
+  },
+  {
+   "id": "f6.spineHi",
+   "surface": "flame",
+   "kind": "segment",
+   "rest": [
+    401.39,
+    564,
+    401.39,
+    534
+   ],
+   "anchor": false
+  },
+  {
+   "id": "paper0",
+   "surface": "paper",
+   "kind": "segment",
+   "rest": [
+    25,
+    960,
+    80,
+    960
+   ],
+   "anchor": false
+  },
+  {
+   "id": "paper1",
+   "surface": "paper",
+   "kind": "segment",
+   "rest": [
+    80,
+    960,
+    135,
+    960
+   ],
+   "anchor": false
+  },
+  {
+   "id": "paper2",
+   "surface": "paper",
+   "kind": "segment",
+   "rest": [
+    135,
+    960,
+    190,
+    960
+   ],
+   "anchor": false
+  },
+  {
+   "id": "paper3",
+   "surface": "paper",
+   "kind": "segment",
+   "rest": [
+    190,
+    960,
+    245,
+    960
+   ],
+   "anchor": false
+  },
+  {
+   "id": "paper4",
+   "surface": "paper",
+   "kind": "segment",
+   "rest": [
+    245,
+    960,
+    300,
+    960
+   ],
+   "anchor": false
+  },
+  {
+   "id": "paper5",
+   "surface": "paper",
+   "kind": "segment",
+   "rest": [
+    300,
+    960,
+    355,
+    960
+   ],
+   "anchor": false
+  },
+  {
+   "id": "paper6",
+   "surface": "paper",
+   "kind": "segment",
+   "rest": [
+    355,
+    960,
+    410,
+    960
+   ],
+   "anchor": false
+  },
+  {
+   "id": "paper7",
+   "surface": "paper",
+   "kind": "segment",
+   "rest": [
+    410,
+    960,
+    465,
+    960
+   ],
+   "anchor": false
+  },
+  {
+   "id": "paper8",
+   "surface": "paper",
+   "kind": "segment",
+   "rest": [
+    465,
+    960,
+    520,
+    960
+   ],
+   "anchor": false
+  },
+  {
+   "id": "paper9",
+   "surface": "paper",
+   "kind": "segment",
+   "rest": [
+    520,
+    960,
+    575,
+    960
+   ],
+   "anchor": false
+  },
+  {
+   "id": "paperLt",
+   "surface": "paper",
+   "kind": "point",
+   "rest": [
+    25,
+    942
+   ],
+   "anchor": false
+  },
+  {
+   "id": "paperLb",
+   "surface": "paper",
+   "kind": "point",
+   "rest": [
+    25,
+    978
+   ],
+   "anchor": false
+  },
+  {
+   "id": "paperRt",
+   "surface": "paper",
+   "kind": "point",
+   "rest": [
+    575,
+    942
+   ],
+   "anchor": false
+  },
+  {
+   "id": "paperRb",
+   "surface": "paper",
+   "kind": "point",
+   "rest": [
+    575,
+    978
+   ],
+   "anchor": false
+  }
+ ],
+ "poses": {
+  "CHEEKS": {
+   "cheekL": [
+    -12,
+    -2
+   ],
+   "cheekR": [
+    12,
+    -2
+   ],
+   "cheekLout:a": [
+    -20,
+    -2
+   ],
+   "cheekLout:b": [
+    -22,
+    3
+   ],
+   "cheekLlo": [
+    -8,
+    11
+   ],
+   "cheekLup": [
+    -5,
+    -7
+   ],
+   "cheekRout:a": [
+    20,
+    -2
+   ],
+   "cheekRout:b": [
+    22,
+    3
+   ],
+   "cheekRlo": [
+    8,
+    11
+   ],
+   "cheekRup": [
+    5,
+    -7
+   ],
+   "cheekLineL:a": [
+    -2,
+    0
+   ],
+   "cheekLineL:b": [
+    -3,
+    2
+   ],
+   "cheekLineR:a": [
+    2,
+    0
+   ],
+   "cheekLineR:b": [
+    3,
+    2
+   ],
+   "jawL": [
+    -9,
+    3
+   ],
+   "jawR": [
+    9,
+    3
+   ],
+   "lipUin": [
+    0,
+    3
+   ],
+   "lipLin": [
+    0,
+    -3
+   ],
+   "alaL": [
+    -3,
+    0
+   ],
+   "alaR": [
+    3,
+    0
+   ],
+   "browL:a": [
+    0,
+    -5
+   ],
+   "browL:b": [
+    0,
+    -6
+   ],
+   "browR:a": [
+    0,
+    -6
+   ],
+   "browR:b": [
+    0,
+    -5
+   ],
+   "eyeLlo": [
+    0,
+    -3
+   ],
+   "eyeRlo": [
+    0,
+    -3
+   ]
+  },
+  "PURSE": {
+   "mouthL": [
+    14,
+    1
+   ],
+   "mouthR": [
+    -14,
+    1
+   ],
+   "lipUL:a": [
+    14,
+    1
+   ],
+   "lipUR:b": [
+    -14,
+    1
+   ],
+   "lipLL:a": [
+    14,
+    1
+   ],
+   "lipLR:b": [
+    -14,
+    1
+   ],
+   "lipUL:b": [
+    0,
+    -3
+   ],
+   "lipUR:a": [
+    0,
+    -3
+   ],
+   "lipLL:b": [
+    0,
+    3
+   ],
+   "lipLR:a": [
+    0,
+    3
+   ]
+  },
+  "OPEN": {
+   "lipUin": [
+    0,
+    -8
+   ],
+   "lipLin": [
+    0,
+    13
+   ],
+   "lipUL:b": [
+    0,
+    -4
+   ],
+   "lipUR:a": [
+    0,
+    -4
+   ],
+   "lipLL:b": [
+    0,
+    9
+   ],
+   "lipLR:a": [
+    0,
+    9
+   ],
+   "chin": [
+    0,
+    3
+   ],
+   "jawL": [
+    0,
+    2
+   ],
+   "jawR": [
+    0,
+    2
+   ],
+   "eyeLup": [
+    0,
+    3
+   ],
+   "eyeRup": [
+    0,
+    3
+   ]
+  },
+  "SMILE": {
+   "mouthL": [
+    -5,
+    -6
+   ],
+   "mouthR": [
+    5,
+    -6
+   ],
+   "lipUL:a": [
+    -5,
+    -6
+   ],
+   "lipUR:b": [
+    5,
+    -6
+   ],
+   "lipLL:a": [
+    -5,
+    -6
+   ],
+   "lipLR:b": [
+    5,
+    -6
+   ],
+   "lipLin": [
+    0,
+    1
+   ],
+   "lipLL:b": [
+    0,
+    1
+   ],
+   "lipLR:a": [
+    0,
+    1
+   ],
+   "cheekL": [
+    -3,
+    -6
+   ],
+   "cheekR": [
+    3,
+    -6
+   ],
+   "cheekLineL:a": [
+    -2,
+    -3
+   ],
+   "cheekLineR:a": [
+    2,
+    -3
+   ],
+   "eyeLlo": [
+    0,
+    -3
+   ],
+   "eyeRlo": [
+    0,
+    -3
+   ],
+   "eyeLup": [
+    0,
+    1
+   ],
+   "eyeRup": [
+    0,
+    1
+   ]
+  }
+ },
+ "breath": {
+  "k": 0.85,
+  "cheekRef": 0.4,
+  "cheekRefSparse": 0.513,
+  "mouthRef": 580,
+  "spread0": 0.05,
+  "spreadW": 0.5,
+  "widthRef": 50,
+  "lean": -8
+ },
+ "groups": {
+  "STREAMER": "surface paper",
+  "CHEEKS": "cheek|jaw|ala|brow|lower lids",
+  "LIPS": "mouth|lip",
+  "FLAMES": "flame tips and sides"
+ }
+}
