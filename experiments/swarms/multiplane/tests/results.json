@@ -1,17 +1,17 @@
 {
- "when": "2026-11-06T06:53:29.746Z",
+ "when": "2026-11-06T07:27:11.261Z",
  "viewport": "390x780 css px, device scale 1",
  "tests": {
   "parallax_proportional_to_inverse_depth": {
    "pass": false,
    "planes": 28,
-   "worstPlane": "chair",
-   "worstErrorPx": 148.69,
-   "worstPredictedPx": -239.19,
-   "constantFdb": 325.5,
+   "worstPlane": "floor12",
+   "worstErrorPx": -2.84,
+   "worstPredictedPx": -189.15,
+   "constantFdb": 307.2,
    "expectedFdb": 307.4,
    "eyeMoveM": 0.5435,
-   "maxRelativeSpread": 0.6427,
+   "maxRelativeSpread": 0.0353,
    "rows": [
     {
      "config": "start",
@@ -27,8 +27,8 @@
      "plane": "floor0",
      "depth": 9,
      "predictedPx": 84.07,
-     "measuredPx": 84.03,
-     "errorPx": -0.04,
+     "measuredPx": 84.04,
+     "errorPx": -0.02,
      "ok": true
     },
     {
@@ -37,7 +37,7 @@
      "depth": 6.5,
      "predictedPx": 70.93,
      "measuredPx": 70.97,
-     "errorPx": 0.03,
+     "errorPx": 0.04,
      "ok": true
     },
     {
@@ -45,8 +45,8 @@
      "plane": "floor2",
      "depth": 5,
      "predictedPx": 56.75,
-     "measuredPx": 56.16,
-     "errorPx": -0.59,
+     "measuredPx": 56.22,
+     "errorPx": -0.53,
      "ok": true
     },
     {
@@ -54,8 +54,8 @@
      "plane": "floor3",
      "depth": 4,
      "predictedPx": 41.38,
-     "measuredPx": 41.93,
-     "errorPx": 0.55,
+     "measuredPx": 41.85,
+     "errorPx": 0.48,
      "ok": true
     },
     {
@@ -63,8 +63,8 @@
      "plane": "floor4",
      "depth": 3.3,
      "predictedPx": 25.08,
-     "measuredPx": 24.17,
-     "errorPx": -0.91,
+     "measuredPx": 24.18,
+     "errorPx": -0.9,
      "ok": true
     },
     {
@@ -72,8 +72,8 @@
      "plane": "floor5",
      "depth": 2.8,
      "predictedPx": 8.44,
-     "measuredPx": 8.4,
-     "errorPx": -0.04,
+     "measuredPx": 8.34,
+     "errorPx": -0.11,
      "ok": true
     },
     {
@@ -81,8 +81,8 @@
      "plane": "floor6",
      "depth": 2.4,
      "predictedPx": -9.85,
-     "measuredPx": -9.99,
-     "errorPx": -0.14,
+     "measuredPx": -9.98,
+     "errorPx": -0.13,
      "ok": true
     },
     {
@@ -90,8 +90,8 @@
      "plane": "floor7",
      "depth": 2.05,
      "predictedPx": -31.72,
-     "measuredPx": -31.99,
-     "errorPx": -0.27,
+     "measuredPx": -31.98,
+     "errorPx": -0.26,
      "ok": true
     },
     {
@@ -99,8 +99,8 @@
      "plane": "floor8",
      "depth": 1.75,
      "predictedPx": -57.42,
-     "measuredPx": -98,
-     "errorPx": -40.58,
+     "measuredPx": -56.04,
+     "errorPx": 1.38,
      "ok": false
     },
     {
@@ -108,36 +108,36 @@
      "plane": "floor9",
      "depth": 1.5,
      "predictedPx": -86.7,
-     "measuredPx": -127,
-     "errorPx": -40.3,
-     "ok": false
+     "measuredPx": -87.95,
+     "errorPx": -1.25,
+     "ok": true
     },
     {
      "config": "start",
      "plane": "floor10",
      "depth": 1.3,
      "predictedPx": -118.22,
-     "measuredPx": -159,
-     "errorPx": -40.78,
-     "ok": false
+     "measuredPx": -119.97,
+     "errorPx": -1.75,
+     "ok": true
     },
     {
      "config": "start",
      "plane": "floor11",
      "depth": 1.12,
      "predictedPx": -156.22,
-     "measuredPx": -197,
-     "errorPx": -40.78,
-     "ok": false
+     "measuredPx": -156.01,
+     "errorPx": 0.22,
+     "ok": true
     },
     {
      "config": "start",
      "plane": "floor12",
      "depth": 1,
      "predictedPx": -189.15,
-     "measuredPx": -230,
-     "errorPx": -40.85,
-     "ok": false
+     "measuredPx": -192,
+     "errorPx": -2.84,
+     "ok": true
     },
     {
      "config": "start",
@@ -162,8 +162,8 @@
      "plane": "tabletop",
      "depth": 2.78,
      "predictedPx": 7.65,
-     "measuredPx": 7.82,
-     "errorPx": 0.16,
+     "measuredPx": 7.78,
+     "errorPx": 0.13,
      "ok": true
     },
     {
@@ -190,7 +190,7 @@
      "depth": 2.36,
      "predictedPx": -12.02,
      "measuredPx": -12.01,
-     "errorPx": 0.02,
+     "errorPx": 0.01,
      "ok": true
     },
     {
@@ -199,7 +199,7 @@
      "depth": 1.95,
      "predictedPx": -39.41,
      "measuredPx": -39.33,
-     "errorPx": 0.08,
+     "errorPx": 0.07,
      "ok": true
     },
     {
@@ -207,8 +207,8 @@
      "plane": "bench",
      "depth": 1.32,
      "predictedPx": -114.64,
-     "measuredPx": -114.57,
-     "errorPx": 0.06,
+     "measuredPx": -114.67,
+     "errorPx": -0.03,
      "ok": true
     },
     {
@@ -216,18 +216,18 @@
      "plane": "string",
      "depth": 1.02,
      "predictedPx": -183.13,
-     "measuredPx": -163.5,
-     "errorPx": 19.63,
-     "ok": false
+     "measuredPx": -183.07,
+     "errorPx": 0.06,
+     "ok": true
     },
     {
      "config": "start",
      "plane": "chair",
      "depth": 0.86,
      "predictedPx": -239.19,
-     "measuredPx": -90.5,
-     "errorPx": 148.69,
-     "ok": false
+     "measuredPx": -239.13,
+     "errorPx": 0.07,
+     "ok": true
     },
     {
      "config": "moved",
@@ -244,7 +244,7 @@
      "depth": 4.4,
      "predictedPx": 48.36,
      "measuredPx": 48.24,
-     "errorPx": -0.12,
+     "errorPx": -0.13,
      "ok": true
     },
     {
@@ -261,7 +261,7 @@
      "plane": "string",
      "depth": 2.2,
      "predictedPx": -21.49,
-     "measuredPx": -21.48,
+     "measuredPx": -21.47,
      "errorPx": 0.02,
      "ok": true
     }

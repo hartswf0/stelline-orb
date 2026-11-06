@@ -62,8 +62,8 @@
     const face = G.faceState(0), aim = G.C['AIM'].applied * 4, size = 1 + .12 * G.C['FLAMES.t'].applied;
     const dur = .25 + G.C['CHEEKS.k'].applied / S.STEP_HZ;
     G.worlds.forEach(w => {
-      const pre = S.measureFace(MLS, G.H, Object.assign({}, face, { fill, open: 0 }), w.fam.face, G.alpha);
-      const open = S.measureFace(MLS, G.H, Object.assign({}, face, { fill: fill * .85, open: 1 }), w.fam.face, G.alpha);
+      const pre = S.measureFace(MLS, G.H, Object.assign({}, face, { fill, open: 0 }), w.fam.face, S.faceAlpha());
+      const open = S.measureFace(MLS, G.H, Object.assign({}, face, { fill: fill * .85, open: 1 }), w.fam.face, S.faceAlpha());
       w.meas = { cheek: pre.cheek, mouth: open.mouth, width: open.width };
       w.plan = S.breathPlan(w.meas, aim);
       // a flame goes out if the breath tears it thin: measured on this world's flame mesh, under its flame family

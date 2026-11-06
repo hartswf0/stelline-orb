@@ -30,12 +30,15 @@
     ['lipLL', 'l', [272, 330, 300, 344]], ['lipLR', 'l', [300, 344, 328, 330]],
     ['cheekLineL', 'l', [262, 300, 266, 334]], ['cheekLineR', 'l', [338, 300, 334, 334]],
   ];
-  // BRANCH B: a sparse face. 9 points + the cheek-to-mouth segment on each side, plus the same pinned plate and neck lines.
+  // BRANCH B: a sparse face. 11 points (7 moving + 2 fixed inner-cheek points + 2 neck anchors) and the same pinned plate and neck lines.
+  // Each cheek is a fixed inner point and a pushed outer point, so the local fit is a stretch along the cheek's axis.
+  // (A cheek-to-mouth segment that turned as the lips pursed was tried first: the purse pulled the corners in while the cheek pushed
+  // out, the fitted scale cancelled to ~1, and the families agreed to 0.1 px.) The face is solved with weight exponent 3 (FACE_ALPHA).
   const FACE_SPARSE = [
     ['eyeL', 'p', [254, 217]], ['eyeR', 'p', [346, 217]], ['noseTip', 'p', [300, 282]],
     ['mouthL', 'p', [272, 330]], ['mouthR', 'p', [328, 330]], ['lipUin', 'p', [300, 328]], ['lipLin', 'p', [300, 334]],
-    ['cheekL', 'p', [236, 304]], ['cheekR', 'p', [364, 304]],
-    ['cheekMouthL', 'l', [226, 296, 262, 326]], ['cheekMouthR', 'l', [374, 296, 338, 326]],
+    ['lipUout', 'p', [300, 318]], ['lipLout', 'p', [300, 346]],
+    ['cheekInL', 'p', [262, 300]], ['cheekInR', 'p', [338, 300]], ['cheekL', 'p', [214, 304]], ['cheekR', 'p', [386, 304]],
   ];
   let FACE_SET = (root && root.FACE_SET) || 'dense';
   const ANCHORS = new Set(['plateTL', 'plateTR', 'plateBL', 'plateBR', 'crown', 'templeL', 'templeR', 'earL', 'earR', 'neckL', 'neckR']);
@@ -79,11 +82,10 @@
   };
   // branch B poses: the cheek is one point pushed out, and the cheek-to-mouth segment pushed out AND turned (its mouth end follows the corner)
   const POSES_SPARSE = {
-    CHEEKS: { cheekL: [-22, -4], cheekR: [22, -4], 'cheekMouthL:a': [-20, -6], 'cheekMouthL:b': [-6, 2], 'cheekMouthR:a': [20, -6], 'cheekMouthR:b': [6, 2],
-      lipUin: [0, 3], lipLin: [0, -3] },
-    PURSE: { mouthL: [14, 1], mouthR: [-14, 1], 'cheekMouthL:b': [12, 2], 'cheekMouthR:b': [-12, 2] },
-    OPEN: { lipUin: [0, -8], lipLin: [0, 13] },
-    SMILE: { mouthL: [-5, -6], mouthR: [5, -6], 'cheekMouthL:b': [-4, -5], 'cheekMouthR:b': [4, -5], cheekL: [-2, -6], cheekR: [2, -6] },
+    CHEEKS: { cheekL: [-22, -3], cheekR: [22, -3], lipUin: [0, 3], lipLin: [0, -3] },
+    PURSE: { mouthL: [14, 1], mouthR: [-14, 1] },
+    OPEN: { lipUin: [0, -8], lipLin: [0, 13], lipUout: [0, -5], lipLout: [0, 10] },
+    SMILE: { mouthL: [-5, -6], mouthR: [5, -6], cheekL: [-2, -5], cheekR: [2, -5] },
   };
   const MOUTH_IDS = /^(mouth|lip)/;
 
@@ -183,9 +185,9 @@
 
   // the breath: from measured cheeks + aperture + aim, a strength for every candle. (Jet: speed grows with the air held and
   // with a smaller opening; spread grows with the opening's width.) Returns per-candle { s, dir, delay }.
-  const BREATH = { k: 0.85, cheekRef: 0.40, mouthRef: 580, spread0: .05, spreadW: .5, widthRef: 50, lean: -8 };
+  const BREATH = { k: 0.85, cheekRef: 0.40, cheekRefSparse: 0.633, mouthRef: 580, spread0: .05, spreadW: .5, widthRef: 50, lean: -8 };
   function breathPlan(meas, aimDeg) {
-    const V = Math.max(0, meas.cheek) / BREATH.cheekRef;            // 1 = a full similarity breath
+    const V = Math.max(0, meas.cheek) / (FACE_SET === 'sparse' ? BREATH.cheekRefSparse : BREATH.cheekRef);            // 1 = a full similarity breath
     const jet = BREATH.k * V * Math.pow(BREATH.mouthRef / Math.max(60, meas.mouth), .5);
     const spread = BREATH.spread0 + BREATH.spreadW * meas.width / BREATH.widthRef; // radians (1 sigma)
     const aim = (aimDeg + BREATH.lean) * Math.PI / 180, M = [300 + aimDeg * .55, 331];
@@ -211,7 +213,7 @@
   function vnoise(x) { const i = Math.floor(x), f = x - i, u = f * f * (3 - 2 * f); return hash(i) * (1 - u) + hash(i + 1) * u; }
   function smooth(x) { x = x < 0 ? 0 : x > 1 ? 1 : x; return x * x * (3 - 2 * x); }
 
-  const api = { setFaceSet: v => { FACE_SET = v; }, faceSet: () => FACE_SET, POSES_SPARSE, FACE_SPARSE, STEP_HZ, SURF, FAMILIES, CANDLES, GROUPS, POSES, PAPER_N, PAPER_Y, PAPER_HALF, buildHandles, faceOffsets, targets, pack, paperSpine,
+  const api = { setFaceSet: v => { FACE_SET = v; }, faceSet: () => FACE_SET, faceAlpha: () => FACE_SET === 'sparse' || FACE_SET === 'dense3' ? 3 : 1, POSES_SPARSE, FACE_SPARSE, STEP_HZ, SURF, FAMILIES, CANDLES, GROUPS, POSES, PAPER_N, PAPER_Y, PAPER_HALF, buildHandles, faceOffsets, targets, pack, paperSpine,
     measureFace, breathPlan, flameThin, FLAME_TEAR, BREATH, CHEEK_L, CHEEK_R, GAP, area, smooth, vnoise, hash };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.SCENE = api;
 })(typeof self !== 'undefined' ? self : this);

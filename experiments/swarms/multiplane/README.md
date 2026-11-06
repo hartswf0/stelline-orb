@@ -65,15 +65,17 @@ tuned by depth (460 Hz for the wall to 6.1 kHz for the nearest post), panned to 
 pass the eye (F·|db/dt|/z), so near pieces rush brightly and far ones murmur. The candles crackle through a low-pass that
 closes as the flames are hidden. The proof film's sound is rendered offline by the same audio graph from the trace.
 
-## Measured (tests/results.json)
+## Measured (tests/results.json, last run 2026-11-06)
 
-See the results file for the exact numbers of the latest run; summary at the time of writing is in the final report and on
-operator.html. Tests: (1) each plane's slide between two eye positions against F·Δb·(1/zc − 1/z), measured by matching
-renders of each plane alone, at the start depths and with four pieces moved; (2) painter's order against depth, pixel by
-pixel, over 55 views (11 eye angles × 5 depth settings, including the balloon moved behind the near child); (3) no uncovered
-pixel, no table seam, the cake never floating, same 55 views; (4) the game's solution space; (5) step trains at 11.8/s after
-the hand's detents; (6) the view glides between steps; (7) voice speeds ordered by depth, and audio level in the sweep against
-a still moment.
+| invariant | result |
+|---|---|
+| Parallax ∝ 1/depth (eye moved 0.54 m, 28 plane measurements incl. 4 moved pieces) | FAIL on the strict bar. Every plane with picture content (wall, children, table pieces, cake, candles, chair back, balloon, chair post, and the four pieces at moved depths) is within 0.2 px of F·Δb·(1/zc − 1/z). The fitted constant is 307.2 px against 307.4 expected. The near floor strips, whose only texture is faint spots, measure up to 2.8 px off (floor strip at 1.75 m: 1.38 px against a 1.15 px tolerance), and the spread of the fitted constant is 3.5 % against a 2 % bar. This is read as measurement noise on low-texture strips, not shown to be so. |
+| Occlusion order follows depth | PASS: 0 wrong pixels of 10,206,516 checked, 55 views (11 eye angles × 5 depth settings, including the balloon moved behind the near child). |
+| No gaps or seams | PASS: 0 uncovered pixels, 0 table-seam pixels, 0 pixels of floor or wall under the cake, same 55 views. |
+| Game needs viewpoint and depth | PASS: no eye angle wins from the start; with child right at 4.10 m the eye wins from −30° to −18°; the proof's blow sees 7 candles and 3 faces and ends kept. |
+| Machine at 11.8/s after the hand | PASS: trains of 5, 17, 17, 6 steps at 12.0, 11.71, 11.71, 11.54 per second (frame-quantized), each after detents. |
+| View glides | PASS: 92 of 120 moving frames carry no step; largest change 0.857°/frame. |
+| Depth in the sound | PASS (trace): voice speeds rise with nearness, 55 px/s (wall) to 572 px/s (chair post); bands 460 Hz to 6.1 kHz. Proof audio: −16.0 dB RMS in the sweep, −33.6 dB in the still moment before release. Voices were not measured soloed. |
 
 ## Files
 

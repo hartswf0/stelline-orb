@@ -347,7 +347,7 @@ layout(); reset(); requestAnimationFrame(loop);
 window.MP = { ready: false, PLANES, P, G, V, RINGS, EVENTS, TARGETS, get ORDER() { return ORDER; }, get FRAMES() { return FRAMES; }, ZC, PY, D, EYE, get F() { return F; }, get W() { return W; }, get H() { return H; },
   camB, predictedShift, project, sight, sortPlanes, reset, select, handTurn, toggleHold, playScene, STEP_HZ, YAW_PER_STEP,
   film(on) { FILM = on; FRAMES = []; EVENTS.length = 0; NOW = 0; }, step, layout, setKT(t) { KT = t; },
-  render(b, t, only, pad) { pad = pad || 0; const C = document.createElement('canvas'); C.width = W + 2 * pad; C.height = H + 2 * pad; const c = C.getContext('2d'); drawScene(c, b, t, { only, noBlur: true, dpr: 1, pad }); return Array.from(c.getImageData(0, 0, C.width, C.height).data); },
+  render(b, t, only, pad) { pad = pad || 0; const C = document.createElement('canvas'); C.width = W + 2 * pad; C.height = H + 2 * pad; const c = C.getContext('2d'); drawScene(c, b, t, { only, noBlur: true, dpr: 1, pad }); return c.getImageData(0, 0, C.width, C.height).data; },
   idColor, idComposite(b, t) { return Array.from(idPicture(b, t)); }, occluder(z, b, t) { return Array.from(occluder(z, b, t)); },
   masks(b, t) { return PLANES.map((p, i) => Array.from(maskOf(i, b, t))); },
   manifest() { return { title: 'Multiplane birthday: plane manifest', units: 'metres; depth is measured from the line the eye moves along; the eye trucks along x only', pivot: { depth: ZC, height: PY, note: 'the cake; a lens shift holds it still on screen' },

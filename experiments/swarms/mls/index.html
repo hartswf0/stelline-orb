@@ -79,7 +79,7 @@ function initPicture() {
 }
 // solve every surface of a world state under per-surface families; returns { T, face, paper, flames[] } (deformed vertex arrays)
 function solveWorld(st, fam, alpha) { const H = G.H, T = SCENE.targets(H, st), out = { T };
-  out.face = MLS.solve(SCENE.pack(H, T, 'face'), ME.face.verts, new Float64Array(ME.face.verts.length), fam.face, alpha);
+  out.face = MLS.solve(SCENE.pack(H, T, 'face'), ME.face.verts, new Float64Array(ME.face.verts.length), fam.face, alpha === 1 ? SCENE.faceAlpha() : alpha); // branch A: 1; branch B: 3
   out.paper = MLS.solve(SCENE.pack(H, T, 'paper'), ME.paper.verts, new Float64Array(ME.paper.verts.length), fam.paper, alpha);
   out.flames = ME.flames.map((m, i) => MLS.solve(SCENE.pack(H, T, 'flame', i), m.verts, new Float64Array(m.verts.length), fam.flame, alpha)); return out; }
 let XF = [1, 1, 0, 0];

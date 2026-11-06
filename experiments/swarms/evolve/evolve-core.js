@@ -23,7 +23,7 @@
     ['h', 'TIERS', 'HEIGHT', .25], ['tiers', 'TIERS', 'LAYERS', 0], ['plate', 'TIERS', 'BOARD', 0],
     ['dome', 'DOME', 'DOME', 1], ['bevel', 'DOME', 'EDGE', 1], ['taper', 'DOME', 'TAPER', .5],
     ['topR', 'ICING', 'ICING RED', .5], ['topG', 'ICING', 'ICING GREEN', .5], ['topB', 'ICING', 'ICING BLUE', .5], ['fill', 'ICING', 'FILLING', 0], ['beads', 'ICING', 'BEADS', 0],
-    ['sideR', 'COLOUR', 'SPONGE RED', .5], ['sideG', 'COLOUR', 'SPONGE GREEN', .5], ['sideB', 'COLOUR', 'SPONGE BLUE', .5]];
+    ['sideR', 'COLOUR', 'SPONGE RED', .5], ['sideG', 'COLOUR', 'SPONGE GREEN', .5], ['sideB', 'COLOUR', 'SPONGE BLUE', .5], ['shade', 'COLOUR', 'LIGHT FALLOFF', .3]];
   const KIND = { head: HEAD_GENES, cake: CAKE_GENES };
   const groupsOf = kind => [...new Set(KIND[kind].map(g => g[1]))];
   const blank = kind => KIND[kind].map(g => g[3]);
@@ -105,6 +105,7 @@
     return { fit, iou: I, lm: e, per, ours, mask: gr.m, grid: HEAD_GRID };
   }
   const BINS = 6;
+  const lightK = (g, lit) => .06 + 1.1 * Math.pow(lit, lerp(.6, 3, g.shade));   // how fast the candle light falls off round the side (gene LIGHT FALLOFF)
   function evalCake(G, ref) { const mesh = cakeMesh(G), S = project(mesh, ref.cake.elevationDeg), bb = bbox(S), s = bb.x1 - bb.x0, norm = { cx: (bb.x0 + bb.x1) / 2, top: bb.y0, s };
     const gr = grid(...CAKE_GRID), parts = mesh.parts, g = mesh.g, H = mesh.H, layers = 1 + Math.round(g.tiers * 2);
     const pal = [mesh.colours.side, mesh.colours.top, mesh.colours.fill, mesh.colours.bead, mesh.colours.board];
@@ -116,8 +117,8 @@
       for (let L = 1; L < layers; L++) if (Math.abs(y - L / layers) < .035 + .05 * g.fill) return sh(2);   // filling lines between layers
       if (((hash(r, c) % 1000) / 1000) < g.beads * .22) return sh(3); return sh(0); });
     const I = iou(gr.m, refMask(ref, 'cake')), h = new Float64Array(BINS ** 3); let n = 0;
-    for (let i = 0; i < gr.m.length; i++) if (gr.m[i] && gr.c[i] >= 0) { const lit = (gr.c[i] >> 3) / 15, c = pal[gr.c[i] & 7];   // soft (trilinear) binning, as in extract-refs.py
-      const f = c.map(v => clamp(v * (.2 + .95 * lit) * BINS / 256 - .5, 0, BINS - 1)), lo = f.map(x => Math.min(BINS - 2, Math.floor(x))), t = f.map((x, k) => x - lo[k]);
+    for (let i = 0; i < gr.m.length; i++) if (gr.m[i] && gr.c[i] >= 0) { const lit = lightK(g, (gr.c[i] >> 3) / 15), c = pal[gr.c[i] & 7];   // soft (trilinear) binning, as in extract-refs.py
+      const f = c.map(v => clamp(v * lit * BINS / 256 - .5, 0, BINS - 1)), lo = f.map(x => Math.min(BINS - 2, Math.floor(x))), t = f.map((x, k) => x - lo[k]);
       for (let d = 0; d < 8; d++) { const dr = d >> 2 & 1, dg = d >> 1 & 1, db = d & 1; h[((lo[0] + dr) * BINS + lo[1] + dg) * BINS + lo[2] + db] += (dr ? t[0] : 1 - t[0]) * (dg ? t[1] : 1 - t[1]) * (db ? t[2] : 1 - t[2]); } n++; }
     let bc = 0; const R = ref.cake.hist; for (let i = 0; i < h.length; i++) bc += Math.sqrt((n ? h[i] / n : 0) * R[i]); const hel = Math.sqrt(Math.max(0, 1 - bc));   // Hellinger distance
     const fit = 1 - (W_CAKE.iou * (1 - I) + W_CAKE.hist * hel);
@@ -146,5 +147,5 @@
       for (const L of lev) { cut(a, d, b, L); cut(b, d, e, L); } }
     return new Float32Array(out); }
   function indices(rows, cols) { const I = []; for (let r = 0; r < rows - 1; r++) for (let c = 0; c < cols - 1; c++) { const a = r * cols + c, b = a + 1, d = a + cols, e = d + 1; I.push(a, d, b, b, d, e); } return I; }
-  return { KIND, groupsOf, blank, named, headMesh, cakeMesh, project, evaluate, breed, start, weights, slices, indices, mulberry32, hash, LAMBDA, THRESH, W_HEAD, W_CAKE, HEAD_GRID, CAKE_GRID };
+  return { lightK, KIND, groupsOf, blank, named, headMesh, cakeMesh, project, evaluate, breed, start, weights, slices, indices, mulberry32, hash, LAMBDA, THRESH, W_HEAD, W_CAKE, HEAD_GRID, CAKE_GRID };
 });
