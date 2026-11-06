@@ -15,7 +15,8 @@
       this.W = { LOOSE: new D.World('LOOSE'), TUNED: new D.World('TUNED'), RIGID: new D.World('RIGID') }; this.main = this.W.TUNED;
       this.t = 0; this.log = []; this.notes = []; this.target = 0; this.ins = 0; this.split = false; this.phase = 'make'; this.offAt = 0; this.dark = 0; this.onAt = 0;
       this.offset = 0; this.amount = 0; this.count = 0; this.slot = 1; this.litWant = 0; this.lastWork = -9; this.anims = []; this.scene = null; this.seed = 11; this.stepClock = 0; this.sweepAt = -9;
-      this.rings = [{ id: 'scale', ang: 0, target: 0, applied: 0, deg: 5, min: -36, max: 36, ix: 0 }, { id: 'knurl', ang: 0, target: 0, applied: 0, deg: 9, ix: 1 }, { id: 'tri', ang: 0, target: 0, applied: 0, deg: 6, min: -2, max: 8, ix: 2 }];
+      const R0 = [{ id: 'scale', ang: 0, target: 0, applied: 0, deg: 5, min: -36, max: 36, ix: 0 }, { id: 'knurl', ang: 0, target: 0, applied: 0, deg: 9, ix: 1 }, { id: 'tri', ang: 0, target: 0, applied: 0, deg: 6, min: -2, max: 8, ix: 2 }];
+      if (this.rings) this.rings.forEach((r, i) => Object.assign(r, R0[i])); else this.rings = R0;   // the same physical rings across a reset
       this.trace = []; this.events = []; this.select(0, true); this.say('MEMORY ON');
     }
     rnd() { this.seed = (this.seed * 16807) % 2147483647; return this.seed / 2147483647; }
@@ -65,7 +66,7 @@
       const upright = m.candles.filter(c => c.state === 'set' && Math.hypot(c.lx.x, c.lz.x) < 6 * DEG).length; parts.candles = 20 * upright / 7;
       parts.level = Math.abs(m.theta) <= 1.5 * DEG ? 5 : 0; parts.rest = m.atRest() ? 10 : 0;
       const total = Object.values(parts).reduce((a, b) => a + b, 0);
-      return { total: Math.round(total), parts, upright, aspect, ice: s, pass: total >= 90 && upright === 7 }; }
+      return { total: Math.round(total), parts, upright, aspect, ice: s, pass: total >= 90 && upright === 7 && parts.rest === 10 }; }
     stage() { const m = this.main, s = m.iceStats(); let n = 0; if (m.layers.length === 3) n++; else return n; if (s.poured > 0 && !m.ice.pour && m.ice.flow < 5) n++; else return n;
       if (m.beads.length === D.GEO.beadN && this.ins === WSTEPS) n++; else return n; if (m.candles.every(c => c.state === 'set')) n++; else return n; if (this.litCount() === 7) n++; return n; }
     ready() { return this.litCount() === 7 && this.score().pass; }

@@ -51,12 +51,12 @@ const cam = new T.PerspectiveCamera(30, 1, .02, 60);
 { const fl = new T.Mesh(new T.CircleGeometry(9, 96), new T.MeshStandardMaterial({ color: 0x0b0c0c, roughness: .55, metalness: .2 })); fl.rotation.x = -Math.PI / 2; scene.add(fl);
   const band = new T.Mesh(new T.TorusGeometry(7.5, .012, 6, 256), new T.MeshBasicMaterial({ color: 0xdfe8e4 })); band.rotation.x = Math.PI / 2; band.position.y = .42; scene.add(band);
   const glow = new T.Mesh(new T.TorusGeometry(7.5, .09, 6, 256), new T.MeshBasicMaterial({ color: 0x7e8f89, transparent: true, opacity: .12 })); glow.rotation.x = Math.PI / 2; glow.position.y = .42; scene.add(glow);
-  const tb = new T.Mesh(new T.CylinderGeometry(.36, .36, .03, 6), new T.MeshStandardMaterial({ color: 0x6e4c27, roughness: .6 })); tb.position.y = GEO.tableY - .015; scene.add(tb);
+  const tb = new T.Mesh(new T.CylinderGeometry(.36, .36, .03, 6), new T.MeshStandardMaterial({ color: 0x3a2814, roughness: .65 })); tb.position.y = GEO.tableY - .015; scene.add(tb);
   const leg = new T.Mesh(new T.CylinderGeometry(.05, .07, GEO.tableY - .03, 16), new T.MeshStandardMaterial({ color: 0x1a1612, roughness: .8 })); leg.position.y = (GEO.tableY - .03) / 2; scene.add(leg);
   const sb = new T.Mesh(new T.CylinderGeometry(.07, .085, .008, 48), new T.MeshStandardMaterial({ color: 0xbfc6c4, roughness: .25, metalness: .8 })); sb.position.y = GEO.tableY + .004; scene.add(sb);
   const st = new T.Mesh(new T.CylinderGeometry(.016, .022, GEO.plateY - GEO.tableY - .012, 24), sb.material); st.position.y = (GEO.plateY + GEO.tableY - .012) / 2; scene.add(st); }
-scene.add(new T.HemisphereLight(0x6c7a76, 0x050403, .12));
-const spot = new T.SpotLight(0xfff1dc, 2.2, 3, .3, .55, 1.4); spot.position.set(.15, 1.75, .55); spot.target.position.set(0, GEO.plateY, 0); scene.add(spot, spot.target);   // the memory's round pool of light
+scene.add(new T.HemisphereLight(0x6c7a76, 0x050403, .07));
+const spot = new T.SpotLight(0xffe2c0, 1.5, 3, .26, .6, 1.4); spot.position.set(.15, 1.75, .55); spot.target.position.set(0, GEO.plateY, 0); scene.add(spot, spot.target);   // the memory's round pool of light
 const candleLight = new T.PointLight(0xffa04a, 0, 2.5, 1.6); scene.add(candleLight);
 /* ============================================================ ONE CAKE PER PRESET (same hand, own physics) */
 const stripe = (() => { const c = document.createElement('canvas'); c.width = 16; c.height = 64; const x = c.getContext('2d'); x.fillStyle = '#f2e9d6'; x.fillRect(0, 0, 16, 64); x.fillStyle = '#d4483e'; for (let y = -16; y < 80; y += 12) { x.beginPath(); x.moveTo(0, y); x.lineTo(16, y + 8); x.lineTo(16, y + 13); x.lineTo(0, y + 5); x.fill(); } const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; return t; })();
@@ -79,9 +79,9 @@ class View {
     this.w = world; const G = this.G = new T.Group(); scene.add(G);
     this.piv = new T.Group(); this.piv.position.y = GEO.plateY; G.add(this.piv); this.yaw = new T.Group(); this.piv.add(this.yaw);
     const Y = this.yaw, std = (c, o) => new T.MeshStandardMaterial(Object.assign({ color: c, roughness: .7 }, o || {}));
-    this.mats = { sponge: std(0x3e2215, { roughness: .9 }), fill: std(0xe7d6b6, { roughness: .8 }), ice: std(0xd9782c, { roughness: .32, side: T.DoubleSide }), bead: std(0xf4ecdc, { roughness: .45 }), plate: std(0xd8dcda, { roughness: .2, metalness: .7 }), crown: std(0xd6ad45, { roughness: .45, metalness: .35, side: T.DoubleSide }) };
+    this.mats = { sponge: std(0x3e2215, { roughness: .9 }), fill: std(0xe7d6b6, { roughness: .8 }), ice: std(0xc2501a, { roughness: .3, side: T.DoubleSide }), bead: std(0xf4ecdc, { roughness: .45 }), plate: std(0xd8dcda, { roughness: .2, metalness: .7 }), crown: std(0xe8c062, { roughness: .4, metalness: .25, side: T.DoubleSide }) };
     const plate = new T.Mesh(new T.CylinderGeometry(GEO.plateR, GEO.plateR - .004, .008, 72), this.mats.plate); plate.position.y = -.004; Y.add(plate);
-    this.layerMeshes = []; for (let i = 0; i < 3; i++) { const g = new T.Group(), m = new T.Mesh(new T.CylinderGeometry(GEO.R, GEO.R, GEO.layerH, 72), this.mats.sponge), f = new T.Mesh(new T.CylinderGeometry(GEO.R + .0006, GEO.R + .0006, .0035, 72), this.mats.fill); f.position.y = GEO.layerH / 2 - .002; g.add(m, f); g.visible = false; Y.add(g); this.layerMeshes.push(g); }
+    this.layerMeshes = []; for (let i = 0; i < 3; i++) { const g = new T.Group(), m = new T.Mesh(new T.CylinderGeometry(GEO.R, GEO.R, GEO.layerH, 72, 1, false, Math.PI), this.mats.sponge), f = new T.Mesh(new T.CylinderGeometry(GEO.R + .0006, GEO.R + .0006, .0035, 72, 1, false, Math.PI), this.mats.fill); f.position.y = GEO.layerH / 2 - .002; g.add(m, f); g.visible = false; Y.add(g); this.layerMeshes.push(g); }
     this.ghostMat = std(0x3e2215, { transparent: true, opacity: .35, roughness: .9 }); this.ghost = new T.Mesh(new T.CylinderGeometry(GEO.R, GEO.R, GEO.layerH, 72), this.ghostMat); this.ghost.visible = false; Y.add(this.ghost);
     // icing: one vertex per film cell, per sector
     const ig = new T.BufferGeometry(); this.ipos = new Float32Array(NV * 3); ig.setAttribute('position', new T.BufferAttribute(this.ipos, 3)); const idx = [];
@@ -120,7 +120,7 @@ class View {
       this.ice.geometry.attributes.position.needsUpdate = true; this.ice.geometry.computeVertexNormals(); }
     // beads on the icing
     const m4 = new T.Matrix4(), q = new T.Quaternion(), sc = new T.Vector3(), ps = new T.Vector3(); this.beads.count = w.beads.length;
-    w.beads.forEach((b, k) => { const a = Math.floor(((b.a / TAU) % 1) * ICE.NA), hi = this.iceH(a, ICE.NT - 1) / 1000, s = 1 + b.s.x, rr = .0058; sc.set(1 / Math.sqrt(s), s * .8, 1 / Math.sqrt(s)); ps.set(Math.cos(b.a) * GEO.beadR, top + hi + rr * s * .8 * .85, Math.sin(b.a) * GEO.beadR); m4.compose(ps, q, sc); this.beads.setMatrixAt(k, m4); });
+    w.beads.forEach((b, k) => { const a = Math.floor(((b.a / TAU) % 1) * ICE.NA), hi = this.iceH(a, ICE.NT - 1) / 1000, s = 1 + b.s.x, rr = .0058; sc.set(1 / Math.sqrt(s), s, 1 / Math.sqrt(s)); ps.set(Math.cos(b.a) * GEO.beadR, top + hi + rr * s * .8, Math.sin(b.a) * GEO.beadR); m4.compose(ps, q, sc); this.beads.setMatrixAt(k, m4); });
     this.beads.instanceMatrix.needsUpdate = true;
     this.insc.visible = game.ins > 0; this.insc.position.y = top + this.iceH(0, 0) / 1000 + .0012;
     // candles and flames
@@ -132,8 +132,8 @@ class View {
       if (g.visible && sz > .01) { g.updateMatrixWorld(true); const wick = new T.Vector3(0, GEO.candleL, 0).applyMatrix4(g.matrixWorld); let up;
         if (w.P.rigid) up = new T.Vector3(0, 1, 0).applyQuaternion(g.getWorldQuaternion(new T.Quaternion())); else { const fv = new T.Vector3(fl.fx.x, 0, fl.fz.x), a = fv.length(); up = new T.Vector3(0, 1, 0); if (a > 1e-9) up.applyAxisAngle(fv.normalize(), a); }
         const flick = .94 + Math.sin(game.t * 23 + k * 1.7) * .035 + Math.sin(game.t * 7.1 + k) * .025;   // combustion, not secondary motion
-        V.f.position.copy(wick).addScaledVector(up, .013 * sz); V.f.scale.set(.015 * sz, .034 * sz * flick, 1); V.f.material.rotation = -Math.atan2(up.dot(right), up.y); V.f.material.opacity = 1; V.f.visible = true;
-        V.hl.position.copy(wick).addScaledVector(up, .014); V.hl.scale.set(.1 * sz, .1 * sz, 1); V.hl.material.opacity = .85 * sz * flick; V.hl.visible = true; V.lastWick = wick.clone(); }
+        V.f.position.copy(wick).addScaledVector(up, .013 * sz); V.f.scale.set(.015 * sz, .034 * sz * flick, 1); V.f.material.rotation = -Math.atan2(up.dot(right), up.y); V.f.material.opacity = .92; V.f.visible = true;
+        V.hl.position.copy(wick).addScaledVector(up, .014); V.hl.scale.set(.06 * sz, .06 * sz, 1); V.hl.material.opacity = .7 * sz * flick; V.hl.visible = true; V.lastWick = wick.clone(); }
       else { V.f.visible = V.hl.visible = false; }
       if (V.wasLit && !c.lit && V.lastWick) { V.smokeT = 0; V.smokeP = V.lastWick.clone(); } V.wasLit = c.lit;
       if (V.smokeT >= 0) { V.smokeT += 1 / 30; const u = V.smokeT / 1.6; if (u >= 1) { V.smokeT = -1; V.sm.material.opacity = 0; } else { V.sm.position.copy(V.smokeP).add(new T.Vector3(Math.sin(u * 5 + k) * .006, u * .09, 0)); V.sm.scale.setScalar(.012 + u * .03); V.sm.material.opacity = .35 * (1 - u); } } });
@@ -155,7 +155,7 @@ const VIEWS = { LOOSE: new View(game.W.LOOSE), TUNED: new View(game.W.TUNED), RI
 /* ============================================================ MEMORY SPOTS, THE ARC */
 const SPOTS = Array.from({ length: 9 }, (_, i) => { const s = new T.Sprite(new T.SpriteMaterial({ map: spotTex, blending: T.AdditiveBlending, depthWrite: false, depthTest: false, transparent: true, opacity: 0 })); s.renderOrder = 6; scene.add(s); return { s, a: i * 2.39, r: .05 + (i % 3) * .07, y: .02 + (i % 4) * .05, d: i * .07 }; });
 function canvasSprite(w, h, sw, sh) { const c = document.createElement('canvas'); c.width = w; c.height = h; const t = new T.CanvasTexture(c); const s = new T.Sprite(new T.SpriteMaterial({ map: t, transparent: true, depthWrite: false, depthTest: false, opacity: 0 })); s.scale.set(sw, sh, 1); s.renderOrder = 5; scene.add(s); return { c, x: c.getContext('2d'), t, s }; }
-const ARC = canvasSprite(256, 384, .13, .195); const MARKS = [-23, -19, -9, -1, 6]; let arcMark = 0, arcAlpha = 0, arcBlink = 0;
+const ARC = canvasSprite(256, 384, .085, .1275); const MARKS = [-23, -19, -9, -1, 6]; let arcMark = 0, arcAlpha = 0, arcBlink = 0;
 function drawArc() { const { x, c } = ARC; x.clearRect(0, 0, c.width, c.height); const cx = 70, cy = 192, r = 140; x.strokeStyle = 'rgba(220,232,228,.55)'; x.lineWidth = 18;
   [[-78, -52], [-49, -20], [-17, 12], [15, 44], [47, 76]].forEach(([a, b]) => { x.beginPath(); x.arc(cx, cy, r, a * Math.PI / 180, b * Math.PI / 180); x.stroke(); });
   x.strokeStyle = 'rgba(245,250,248,.9)'; x.lineWidth = 20; x.beginPath(); x.arc(cx, cy, r, -80 * Math.PI / 180, -70 * Math.PI / 180); x.stroke();
@@ -236,7 +236,7 @@ function drawHUD(W, H, vps) { hx.clearRect(0, 0, W, H); hx.textBaseline = 'top';
 let VW = 0, VH = 0;
 function resize() { const r = viewEl.getBoundingClientRect(); VW = r.width; VH = r.height; R.setSize(VW, VH, false); const pr = Math.min(2, devicePixelRatio); HUD.width = VW * pr; HUD.height = VH * pr; hx.setTransform(pr, 0, 0, pr, 0, 0); layoutDev(); }
 addEventListener('resize', resize);
-function placeCam(aspect) { const needW = .44, needH = .34, t = Math.tan(cam.fov / 2 * Math.PI / 180), d = Math.max(needH / (2 * t), needW / (2 * t * aspect)), el = 9 * Math.PI / 180, c = new T.Vector3(0, GEO.plateY + .075, 0);
+function placeCam(aspect) { const needW = .44, needH = .40, t = Math.tan(cam.fov / 2 * Math.PI / 180), d = Math.max(needH / (2 * t), needW / (2 * t * aspect)), el = 12 * Math.PI / 180, c = new T.Vector3(0, GEO.plateY + .085, 0);
   cam.aspect = aspect; cam.position.set(0, c.y + Math.sin(el) * d, Math.cos(el) * d); cam.lookAt(c); cam.updateProjectionMatrix(); cam.updateMatrixWorld(); }
 function render() {
   const names = game.split ? ['LOOSE', 'TUNED', 'RIGID'] : ['TUNED'], n = names.length, vps = names.map((name, i) => ({ name, x: Math.round(VW * i / n), w: Math.round(VW / n) }));
@@ -248,8 +248,8 @@ function render() {
   const working = game.phase === 'make' && game.t - game.lastWork < 2.6; arcAlpha = lerp(arcAlpha, working ? 1 : 0, .2);
   vps.forEach(v => { Object.entries(VIEWS).forEach(([k, V]) => { V.G.visible = k === v.name; }); placeCam(v.w / VH); const V = VIEWS[v.name]; V.w = game.W[v.name]; V.update(cam);
     const w = game.W[v.name], lit = w.candles.filter(c => c.lit).length; candleLight.position.set(0, GEO.plateY + w.cakeTop() + .1, .03); candleLight.intensity = lit * .22 * (1 - dark);
-    spot.intensity = (2.2 - lit * .18) * clamp(since / .8, 0, 1) * (1 - dark);
-    const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion); ARC.s.visible = v.name === 'TUNED'; ARC.s.position.set(0, GEO.plateY + w.cakeTop() + .055, 0).addScaledVector(right, .24); ARC.s.material.opacity = arcAlpha * .85 * (1 - dark); if (arcAlpha > .01) drawArc();
+    spot.intensity = (1.5 - lit * .14) * clamp(since / .8, 0, 1) * (1 - dark);
+    const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion); ARC.s.visible = v.name === 'TUNED'; ARC.s.position.set(0, GEO.plateY + w.cakeTop() + .045, 0).addScaledVector(right, .2); ARC.s.material.opacity = arcAlpha * .85 * (1 - dark); if (arcAlpha > .01) drawArc();
     SPOTS.forEach(sp => { const u = (since - sp.d) / .7, off = dark > 0 ? dark : 0; const o = u > 0 && u < 1 ? Math.sin(Math.PI * u) : 0; sp.s.position.set(Math.cos(sp.a) * sp.r, GEO.plateY + sp.y, Math.sin(sp.a) * sp.r * .6); sp.s.scale.setScalar(.05 + .07 * clamp(u, 0, 1)); sp.s.material.opacity = (o * .5 + off * Math.sin(Math.PI * off) * .5); });
     R.setViewport(v.x, 0, v.w, VH); R.setScissor(v.x, 0, v.w, VH); R.render(scene, cam);
     if (dark > 0) { /* dim the cake materials by the switch-off */ } });

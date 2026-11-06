@@ -29,7 +29,7 @@
   // geometry
   const GEO = { tableY: .46, plateY: .52, plateR: .165, R: .12, layerH: .032, layers: 3, candleL: .07, candleDepth: .018,
     candleA: k => k / 7 * TAU + .3, candleR: k => (k % 2 ? .052 : .088), beadN: 24, beadR: .111, crownR: .152, crownN: 11, crownH: .03,
-    streamers: 4, streamSeg: 6, streamLen: .0105 };
+    streamers: 4, streamSeg: 5, streamLen: .009 };
   const ICE = { NA: 72, NT: 10, NS: 16, NB: 4, dsB: 7.5 };      // sectors; top, side, board cells
   ICE.NC = ICE.NT + ICE.NS + ICE.NB;
 
