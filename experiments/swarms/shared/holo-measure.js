@@ -249,7 +249,7 @@ async function filmMeasure2(frames, arcSeries) {
   const med = a => { const s = a.filter(v => v !== null).sort((p, q) => p - q); return s.length ? s[s.length >> 1] : null; };
   const rest = runs.map(r => med(r.slice(0, 4).map(i => ser[i]))), drift = runs.slice(0, 4).map(r => r.length > 9 ? med(r.slice(7, 10).map(i => ser[i])) - med(r.slice(0, 3).map(i => ser[i])) : null).filter(v => v !== null);
   const blinks = []; for (let i = 1; i < arcSeries.angle.length; i++) if (arcSeries.angle[i] === null && arcSeries.angle[i - 1] !== null) { let j = i; while (arcSeries.angle[j] === null) j++; blinks.push(j - i); }
-  const bi = runs[runs.length - 1][3] + al.off, blob = blob2(Ls[bi], plate, F, mk[bi]);
+  let bi = -1; runs[runs.length - 1].slice(0, 10).forEach(i => { const j = i + al.off; if (mk[j] && (bi < 0 || mk[j].v > mk[bi].v)) bi = j; }); const blob = bi >= 0 ? blob2(Ls[bi], plate, F, mk[bi]) : { w: 0, h: 0, n: 0 };
   return { F, feat, E, plate, ser, markAgree: al.r, markOffset: al.off, rest, drift, blinks, blob }; }
 // the child's mark at 153.07 s: the same edge fit on the small C, plus its bar and leader
 async function kidMeasure(url) { const img = await loadImg(url); const KB = { x: 780, y: 110, w: 120, h: 110 }; const c = new OffscreenCanvas(KB.w, KB.h), x = c.getContext('2d'); x.drawImage(img, -KB.x, -KB.y); const L = lum(x.getImageData(0, 0, KB.w, KB.h).data);
