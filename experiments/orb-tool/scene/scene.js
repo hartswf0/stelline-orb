@@ -60,7 +60,7 @@
     const basic = (c, o) => new T.MeshBasicMaterial(Object.assign({ color: c, toneMapped: false }, o || {}));
     (function dome(D) {
       D.add(new T.Mesh(new T.SphereGeometry(7, 48, 24, 0, TAU, 0, Math.PI / 2), new T.MeshStandardMaterial({ color: 0x0b0d0c, roughness: 1, side: T.BackSide })));
-      const fl = new T.Mesh(new T.CircleGeometry(7, 72), new T.MeshStandardMaterial({ color: 0x040505, roughness: .7, metalness: 0 })); fl.rotation.x = -Math.PI / 2; fl.receiveShadow = true; D.add(fl);
+      const fl = new T.Mesh(new T.CircleGeometry(7, 72), new T.MeshStandardMaterial({ color: 0x020303, roughness: .8, metalness: 0 })); fl.rotation.x = -Math.PI / 2; fl.receiveShadow = true; D.add(fl);
       const ring = (r, w, y, c, o) => { const m = new T.Mesh(new T.TorusGeometry(r, w, 6, 240), basic(c, o)); m.rotation.x = Math.PI / 2; m.position.y = y; D.add(m); return m; };
       ring(6.65, .009, .62, 0xf2f7f3); ring(6.65, .05, .62, 0x9fb4ad, { transparent: true, opacity: .07, depthWrite: false, blending: T.AdditiveBlending }); ring(6.6, .03, .004, 0x8fa39c, { transparent: true, opacity: .035, depthWrite: false, blending: T.AdditiveBlending });
       const seam = new T.LineBasicMaterial({ color: 0x161a18, transparent: true, opacity: .5 });
@@ -155,7 +155,7 @@
 
     // the table: the module's evolved hexagonal table; table.up 0/1 raises it (its making: legs rise, the top comes down, colour)
     const TB = { up: -1, t: 0, want: 0, built: -1 };
-    function buildTable(t) { const g = GN.arr(M.table, GN.G.table), top = M.table.top(g); const obj = M.table.build(T, g, { t: Math.max(.001, t) }); obj.position.y = TABLE_Y - top.y; obj.traverse(x => { if (x.isMesh) x.receiveShadow = true; }); return obj; }
+    function buildTable(t) { const g = GN.arr(M.table, GN.G.table), top = M.table.top(g); const obj = M.table.build(T, g, { t: Math.max(.001, t) }); obj.position.y = TABLE_Y - top.y; obj.traverse(x => { if (x.isMesh) { x.receiveShadow = true; if (x.name !== 'top') x.material.color.setRGB(.012, .011, .01); } }); return obj; }   // in the film nothing under the top shows
 
     // the children: film cut-outs (weaver.html), lit by the candles; arrived 0..10 is how far she has come in (round spots), offset = frame offset of her performance
     const KIDTEX = opts.figures !== 'cutout' ? [] : KIDS.map(k => { const t = new T.TextureLoader().load(url(CUT + k.file, opts.base), tt => { k.aspect = tt.image.width / k.frames / tt.image.height; }); t.encoding = T.sRGBEncoding; t.repeat.set(1 / k.frames, 1); return t; });
