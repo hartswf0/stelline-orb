@@ -17,18 +17,18 @@ const pattern = H.STAGES.filter(d => !d.auto), randGears = () => { const g = {};
   check('1 closed paths return to start (max error over ' + n + ' passes, metres; gear angle error, radians)', worst <= 1e-12 && worstAng <= 1e-12, { worst, worstAng }); }
 // 2 clearance
 { let worst = Infinity, at = null, n = 0; const test = (pts, label) => { for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[i + 1] || a; for (const u of [0, .5]) { const x = a.x + (b.x - a.x) * u, y = a.y + (b.y - a.y) * u, z = a.z + (b.z - a.z) * u, r = a.r + (b.r - a.r) * u; const c = H.cakeSDF(x, y, z) - r; n++; if (c < worst) { worst = c; at = label; } } } };
-  pattern.filter(d => d.kind !== 'candles').forEach(d => test(H.pass(d, H.targetGears(d), 720).pts, d.id + ' target'));
+  ['white', 'choc'].forEach(rc => pattern.filter(d => d.kind !== 'candles').forEach(d => test(H.pass(d, H.targetGears(d, rc), 720).pts, d.id + ' target ' + rc)));
   for (let i = 0; i < 120; i++) { const d = pattern.filter(d => d.kind !== 'candles')[i % 3]; const g = randGears(); if (H.passRevs(g) > 6) continue; test(H.pass(d, g, 720).pts, d.id + ' random ' + H.gearsKey(g)); }
   H.inscription().forEach(s => test(s.pts, 'inscription ' + s.ch + s.stroke));
   // and the board under the beads: no tube below y = 0
   let floor = Infinity; pattern.filter(d => d.kind === 'side').forEach(d => H.pass(d, H.targetGears(d), 720).pts.forEach(p => { floor = Math.min(floor, p.y - p.r); }));
   check('2 no tube cuts the cream: min (signed distance - tube radius) over ' + n + ' samples and chord midpoints', worst >= -1e-9 && floor >= 0, { min_clearance_m: +worst.toExponential(3), at, min_height_above_board_m: +floor.toFixed(5) }); }
 // 3 discrimination
-{ const rows = []; let ok = true; pattern.forEach(d => { const T = H.targetGears(d), s0 = H.score(d, T); if (!(s0.ok && s0.dist === 0)) ok = false;
+{ const rows = []; let ok = true; ['white', 'choc'].forEach(rc => pattern.forEach(d => { const T = H.targetGears(d, rc), s0 = H.score(d, T, rc); if (!(s0.ok && s0.dist === 0)) ok = false;
     d.need.forEach(id => [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dr, dp]) => { const g = JSON.parse(JSON.stringify(T)); g[id].ri += dr; g[id].ph += dp; if (g[id].ri < 0 || g[id].ri >= H.RATIOS.length) return;
-      const s = H.score(d, g); if (s.ok && dp === 0) ok = false; if (s.ok && dp !== 0 && !(d.id === 'BASE BEADS' && id === 't') && !(d.id === 'TOP SHELLS' && id === 'n' && false)) ok = false; rows.push([d.id, id, dr, dp, +(s.dist * 1000).toFixed(3), s.ok]); })); });
-  const min = Math.min(...rows.filter(r => !(r[0] === 'BASE BEADS' && r[1] === 't' && r[3] !== 0)).map(r => r[4]));
-  check('3 target scores 0 and every one-detent error in a needed gear is out of tolerance (' + H.TOL * 1000 + ' mm); smallest error distance in mm', ok && min > H.TOL * 1000, { smallest_mm: min, note: 'turntable phase on the bead ring is a symmetry (24 beads, 15 degrees = one bead), so it is excluded', rows }); }
+      const s = H.score(d, g, rc); if (s.ok && dp === 0) ok = false; if (s.ok && dp !== 0 && !(d.id === 'BASE BEADS' && id === 't') && !(d.id === 'TOP SHELLS' && id === 'n' && false)) ok = false; rows.push([rc, d.id, id, dr, dp, +(s.dist * 1000).toFixed(3), s.ok]); })); }));
+  const min = Math.min(...rows.filter(r => !(r[1] === 'BASE BEADS' && r[2] === 't' && r[4] !== 0)).map(r => r[5]));
+  check('3 for both recipes (white, chocolate) the target scores 0 and every one-detent error in a needed gear is out of tolerance (' + H.TOL * 1000 + ' mm); smallest error distance in mm', ok && min > H.TOL * 1000, { smallest_mm: min, note: 'turntable phase on the bead ring is a symmetry (24 beads, 15 degrees = one bead), so it is excluded', rows }); }
 // 4 candles clear the inscription and shells
 { const d = H.STAGES.find(d => d.kind === 'candles'), stops = H.pass(d, H.targetGears(d), 240).stops, CR = 0.0028; let worst = Infinity, who = null;
   const tubes = H.inscription().map(s => [s.ch + s.stroke, s.pts]).concat([['shells', H.pass(H.STAGES[3], H.targetGears(H.STAGES[3]), 720).pts]]);

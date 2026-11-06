@@ -2,12 +2,12 @@
    The page runs on a virtual clock (?rec=1): each frame advances exactly 1/30 s and is screenshotted. The soundtrack is the page's own sound-event
    log rendered offline by the same play() code (OfflineAudioContext), with the device's click grains if ana/device-sounds.wav is present.
    The player is a script: it asks the page's planner (MM.plan) what the pattern needs (the same planner the SCENE button uses), then does it
-   with the mouse on the drawn rings and buttons. It commits one pass early on purpose (TOP SHELLS with the nozzle still at 24:1) to show a rejection.
+   with the mouse on the drawn rings and buttons. argv[3] picks the cake: choc (default) or white. It commits one pass early on purpose (TOP SHELLS with the nozzle still at 24:1) to show a rejection.
    Needs a server at the repo root:  python3 -m http.server 8779
    Usage: node record.js <frames-dir>   then: ffmpeg -framerate 30 -i <dir>/%05d.jpg -i <dir>/audio.wav -c:v libx264 -crf 21 -pix_fmt yuv420p -c:a aac -shortest proof.mp4 */
 'use strict';
 const { chromium } = require('playwright'), fs = require('fs'), path = require('path');
-const out = process.argv[2] || '/home/claude/stelline-work/harmonic/frames', MAXDUR = 34, URL = 'http://localhost:8779/experiments/swarms/3d-harmonic/index.html?rec=1'; fs.mkdirSync(out, { recursive: true });
+const RECIPE = process.argv[3] || 'choc'; const out = process.argv[2] || '/home/claude/stelline-work/harmonic/frames', MAXDUR = 34, URL = 'http://localhost:8779/experiments/swarms/3d-harmonic/index.html?rec=1'; fs.mkdirSync(out, { recursive: true });
 (async () => {
   const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   const p = await b.newPage({ viewport: { width: 432, height: 768 }, deviceScaleFactor: 1 }); const errs = [];
@@ -22,7 +22,7 @@ const out = process.argv[2] || '/home/claude/stelline-work/harmonic/frames', MAX
     at(0, async () => { await p.mouse.move(x, y0); await p.mouse.down(); }); for (let i = 1; i <= frames; i++) { const u = i / frames, e = u < .5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2; at(i, async () => { await p.mouse.move(x, y0 + dy * e); }); } at(frames + 1, async () => { await p.mouse.up(); }); };
   const log = []; let cool = 0, overAt = -1, yawA = false, yawB = false, yawC = false;
   for (F = 0; F < MAXDUR * 30; F++) {
-    const s = await p.evaluate(() => ({ stage: MM.G.stage, run: MM.S.run && MM.S.run.def.id, over: MM.S.over, plan: MM.plan({ missOnce: 'TOP SHELLS' }), busy: MM.RINGS.some(r => r.target !== r.applied) }));
+    const s = await p.evaluate(rc => ({ stage: MM.G.stage, run: MM.S.run && MM.S.run.def.id, over: MM.S.over, plan: MM.plan({ missOnce: 'TOP SHELLS', recipe: rc }), busy: MM.RINGS.some(r => r.target !== r.applied) }), RECIPE);
     const ptr = pending.some(a => a[0] >= F);
     if (!ptr && F >= 24) {
       if (s.run === 'SPONGE' && !yawA) { drag(geo.scale, -5, 22); yawA = true; log.push([+(F / 30).toFixed(2), 'scale', -25]); }

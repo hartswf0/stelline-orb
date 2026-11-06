@@ -423,7 +423,7 @@ function measureContacts(k) { const M = RIG.skinMats(k.G, k.sol.W); for (const s
     const key = `CHILD ${k.i + 1} ${s} ${c.key.replace(/ \d+$/, '')}`, e = TRACE.contacts[key] || (TRACE.contacts[key] = { n: 0, max: 0, sum: 0 }); e.n++; e.max = Math.max(e.max, d); e.sum += d; } }
 function step(dt) { NOW += dt; frameN++; runScene(); runAnims(); machine(dt);
   const yaw = S.yaw * PI / 180;
-  if (STRESS) { const D = Q.has('close') ? .62 : 1.55, ya = yaw + 1.75, cz = Q.has('close') ? -.36 : 0; cam.position.set(Math.sin(ya) * D, Q.has('close') ? .98 : 1.12, Math.cos(ya) * D + cz); cam.lookAt(0, Q.has('close') ? .88 : .86, cz); const sp = stressPose(NOW);
+  if (STRESS) { const D = Q.has('close') ? .62 : 1.55, ya = yaw - 1.75, cz = Q.has('close') ? -.36 : 0; cam.position.set(Math.sin(ya) * D, Q.has('close') ? .98 : 1.12, Math.cos(ya) * D + cz); cam.lookAt(0, Q.has('close') ? .88 : .86, cz); const sp = stressPose(NOW);
     STRESSKIDS.forEach((k, j) => { const f = frameOf({ P: V(0, 0, -1) }); poseKid(k, { pos: k.P, yaw: 0, arms: sp.arms, headPitch: .1 }, { naive: j === 0 }); });
     statusEl.innerHTML = `<b>${sp.lab}</b> &middot; LEFT: LINEAR BLENDING ALONE &middot; RIGHT: TWIST BONES, CORRECTIVE SHAPES, MASKED BADGE`; R.render(scene, cam); return; }
   // her eye: kneeling outside the ring of children, turned by the scale ring

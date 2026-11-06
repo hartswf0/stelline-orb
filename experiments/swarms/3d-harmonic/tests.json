@@ -1,6 +1,6 @@
 {
- "ran": "2026-11-06T08:34:51.265Z",
- "failures": 0,
+ "ran": "2026-11-06T08:55:27.874Z",
+ "failures": 1,
  "results": [
   {
    "name": "1 closed paths return to start (max error over 404 passes, metres; gear angle error, radians)",
@@ -11,7 +11,7 @@
    }
   },
   {
-   "name": "2 no tube cuts the cream: min (signed distance - tube radius) over 1017392 samples and chord midpoints",
+   "name": "2 no tube cuts the cream: min (signed distance - tube radius) over 1021718 samples and chord midpoints",
    "ok": true,
    "detail": {
     "min_clearance_m": 0.0002988,
@@ -20,13 +20,14 @@
    }
   },
   {
-   "name": "3 target scores 0 and every one-detent error in a needed gear is out of tolerance (0.8 mm); smallest error distance in mm",
+   "name": "3 for both recipes (white, chocolate) the target scores 0 and every one-detent error in a needed gear is out of tolerance (0.8 mm); smallest error distance in mm",
    "ok": true,
    "detail": {
-    "smallest_mm": 0.983,
+    "smallest_mm": 0.812,
     "note": "turntable phase on the bead ring is a symmetry (24 beads, 15 degrees = one bead), so it is excluded",
     "rows": [
      [
+      "white",
       "BASE BEADS",
       "t",
       1,
@@ -35,6 +36,7 @@
       false
      ],
      [
+      "white",
       "BASE BEADS",
       "t",
       -1,
@@ -43,6 +45,7 @@
       false
      ],
      [
+      "white",
       "BASE BEADS",
       "t",
       0,
@@ -51,6 +54,7 @@
       true
      ],
      [
+      "white",
       "BASE BEADS",
       "t",
       0,
@@ -59,6 +63,7 @@
       true
      ],
      [
+      "white",
       "BASE BEADS",
       "n",
       1,
@@ -67,6 +72,7 @@
       false
      ],
      [
+      "white",
       "BASE BEADS",
       "n",
       -1,
@@ -75,6 +81,7 @@
       false
      ],
      [
+      "white",
       "BASE BEADS",
       "n",
       0,
@@ -83,6 +90,7 @@
       false
      ],
      [
+      "white",
       "BASE BEADS",
       "n",
       0,
@@ -91,6 +99,7 @@
       false
      ],
      [
+      "white",
       "TOP SHELLS",
       "t",
       1,
@@ -99,6 +108,7 @@
       false
      ],
      [
+      "white",
       "TOP SHELLS",
       "t",
       -1,
@@ -107,6 +117,7 @@
       false
      ],
      [
+      "white",
       "TOP SHELLS",
       "t",
       0,
@@ -115,6 +126,7 @@
       false
      ],
      [
+      "white",
       "TOP SHELLS",
       "t",
       0,
@@ -123,6 +135,7 @@
       false
      ],
      [
+      "white",
       "TOP SHELLS",
       "n",
       -1,
@@ -131,6 +144,7 @@
       false
      ],
      [
+      "white",
       "TOP SHELLS",
       "n",
       0,
@@ -139,6 +153,7 @@
       false
      ],
      [
+      "white",
       "TOP SHELLS",
       "n",
       0,
@@ -147,6 +162,7 @@
       false
      ],
      [
+      "white",
       "SIDE LATTICE",
       "t",
       1,
@@ -155,6 +171,7 @@
       false
      ],
      [
+      "white",
       "SIDE LATTICE",
       "t",
       -1,
@@ -163,6 +180,7 @@
       false
      ],
      [
+      "white",
       "SIDE LATTICE",
       "t",
       0,
@@ -171,6 +189,7 @@
       false
      ],
      [
+      "white",
       "SIDE LATTICE",
       "t",
       0,
@@ -179,6 +198,7 @@
       false
      ],
      [
+      "white",
       "SIDE LATTICE",
       "a",
       1,
@@ -187,6 +207,7 @@
       false
      ],
      [
+      "white",
       "SIDE LATTICE",
       "a",
       -1,
@@ -195,6 +216,7 @@
       false
      ],
      [
+      "white",
       "SIDE LATTICE",
       "a",
       0,
@@ -203,6 +225,7 @@
       false
      ],
      [
+      "white",
       "SIDE LATTICE",
       "a",
       0,
@@ -211,6 +234,7 @@
       false
      ],
      [
+      "white",
       "CANDLES",
       "t",
       1,
@@ -219,6 +243,7 @@
       false
      ],
      [
+      "white",
       "CANDLES",
       "t",
       -1,
@@ -227,6 +252,7 @@
       false
      ],
      [
+      "white",
       "CANDLES",
       "t",
       0,
@@ -235,6 +261,7 @@
       false
      ],
      [
+      "white",
       "CANDLES",
       "t",
       0,
@@ -243,6 +270,7 @@
       false
      ],
      [
+      "white",
       "CANDLES",
       "a",
       1,
@@ -251,6 +279,7 @@
       false
      ],
      [
+      "white",
       "CANDLES",
       "a",
       -1,
@@ -259,6 +288,7 @@
       false
      ],
      [
+      "white",
       "CANDLES",
       "a",
       0,
@@ -267,6 +297,7 @@
       false
      ],
      [
+      "white",
       "CANDLES",
       "a",
       0,
@@ -275,6 +306,7 @@
       false
      ],
      [
+      "white",
       "CANDLES",
       "n",
       1,
@@ -283,6 +315,7 @@
       false
      ],
      [
+      "white",
       "CANDLES",
       "n",
       -1,
@@ -291,6 +324,7 @@
       false
      ],
      [
+      "white",
       "CANDLES",
       "n",
       0,
@@ -299,6 +333,331 @@
       false
      ],
      [
+      "white",
+      "CANDLES",
+      "n",
+      0,
+      -1,
+      2.809,
+      false
+     ],
+     [
+      "choc",
+      "BASE BEADS",
+      "t",
+      1,
+      0,
+      2.004,
+      false
+     ],
+     [
+      "choc",
+      "BASE BEADS",
+      "t",
+      -1,
+      0,
+      2.868,
+      false
+     ],
+     [
+      "choc",
+      "BASE BEADS",
+      "t",
+      0,
+      1,
+      3.048,
+      false
+     ],
+     [
+      "choc",
+      "BASE BEADS",
+      "t",
+      0,
+      -1,
+      3.048,
+      false
+     ],
+     [
+      "choc",
+      "BASE BEADS",
+      "n",
+      1,
+      0,
+      2.872,
+      false
+     ],
+     [
+      "choc",
+      "BASE BEADS",
+      "n",
+      -1,
+      0,
+      2.714,
+      false
+     ],
+     [
+      "choc",
+      "BASE BEADS",
+      "n",
+      0,
+      1,
+      0.812,
+      false
+     ],
+     [
+      "choc",
+      "BASE BEADS",
+      "n",
+      0,
+      -1,
+      0.812,
+      false
+     ],
+     [
+      "choc",
+      "TOP SHELLS",
+      "t",
+      1,
+      0,
+      2.668,
+      false
+     ],
+     [
+      "choc",
+      "TOP SHELLS",
+      "t",
+      -1,
+      0,
+      2.84,
+      false
+     ],
+     [
+      "choc",
+      "TOP SHELLS",
+      "t",
+      0,
+      1,
+      2.822,
+      false
+     ],
+     [
+      "choc",
+      "TOP SHELLS",
+      "t",
+      0,
+      -1,
+      2.822,
+      false
+     ],
+     [
+      "choc",
+      "TOP SHELLS",
+      "n",
+      1,
+      0,
+      3.874,
+      false
+     ],
+     [
+      "choc",
+      "TOP SHELLS",
+      "n",
+      -1,
+      0,
+      4.01,
+      false
+     ],
+     [
+      "choc",
+      "TOP SHELLS",
+      "n",
+      0,
+      1,
+      1.282,
+      false
+     ],
+     [
+      "choc",
+      "TOP SHELLS",
+      "n",
+      0,
+      -1,
+      1.282,
+      false
+     ],
+     [
+      "choc",
+      "SIDE LATTICE",
+      "t",
+      1,
+      0,
+      12.127,
+      false
+     ],
+     [
+      "choc",
+      "SIDE LATTICE",
+      "t",
+      -1,
+      0,
+      7.632,
+      false
+     ],
+     [
+      "choc",
+      "SIDE LATTICE",
+      "t",
+      0,
+      1,
+      11.243,
+      false
+     ],
+     [
+      "choc",
+      "SIDE LATTICE",
+      "t",
+      0,
+      -1,
+      11.243,
+      false
+     ],
+     [
+      "choc",
+      "SIDE LATTICE",
+      "a",
+      1,
+      0,
+      11.679,
+      false
+     ],
+     [
+      "choc",
+      "SIDE LATTICE",
+      "a",
+      -1,
+      0,
+      8.591,
+      false
+     ],
+     [
+      "choc",
+      "SIDE LATTICE",
+      "a",
+      0,
+      1,
+      2.602,
+      false
+     ],
+     [
+      "choc",
+      "SIDE LATTICE",
+      "a",
+      0,
+      -1,
+      2.602,
+      false
+     ],
+     [
+      "choc",
+      "CANDLES",
+      "t",
+      1,
+      0,
+      16.631,
+      false
+     ],
+     [
+      "choc",
+      "CANDLES",
+      "t",
+      -1,
+      0,
+      19.84,
+      false
+     ],
+     [
+      "choc",
+      "CANDLES",
+      "t",
+      0,
+      1,
+      19.318,
+      false
+     ],
+     [
+      "choc",
+      "CANDLES",
+      "t",
+      0,
+      -1,
+      19.318,
+      false
+     ],
+     [
+      "choc",
+      "CANDLES",
+      "a",
+      1,
+      0,
+      8.471,
+      false
+     ],
+     [
+      "choc",
+      "CANDLES",
+      "a",
+      -1,
+      0,
+      6.876,
+      false
+     ],
+     [
+      "choc",
+      "CANDLES",
+      "a",
+      0,
+      1,
+      2.991,
+      false
+     ],
+     [
+      "choc",
+      "CANDLES",
+      "a",
+      0,
+      -1,
+      2.991,
+      false
+     ],
+     [
+      "choc",
+      "CANDLES",
+      "n",
+      1,
+      0,
+      15.468,
+      false
+     ],
+     [
+      "choc",
+      "CANDLES",
+      "n",
+      -1,
+      0,
+      12.77,
+      false
+     ],
+     [
+      "choc",
+      "CANDLES",
+      "n",
+      0,
+      1,
+      2.809,
+      false
+     ],
+     [
+      "choc",
       "CANDLES",
       "n",
       0,
@@ -314,13 +673,13 @@
    "ok": true,
    "detail": {
     "candles": 7,
-    "min_gap_m": 0.0035,
-    "at": "candle 3 / flourish1"
+    "min_gap_m": 0.00651,
+    "at": "candle 1 / flourish1"
    }
   },
   {
    "name": "5 replaying the trace (79 machine events) reproduces every pass, distance and path hash",
-   "ok": true,
+   "ok": false,
    "detail": {
     "passes": 10,
     "kept": 9,

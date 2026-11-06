@@ -1,5 +1,5 @@
 /* modules/light.js — EVOLVE-ALL evolver module: the memory's light.
-   Candle warmth and falloff, the dark dome (ambient falling off away from the table, the thin bright band), the ambient level, the colour grade
+   Candle warmth (CANDLE: colour, strength), the dark dome falloff (DOME: candle range and decay, ambient falling off away from the table, the thin bright band), the ambient level, the colour grade
    (exposure, true-black point, display gamma, white balance), and the projected-spot screen density of the memory switching on and off.
    Blank: one dim white light in a dim grey room.
    Fitness (node-safe): a small synthetic frame of the party (camera, hexagonal-table disc, cake, three figures, floor, dome wall and band, the flame)
@@ -13,13 +13,13 @@
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t;
   const cauchy = (d, tol) => 1 / (1 + (d / tol) * (d / tol));
   const genes = [
-    ['kelvin', 'CANDLE', 1000, 6500, 6500], ['yellow', 'CANDLE', 0, 1, 0], ['candleI', 'CANDLE', 0, 8, .3], ['range', 'CANDLE', .1, 3, 1], ['decay', 'CANDLE', .5, 4, 2],
+    ['kelvin', 'CANDLE', 1000, 6500, 6500], ['yellow', 'CANDLE', 0, 1, 0], ['candleI', 'CANDLE', 0, 8, .3], ['range', 'DOME', .1, 3, 1], ['decay', 'DOME', .5, 4, 2],
     ['domeFall', 'DOME', 0, 3, 0], ['bandI', 'DOME', 0, 3, 0],
     ['amb', 'AMBIENT', 0, 1, .08], ['ambWarm', 'AMBIENT', -1, 1, 0],
     ['exposure', 'GRADE', .2, 4, 1], ['black', 'GRADE', 0, .2, 0], ['gamma', 'GRADE', 1.6, 3, 2.2], ['warmth', 'GRADE', -1, 1, 0],
     ['spotDensity', 'SPOT', 0, 1, .5], ['spotSize', 'SPOT', .2, 3, 1], ['spotDecay', 'SPOT', .05, 1.5, .35]];
   const groups = ['CANDLE', 'DOME', 'AMBIENT', 'GRADE', 'SPOT'];
-  const stages = [['CANDLE', 'hiC', .85], ['DOME', 'falloff', .6], ['AMBIENT', 'level', .7], ['GRADE', 'fit', .72]];
+  const stages = [['CANDLE', 'hiC', .85], ['DOME', 'falloff', .6], ['GRADE', 'level', .65], ['WHOLE', 'fit', .72]];   // AMBIENT is not a stage of its own: the ambient level moves the falloff, the level and the shadows' colour together
   const making = [['dark', 0, .2], ['match struck', .2, .4], ['candle light grows', .4, .8], ['grade settles', .8, 1]];
   const blank = () => Float64Array.from(genes.map(g => g[4]));
   const named = G => { const o = {}; genes.forEach((g, i) => o[g[0]] = G[i]); return o; };
@@ -82,8 +82,9 @@
   function R_(refs) { return refs && refs.light ? refs.light : refs; }
   function evaluate(G, refs) { const r = R_(refs), s = stats(render(G)), sq = v => Math.sqrt(Math.max(0, v) / 255);
     const ePct = s.pct.reduce((a, v, k) => a + Math.abs(sq(v) - sq(r.pct[k])), 0) / 4, eMean = Math.abs(sq(s.mean) - sq(r.mean)), eBlack = Math.abs(s.black - r.black);
-    const level = cauchy(ePct, .04) * cauchy(eMean, .04) * cauchy(eBlack, .1);
-    const eRing = s.rings.reduce((a, v, k) => a + Math.abs(Math.log((v + 2) / (r.rings[k] + 2))), 0) / s.rings.length, falloff = cauchy(eRing, .18);
+    const level = cauchy(ePct, .06) * cauchy(eMean, .06) * cauchy(eBlack, .15);
+    // the falloff's shape: each ring relative to the brightest (candle) ring, so the level (exposure, ambient) is left to its own measure
+    const rel = (R, k) => Math.log((R[k] + 2) / (R[0] + 2)), eRing = s.rings.slice(1).reduce((a, v, k) => a + Math.abs(rel(s.rings, k + 1) - rel(r.rings, k + 1)), 0) / (s.rings.length - 1), falloff = cauchy(eRing, .25);
     const chroma = c => c ? [c[0] / Math.max(1, c[1]), c[2] / Math.max(1, c[1])] : [1, 1];   // red over green and blue over green: the warmth independent of the level
     const h = chroma(s.hiRGB), hr = chroma(r.hiRGB), d = chroma(s.shRGB), dr = chroma(r.shRGB);
     const hiC = cauchy(Math.abs(h[0] - hr[0]) + Math.abs(h[1] - hr[1]), .12) * (s.hiRGB ? 1 : .5), shC = cauchy(Math.abs(d[0] - dr[0]) + Math.abs(d[1] - dr[1]), .25) * (s.shRGB ? 1 : .5), colour = hiC * (.5 + .5 * shC);

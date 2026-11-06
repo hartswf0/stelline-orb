@@ -28,8 +28,9 @@ button.x { font: 500 12px 'Oswald', sans-serif; letter-spacing: .12em; color: va
 <tr><td>KNURLED RING</td><td>The selected gear's ratio to the master shaft, in rational detents (1:4 ... 1:1, 5:4, 4:3, 3:2, 5:3, 7:4, 2:1 ... 36:1). Turn by hand; the machine then steps to it at 11.8 a second, one click a step (23.6 when more than six behind).</td></tr>
 <tr><td>TRIANGLE RING</td><td>The selected gear's phase, in 15 degree detents.</td></tr>
 <tr><td>SCALE RING</td><td>Where you kneel: your angle around the cake.</td></tr>
-<tr><td>HOLD</td><td>Runs one pass of the machine with the gears as they stand. A pass that lands within 0.8 mm (mean) of the pattern stays; one that does not decays away and the stage stays. Hold it down to switch the memory off.</td></tr>
-<tr><td>ON THE CAKE</td><td>Round amber spots: the pattern the memory wants. Thin pale line: where your gears would pipe. The scope beside the arc shows both unrolled, with the distance.</td></tr>
+<tr><td>HOLD</td><td>Runs one pass of the machine with the gears as they stand. A pass that lands within 0.7 mm (mean) of the pattern stays; one that does not decays away and the stage stays. Hold it down to switch the memory off.</td></tr>
+<tr><td>ON THE CAKE</td><td>Thin pale line: where your gears would pipe. The scope beside the arc unrolls it and gives the distance to the pattern the memory wants. After a pass of yours decays, the memory shows its pattern as faint amber spots.</td></tr>
+<tr><td>WHICH CAKE</td><td>At the COAT pass the nozzle ratio picks the cake: 1:1 white cream (the sponge with white beads), 2:1 chocolate with an orange top. The patterns after it differ by cake.</td></tr>
 <tr><td>LEFT COLLAR</td><td>The play button plays the game by itself through the same rings; the bar clears it.</td></tr>
 </table>
 <p><a href="operator.html">Operator page: proof video, critic verdict, tests, trace</a></p>
@@ -56,23 +57,23 @@ function play(a, dest, buf, t, e) {
     nz(.05, 'bandpass', kind === 'tick' ? 6000 : 2600 * rate, 2.2, vol, .001, .04); };
   const tone = (f, v, at, dec, type, f2) => { const o = a.createOscillator(), g = a.createGain(); o.type = type || 'sine'; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + at + dec); env(g, v, at, dec); o.connect(g).connect(dest); o.start(t); o.stop(t + at + dec + .05); };
   switch (e.name) {
-    case 'step': grain(e.fast ? 'ratchet' : 'click', 1 + (e.ring - 1) * .045 + (e.rv - .5) * .02, .7); break;
-    case 'hand': grain('click', 1.25 + e.ring * .03, .22); break;
+    case 'step': grain(e.fast ? 'ratchet' : 'click', 1 + (e.ring - 1) * .045 + (e.rv - .5) * .02, .95); break;
+    case 'hand': grain('click', 1.25 + e.ring * .03, .36); break;
     case 'select': for (let k = 0; k < 5; k++) { const o = a.createOscillator(), g = a.createGain(), tt = t + k * .055; o.frequency.value = 12000; g.gain.setValueAtTime(0, tt); g.gain.linearRampToValueAtTime(.03, tt + .004); g.gain.linearRampToValueAtTime(0, tt + .03); o.connect(g).connect(dest); o.start(tt); o.stop(tt + .04); } break;
     case 'wash': nz(.7, 'highpass', 2200, .7, .22 * (e.v || 1), .06, .55); if (buf) grain('comb', 1, .25); break;
     case 'decay': nz(.5, 'highpass', 4200, .7, .2, .01, .4); tone(5200, .02, .01, .35, 'sine', 9000); break;
     case 'tier': tone(86, .5, .005, .32, 'sine', 52); nz(.2, 'lowpass', 400, .7, .25, .005, .16); break;
     case 'pipe': { // a soft wet squeeze; the bead or shell rate rides it as a tremolo
-      const d = e.dur, s = a.createBufferSource(); s.buffer = noiseBuf(a, d + .1); const fl = a.createBiquadFilter(); fl.type = 'bandpass'; fl.frequency.value = e.f || 700; fl.Q.value = 1.4; const g = a.createGain(), lfo = a.createOscillator(), lg = a.createGain();
-      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.11, t + .08); g.gain.setValueAtTime(.11, t + d - .1); g.gain.linearRampToValueAtTime(0, t + d);
-      lfo.frequency.value = Math.min(28, e.rate || 4); lg.gain.value = .07; lfo.connect(lg).connect(g.gain); s.connect(fl).connect(g).connect(dest); s.start(t); s.stop(t + d + .1); lfo.start(t); lfo.stop(t + d + .1); break; }
-    case 'spread': nz(e.dur, 'bandpass', 1300, .8, .07, .25, e.dur - .25); break;
+      const d = e.dur, s = a.createBufferSource(); s.buffer = noiseBuf(a, d + .1); const fl = a.createBiquadFilter(); fl.type = 'bandpass'; fl.frequency.value = (e.f || 700) * .55; fl.Q.value = 4; const g = a.createGain(), lfo = a.createOscillator(), lg = a.createGain();
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.028, t + .08); g.gain.setValueAtTime(.028, t + d - .1); g.gain.linearRampToValueAtTime(0, t + d);
+      lfo.frequency.value = Math.min(28, e.rate || 4); lg.gain.value = .025; lfo.connect(lg).connect(g.gain); s.connect(fl).connect(g).connect(dest); s.start(t); s.stop(t + d + .1); lfo.start(t); lfo.stop(t + d + .1); break; }
+    case 'spread': nz(e.dur, 'bandpass', 700, 3, .018, .25, e.dur - .25); break;
     case 'candle': tone(1150 + e.rv * 200, .12, .001, .06, 'triangle'); nz(.06, 'bandpass', 3400, 3, .25, .001, .05); break;
     case 'match': nz(.22, 'highpass', 2600, .8, .45, .005, .18); nz(.9, 'bandpass', 600, .6, .1, .12, .7); break;
     case 'catch': nz(.25, 'lowpass', 900, .7, .16, .02, .2); break;
     case 'blow': { const s = a.createBufferSource(); s.buffer = noiseBuf(a, 1.1); const fl = a.createBiquadFilter(); fl.type = 'lowpass'; fl.frequency.setValueAtTime(500, t); fl.frequency.linearRampToValueAtTime(1500, t + .3); fl.frequency.linearRampToValueAtTime(350, t + 1); const g = a.createGain(); env(g, .5, .12, .85); s.connect(fl).connect(g).connect(dest); s.start(t); s.stop(t + 1.1); break; }
     case 'sweep': [0, .18, .36].forEach((dd, i) => { const o = a.createOscillator(), g = a.createGain(), tt = t + dd; o.frequency.setValueAtTime(6000 + i * 300, tt); o.frequency.exponentialRampToValueAtTime(11500 + i * 200, tt + 1.1); g.gain.setValueAtTime(0, tt); g.gain.linearRampToValueAtTime(.022, tt + .08); g.gain.linearRampToValueAtTime(0, tt + 1.1); o.connect(g).connect(dest); o.start(tt); o.stop(tt + 1.2); }); break;
-    case 'on': nz(1.2, 'highpass', 1800, .6, .16, .3, .8); tone(220, .05, .4, .8, 'sine', 440); break;
+    case 'on': nz(1.2, 'highpass', 2600, .6, .07, .3, .8); tone(220, .05, .4, .8, 'sine', 440); break;
   } }
 async function renderAudio(t0, t1) { const sr = 48000, a = new OfflineAudioContext(2, Math.ceil((t1 - t0) * sr), sr); let buf = null; if (WAVBYTES) buf = await a.decodeAudioData(WAVBYTES.slice(0));
   LOG.forEach(e => { if (e.t < t0 || e.t > t1) return; play(a, a.destination, buf, e.t - t0 + .001, e); });
@@ -89,8 +90,8 @@ const cam = new T.PerspectiveCamera(34, 1, .02, 60);
   const band = new T.Mesh(new T.TorusGeometry(7.5, .012, 6, 256), new T.MeshBasicMaterial({ color: 0xdfe8e4 })); band.rotation.x = Math.PI / 2; band.position.y = .42; scene.add(band);
   const glow = new T.Mesh(new T.TorusGeometry(7.5, .09, 6, 256), new T.MeshBasicMaterial({ color: 0x7e8f89, transparent: true, opacity: .12 })); glow.rotation.x = Math.PI / 2; glow.position.y = .42; scene.add(glow);
   const ring = new T.Mesh(new T.RingGeometry(1.9, 1.91, 128), new T.MeshBasicMaterial({ color: 0x252b29 })); ring.rotation.x = -Math.PI / 2; ring.position.y = .002; scene.add(ring); }
-scene.add(new T.HemisphereLight(0x6c7a76, 0x050403, .12));
-const key = new T.SpotLight(0xdfe6e3, 1.1, 3, .5, .7, 1.2); key.position.set(-.35, 1.6, .8); scene.add(key); key.target.position.set(0, .5, 0); scene.add(key.target);
+scene.add(new T.HemisphereLight(0x8a5a2e, 0x050302, .14));
+const key = new T.SpotLight(0xff9a48, 1.25, 3, .5, .7, 1.2); key.position.set(-.35, 1.6, .8); scene.add(key); key.target.position.set(0, .5, 0); scene.add(key.target);
 const candleLight = new T.PointLight(0xffa04a, 0, 3.2, 1.5); scene.add(candleLight);
 /* =============================================================== THE MEMORY: turntable, cake (in the turntable's frame), the machine beside it */
 const CY = .5, C = H.CAKE;
@@ -107,11 +108,14 @@ const board = new T.Mesh(new T.CylinderGeometry(.138, .138, .003, 96), M({ color
 const spindle = new T.Mesh(new T.CylinderGeometry(.018, .03, CY - .02, 20), M({ color: 0x1b1f1e, metalness: .5 })); spindle.position.y = (CY - .02) / 2; MEM.add(spindle);
 // the sponge: two layers and a cream filling, each a harmonic lathe (the profile's first harmonic gives the slight bulge of a baked side)
 function lathe(R0, h, bulge, n) { const p = []; for (let k = 0; k <= n; k++) { const u = k / n; p.push(new T.Vector2(R0 * (1 + bulge * Math.sin(Math.PI * u)), u * h)); } p.push(new T.Vector2(.0001, h)); p.unshift(new T.Vector2(.0001, 0)); return new T.LatheGeometry(p, 96); }
-const spongeMat = M({ color: 0xd9b46e, roughness: .9, emissive: 0x2a1c08, emissiveIntensity: 1 }), fillMat = M({ color: 0xf3ead6, roughness: .6 });
+const spongeMat = M({ color: 0xd9a85e, roughness: .9, emissive: 0x2a1c08, emissiveIntensity: 1 }), fillMat = M({ color: 0xf0d6aa, roughness: .6, emissive: 0x000000, emissiveIntensity: 1 });
 const LAYERS = [[0, .04, spongeMat, .018], [.04, .007, fillMat, 0], [.047, .04, spongeMat, .018]].map(([y, h, m, b]) => { const g = new T.Mesh(lathe(C.R * (b ? 1 : .985), h, b, 12), m); g.position.y = y; g.scale.y = .0001; g.visible = false; TURN.add(g); return { g, y, h }; });
 // the coat: one lathe of cream over everything, revealed by azimuth as the spatula passes (mirrored so its drawing order runs with the turntable)
 const coatGeo = (() => { const p = [new T.Vector2(.0001, C.Hc)], b = C.bevel; for (let k = 0; k <= 8; k++) { const a = k / 8 * Math.PI / 2; p.push(new T.Vector2(C.Rc - b + Math.sin(a) * b, C.Hc - b + Math.cos(a) * b)); } p.push(new T.Vector2(C.Rc, 0)); p.reverse(); return { g: new T.LatheGeometry(p, 144, Math.PI / 2, TAU), n: p.length }; })();
-const coatMat = M({ color: 0xf2ebdb, roughness: .55, emissive: 0x1d1a14, emissiveIntensity: 1, side: T.DoubleSide });
+const coatMat = M({ color: 0xf0dcb4, roughness: .55, emissive: 0x1d1a14, emissiveIntensity: 1, side: T.DoubleSide });
+// the recipes' colours (film: the sponge with white beads; the chocolate cake with an orange top)
+const LOOK = { white: { coat: 0xf0dcb4, icing: 0xf6e6c4, em: [.2, .12, .05] }, choc: { coat: 0x4a2414, icing: 0xe8843a, em: [.14, .06, .02] } };
+const orangeTop = new T.Mesh(new T.CircleGeometry(C.Rc - C.bevel, 144, 0, TAU), M({ color: 0xd9782c, roughness: .5, emissive: 0x2a0f02, emissiveIntensity: 1, side: T.DoubleSide })); orangeTop.rotation.x = -Math.PI / 2; orangeTop.position.y = C.Hc + .0001; orangeTop.scale.y = -1; orangeTop.visible = false; TURN.add(orangeTop);
 const coat = new T.Mesh(coatGeo.g, coatMat); coat.scale.z = -1; coat.visible = false; TURN.add(coat);
 const COAT_SEGS = 144, COAT_IDX = (coatGeo.n - 1) * 6;
 // sprinkles on the cream, the film cake's coloured specks, revealed with the coat
@@ -121,7 +125,7 @@ const SPRK = (() => { const n = 260, im = new T.InstancedMesh(new T.CylinderGeom
   list.forEach((s, i) => { e.set(s.top ? Math.PI / 2 : s.spin, -s.psi, s.top ? s.spin : 0); q.setFromEuler(e); m4.compose(new T.Vector3(Math.cos(s.psi) * s.rho, s.y, Math.sin(s.psi) * s.rho), q, new T.Vector3(1, 1, 1)); im.setMatrixAt(i, m4); im.setColorAt(i, new T.Color(s.c)); });
   im.count = 0; TURN.add(im); return { im, list }; })();
 // icing tubes: built from a pass's samples, ring by ring, the contact normal giving the frame so the tube sits on the cream
-const icingMat = () => M({ color: 0xf8f4ea, roughness: .42, emissive: 0x24221c, emissiveIntensity: 1 });
+const icingMat = () => M({ color: LOOK[G.recipe].icing, roughness: .42, emissive: 0x24221c, emissiveIntensity: 1 });
 function tubeGeo(pts, rad) { rad = rad || 8; const n = pts.length, pos = new Float32Array(n * rad * 3), nor = new Float32Array(n * rad * 3), idx = []; const t = new T.Vector3(), N = new T.Vector3(), B = new T.Vector3();
   for (let i = 0; i < n; i++) { const a = pts[Math.max(0, i - 1)], b = pts[Math.min(n - 1, i + 1)], p = pts[i]; t.set(b.x - a.x, b.y - a.y, b.z - a.z).normalize(); N.set(p.nx, p.ny, p.nz); N.addScaledVector(t, -N.dot(t)).normalize(); B.crossVectors(t, N);
     for (let j = 0; j < rad; j++) { const f = j / rad * TAU, cx = Math.cos(f), sx = Math.sin(f), o = (i * rad + j) * 3; const nx = cx * N.x + sx * B.x, ny = cx * N.y + sx * B.y, nz = cx * N.z + sx * B.z; pos[o] = p.x + nx * p.r; pos[o + 1] = p.y + ny * p.r; pos[o + 2] = p.z + nz * p.r; nor[o] = nx; nor[o + 1] = ny; nor[o + 2] = nz; } }
@@ -158,19 +162,21 @@ H.GEARS.forEach(id => { const [teeth, r, y] = GEARM[id], m = M({ color: 0x8b9592
 // the memory switching on: round spots of light in the dark, then the forms
 const SPOTS = []; for (let i = 0; i < 26; i++) { const s = new T.Sprite(new T.SpriteMaterial({ map: dotTex, blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0, color: 0xffe7c4 })); const a = i * 2.4, r = .05 + (i * 37 % 23) / 23 * .3;
   s.position.set(Math.cos(a) * r + .05, CY - .05 + (i * 13 % 17) / 17 * .3, Math.sin(a) * r * .6); const k = .02 + (i * 7 % 5) * .012; s.scale.set(k, k, 1); s.userData.d = (i * 11 % 19) / 19 * .7; MEM.add(s); SPOTS.push(s); }
+const POOL = new T.Sprite(new T.SpriteMaterial({ map: dotTex, blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0, color: 0xff9a4a })); POOL.scale.set(.75, .75, 1); POOL.position.set(.02, CY + .05, -.3); MEM.add(POOL);   // the round spot of light the memory is projected in
 /* =============================================================== THE GHOST: the pattern the memory wants (round spots) and the path your gears would pipe (a thin line), both on the cake */
 const ghostMat = new T.PointsMaterial({ size: .0062, map: dotTex, color: 0xffc070, transparent: true, opacity: 0, depthWrite: false, blending: T.AdditiveBlending });
 const prevMat = new T.LineBasicMaterial({ color: 0xcfe6ff, transparent: true, opacity: 0 });
 let GHOST = null, PREV = null, CUR = null; let ghostFor = -1, prevKey = '';
+const hintEarned = () => G.passes.some(p => p.stage === G.stage && !p.ok);
 function ghostPts(def, g) { const P = H.pass(def, g, 120); return def.kind === 'candles' ? P.stops : P.pts; }
 function updateGhost(force) { const def = H.STAGES[G.stage]; if (!def || def.auto) { if (GHOST) { TURN.remove(GHOST); GHOST = null; } if (PREV) { TURN.remove(PREV); PREV = null; } ghostFor = -1; prevKey = ''; CUR = null; return; }
-  if (ghostFor !== G.stage) { if (GHOST) TURN.remove(GHOST); const pts = ghostPts(def, H.targetGears(def)), g = new T.BufferGeometry(); g.setAttribute('position', new T.Float32BufferAttribute(pts.flatMap(p => [p.x, p.y + (def.kind === 'candles' ? .004 : 0), p.z]), 3));
+  if (ghostFor !== G.stage) { if (GHOST) TURN.remove(GHOST); const pts = ghostPts(def, H.targetGears(def, G.recipe)), g = new T.BufferGeometry(); g.setAttribute('position', new T.Float32BufferAttribute(pts.flatMap(p => [p.x, p.y + (def.kind === 'candles' ? .004 : 0), p.z]), 3));
     GHOST = new T.Points(g, ghostMat); ghostMat.size = def.kind === 'candles' ? .016 : .0062; TURN.add(GHOST); ghostFor = G.stage; }
   const key = G.stage + H.gearsKey(G.gears); if (key === prevKey && !force) return; prevKey = key; if (PREV) TURN.remove(PREV);
   const pts = ghostPts(def, G.gears), g = new T.BufferGeometry(); let arr;
   if (def.kind === 'candles') { arr = []; pts.forEach(p => { for (let k = 0; k < 12; k++) { const a = k / 12 * TAU, b = (k + 1) / 12 * TAU, r = .006; arr.push(p.x + Math.cos(a) * r, p.y + .004, p.z + Math.sin(a) * r, p.x + Math.cos(b) * r, p.y + .004, p.z + Math.sin(b) * r); } }); g.setAttribute('position', new T.Float32BufferAttribute(arr, 3)); PREV = new T.LineSegments(g, prevMat); }
   else { arr = pts.flatMap(p => [p.x + p.nx * p.r, p.y + p.ny * p.r, p.z + p.nz * p.r]); g.setAttribute('position', new T.Float32BufferAttribute(arr, 3)); PREV = new T.Line(g, prevMat); }
-  TURN.add(PREV); CUR = H.score(def, G.gears); drawScope(); }
+  TURN.add(PREV); CUR = H.score(def, G.gears, G.recipe); drawScope(); }
 /* =============================================================== THE HOLOGRAM: the arc beside the cake at candle height (its mark steps), and the scope (the phase visualizer) */
 function canvasSprite(w, h, sw, sh) { const c = document.createElement('canvas'); c.width = w; c.height = h; const t = new T.CanvasTexture(c); const s = new T.Sprite(new T.SpriteMaterial({ map: t, transparent: true, depthWrite: false, depthTest: false, opacity: 0 })); s.scale.set(sw, sh, 1); s.renderOrder = 5; scene.add(s); return { c, x: c.getContext('2d'), t, s }; }
 const ARC = canvasSprite(256, 384, .09, .135), SCOPE = canvasSprite(512, 260, .2, .1016);
@@ -188,7 +194,7 @@ function drawScope() { const { x, c } = SCOPE; x.clearRect(0, 0, c.width, c.heig
   const side = def.kind === 'side', lo = side ? 0 : def.kind === 'candles' ? .04 : .09, hi = side ? C.Hc : def.kind === 'candles' ? .1 : .12;
   const X = p => ((Math.atan2(p.z, p.x) + TAU) % TAU) / TAU * (W - 8) + 4, Y = p => top + Hh - ((side ? p.y : Math.hypot(p.x, p.z)) - lo) / (hi - lo) * Hh;
   const tp = def.kind === 'candles' ? CUR.T.stops : CUR.T.pts.filter((_, i) => i % 2 === 0), pp = def.kind === 'candles' ? CUR.P.stops : CUR.P.pts.filter((_, i) => i % 2 === 0);
-  x.fillStyle = 'rgba(255,192,112,.85)'; tp.forEach(p => { const r = def.kind === 'candles' ? 7 : 1.2 + p.r * 600; x.beginPath(); x.arc(X(p), Y(p), r, 0, TAU); x.fill(); });
+  if (hintEarned()) x.fillStyle = 'rgba(255,192,112,.85)', tp.forEach(p => { const r = def.kind === 'candles' ? 7 : 1.2 + p.r * 600; x.beginPath(); x.arc(X(p), Y(p), r, 0, TAU); x.fill(); });
   x.fillStyle = 'rgba(207,230,255,.9)'; x.strokeStyle = 'rgba(207,230,255,.9)'; x.lineWidth = 2; pp.forEach(p => { if (def.kind === 'candles') { x.beginPath(); x.arc(X(p), Y(p), 10, 0, TAU); x.stroke(); } else x.fillRect(X(p) - .8, Y(p) - .8, 1.6, 1.6); });
   x.font = '500 26px Oswald, sans-serif'; x.fillStyle = CUR.ok ? 'rgba(127,211,162,.95)' : 'rgba(225,232,229,.9)'; x.textBaseline = 'top';
   x.fillText(CUR.ok ? 'IN PATTERN' : `OFF BY ${(CUR.dist * 1000).toFixed(1)} MM`, 6, top + Hh + 10); x.fillStyle = 'rgba(160,170,166,.8)'; x.textAlign = 'right'; x.fillText(def.kind === 'candles' ? `${CUR.count} OF ${CUR.want} CANDLES` : `TOLERANCE ${(H.TOL * 1000).toFixed(1)} MM`, W - 6, top + Hh + 10); x.textAlign = 'left';
@@ -216,7 +222,7 @@ function holdPress() { if (S.run || S.off) return; if (G.over) return; if (RINGS
   startRun(def, rec); }
 function startRun(def, rec) { const run = { def, rec, done: 0, clock: 0, total: 24, steps: [] }; S.run = run;
   if (def.id === 'SPONGE') { run.total = 48; LAYERS.forEach(l => { l.g.visible = true; }); }
-  else if (def.id === 'COAT') { run.total = 24; coat.visible = true; coat.geometry.setDrawRange(0, 0); snd('spread', { dur: 24 / 23.6 + .2 }); }
+  else if (def.id === 'COAT') { run.total = 24; coat.visible = true; coat.geometry.setDrawRange(0, 0); coatMat.color.setHex(LOOK[G.recipe].coat); if (G.recipe === 'choc') { orangeTop.visible = true; orangeTop.geometry.setDrawRange(0, 0); } snd('spread', { dur: 24 / 23.6 + .2 }); }
   else if (def.id === 'INSCRIPTION') { const strokes = H.inscription(); run.strokes = strokes.map(s => { let len = 0; for (let i = 1; i < s.pts.length; i++) len += Math.hypot(s.pts[i].x - s.pts[i - 1].x, s.pts[i].z - s.pts[i - 1].z); const mm = M({ color: 0xc4231c, roughness: .4, emissive: 0x3a0806, emissiveIntensity: 1 }); mm.userData.red = true; const m = new T.Mesh(tubeGeo(s.pts, 7), mm); TUBES.add(m); return { s, m, n: 2 + Math.round(len / .02), pts: s.pts }; });
     let a = 0; run.strokes.forEach(st => { st.a = a; a += st.n; }); run.total = a; S.tiltWant = 6; snd('sweep'); }
   else if (def.id === 'LIGHT') { run.total = 24; snd('match'); }
@@ -231,7 +237,7 @@ function runStep(run) { const def = run.def; run.done++; if (!run.timed) snd('st
   if (def.id === 'SPONGE' && (run.done === 20 || run.done === 24 || run.done === 46)) snd('tier');
   if (def.id === 'INSCRIPTION') { const st = run.strokes.find(s => run.done >= s.a && run.done < s.a + s.n); if (st && run.done === st.a) { } } }
 function finishRun(run) { const def = run.def, rec = run.rec; S.run = null;
-  if (def.id === 'COAT') { coat.geometry.setDrawRange(0, Infinity); SPRK.im.count = SPRK.list.length; }
+  if (def.id === 'COAT') { coat.geometry.setDrawRange(0, Infinity); orangeTop.geometry.setDrawRange(0, Infinity); SPRK.im.count = SPRK.list.length; }
   if (def.id === 'INSCRIPTION') { S.tiltWant = 0; }
   if (def.id === 'BLOW') { S.over = true; snd('wash', { v: 1.1 }); }
   if (def.auto) { if (def.id !== 'BLOW') { S.flash = 1; snd('wash', { v: .8 }); } }
@@ -250,7 +256,7 @@ let thetaNow = 0, masterU = 0;
 function performRun(run, prog) { const def = run.def;
   if (def.id === 'SPONGE') { thetaNow = prog * 2 * TAU; masterU = prog * 2; LAYERS.forEach((l, i) => { const a = [0, .42, .5][i], b = [.42, .5, .96][i], f = clamp((prog - a) / (b - a), 0, 1); l.g.scale.y = Math.max(.0001, f); });
     const yTop = prog < .5 ? .04 * clamp(prog / .42, 0, 1) : .047 + .04 * clamp((prog - .5) / .46, 0, 1); headTo(new T.Vector3(C.R * 1.02, CY + yTop + .004, 0), false); }
-  else if (def.id === 'COAT') { thetaNow = prog * TAU; masterU = prog; const segs = Math.floor(prog * COAT_SEGS); coat.geometry.setDrawRange(0, segs * COAT_IDX); SPRK.im.count = SPRK.list.filter(s => s.psi <= thetaNow).length;
+  else if (def.id === 'COAT') { thetaNow = prog * TAU; masterU = prog; const segs = Math.floor(prog * COAT_SEGS); orangeTop.geometry.setDrawRange(0, segs * 3); coat.geometry.setDrawRange(0, segs * COAT_IDX); SPRK.im.count = SPRK.list.filter(s => s.psi <= thetaNow).length;
     headTo(new T.Vector3(C.Rc + .002, CY + C.Hc * .55, 0), false); }
   else if (def.id === 'INSCRIPTION') { thetaNow = 0; const st = run.strokes.find(s => run.done < s.a + s.n) || run.strokes[run.strokes.length - 1], i = run.strokes.indexOf(st);
     run.strokes.forEach((s, j) => { const f = j < i ? 1 : j > i ? 0 : clamp((prog * run.total - s.a) / s.n, 0, 1); s.m.geometry.setDrawRange(0, Math.floor(f * (s.pts.length - 1)) * s.m.geometry.userData.per); s.f = f; });
@@ -319,23 +325,25 @@ DC.addEventListener('wheel', e => { e.preventDefault(); ac(); const r = DC.getBo
 function press(id) { ac(); TRACE.inputs.push([+NOW.toFixed(3), 'press', id]);
   if (id === 'select') { if (!S.autoKeep) S.auto = null; select(S.sel + 1); }
   else if (id === 'hold') { holdDown = NOW || 1e-6; const t0 = NOW; const up = () => { removeEventListener('pointerup', up); holdDown = 0; if (NOW - t0 > .7) switchOff(); else holdPress(); }; addEventListener('pointerup', up); }
-  else if (id === 'play') { reset(); S.auto = { next: NOW + .8 }; }
+  else if (id === 'play') { reset(); S.auto = { next: NOW + .8, recipe: (S.plays = (S.plays || 0) + 1) % 2 ? 'choc' : 'white' }; }
   else if (id === 'clear') { S.auto = null; reset(); }
   else if (id === 'info') document.getElementById('info').classList.add('on'); }
 document.getElementById('infoClose').onclick = () => document.getElementById('info').classList.remove('on');
 function switchOff() { S.offAt = NOW; S.off = 1; snd('wash', { v: 1.2 }); }
 function reset() { G = H.newGame(); TRACE.inputs.length = TRACE.applied.length = TRACE.passes.length = 0; S.run = null; S.over = false; S.flash = 0; S.tilt = 0; S.tiltWant = 0; S.decays = [];
   while (TUBES.children.length) { const m = TUBES.children.pop(); m.geometry.dispose(); }
-  while (CANDLES.children.length) CANDLES.children.pop(); CAND = []; LAYERS.forEach(l => { l.g.scale.y = .0001; l.g.visible = false; }); coat.visible = false; SPRK.im.count = 0;
+  while (CANDLES.children.length) CANDLES.children.pop(); CAND = []; LAYERS.forEach(l => { l.g.scale.y = .0001; l.g.visible = false; }); coat.visible = false; orangeTop.visible = false; coatMat.color.setHex(LOOK.white.coat); SPRK.im.count = 0;
   RINGS.forEach(r => { r.target = r.applied = r.id === 'knurl' ? H.R11 : 0; r.ang = r.target * r.deg; }); S.yaw = 0; select(0, true); thetaNow = 0; masterU = 0; arcMark = 0; S.onAt = NOW; S.on = 0; S.off = 0; S.offAt = 0; snd('on'); updateGhost(true); }
 /* =============================================================== THE PLAYER that SCENE (and the proof recording) uses: it reads the pattern the memory wants and works the same rings */
 function plan(opt) { opt = opt || {}; if (S.run || S.off || S.over || G.over) return null; if (RINGS.some(r => r.target !== r.applied)) return null;
-  const def = H.STAGES[G.stage]; if (def.auto) return { type: 'hold' };
+  const def = H.STAGES[G.stage];
+  if (def.id === 'COAT' && opt.recipe === 'choc' && G.gears.n.ri !== H.CHOC_NOZZLE) { if (selId() !== 'n') return { type: 'select' }; return { type: 'turn', ring: 'knurl', d: H.CHOC_NOZZLE - G.gears.n.ri }; }
+  if (def.auto) return { type: 'hold' };
   if (opt.missOnce && def.id === opt.missOnce && !S.missed) { S.missed = true; return { type: 'hold' }; }
-  for (const id of def.need) { const want = def.target[id], g = G.gears[id]; if (g.ri === want[0] && g.ph === want[1]) continue;
+  for (const id of def.need) { const want = H.targetOf(def, G.recipe)[id], g = G.gears[id]; if (g.ri === want[0] && g.ph === want[1]) continue;
     if (selId() !== id) return { type: 'select' }; if (g.ri !== want[0]) return { type: 'turn', ring: 'knurl', d: want[0] - g.ri }; return { type: 'turn', ring: 'tri', d: want[1] - g.ph }; }
   return { type: 'hold' }; }
-function autoplay() { const a = S.auto; if (!a || NOW < a.next || S.anims && S.anims.length) return; const p = plan({ missOnce: 'TOP SHELLS' }); if (!p) return; S.autoKeep = true;
+function autoplay() { const a = S.auto; if (!a || NOW < a.next || S.anims && S.anims.length) return; const p = plan({ missOnce: 'TOP SHELLS', recipe: S.auto.recipe }); if (!p) return; S.autoKeep = true;
   if (p.type === 'select') { press('select'); a.next = NOW + .35; }
   else if (p.type === 'hold') { holdPress(); a.next = NOW + .6; }
   else { const r = RINGS.find(r => r.id === p.ring); S.anims = [{ r, from: r.ang, to: r.ang + p.d * r.deg, t0: NOW, dur: clamp(Math.abs(p.d) * .05, .25, .9) }]; a.next = NOW + .3; } S.autoKeep = false; }
@@ -347,17 +355,17 @@ const hud = document.getElementById('hud'); let hudKey = '';
 function drawHud() { const def = H.STAGES[Math.min(G.stage, H.STAGES.length - 1)], run = S.run; let a, b;
   if (S.over) { a = 'THE CANDLES ARE OUT'; b = `${G.passes.filter(p => p.ok).length} PASSES KEPT, ${G.passes.filter(p => !p.ok).length} DECAYED. HOLD DOWN TO SWITCH THE MEMORY OFF`; }
   else if (run) { a = run.def.id + (run.def.auto ? '' : ` · ${H.gearsKey(run.rec.gears ? run.rec.gears : G.gears).replace(/[tan](?=\d)/g, m => ({ t: 'T ', a: 'A ', n: 'N ' })[m])}`); b = run.def.say; }
-  else { a = def.id; b = def.auto ? `${def.say}. HOLD` : `${def.say}. MATCH THE AMBER SPOTS, THEN HOLD`; }
-  const k = a + b; if (k !== hudKey) { hudKey = k; hud.innerHTML = `<b>${a}</b> &nbsp;<span class="l2">GOAL: ${H.REFERENCE.split(' (')[0]}</span><div class="l2">${b}</div>`; } }
+  else { a = def.id; b = def.auto ? `${def.say}. HOLD` : `${def.say}. TURN THE GEARS UNTIL THE SCOPE SAYS IN PATTERN, THEN HOLD`; }
+  const k = a + b; if (k !== hudKey) { hudKey = k; hud.innerHTML = `<b>${a}</b> &nbsp;<span class="l2">GOAL: ${G.stage < 2 ? 'WHITE OR CHOCOLATE' : H.RECIPES[G.recipe].name}</span><div class="l2">${b}</div>`; } }
 let last = performance.now();
 function frame(dt) { NOW += dt; autoplay(); runAnims(); machine(dt); advanceRun(dt);
   // the memory switching on: round spots first, then the forms
   S.on = clamp((NOW - S.onAt) / 1.1, 0, 1); const dark = S.off ? clamp((NOW - S.offAt) / 1.0, 0, 1) : 0; const vis = (1 - dark);
-  SPOTS.forEach(s => { const u = clamp((NOW - S.onAt - s.userData.d * .6) / .35, 0, 1), v = u > 0 && u < 1 ? Math.sin(u * Math.PI) : 0; s.material.opacity = v * .55 + (dark > 0 && dark < 1 ? Math.sin(dark * Math.PI) * .4 * ((s.userData.d * 7) % 1) : 0); });
+  const form0 = clamp((S.on - .35) / .65, 0, 1) * vis; POOL.material.opacity = form0 * (.16 + S.flash * .2); SPOTS.forEach(s => { const u = clamp((NOW - S.onAt - s.userData.d * .6) / .35, 0, 1), v = u > 0 && u < 1 ? Math.sin(u * Math.PI) : 0; const i = SPOTS.indexOf(s), keep = .07 + .06 * Math.max(0, Math.sin(NOW * (.4 + i % 5 * .13) + i * 1.9)); s.material.opacity = v * .55 + keep * form0 + S.flash * .35 + (dark > 0 && dark < 1 ? Math.sin(dark * Math.PI) * .4 * ((s.userData.d * 7) % 1) : 0); });
   const form = clamp((S.on - .35) / .65, 0, 1) * vis; S.flash = Math.max(0, S.flash - dt / .14);
   mats.forEach(m => { m.opacity = form * (m.userData.op || 1); });
-  [coatMat, spongeMat, fillMat].forEach(m => { m.emissive.setRGB(.11 + S.flash * .8, .1 + S.flash * .8, .08 + S.flash * .85); });
-  TUBES.children.forEach(m => { if (!m.material.userData.red) m.material.emissive.setRGB(.17 + S.flash * .8, .165 + S.flash * .8, .15 + S.flash * .85); });
+  const em = LOOK[G.recipe].em, fl = S.flash * .8; [coatMat, fillMat].forEach(m => { m.emissive.setRGB(em[0] + fl, em[1] + fl, em[2] + fl); }); spongeMat.emissive.setRGB(.2 + fl, .11 + fl, .03 + fl);
+  TUBES.children.forEach(m => { if (!m.material.userData.red) m.material.emissive.setRGB(em[0] * 1.2 + fl, em[1] * 1.2 + fl, em[2] * 1.2 + fl); });
   // decays: the rejected pass flares silver and is gone
   (S.decays || []).forEach(d => { const u = (NOW - d.t0) / .6; d.o.traverse(o => { if (o.material) { o.material.opacity = Math.max(0, 1 - u) * form; if (o.material.emissive) o.material.emissive.setRGB(.9 * (1 - u), .92 * (1 - u), .95 * (1 - u)); } }); if (u >= 1) { d.o.parent && d.o.parent.remove(d.o); d.gone = true; } });
   if (S.decays) S.decays = S.decays.filter(d => !d.gone);
@@ -371,10 +379,10 @@ function frame(dt) { NOW += dt; autoplay(); runAnims(); machine(dt); advanceRun(
   S.tilt = lerp(S.tilt, S.tiltWant || 0, Math.min(1, dt * 3)); TILT.rotation.x = S.tilt * 3 * Math.PI / 180;
   // her eye: kneeling, the cake a little to her left, turned by the scale ring
   const yaw = S.yaw * Math.PI / 180, D = Math.max(.62, .235 / (Math.tan(17 * Math.PI / 180) * cam.aspect)), ty = CY + .06, tx = .03;
-  cam.position.set(Math.sin(yaw) * D + tx * Math.cos(yaw), ty + D * .3, Math.cos(yaw) * D - tx * Math.sin(yaw)); cam.lookAt(tx * Math.cos(yaw), ty, -tx * Math.sin(yaw));
+  cam.position.set(Math.sin(yaw) * D + tx * Math.cos(yaw), ty + D * .44, Math.cos(yaw) * D - tx * Math.sin(yaw)); cam.lookAt(tx * Math.cos(yaw), ty, -tx * Math.sin(yaw));
   const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion);
   // ghost and preview
-  const pattern = !S.run && !G.over && H.STAGES[G.stage] && !H.STAGES[G.stage].auto; ghostMat.opacity = lerp(ghostMat.opacity, pattern ? .85 * form : 0, Math.min(1, dt * 6)); prevMat.opacity = lerp(prevMat.opacity, pattern ? .6 * form : 0, Math.min(1, dt * 6));
+  const pattern = !S.run && !G.over && H.STAGES[G.stage] && !H.STAGES[G.stage].auto; ghostMat.opacity = lerp(ghostMat.opacity, pattern && hintEarned() ? .6 * form : 0, Math.min(1, dt * 6)); prevMat.opacity = lerp(prevMat.opacity, pattern ? .6 * form : 0, Math.min(1, dt * 6));
   // candles: flicker; the light falls with them
   const lit = CAND.filter(c => c.lit).length;
   CAND.concat(S.run && S.run.cands || []).forEach(c => { const on = c.lit ? 1 : 0, fl = .92 + Math.sin(NOW * 23 + c.ph) * .05 + Math.sin(NOW * 7.1 + c.ph) * .04; c.f.material.opacity = on * form; c.hl.material.opacity = on * .9 * fl * form; c.f.scale.y = .034 * fl;
@@ -390,5 +398,5 @@ document.fonts && document.fonts.load('400 20px Oswald').then(() => drawDev());
 resize(); reset();
 if (!REC) requestAnimationFrame(loop);
 window.MM = { H, S, RINGS, get G() { return G; }, TRACE, LOG, plan, press, holdPress, select, handTurn, NOW: () => NOW, advance: dt => frame(dt), ready: () => true, devRect: () => DC.getBoundingClientRect(), BANDS: () => BANDS, BTNS: () => BTNS, renderAudio,
-  traceOut: () => ({ revision: 'r2', tolerance_m: H.TOL, reference: H.REFERENCE, inputs: TRACE.inputs, applied: TRACE.applied, passes: TRACE.passes, final: H.summary(G) }) };
+  traceOut: () => ({ revision: 'r3', tolerance_m: H.TOL, recipe: G.recipe, reference: H.RECIPES[G.recipe].name, inputs: TRACE.inputs, applied: TRACE.applied, passes: TRACE.passes, final: H.summary(G) }) };
 </script></body></html>
