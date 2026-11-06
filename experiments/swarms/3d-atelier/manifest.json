@@ -1,0 +1,1000 @@
+{
+ "title": "SCION 49 OPEN-CONTENT ATELIER reservoir",
+ "built": "2026-11-06",
+ "rule": "Only CC0 files may enter the repo. No archive file is in the repo: none could be downloaded, and none had its CC0 status read. Every piece on the stage is an original procedural stand-in; the archive record it stands for is kept with its rights state.",
+ "checks": {
+  "si-3d-api": "WebFetch https://3d-api.si.edu/api/v1.0/content/file/search?q=vessel|plate|candlestick&file_type=glb (2026-11-06): lists 3d_package ids and .glb URLs; fields are title, usage (Web3D/App3D/Download3D), quality, uri, file_type, model_url, file_size. No rights, licence or CC0 field. The q parameter did not filter (same 7 objects for every query, rowCount 1050).",
+  "si-open-access": "WebFetch https://api.si.edu/openaccess/api/v1.0/search with api_key=DEMO_KEY, q=cake, q=fangyi, q=\"3d_package\", q=online_media_type:\"3D Images\" (2026-11-06): rowCount 0 for every query, so no metadata_usage.access (CC0) value could be read for any record.",
+  "si-3d-page": "WebFetch https://3d.si.edu/explore?edan_q=bowl and the art_design category search (2026-11-06): not fetched, permission request unanswered.",
+  "proxy": "curl from the build sandbox (2026-11-06): CONNECT refused (403) by the egress proxy for 3d-api.si.edu, cdn.3d-api.si.edu, api.si.edu, 3d.si.edu, ids.si.edu, smithsonian-open-access S3, api.getty.edu, media.getty.edu, data.getty.edu. No .glb and no image could be downloaded.",
+  "github-mirror": "git clone (blobs filtered) of github.com/Smithsonian/dpo-voyager and github.com/Smithsonian/OpenAccess (2026-11-06): no .glb models in Voyager; OpenAccess holds only a README (metadata moved to S3, which is refused)."
+ },
+ "items": [
+  {
+   "id": "STAND-BOSHANLU-FOOT",
+   "slot": "STAND",
+   "label": "BRONZE FOOT",
+   "source": {
+    "institution": "Smithsonian Institution (3D Digitization)",
+    "institution_id": "3d_package:ce850625-2cf1-4c6f-9086-0d5845d9a664",
+    "title": "Lidded incense burner (xianglu) with geometric decoration and narrative scenes",
+    "uri": "https://3d-api.si.edu/content/document/3d_package:ce850625-2cf1-4c6f-9086-0d5845d9a664/",
+    "media_url": "https://3d-api.si.edu/content/document/3d_package:ce850625-2cf1-4c6f-9086-0d5845d9a664/incense-burner-in-the-form-of-a-mountain-(boshanlu)-20k-512-thumb.glb",
+    "accession_inferred": null
+   },
+   "rights": {
+    "status": "UNVERIFIED",
+    "cc0": false,
+    "checks": [
+     "si-3d-api",
+     "si-open-access",
+     "si-3d-page",
+     "proxy"
+    ],
+    "publish": "the archive file is blocked from the repo and from publishing until CC0 is read on its own record; the stage uses the stand-in only"
+   },
+   "stage_asset": {
+    "kind": "procedural stand-in",
+    "what": "lathe profile of a flared pedestal foot, stem and shallow dish, approximating the foot of a boshanlu; not derived from the scan",
+    "licence": "original geometry written in this folder (render.js); contains no third-party data"
+   },
+   "transform_history": [
+    {
+     "op": "select",
+     "what": "chosen for the STAND slot"
+    },
+    {
+     "op": "crop",
+     "what": "foot and stem only, below the bowl"
+    },
+    {
+     "op": "stand-in",
+     "what": "lathe profile of a flared pedestal foot, stem and shallow dish, approximating the foot of a boshanlu; not derived from the scan"
+    },
+    {
+     "op": "stage",
+     "what": "scaled by the triangle ring 0.84-1.16 (stand, plate, holders) and turned 15 degrees a detent"
+    }
+   ],
+   "tags": [
+    "carries",
+    "rises",
+    "rings"
+   ]
+  },
+  {
+   "id": "STAND-FANGYI-FOOTRING",
+   "slot": "STAND",
+   "label": "SQUARE FOOTRING",
+   "source": {
+    "institution": "Smithsonian Institution (3D Digitization)",
+    "institution_id": "3d_package:d8c62f94-4ebc-11ea-b77f-2e728ce88125",
+    "title": "Ritual wine container (fangyi) with masks (taotie), serpents, and birds",
+    "uri": "https://3d-api.si.edu/content/document/3d_package:d8c62f94-4ebc-11ea-b77f-2e728ce88125/",
+    "media_url": "https://3d-api.si.edu/content/document/3d_package:d8c62f94-4ebc-11ea-b77f-2e728ce88125/f1930_54-part_01-smartscan-fixed-textured-20k-512-thumb.glb",
+    "accession_inferred": "F1930.54 (read from the file name, not from a record)"
+   },
+   "rights": {
+    "status": "UNVERIFIED",
+    "cc0": false,
+    "checks": [
+     "si-3d-api",
+     "si-open-access",
+     "si-3d-page",
+     "proxy"
+    ],
+    "publish": "the archive file is blocked from the repo and from publishing until CC0 is read on its own record; the stage uses the stand-in only"
+   },
+   "stage_asset": {
+    "kind": "procedural stand-in",
+    "what": "four-sided footring and slab, approximating the footring of a fangyi; not derived from the scan",
+    "licence": "original geometry written in this folder (render.js); contains no third-party data"
+   },
+   "transform_history": [
+    {
+     "op": "select",
+     "what": "chosen for the STAND slot"
+    },
+    {
+     "op": "crop",
+     "what": "footring only"
+    },
+    {
+     "op": "stand-in",
+     "what": "four-sided footring and slab, approximating the footring of a fangyi; not derived from the scan"
+    },
+    {
+     "op": "stage",
+     "what": "scaled by the triangle ring 0.84-1.16 (stand, plate, holders) and turned 15 degrees a detent"
+    }
+   ],
+   "tags": [
+    "carries",
+    "resists",
+    "squares"
+   ]
+  },
+  {
+   "id": "STAND-GLASS-WANTED",
+   "slot": "STAND",
+   "label": "GLASS CAKE STAND",
+   "source": {
+    "institution": "Smithsonian Institution or Getty (wanted)",
+    "institution_id": null,
+    "title": null,
+    "uri": null,
+    "media_url": null,
+    "query": "pressed glass cake stand, 19th-20th c."
+   },
+   "rights": {
+    "status": "NOT FOUND",
+    "cc0": false,
+    "checks": [
+     "si-3d-api",
+     "si-open-access",
+     "proxy"
+    ],
+    "publish": "no archive record located; nothing to publish but the stand-in"
+   },
+   "stage_asset": {
+    "kind": "procedural stand-in",
+    "what": "lathe profile of a footed glass cake stand",
+    "licence": "original geometry written in this folder (render.js); contains no third-party data"
+   },
+   "transform_history": [
+    {
+     "op": "select",
+     "what": "chosen for the STAND slot"
+    },
+    {
+     "op": "crop",
+     "what": "whole object"
+    },
+    {
+     "op": "stand-in",
+     "what": "lathe profile of a footed glass cake stand"
+    },
+    {
+     "op": "stage",
+     "what": "scaled by the triangle ring 0.84-1.16 (stand, plate, holders) and turned 15 degrees a detent"
+    }
+   ],
+   "tags": [
+    "carries",
+    "shows-through",
+    "rings"
+   ]
+  },
+  {
+   "id": "PLATE-COLONOWARE-BASE",
+   "slot": "PLATE",
+   "label": "EARTHENWARE DISH",
+   "source": {
+    "institution": "Smithsonian Institution (3D Digitization)",
+    "institution_id": "3d_package:79da3e3f-3ad7-41de-8956-e891d88a3c5f",
+    "title": "Colonoware pot from Cooper River, Charleston County, SC",
+    "uri": "https://3d-api.si.edu/content/document/3d_package:79da3e3f-3ad7-41de-8956-e891d88a3c5f/",
+    "media_url": "https://3d-api.si.edu/content/document/3d_package:79da3e3f-3ad7-41de-8956-e891d88a3c5f/2017_108_1_1-ColonoPottery_BlurMasked-Filtered_RENDER-20k-thumb.glb",
+    "accession_inferred": "2017.108.1.1 (read from the file name, not from a record)"
+   },
+   "rights": {
+    "status": "UNVERIFIED",
+    "cc0": false,
+    "checks": [
+     "si-3d-api",
+     "si-open-access",
+     "si-3d-page",
+     "proxy"
+    ],
+    "publish": "the archive file is blocked from the repo and from publishing until CC0 is read on its own record; the stage uses the stand-in only"
+   },
+   "stage_asset": {
+    "kind": "procedural stand-in",
+    "what": "low burnished dish with an uneven rim, approximating the lower body of the colonoware pot cut off below the shoulder; not derived from the scan",
+    "licence": "original geometry written in this folder (render.js); contains no third-party data"
+   },
+   "transform_history": [
+    {
+     "op": "select",
+     "what": "chosen for the PLATE slot"
+    },
+    {
+     "op": "crop",
+     "what": "lower 18 percent of the body"
+    },
+    {
+     "op": "stand-in",
+     "what": "low burnished dish with an uneven rim, approximating the lower body of the colonoware pot cut off below the shoulder; not derived from the scan"
+    },
+    {
+     "op": "stage",
+     "what": "scaled by the triangle ring 0.84-1.16 (stand, plate, holders) and turned 15 degrees a detent"
+    }
+   ],
+   "tags": [
+    "holds",
+    "wears",
+    "uneven"
+   ]
+  },
+  {
+   "id": "PLATE-PORCELAIN-WANTED",
+   "slot": "PLATE",
+   "label": "PORCELAIN PLATE",
+   "source": {
+    "institution": "Smithsonian Institution or Getty (wanted)",
+    "institution_id": null,
+    "title": null,
+    "uri": null,
+    "media_url": null,
+    "query": "porcelain dessert plate with a blue rim band"
+   },
+   "rights": {
+    "status": "NOT FOUND",
+    "cc0": false,
+    "checks": [
+     "si-3d-api",
+     "si-open-access",
+     "proxy"
+    ],
+    "publish": "no archive record located; nothing to publish but the stand-in"
+   },
+   "stage_asset": {
+    "kind": "procedural stand-in",
+    "what": "flat plate with a rim band",
+    "licence": "original geometry written in this folder (render.js); contains no third-party data"
+   },
+   "transform_history": [
+    {
+     "op": "select",
+     "what": "chosen for the PLATE slot"
+    },
+    {
+     "op": "crop",
+     "what": "whole object"
+    },
+    {
+     "op": "stand-in",
+     "what": "flat plate with a rim band"
+    },
+    {
+     "op": "stage",
+     "what": "scaled by the triangle ring 0.84-1.16 (stand, plate, holders) and turned 15 degrees a detent"
+    }
+   ],
+   "tags": [
+    "holds",
+    "rings",
+    "shines"
+   ]
+  },
+  {
+   "id": "PLATE-PEWTER-WANTED",
+   "slot": "PLATE",
+   "label": "PEWTER CHARGER",
+   "source": {
+    "institution": "Smithsonian Institution or Getty (wanted)",
+    "institution_id": null,
+    "title": null,
+    "uri": null,
+    "media_url": null,
+    "query": "pewter charger"
+   },
+   "rights": {
+    "status": "NOT FOUND",
+    "cc0": false,
+    "checks": [
+     "si-3d-api",
+     "si-open-access",
+     "proxy"
+    ],
+    "publish": "no archive record located; nothing to publish but the stand-in"
+   },
+   "stage_asset": {
+    "kind": "procedural stand-in",
+    "what": "wide flat charger",
+    "licence": "original geometry written in this folder (render.js); contains no third-party data"
+   },
+   "transform_history": [
+    {
+     "op": "select",
+     "what": "chosen for the PLATE slot"
+    },
+    {
+     "op": "crop",
+     "what": "whole object"
+    },
+    {
+     "op": "stand-in",
+     "what": "wide flat charger"
+    },
+    {
+     "op": "stage",
+     "what": "scaled by the triangle ring 0.84-1.16 (stand, plate, holders) and turned 15 degrees a detent"
+    }
+   ],
+   "tags": [
+    "holds",
+    "dulls",
+    "rings"
+   ]
+  },
+  {
+   "id": "MOULD-TIN-WANTED",
+   "slot": "MOULD",
+   "label": "ROUND TIN",
+   "source": {
+    "institution": "Smithsonian Institution or Getty (wanted)",
+    "institution_id": null,
+    "title": null,
+    "uri": null,
+    "media_url": null,
+    "query": "tinned iron cake tin"
+   },
+   "rights": {
+    "status": "NOT FOUND",
+    "cc0": false,
+    "checks": [
+     "si-3d-api",
+     "si-open-access",
+     "proxy"
+    ],
+    "publish": "no archive record located; nothing to publish but the stand-in"
+   },
+   "stage_asset": {
+    "kind": "procedural stand-in",
+    "what": "open cylinder tin; the cake it leaves is a drum",
+    "licence": "original geometry written in this folder (render.js); contains no third-party data"
+   },
+   "transform_history": [
+    {
+     "op": "select",
+     "what": "chosen for the MOULD slot"
+    },
+    {
+     "op": "crop",
+     "what": "whole object"
+    },
+    {
+     "op": "stand-in",
+     "what": "open cylinder tin; the cake it leaves is a drum"
+    },
+    {
+     "op": "stage",
+     "what": "scaled by the triangle ring 0.84-1.16 (stand, plate, holders) and turned 15 degrees a detent"
+    }
+   ],
+   "tags": [
+    "shapes",
+    "releases",
+    "rings"
+   ]
+  },
+  {
+   "id": "MOULD-COLONOWARE-DOME",
+   "slot": "MOULD",
+   "label": "POT, UPSIDE DOWN",
+   "source": {
+    "institution": "Smithsonian Institution (3D Digitization)",
+    "institution_id": "3d_package:79da3e3f-3ad7-41de-8956-e891d88a3c5f",
+    "title": "Colonoware pot from Cooper River, Charleston County, SC",
+    "uri": "https://3d-api.si.edu/content/document/3d_package:79da3e3f-3ad7-41de-8956-e891d88a3c5f/",
+    "media_url": "https://3d-api.si.edu/content/document/3d_package:79da3e3f-3ad7-41de-8956-e891d88a3c5f/2017_108_1_1-ColonoPottery_BlurMasked-Filtered_RENDER-20k-thumb.glb",
+    "accession_inferred": "2017.108.1.1 (read from the file name, not from a record)"
+   },
+   "rights": {
+    "status": "UNVERIFIED",
+    "cc0": false,
+    "checks": [
+     "si-3d-api",
+     "si-open-access",
+     "si-3d-page",
+     "proxy"
+    ],
+    "publish": "the archive file is blocked from the repo and from publishing until CC0 is read on its own record; the stage uses the stand-in only"
+   },
+   "stage_asset": {
+    "kind": "procedural stand-in",
+    "what": "round-bodied pot turned mouth-down over the plate; the cake it leaves is a dome; approximates the colonoware body; not derived from the scan",
+    "licence": "original geometry written in this folder (render.js); contains no third-party data"
+   },
+   "transform_history": [
+    {
+     "op": "select",
+     "what": "chosen for the MOULD slot"
+    },
+    {
+     "op": "crop",
+     "what": "body, inverted"
+    },
+    {
+     "op": "stand-in",
+     "what": "round-bodied pot turned mouth-down over the plate; the cake it leaves is a dome; approximates the colonoware body; not derived from the scan"
+    },
+    {
+     "op": "stage",
+     "what": "scaled by the triangle ring 0.84-1.16 (stand, plate, holders) and turned 15 degrees a detent"
+    }
+   ],
+   "tags": [
+    "shapes",
+    "covers",
+    "domes"
+   ]
+  },
+  {
+   "id": "MOULD-FANGYI-BODY",
+   "slot": "MOULD",
+   "label": "SQUARE BRONZE BODY",
+   "source": {
+    "institution": "Smithsonian Institution (3D Digitization)",
+    "institution_id": "3d_package:d8c62f94-4ebc-11ea-b77f-2e728ce88125",
+    "title": "Ritual wine container (fangyi) with masks (taotie), serpents, and birds",
+    "uri": "https://3d-api.si.edu/content/document/3d_package:d8c62f94-4ebc-11ea-b77f-2e728ce88125/",
+    "media_url": "https://3d-api.si.edu/content/document/3d_package:d8c62f94-4ebc-11ea-b77f-2e728ce88125/f1930_54-part_01-smartscan-fixed-textured-20k-512-thumb.glb",
+    "accession_inferred": "F1930.54 (read from the file name, not from a record)"
+   },
+   "rights": {
+    "status": "UNVERIFIED",
+    "cc0": false,
+    "checks": [
+     "si-3d-api",
+     "si-open-access",
+     "si-3d-page",
+     "proxy"
+    ],
+    "publish": "the archive file is blocked from the repo and from publishing until CC0 is read on its own record; the stage uses the stand-in only"
+   },
+   "stage_asset": {
+    "kind": "procedural stand-in",
+    "what": "four-sided open box with flanges, approximating the fangyi body without its roof lid; not derived from the scan",
+    "licence": "original geometry written in this folder (render.js); contains no third-party data"
+   },
+   "transform_history": [
+    {
+     "op": "select",
+     "what": "chosen for the MOULD slot"
+    },
+    {
+     "op": "crop",
+     "what": "body without lid, upside down"
+    },
+    {
+     "op": "stand-in",
+     "what": "four-sided open box with flanges, approximating the fangyi body without its roof lid; not derived from the scan"
+    },
+    {
+     "op": "stage",
+     "what": "scaled by the triangle ring 0.84-1.16 (stand, plate, holders) and turned 15 degrees a detent"
+    }
+   ],
+   "tags": [
+    "shapes",
+    "squares",
+    "resists"
+   ]
+  },
+  {
+   "id": "MOULD-COPPER-RING-WANTED",
+   "slot": "MOULD",
+   "label": "COPPER RING MOULD",
+   "source": {
+    "institution": "Smithsonian Institution or Getty (wanted)",
+    "institution_id": null,
+    "title": null,
+    "uri": null,
+    "media_url": null,
+    "query": "copper jelly or ring mould"
+   },
+   "rights": {
+    "status": "NOT FOUND",
+    "cc0": false,
+    "checks": [
+     "si-3d-api",
+     "si-open-access",
+     "proxy"
+    ],
+    "publish": "no archive record located; nothing to publish but the stand-in"
+   },
+   "stage_asset": {
+    "kind": "procedural stand-in",
+    "what": "fluted ring mould; the cake it leaves has a hole and flutes",
+    "licence": "original geometry written in this folder (render.js); contains no third-party data"
+   },
+   "transform_history": [
+    {
+     "op": "select",
+     "what": "chosen for the MOULD slot"
+    },
+    {
+     "op": "crop",
+     "what": "whole object"
+    },
+    {
+     "op": "stand-in",
+     "what": "fluted ring mould; the cake it leaves has a hole and flutes"
+    },
+    {
+     "op": "stage",
+     "what": "scaled by the triangle ring 0.84-1.16 (stand, plate, holders) and turned 15 degrees a detent"
+    }
+   ],
+   "tags": [
+    "shapes",
+    "flutes",
+    "opens"
+   ]
+  },
+  {
+   "id": "DECO-CHOC-ORANGE",
+   "slot": "DECORATION",
+   "label": "CHOCOLATE, ORANGE TOP",
+   "source": {
+    "institution": "film reference (numbers only)",
+    "institution_id": null,
+    "title": "palette read from the film, cake 1",
+    "uri": null,
+    "media_url": null
+   },
+   "rights": {
+    "status": "DERIVED NUMBERS",
+    "cc0": false,
+    "checks": [],
+    "publish": "three colour numbers; no film pixels"
+   },
+   "stage_asset": {
+    "kind": "procedural stand-in",
+    "what": "icing colours and beads",
+    "licence": "original geometry written in this folder (render.js); contains no third-party data"
+   },
+   "transform_history": [
+    {
+     "op": "select",
+     "what": "chosen for the DECORATION slot"
+    },
+    {
+     "op": "crop",
+     "what": "colour numbers"
+    },
+    {
+     "op": "stand-in",
+     "what": "icing colours and beads"
+    },
+    {
+     "op": "stage",
+     "what": "scaled by the triangle ring 0.84-1.16 (stand, plate, holders) and turned 15 degrees a detent"
+    }
+   ],
+   "tags": [
+    "coats",
+    "beads"
+   ]
+  },
+  {
+   "id": "DECO-MINT",
+   "slot": "DECORATION",
+   "label": "MINT",
+   "source": {
+    "institution": "film reference (numbers only)",
+    "institution_id": null,
+    "title": "palette read from the film, cake 2",
+    "uri": null,
+    "media_url": null
+   },
+   "rights": {
+    "status": "DERIVED NUMBERS",
+    "cc0": false,
+    "checks": [],
+    "publish": "three colour numbers; no film pixels"
+   },
+   "stage_asset": {
+    "kind": "procedural stand-in",
+    "what": "icing colours and beads",
+    "licence": "original geometry written in this folder (render.js); contains no third-party data"
+   },
+   "transform_history": [
+    {
+     "op": "select",
+     "what": "chosen for the DECORATION slot"
+    },
+    {
+     "op": "crop",
+     "what": "colour numbers"
+    },
+    {
+     "op": "stand-in",
+     "what": "icing colours and beads"
+    },
+    {
+     "op": "stage",
+     "what": "scaled by the triangle ring 0.84-1.16 (stand, plate, holders) and turned 15 degrees a detent"
+    }
+   ],
+   "tags": [
+    "coats",
+    "beads"
+   ]
+  },
+  {
+   "id": "DECO-RED-ORANGE",
+   "slot": "DECORATION",
+   "label": "RED-ORANGE",
+   "source": {
+    "institution": "film reference (numbers only)",
+    "institution_id": null,
+    "title": "palette read from the film, cake 3",
+    "uri": null,
+    "media_url": null
+   },
+   "rights": {
+    "status": "DERIVED NUMBERS",
+    "cc0": false,
+    "checks": [],
+    "publish": "three colour numbers; no film pixels"
+   },
+   "stage_asset": {
+    "kind": "procedural stand-in",
+    "what": "icing colours and beads",
+    "licence": "original geometry written in this folder (render.js); contains no third-party data"
+   },
+   "transform_history": [
+    {
+     "op": "select",
+     "what": "chosen for the DECORATION slot"
+    },
+    {
+     "op": "crop",
+     "what": "colour numbers"
+    },
+    {
+     "op": "stand-in",
+     "what": "icing colours and beads"
+    },
+    {
+     "op": "stage",
+     "what": "scaled by the triangle ring 0.84-1.16 (stand, plate, holders) and turned 15 degrees a detent"
+    }
+   ],
+   "tags": [
+    "coats",
+    "beads"
+   ]
+  },
+  {
+   "id": "DECO-BROWN-GLAZE",
+   "slot": "DECORATION",
+   "label": "BROWN GLAZE",
+   "source": {
+    "institution": "film reference (numbers only)",
+    "institution_id": null,
+    "title": "palette read from the film, cake 4 (the dome)",
+    "uri": null,
+    "media_url": null
+   },
+   "rights": {
+    "status": "DERIVED NUMBERS",
+    "cc0": false,
+    "checks": [],
+    "publish": "three colour numbers; no film pixels"
+   },
+   "stage_asset": {
+    "kind": "procedural stand-in",
+    "what": "glaze colours",
+    "licence": "original geometry written in this folder (render.js); contains no third-party data"
+   },
+   "transform_history": [
+    {
+     "op": "select",
+     "what": "chosen for the DECORATION slot"
+    },
+    {
+     "op": "crop",
+     "what": "colour numbers"
+    },
+    {
+     "op": "stand-in",
+     "what": "glaze colours"
+    },
+    {
+     "op": "stage",
+     "what": "scaled by the triangle ring 0.84-1.16 (stand, plate, holders) and turned 15 degrees a detent"
+    }
+   ],
+   "tags": [
+    "coats",
+    "drips"
+   ]
+  },
+  {
+   "id": "DECO-SPONGE-WHITE",
+   "slot": "DECORATION",
+   "label": "SPONGE, WHITE BEADS",
+   "source": {
+    "institution": "film reference (numbers only)",
+    "institution_id": null,
+    "title": "palette read from the film, cake 5",
+    "uri": null,
+    "media_url": null
+   },
+   "rights": {
+    "status": "DERIVED NUMBERS",
+    "cc0": false,
+    "checks": [],
+    "publish": "three colour numbers; no film pixels"
+   },
+   "stage_asset": {
+    "kind": "procedural stand-in",
+    "what": "icing colours and white beads",
+    "licence": "original geometry written in this folder (render.js); contains no third-party data"
+   },
+   "transform_history": [
+    {
+     "op": "select",
+     "what": "chosen for the DECORATION slot"
+    },
+    {
+     "op": "crop",
+     "what": "colour numbers"
+    },
+    {
+     "op": "stand-in",
+     "what": "icing colours and white beads"
+    },
+    {
+     "op": "stage",
+     "what": "scaled by the triangle ring 0.84-1.16 (stand, plate, holders) and turned 15 degrees a detent"
+    }
+   ],
+   "tags": [
+    "coats",
+    "beads"
+   ]
+  },
+  {
+   "id": "HOLDER-BRASS-WANTED",
+   "slot": "CANDLES",
+   "label": "BRASS CUPS",
+   "source": {
+    "institution": "Smithsonian Institution or Getty (wanted)",
+    "institution_id": null,
+    "title": null,
+    "uri": null,
+    "media_url": null,
+    "query": "brass candle cups or a candlestick"
+   },
+   "rights": {
+    "status": "NOT FOUND",
+    "cc0": false,
+    "checks": [
+     "si-3d-api",
+     "si-open-access",
+     "proxy"
+    ],
+    "publish": "no archive record located; nothing to publish but the stand-in"
+   },
+   "stage_asset": {
+    "kind": "procedural stand-in",
+    "what": "small brass cup under each candle",
+    "licence": "original geometry written in this folder (render.js); contains no third-party data"
+   },
+   "transform_history": [
+    {
+     "op": "select",
+     "what": "chosen for the CANDLES slot"
+    },
+    {
+     "op": "crop",
+     "what": "cup only"
+    },
+    {
+     "op": "stand-in",
+     "what": "small brass cup under each candle"
+    },
+    {
+     "op": "stage",
+     "what": "scaled by the triangle ring 0.84-1.16 (stand, plate, holders) and turned 15 degrees a detent"
+    }
+   ],
+   "tags": [
+    "holds-up",
+    "shines"
+   ]
+  },
+  {
+   "id": "HOLDER-FANGYI-FINIAL",
+   "slot": "CANDLES",
+   "label": "ROOF FINIALS",
+   "source": {
+    "institution": "Smithsonian Institution (3D Digitization)",
+    "institution_id": "3d_package:d8c62f94-4ebc-11ea-b77f-2e728ce88125",
+    "title": "Ritual wine container (fangyi) with masks (taotie), serpents, and birds",
+    "uri": "https://3d-api.si.edu/content/document/3d_package:d8c62f94-4ebc-11ea-b77f-2e728ce88125/",
+    "media_url": "https://3d-api.si.edu/content/document/3d_package:d8c62f94-4ebc-11ea-b77f-2e728ce88125/f1930_54-part_01-smartscan-fixed-textured-20k-512-thumb.glb",
+    "accession_inferred": "F1930.54 (read from the file name, not from a record)"
+   },
+   "rights": {
+    "status": "UNVERIFIED",
+    "cc0": false,
+    "checks": [
+     "si-3d-api",
+     "si-open-access",
+     "si-3d-page",
+     "proxy"
+    ],
+    "publish": "the archive file is blocked from the repo and from publishing until CC0 is read on its own record; the stage uses the stand-in only"
+   },
+   "stage_asset": {
+    "kind": "procedural stand-in",
+    "what": "small hipped-roof cap under each candle, approximating the fangyi lid finial at 1/8 size; not derived from the scan",
+    "licence": "original geometry written in this folder (render.js); contains no third-party data"
+   },
+   "transform_history": [
+    {
+     "op": "select",
+     "what": "chosen for the CANDLES slot"
+    },
+    {
+     "op": "crop",
+     "what": "lid finial only"
+    },
+    {
+     "op": "stand-in",
+     "what": "small hipped-roof cap under each candle, approximating the fangyi lid finial at 1/8 size; not derived from the scan"
+    },
+    {
+     "op": "stage",
+     "what": "scaled by the triangle ring 0.84-1.16 (stand, plate, holders) and turned 15 degrees a detent"
+    }
+   ],
+   "tags": [
+    "holds-up",
+    "crowns"
+   ]
+  },
+  {
+   "id": "HOLDER-PINS",
+   "slot": "CANDLES",
+   "label": "BARE PINS",
+   "source": {
+    "institution": "none",
+    "institution_id": null,
+    "title": "no holder",
+    "uri": null,
+    "media_url": null
+   },
+   "rights": {
+    "status": "NONE NEEDED",
+    "cc0": false,
+    "checks": [],
+    "publish": "nothing"
+   },
+   "stage_asset": {
+    "kind": "procedural stand-in",
+    "what": "candles pushed straight into the icing",
+    "licence": "original geometry written in this folder (render.js); contains no third-party data"
+   },
+   "transform_history": [
+    {
+     "op": "select",
+     "what": "chosen for the CANDLES slot"
+    },
+    {
+     "op": "crop",
+     "what": "-"
+    },
+    {
+     "op": "stand-in",
+     "what": "candles pushed straight into the icing"
+    },
+    {
+     "op": "stage",
+     "what": "scaled by the triangle ring 0.84-1.16 (stand, plate, holders) and turned 15 degrees a detent"
+    }
+   ],
+   "tags": [
+    "holds-up"
+   ]
+  }
+ ],
+ "on_file_not_used": [
+  {
+   "source": {
+    "institution": "Smithsonian Institution (3D Digitization)",
+    "institution_id": "3d_package:d8c646aa-4ebc-11ea-b77f-2e728ce88125",
+    "title": "Ritual wine ewer (gong) with masks (taotie), dragons, and real animals",
+    "uri": "https://3d-api.si.edu/content/document/3d_package:d8c646aa-4ebc-11ea-b77f-2e728ce88125/",
+    "media_url": "https://cdn.3d-api.si.edu/d8c646aa-4ebc-11ea-b77f-2e728ce88125/f1961_33-part_01-laser-ortery_texture-20k-512-thumb.glb",
+    "accession_inferred": "F1961.33 (read from the file name, not from a record)"
+   },
+   "rights": {
+    "status": "UNVERIFIED",
+    "cc0": false,
+    "checks": [
+     "si-3d-api",
+     "si-open-access",
+     "si-3d-page",
+     "proxy"
+    ],
+    "publish": "the archive file is blocked from the repo and from publishing until CC0 is read on its own record; the stage uses the stand-in only"
+   },
+   "why": "found in the 3D listing; no slot fits a ewer; kept on file"
+  },
+  {
+   "source": {
+    "institution": "Getty Open Content / Smithsonian",
+    "institution_id": null,
+    "title": null,
+    "uri": null,
+    "media_url": null,
+    "query": "table, open content image or 3D"
+   },
+   "rights": {
+    "status": "NOT FOUND",
+    "cc0": false,
+    "checks": [
+     "si-3d-api",
+     "si-open-access",
+     "proxy"
+    ],
+    "publish": "no archive record located; nothing to publish but the stand-in"
+   },
+   "why": "the table is the memory hex table (procedural)"
+  },
+  {
+   "source": {
+    "institution": "J. Paul Getty Museum",
+    "institution_id": null,
+    "title": null,
+    "uri": null,
+    "media_url": null,
+    "query": "Getty open-content images for textures (still lifes with cakes, porcelain)"
+   },
+   "rights": {
+    "status": "NOT REACHED",
+    "cc0": false,
+    "checks": [
+     "proxy"
+    ],
+    "publish": "no image fetched"
+   },
+   "why": "api.getty.edu, media.getty.edu and data.getty.edu are refused by the proxy"
+  }
+ ],
+ "refs": [
+  {
+   "name": "CHOCOLATE, ORANGE TOP",
+   "form": "drum",
+   "side": 3874836,
+   "top": 14252076,
+   "beads": "many"
+  },
+  {
+   "name": "MINT",
+   "form": "drum",
+   "side": 9425085,
+   "top": 12971231,
+   "beads": "many"
+  },
+  {
+   "name": "RED-ORANGE",
+   "form": "drum",
+   "side": 11747626,
+   "top": 14969916,
+   "beads": "many"
+  },
+  {
+   "name": "BROWN DOME",
+   "form": "dome",
+   "side": 6964006,
+   "top": 8213040,
+   "beads": "none"
+  },
+  {
+   "name": "SPONGE, WHITE BEADS",
+   "form": "drum",
+   "side": 14860934,
+   "top": 15850665,
+   "beads": "white"
+  }
+ ]
+}

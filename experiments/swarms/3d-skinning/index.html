@@ -83,7 +83,7 @@ async function renderAudio(t0, t1) { const sr = 48000, a = new OfflineAudioConte
   const bytes = new Uint8Array(dv.buffer); let s = ''; for (let i = 0; i < bytes.length; i += 32768) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 32768)); return { b64: btoa(s), peak: pk }; }
 
 /* =============================================================== THE ROOM: black dome, a band of light where wall meets floor, a ring on the floor */
-const viewEl = document.getElementById('view'), R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: REC }); R.setPixelRatio(REC ? 1 : Math.min(2, devicePixelRatio)); R.outputEncoding = T.sRGBEncoding; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = 1.1; viewEl.prepend(R.domElement);
+const viewEl = document.getElementById('view'), R = new T.WebGLRenderer({ antialias: !REC || Q.has("aa"), preserveDrawingBuffer: REC }); R.setPixelRatio(REC ? 1 : Math.min(2, devicePixelRatio)); R.outputEncoding = T.sRGBEncoding; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = 1.1; viewEl.prepend(R.domElement);
 const scene = new T.Scene(); scene.background = new T.Color(0x020303); scene.fog = new T.FogExp2(0x020303, .09);
 const cam = new T.PerspectiveCamera(36, 1, .02, 60);
 { const fl = new T.Mesh(new T.CircleGeometry(9, 96), new T.MeshStandardMaterial({ color: 0x0a0b0b, roughness: .55, metalness: .2 })); fl.rotation.x = -PI / 2; scene.add(fl);
@@ -252,11 +252,12 @@ function perform(k, dt) { const c = k.i, H = k.spec.H, f = frameOf(k), r = k.rdi
     arms.L = hold(k, 'L', g('L'), w, 'board'); arms.R = hold(k, 'R', g('R'), w, 'board'); pose.lean = .1 + .45 * u * (1 - sst(.85, 1, p)) + .15 * w; pose.headPitch = .45; tw.L = tw.R = .3; }
   if (c === 0 && a.id === 'blow' && k.disp > CUM[0][1]) { const g = sst(0, .3, p); pose.lean = .1 + .5 * g * (1 - sst(.85, 1, p)) ; pose.headPitch = .2 + .3 * g; const edge = s => Lw(k, (s === 'L' ? 1 : -1) * .12, TY + .0, .2);
     arms.L = hold(k, 'L', edge('L'), g * (1 - sst(.9, 1, p)), 'table edge'); arms.R = hold(k, 'R', edge('R'), g * (1 - sst(.9, 1, p)), 'table edge'); }
-  if (c === 1 && started) { const n = a.id === 'layer1' ? 0 : 1, L = LAYERS[n], start = Lw(k, -.3, TY + .0, .02), end = V(0, TY + stackTop(n), 0), apex = TY + .2 + .28 * Math.max(0, r) + .04 * r;
+  if (c === 1 && started) { const n = a.id === 'layer1' ? 0 : 1, L = LAYERS[n], start = Lw(k, -.25, TY + .0, .07), end = V(0, TY + stackTop(n), 0), apex = TY + .2 + .28 * Math.max(0, r) + .04 * r;
     const u = sst(.2, .75, p), d = sst(.75, .88, p); let pos; if (p < .2) pos = start; else if (p < .75) { pos = mixV(start, V(end.x, apex, end.z), u); pos.y = lerp(start.y, apex, Math.sin(PI / 2 * Math.min(1, u * 1.6))); } else pos = mixV(V(end.x, apex, end.z), end, d);
     L.m.visible = true; L.m.position.copy(pos).add(V(0, LAYER_H / 2, 0)); L.color = SPONGE[spongeOf(k.reach)][0];
-    const g = s => pos.clone().addScaledVector(f.X, (s === 'L' ? 1 : -1) * (LAYER_R + .012)).add(V(0, LAYER_H * .5, 0)); const w = sst(.02, .2, p) * (1 - sst(.88, 1, p));
-    arms.L = hold(k, 'L', g('L'), w, a.id); arms.R = hold(k, 'R', g('R'), w, a.id); tw.L = tw.R = .5; pose.twist = -.75 * (1 - sst(.1, .55, p)) * (1 - sst(.9, 1, p)); pose.lean = .12 + .3 * sst(.6, .88, p) * (1 - sst(.9, 1, p)); pose.headPitch = .1 + .3 * d - .25 * Math.max(0, r) * Math.sin(PI * u); pose.tiptoe = .4 * Math.max(0, r) * Math.sin(PI * u); }
+    pose.twist = -.6 * (1 - sst(.1, .55, p)) * (1 - sst(.9, 1, p)); const Xt = f.X.clone().applyAxisAngle(UP, pose.twist);
+    const g = s => pos.clone().addScaledVector(Xt, (s === 'L' ? 1 : -1) * (LAYER_R + .012)).add(V(0, LAYER_H * .5, 0)); const w = sst(.02, .2, p) * (1 - sst(.88, 1, p));
+    arms.L = hold(k, 'L', g('L'), w, a.id); arms.R = hold(k, 'R', g('R'), w, a.id); tw.L = tw.R = .5; pose.lean = .12 + .5 * sst(.55, .85, p) * (1 - sst(.9, 1, p)); pose.headPitch = .1 + .3 * d - .25 * Math.max(0, r) * Math.sin(PI * u); pose.tiptoe = .4 * Math.max(0, r) * Math.sin(PI * u); }
   if (c === 2 && started) { const H2 = TY + .012; const restSp = Lw(k, -.13, TY + .004, .16), restBag = Lw(k, -.17, TY + .05, .14);
     let grip = null, tool = null, tip = null; const w = sst(0, .12, p) * (1 - sst(.9, 1, p)), use = sst(.1, .2, p) * (1 - sst(.88, .96, p));
     if (a.id === 'iceTop' || a.id === 'iceSide') { let blade; if (a.id === 'iceTop') { const u = sst(.12, .9, p), ph = phiK + .35 * Math.sin(u * 8 * PI), rr = (.095 - .07 * u) * (.85 + .15 * (r + 1) / 2); blade = polarW(ph, rr, H2 + TOPY - .012 + .003); }
@@ -266,10 +267,10 @@ function perform(k, dt) { const c = k.i, H = k.spec.H, f = frameOf(k), r = k.rdi
       if (use > .97) paintIce(a.id, blade, k); }
     else { // the piping bag: beads round the rim, then the writing
       let t0; if (a.id === 'beads') t0 = polarW(phiK, LAYER_R - .007, H2 + TOPY - .012 + .012); else { const pw = sst(.08, .92, p) * 5; const [x, z] = inscriptionTip(pw); t0 = cakeW(x, TOPY + .012, z); drawInscription(pw, inkFor()); }
-      tip = t0; const gUse = tip.clone().add(V(0, .1, 0)).addScaledVector(toKid, .02); grip = mixV(restBag, gUse, use); BAG.visible = true; BAG.position.copy(grip); BAG.rotation.set(0, 0, 0); BAG.lookAt(grip.clone().addScaledVector(toKid, 1)); BAG.rotateX(-.25);
+      tip = t0; const gUse = tip.clone().add(V(0, .09, 0)).addScaledVector(toKid, .07); grip = mixV(restBag, gUse, use); BAG.visible = true; BAG.position.copy(grip); BAG.rotation.set(0, 0, 0); BAG.lookAt(grip.clone().addScaledVector(toKid, 1)); BAG.rotateX(-.25);
       if (a.id === 'beads') placeBeads(sst(.1, .9, p), k); }
     arms.R = hold(k, 'R', grip, w, a.id === 'iceTop' || a.id === 'iceSide' ? 'spatula' : 'piping bag'); tw.R = -.4;
-    const steady = polarW(phiK + .55, BOARD_R + .005, TY + .02); arms.L = hold(k, 'L', steady, sst(.05, .2, p) * (1 - sst(.88, 1, p)), 'turntable rim'); pose.lean = .22 + .2 * use; pose.headPitch = .5; }
+    const steady = polarW(phiK + .55, BOARD_R + .005, TY + .02); arms.L = hold(k, 'L', steady, sst(.05, .2, p) * (1 - sst(.88, 1, p)), 'turntable rim'); pose.lean = .22 + (a.id === 'write' ? .4 : .2) * use; pose.tiptoe = a.id === 'write' ? .5 * use : 0; pose.headPitch = .5; }
   if (c === 3 && started) { const box = Lw(k, .1, TY + .0125, .2);
     if (a.id === 'candles') { const x = p * 7, j = Math.min(6, Math.floor(x)), q = x - j; for (let m = 0; m < 7; m++) { const C = CANDLES[m]; if (m < j) placeCandle(C); else if (m > j) { C.g.position.copy(box).add(V((m - 3) * .009, 0, 0)); C.g.visible = true; } }
       const C = CANDLES[j], slot = cakeW(Math.cos(C.a) * C.r, TOPY - .008, Math.sin(C.a) * C.r); let pos; const u = sst(.3, .75, q), d = sst(.75, .88, q);
@@ -290,9 +291,14 @@ function perform(k, dt) { const c = k.i, H = k.spec.H, f = frameOf(k), r = k.rdi
   for (const s of ['L', 'R']) pose.arms[s] = { target: arms[s], pole: V(s === 'L' ? .35 : -.35, -.2, -1), twist: (s === 'L' ? 1 : -1) * tw[s], naive: k.naive };
   return pose; }
 function inkFor() { const t = S.iceTally; if (!t.topN) return '#c4231c'; const l = (t.top[0] + t.top[1] + t.top[2]) / t.topN / 3; return l > .55 ? '#b8231c' : '#f4ecd8'; }
+let lastPaint = null;
 function paintIce(id, bladeW, k) { const loc = bladeW.clone().sub(CAKE.position).applyAxisAngle(UP, -CAKE.rotation.y), col = new T.Color(ICING[icingOf(k.reach)][id === 'iceTop' ? 0 : 1]), css = '#' + col.getHexString();
-  if (id === 'iceTop') { const W = 256, rr = LAYER_R + ICE; itx.fillStyle = css; itx.beginPath(); itx.arc((loc.x / rr + 1) / 2 * W, (loc.z / rr + 1) / 2 * W, .026 / rr * W / 2 * 1.4, 0, TAU); itx.fill(); iceTopT.needsUpdate = true; S.iceTally.top[0] += col.r; S.iceTally.top[1] += col.g; S.iceTally.top[2] += col.b; S.iceTally.topN++; }
-  else { const a = Math.atan2(loc.z, loc.x), u = ((((PI / 2 - a) / TAU) % 1) + 1) % 1, v = (loc.y - .012) / (TOPY - .012); isx.fillStyle = css; for (const du of [0, -1, 1]) isx.fillRect((u + du) * 512 - 7, (1 - v) * 64 - 13, 14, 26); if (v > .85) isx.fillRect(0, 0, 0, 0); iceSideT.needsUpdate = true; S.iceTally.side[0] += col.r; S.iceTally.side[1] += col.g; S.iceTally.side[2] += col.b; S.iceTally.sideN++; } }
+  const prev = lastPaint && lastPaint.id === id && NOW - lastPaint.t < .2 ? lastPaint : null; lastPaint = { id, t: NOW, x: loc.x, y: loc.y, z: loc.z };
+  if (id === 'iceTop') { const W = 256, rr = LAYER_R + ICE, P = (x, z) => [(x / rr + 1) / 2 * W, (z / rr + 1) / 2 * W], [x1, y1] = P(loc.x, loc.z); itx.fillStyle = itx.strokeStyle = css; itx.lineCap = 'round'; itx.lineWidth = .03 / rr * W;
+    if (prev) { const [x0, y0] = P(prev.x, prev.z); itx.beginPath(); itx.moveTo(x0, y0); itx.lineTo(x1, y1); itx.stroke(); } else { itx.beginPath(); itx.arc(x1, y1, itx.lineWidth / 2, 0, TAU); itx.fill(); } iceTopT.needsUpdate = true; S.iceTally.top[0] += col.r; S.iceTally.top[1] += col.g; S.iceTally.top[2] += col.b; S.iceTally.topN++; }
+  else { const UV = l => { const a = Math.atan2(l.z, l.x); return [((((PI / 2 - a) / TAU) % 1) + 1) % 1, (l.y - .012) / (TOPY - .012)]; }, [u, v] = UV(loc); isx.strokeStyle = css; isx.lineWidth = 30; isx.lineCap = 'round';
+    let [u0, v0] = prev ? UV(prev) : [u, v]; let du = u - u0; if (du > .5) du -= 1; if (du < -.5) du += 1;
+    for (const o of [0, -1, 1]) { isx.beginPath(); isx.moveTo((u0 + o) * 512, (1 - v0) * 64); isx.lineTo((u0 + du + o) * 512, (1 - v) * 64); isx.stroke(); } iceSideT.needsUpdate = true; S.iceTally.side[0] += col.r; S.iceTally.side[1] += col.g; S.iceTally.side[2] += col.b; S.iceTally.sideN++; } }
 function placeBeads(u, k) { const n = Math.min(NB, Math.floor(u * NB + .02)); while (BEADS.count < n) { const j = BEADS.count, phiK = cakeAngleTo(k), a = phiK + CAKE.rotation.y, m4 = new T.Matrix4().makeTranslation(Math.cos(a) * (LAYER_R - .007), TOPY + .004, Math.sin(a) * (LAYER_R - .007));
     BEADS.setMatrixAt(j, m4); const b = beadsOf(k.reach); S.beadCols.push(b); BEADS.setColorAt(j, new T.Color(b === 'white' ? 0xf7f3ea : [0xe94b3c, 0xf2d14b, 0x4bb0e9, 0x6cc070, 0xf7f3ea][j % 5])); BEADS.count++; BEADS.instanceMatrix.needsUpdate = true; if (BEADS.instanceColor) BEADS.instanceColor.needsUpdate = true; sound({ k: 'bead' }); } }
 function placeCandle(C) { C.g.visible = true; C.g.position.copy(cakeW(Math.cos(C.a) * C.r, TOPY - .008, Math.sin(C.a) * C.r)); C.placed = 1; }
@@ -397,7 +403,7 @@ function runAnims() { if (!S.anims) return; S.anims = S.anims.filter(a => { cons
 /* =============================================================== STRESS VIEW: child 2 twice, linear blending alone (left) and corrected (right), through raise, fold, reach, twist */
 let STRESSKIDS = null;
 if (STRESS) { STRESSKIDS = [makeChild(Object.assign({}, RIG.SPECS[1], { ang: 0 }), 1, { naive: true }), makeChild(Object.assign({}, RIG.SPECS[1], { ang: 0 }), 1, {})];
-  STRESSKIDS.forEach((k, j) => { k.home = k.P = V(j ? -.42 : .42, 0, 0); k.arrive = 1; });
+  STRESSKIDS.forEach((k, j) => { k.home = k.P = V(0, 0, j ? -.36 : .36); k.arrive = 1; });
   [TABLE, CAKE, BOARD, SPAT, BAG, TAPER, BOX, STAND, cakeSpot].concat(LAYERS.map(L => L.m), CANDLES.map(C => C.g)).forEach(o => o.visible = false); }
 function stressPose(t) { const ph = (t % 12) / 12, seg = (a, b) => sst(a, b, ph); // raise 0-.25, fold .25-.5, reach .5-.75, twist .75-1
   const el = lerp(25, 160, seg(.02, .12)) * (1 - seg(.2, .27)) + lerp(25, 60, seg(.27, .33)) * (1 - seg(.45, .5)) + lerp(25, 95, seg(.52, .6)) * (1 - seg(.7, .75)) + 25 * seg(.75, .76);
@@ -405,7 +411,7 @@ function stressPose(t) { const ph = (t % 12) / 12, seg = (a, b) => sst(a, b, ph)
   const bend = lerp(.1, 2.55, seg(.3, .38) * (1 - seg(.44, .5))) + .25 * seg(.55, .6) * (1 - seg(.7, .75)), tw = 2.6 * Math.sin(PI * seg(.77, .98));
   const e = el * PI / 180, d = V(Math.sin(e) * (1 - fwd * .9), -Math.cos(e), Math.sin(e) * fwd).normalize();
   const lab = ph < .25 ? 'ARM RAISE' : ph < .5 ? 'FOLD' : ph < .75 ? 'REACH' : 'FOREARM TWIST';
-  return { lab, arms: { L: { dir: d, bend, pole: V(.4, -.8, -.6), twist: tw } } }; }
+  return { lab, arms: { L: { dir: d, bend, pole: V(.15, -.25, -1), twist: tw } } }; }
 
 /* =============================================================== EVERY FRAME */
 function resize() { const r = viewEl.getBoundingClientRect(); R.setSize(r.width, r.height, false); cam.aspect = r.width / r.height; cam.fov = cam.aspect < 1 ? 2 * Math.atan(Math.tan(24 * PI / 180) / cam.aspect) * 180 / PI : 36; if (STRESS) cam.fov = cam.aspect < 1 ? 2 * Math.atan(Math.tan(22 * PI / 180) / cam.aspect) * 180 / PI : 32; cam.updateProjectionMatrix(); layoutDev(); }
@@ -417,16 +423,16 @@ function measureContacts(k) { const M = RIG.skinMats(k.G, k.sol.W); for (const s
     const key = `CHILD ${k.i + 1} ${s} ${c.key.replace(/ \d+$/, '')}`, e = TRACE.contacts[key] || (TRACE.contacts[key] = { n: 0, max: 0, sum: 0 }); e.n++; e.max = Math.max(e.max, d); e.sum += d; } }
 function step(dt) { NOW += dt; frameN++; runScene(); runAnims(); machine(dt);
   const yaw = S.yaw * PI / 180;
-  if (STRESS) { const D = 1.75, ya = yaw + 2.45; cam.position.set(Math.sin(ya) * D, 1.15, Math.cos(ya) * D); cam.lookAt(0, .82, 0); const sp = stressPose(NOW);
+  if (STRESS) { const D = Q.has('close') ? .62 : 1.55, ya = yaw + 1.75, cz = Q.has('close') ? -.36 : 0; cam.position.set(Math.sin(ya) * D, Q.has('close') ? .98 : 1.12, Math.cos(ya) * D + cz); cam.lookAt(0, Q.has('close') ? .88 : .86, cz); const sp = stressPose(NOW);
     STRESSKIDS.forEach((k, j) => { const f = frameOf({ P: V(0, 0, -1) }); poseKid(k, { pos: k.P, yaw: 0, arms: sp.arms, headPitch: .1 }, { naive: j === 0 }); });
     statusEl.innerHTML = `<b>${sp.lab}</b> &middot; LEFT: LINEAR BLENDING ALONE &middot; RIGHT: TWIST BONES, CORRECTIVE SHAPES, MASKED BADGE`; R.render(scene, cam); return; }
   // her eye: kneeling outside the ring of children, turned by the scale ring
-  const D = 1.85, Y0 = 1.55; cam.position.set(Math.sin(yaw) * D, Y0, Math.cos(yaw) * D); cam.lookAt(0, .56, 0);
+  const D = 1.32, Y0 = 1.8; cam.position.set(Math.sin(yaw) * D, Y0, Math.cos(yaw) * D); cam.lookAt(0, .5, 0);
   CAKE.rotation.y = turnAngle(); BOARD.rotation.y = CAKE.rotation.y; if (S.done.has('board')) BOARD.position.set(0, TY + .006, 0);
   LAYERS.forEach((L, n) => { if (L.fixed != null) { L.m.position.set(0, TY + stackTop(n) + LAYER_H / 2, 0); } const c = new T.Color(L.fixed != null ? L.fixed : L.color); L.side.color.copy(c); L.top.color.copy(c).multiplyScalar(1.12); });
   SPAT.visible = BAG.visible = TAPER.visible = false; taperFlame.material.opacity = 0;
   if (!STRESS) { const k3 = KIDS[2]; SPAT.position.copy(Lw(k3, -.13, TY + .008, .16)); SPAT.lookAt(V(0, TY + .008, 0)); SPAT.visible = true; BAG.position.copy(Lw(k3, -.17, TY + .05, .14)); BAG.visible = true; const k4 = KIDS[3]; BOX.position.copy(Lw(k4, .1, TY + .0125, .2)); BOX.rotation.y = frameOf(k4).yaw;
-    TAPER.position.copy(Lw(k4, .04, TY + .004, .22)); TAPER.lookAt(V(0, TY + .004, 0)); TAPER.visible = true; STAND.position.copy(Lw(KIDS[1], -.3, (TY - .01) / 2, .02)); }
+    TAPER.position.copy(Lw(k4, .04, TY + .004, .22)); TAPER.lookAt(V(0, TY + .004, 0)); TAPER.visible = true; STAND.position.copy(Lw(KIDS[1], -.25, (TY - .01) / 2, .07)); }
   // the children: arrive as round spots of light, then perform
   KIDS.forEach((k, i) => { const t = NOW - S.started - .3 - i * .45; const was = k.arrive; k.arrive = clamp(t / .6, 0, 1); if (was === 0 && k.arrive > 0) sound({ k: 'arrive', i });
     k.disp += (k.prog - k.disp) * (1 - Math.exp(-dt * 13)); if (Math.abs(k.prog - k.disp) < 1e-3) k.disp = k.prog; k.rdisp += (k.reach - k.rdisp) * (1 - Math.exp(-dt * 8));
@@ -451,12 +457,14 @@ function step(dt) { NOW += dt; frameN++; runScene(); runAnims(); machine(dt);
   ARC.s.position.set(0, TY + TOPY + .07, 0).addScaledVector(right, .26); arcAlpha = lerp(arcAlpha, (NOW - lastWork < 2.2 ? 1 : .25) * (1 - S.dark), Math.min(1, dt * 6)); ARC.s.material.opacity = arcAlpha * .85; if (frameN % 2 === 0) drawArc();
   if (S.offAt) S.dark = clamp((NOW - S.offAt) / 1.0, 0, 1);
   // status line: the generation, what was made, the nearest film cake
-  const g = S.gens[S.gens.length - 1], near = nearestFilm(); statusEl.innerHTML = `<b>GENERATION ${S.gens.length}</b> &middot; ${g ? g.action + (g.variant ? ' (' + g.variant + ')' : '') : 'AN EMPTY TABLE'}<br>NEAREST FILM CAKE: ${near.name}${near.d < 9 ? ' &middot; ' + near.d.toFixed(2) : ''}`;
+  const g = S.gens[S.gens.length - 1], near = nearestFilm(); const busyK = KIDS.find(q => { const x = actionAt(q.i, q.disp); return x.p > .01 && x.p < .99; }), now = busyK ? `NOW: CHILD ${busyK.i + 1}, ${actionAt(busyK.i, busyK.disp).a.label}` : '';
+  statusEl.innerHTML = `<b>GENERATION ${S.gens.length}</b> &middot; ${g ? 'MADE: ' + g.action + (g.variant ? ' (' + g.variant + ')' : '') : 'AN EMPTY TABLE'}${now ? ' &middot; ' + now : ''}<br>NEAREST FILM CAKE: ${near.name}${near.d < 9 ? ' &middot; DISTANCE ' + near.d.toFixed(2) : ''}`;
   statusEl.style.opacity = 1 - S.dark; endEl.style.opacity = S.ended && NOW - S.ended > .6 ? 1 : 0; endEl.textContent = S.ended ? `MADE IN ${S.gens.length} GENERATIONS BY FOUR CHILDREN · ALL SEVEN CANDLES OUT` : '';
   if (frameN % 15 === 0 && KIDS.length) sample();
   // sprites at zero opacity still cost a full rasterisation pass in software GL: hide them
   CANDLES.forEach(C => { C.f.visible = C.f.material.opacity > .004; C.hl.visible = C.hl.material.opacity > .004; }); FLASH.visible = FLASH.material.opacity > .004; taperFlame.visible = taperFlame.material.opacity > .004; ARC.s.visible = ARC.s.material.opacity > .004;
-  R.render(scene, cam); drawDev(); }
+  if (!NORENDER) { R.render(scene, cam); drawDev(); } }
+let NORENDER = false;
 function sample() { // the poses the tests re-skin offline: child 2 (badge) and child 1 (bow), with what is held
   const s = { t: +NOW.toFixed(3), kids: KIDS.map(k => ({ pos: k.P.toArray().map(v => +v.toFixed(5)), yaw: +k.pose.yaw.toFixed(5), lean: +k.pose.lean.toFixed(5), twist: +(k.pose.twist || 0).toFixed(5), headPitch: +(k.pose.headPitch || 0).toFixed(4), tiptoe: +(k.pose.tiptoe || 0).toFixed(4),
     arms: { L: { target: k.pose.arms.L.target.toArray().map(v => +v.toFixed(5)), pole: k.pose.arms.L.pole.toArray(), twist: k.pose.arms.L.twist }, R: { target: k.pose.arms.R.target.toArray().map(v => +v.toFixed(5)), pole: k.pose.arms.R.pole.toArray(), twist: k.pose.arms.R.twist } },
@@ -466,5 +474,5 @@ let last = performance.now();
 function loop(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; step(dt); requestAnimationFrame(loop); }
 document.fonts && document.fonts.load('400 20px Oswald').then(() => drawDev());
 resize(); if (!STRESS) reset(); drawInscription(0, '#c4231c'); if (!REC) requestAnimationFrame(loop); else step(0);
-window.MM = { R, scene, ready: () => !!WAVBYTES, advance: dt => step(dt), S, KIDS, RINGS, BANDS: () => BANDS, BTNS: () => BTNS, devRect: () => DC.getBoundingClientRect(), NOW: () => NOW, press, handTurn, select, renderAudio, traceOut, actionAt, limitOf, progOf, CANDLES, BEADS };
+window.MM = { skip: sec => { NORENDER = true; for (let i = 0; i < Math.round(sec * 30); i++) step(1 / 30); NORENDER = false; }, R, scene, ready: () => !!WAVBYTES, advance: dt => step(dt), S, KIDS, RINGS, BANDS: () => BANDS, BTNS: () => BTNS, devRect: () => DC.getBoundingClientRect(), NOW: () => NOW, press, handTurn, select, renderAudio, traceOut, actionAt, limitOf, progOf, CANDLES, BEADS };
 </script></body></html>

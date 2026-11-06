@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Harmonic Cake Operator</title>
+<style>
+:root { --bg: #050606; --ink: #d9e2de; --dim: #8a9893; --amber: #e8b264; --ok: #7fd3a2; --bad: #e07a6a; --line: #1c201e; }
+* { box-sizing: border-box; } body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 -apple-system, Arial, sans-serif; }
+main { max-width: 760px; margin: 0 auto; padding: 18px 16px 40px; }
+h1 { font: 600 18px Arial, sans-serif; letter-spacing: .08em; color: var(--amber); margin: 0 0 4px; } h2 { font: 600 13px Arial, sans-serif; letter-spacing: .12em; color: var(--dim); margin: 26px 0 8px; text-transform: uppercase; }
+video, img { width: 100%; display: block; border: 1px solid var(--line); background: #000; }
+a.play { display: block; text-align: center; padding: 14px; border: 1px solid #2a302d; border-radius: 6px; color: var(--ink); text-decoration: none; font-weight: 600; letter-spacing: .1em; margin: 12px 0; background: #101312; }
+table { border-collapse: collapse; width: 100%; } td { padding: 6px 4px; border-bottom: 1px solid var(--line); vertical-align: top; } td:first-child { color: var(--dim); white-space: nowrap; padding-right: 12px; }
+.ok { color: var(--ok); } .bad { color: var(--bad); } .tag { font-size: 11px; letter-spacing: .1em; color: var(--dim); }
+ul { padding-left: 18px; } li { margin: 4px 0; }
+</style></head><body><main>
+<h1>HARMONIC CAKE &middot; OPERATOR</h1>
+<div class="tag">3D birthday swarm &middot; SCION 6 (John Whitney, harmonic motion) &middot; revision r2</div>
+<a class="play" href="index.html">PLAY IT (phone: view on top, the device below)</a>
+<video src="proof.mp4" controls playsinline preload="metadata" poster="strip.jpg"></video>
+<p class="tag">proof.mp4 is gitignored (rights rule for *.mp4 in this folder tree); it is on disk next to this page. strip.jpg below is ten frames of it.</p>
+<img src="strip.jpg" alt="Ten frames from the proof: sponge rising, coat, bead ring, shells, garland, inscription, candles, lit, blown out">
+<h2>Critic verdict</h2>
+<p><b>Not yet run by an independent critic.</b> This builder had no tool to spawn one; the coordinator runs it. The builder's own reading is in the README and is not a verdict.</p>
+<h2>Next blocking failure</h2>
+<p>Evolution heads toward one film cake only. Every stage targets the sponge with white beads; a wrong pass decays and the stage repeats, so the cake never becomes a different film cake (mint, red-orange, brown dome). Repair condition: a player who sets different gears at the coat and border stages ends with a cake the critic can match to a different film cake. Second: 生日快乐 reads while the cake is tilted toward you (proof frame 560) but is foreshortened to red marks once it levels (frames 600 on).</p>
+<h2>Measured (node tests.js, and the recorded trace)</h2>
+<table id="t"><tr><td colspan="2">loading tests.json ...</td></tr></table>
+<h2>Files</h2>
+<ul>
+<li><a href="index.html">index.html</a> the game (three.js r128 from ana/assets, the device from ana/index.html)</li>
+<li><a href="harmonic.js">harmonic.js</a> the pure core: gear train, pass paths, score, cake surface, stages, the game reducer</li>
+<li><a href="tests.js">tests.js</a> / <a href="tests.json">tests.json</a> the invariant tests and their last results</li>
+<li><a href="trace.json">trace.json</a> the proof run: player inputs, every machine step, every pass</li>
+<li><a href="record.js">record.js</a> the Playwright recorder (mouse input on the device, virtual clock, offline audio)</li>
+<li><a href="README.md">README.md</a> thesis, primitives, results, what failed, what is weak</li>
+</ul>
+</main>
+<script>
+fetch('tests.json').then(r => r.json()).then(j => { const t = document.getElementById('t'); t.innerHTML = '';
+  j.results.forEach(r => { const d = Object.assign({}, r.detail || {}); delete d.rows; const tr = document.createElement('tr'); tr.innerHTML = `<td class="${r.ok ? 'ok' : 'bad'}">${r.ok ? 'PASS' : 'FAIL'}</td><td>${r.name}<br><span class="tag">${JSON.stringify(d)}</span></td>`; t.append(tr); });
+  const tr = document.createElement('tr'); tr.innerHTML = `<td>ran</td><td>${j.ran}</td>`; t.append(tr); }).catch(() => { document.getElementById('t').innerHTML = '<tr><td>tests.json</td><td>not found; run node tests.js</td></tr>'; });
+</script></body></html>

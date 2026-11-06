@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cake Metamorphosis Operator</title>
+<style>
+@font-face { font-family: 'Oswald'; src: url('../../../ana/assets/oswald-latin-500-normal.woff2') format('woff2'); font-weight: 500; }
+:root { --bg: #050606; --ink: #d9e2de; --amber: #e8b264; --ok: #7fd3a2; --bad: #e0806a; --line: #1c201e; }
+* { box-sizing: border-box; } body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 -apple-system, Arial, sans-serif; }
+main { max-width: 760px; margin: 0 auto; padding: 16px; }
+h1, h2 { font: 500 15px 'Oswald', sans-serif; letter-spacing: .1em; margin: 18px 0 6px; } h1 { color: var(--amber); font-size: 17px; margin-top: 4px; }
+video { width: 100%; max-height: 70vh; display: block; background: #000; border: 1px solid var(--line); }
+.row { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+a.b { display: inline-block; padding: 10px 14px; border: 1px solid #2a302d; border-radius: 4px; color: var(--ink); text-decoration: none; font: 500 13px 'Oswald', sans-serif; letter-spacing: .1em; background: #121514; }
+.v { color: var(--amber); font-weight: 600; } .ok { color: var(--ok); } .bad { color: var(--bad); } p, li { color: #b3bdb9; }
+td { padding: 4px 6px; border-bottom: 1px solid var(--line); vertical-align: top; } table { border-collapse: collapse; width: 100%; }
+</style></head><body><main>
+<h1>CAKE METAMORPHOSIS &middot; OPERATOR</h1>
+<p>Revision 1, 2026-11-06 (uncommitted). SCION 7 // PETER FOLDES, drawn metamorphosis, in 3D. The cake is one surface (41 x 64 points) that every stage and every film cake shares.</p>
+<video src="proof.mp4" controls playsinline preload="metadata"></video>
+<div class="row"><a class="b" href="index.html">PLAY THE GAME</a><a class="b" href="proof.mp4">PROOF FILM</a><a class="b" href="trace.json">TRACE</a><a class="b" href="tests-result.json">TEST RESULT</a><a class="b" href="README.md">README</a><a class="b" href="morph.js">MORPH.JS</a></div>
+<h2>CRITIC VERDICT</h2>
+<p><span class="v">NOT RUN.</span> This builder had no tool to start an independent critic. The coordinator runs it, with the brief's expected experience and proof.mp4 only.</p>
+<h2>NEXT BLOCKING FAILURE</h2>
+<p>The independent critic's verdict. Builder's own guess at the largest gap (from contact sheets of proof.mp4), for the critic to confirm or reject: the brown dome arrives by a cut from red-orange, so the film's chosen cake is reached by substitution, not by metamorphosis; and at phone size the cake's side is plain (no texture beyond vertex colour), so the in-betweens of the drum stages can read as a colour change more than a change of shape. Repair condition: a viewer shown proof.mp4 2.4 to 8.2 s can say what the cake was and what it was becoming at any paused frame.</p>
+<h2>MEASURED</h2>
+<table id="m"><tr><td>Loading</td><td>tests-result.json and trace.json</td></tr></table>
+<h2>HOW TO PLAY</h2>
+<ul><li>Turn the knurled ring: the memory comes on (round spots) and the dough is there. HOLD sets it.</li>
+<li>SELECT picks the next form this one can become. The knurled ring carries the change step by step; HOLD sets it.</li>
+<li>The triangle ring sets the pacing of the next change (EVEN, EASE, LINGER, LEAN); bigger changes and slower pacings get more steps.</li>
+<li>The film's cakes reach each other only by a cut (hard cut or silver decay); the ring at the cake's foot marks it.</li>
+<li>On the brown dome: CANDLES, INSCRIPTION, MATCH; then HOLD is the blow. SCENE plays one path; the (i) button shows live measurements.</li></ul>
+<script>
+Promise.all([fetch('tests-result.json').then(r => r.json()), fetch('trace.json').then(r => r.json())]).then(([t, tr]) => { const s = tr.summary, u = t.summary;
+  const rows = [['Unit tests', `<span class="${t.failed ? 'bad' : 'ok'}">${t.passed} passed, ${t.failed} failed</span> (node tests.js)`],
+    ['Transitions tested', `${u.morph_edges} morphs and ${u.cut_edges} cuts, each under ${u.paces.length} pacings`],
+    ['Flipped faces / profile crossings', `${u.flips} / ${u.crossings} over every tested step`], ['Worst volume change in one step', `${(u.worst_dV_rel * 100).toFixed(1)}% of the larger form (limit 16%), ${u.worst_dV_at}`],
+    ['Worst candle anchor move in one morph step', `${u.worst_candle_step_mm} mm (limit 6)`], ['Largest candle jump across a cut', `${u.worst_cut_candle_jump_mm} mm, settled over 6 frames`],
+    ['Proof path', s.path.join(' > ')], ['Proof length', `${s.duration_s} s`], ['Machine steps in the proof', `${s.machine_steps} (${s.at_11_8} at 11.8/s, ${s.at_23_6} at 23.6/s)`],
+    ['Proof: worst candle move per frame', `${s.worst_candle_move_per_frame_mm} mm`], ['Proof: cuts', s.cuts.join('; ')]];
+  document.getElementById('m').innerHTML = rows.map(([a, b]) => `<tr><td>${a}</td><td>${b}</td></tr>`).join(''); }).catch(() => { });
+</script>
+</main></body></html>

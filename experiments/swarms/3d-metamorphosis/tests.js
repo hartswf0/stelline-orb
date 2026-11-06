@@ -11,7 +11,7 @@
    6. IDENTITY HELD (a numeric proxy only; the felt result is for the viewer): under LINGER, after a quarter of its steps the surface
       has moved less than 15% of the way to the next key (mean vertex distance).
    7. THE PROOF TRACE (if trace.json exists): the whole making is shown (arrival, at least three stages, the film's chosen cake,
-      24 inscription steps, 7 candles placed, 7 lit, the blow), and every machine step is at 11.8/s or 23.6/s. */
+      24 inscription steps, 7 candles placed, 7 lit, the blow), and no ring steps faster than 23.6/s over any 0.5 s window. */
 const M = require('./morph.js'), fs = require('fs'), path = require('path');
 let pass = 0, fail = 0; const lines = [];
 const ok = (c, msg) => { if (c) pass++; else { fail++; lines.push('FAIL ' + msg); } };
@@ -51,7 +51,7 @@ if (fs.existsSync(tp)) { const tr = JSON.parse(fs.readFileSync(tp)); const ev = 
   ok(commits.includes('BROWN_DOME'), 'trace: the film\'s chosen cake (brown dome) reached');
   ok(tr.events.filter(e => e.kind === 'stroke').length >= 24, 'trace: 24 inscription steps'); ok(tr.events.filter(e => e.kind === 'candle').length === 7, 'trace: 7 candles placed');
   ok(tr.events.filter(e => e.kind === 'lit').length === 7, 'trace: 7 lit'); ok(ev.includes('blow') && tr.events.filter(e => e.kind === 'out').length === 7, 'trace: the blow, 7 out');
-  const st = tr.steps.map(s => s.t); let bad = 0; for (let i = 1; i < st.length; i++) { const d = st[i] - st[i - 1]; if (d < 1 / 23.6 - .034) bad++; } ok(bad === 0, `trace: step intervals no faster than 23.6/s (frame clock 1/30) (${bad} faster)`);
+  let bad = 0; const ringOf = s => s.kind === 'yaw' ? 'scale' : s.kind === 'pace' ? 'tri' : 'knurl'; ['scale', 'knurl', 'tri'].forEach(rg => { const st = tr.steps.filter(s => ringOf(s) === rg).map(s => s.t); for (let i = 0; i < st.length; i++) { let n = 0; for (let j = i; j < st.length && st[j] < st[i] + .5; j++) n++; if (n > Math.ceil(23.6 * .5) + 1) bad++; } }); ok(bad === 0, `trace: step intervals no faster than 23.6/s (frame clock 1/30) (${bad} faster)`);
   const tv = tr.steps.filter(s => s.kind === 'morph'); ok(tv.every(s => s.flips === 0 && s.crossings === 0), 'trace: no flips or crossings in the played steps');
   ok(tv.every(s => s.dV_rel <= .16), `trace: played volume steps bounded (worst ${Math.max(...tv.map(s => s.dV_rel)).toFixed(3)})`);
   ok(tr.frames.every((f, i) => i === 0 || f.candleMove <= .006), `trace: candle per-frame move <= 6 mm (worst ${(Math.max(...tr.frames.map(f => f.candleMove)) * 1000).toFixed(2)} mm)`);

@@ -96,7 +96,7 @@ function sizeOf(p) { return p ? 1 + .04 * p.tri : 1; }
 function layout(G) { const st = G.placed.STAND, pl = G.placed.PLATE; const standTop = TABLE_TOP + (st ? byId(st.id).form.h * sizeOf(st) : 0);
   const plateTop = standTop + (pl ? .012 * sizeOf(pl) : 0); const candleBase = plateTop + CAKE_H;
   return { tableTop: TABLE_TOP, standTop, plateTop, cakeBase: plateTop, candleBase, candles: CANDLE_XZ.map(([x, z]) => [x, candleBase, z]) }; }
-// the height of each cake form's top surface at radius r (from the centre); all are CAKE_H at the candle ring within 3 mm
+// the height of each cake form's top surface at radius r (from the centre); under the candles no form is more than 3 mm below CAKE_H or 8 mm above it
 function surface(type, r) { if (type === 'dome') return .106 * Math.pow(Math.max(0, 1 - Math.pow(r / CAKE_R, 4)), .25); if (type === 'ring' && r < .03) return 0; return CAKE_H; }
 
 /* ============================================================ THE GAME */

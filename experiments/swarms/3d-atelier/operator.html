@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Atelier Operator</title>
+<style>
+:root { --bg: #050606; --ink: #d9e2de; --dim: #7c8985; --amber: #e8b264; --warn: #d98a6a; --ok: #7fd3a2; --line: #1c201e; }
+* { box-sizing: border-box; } html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body { font: 15px/1.5 -apple-system, 'Segoe UI', Arial, sans-serif; padding: 18px 16px 40px; max-width: 760px; margin: 0 auto; }
+h1 { font-size: 18px; letter-spacing: .08em; margin: 0 0 4px; color: var(--amber); font-weight: 600; } .sub { color: var(--dim); font-size: 13px; margin-bottom: 18px; }
+a.play { display: block; text-align: center; padding: 16px; border: 1px solid #3a423f; border-radius: 6px; color: var(--ink); text-decoration: none; font-weight: 600; letter-spacing: .12em; background: #0f1211; margin-bottom: 16px; }
+video { width: 100%; border: 1px solid var(--line); border-radius: 4px; background: #000; margin-bottom: 16px; }
+.k { display: grid; grid-template-columns: 9.5em 1fr; gap: 6px 12px; border-top: 1px solid var(--line); padding-top: 12px; margin-bottom: 14px; }
+.k div:nth-child(odd) { color: var(--dim); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; padding-top: 2px; }
+.warn { color: var(--warn); } .ok { color: var(--ok); } ul { padding-left: 18px; margin: 4px 0; } li { margin: 3px 0; } a { color: var(--amber); }
+@media (max-width: 480px) { .k { grid-template-columns: 1fr; } .k div:nth-child(odd) { padding-top: 8px; } }
+</style></head><body>
+<h1>THE ARCHIVE CAKE</h1><div class="sub">SCION 49 OPEN-CONTENT ATELIER &middot; 3D birthday swarm &middot; experiments/swarms/3d-atelier</div>
+<a class="play" href="index.html">PLAY ON THE DEVICE</a>
+<video src="proof.mp4" controls playsinline preload="metadata"></video>
+<div class="k">
+<div>Revision</div><div>r1 (2026-11-06)</div>
+<div>Critic verdict</div><div class="warn">NOT RUN. This builder had no Agent tool, so no independent critic was spawned; the coordinator runs it on proof.mp4 and index.html.</div>
+<div>Next blocking failure</div><div class="warn">The cake is assembled from drawn stand-ins of archive records, not from the archive objects. No museum file could be downloaded (the sandbox proxy refuses every Smithsonian and Getty host), and no record's CC0 status could be read (the Smithsonian Open Access API returned no rows). Repair condition: from a network that reaches 3d-api.si.edu and api.si.edu, read <code>metadata_usage.access == "CC0"</code> on each record in manifest.json, fetch its thumb .glb into /home/claude/stelline-work/, and swap the stand-in for the scan in the slot.</div>
+<div>Tests</div><div class="ok">18 of 18 pass (node tests.js; tests.json)</div>
+<div>Measured</div><div><ul><li>The scripted birthday, played through mouse drags and presses on the device, makes the whole cake in order: stand set, plate set, mould clanks down, batter poured and risen, baked, mould lifted, icing spread, beads piped, 生日快乐 in 24 strokes with the arc mark stepping four times, seven candles set, match, seven flames, blow, seven out 0.07 s apart.</li><li>Machine: 11.8 steps/s (median gap 83.4 ms at the 120 Hz test clock).</li><li>Evolution: MINT placed first (match 0.63 to the film's chocolate cake with the orange top), swapped by a silver decay to CHOCOLATE, ORANGE TOP (0.90), finished cake 1.00. Candles moved 0 m across the swap.</li></ul></div>
+<div>Rights</div><div>0 CC0-confirmed items. 6 reservoir pieces stand for 3 Smithsonian 3D records (colonoware pot, boshanlu incense burner, fangyi), all UNVERIFIED and publish-blocked; 7 pieces are wanted with no record found; 5 decorations are film-derived colour numbers. No archive file is in the repo.</div>
+<div>Links</div><div><a href="index.html">index.html</a> &middot; <a href="manifest.json">manifest.json</a> &middot; <a href="trace.json">trace.json</a> &middot; <a href="tests.json">tests.json</a> &middot; <a href="README.md">README.md</a> &middot; <a href="core.js">core.js</a></div>
+</div>
+</body></html>

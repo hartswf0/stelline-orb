@@ -14,7 +14,7 @@ body { font: 13px/1.4 'Oswald', 'Arial Narrow', sans-serif; letter-spacing: .06e
 #hud .st { display: inline-flex; align-items: center; gap: 4px; } #hud .st i { width: 7px; height: 7px; border-radius: 50%; border: 1px solid #3a423f; display: inline-block; }
 #hud .st.done { color: #c9d2cf; } #hud .st.done i { background: var(--amber); border-color: var(--amber); } #hud .st.now { color: var(--amber); } #hud .st.now i { border-color: var(--amber); }
 #hud .goal { margin-top: 5px; color: #aab5b1; } #hud .goal b { color: var(--amber); font-weight: 500; }
-#cap { position: absolute; left: 12px; bottom: 8px; right: 12px; pointer-events: none; font: 11px/1.35 -apple-system, Arial, sans-serif; letter-spacing: 0; color: #8f9b97; max-width: 640px; }
+#cap { position: absolute; left: 8px; bottom: 6px; right: auto; background: rgba(2,3,3,.78); padding: 5px 8px; border-radius: 3px; pointer-events: none; font: 11px/1.35 -apple-system, Arial, sans-serif; letter-spacing: 0; color: #8f9b97; max-width: 640px; }
 #cap b { font: 500 11px 'Oswald', sans-serif; letter-spacing: .1em; color: #c9d2cf; } #cap .r { font: 500 10px 'Oswald', sans-serif; letter-spacing: .1em; padding: 0 4px; border: 1px solid #3a423f; border-radius: 2px; }
 #cap .r.u { color: var(--warn); border-color: #5a3a2e; } #cap .r.n { color: #9aa6a2; }
 #dev { position: relative; background: radial-gradient(120% 140% at 50% 0%, #121413 0%, #070807 60%, #030303 100%); border-top: 1px solid #161918; touch-action: none; }
@@ -81,6 +81,7 @@ function play(a, out, buf, t, e) { const k = e.k, RIX = { scale: 0, knurl: 1, tr
   else if (k === 'inhale') { band(a, out, t, .7, 'bandpass', 900, 1.3, .06, .45, 2000); }
   else if (k === 'blow') { band(a, out, t, 1.1, 'lowpass', 1500, .7, .22, .05, 500); }
   else if (k === 'puff') { band(a, out, t, .08, 'bandpass', 3200, 1, .06, .003); }
+  else if (k === 'tilt') { const o = a.createOscillator(), g = a.createGain(); o.frequency.setValueAtTime(6500, t); o.frequency.exponentialRampToValueAtTime(9500, t + .16); env(g, t, .012, .03, .18); o.connect(g).connect(out); o.start(t); o.stop(t + .2); }
   else if (k === 'done') { partials(a, out, t + .3, [[880, 1, 1], [1318, .5, 1]], .015, 1.2); }
 }
 function roomTone(a, out, t) { const s = a.createBufferSource(); s.buffer = noiseBuf(a, 2); s.loop = true; const f = a.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 380; const g = a.createGain(); g.gain.value = .018; s.connect(f).connect(g).connect(out); s.start(t); }
@@ -94,18 +95,18 @@ async function renderAudio(t0, t1) { const sr = 48000, a = new OfflineAudioConte
   const bytes = new Uint8Array(dv.buffer); let s = ''; for (let i = 0; i < bytes.length; i += 32768) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 32768)); return { b64: btoa(s), peak: pk, grains: !!buf }; }
 
 /* =============================================================== THE ROOM: the memory's dark dome, the band of light, the hex table */
-const viewEl = document.getElementById('view'), R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: REC }); R.setPixelRatio(REC ? 1 : Math.min(2, devicePixelRatio)); R.outputEncoding = T.sRGBEncoding; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = 1.1; R.localClippingEnabled = true; viewEl.prepend(R.domElement);
+const viewEl = document.getElementById('view'), QP = new URLSearchParams(location.search), R = new T.WebGLRenderer({ antialias: QP.get('aa') !== '0', preserveDrawingBuffer: REC }); R.setPixelRatio(QP.get('pr') ? +QP.get('pr') : REC ? 1 : Math.min(2, devicePixelRatio)); R.outputEncoding = T.sRGBEncoding; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = 1.1; R.localClippingEnabled = true; viewEl.prepend(R.domElement);
 const scene = new T.Scene(); scene.background = new T.Color(0x020303); scene.fog = new T.FogExp2(0x020303, .09);
 const cam = new T.PerspectiveCamera(34, 1, .02, 60);
 { const fl = new T.Mesh(new T.CircleGeometry(9, 96), new T.MeshStandardMaterial({ color: 0x0a0b0b, roughness: .55, metalness: .2 })); fl.rotation.x = -Math.PI / 2; scene.add(fl);
   const bandL = new T.Mesh(new T.TorusGeometry(7.5, .012, 6, 256), new T.MeshBasicMaterial({ color: 0xdfe8e4 })); bandL.rotation.x = Math.PI / 2; bandL.position.y = .42; scene.add(bandL);
   const glow = new T.Mesh(new T.TorusGeometry(7.5, .09, 6, 256), new T.MeshBasicMaterial({ color: 0x7e8f89, transparent: true, opacity: .1 })); glow.rotation.x = Math.PI / 2; glow.position.y = .42; scene.add(glow); }
 scene.add(new T.HemisphereLight(0x6c7a76, 0x050403, .07));
-const key = new T.SpotLight(0xffe2c0, 1.3, 4, .5, .8, 1.6); key.position.set(.35, 1.6, .6); key.target.position.set(0, .55, 0); scene.add(key, key.target);   // the memory's own soft top light
-const candleLight = new T.PointLight(0xffa04a, 0, 3.2, 1.5); scene.add(candleLight);
+const key = new T.SpotLight(0xffe2c0, 1.5, 4, .2, .9, 1.6); key.position.set(.3, 1.7, .55); key.target.position.set(0, .55, 0); scene.add(key, key.target);   // the memory's own soft top light
+const candleLight = new T.PointLight(0xffa04a, 0, 1.4, 2); scene.add(candleLight);
 const flashLight = new T.PointLight(0xf4f6ff, 0, 2.5, 2); scene.add(flashLight);
 const TT = A.TABLE_TOP;
-const TABLE = new T.Group(); scene.add(TABLE); { const hex = new T.Mesh(new T.CylinderGeometry(.4, .4, .03, 6), new T.MeshStandardMaterial({ color: 0x8a6232, roughness: .6 })); hex.position.y = TT - .015; TABLE.add(hex);
+const TABLE = new T.Group(); scene.add(TABLE); { const hex = new T.Mesh(new T.CylinderGeometry(.4, .4, .03, 6), new T.MeshStandardMaterial({ color: 0x5c3f20, roughness: .7 })); hex.position.y = TT - .015; TABLE.add(hex);
   const leg = new T.Mesh(new T.CylinderGeometry(.05, .07, TT - .03, 16), new T.MeshStandardMaterial({ color: 0x1a1612, roughness: .8 })); leg.position.y = (TT - .03) / 2; TABLE.add(leg); }
 /* =============================================================== MATERIALS of the stand-ins */
 const MAT = { bronze: () => new T.MeshStandardMaterial({ color: 0x6f5c3a, metalness: .7, roughness: .42 }), earth: () => new T.MeshStandardMaterial({ color: 0x4b3527, metalness: .05, roughness: .78 }),
@@ -339,7 +340,7 @@ function updateScene(dt) { layout = A.layout(G); const M = G.make, op = G.op;
   scene.traverse && (R.toneMappingExposure = 1.1 * (1 - dark)); }
 const easeOut = u => 1 - Math.pow(1 - u, 3), easeIn = u => u * u;
 let dark = 0;
-function placeCamera(dt) { const yaw = G.yaw * Math.PI / 180, want = layout.plateTop + .05, D = .92; camY = camY == null ? want : lerp(camY, want, Math.min(1, dt * 2.5)); const cy = camY; cam.position.set(Math.sin(yaw) * D + Math.cos(yaw) * .06, cy + .14, Math.cos(yaw) * D - Math.sin(yaw) * .06); cam.lookAt(Math.cos(yaw) * .08, cy - .03, -Math.sin(yaw) * .08); }
+function placeCamera(dt) { const yaw = G.yaw * Math.PI / 180, want = layout.plateTop + .05, D = .66 * Math.max(1, 1.2 / cam.aspect); camY = camY == null ? want : lerp(camY, want, Math.min(1, dt * 2.5)); const cy = camY; cam.position.set(Math.sin(yaw) * D + Math.cos(yaw) * .05, cy + .1, Math.cos(yaw) * D - Math.sin(yaw) * .06); cam.lookAt(Math.cos(yaw) * .07, cy - .015, -Math.sin(yaw) * .07); }
 let camY = null;
 function advance(dt) { const n = Math.max(1, Math.round(dt / (1 / 120))), h = dt / n; for (let i = 0; i < n; i++) { NOW += h; runDemo(); A.step(G, h); drainEvents(); }
   dark = G.offAt ? clamp((G.t - G.offAt) / 1, 0, 1) : 0; layout = A.layout(G); placeCamera(dt); updateScene(dt); hud(); R.render(scene, cam); drawDev(); }
