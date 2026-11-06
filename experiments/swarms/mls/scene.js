@@ -211,7 +211,7 @@
   function vnoise(x) { const i = Math.floor(x), f = x - i, u = f * f * (3 - 2 * f); return hash(i) * (1 - u) + hash(i + 1) * u; }
   function smooth(x) { x = x < 0 ? 0 : x > 1 ? 1 : x; return x * x * (3 - 2 * x); }
 
-  const api = { setFaceSet: v => { FACE_SET = v; }, faceSet: () => FACE_SET, POSES_SPARSE, STEP_HZ, SURF, FAMILIES, CANDLES, GROUPS, POSES, PAPER_N, PAPER_Y, PAPER_HALF, buildHandles, faceOffsets, targets, pack, paperSpine,
+  const api = { setFaceSet: v => { FACE_SET = v; }, faceSet: () => FACE_SET, POSES_SPARSE, FACE_SPARSE, STEP_HZ, SURF, FAMILIES, CANDLES, GROUPS, POSES, PAPER_N, PAPER_Y, PAPER_HALF, buildHandles, faceOffsets, targets, pack, paperSpine,
     measureFace, breathPlan, flameThin, FLAME_TEAR, BREATH, CHEEK_L, CHEEK_R, GAP, area, smooth, vnoise, hash };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.SCENE = api;
 })(typeof self !== 'undefined' ? self : this);
