@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sculpted Birthday</title>
+<style>
+@font-face { font-family: 'Oswald'; src: url('../../../ana/assets/oswald-latin-400-normal.woff2') format('woff2'); font-weight: 400; }
+@font-face { font-family: 'Oswald'; src: url('../../../ana/assets/oswald-latin-500-normal.woff2') format('woff2'); font-weight: 500; }
+:root { --bg: #000; --ink: #d9e2de; --dim: #6f7c77; --amber: #e8b264; }
+* { box-sizing: border-box; } html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); overflow: hidden; }
+body { font: 13px/1.4 'Oswald', 'Arial Narrow', sans-serif; letter-spacing: .06em; -webkit-user-select: none; user-select: none; }
+.app { height: 100dvh; display: grid; grid-template-rows: minmax(0, 1fr) clamp(200px, 34vh, 330px); }
+#view { position: relative; overflow: hidden; background: #000; } #view canvas { display: block; width: 100%; height: 100%; }
+#hud { position: absolute; left: 10px; top: 8px; right: 10px; pointer-events: none; font: 400 11px/1.45 'Oswald', sans-serif; letter-spacing: .08em; color: rgba(200,212,207,.78); text-shadow: 0 0 4px #000; }
+#hud b { font-weight: 500; color: var(--amber); } #hud .ok { color: #9fe0b9; } #hud .w { color: #e89a7c; }
+#naiveLab { position: absolute; pointer-events: none; font: 400 10px/1.3 'Oswald', sans-serif; letter-spacing: .08em; color: rgba(190,200,196,.75); text-align: right; }
+#dev { position: relative; background: radial-gradient(120% 140% at 50% 0%, #121413 0%, #070807 60%, #030303 100%); border-top: 1px solid #161918; touch-action: none; }
+#dev canvas { display: block; width: 100%; height: 100%; }
+#info { position: absolute; inset: 0; background: rgba(3, 4, 4, .95); display: none; overflow: auto; padding: 16px 16px 30px; font: 13px/1.5 -apple-system, Arial, sans-serif; letter-spacing: 0; z-index: 5; }
+#info.on { display: block; } #info h3 { font: 500 15px 'Oswald', sans-serif; letter-spacing: .1em; margin: 0 0 8px; color: var(--amber); }
+#info p, #info li { max-width: 760px; color: #a9b4b0; margin: 6px 0; } #info table { border-collapse: collapse; } #info td { padding: 2px 10px 2px 0; color: #b9c4c0; font-variant-numeric: tabular-nums; vertical-align: top; }
+button.x { font: 500 12px 'Oswald', sans-serif; letter-spacing: .12em; color: var(--ink); background: #121514; border: 1px solid #2a302d; border-radius: 4px; padding: 7px 12px; cursor: pointer; margin: 10px 8px 0 0; }
+</style></head><body>
+<div class="app"><div id="view"><div id="hud"></div><div id="naiveLab"></div></div><div id="dev"></div></div>
+<div id="info"><h3>SCULPTED BIRTHDAY &middot; OPERATOR</h3>
+<p>The cake is one mesh of 1298 points, worked by hand like dough. Each handle (TOP CENTRE, TIER RING, RIM, SIDE BAND, BASE) is a ring of points you push or pull; everything between is solved as-rigid-as-possible (Sorkine and Alexa 2007): every point gets its own best rotation, then all positions are solved together, and the two steps repeat. HOLD bakes the shape (the dough sets) and, once the shape is close enough to one of the film's cakes, starts the next layer. Icing, piped beads, the writing and the candles ride the surface; the beads and candles turn with each point's rotation, so they stay their own shape.</p>
+<p>The small picture is the same moves solved the naive way: one linear solve, no rotations. Its beads and letters shear when the surface turns.</p>
+<ul><li>SELECT: which handle, or the layer being made.</li><li>KNURLED RING: push or pull the handle along its normal; or how far the layer has gone on.</li>
+<li>TRIANGLE RING: slide the handle along the surface (TOP CENTRE and BASE: twist); for a layer, tilt the cake toward you.</li><li>SCALE RING: where you kneel.</li>
+<li>HOLD: bake and go on. Long press: switch the memory off. Left collar: play the scene, or clear.</li></ul>
+<div id="opBody"></div>
+<button class="x" id="infoClose">CLOSE</button><button class="x" id="dlTrace">SAVE TRACE</button></div>
+<script src="../../../ana/assets/three.min.js"></script>
+<script src="arap.js"></script>
+<script>
+'use strict';
+const T = THREE, TAU = Math.PI * 2, clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t, A = window.ARAP;
+const Q = new URLSearchParams(location.search), REC = Q.has('rec');
+let NOW = 0;
+/* =============================================================== SOUND: the device's grains (ana/device-sounds.wav) plus the sounds of making; every event logged so the proof can render it offline */
+const SPR = { click: [[0, .065], [.115, .065], [.23, .065], [.345, .065], [.46, .065], [.575, .065], [.69, .065], [.805, .065], [.92, .065]], ratchet: [[1.035, .05], [1.135, .05], [1.235, .05], [1.335, .05]], tick: [[1.435, .04], [1.525, .04]], comb: [[1.615, .37]], whirr: [[2.035, .62]] };
+let AC = null, BUF = null, WAVBYTES = null, WAVTRIED = false; const LOG = [];
+fetch('../../../ana/device-sounds.wav').then(r => r.ok ? r.arrayBuffer() : null).then(b => { WAVBYTES = b; WAVTRIED = true; }).catch(() => { WAVTRIED = true; });
+let RND = 1; const rnd = () => { RND = (RND * 16807) % 2147483647; return RND / 2147483647; };
+function ac() { if (REC) return null; if (!AC) { AC = new (window.AudioContext || window.webkitAudioContext)(); if (WAVBYTES) AC.decodeAudioData(WAVBYTES.slice(0)).then(b => BUF = b); } if (AC.state === 'suspended') AC.resume(); return AC; }
+function noiseBuf(a, len) { const b = a.createBuffer(1, Math.max(1, Math.floor(a.sampleRate * len)), a.sampleRate), d = b.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = rnd() * 2 - 1; return b; }
+function env(g, t, pk, at, dur) { g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(pk, t + at); g.gain.exponentialRampToValueAtTime(.0005, t + dur); }
+function nz(a, out, t, len, type, f, q, pk, at, dur, f2) { const s = a.createBufferSource(); s.buffer = noiseBuf(a, len); const fl = a.createBiquadFilter(); fl.type = type; fl.frequency.setValueAtTime(f, t); if (f2) fl.frequency.exponentialRampToValueAtTime(f2, t + dur); fl.Q.value = q; const g = a.createGain(); env(g, t, pk, at, dur); s.connect(fl).connect(g).connect(out); s.start(t); }
+function tone(a, out, t, f, pk, at, dur, type, f2) { const o = a.createOscillator(), g = a.createGain(); o.type = type || 'sine'; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur); env(g, t, pk, at, dur); o.connect(g).connect(out); o.start(t); o.stop(t + dur + .05); }
+function grain(a, out, buf, t, kind, rate, vol) { if (buf) { const set = SPR[kind], [o, d] = set[Math.floor(rnd() * set.length)], s = a.createBufferSource(); s.buffer = buf; s.playbackRate.value = rate; const g = a.createGain(); g.gain.value = vol; s.connect(g).connect(out); s.start(t, o, d); return; }
+  nz(a, out, t, .05, 'bandpass', kind === 'tick' ? 6000 : 2600 * rate, 2.2, vol, .002, .04); }
+function play(a, out, buf, t, e) { const k = e.k;
+  if (k === 'click') grain(a, out, buf, t, e.fast ? 'ratchet' : 'click', 1 + e.ring * .045 + (rnd() - .5) * .02, .7);
+  else if (k === 'hand') grain(a, out, buf, t, 'click', 1.25 + e.ring * .03, .22);
+  else if (k === 'dough') { nz(a, out, t, .14, 'lowpass', 520 + e.v * 30, 1.2, .16, .01, .12); tone(a, out, t, 90 + e.v * 3, .05, .005, .1); }    // a palm pressing dough
+  else if (k === 'select') { for (let i = 0; i < 5; i++) tone(a, out, t + i * .055, 12000, .03, .004, .03); }
+  else if (k === 'hold') grain(a, out, buf, t, 'click', .85, .6);
+  else if (k === 'set') { tone(a, out, t, 72, .22, .004, .32); nz(a, out, t, .2, 'lowpass', 300, 1, .2, .004, .18); }                            // a tier set down
+  else if (k === 'wash') { nz(a, out, t, .7, 'highpass', 2200, .7, (e.v || 1) * .2, .06, .6); if (buf) grain(a, out, buf, t, 'comb', 1, .22); }
+  else if (k === 'pour') { nz(a, out, t, .22, 'bandpass', 380 + e.v * 18, 2.5, .13, .03, .2); }                                                  // icing running
+  else if (k === 'pipe') { nz(a, out, t, .1, 'bandpass', 1500 + e.v * 40, 6, .1, .01, .08, 2300 + e.v * 40); tone(a, out, t + .02, 340 + e.v * 7, .012, .01, .05); }   // a bead squeezed from the bag
+  else if (k === 'scratch') { nz(a, out, t, .09, 'bandpass', 3200, 3, .07, .005, .08, 4800); }                                                     // a stroke of the writing
+  else if (k === 'candle') { grain(a, out, buf, t, 'tick', .8, .5); tone(a, out, t, 1150, .04, .002, .06, 'triangle'); }                           // a candle pushed in
+  else if (k === 'match') { nz(a, out, t, .12, 'highpass', 3000, .8, .3, .004, .1); nz(a, out, t + .06, .6, 'bandpass', 900, .8, .1, .05, .55); }  // strike, then the flame
+  else if (k === 'blow') { nz(a, out, t, 1.4, 'lowpass', 700, .7, .32, .15, 1.3, 260); }
+  else if (k === 'off') { nz(a, out, t, 1.2, 'highpass', 1800, .7, .22, .06, 1.1); }
+}
+function sound(e) { e.t = +NOW.toFixed(4); LOG.push(e); const a = ac(); if (!a) return; try { play(a, a.destination, BUF, a.currentTime + .005, e); } catch (x) { } }
+async function renderAudio(t0, t1) { const sr = 48000, a = new OfflineAudioContext(2, Math.ceil((t1 - t0) * sr), sr); let buf = null; if (WAVBYTES) buf = await a.decodeAudioData(WAVBYTES.slice(0)); RND = 1;
+  const bus = a.createGain(); bus.gain.value = .9; bus.connect(a.destination); LOG.forEach(e => { if (e.t < t0 || e.t > t1) return; play(a, bus, buf, e.t - t0 + .001, e); });
+  const r = await a.startRendering(), L = r.getChannelData(0), Rr = r.getChannelData(1), n = L.length; let pk = 0; for (let i = 0; i < n; i++) pk = Math.max(pk, Math.abs(L[i]), Math.abs(Rr[i])); const g = pk > .95 ? .95 / pk : 1;
+  const bytes = new Uint8Array(44 + n * 4), dv = new DataView(bytes.buffer), w = (o, s) => { for (let i = 0; i < s.length; i++) bytes[o + i] = s.charCodeAt(i); };
+  w(0, 'RIFF'); dv.setUint32(4, 36 + n * 4, true); w(8, 'WAVEfmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 2, true); dv.setUint32(24, sr, true); dv.setUint32(28, sr * 4, true); dv.setUint16(32, 4, true); dv.setUint16(34, 16, true); w(36, 'data'); dv.setUint32(40, n * 4, true);
+  for (let i = 0; i < n; i++) { dv.setInt16(44 + i * 4, clamp(L[i] * g, -1, 1) * 32767, true); dv.setInt16(46 + i * 4, clamp(Rr[i] * g, -1, 1) * 32767, true); }
+  let s = ''; for (let i = 0; i < bytes.length; i += 32768) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 32768)); return { b64: btoa(s), peak: pk, real: !!buf }; }
+
+/* =============================================================== THE ROOM: true black, a band of light where wall meets floor, a dark dome */
+const viewEl = document.getElementById('view'), R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: REC }); R.setPixelRatio(Math.min(2, devicePixelRatio)); R.outputEncoding = T.sRGBEncoding; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = 1.1; R.autoClear = false; viewEl.prepend(R.domElement);
+const scene = new T.Scene(); scene.background = new T.Color(0x000000); scene.fog = new T.FogExp2(0x000000, .09);
+const cam = new T.PerspectiveCamera(32, 1, .02, 60);
+{ const fl = new T.Mesh(new T.CircleGeometry(9, 96), new T.MeshStandardMaterial({ color: 0x050505, roughness: .7, metalness: .1 })); fl.rotation.x = -Math.PI / 2; scene.add(fl);
+  const band = new T.Mesh(new T.TorusGeometry(6.5, .012, 6, 256), new T.MeshBasicMaterial({ color: 0xcfd8d4 })); band.rotation.x = Math.PI / 2; band.position.y = .42; scene.add(band);
+  const glow = new T.Mesh(new T.TorusGeometry(6.5, .09, 6, 256), new T.MeshBasicMaterial({ color: 0x6e7f79, transparent: true, opacity: .1 })); glow.rotation.x = Math.PI / 2; glow.position.y = .42; scene.add(glow);
+  const dome = new T.Mesh(new T.SphereGeometry(6.6, 48, 24, 0, TAU, 0, Math.PI / 2), new T.MeshBasicMaterial({ color: 0x050606, side: T.BackSide })); scene.add(dome);
+  const ring = new T.Mesh(new T.RingGeometry(1.5, 1.51, 128), new T.MeshBasicMaterial({ color: 0x1f2523 })); ring.rotation.x = -Math.PI / 2; ring.position.y = .002; scene.add(ring); }
+const hemi = new T.HemisphereLight(0x8a9894, 0x060504, .16); scene.add(hemi);
+const key = new T.DirectionalLight(0xe9eef0, .55); key.position.set(-.6, 1.6, .9); scene.add(key);                  // the projector's cold light, until the candles take over
+const candleLight = new T.PointLight(0xffa04a, 0, 1.4, 1.6); scene.add(candleLight);
+
+/* =============================================================== THE MEMORY: the board, the projected spot, the cake (ARAP) and its naive twin */
+const CY = .5, MESH = A.buildMesh(), SOL = new A.Solver(MESH, 'arap'), NAI = new A.Solver(MESH, 'naive');
+const radial = (stops, w) => { const c = document.createElement('canvas'); c.width = c.height = w; const x = c.getContext('2d'), g = x.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2); stops.forEach(([o, s]) => g.addColorStop(o, s)); x.fillStyle = g; x.fillRect(0, 0, w, w); const t = new T.CanvasTexture(c); return t; };
+const spotTex = radial([[0, 'rgba(255,236,210,.55)'], [.55, 'rgba(255,220,180,.22)'], [.8, 'rgba(255,210,170,.06)'], [1, 'rgba(0,0,0,0)']], 256);
+const sprite = (stops, w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'), g = x.createRadialGradient(w / 2, h * .62, 1, w / 2, h * .55, h * .45); stops.forEach(([o, s]) => g.addColorStop(o, s)); x.fillStyle = g; x.fillRect(0, 0, w, h); return new T.CanvasTexture(c); };
+const flameTex = sprite([[0, 'rgba(255,252,232,1)'], [.25, 'rgba(255,206,96,.95)'], [.6, 'rgba(255,120,30,.3)'], [1, 'rgba(255,90,20,0)']], 32, 64);
+const haloTex = sprite([[0, 'rgba(255,190,110,.5)'], [.4, 'rgba(255,140,60,.12)'], [1, 'rgba(255,120,40,0)']], 64, 64);
+const stripe = (() => { const c = document.createElement('canvas'); c.width = 16; c.height = 64; const x = c.getContext('2d'); x.fillStyle = '#f2e9d6'; x.fillRect(0, 0, 16, 64); x.fillStyle = '#d4483e'; for (let y = -16; y < 80; y += 12) { x.beginPath(); x.moveTo(0, y); x.lineTo(16, y + 8); x.lineTo(16, y + 13); x.lineTo(0, y + 5); x.fill(); } const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; return t; })();
+// the writing: one canvas, icing colour underneath, 生日快乐 drawn stroke by stroke, then the flourish
+const INC = document.createElement('canvas'); INC.width = INC.height = 512; const inx = INC.getContext('2d'); const INT = new T.CanvasTexture(INC); INT.encoding = T.sRGBEncoding;
+const CHARS = ['生', '日', '快', '乐'], WSTEPS = 24; let icingHex = 0xeadbc0;
+function drawInscription(v) { inx.fillStyle = '#' + icingHex.toString(16).padStart(6, '0'); inx.fillRect(0, 0, 512, 512);
+  // fine grain so the glaze reads as a surface
+  for (let k = 0; k < 900; k++) { const x = (k * 97) % 512, y = (k * 211) % 512; inx.fillStyle = k % 2 ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.05)'; inx.fillRect(x, y, 3, 3); }
+  const p = v / WSTEPS * 5; inx.save(); inx.translate(256, 250); inx.rotate(-.1); inx.fillStyle = '#c4231c'; inx.strokeStyle = '#c4231c';
+  inx.font = '700 84px "PingFang SC","Hiragino Sans GB","Noto Sans CJK SC","Noto Sans SC","Microsoft YaHei",sans-serif'; inx.textBaseline = 'middle'; inx.textAlign = 'center';
+  for (let i = 0; i < 4; i++) { const f = clamp(p - i, 0, 1); if (f <= 0) break; const x = -132 + i * 88; inx.save(); inx.beginPath(); inx.rect(x - 46, -46, 92, 92 * Math.min(1, f * 1.2)); if (f < 1) inx.rect(x - 46, -46 + 92 * Math.max(0, f * 1.2 - .5), 92 * f, 18); inx.clip(); inx.fillText(CHARS[i], x, 0); inx.restore(); }
+  const ff = clamp(p - 4, 0, 1); if (ff > 0) { inx.lineWidth = 7; inx.lineCap = 'round'; inx.beginPath(); const N = 40; for (let k = 0; k <= N * ff; k++) { const u = k / N, X = -145 + u * 290, Y = 66 + Math.sin(u * Math.PI * 1.6) * 12 - u * 8; k ? inx.lineTo(X, Y) : inx.moveTo(X, Y); } inx.stroke(); }
+  inx.restore(); INT.needsUpdate = true; }
+const MEM = new T.Group(); scene.add(MEM);
+const board = new T.Mesh(new T.CylinderGeometry(.165, .165, .012, 96), new T.MeshStandardMaterial({ color: 0x15130f, roughness: .5, metalness: .35, transparent: true })); board.position.y = CY - .006; MEM.add(board);
+const spot = new T.Mesh(new T.CircleGeometry(.34, 64), new T.MeshBasicMaterial({ map: spotTex, transparent: true, depthWrite: false, blending: T.AdditiveBlending })); spot.rotation.x = -Math.PI / 2; spot.position.y = CY + .0005; MEM.add(spot);
+const BEADSPEC = { rings: [13, 6], per: 48 };     // top rim and just above the base; a third ring on the tier for the tiered sponge
+// one twin = sponge + icing + beads + candles, driven by a solver; frame(i) gives the detail frame at vertex i (ARAP: its rotation; naive: its linear map)
+function makeTwin(sol) {
+  const n = MESH.n, g = new T.BufferGeometry(), pos = new Float32Array(n * 3), col = new Float32Array(n * 3);
+  g.setAttribute('position', new T.BufferAttribute(pos, 3)); g.setAttribute('color', new T.BufferAttribute(col, 3)); g.setIndex(new T.BufferAttribute(Uint32Array.from(MESH.tri), 1));
+  const spongeMat = new T.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: .92, transparent: true }); const sponge = new T.Mesh(g, spongeMat);
+  const ig = new T.BufferGeometry(), ipos = new Float32Array(n * 3), iuv = new Float32Array(n * 2); ig.setAttribute('position', new T.BufferAttribute(ipos, 3)); ig.setAttribute('uv', new T.BufferAttribute(iuv, 2));
+  const icingMat = new T.MeshStandardMaterial({ map: INT, roughness: .45, metalness: .02, transparent: true, polygonOffset: true, polygonOffsetFactor: -1 }); const icing = new T.Mesh(ig, icingMat); icing.visible = false;
+  const grp = new T.Group(); grp.position.y = CY; grp.add(sponge, icing); MEM.add(grp);
+  const beadGeo = new T.SphereGeometry(1, 12, 8); const beadMat = new T.MeshStandardMaterial({ color: 0xf7f3ea, roughness: .35, transparent: true }); const beads = new T.InstancedMesh(beadGeo, beadMat, 160); beads.count = 0; grp.add(beads);
+  const candles = []; for (let k = 0; k < 7; k++) { const c = new T.Group(); const shaft = new T.Mesh(new T.CylinderGeometry(.0034, .0034, .055, 10), new T.MeshStandardMaterial({ map: stripe, roughness: .5 })); shaft.position.y = .0275; c.add(shaft);
+    const f = new T.Sprite(new T.SpriteMaterial({ map: flameTex, blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0 })); f.scale.set(.016, .034, 1); f.position.y = .069; c.add(f);
+    const h = new T.Sprite(new T.SpriteMaterial({ map: haloTex, blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0 })); h.scale.set(.11, .11, 1); h.position.y = .071; c.add(h); c.visible = false; c.matrixAutoUpdate = false; grp.add(c); candles.push({ g: c, f, h, shaft }); }
+  // the target ghost: meridians of the nearest film cake, faint, while sculpting
+  const ghost = new T.Group(); grp.add(ghost);
+  // the selected handle's points
+  const hp = new T.BufferGeometry(); hp.setAttribute('position', new T.BufferAttribute(new Float32Array(150 * 3), 3)); const hpts = new T.Points(hp, new T.PointsMaterial({ color: 0xe8b264, size: .006, transparent: true, opacity: .9, depthWrite: false })); grp.add(hpts);
+  const tw = { sol, grp, g, pos, col, sponge, spongeMat, ig, ipos, iuv, icing, icingMat, beads, beadMat, candles, ghost, hpts, N: null, icingRest: null, details: [], F: new Float64Array(9 * n) };
+  return tw; }
+const TW = [makeTwin(SOL), makeTwin(NAI)]; TW[1].grp.visible = false;
+
+/* =============================================================== THE GAME STATE */
+const STAGES = ['SPONGE', 'ICING', 'BEADS', 'WRITING', 'CANDLES', 'LIGHT', 'BLOW', 'DONE'];
+const LAYER = { ICING: 16, BEADS: 24, WRITING: WSTEPS, CANDLES: 7, LIGHT: 7 };
+const S = { stage: 0, target: 0, gen: 0, prog: { ICING: 0, BEADS: 0, WRITING: 0, CANDLES: 0, LIGHT: 0 }, matched: null, tilt: 0, yaw: 0, flash: 0, on: 0, offAt: 0, dark: 0, blowAt: 0, out: 0, msg: '', msgAt: 0, scene: null, hold: false, lastWork: -9, dirty: 3, near: null, dist: null, naiveDist: null, endAt: 0 };
+const HANDLE_NAMES = SOL.H.map(h => h.id);
+function targets() { const st = STAGES[S.stage]; return st === 'SPONGE' ? HANDLE_NAMES.slice(0).reverse() : (LAYER[st] != null ? [st].concat(HANDLE_NAMES.slice(0).reverse()) : [st]); }   // TOP CENTRE first
+function tName() { const t = targets(); return t[S.target % t.length]; }
+function handleIx(name) { return HANDLE_NAMES.indexOf(name); }
+let palette = { side: 0xd9c49a, top: 0xeadbc0, beads: 0xf7f3ea, icing: 'top', name: 'PLAIN DOUGH' };
+// sponge colour per vertex: crumb variation, a darker baked skin on the base
+function paint(tw) { const c = new T.Color(palette.side), d = new T.Color(); for (let i = 0; i < MESH.n; i++) { const h = Math.sin(i * 12.9898) * 43758.5453, r = h - Math.floor(h), s = MESH.sParam[i]; d.copy(c).multiplyScalar(.86 + r * .2 - (s < .25 ? .12 : 0)); tw.col[i * 3] = d.r; tw.col[i * 3 + 1] = d.g; tw.col[i * 3 + 2] = d.b; } tw.g.attributes.color.needsUpdate = true; }
+TW.forEach(paint);
+
+/* =============================================================== SOLVING: a few local-global iterations each frame while the handles are unsettled */
+const TRACE = { solves: [], commits: [], inputs: [], monotoneViolations: 0, maxInverted: 0, maxCollapsed: 0, detail: [], energyBursts: [] };
+let burst = null;
+function solveFrame() {
+  if (S.dirty <= 0) return;
+  const its = 3; let E; if (!burst) burst = { t: +NOW.toFixed(3), gen: S.gen, E: [], raw: [] };
+  for (let k = 0; k < its && S.dirty > 0; k++) { E = SOL.iterate(); const last = burst.raw[burst.raw.length - 1]; if (last != null && E > last * (1 + 1e-12) + 1e-18) TRACE.monotoneViolations++; burst.raw.push(E); burst.E.push(+E.toPrecision(8));
+    if (E < 1e-12 || (last != null && Math.abs(last - E) <= A.SETTLE_REL * Math.max(last, 1e-15))) S.dirty = 0; if (burst.raw.length >= A.SETTLE_MAX) S.dirty = 0; }
+  NAI.iterate();
+  if (S.dirty <= 0) { delete burst.raw; const inv = A.invertedCount(SOL), invN = A.invertedCount(NAI); TRACE.maxInverted = Math.max(TRACE.maxInverted, inv.inverted); TRACE.maxCollapsed = Math.max(TRACE.maxCollapsed, inv.collapsed);
+    burst.inverted = inv; burst.naiveInverted = invN; burst.iters = burst.E.length; burst.E = burst.E.length > 12 ? burst.E.slice(0, 6).concat(['...'], burst.E.slice(-4)) : burst.E; TRACE.energyBursts.push(burst); burst = null; measure(); }
+}
+function handlesChanged() { if (burst) { delete burst.raw; burst.cut = 'handle moved before settling'; burst.E = burst.E.length > 12 ? burst.E.slice(0, 6).concat(['...'], burst.E.slice(-4)) : burst.E; TRACE.energyBursts.push(burst); burst = null; } S.dirty = 1; }
+// once settled: distance to each film cake, and how well the details kept their shape
+function measure() { const d = A.TARGETS.map(t => ({ id: t.id, name: t.name, ...A.chamfer(SOL, t) })); d.sort((a, b) => a.chamfer - b.chamfer); S.dist = d; S.fold = A.foldAngle(SOL); S.near = A.TARGETS.find(t => t.id === d[0].id);
+  S.naiveDist = A.chamfer(NAI, S.near); buildGhost(); }
+function within(d) { return d.chamfer <= A.TOL.chamfer && d.hausdorff <= A.TOL.hausdorff && S.fold <= A.FOLD_MAX; }
+
+/* =============================================================== DETAILS: beads and candles anchored at a vertex; frame = F_i * B (B baked at each commit) */
+function frameOf(tw, i, out) { const s = tw.sol; if (s.mode === 'arap') { for (let k = 0; k < 9; k++) out[k] = s.R[i * 9 + k]; } else { A.linearFrame(s, i, s.Nrest, tw.N, out, 0); } return out; }
+const tmpF = new Array(9);
+function bakeDetails() { TW.forEach(tw => { tw.N = A.vertexNormals(MESH, tw.sol.X); tw.details.forEach(d => { frameOf(tw, d.v, tmpF); d.B = A.mul3(tmpF, d.B); }); }); }
+function addBead(v, ringIx) { TW.forEach(tw => { // B: the bead's own axes at the moment it is piped (around, normal, along the profile), in the solver's rest frame
+  const s = tw.sol, N = s.Nrest, n = [N[v * 3], N[v * 3 + 1], N[v * 3 + 2]], p = [s.P[v * 3], 0, s.P[v * 3 + 2]], L = Math.hypot(p[0], p[2]) || 1, a = [-p[2] / L, 0, p[0] / L];
+  const b = [a[1] * n[2] - a[2] * n[1], a[2] * n[0] - a[0] * n[2], a[0] * n[1] - a[1] * n[0]];   // right-handed: b = a x n
+  tw.details.push({ kind: 'bead', v, ring: ringIx, B: [a[0], n[0], b[0], a[1], n[1], b[1], a[2], n[2], b[2]] }); }); }
+function addCandle(k) { const ang = k / 7 * TAU + .3 + Math.PI / 2, rr = k % 2 ? .045 : .075; let best = -1, bd = 1e9;   // the film's layout: alternating inner and outer
+  for (let i = 0; i < MESH.n; i++) { if (MESH.sParam[i] < .6) continue; const dx = SOL.X[i * 3] - Math.cos(ang) * rr, dz = SOL.X[i * 3 + 2] - Math.sin(ang) * rr, d = dx * dx + dz * dz; if (d < bd) { bd = d; best = i; } }
+  TW.forEach(tw => tw.details.push({ kind: 'candle', v: best, k, B: [1, 0, 0, 0, 1, 0, 0, 0, 1] })); }
+const M4 = new T.Matrix4(), V3 = new T.Vector3();
+function icingThick(i) { const st = STAGES[S.stage]; if (S.stage < 1) return 0; const run = S.prog.ICING / LAYER.ICING, s = MESH.sParam[i], j = (MESH.ringOf[i] >= 0 && MESH.ringOf[i] < MESH.NR) ? (i - 1) % MESH.M : 0;
+  const maxRun = palette.icing === 'all' ? 1.02 : .62, drip = .05 * Math.sin(j * 1.7) * Math.sin(j * .61 + 1), reach = 1 - run * maxRun + (run > .5 ? drip * run : 0);
+  return s >= reach ? .0035 * clamp((s - reach) / .04, .25, 1) : 0; }
+function updateTwin(tw, main) {
+  const s = tw.sol, n = MESH.n, X = s.X; for (let i = 0; i < n * 3; i++) tw.pos[i] = X[i]; tw.g.attributes.position.needsUpdate = true; tw.g.computeVertexNormals(); tw.g.computeBoundingSphere();
+  tw.N = A.vertexNormals(MESH, X); const N = tw.N;
+  // icing: offset shell of the same points, only the covered triangles drawn; UV from where the top was when the icing went on
+  if (S.stage >= 1) { tw.icing.visible = true; const th = new Float32Array(n); for (let i = 0; i < n; i++) { th[i] = icingThick(i); tw.ipos[i * 3] = X[i * 3] + N[i * 3] * th[i]; tw.ipos[i * 3 + 1] = X[i * 3 + 1] + N[i * 3 + 1] * th[i]; tw.ipos[i * 3 + 2] = X[i * 3 + 2] + N[i * 3 + 2] * th[i]; }
+    if (tw.icingRest) for (let i = 0; i < n; i++) { tw.iuv[i * 2] = .5 + tw.icingRest[i * 3] / .17; tw.iuv[i * 2 + 1] = .5 - tw.icingRest[i * 3 + 2] / .17; }
+    const idx = []; for (let t = 0; t < MESH.tri.length; t += 3) { const a = MESH.tri[t], b = MESH.tri[t + 1], c = MESH.tri[t + 2]; if (th[a] > 0 && th[b] > 0 && th[c] > 0) idx.push(a, b, c); }
+    tw.ig.setIndex(idx); tw.ig.attributes.position.needsUpdate = true; tw.ig.attributes.uv.needsUpdate = true; tw.ig.computeVertexNormals(); tw.ig.computeBoundingSphere(); }
+  // beads and candles
+  let nb = 0; const F = tmpF;
+  tw.details.forEach(d => { const v = d.v; frameOf(tw, v, F); const Bw = A.mul3(F, d.B), th = icingThick(v);
+    if (d.kind === 'bead') { const r = .0052; const px = X[v * 3] + N[v * 3] * (th + r * .55), py = X[v * 3 + 1] + N[v * 3 + 1] * (th + r * .55), pz = X[v * 3 + 2] + N[v * 3 + 2] * (th + r * .55);
+      // local bead: 1.25 long around the cake, 0.8 high, 1 deep, a piped teardrop read as an ellipsoid
+      M4.set(Bw[0] * r * 1.25, Bw[1] * r * .8, Bw[2] * r, px, Bw[3] * r * 1.25, Bw[4] * r * .8, Bw[5] * r, py, Bw[6] * r * 1.25, Bw[7] * r * .8, Bw[8] * r, pz, 0, 0, 0, 1); tw.beads.setMatrixAt(nb++, M4); }
+    else { const c = tw.candles[d.k]; c.g.visible = true; const px = X[v * 3] + N[v * 3] * th, py = X[v * 3 + 1] + N[v * 3 + 1] * th - .006, pz = X[v * 3 + 2] + N[v * 3 + 2] * th;
+      c.g.matrix.set(Bw[0], Bw[1], Bw[2], px, Bw[3], Bw[4], Bw[5], py, Bw[6], Bw[7], Bw[8], pz, 0, 0, 0, 1); c.g.matrixWorldNeedsUpdate = true; } });
+  tw.beads.count = nb; tw.beads.instanceMatrix.needsUpdate = true;
+  tw.candles.forEach((c, k) => { if (!tw.details.some(d => d.kind === 'candle' && d.k === k)) c.g.visible = false; });
+  // the selected handle's points
+  const hn = tName(), hi = handleIx(hn), ha = tw.hpts.geometry.attributes.position; if (hi >= 0 && main) { const vs = SOL.H[hi].verts; let m = 0; for (let q = 0; q < vs.length && m < 150; q += (vs.length > 150 ? 2 : 1)) { const v = vs[q]; ha.setXYZ(m++, X[v * 3] + N[v * 3] * .004, X[v * 3 + 1] + N[v * 3 + 1] * .004, X[v * 3 + 2] + N[v * 3 + 2] * .004); } tw.hpts.geometry.setDrawRange(0, m); ha.needsUpdate = true; tw.hpts.visible = true; } else tw.hpts.visible = false;
+}
+// detail distortion: singular values of each bead's frame (1,1,1 is its own shape), and the writing's in-plane stretch
+function detailDistortion(tw) { let worst = 0; const F = tmpF; tw.details.forEach(d => { frameOf(tw, d.v, F); const sv = A.singular3(A.mul3(F, d.B)); worst = Math.max(worst, Math.abs(sv[0] - 1), Math.abs(sv[2] - 1)); }); return worst; }
+function letterStretch(tw) { if (!tw.icingRest) return 0; const P = tw.icingRest, X = tw.sol.X; let worst = 0;
+  for (let t = 0; t < MESH.tri.length; t += 3) { const a = MESH.tri[t], b = MESH.tri[t + 1], c = MESH.tri[t + 2]; if (Math.hypot(P[a * 3], P[a * 3 + 2]) > .07 || MESH.sParam[a] < .75) continue;
+    const e = (Y, i, j) => [Y[j * 3] - Y[i * 3], Y[j * 3 + 1] - Y[i * 3 + 1], Y[j * 3 + 2] - Y[i * 3 + 2]], dot = (u, v) => u[0] * v[0] + u[1] * v[1] + u[2] * v[2];
+    const r1 = e(P, a, b), r2 = e(P, a, c), d1 = e(X, a, b), d2 = e(X, a, c), G = [dot(r1, r1), dot(r1, r2), dot(r2, r2)], H = [dot(d1, d1), dot(d1, d2), dot(d2, d2)];
+    const det = G[0] * G[2] - G[1] * G[1]; if (det <= 0) continue; const Gi = [G[2] / det, -G[1] / det, G[0] / det], M = [Gi[0] * H[0] + Gi[1] * H[1], Gi[0] * H[1] + Gi[1] * H[2], Gi[1] * H[0] + Gi[2] * H[1], Gi[1] * H[1] + Gi[2] * H[2]];
+    const tr = M[0] + M[3], dt = M[0] * M[3] - M[1] * M[2], disc = Math.sqrt(Math.max(0, tr * tr / 4 - dt)), l1 = Math.sqrt(Math.max(1e-12, tr / 2 + disc)), l2 = Math.sqrt(Math.max(1e-12, tr / 2 - disc)); worst = Math.max(worst, Math.abs(Math.log(l1)), Math.abs(Math.log(l2))); }
+  return worst; }
+
+/* =============================================================== THE TARGET GHOST: the nearest film cake drawn as faint meridians */
+let ghostFor = null; const ghostMat = new T.LineBasicMaterial({ color: 0xbfd2cc, transparent: true, opacity: .22, depthWrite: false });
+function buildGhost() { if (!S.near || ghostFor === S.near.id) return; ghostFor = S.near.id; const G = TW[0].ghost; G.clear(); const pr = S.near.prof;
+  for (let m = 0; m < 16; m++) { const a = m / 16 * TAU, pts = pr.map(([r, y]) => new T.Vector3(Math.cos(a) * r, y, Math.sin(a) * r)); G.add(new T.Line(new T.BufferGeometry().setFromPoints(pts), ghostMat)); }
+  pr.forEach(([r, y]) => { if (r < .01) return; const pts = []; for (let k = 0; k <= 64; k++) pts.push(new T.Vector3(Math.cos(k / 64 * TAU) * r, y, Math.sin(k / 64 * TAU) * r)); G.add(new T.Line(new T.BufferGeometry().setFromPoints(pts), ghostMat)); }); }
+
+/* =============================================================== THE HOLOGRAM ARC beside the cake at candle height (as ana/index.html) */
+function canvasSprite(w, h, sw, sh) { const c = document.createElement('canvas'); c.width = w; c.height = h; const t = new T.CanvasTexture(c); const s = new T.Sprite(new T.SpriteMaterial({ map: t, transparent: true, depthWrite: false, depthTest: false, opacity: 0 })); s.scale.set(sw, sh, 1); s.renderOrder = 5; scene.add(s); return { c, x: c.getContext('2d'), t, s }; }
+const ARC = canvasSprite(256, 384, .12, .18); const MARKS = [-23, -19, -9, -1, 6]; let arcMark = 0, arcBlink = 0, arcAlpha = 0;
+function drawArc() { const { x, c } = ARC; x.clearRect(0, 0, c.width, c.height); const cx = 70, cy = 192, r = 140;
+  x.strokeStyle = 'rgba(220,232,228,.55)'; x.lineWidth = 18; [[-78, -52], [-49, -20], [-17, 12], [15, 44], [47, 76]].forEach(([a, b]) => { x.beginPath(); x.arc(cx, cy, r, a * Math.PI / 180, b * Math.PI / 180); x.stroke(); });
+  x.strokeStyle = 'rgba(245,250,248,.9)'; x.lineWidth = 20; x.beginPath(); x.arc(cx, cy, r, -80 * Math.PI / 180, -70 * Math.PI / 180); x.stroke();
+  if (arcBlink <= 0) { const a = MARKS[arcMark] * Math.PI / 180, mx = cx + Math.cos(a) * r, my = cy + Math.sin(a) * r; x.fillStyle = 'rgba(255,255,255,.95)'; x.fillRect(mx - 9, my - 6, 18, 12); x.strokeStyle = 'rgba(230,240,236,.8)'; x.lineWidth = 2; x.beginPath(); x.moveTo(mx + 10, my); x.lineTo(mx + 46, my); x.stroke(); }
+  ARC.t.needsUpdate = true; }
+
+/* =============================================================== THE RINGS and THE MACHINE (11.8 steps a second; 23.6 when far behind) */
+const RINGS = [
+  { id: 'scale', ang: 0, target: 0, applied: 0, deg: 5, min: -36, max: 36, ix: 0 },
+  { id: 'knurl', ang: 0, target: 0, applied: 0, deg: 9, min: -12, max: 24, ix: 1 },
+  { id: 'tri', ang: 0, target: 0, applied: 0, deg: 6, min: -12, max: 12, ix: 2 }];
+function knurlRange() { const n = tName(); if (handleIx(n) >= 0) return [-12, 24]; if (LAYER[n] != null) return [0, LAYER[n]]; return [0, 0]; }
+function knurlValue() { const n = tName(), hi = handleIx(n); if (hi >= 0) return SOL.H[hi].k; if (LAYER[n] != null) return S.prog[n]; return 0; }
+function triRange() { const n = tName(); return handleIx(n) >= 0 ? [-12, 12] : [-2, 10]; }
+function triValue() { const n = tName(), hi = handleIx(n); return hi >= 0 ? SOL.H[hi].t : S.tilt; }
+function syncRings() { const k = RINGS[1], t = RINGS[2]; k.target = k.applied = knurlValue(); k.ang = k.target * k.deg; t.target = t.applied = triValue(); t.ang = t.target * t.deg; }
+function repin() { const hi = handleIx(tName()), list = S.stage === 0 ? null : (hi > 0 ? [hi] : []); [SOL, NAI].forEach(s => { const same = JSON.stringify(s.pinned) === JSON.stringify(list); if (!same) { s.pin(list); s.applyHandles(); } }); handlesChanged(); }
+function select(i, silent) { S.target = ((i % targets().length) + targets().length) % targets().length; repin(); syncRings(); if (!silent) sound({ k: 'select' }); S.lastWork = NOW; TRACE.inputs.push([+NOW.toFixed(2), 'select', tName()]); }
+let stepClock = 0;
+function machine(dt) { stepClock += dt; const busy = RINGS.filter(r => r.target !== r.applied); if (!busy.length) { stepClock = 0; return; }
+  const fast = busy.some(r => Math.abs(r.target - r.applied) > 6), period = fast ? 1 / 23.6 : 1 / 11.8;
+  while (stepClock >= period) { stepClock -= period; busy.forEach(r => { if (r.target === r.applied) return; r.applied += Math.sign(r.target - r.applied); applyStep(r); sound({ k: 'click', fast, ring: r.ix }); }); } }
+function applyStep(r) { S.lastWork = NOW; const n = tName(), hi = handleIx(n);
+  if (r.id === 'scale') { S.yaw = r.applied * 5; return; }
+  if (hi >= 0) { const h = SOL.H[hi], k = r.id === 'knurl' ? r.applied : h.k, t = r.id === 'tri' ? r.applied : h.t; SOL.setHandle(hi, k, t); NAI.setHandle(hi, k, t); handlesChanged(); sound({ k: 'dough', v: r.applied }); return; }
+  if (r.id === 'tri') { S.tilt = r.applied; return; }
+  if (LAYER[n] == null) return; const was = S.prog[n], v = r.applied; S.prog[n] = v;
+  if (n === 'ICING') { sound({ k: 'pour', v }); }
+  else if (n === 'BEADS') { syncBeads(); sound({ k: 'pipe', v }); }
+  else if (n === 'WRITING') { drawInscription(v); sound({ k: 'scratch' }); const now = Math.min(4, Math.floor(v / 5)); if (now !== arcMark) { arcMark = now; arcBlink = .15; } }
+  else if (n === 'CANDLES') { syncCandles(); if (v > was) sound({ k: 'candle' }); arcMark = Math.min(4, Math.floor(v * 4 / 7)); }
+  else if (n === 'LIGHT') { if (v > was) sound({ k: 'match' }); arcMark = Math.min(4, Math.floor(v * 4 / 7)); arcBlink = .1; }
+}
+function beadRings() { return palette.id === 'TIERS' ? [13, 19, 6] : palette.id === 'DOME' ? [19, 6] : [13, 6]; }
+function syncBeads() { const rings = beadRings(), per = MESH.M, total = rings.length * per, want = Math.round(S.prog.BEADS / LAYER.BEADS * total);
+  TW.forEach(tw => { tw.details = tw.details.filter(d => d.kind !== 'bead'); }); let c = 0;
+  for (const ring of rings) for (let j = 0; j < per; j++) { if (c++ >= want) break; addBead(MESH.id(ring, j), ring); }
+  // beads keep the B they were piped with: re-adding from the current rest is exact because R resets to I at each commit
+}
+function syncCandles() { TW.forEach(tw => { tw.details = tw.details.filter(d => d.kind !== 'candle'); }); for (let k = 0; k < S.prog.CANDLES; k++) addCandle(k); }
+
+/* =============================================================== HOLD: bake the dough; go on to the next layer when this one is done */
+function commit() { const st = STAGES[S.stage]; sound({ k: 'hold' });
+  if (st === 'BLOW' || st === 'DONE') { if (st === 'BLOW' && !S.blowAt) { S.blowAt = NOW + .5; sound({ k: 'blow' }); TRACE.inputs.push([+NOW.toFixed(2), 'blow']); } return; }
+  while (S.dirty > 0) solveFrame();
+  bakeDetails(); SOL.commit(); NAI.commit(); S.gen++; handlesChanged(); while (S.dirty > 0) solveFrame(); measure();
+  S.flash = 1; sound({ k: 'wash', v: .7 });
+  const rec = { t: +NOW.toFixed(2), stage: st, gen: S.gen, foldDeg: +S.fold.toFixed(1), dist: S.dist.map(d => ({ id: d.id, chamferMm: +(d.chamfer * 1000).toFixed(2), hausdorffMm: +(d.hausdorff * 1000).toFixed(2) })), naiveToNearestMm: +(S.naiveDist.chamfer * 1000).toFixed(2), beadsArap: +detailDistortion(TW[0]).toExponential(2), beadsNaive: +detailDistortion(TW[1]).toFixed(4), lettersArap: +letterStretch(TW[0]).toFixed(4), lettersNaive: +letterStretch(TW[1]).toFixed(4) };
+  let adv = false;
+  if (st === 'SPONGE') { if (within(S.dist[0])) { palette = Object.assign({}, A.TARGETS.find(t => t.id === S.dist[0].id)); S.matched = palette; adv = true; say(`BAKED: ${palette.name}`); } else say(S.fold > A.FOLD_MAX ? `GENERATION ${S.gen}: THE DOUGH IS FOLDED (${S.fold.toFixed(0)} DEG)` : `GENERATION ${S.gen}: ${(S.dist[0].chamfer * 1000).toFixed(1)} MM FROM ${S.near.name}. NEED ${A.TOL.chamfer * 1000}`); }
+  else if (S.prog[st] >= LAYER[st]) adv = true; else say(`${st} NOT DONE: ${S.prog[st]} OF ${LAYER[st]}`);
+  rec.advanced = adv; TRACE.commits.push(rec);
+  if (adv) { S.stage++; sound({ k: 'set' }); const nst = STAGES[S.stage];
+    if (nst === 'ICING') { icingHex = palette.top; TW.forEach(tw => { tw.icingRest = Float64Array.from(tw.sol.X); paint(tw); tw.beadMat.color.setHex(palette.beads); }); drawInscription(0); }
+    if (nst === 'BLOW') say('ALL SEVEN LIT. HOLD TO BLOW'); else if (nst !== 'DONE') say(`NOW: ${nst}`);
+    S.target = 0; repin(); syncRings(); }
+  else syncRings(); }
+let sayT = 0; function say(m) { S.msg = m; S.msgAt = NOW; }
+function switchOff() { if (S.offAt) return; S.offAt = NOW; sound({ k: 'off' }); TRACE.inputs.push([+NOW.toFixed(2), 'off']); }
+function reset() { Object.assign(S, { stage: 0, target: 0, gen: 0, prog: { ICING: 0, BEADS: 0, WRITING: 0, CANDLES: 0, LIGHT: 0 }, matched: null, tilt: 0, yaw: 0, flash: 0, offAt: 0, dark: 0, blowAt: 0, out: 0, endAt: 0 });
+  [SOL, NAI].forEach(s => { s.pinned = null; s.P.set(MESH.X); s.X.set(MESH.X); s.H.forEach(h => { h.k = 0; h.t = 0; }); s.gen = 0; s.rebuild(); });
+  palette = { side: 0xd9c49a, top: 0xeadbc0, beads: 0xf7f3ea, icing: 'top', name: 'PLAIN DOUGH' }; TW.forEach(tw => { tw.details = []; tw.icingRest = null; tw.icing.visible = false; paint(tw); });
+  RINGS.forEach(r => { r.target = r.applied = 0; r.ang = 0; }); S.on = 0; S.dirty = 1; measure(); select(0, true); say('SCULPT THE DOUGH. HOLD TO BAKE'); }
+
+/* =============================================================== THE DEVICE (the barrel from ana/index.html) */
+const devEl = document.getElementById('dev'), DC = document.createElement('canvas'); devEl.append(DC); const dx = DC.getContext('2d'); let DW = 0, DH = 0, BANDS = [], BTNS = [];
+function layoutDev() { const r = devEl.getBoundingClientRect(), pr = Math.min(2, devicePixelRatio); DW = r.width; DH = r.height; DC.width = DW * pr; DC.height = DH * pr; dx.setTransform(pr, 0, 0, pr, 0, 0);
+  const L = Math.min(DW - 24, 980), x0 = (DW - L) / 2, cy = DH * .44, rad = Math.min(DH * .3, L * .13); const w = f => f * L;
+  let x = x0; const seg = (kind, f, extra) => { const b = Object.assign({ kind, x, w: w(f), cy, rad }, extra || {}); x += w(f); return b; };
+  BANDS = [seg('collarL', .12), seg('scale', .2, { ring: RINGS[0] }), seg('redline', .06), seg('knurl', .14, { ring: RINGS[1] }), seg('tri', .2, { ring: RINGS[2] }), seg('chrome', .08), seg('collarR', .2)];
+  const cl = BANDS[0], cr = BANDS[6]; BTNS = [{ id: 'play', x: cl.x + cl.w * .5, y: cy - rad * .42, r: rad * .2 }, { id: 'clear', x: cl.x + cl.w * .5, y: cy + rad * .42, r: rad * .2 },
+    { id: 'select', x: cr.x + cr.w * .38, y: cy - rad * .5, r: rad * .22 }, { id: 'hold', x: cr.x + cr.w * .38, y: cy + rad * .38, r: rad * .26 }, { id: 'info', x: cr.x + cr.w * .82, y: cy - rad * .78, r: rad * .13 }]; }
+function cylShade(b, base, hi) { const g = dx.createLinearGradient(0, b.cy - b.rad, 0, b.cy + b.rad); g.addColorStop(0, '#0b0c0c'); g.addColorStop(.18, base); g.addColorStop(.42, hi); g.addColorStop(.62, base); g.addColorStop(1, '#070807'); return g; }
+function marksOn(b, list) { list.forEach(([a, fn]) => { const th = (a - b.ring.ang) * Math.PI / 180, c = Math.cos(th); if (c <= .05) return; fn(b.cy - Math.sin(th) * b.rad * .92, c); }); }
+const SCALE_NUMS = [[0, '00'], [18, '18'], [35, '35'], [60, '60'], [90, '90'], [120, '120'], [150, '150'], [180, '180'], [220, '220'], [255, '255'], [280, '280'], [300, '300'], [330, '330']];
+function drawDev() { dx.clearRect(0, 0, DW, DH);
+  BANDS.forEach(b => { const top = b.cy - b.rad, h = b.rad * 2;
+    if (b.kind === 'collarL' || b.kind === 'collarR') { dx.fillStyle = cylShade(b, '#3c4341', '#a9b2af'); dx.fillRect(b.x, top + h * .04, b.w, h * .92); }
+    else if (b.kind === 'scale') { dx.fillStyle = cylShade(b, '#1e2322', '#59615f'); dx.fillRect(b.x, top, b.w, h); dx.textAlign = 'center'; dx.textBaseline = 'middle';
+      marksOn(b, SCALE_NUMS.map(([a, s]) => [-a, (y, c) => { dx.save(); dx.translate(b.x + b.w * .5, y); dx.scale(1, c); dx.fillStyle = `rgba(232,238,236,${.35 + .6 * c})`; dx.font = `400 ${Math.round(b.rad * .26)}px Oswald, sans-serif`; dx.fillText(s, 0, 0); dx.fillRect(-b.w * .42, -1, b.w * .1, 2); dx.restore(); }]));
+      for (let a = 0; a < 360; a += 5) marksOn(b, [[-a, (y, c) => { dx.fillStyle = `rgba(200,210,206,${.3 * c})`; dx.fillRect(b.x + b.w * .86, y - .5, b.w * (a % 15 ? .06 : .12), 1); }]]); }
+    else if (b.kind === 'redline') { dx.fillStyle = cylShade(b, '#2a302e', '#78817e'); dx.fillRect(b.x, top, b.w, h); dx.fillStyle = '#c2453a'; for (let k = -2; k <= 2; k++) { const y = b.cy - Math.sin(k * .5) * b.rad * .9; dx.fillRect(b.x + b.w * .2, y - 1, b.w * .6, 2); } }
+    else if (b.kind === 'knurl') { dx.fillStyle = cylShade(b, '#2b3130', '#7c8683'); dx.fillRect(b.x, top, b.w, h); for (let a = 0; a < 360; a += 4) marksOn(b, [[a, (y, c) => { dx.fillStyle = `rgba(8,9,9,${.55 * c})`; dx.fillRect(b.x + 3, y - 1.2 * c, b.w - 6, 2.4 * c); }]]); }
+    else if (b.kind === 'tri') { dx.fillStyle = cylShade(b, '#4b5452', '#bcc5c2'); dx.fillRect(b.x, top, b.w, h);
+      for (let a = 0; a < 360; a += 12) marksOn(b, [[a, (y, c) => { const s = b.rad * .07 * c; dx.fillStyle = 'rgba(10,11,11,.85)'; [[.32, 1], [.68, 1.4]].forEach(([fx, k]) => { dx.beginPath(); dx.moveTo(b.x + b.w * fx - s * k, y); dx.lineTo(b.x + b.w * fx + s * k * .6, y - s * k * .8); dx.lineTo(b.x + b.w * fx + s * k * .6, y + s * k * .8); dx.fill(); }); }]]); }
+    else if (b.kind === 'chrome') { const g = dx.createLinearGradient(b.x, 0, b.x + b.w, 0); g.addColorStop(0, '#d8dfdc'); g.addColorStop(.5, '#7d8784'); g.addColorStop(1, '#eef3f1'); dx.fillStyle = g; dx.fillRect(b.x, top + h * .02, b.w, h * .96);
+      dx.save(); dx.translate(b.x + b.w * .5, b.cy); dx.rotate(Math.PI / 2); dx.fillStyle = 'rgba(20,22,22,.75)'; dx.font = `500 ${Math.round(b.rad * .16)}px Oswald, sans-serif`; dx.textAlign = 'center'; dx.textBaseline = 'middle'; dx.fillText('VR — T0 — 0', 0, 0); dx.restore(); }
+    if (b.ring) { const busy = b.ring.target !== b.ring.applied; dx.fillStyle = busy ? 'rgba(232,178,100,.9)' : 'rgba(200,210,206,.35)'; dx.fillRect(b.x + 4, top - 7, b.w - 8, 2);
+      const [role, val] = ringRole(b.ring); dx.textAlign = 'center'; fitText(role, b.x + b.w / 2, top + h + 15, b.w - 4, 11, 'rgba(120,130,126,.9)'); fitText(val, b.x + b.w / 2, top + h + 30, b.w - 4, 13, 'rgba(225,232,229,.92)'); } });
+  BTNS.forEach(bt => { const g = dx.createRadialGradient(bt.x - bt.r * .3, bt.y - bt.r * .3, 1, bt.x, bt.y, bt.r); g.addColorStop(0, '#e8eeec'); g.addColorStop(.6, '#8f9996'); g.addColorStop(1, '#3a403e'); dx.fillStyle = g; dx.beginPath(); dx.arc(bt.x, bt.y, bt.r, 0, TAU); dx.fill();
+    dx.fillStyle = 'rgba(15,16,16,.85)'; if (bt.id === 'play') { dx.beginPath(); dx.moveTo(bt.x - bt.r * .3, bt.y - bt.r * .4); dx.lineTo(bt.x + bt.r * .45, bt.y); dx.lineTo(bt.x - bt.r * .3, bt.y + bt.r * .4); dx.fill(); }
+    if (bt.id === 'clear') dx.fillRect(bt.x - bt.r * .4, bt.y - bt.r * .08, bt.r * .8, bt.r * .16);
+    if (bt.id === 'hold' && S.holdGlow > 0) { dx.strokeStyle = `rgba(232,178,100,${S.holdGlow})`; dx.lineWidth = 2; dx.beginPath(); dx.arc(bt.x, bt.y, bt.r + 4, 0, TAU); dx.stroke(); }
+    if (bt.id === 'info') { dx.fillRect(bt.x - 1, bt.y - bt.r * .1, 2, bt.r * .6); dx.fillRect(bt.x - 1, bt.y - bt.r * .5, 2, 2); }
+    const lab = { select: 'SELECT', hold: 'HOLD', play: 'SCENE', clear: 'CLEAR' }[bt.id]; if (lab) { dx.font = `500 ${Math.round(Math.max(9, bt.r * .5))}px Oswald, sans-serif`; dx.textAlign = 'center';
+      if (bt.id === 'select') { const w = dx.measureText(lab).width + 10; dx.fillStyle = '#b8352c'; dx.fillRect(bt.x - w / 2, bt.y - bt.r - 20, w, 15); dx.fillStyle = '#f4e9e3'; dx.fillText(lab, bt.x, bt.y - bt.r - 9); }
+      else { dx.fillStyle = 'rgba(160,170,166,.85)'; dx.fillText(lab, bt.x, bt.y + bt.r + 13); } } });
+  dx.textAlign = 'left'; const lx = BANDS[6].x + BANDS[6].w * .6; fitTextL(tName(), lx, BTNS[3].y + 4, BANDS[6].x + BANDS[6].w - lx - 2, 13, 'rgba(232,178,100,.95)');
+  fitTextL(STAGES[S.stage], lx, BTNS[3].y + 20, BANDS[6].x + BANDS[6].w - lx - 2, 11, 'rgba(120,130,126,.9)'); }
+function fitText(s, x, y, w, px, col) { let f = px; dx.font = `500 ${f}px Oswald, sans-serif`; while (dx.measureText(s).width > w && f > 7) { f -= 1; dx.font = `500 ${f}px Oswald, sans-serif`; } dx.fillStyle = col; dx.fillText(s, x, y); }
+function fitTextL(s, x, y, w, px, col) { dx.textAlign = 'left'; fitText(s, x, y, w, px, col); }
+function ringRole(r) { const n = tName(), hi = handleIx(n); if (r.id === 'scale') return ['WHERE YOU KNEEL', `${((S.yaw % 360) + 360) % 360}°`];
+  if (hi >= 0) { const h = SOL.H[hi]; if (r.id === 'knurl') return [h.knurl === 'scale' ? 'SPREAD' : 'PUSH / PULL', `${h.k > 0 ? '+' : ''}${(h.k * A.STEP_N * 1000).toFixed(0)} MM`]; return h.tri === 'twist' ? ['TWIST', `${h.t * 3}°`] : ['SLIDE', `${h.t > 0 ? '+' : ''}${(h.t * A.STEP_T * 1000).toFixed(0)} MM`]; }
+  if (r.id === 'knurl') return LAYER[n] != null ? [n === 'LIGHT' ? 'LIT' : n === 'CANDLES' ? 'PLACED' : 'HOW FAR', `${S.prog[n]} OF ${LAYER[n]}`] : ['—', '—'];
+  return ['TILT', `${S.tilt * 3}°`]; }
+let drag = null;
+function handTurn(ring, dDeg) { const lim = ring.id === 'knurl' ? knurlRange() : ring.id === 'tri' ? triRange() : [ring.min, ring.max]; const before = Math.round(ring.ang / ring.deg);
+  ring.ang = clamp(ring.ang + dDeg, lim[0] * ring.deg, lim[1] * ring.deg); const after = Math.round(ring.ang / ring.deg); if (after !== before) { sound({ k: 'hand', ring: ring.ix }); ring.target = clamp(after, lim[0], lim[1]); } }
+DC.addEventListener('pointerdown', e => { ac(); const r = DC.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+  const bt = BTNS.find(b => Math.hypot(b.x - x, b.y - y) < b.r + 8); if (bt) { press(bt.id); return; }
+  const band = BANDS.find(b => b.ring && x >= b.x && x <= b.x + b.w && Math.abs(y - b.cy) < b.rad * 1.15); if (band) { stopScene(); drag = { band, y }; try { DC.setPointerCapture(e.pointerId); } catch (x) { } TRACE.inputs.push([+NOW.toFixed(2), 'turn', band.ring.id, tName()]); } });
+DC.addEventListener('pointermove', e => { if (!drag) return; const y = e.clientY - DC.getBoundingClientRect().top, d = y - drag.y; drag.y = y; handTurn(drag.band.ring, -d / drag.band.rad * 57.3 * .9); });
+DC.addEventListener('pointerup', () => { drag = null; }); DC.addEventListener('pointercancel', () => { drag = null; });
+DC.addEventListener('wheel', e => { e.preventDefault(); ac(); const r = DC.getBoundingClientRect(), x = e.clientX - r.left; const band = BANDS.find(b => b.ring && x >= b.x && x <= b.x + b.w); if (band) { stopScene(); handTurn(band.ring, -Math.sign(e.deltaY) * band.ring.deg); } }, { passive: false });
+let holdDown = 0;
+function press(id) { ac(); if (id === 'select') { stopScene(); select(S.target + 1); }
+  else if (id === 'hold') { holdDown = NOW; S.holdGlow = 1; const up = () => { removeEventListener('pointerup', up); if (NOW - holdDown > .7) switchOff(); else { stopScene(); TRACE.inputs.push([+NOW.toFixed(2), 'hold']); commit(); } }; addEventListener('pointerup', up); }
+  else if (id === 'play') playScene(); else if (id === 'clear') { stopScene(); reset(); } else if (id === 'info') { opPanel(); document.getElementById('info').classList.add('on'); } }
+document.getElementById('infoClose').onclick = () => document.getElementById('info').classList.remove('on');
+document.getElementById('dlTrace').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(traceOut(), null, 1)], { type: 'application/json' })); a.download = 'trace.json'; a.click(); };
+function opPanel() { const t = traceOut(); document.getElementById('opBody').innerHTML = `<table><tr><td>Generation</td><td>${S.gen}</td></tr><tr><td>Stage</td><td>${STAGES[S.stage]}</td></tr><tr><td>Energy rises seen</td><td>${TRACE.monotoneViolations}</td></tr><tr><td>Most inverted triangles</td><td>${TRACE.maxInverted}</td></tr><tr><td>Beads off their shape, ARAP</td><td>${t.now.beadsArap}</td></tr><tr><td>Beads off their shape, naive</td><td>${t.now.beadsNaive}</td></tr><tr><td>Writing stretch (log), ARAP / naive</td><td>${t.now.lettersArap} / ${t.now.lettersNaive}</td></tr>${(S.dist || []).map(d => `<tr><td>To ${d.name}</td><td>${(d.chamfer * 1000).toFixed(2)} mm mean, ${(d.hausdorff * 1000).toFixed(1)} mm worst</td></tr>`).join('')}</table>`; }
+
+/* =============================================================== THE SCENE: the brown dome made start to finish through the same rings */
+// [time, ring|'sel'|'hold', detents or count, seconds]; plan from plan.json (DOME), turned into hand moves
+const SCRIPT = [[.6, 'k', 20, 1.2], [2.6, 'sel'], [2.9, 'k', 12, .8], [4.2, 'hold'],
+  [4.8, 'sel'], [5.0, 't', 2, .4], [5.8, 'sel'], [6.0, 't', 3, .4], [6.8, 'sel', 1], [7.1, 'k', 3, .3], [8.0, 'hold'],
+  [8.6, 'k', 16, 1], [10.3, 'hold'], [10.8, 'k', 24, 1], [13.0, 'hold'], [13.5, 'k', 24, 1.2], [15.7, 'sel', 1], [15.9, 't', 8, .6], [17.0, 'hold'],
+  [17.5, 'k', 7, .6], [18.4, 'hold'], [18.9, 'k', 7, .6], [19.9, 'hold'], [20.9, 'hold'], [25, 'end']];
+function playScene() { reset(); S.scene = { t0: NOW, i: 0 }; }
+function stopScene() { S.scene = null; S.anims = null; }
+function runScene() { const sc = S.scene; if (!sc) return; const t = NOW - sc.t0;
+  while (sc.i < SCRIPT.length && SCRIPT[sc.i][0] <= t) { const s = SCRIPT[sc.i++];
+    if (s[1] === 'sel') { if (s[2] != null) select(s[2]); else select(S.target + 1); } else if (s[1] === 'hold') commit(); else if (s[1] === 'end') stopScene();
+    else { const r = RINGS[{ s: 0, k: 1, t: 2 }[s[1]]]; S.anims = (S.anims || []).concat([{ r, from: r.ang, to: s[2] * r.deg, t0: NOW, dur: s[3] }]); } } }
+function runAnims() { if (!S.anims) return; S.anims = S.anims.filter(a => { const u = clamp((NOW - a.t0) / a.dur, 0, 1), e = u < .5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2; handTurn(a.r, lerp(a.from, a.to, e) - a.r.ang); return u < 1; }); }
+
+/* =============================================================== EVERY FRAME */
+const hud = document.getElementById('hud'), naiveLab = document.getElementById('naiveLab'); let VW = 1, VH = 1, inset = null;
+function resize() { const r = viewEl.getBoundingClientRect(); VW = r.width; VH = r.height; R.setSize(VW, VH, false); layoutDev();
+  inset = VW >= 700 ? { x: VW / 2, y: 0, w: VW / 2, h: VH, split: true } : { x: VW * .6, y: VH * .52, w: VW * .4 - 6, h: VH * .48 - 6, split: false };
+  naiveLab.style.left = (inset.x) + 'px'; naiveLab.style.width = (inset.w - 8) + 'px'; naiveLab.style.top = (inset.y + inset.h - 30) + 'px'; }
+addEventListener('resize', resize);
+function step(dt) { NOW += dt; runScene(); runAnims(); machine(dt); solveFrame();
+  S.on = Math.min(1, S.on + dt / .6); S.flash = Math.max(0, S.flash - dt / .14); arcBlink -= dt; S.holdGlow = Math.max(0, (S.holdGlow || 0) - dt * 2);
+  // the blow: out one by one
+  if (S.blowAt && NOW > S.blowAt) { const k = Math.floor((NOW - S.blowAt) / .16); if (k + 1 > S.out && S.out < 7) { S.out = Math.min(7, k + 1); if (S.out === 7) { S.stage = STAGES.indexOf('DONE'); S.endAt = NOW; say('HAPPY BIRTHDAY'); sound({ k: 'wash', v: 1 }); TRACE.inputs.push([+NOW.toFixed(2), 'all out']); } } }
+  if (S.offAt) { S.dark = clamp((NOW - S.offAt) / 1.0, 0, 1); if (S.dark >= 1 && NOW - S.offAt > 1.6) { reset(); } }
+  render(); }
+function render() {
+  const yaw = S.yaw * Math.PI / 180, D = .6; cam.position.set(Math.sin(yaw) * D, CY + .3, Math.cos(yaw) * D); cam.lookAt(0, CY + .035, 0);
+  const right = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion);
+  const lit = S.stage >= STAGES.indexOf('LIGHT') ? Math.max(0, (S.stage === STAGES.indexOf('LIGHT') ? S.prog.LIGHT : 7) - S.out) : 0, vis = S.on * (1 - S.dark);
+  TW.forEach((tw, i) => { updateTwin(tw, i === 0); tw.grp.quaternion.setFromAxisAngle(right, S.tilt * 3 * Math.PI / 180);
+    tw.ghost.visible = i === 0 && S.stage === 0;
+    [tw.spongeMat, tw.icingMat, tw.beadMat].forEach(m => { m.opacity = vis; const c = m.color, gl = .25 * (lit ? 1 : .4); m.emissive.setRGB(c.r * gl * (m === tw.icingMat ? 0 : 1) + S.flash * .9, c.g * gl * .82 * (m === tw.icingMat ? 0 : 1) + S.flash * .9, c.b * gl * .55 * (m === tw.icingMat ? 0 : 1) + S.flash * .95); });
+    tw.icingMat.emissive.setRGB(S.flash * .9 + (lit ? .05 : 0), S.flash * .9 + (lit ? .03 : 0), S.flash * .95); tw.icingMat.emissiveMap = null;
+    tw.candles.forEach((c, k) => { const on = k < lit && (S.stage < STAGES.indexOf('BLOW') || k >= S.out) ? 1 : 0, fl = .92 + Math.sin(NOW * 23 + k * 1.7) * .05 + Math.sin(NOW * 7.1 + k) * .04; c.f.material.opacity = on * vis; c.h.material.opacity = on * .9 * fl * vis; c.f.scale.y = .034 * fl; }); });
+  board.material.opacity = vis; spot.material.opacity = vis * (.55 + .45 * Math.min(1, S.on * 2)) + S.flash * .5; spot.scale.setScalar(.35 + .65 * Math.min(1, S.on * 1.5));
+  const litNow = TW[0].candles.filter((c, k) => c.f.material.opacity > 0).length;
+  candleLight.position.set(0, CY + .2, 0); candleLight.intensity = litNow * .35 * (.95 + Math.sin(NOW * 19) * .04) * vis; key.intensity = .55 * (1 - .55 * litNow / 7) * vis; hemi.intensity = .16 * vis;
+  R.toneMappingExposure = 1.1 + S.flash * .6;
+  // the arc: beside the cake at candle height while the cake is being worked
+  const working = S.stage >= 1 && S.stage <= 5 && NOW - S.lastWork < 2.6; arcAlpha = lerp(arcAlpha, working ? 1 : 0, .15); ARC.s.position.set(0, CY + .13, 0).addScaledVector(right, .21); ARC.s.material.opacity = arcAlpha * .85 * vis; if (arcAlpha > .01) drawArc();
+  // main view (ARAP), then the naive twin in its own pane
+  R.setScissorTest(true); const w = inset.split ? VW / 2 : VW;
+  R.setViewport(0, 0, w, VH); R.setScissor(0, 0, w, VH); cam.aspect = w / VH; cam.updateProjectionMatrix(); TW[0].grp.visible = true; TW[1].grp.visible = false; R.clear(); R.render(scene, cam);
+  const iy = VH - inset.y - inset.h; R.setViewport(inset.x, iy, inset.w, inset.h); R.setScissor(inset.x, iy, inset.w, inset.h); cam.aspect = inset.w / inset.h; cam.updateProjectionMatrix(); TW[0].grp.visible = false; TW[1].grp.visible = true; ARC.s.visible = false;
+  R.clear(); R.render(scene, cam); ARC.s.visible = true; TW[0].grp.visible = true; TW[1].grp.visible = false; R.setScissorTest(false);
+  drawHud(); drawDev(); }
+let hudT = -1; const fmm = v => (v * 1000).toFixed(1);
+function drawHud() { if (NOW - hudT < .1 && !REC) return; hudT = NOW; const st = STAGES[S.stage], d0 = S.dist && S.dist[0];
+  let h = `<b>${st}</b> &middot; GENERATION ${S.gen}`;
+  if (st === 'SPONGE' && d0) h += `<br>NEAREST: ${d0.name}<br><span class="${within(d0) ? 'ok' : 'w'}">${fmm(d0.chamfer)} MM MEAN (NEED ${fmm(A.TOL.chamfer)}) &middot; ${fmm(d0.hausdorff)} WORST (NEED ${fmm(A.TOL.hausdorff)})${S.fold > A.FOLD_MAX ? ' &middot; FOLDED' : ''}</span>`;
+  else if (S.matched) h += `<br>${S.matched.name}`;
+  if (LAYER[st] != null) h += `<br>${st}: ${S.prog[st]} OF ${LAYER[st]}`;
+  const el = SOL.energyLog, E = el.length ? el[el.length - 1] : 0; h += `<br>ARAP ENERGY ${E.toExponential(2)} &middot; RISES ${TRACE.monotoneViolations} &middot; INVERTED ${TRACE.maxInverted}`;
+  if (TW[0].details.length) h += `<br>BEADS OFF SHAPE ${detailDistortion(TW[0]).toFixed(3)} &middot; NAIVE ${detailDistortion(TW[1]).toFixed(3)}`;
+  if (S.msg && NOW - S.msgAt < 3.5) h += `<br><b>${S.msg}</b>`;
+  hud.innerHTML = h;
+  naiveLab.innerHTML = `NAIVE LINEAR, SAME MOVES${S.naiveDist && S.stage === 0 ? `<br>${fmm(S.naiveDist.chamfer)} MM FROM ${S.near.id}` : ''}`;
+  naiveLab.style.top = (inset.y + inset.h - (S.stage === 0 ? 30 : 18)) + 'px'; }
+function traceOut() { return { revision: 'r1', mesh: { vertices: MESH.n, triangles: MESH.tri.length / 3, clampedWeights: SOL.Wt.clamped }, tolerance: { chamferMm: A.TOL.chamfer * 1000, hausdorffMm: A.TOL.hausdorff * 1000 },
+  stage: STAGES[S.stage], gen: S.gen, matched: S.matched && S.matched.id, monotoneViolations: TRACE.monotoneViolations, maxInverted: TRACE.maxInverted, maxCollapsed: TRACE.maxCollapsed,
+  now: { beadsArap: +detailDistortion(TW[0]).toExponential(2), beadsNaive: +detailDistortion(TW[1]).toFixed(4), lettersArap: +letterStretch(TW[0]).toFixed(4), lettersNaive: +letterStretch(TW[1]).toFixed(4) },
+  commits: TRACE.commits, inputs: TRACE.inputs, energyBursts: TRACE.energyBursts, detailSamples: TRACE.detail, sounds: LOG.length }; }
+let last = performance.now();
+function frame(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; step(dt); if (S.anims || S.scene || S.dirty > 0) TRACE.detail.length < 400 && S.stage > 2 && TRACE.detail.push([+NOW.toFixed(2), +detailDistortion(TW[0]).toExponential(1), +detailDistortion(TW[1]).toFixed(4)]); requestAnimationFrame(frame); }
+document.fonts && document.fonts.load('400 20px Oswald').then(() => drawDev());
+resize(); reset(); drawInscription(0);
+if (!REC) requestAnimationFrame(frame); else render();
+window.MM = { ready: () => WAVTRIED, advance: dt => { step(dt); if (S.stage > 2 && (S.dirty > 0 || S.anims)) TRACE.detail.length < 600 && TRACE.detail.push([+NOW.toFixed(2), +detailDistortion(TW[0]).toExponential(1), +detailDistortion(TW[1]).toFixed(4)]); }, press, handTurn, commit, select, renderAudio, traceOut, S, RINGS, STAGES, LAYER, tName, BANDS: () => BANDS, BTNS: () => BTNS, devRect: () => DC.getBoundingClientRect(), NOW: () => NOW, SOL, NAI, A, playScene, TW, SCRIPT };
+</script></body></html>

@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Archive Cake</title>
+<style>
+@font-face { font-family: 'Oswald'; src: url('../../../ana/assets/oswald-latin-400-normal.woff2') format('woff2'); font-weight: 400; }
+@font-face { font-family: 'Oswald'; src: url('../../../ana/assets/oswald-latin-500-normal.woff2') format('woff2'); font-weight: 500; }
+:root { --bg: #050606; --ink: #d9e2de; --dim: #6f7c77; --amber: #e8b264; --ok: #7fd3a2; --warn: #d98a6a; }
+* { box-sizing: border-box; } html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); overflow: hidden; }
+body { font: 13px/1.4 'Oswald', 'Arial Narrow', sans-serif; letter-spacing: .06em; -webkit-user-select: none; user-select: none; }
+.app { height: 100dvh; display: grid; grid-template-rows: minmax(0, 1fr) clamp(200px, 34vh, 330px); }
+#view { position: relative; overflow: hidden; } #view canvas { display: block; width: 100%; height: 100%; }
+#hud { position: absolute; left: 12px; top: 10px; right: 12px; pointer-events: none; font-size: 11px; color: var(--dim); }
+#hud .row { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
+#hud .st { display: inline-flex; align-items: center; gap: 4px; } #hud .st i { width: 7px; height: 7px; border-radius: 50%; border: 1px solid #3a423f; display: inline-block; }
+#hud .st.done { color: #c9d2cf; } #hud .st.done i { background: var(--amber); border-color: var(--amber); } #hud .st.now { color: var(--amber); } #hud .st.now i { border-color: var(--amber); }
+#hud .goal { margin-top: 5px; color: #aab5b1; } #hud .goal b { color: var(--amber); font-weight: 500; }
+#cap { position: absolute; left: 12px; bottom: 8px; right: 12px; pointer-events: none; font: 11px/1.35 -apple-system, Arial, sans-serif; letter-spacing: 0; color: #8f9b97; max-width: 640px; }
+#cap b { font: 500 11px 'Oswald', sans-serif; letter-spacing: .1em; color: #c9d2cf; } #cap .r { font: 500 10px 'Oswald', sans-serif; letter-spacing: .1em; padding: 0 4px; border: 1px solid #3a423f; border-radius: 2px; }
+#cap .r.u { color: var(--warn); border-color: #5a3a2e; } #cap .r.n { color: #9aa6a2; }
+#dev { position: relative; background: radial-gradient(120% 140% at 50% 0%, #121413 0%, #070807 60%, #030303 100%); border-top: 1px solid #161918; touch-action: none; }
+#dev canvas { display: block; width: 100%; height: 100%; }
+#info { position: absolute; inset: 0; background: rgba(3, 4, 4, .96); display: none; overflow: auto; padding: 18px 16px 30px; font: 13px/1.5 -apple-system, Arial, sans-serif; letter-spacing: 0; z-index: 5; }
+#info.on { display: block; } #info h3 { font: 500 15px 'Oswald', sans-serif; letter-spacing: .1em; margin: 0 0 10px; color: var(--amber); }
+#info h4 { font: 500 13px 'Oswald', sans-serif; letter-spacing: .1em; margin: 18px 0 6px; color: var(--ink); }
+#info table { border-collapse: collapse; width: 100%; max-width: 900px; } #info td, #info th { padding: 5px 6px; border-bottom: 1px solid #1c201e; vertical-align: top; text-align: left; font-size: 12px; }
+#info th { font: 500 11px 'Oswald', sans-serif; letter-spacing: .08em; color: var(--dim); } #info p { max-width: 780px; color: #a9b4b0; } #info a { color: var(--amber); }
+#info .u { color: var(--warn); } #info code { font-size: 11px; color: #9fb0aa; word-break: break-all; }
+button.x { font: 500 12px 'Oswald', sans-serif; letter-spacing: .12em; color: var(--ink); background: #121514; border: 1px solid #2a302d; border-radius: 4px; padding: 7px 12px; cursor: pointer; }
+</style></head><body>
+<div class="app"><div id="view"><div id="hud"><div class="row" id="ladder"></div><div class="goal" id="goal"></div></div><div id="cap"></div></div><div id="dev"></div></div>
+<div id="info"><h3>THE ARCHIVE CAKE &middot; OPERATOR PANEL</h3>
+<p>Build the birthday cake from pieces drawn out of a museum archive, stage by stage, on the memory maker's device. SELECT picks the slot (stand, plate, mould, decoration, inscription, candles, light). The knurled ring draws a piece from the archive for that slot; the triangle ring sets its size and turn; HOLD places it, and the making plays out. Under the stand, the plate; the mould is filled and baked and lifted; the icing goes on and the beads are piped; the knurl writes 生日快乐; the candles are set; HOLD strikes the match; HOLD again and the candles go out. Long HOLD switches the memory off. Each placed decoration is scored against the film cake named at the top (MATCH); place another decoration to move toward it.</p>
+<p class="u">Rights, plainly: none of the museum files could be downloaded from this build's sandbox (the proxy refuses every museum host) and no record's CC0 status could be read. Every piece on stage is an original stand-in drawn in code; the record it stands for is kept with its rights state. Nothing from an archive is in the repo.</p>
+<h4>ON STAGE NOW</h4><table id="audit"></table>
+<h4>THE RESERVOIR</h4><table id="res"></table>
+<p><a href="manifest.json">manifest.json</a> &middot; <a href="operator.html">operator page</a> &middot; <a href="README.md">README</a> &middot; <a href="trace.json">trace.json</a></p>
+<button class="x" id="infoClose">CLOSE</button></div>
+<script src="../../../ana/assets/three.min.js"></script>
+<script src="core.js"></script>
+<script src="scenario.js"></script>
+<script>
+'use strict';
+const T = THREE, A = Atelier, TAU = Math.PI * 2, clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t;
+const REC = /[?&]rec=1/.test(location.search);
+let G = A.create(); A.select(G, 0, true); let logRead = 0;
+/* =============================================================== SOUND: one play() for the live room and for the offline render of the recorder */
+let AC = null, BUF = null, WAVBYTES = null, RND = 1; const rnd = () => (RND = (RND * 16807) % 2147483647) / 2147483647;
+const SPR = { click: [[0, .065], [.115, .065], [.23, .065], [.345, .065], [.46, .065], [.575, .065], [.69, .065], [.805, .065], [.92, .065]], ratchet: [[1.035, .05], [1.135, .05], [1.235, .05], [1.335, .05]], tick: [[1.435, .04], [1.525, .04]], comb: [[1.615, .37]], whirr: [[2.035, .62]] };
+fetch('../../../ana/device-sounds.wav').then(r => r.ok ? r.arrayBuffer() : Promise.reject()).then(b => { WAVBYTES = b; }).catch(() => { WAVBYTES = false; });
+function ac() { if (REC) return null; if (!AC) { AC = new (window.AudioContext || window.webkitAudioContext)(); if (WAVBYTES) AC.decodeAudioData(WAVBYTES.slice(0)).then(b => BUF = b).catch(() => { }); } if (AC.state === 'suspended') AC.resume(); return AC; }
+const NB = new WeakMap(); function noiseBuf(a, len) { let m = NB.get(a); if (!m) NB.set(a, m = {}); if (m[len]) return m[len]; const b = a.createBuffer(1, Math.floor(a.sampleRate * len), a.sampleRate), d = b.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = rnd() * 2 - 1; return m[len] = b; }
+function nz(a, len) { const s = a.createBufferSource(); s.buffer = noiseBuf(a, len); return s; }
+function env(g, t, pk, at, dur) { g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(pk, t + at); g.gain.exponentialRampToValueAtTime(.0005, t + dur); }
+function grain(a, out, buf, t, kind, rate, vol) { if (buf) { const set = SPR[kind], [o, d] = set[Math.floor(rnd() * set.length)], s = a.createBufferSource(); s.buffer = buf; s.playbackRate.value = rate; const g = a.createGain(); g.gain.value = vol; s.connect(g).connect(out); s.start(t, o, d); return; }
+  const s = nz(a, .05), f = a.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = kind === 'tick' ? 6000 : 2600 * rate; f.Q.value = 2.2; const g = a.createGain(); env(g, t, vol, .002, .04); s.connect(f).connect(g).connect(out); s.start(t); }
+function band(a, out, t, len, type, freq, q, pk, at, f2) { const s = nz(a, len), f = a.createBiquadFilter(); f.type = type; f.Q.value = q; f.frequency.setValueAtTime(freq, t); if (f2) f.frequency.exponentialRampToValueAtTime(f2, t + len); const g = a.createGain(); env(g, t, pk, at, len); s.connect(f).connect(g).connect(out); s.start(t); }
+function partials(a, out, t, list, pk, dur) { list.forEach(([fr, amp, dk]) => { const o = a.createOscillator(), g = a.createGain(); o.frequency.value = fr; env(g, t, pk * amp, .002, dur * (dk || 1)); o.connect(g).connect(out); o.start(t); o.stop(t + dur * (dk || 1) + .05); }); }
+function play(a, out, buf, t, e) { const k = e.k, RIX = { scale: 0, knurl: 1, tri: 2 };
+  if (k === 'click') grain(a, out, buf, t, e.fast ? 'ratchet' : 'click', 1 + RIX[e.ring] * .045 + (rnd() - .5) * .02, .7);
+  else if (k === 'hand') grain(a, out, buf, t, 'click', 1.25 + RIX[e.ring] * .03, .22);
+  else if (k === 'dead') grain(a, out, buf, t, 'click', .75, .12);
+  else if (k === 'hold') grain(a, out, buf, t, 'click', .9, .55);
+  else if (k === 'select') { for (let i = 0; i < 5; i++) { const o = a.createOscillator(), g = a.createGain(), tt = t + i * .055; o.frequency.value = 12000; g.gain.setValueAtTime(0, tt); g.gain.linearRampToValueAtTime(.03, tt + .004); g.gain.linearRampToValueAtTime(0, tt + .03); o.connect(g).connect(out); o.start(tt); o.stop(tt + .04); } }
+  else if (k === 'preview') { band(a, out, t, .22, 'highpass', 3500, .7, .05, .02); }
+  else if (k === 'place' || k === 'decay' || k === 'off' || k === 'nextcake') { band(a, out, t, .6, 'highpass', 2200, .7, k === 'off' ? .26 : .18, .06); if (buf) grain(a, out, buf, t, 'comb', 1, .2); }
+  else if (k === 'set') { partials(a, out, t, [[92, 1, 1], [184, .4, .6], [610, .15, .3]], .3, .35); band(a, out, t, .08, 'lowpass', 900, .7, .12, .003); }        // a bronze foot set on wood
+  else if (k === 'plate') { partials(a, out, t, [[2210, 1, 1], [3460, .6, .7], [5120, .35, .5], [1180, .3, 1]], .07, .7); }                                         // porcelain on bronze
+  else if (k === 'clank') { partials(a, out, t, [[523, 1, 1], [1397, .6, .8], [2219, .4, .6], [3480, .25, .4]], .08, .55); band(a, out, t, .05, 'bandpass', 3000, 1, .1, .002); }
+  else if (k === 'pour') { band(a, out, t, 1.3, 'bandpass', 380, 1.4, .12, .2, 900); band(a, out, t + .1, 1.1, 'lowpass', 260, .8, .07, .3); }                        // batter going in
+  else if (k === 'bake') { const o = a.createOscillator(), g = a.createGain(); o.type = 'triangle'; o.frequency.value = 58; env(g, t, .06, .12, .5); o.connect(g).connect(out); o.start(t); o.stop(t + .55); band(a, out, t, .5, 'bandpass', 5200, 3, .025, .1); }
+  else if (k === 'lift') { band(a, out, t, .7, 'bandpass', 700, 1.1, .08, .15, 2600); partials(a, out, t + .02, [[1046, 1, 1], [2793, .4, .6]], .03, .4); }
+  else if (k === 'spread') { band(a, out, t, 1.2, 'bandpass', 1100, .9, .07, .25, 700); band(a, out, t + .5, .7, 'bandpass', 1500, .9, .05, .2, 900); }               // a knife spreading icing
+  else if (k === 'pipe') { band(a, out, t, .09, 'bandpass', 600 + rnd() * 300, 3, .09, .01); }                                                                    // a bead squeezed out
+  else if (k === 'drip') { const o = a.createOscillator(), g = a.createGain(); o.frequency.setValueAtTime(900, t); o.frequency.exponentialRampToValueAtTime(380, t + .07); env(g, t, .05, .004, .1); o.connect(g).connect(out); o.start(t); o.stop(t + .12); }
+  else if (k === 'stroke') { band(a, out, t, .07, 'bandpass', 2400 + rnd() * 800, 2, .05, .008); }                                                                 // the piping pen
+  else if (k === 'arcmark') { grain(a, out, buf, t, 'tick', 1, .35); }
+  else if (k === 'written') { band(a, out, t, .5, 'highpass', 2600, .7, .1, .05); }
+  else if (k === 'candle') { band(a, out, t, .05, 'bandpass', 1800, 1.5, .12, .002); partials(a, out, t, [[1320, 1, 1]], .02, .12); }                              // a candle pushed into its cup
+  else if (k === 'match') { band(a, out, t, .18, 'bandpass', 3200, .8, .22, .01, 1800); band(a, out, t + .16, .5, 'lowpass', 900, .7, .16, .03); }                  // scratch, then the flare
+  else if (k === 'flame') { band(a, out, t, .25, 'lowpass', 500, .7, .07, .02); }
+  else if (k === 'inhale') { band(a, out, t, .7, 'bandpass', 900, 1.3, .06, .45, 2000); }
+  else if (k === 'blow') { band(a, out, t, 1.1, 'lowpass', 1500, .7, .22, .05, 500); }
+  else if (k === 'puff') { band(a, out, t, .08, 'bandpass', 3200, 1, .06, .003); }
+  else if (k === 'done') { partials(a, out, t + .3, [[880, 1, 1], [1318, .5, 1]], .015, 1.2); }
+}
+function roomTone(a, out, t) { const s = a.createBufferSource(); s.buffer = noiseBuf(a, 2); s.loop = true; const f = a.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 380; const g = a.createGain(); g.gain.value = .018; s.connect(f).connect(g).connect(out); s.start(t); }
+function sound(e) { const a = ac(); if (!a) return; try { play(a, a.destination, BUF, a.currentTime + .005, e); } catch (x) { } }
+async function renderAudio(t0, t1) { const sr = 48000, a = new OfflineAudioContext(2, Math.ceil((t1 - t0) * sr), sr); let buf = null; if (WAVBYTES) buf = await a.decodeAudioData(WAVBYTES.slice(0)); RND = 1; roomTone(a, a.destination, 0);
+  G.log.forEach(e => { if (e.t < t0 || e.t > t1) return; play(a, a.destination, buf, e.t - t0, e); });
+  const r = await a.startRendering(), L0 = r.getChannelData(0), R0 = r.getChannelData(1), n = L0.length, dv = new DataView(new ArrayBuffer(44 + n * 4));
+  const ws = (o, s) => { for (let i = 0; i < s.length; i++) dv.setUint8(o + i, s.charCodeAt(i)); }; ws(0, 'RIFF'); dv.setUint32(4, 36 + n * 4, true); ws(8, 'WAVEfmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 2, true); dv.setUint32(24, sr, true); dv.setUint32(28, sr * 4, true); dv.setUint16(32, 4, true); dv.setUint16(34, 16, true); ws(36, 'data'); dv.setUint32(40, n * 4, true);
+  let pk = 0; for (let i = 0; i < n; i++) pk = Math.max(pk, Math.abs(L0[i]), Math.abs(R0[i])); const gain = pk > .95 ? .95 / pk : 1;
+  for (let i = 0; i < n; i++) { dv.setInt16(44 + i * 4, clamp(L0[i] * gain, -1, 1) * 32767, true); dv.setInt16(46 + i * 4, clamp(R0[i] * gain, -1, 1) * 32767, true); }
+  const bytes = new Uint8Array(dv.buffer); let s = ''; for (let i = 0; i < bytes.length; i += 32768) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 32768)); return { b64: btoa(s), peak: pk, grains: !!buf }; }
+
+/* =============================================================== THE ROOM: the memory's dark dome, the band of light, the hex table */
+const viewEl = document.getElementById('view'), R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: REC }); R.setPixelRatio(REC ? 1 : Math.min(2, devicePixelRatio)); R.outputEncoding = T.sRGBEncoding; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = 1.1; R.localClippingEnabled = true; viewEl.prepend(R.domElement);
+const scene = new T.Scene(); scene.background = new T.Color(0x020303); scene.fog = new T.FogExp2(0x020303, .09);
+const cam = new T.PerspectiveCamera(34, 1, .02, 60);
+{ const fl = new T.Mesh(new T.CircleGeometry(9, 96), new T.MeshStandardMaterial({ color: 0x0a0b0b, roughness: .55, metalness: .2 })); fl.rotation.x = -Math.PI / 2; scene.add(fl);
+  const bandL = new T.Mesh(new T.TorusGeometry(7.5, .012, 6, 256), new T.MeshBasicMaterial({ color: 0xdfe8e4 })); bandL.rotation.x = Math.PI / 2; bandL.position.y = .42; scene.add(bandL);
+  const glow = new T.Mesh(new T.TorusGeometry(7.5, .09, 6, 256), new T.MeshBasicMaterial({ color: 0x7e8f89, transparent: true, opacity: .1 })); glow.rotation.x = Math.PI / 2; glow.position.y = .42; scene.add(glow); }
+scene.add(new T.HemisphereLight(0x6c7a76, 0x050403, .07));
+const key = new T.SpotLight(0xffe2c0, 1.3, 4, .5, .8, 1.6); key.position.set(.35, 1.6, .6); key.target.position.set(0, .55, 0); scene.add(key, key.target);   // the memory's own soft top light
+const candleLight = new T.PointLight(0xffa04a, 0, 3.2, 1.5); scene.add(candleLight);
+const flashLight = new T.PointLight(0xf4f6ff, 0, 2.5, 2); scene.add(flashLight);
+const TT = A.TABLE_TOP;
+const TABLE = new T.Group(); scene.add(TABLE); { const hex = new T.Mesh(new T.CylinderGeometry(.4, .4, .03, 6), new T.MeshStandardMaterial({ color: 0x8a6232, roughness: .6 })); hex.position.y = TT - .015; TABLE.add(hex);
+  const leg = new T.Mesh(new T.CylinderGeometry(.05, .07, TT - .03, 16), new T.MeshStandardMaterial({ color: 0x1a1612, roughness: .8 })); leg.position.y = (TT - .03) / 2; TABLE.add(leg); }
+/* =============================================================== MATERIALS of the stand-ins */
+const MAT = { bronze: () => new T.MeshStandardMaterial({ color: 0x6f5c3a, metalness: .7, roughness: .42 }), earth: () => new T.MeshStandardMaterial({ color: 0x4b3527, metalness: .05, roughness: .78 }),
+  glass: () => new T.MeshStandardMaterial({ color: 0xd8eeee, metalness: .1, roughness: .05, transparent: true, opacity: .3, depthWrite: false }), porcelain: () => new T.MeshStandardMaterial({ color: 0xf2efe8, roughness: .22 }),
+  pewter: () => new T.MeshStandardMaterial({ color: 0x8d918f, metalness: .8, roughness: .4 }), tin: () => new T.MeshStandardMaterial({ color: 0xbfc3c3, metalness: .85, roughness: .3, transparent: true, opacity: .55, side: T.DoubleSide, depthWrite: false }),
+  copper: () => new T.MeshStandardMaterial({ color: 0xb8673a, metalness: .85, roughness: .35, transparent: true, opacity: .55, side: T.DoubleSide, depthWrite: false }), brass: () => new T.MeshStandardMaterial({ color: 0xc9a24a, metalness: .9, roughness: .3 }) };
+const V2 = (x, y) => new T.Vector2(x, y), lathe = (pts, seg) => new T.LatheGeometry(pts, seg || 96);
+/* =============================================================== THE STAND-INS, one builder per form, sized so that the top surface is at y = form height */
+function buildStand(f) { const g = new T.Group(), h = f.h, r = f.r;
+  if (f.type === 'pedestal') { g.add(new T.Mesh(lathe([V2(0, 0), V2(.095, 0), V2(.09, .007), V2(.035, .028), V2(.022, .042), V2(.032, .048), V2(.032, .053), V2(.02, .058), V2(.024, h - .012), V2(r, h - .006), V2(r, h), V2(0, h)]), MAT.bronze()));
+    const lip = new T.Mesh(new T.TorusGeometry(r, .0035, 8, 96), MAT.bronze()); lip.rotation.x = Math.PI / 2; lip.position.y = h; g.add(lip); }
+  else if (f.type === 'square') { const body = new T.Mesh(new T.CylinderGeometry(r * 1.0, r * 1.1, h - .012, 4, 1), MAT.bronze()); body.rotation.y = Math.PI / 4; body.position.y = (h - .012) / 2; g.add(body);
+    const slab = new T.Mesh(new T.CylinderGeometry(r * 1.06, r * 1.06, .012, 4), MAT.bronze()); slab.rotation.y = Math.PI / 4; slab.position.y = h - .006; g.add(slab);
+    for (let k = 0; k < 4; k++) { const fl = new T.Mesh(new T.BoxGeometry(.008, h - .016, .03), MAT.bronze()); const a = k * Math.PI / 2; fl.position.set(Math.cos(a) * r * .74, (h - .016) / 2, Math.sin(a) * r * .74); fl.rotation.y = -a; g.add(fl); } }
+  else { g.add(new T.Mesh(lathe([V2(0, 0), V2(.085, 0), V2(.08, .006), V2(.02, .022), V2(.015, h - .02), V2(.032, h - .012), V2(r, h - .004), V2(r, h), V2(0, h)]), MAT.glass())); }
+  return g; }
+function buildPlate(f) { const g = new T.Group(), r = f.r;
+  if (f.type === 'dish') { const geo = lathe([V2(0, 0), V2(.1, 0), V2(.14, .004), V2(r, .016), V2(r - .007, .018), V2(.125, .012), V2(0, .012)], 72); const p = geo.attributes.position;
+    for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i), rr = Math.hypot(x, z); if (rr > .13) { const a = Math.atan2(z, x); p.setY(i, p.getY(i) + .0025 * Math.sin(5 * a + 1.3) + .0012 * Math.sin(11 * a)); } } geo.computeVertexNormals(); g.add(new T.Mesh(geo, MAT.earth())); }
+  else { g.add(new T.Mesh(lathe([V2(0, 0), V2(r * .6, 0), V2(r * .66, .004), V2(r, .015), V2(r - .004, .017), V2(r * .64, .012), V2(0, .012)]), MAT[f.mat]()));
+    if (f.mat === 'porcelain') { const bandM = new T.Mesh(new T.TorusGeometry(r * .9, .0024, 6, 96), new T.MeshStandardMaterial({ color: 0x2b4f9e, roughness: .3 })); bandM.rotation.x = Math.PI / 2; bandM.position.y = .0148; g.add(bandM); } }
+  return g; }
+const H = A.CAKE_H, CR = A.CAKE_R;
+function domeProfile(scale, lift) { const p = [V2(0, 0)]; for (let k = 0; k <= 40; k++) { const r = CR * (1 - k / 40); p.push(V2(r * scale + (k === 0 ? 0 : 0), A.surface('dome', r) * (lift || 1))); } return p; }
+function bodyGeo(type) {
+  if (type === 'drum') return lathe([V2(0, 0), V2(CR, 0), V2(CR, H - .006), V2(CR - .006, H), V2(0, H)]);
+  if (type === 'dome') { const p = [V2(0, 0)]; for (let k = 0; k <= 48; k++) { const r = CR * (1 - k / 48); p.push(V2(Math.max(r, .0001), A.surface('dome', r))); } return lathe(p); }
+  if (type === 'square') { const b = new T.BoxGeometry(.21, H, .21, 1, 1, 1); b.translate(0, H / 2, 0); return b; }
+  const geo = lathe([V2(.03, 0), V2(CR, 0), V2(CR, H - .008), V2(CR - .01, H), V2(.04, H), V2(.03, H - .01), V2(.03, 0)], 160), p = geo.attributes.position;   // the fluted ring
+  for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i), rr = Math.hypot(x, z); if (rr > .06) { const a = Math.atan2(z, x), k = 1 + .05 * Math.cos(16 * a); p.setX(i, x * k); p.setZ(i, z * k); } } geo.computeVertexNormals(); return geo; }
+function buildMould(f) { const g = new T.Group(), m = MAT[f.mat](); m.transparent = true; m.opacity = .55; m.side = T.DoubleSide; m.depthWrite = false;
+  if (f.type === 'drum') { g.add(new T.Mesh(new T.CylinderGeometry(.128, .125, .115, 96, 1, true), m).translateY(.0575)); const rim = new T.Mesh(new T.TorusGeometry(.128, .003, 8, 96), m); rim.rotation.x = Math.PI / 2; rim.position.y = .115; g.add(rim); }
+  else if (f.type === 'dome') { const p = []; for (let k = 0; k <= 40; k++) { const r = CR * (1 - k / 40); p.push(V2(Math.max(.0001, r * 1.07), A.surface('dome', r) * 1.07 + .002)); } p.unshift(V2(CR * 1.12, -.002)); const shell = new T.Mesh(lathe(p), m); g.add(shell);
+    const foot = new T.Mesh(new T.TorusGeometry(.04, .006, 8, 48), m); foot.rotation.x = Math.PI / 2; foot.position.y = .118; g.add(foot); }   // the pot's base ring, now on top
+  else if (f.type === 'square') { const b = new T.Mesh(new T.CylinderGeometry(.158, .152, .115, 4, 1, true), m); b.rotation.y = Math.PI / 4; b.position.y = .0575; g.add(b);
+    for (let k = 0; k < 4; k++) { const fl = new T.Mesh(new T.BoxGeometry(.006, .11, .028), m); const a = k * Math.PI / 2; fl.position.set(Math.cos(a) * .118, .057, Math.sin(a) * .118); fl.rotation.y = -a; g.add(fl); } }
+  else { const geo = new T.CylinderGeometry(.13, .13, .115, 160, 1, true), p = geo.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i), a = Math.atan2(z, x), k = 1 + .05 * Math.cos(16 * a); p.setX(i, x * k); p.setZ(i, z * k); } geo.computeVertexNormals();
+    g.add(new T.Mesh(geo, m).translateY(.0575)); g.add(new T.Mesh(new T.CylinderGeometry(.027, .027, .118, 32, 1, true), m).translateY(.059)); }
+  return g; }
+function buildHolder(f) { const g = new T.Group(); if (f.type === 'cup') { g.add(new T.Mesh(new T.CylinderGeometry(.0075, .0045, .009, 18), MAT.brass()).translateY(.0005)); const d = new T.Mesh(new T.CylinderGeometry(.011, .011, .0015, 18), MAT.brass()); d.position.y = -.004; g.add(d); }
+  else if (f.type === 'roof') { const roof = new T.Mesh(new T.ConeGeometry(.011, .01, 4), MAT.bronze()); roof.rotation.y = Math.PI / 4; roof.position.y = .001; g.add(roof); const b = new T.Mesh(new T.BoxGeometry(.012, .004, .012), MAT.bronze()); b.position.y = -.005; g.add(b); }
+  return g; }
+/* =============================================================== THE CAKE being made: mould, batter, bake, lift, icing, top, beads or glaze, the inscription */
+const CAKE = new T.Group(); scene.add(CAKE);              // sits on the plate; turned by the cake's turn; tilted by the inscription's tilt
+const TURN = new T.Group(); CAKE.add(TURN);
+const BATTER = new T.Color(0xe8d39a), BAKED = new T.Color(0xb98546);
+const bodyMat = new T.MeshStandardMaterial({ color: 0xe8d39a, roughness: .85 }), icingPlane = new T.Plane(new T.Vector3(0, 1, 0), 0);
+const icingMat = new T.MeshStandardMaterial({ roughness: .7, clippingPlanes: [icingPlane] }), topMat = new T.MeshStandardMaterial({ roughness: .62, transparent: true }), beadMat = new T.MeshStandardMaterial({ roughness: .45 });
+let BODY = null, ICING = null, TOP = null, BEADS = null, DRIPS = null, MOULD = null, curForm = null, curDeco = null, curMould = null;
+const BEAD_COLS = [0xe94b3c, 0xf2d14b, 0x4bb0e9, 0xf7f3ea, 0x6cc070];
+function beadPos(type, k, n) { const a = k * 2.399 + .2, u = ((k * 37) % n) / n;
+  if (type === 'square') { const face = k % 4, s = ((k * 53) % n) / n - .5, ang = face * Math.PI / 2; const nx = Math.cos(ang), nz = Math.sin(ang); return [nx * .1085 - nz * s * .19, .012 + u * (H - .024), nz * .1085 + nx * s * .19]; }
+  if (type === 'dome') { const r = CR * (.3 + .68 * u); return [Math.cos(a) * (r + .002), A.surface('dome', r) + .002, Math.sin(a) * (r + .002)]; }
+  const fl = type === 'ring' ? 1 + .05 * Math.cos(16 * a) : 1; return [Math.cos(a) * (CR * fl + .0015), .012 + u * (H - .024), Math.sin(a) * (CR * fl + .0015)]; }
+function rebuildCake() { const m = G.placed.MOULD, d = G.placed.DECORATION; const form = m ? A.byId(m.id).form.type : null, deco = d ? d.id : null;
+  if (form !== curForm) { [BODY, ICING, BEADS, DRIPS, TOP].forEach(o => o && TURN.remove(o)); BODY = ICING = BEADS = DRIPS = TOP = null; curForm = form; curDeco = null;
+    if (form) { const geo = bodyGeo(form); BODY = new T.Mesh(geo, bodyMat); TURN.add(BODY); ICING = new T.Mesh(geo, icingMat); ICING.scale.set(1.012, 1.006, 1.012); TURN.add(ICING);
+      const tg = form === 'dome' ? lathe(domeProfile(1, 1).slice(0, 1).concat(Array.from({ length: 30 }, (_, k) => { const r = .085 * (1 - k / 29); return V2(Math.max(r, .0001), A.surface('dome', r) + .0012); }))) : form === 'square' ? new T.PlaneGeometry(.2, .2).rotateX(-Math.PI / 2).translate(0, H + .0008, 0) : form === 'ring' ? new T.RingGeometry(.04, CR - .008, 96).rotateX(-Math.PI / 2).translate(0, H + .0008, 0) : new T.CircleGeometry(CR - .004, 96).rotateX(-Math.PI / 2).translate(0, H + .0008, 0);
+      TOP = new T.Mesh(tg, topMat); TURN.add(TOP); INSC.geometry = inscGeo(form); TURN.add(INSC); } }
+  if (form && deco !== curDeco) { curDeco = deco; if (BEADS) TURN.remove(BEADS); if (DRIPS) TURN.remove(DRIPS); BEADS = DRIPS = null;
+    if (deco) { const f = A.byId(deco).form; icingMat.color.setHex(f.side); topMat.color.setHex(f.top);
+      if (f.beads !== 'none') { const n = 70, im = new T.InstancedMesh(new T.SphereGeometry(.0045, 8, 6), beadMat, n), m4 = new T.Matrix4(); for (let k = 0; k < n; k++) { const [x, y, z] = beadPos(form, k, n); m4.makeTranslation(x, y, z); im.setMatrixAt(k, m4); im.setColorAt(k, new T.Color(f.beads === 'white' ? 0xf7f3ea : BEAD_COLS[k % 5])); } BEADS = im; TURN.add(im); }
+      else { DRIPS = new T.Group(); for (let k = 0; k < 14; k++) { const a = k / 14 * TAU + .1, len = .02 + ((k * 7) % 5) * .006, dm = new T.Mesh(new T.SphereGeometry(.006, 10, 8), icingMat); const r = CR * .97; dm.position.set(Math.cos(a) * (r + .002), A.surface(form, r) - len / 2, Math.sin(a) * (r + .002)); dm.scale.set(1, len / .012, 1); dm.userData.len = len; DRIPS.add(dm); } TURN.add(DRIPS); } } } }
+// the inscription: a grid that lies on the cake's own top, the characters drawn stroke by stroke into its texture
+const INC = document.createElement('canvas'); INC.width = INC.height = 512; const inx = INC.getContext('2d'); const INT = new T.CanvasTexture(INC); INT.encoding = T.sRGBEncoding;
+const INSC = new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshBasicMaterial({ map: INT, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 })); INSC.renderOrder = 3;
+function inscGeo(form) { const g = new T.PlaneGeometry(.224, .224, 40, 40).rotateX(-Math.PI / 2), p = g.attributes.position; for (let i = 0; i < p.count; i++) { const r = Math.hypot(p.getX(i), p.getZ(i)); p.setY(i, (form === 'dome' ? A.surface('dome', Math.min(r, CR)) : H) + .0018); } return g; }
+const CHARS = ['生', '日', '快', '乐']; let drawnIns = -1;
+function drawInscription(v) { if (v === drawnIns) return; drawnIns = v; inx.clearRect(0, 0, 512, 512); const p = v / A.WSTEPS * 5; inx.save(); inx.translate(256, 268); inx.rotate(-.12); inx.fillStyle = '#c4231c'; inx.strokeStyle = '#c4231c';
+  inx.font = '600 84px "PingFang SC","Hiragino Sans GB","Noto Sans CJK SC","Microsoft YaHei",sans-serif'; inx.textBaseline = 'middle'; inx.textAlign = 'center';
+  for (let i = 0; i < 4; i++) { const f = clamp(p - i, 0, 1); if (f <= 0) break; const x = -138 + i * 92; inx.save(); inx.beginPath(); inx.rect(x - 48, -48, 96, 96 * Math.min(1, f * 1.2)); if (f < 1) inx.rect(x - 48, -48 + 96 * Math.max(0, f * 1.2 - .5), 96 * f, 18); inx.clip(); inx.fillText(CHARS[i], x, 0); inx.restore(); }
+  const ff = clamp(p - 4, 0, 1); if (ff > 0) { inx.lineWidth = 8; inx.lineCap = 'round'; inx.beginPath(); const N = 40; for (let k = 0; k <= N * ff; k++) { const u = k / N, X = -150 + u * 300, Y = 66 + Math.sin(u * Math.PI * 1.6) * 14 - u * 10; k ? inx.lineTo(X, Y) : inx.moveTo(X, Y); } inx.stroke(); }
+  inx.restore(); INT.needsUpdate = true; }
+drawInscription(0);
+/* =============================================================== CANDLES: their own layer on the candle plane (stand and plate decide it; the cake under them does not) */
+const CANDLES = new T.Group(); scene.add(CANDLES); const FL = [];
+const stripe = (() => { const c = document.createElement('canvas'); c.width = 16; c.height = 64; const x = c.getContext('2d'); x.fillStyle = '#f2e9d6'; x.fillRect(0, 0, 16, 64); x.fillStyle = '#d4483e'; for (let y = -16; y < 80; y += 12) { x.beginPath(); x.moveTo(0, y); x.lineTo(16, y + 8); x.lineTo(16, y + 13); x.lineTo(0, y + 5); x.fill(); } const t = new T.CanvasTexture(c); t.wrapT = T.RepeatWrapping; t.encoding = T.sRGBEncoding; return t; })();
+const sprite = (stops, w, h, cy) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'), g = x.createRadialGradient(w / 2, h * (cy || .62), 1, w / 2, h * (cy ? cy : .55), Math.min(w, h) * .48); stops.forEach(([o, s]) => g.addColorStop(o, s)); x.fillStyle = g; x.fillRect(0, 0, w, h); return new T.CanvasTexture(c); };
+const flameTex = sprite([[0, 'rgba(255,252,232,1)'], [.25, 'rgba(255,206,96,.95)'], [.6, 'rgba(255,120,30,.3)'], [1, 'rgba(255,90,20,0)']], 32, 64);
+const haloTex = sprite([[0, 'rgba(255,190,110,.5)'], [.4, 'rgba(255,140,60,.12)'], [1, 'rgba(255,120,40,0)']], 64, 64, .5);
+const spotTex = sprite([[0, 'rgba(255,255,255,.9)'], [.55, 'rgba(255,255,255,.35)'], [.8, 'rgba(255,255,255,.08)'], [1, 'rgba(255,255,255,0)']], 64, 64, .5);
+const smokeTex = sprite([[0, 'rgba(190,190,185,.35)'], [1, 'rgba(160,160,155,0)']], 32, 32, .5);
+for (let k = 0; k < 7; k++) { const g = new T.Group(), [x, , z] = A.CANDLE_XZ[k]; g.position.set(x, 0, z); const holder = new T.Group(); g.add(holder);
+  const c = new T.Mesh(new T.CylinderGeometry(.0028, .0028, .07, 10), new T.MeshStandardMaterial({ map: stripe, roughness: .5 })); c.position.y = .035; g.add(c);
+  const f = new T.Sprite(new T.SpriteMaterial({ map: flameTex, blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0 })); f.scale.set(.016, .034, 1); f.position.y = .085; g.add(f);
+  const hl = new T.Sprite(new T.SpriteMaterial({ map: haloTex, blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0 })); hl.scale.set(.11, .11, 1); hl.position.y = .087; g.add(hl);
+  const sm = new T.Sprite(new T.SpriteMaterial({ map: smokeTex, depthWrite: false, transparent: true, opacity: 0 })); sm.scale.set(.02, .02, 1); sm.position.y = .09; g.add(sm);
+  g.visible = false; CANDLES.add(g); FL.push({ g, holder, f, hl, sm, ph: k * 1.7, outAt: -9, holderId: null }); }
+/* =============================================================== PLACED PIECES and the preview ghost in its projected spot */
+const STAND = new T.Group(), PLATE = new T.Group(); scene.add(STAND, PLATE); let curStand = null, curPlate = null;
+const ghostMat = new T.MeshBasicMaterial({ color: 0xbfe6ff, transparent: true, opacity: .2, blending: T.AdditiveBlending, depthWrite: false, side: T.DoubleSide });
+const GHOST = new T.Group(); scene.add(GHOST); let ghostKey = null;
+const SPOT = new T.Mesh(new T.CircleGeometry(.23, 64).rotateX(-Math.PI / 2), new T.MeshBasicMaterial({ map: spotTex, color: 0xcfe9ff, transparent: true, opacity: 0, blending: T.AdditiveBlending, depthWrite: false })); scene.add(SPOT);
+function ghostify(g) { g.traverse(o => { if (o.isMesh) o.material = ghostMat; }); return g; }
+function buildFor(slot, id) { const f = A.byId(id).form; if (slot === 'STAND') return buildStand(f); if (slot === 'PLATE') return buildPlate(f); if (slot === 'MOULD') return buildMould(f);
+  if (slot === 'CANDLES') { const g = new T.Group(); A.CANDLE_XZ.forEach(([x, z]) => { const h = buildHolder(f); h.position.set(x, 0, z); g.add(h); const c = new T.Mesh(new T.CylinderGeometry(.0028, .0028, .07, 8), ghostMat); c.position.set(x, .035, z); g.add(c); }); return g; }
+  if (slot === 'DECORATION') { const form = G.placed.MOULD ? A.byId(G.placed.MOULD.id).form.type : 'drum'; const m = new T.Mesh(bodyGeo(form), new T.MeshBasicMaterial({ color: f.side, transparent: true, opacity: .35, blending: T.AdditiveBlending, depthWrite: false })); m.scale.set(1.04, 1.03, 1.04); const g = new T.Group(); g.add(m); g.userData.keepColour = true; return g; }
+  return new T.Group(); }
+// round spots of light when a piece arrives: the memory switching on in round spots
+const SPOTS = []; function spots(at, n, size) { for (let i = 0; i < n; i++) { const s = new T.Sprite(new T.SpriteMaterial({ map: spotTex, color: 0xfff2dc, blending: T.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0 }));
+  const a = rnd() * TAU, r = (.02 + rnd() * .12) * size; s.position.set(at.x + Math.cos(a) * r, at.y + (rnd() - .3) * .08 * size, at.z + Math.sin(a) * r); s.userData = { t0: NOW + i * .03, d: .45 + rnd() * .3, sz: (.03 + rnd() * .05) * size }; scene.add(s); SPOTS.push(s); } }
+/* =============================================================== THE ARC beside the cake at candle height (from ana/index.html) */
+function canvasSprite(w, h, sw, sh) { const c = document.createElement('canvas'); c.width = w; c.height = h; const t = new T.CanvasTexture(c); const s = new T.Sprite(new T.SpriteMaterial({ map: t, transparent: true, depthWrite: false, depthTest: false, opacity: 0 })); s.scale.set(sw, sh, 1); s.renderOrder = 5; scene.add(s); return { c, x: c.getContext('2d'), t, s }; }
+const ARC = canvasSprite(256, 384, .13, .195); const MARKS = [-23, -19, -9, -1, 6]; let arcAlpha = 0, arcBlink = 0, arcDrawn = -1;
+function drawArc(mark) { const key = mark + (arcBlink > 0 ? 'b' : ''); if (key === arcDrawn) return; arcDrawn = key; const { x, c } = ARC; x.clearRect(0, 0, c.width, c.height); const cx = 70, cy = 192, r = 140;
+  x.strokeStyle = 'rgba(220,232,228,.55)'; x.lineWidth = 18; [[-78, -52], [-49, -20], [-17, 12], [15, 44], [47, 76]].forEach(([a, b]) => { x.beginPath(); x.arc(cx, cy, r, a * Math.PI / 180, b * Math.PI / 180); x.stroke(); });
+  x.strokeStyle = 'rgba(245,250,248,.9)'; x.lineWidth = 20; x.beginPath(); x.arc(cx, cy, r, -80 * Math.PI / 180, -70 * Math.PI / 180); x.stroke();
+  if (arcBlink <= 0) { const a = MARKS[mark] * Math.PI / 180, mx = cx + Math.cos(a) * r, my = cy + Math.sin(a) * r; x.fillStyle = 'rgba(255,255,255,.95)'; x.fillRect(mx - 9, my - 6, 18, 12); x.strokeStyle = 'rgba(230,240,236,.8)'; x.lineWidth = 2; x.beginPath(); x.moveTo(mx + 10, my); x.lineTo(mx + 46, my); x.stroke(); for (let k = 0; k < 4; k++) x.fillRect(mx + 50 + k * 9, my - 1, 4, 2); }
+  ARC.t.needsUpdate = true; }
+/* =============================================================== HUD: the stage ladder, the goal, and the archive caption for what the knurl is drawing */
+const ladderEl = document.getElementById('ladder'), goalEl = document.getElementById('goal'), capEl = document.getElementById('cap'); let hudKey = '', capKey = '';
+const STAGES = [['STAND', g => !!g.placed.STAND && g.make.stand >= 1], ['PLATE', g => !!g.placed.PLATE && g.make.plate >= 1], ['MOULD', g => g.make.lift >= 1], ['DECORATION', g => g.make.beads >= 1], ['生日快乐', g => g.ins >= A.WSTEPS], ['CANDLES', g => g.make.holders >= 7], ['LIGHT', g => g.make.lit >= 7], ['BLOW', g => g.make.out >= 7]];
+function hud() { const nowI = STAGES.findIndex(s => !s[1](G)); const m = A.match(G), ref = A.REFS[G.ref];
+  const k = nowI + '|' + Math.round(m * 100) + '|' + G.ref + '|' + G.phase + '|' + G.gen; if (k !== hudKey) { hudKey = k;
+    ladderEl.innerHTML = STAGES.map((s, i) => `<span class="st ${s[1](G) ? 'done' : i === nowI ? 'now' : ''}"><i></i>${s[0]}</span>`).join('');
+    goalEl.innerHTML = G.phase === 'done' ? `CAKE ${G.gen} MADE FROM ${A.SLOTS.filter(s => G.placed[s]).length} ARCHIVE PIECES &middot; MATCH TO <b>${ref.name}</b> ${Math.round(m * 100)}% &middot; HOLD FOR THE NEXT CAKE`
+      : `CAKE ${G.gen} &middot; TOWARD THE FILM'S <b>${ref.name}</b> &middot; MATCH ${Math.round(m * 100)}%`; }
+  const t = A.tname(G), id = A.SLOTS.includes(t) ? G.preview[t].id : null, ck = t + '|' + id; if (ck === capKey) return; capKey = ck;
+  if (!id) { capEl.innerHTML = t === 'INSCRIPTION' ? '<b>THE INSCRIPTION</b> &middot; turn the knurl to write 生日快乐 stroke by stroke; the triangle ring tilts the cake toward you' : '<b>LIGHT</b> &middot; HOLD strikes the match; HOLD again and the seven go out'; return; }
+  const r = A.byId(id), s = r.source, rc = r.rights.status === 'UNVERIFIED' ? 'u' : 'n';
+  capEl.innerHTML = `<b>${t}: ${r.label}</b> &middot; ${s.title ? s.title + ' &middot; ' + s.institution + ' &middot; ' + (s.institution_id || '') : s.query ? 'wanted: ' + s.query + ' (no record found)' : s.institution} &middot; crop: ${r.crop} &middot; <span class="r ${rc}">RIGHTS ${r.rights.status}</span> on stage as a drawn stand-in`; }
+/* =============================================================== THE DEVICE (ana/index.html, rings relabelled) */
+const devEl = document.getElementById('dev'), DC = document.createElement('canvas'); devEl.append(DC); const dx = DC.getContext('2d'); let DW = 0, DH = 0, BANDS = [], BTNS = [];
+const RING = id => G.rings.find(r => r.id === id);
+function layoutDev() { const r = devEl.getBoundingClientRect(), pr = REC ? 1 : Math.min(2, devicePixelRatio); DW = r.width; DH = r.height; DC.width = DW * pr; DC.height = DH * pr; dx.setTransform(pr, 0, 0, pr, 0, 0);
+  const L = Math.min(DW - 24, 980), x0 = (DW - L) / 2, cy = DH * .44, rad = Math.min(DH * .3, L * .13); const w = f => f * L;
+  let x = x0; const seg = (kind, f, extra) => { const b = Object.assign({ kind, x, w: w(f), cy, rad }, extra || {}); x += w(f); return b; };
+  BANDS = [seg('collarL', .12), seg('scale', .2, { ring: 'scale' }), seg('redline', .06), seg('knurl', .14, { ring: 'knurl' }), seg('tri', .2, { ring: 'tri' }), seg('chrome', .08), seg('collarR', .2)];
+  const cl = BANDS[0], cr = BANDS[6]; BTNS = [{ id: 'play', x: cl.x + cl.w * .5, y: cy - rad * .42, r: rad * .2 }, { id: 'clear', x: cl.x + cl.w * .5, y: cy + rad * .42, r: rad * .2 },
+    { id: 'select', x: cr.x + cr.w * .38, y: cy - rad * .5, r: rad * .22 }, { id: 'hold', x: cr.x + cr.w * .38, y: cy + rad * .38, r: rad * .26 }, { id: 'info', x: cr.x + cr.w * .82, y: cy - rad * .78, r: rad * .13 }]; }
+function cylShade(b, base, hi) { const g = dx.createLinearGradient(0, b.cy - b.rad, 0, b.cy + b.rad); g.addColorStop(0, '#0b0c0c'); g.addColorStop(.18, base); g.addColorStop(.42, hi); g.addColorStop(.62, base); g.addColorStop(1, '#070807'); return g; }
+function marksOn(b, list) { const ang = RING(b.ring).ang; list.forEach(([a, fn]) => { const th = (a - ang) * Math.PI / 180, c = Math.cos(th); if (c <= .05) return; fn(b.cy - Math.sin(th) * b.rad * .92, c); }); }
+const SCALE_NUMS = [[0, '00'], [18, '18'], [35, '35'], [60, '60'], [90, '90'], [120, '120'], [150, '150'], [180, '180'], [220, '220'], [255, '255'], [280, '280'], [300, '300'], [330, '330']];
+function fitText(s, x, y, w, px, col) { let f = px; dx.font = `500 ${f}px Oswald, sans-serif`; while (dx.measureText(s).width > w && f > 7) { f -= 1; dx.font = `500 ${f}px Oswald, sans-serif`; } dx.fillStyle = col; dx.fillText(s, x, y); }
+function ringRole(id) { const t = A.tname(G);
+  if (id === 'scale') return ['WHERE YOU KNEEL', `${((G.yaw % 360) + 360) % 360}°`];
+  if (id === 'knurl') return A.SLOTS.includes(t) ? ['FROM THE ARCHIVE', A.byId(G.preview[t].id).label] : t === 'INSCRIPTION' ? ['THE INSCRIPTION', `${Math.min(5, Math.ceil(G.ins / 5))} OF 5 MARKS`] : ['MATCH', G.make.lit >= 7 ? 'LIT' : 'UNLIT'];
+  if (A.SLOTS.includes(t)) { const p = G.preview[t]; return t === 'MOULD' || t === 'DECORATION' ? ['TURN', `${p.tri * 15}°`] : ['SIZE AND TURN', `${A.sizeOf(p).toFixed(2)} · ${p.tri * 15}°`]; }
+  return t === 'INSCRIPTION' ? ['TILT', `${G.tilt * 3}°`] : ['-', '-']; }
+function drawDev() { dx.clearRect(0, 0, DW, DH);
+  BANDS.forEach(b => { const top = b.cy - b.rad, h = b.rad * 2;
+    if (b.kind === 'collarL' || b.kind === 'collarR') { dx.fillStyle = cylShade(b, '#3c4341', '#a9b2af'); dx.fillRect(b.x, top + h * .04, b.w, h * .92); }
+    else if (b.kind === 'scale') { dx.fillStyle = cylShade(b, '#1e2322', '#59615f'); dx.fillRect(b.x, top, b.w, h); dx.textAlign = 'center'; dx.textBaseline = 'middle';
+      marksOn(b, SCALE_NUMS.map(([a, s]) => [-a, (y, c) => { dx.save(); dx.translate(b.x + b.w * .5, y); dx.scale(1, c); dx.fillStyle = `rgba(232,238,236,${.35 + .6 * c})`; dx.font = `400 ${Math.round(b.rad * .26)}px Oswald, sans-serif`; dx.fillText(s, 0, 0); dx.fillRect(-b.w * .42, -1, b.w * .1, 2); dx.restore(); }]));
+      for (let a = 0; a < 360; a += 5) marksOn(b, [[-a, (y, c) => { dx.fillStyle = `rgba(200,210,206,${.3 * c})`; dx.fillRect(b.x + b.w * .86, y - .5, b.w * (a % 15 ? .06 : .12), 1); }]]); }
+    else if (b.kind === 'redline') { dx.fillStyle = cylShade(b, '#2a302e', '#78817e'); dx.fillRect(b.x, top, b.w, h); dx.fillStyle = '#c2453a'; for (let k = -2; k <= 2; k++) { const y = b.cy - Math.sin(k * .5) * b.rad * .9; dx.fillRect(b.x + b.w * .2, y - 1, b.w * .6, 2); } }
+    else if (b.kind === 'knurl') { dx.fillStyle = cylShade(b, '#2b3130', '#7c8683'); dx.fillRect(b.x, top, b.w, h); for (let a = 0; a < 360; a += 4) marksOn(b, [[a, (y, c) => { dx.fillStyle = `rgba(8,9,9,${.55 * c})`; dx.fillRect(b.x + 3, y - 1.2 * c, b.w - 6, 2.4 * c); }]]); }
+    else if (b.kind === 'tri') { dx.fillStyle = cylShade(b, '#4b5452', '#bcc5c2'); dx.fillRect(b.x, top, b.w, h);
+      for (let a = 0; a < 360; a += 12) marksOn(b, [[a, (y, c) => { const s = b.rad * .07 * c; dx.fillStyle = 'rgba(10,11,11,.85)'; [[.32, 1], [.68, 1.4]].forEach(([fx, k]) => { dx.beginPath(); dx.moveTo(b.x + b.w * fx - s * k, y); dx.lineTo(b.x + b.w * fx + s * k * .6, y - s * k * .8); dx.lineTo(b.x + b.w * fx + s * k * .6, y + s * k * .8); dx.fill(); }); dx.fillStyle = `rgba(90,98,96,${.6 * c})`; dx.fillRect(b.x + b.w * .4, y - .5, b.w * .14, 1); }]]); }
+    else if (b.kind === 'chrome') { const g = dx.createLinearGradient(b.x, 0, b.x + b.w, 0); g.addColorStop(0, '#d8dfdc'); g.addColorStop(.5, '#7d8784'); g.addColorStop(1, '#eef3f1'); dx.fillStyle = g; dx.fillRect(b.x, top + h * .02, b.w, h * .96);
+      dx.save(); dx.translate(b.x + b.w * .5, b.cy); dx.rotate(Math.PI / 2); dx.fillStyle = 'rgba(20,22,22,.75)'; dx.font = `500 ${Math.round(b.rad * .16)}px Oswald, sans-serif`; dx.textAlign = 'center'; dx.textBaseline = 'middle'; dx.fillText('VR — T0 — 0', 0, 0); dx.restore(); }
+    if (b.ring) { const r = RING(b.ring), busy = r.target !== r.applied; dx.fillStyle = busy ? 'rgba(232,178,100,.9)' : 'rgba(200,210,206,.35)'; dx.fillRect(b.x + 4, top - 7, b.w - 8, 2);
+      const [role, val] = ringRole(b.ring); dx.textAlign = 'center'; dx.textBaseline = 'alphabetic'; fitText(role, b.x + b.w / 2, top + h + 15, b.w - 4, 11, 'rgba(120,130,126,.9)'); fitText(val, b.x + b.w / 2, top + h + 30, b.w - 4, 13, 'rgba(225,232,229,.92)'); } });
+  BTNS.forEach(bt => { const g = dx.createRadialGradient(bt.x - bt.r * .3, bt.y - bt.r * .3, 1, bt.x, bt.y, bt.r); g.addColorStop(0, '#e8eeec'); g.addColorStop(.6, '#8f9996'); g.addColorStop(1, '#3a403e'); dx.fillStyle = g; dx.beginPath(); dx.arc(bt.x, bt.y, bt.r, 0, TAU); dx.fill();
+    dx.fillStyle = 'rgba(15,16,16,.85)'; if (bt.id === 'play') { dx.beginPath(); dx.moveTo(bt.x - bt.r * .3, bt.y - bt.r * .4); dx.lineTo(bt.x + bt.r * .45, bt.y); dx.lineTo(bt.x - bt.r * .3, bt.y + bt.r * .4); dx.fill(); }
+    if (bt.id === 'clear') dx.fillRect(bt.x - bt.r * .4, bt.y - bt.r * .08, bt.r * .8, bt.r * .16);
+    if (bt.id === 'hold' && holdDown) { dx.strokeStyle = 'rgba(232,178,100,.9)'; dx.lineWidth = 2; dx.beginPath(); dx.arc(bt.x, bt.y, bt.r + 3, -Math.PI / 2, -Math.PI / 2 + TAU * clamp((NOW - holdDown) / .7, 0, 1)); dx.stroke(); }
+    if (bt.id === 'info') { dx.fillRect(bt.x - 1, bt.y - bt.r * .1, 2, bt.r * .55); dx.fillRect(bt.x - 1, bt.y - bt.r * .45, 2, 2); }
+    dx.textAlign = 'center'; dx.textBaseline = 'alphabetic'; dx.font = '500 10px Oswald, sans-serif'; dx.fillStyle = 'rgba(150,160,156,.85)';
+    if (bt.id === 'select') dx.fillText('SELECT', bt.x, bt.y - bt.r - 5); if (bt.id === 'hold') dx.fillText('HOLD', bt.x, bt.y + bt.r + 12); if (bt.id === 'play') dx.fillText('SCENE', bt.x, bt.y - bt.r - 5); if (bt.id === 'clear') dx.fillText('CLEAR', bt.x, bt.y + bt.r + 12); });
+  const cr = BANDS[6]; dx.textAlign = 'left'; fitText(A.tname(G), cr.x + cr.w * .6, BTNS[3].y - 2, cr.w * .38, 13, 'rgba(232,178,100,.95)');
+  fitText(`MATCH ${Math.round(A.match(G) * 100)}%`, cr.x + cr.w * .6, BTNS[3].y + 14, cr.w * .38, 11, 'rgba(160,170,166,.9)'); if (lastDead && NOW - lastDead.at < 1.4) fitText(lastDead.why, cr.x + cr.w * .6, BTNS[3].y + 28, cr.w * .38, 10, 'rgba(217,138,106,.95)'); }
+/* =============================================================== INPUT: drag a ring, tap SELECT, HOLD (long = off) */
+let drag = null, holdDown = 0, demo = null, lastDead = null;
+DC.addEventListener('pointerdown', e => { ac(); const r = DC.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+  const bt = BTNS.find(b => Math.hypot(b.x - x, b.y - y) < b.r + 8); if (bt) { press(bt.id); return; }
+  const band = BANDS.find(b => b.ring && x >= b.x && x <= b.x + b.w && Math.abs(y - b.cy) < b.rad * 1.15); if (band) { demo = null; drag = { band, y }; try { DC.setPointerCapture(e.pointerId); } catch (x) { } } });
+DC.addEventListener('pointermove', e => { if (!drag) return; const y = e.clientY - DC.getBoundingClientRect().top, d = y - drag.y; drag.y = y; A.handTurn(G, drag.band.ring, -d / drag.band.rad * 57.3 * .9); });
+DC.addEventListener('pointerup', () => { drag = null; }); DC.addEventListener('pointercancel', () => { drag = null; });
+DC.addEventListener('wheel', e => { e.preventDefault(); ac(); const r = DC.getBoundingClientRect(), x = e.clientX - r.left; const band = BANDS.find(b => b.ring && x >= b.x && x <= b.x + b.w); if (band) { demo = null; A.handTurn(G, band.ring, -Math.sign(e.deltaY) * RING(band.ring).deg); } }, { passive: false });
+function press(id) { if (id === 'select') { demo = null; A.select(G, G.target + 1); } else if (id === 'hold') { holdDown = NOW || 1e-6; const up = () => { removeEventListener('pointerup', up); const long = NOW - holdDown > .7; holdDown = 0; if (long) A.longHold(G); else { demo = null; A.hold(G); } }; addEventListener('pointerup', up); }
+  else if (id === 'play') { reset(); demo = { t0: NOW, i: 0, acts: Scenario.expand(Scenario.PLAY) }; } else if (id === 'clear') { demo = null; reset(); } else if (id === 'info') openInfo(); }
+document.getElementById('infoClose').onclick = () => document.getElementById('info').classList.remove('on');
+function reset() { const log = G.log; G = A.create(); G.t = NOW; G.log = log; logRead = log.length; A.select(G, 0, true); }
+function runDemo() { if (!demo) return; const t = NOW - demo.t0; while (demo.i < demo.acts.length && demo.acts[demo.i][0] <= t) { const a = demo.acts[demo.i++]; if (a[1] === 'turn') A.handTurn(G, a[2], a[3] * RING(a[2]).deg); else if (a[1] === 'sel') A.select(G, G.target + 1); else A.hold(G); } }
+function openInfo() { const au = A.stageAudit(G); document.getElementById('audit').innerHTML = '<tr><th>LAYER</th><th>PIECE</th><th>ARCHIVE RECORD</th><th>RIGHTS</th><th>ON STAGE AS</th><th>SIZE / TURN</th></tr>' + (au.length ? au.map(l => `<tr><td>${l.layer}</td><td>${l.id}</td><td>${l.title || '-'}<br><code>${l.institution_id || ''}</code></td><td class="${l.rights === 'UNVERIFIED' ? 'u' : ''}">${l.rights}</td><td>${l.rendered_as}</td><td>${l.size || ''} ${l.turn_deg != null ? '/ ' + l.turn_deg + '°' : ''}</td></tr>`).join('') : '<tr><td colspan="6">nothing placed yet</td></tr>');
+  document.getElementById('res').innerHTML = '<tr><th>SLOT</th><th>PIECE</th><th>SOURCE</th><th>RIGHTS</th><th>TAGS</th></tr>' + A.RESERVOIR.map(r => `<tr><td>${r.slot}</td><td>${r.label}</td><td>${r.source.title || (r.source.query ? 'wanted: ' + r.source.query : r.source.institution)}${r.source.media_url ? '<br><code>' + r.source.media_url + '</code>' : ''}</td><td class="${r.rights.status === 'UNVERIFIED' ? 'u' : ''}">${r.rights.status}</td><td>${r.tags.join(', ')}</td></tr>`).join('');
+  document.getElementById('info').classList.add('on'); }
+/* =============================================================== EVERY FRAME */
+let NOW = 0, flash = 0, decayV = 0; const v3 = new T.Vector3();
+function resize() { const r = viewEl.getBoundingClientRect(); R.setSize(r.width, r.height, false); cam.aspect = r.width / r.height; cam.updateProjectionMatrix(); layoutDev(); }
+addEventListener('resize', resize);
+function drainEvents() { while (logRead < G.log.length) { const e = G.log[logRead++]; if (!REC) sound(e);
+    if (e.k === 'place' || e.k === 'set' || e.k === 'plate' || e.k === 'lift' || e.k === 'nextcake') flash = Math.max(flash, e.k === 'place' ? .55 : 1);
+    if (e.k === 'decay') decayV = 1; if (e.k === 'arcmark') arcBlink = .15; if (e.k === 'dead') lastDead = { at: NOW, why: e.why };
+    if (e.k === 'set') spots(v3.set(0, layout.standTop, 0), 9, 1.3); if (e.k === 'plate') spots(v3.set(0, layout.plateTop, 0), 7, 1.1); if (e.k === 'lift') spots(v3.set(0, layout.plateTop + .06, 0), 10, 1); if (e.k === 'written') spots(v3.set(0, layout.candleBase, 0), 6, .8);
+    if (e.k === 'candle') { const c = FL[e.i - 1]; spots(c.g.position.clone().setY(layout.candleBase + .04), 2, .35); }
+    if (e.k === 'puff') FL[e.i - 1].outAt = NOW; if (e.k === 'decay') spots(v3.set(0, layout.plateTop + .06, 0), 8, 1); } }
+let layout = A.layout(G);
+function updateScene(dt) { layout = A.layout(G); const M = G.make, op = G.op;
+  // stand and plate: the placed piece, lowered in on its making clock
+  const st = G.placed.STAND; if ((st && st.id) !== curStand) { STAND.clear(); curStand = st && st.id; if (st) STAND.add(buildFor('STAND', st.id)); }
+  if (st) { const s = A.sizeOf(st); STAND.scale.set(s, s, s); STAND.rotation.y = st.tri * 15 * Math.PI / 180; STAND.position.y = TT + (1 - easeOut(M.stand)) * .18; STAND.visible = M.stand > 0; } else STAND.visible = false;
+  const pl = G.placed.PLATE; if ((pl && pl.id) !== curPlate) { PLATE.clear(); curPlate = pl && pl.id; if (pl) PLATE.add(buildFor('PLATE', pl.id)); }
+  if (pl) { const s = A.sizeOf(pl); PLATE.scale.set(s, s, s); PLATE.rotation.y = pl.tri * 15 * Math.PI / 180; PLATE.position.y = layout.standTop + (1 - easeOut(M.plate)) * .14; PLATE.visible = M.plate > 0; } else PLATE.visible = false;
+  // the cake: built from the mould's form and the decoration; batter rises, bakes, the mould lifts away
+  rebuildCake(); CAKE.position.y = layout.plateTop; const mo = G.placed.MOULD;
+  if ((mo && mo.id) !== curMould) { if (MOULD) CAKE.remove(MOULD); MOULD = null; curMould = mo && mo.id; if (mo) { MOULD = buildFor('MOULD', mo.id); CAKE.add(MOULD); } }
+  TURN.rotation.y = mo ? mo.tri * 15 * Math.PI / 180 : 0; if (G.placed.DECORATION) TURN.rotation.y += G.placed.DECORATION.tri * 15 * Math.PI / 180;
+  if (MOULD) { MOULD.rotation.y = TURN.rotation.y; MOULD.position.y = (1 - easeOut(M.mouldIn)) * .2 + easeIn(M.lift) * .32; MOULD.visible = M.mouldIn > 0 && M.lift < 1; MOULD.traverse(o => { if (o.isMesh) o.material.opacity = .55 * (1 - M.lift); }); }
+  if (BODY) { BODY.visible = M.batter > 0; BODY.scale.set(1, Math.max(.001, M.batter), 1); bodyMat.color.copy(BATTER).lerp(BAKED, M.bake); bodyMat.emissive.setRGB(.35 * M.bake * (1 - M.lift), .12 * M.bake * (1 - M.lift), 0); }
+  if (ICING) { ICING.visible = M.icing > 0; const top = layout.plateTop + H + .01; icingPlane.constant = -(top - M.icing * (H + .012)); }
+  if (TOP) { TOP.visible = M.topDisc > 0; topMat.opacity = M.topDisc; const s = .2 + .8 * easeOut(M.topDisc); TOP.scale.set(s, 1, s); }
+  if (BEADS) BEADS.count = Math.floor(M.beads * 70); if (DRIPS) DRIPS.children.forEach((d, i) => { const u = clamp(M.beads * 1.4 - i / 14 * .4, 0, 1); d.visible = u > 0; d.scale.y = Math.max(.01, u * d.userData.len / .012); });
+  drawInscription(G.ins); INSC.visible = G.ins > 0 && M.icing >= 1;
+  // the tilt toward her (the inscription's triangle ring), about her right-hand axis
+  const right = v3.set(1, 0, 0).applyQuaternion(cam.quaternion).clone(); const tq = new T.Quaternion().setFromAxisAngle(right, G.tilt * 3 * Math.PI / 180); CAKE.quaternion.slerp(tq, Math.min(1, dt * 5));
+  // candles: the candle plane; holders from the chosen archive piece; set one by one; lit one by one; out one by one with a thread of smoke
+  const ho = G.placed.CANDLES; const lit = Math.max(0, M.lit - M.out);
+  FL.forEach((c, i) => { c.g.position.y = layout.candleBase; c.g.visible = i < M.holders; const hid = ho && ho.id; if (hid !== c.holderId) { c.holder.clear(); c.holderId = hid; if (hid) c.holder.add(buildHolder(A.byId(hid).form)); } if (ho) { const s = A.sizeOf(ho); c.holder.scale.set(s, s, s); }
+    const on = i < M.lit && i >= M.out ? 1 : 0, fl = .92 + Math.sin(NOW * 23 + c.ph) * .05 + Math.sin(NOW * 7.1 + c.ph) * .04; c.f.material.opacity = on; c.hl.material.opacity = on * .9 * fl; c.f.scale.y = .034 * fl;
+    const sm = NOW - c.outAt; c.sm.material.opacity = sm < 1.6 ? .5 * (1 - sm / 1.6) : 0; c.sm.position.y = .09 + sm * .05; c.sm.scale.setScalar(.02 + sm * .03); });
+  candleLight.position.set(0, layout.candleBase + .12, 0); candleLight.intensity = lit * .3 * (.95 + Math.sin(NOW * 19) * .04);
+  key.intensity = 1.3 * (1 - .55 * Math.min(1, lit / 7)) * (1 - dark);   // when the candles are lit the room gives way to them
+  // the ghost of what the knurl is drawing from the archive, in its projected spot
+  const t = A.tname(G), pv = A.SLOTS.includes(t) ? G.preview[t] : null, placed = pv && G.placed[t] && G.placed[t].id === pv.id && G.placed[t].tri === pv.tri;
+  const showGhost = pv && !placed && !op && G.phase !== 'done' && (t !== 'DECORATION' || G.make.lift >= 1); const gk = showGhost ? t + pv.id + (t === 'DECORATION' ? curForm : '') : null;
+  if (gk !== ghostKey) { GHOST.clear(); ghostKey = gk; if (gk) { const g = buildFor(t, pv.id); if (!g.userData.keepColour) ghostify(g); GHOST.add(g); } }
+  if (showGhost) { const s = (t === 'MOULD' || t === 'DECORATION') ? 1 : A.sizeOf(pv); GHOST.scale.set(s, s, s); GHOST.rotation.y = pv.tri * 15 * Math.PI / 180 + (t === 'DECORATION' && mo ? mo.tri * 15 * Math.PI / 180 : 0);
+    GHOST.position.y = t === 'STAND' ? TT : t === 'PLATE' ? layout.standTop + .002 : t === 'MOULD' ? layout.plateTop + .03 : t === 'DECORATION' ? layout.plateTop : layout.candleBase; }
+  const flick = .75 + .25 * Math.sin(NOW * 31) * Math.sin(NOW * 7.3); ghostMat.opacity = .2 * flick; GHOST.visible = !!showGhost;
+  SPOT.visible = !!showGhost; SPOT.position.y = (t === 'STAND' ? TT : t === 'PLATE' ? layout.standTop : layout.plateTop) + .002; SPOT.material.opacity = .22 * flick * (1 - dark);
+  // the arc: beside the cake at candle height while the cake is being worked
+  const working = !!mo && G.phase !== 'done'; arcAlpha = lerp(arcAlpha, working ? 1 : 0, Math.min(1, dt * 6)); arcBlink -= dt; const cp = v3.set(0, layout.candleBase, 0); ARC.s.position.copy(cp).addScaledVector(right, .24); ARC.s.material.opacity = arcAlpha * .85 * (1 - dark); if (arcAlpha > .01) drawArc(G.ins > 0 ? G.arcMark : Math.min(4, STAGES.findIndex(s => !s[1](G)) - 2 < 0 ? 0 : Math.min(4, STAGES.findIndex(s => !s[1](G)) - 2)));
+  // magnesium flash on arrival, three-frame silver decay on a swap
+  flash = Math.max(0, flash - dt / .35); decayV = Math.max(0, decayV - dt / .1); flashLight.position.set(.1, layout.plateTop + .25, .2); flashLight.intensity = flash * 2.2 + decayV * 3;
+  const sil = decayV * .9; [icingMat, topMat, beadMat].forEach(m => m.emissive.setRGB(sil, sil, sil * 1.05));
+  SPOTS.forEach(s => { const u = (NOW - s.userData.t0) / s.userData.d; s.material.opacity = u < 0 ? 0 : u < .2 ? u / .2 * .7 : Math.max(0, .7 * (1 - (u - .2) / .8)); s.scale.setScalar(s.userData.sz * (1 + u * .6)); if (u > 1) { scene.remove(s); s.userData.dead = 1; } });
+  for (let i = SPOTS.length - 1; i >= 0; i--) if (SPOTS[i].userData.dead) SPOTS.splice(i, 1);
+  // switching off
+  scene.traverse && (R.toneMappingExposure = 1.1 * (1 - dark)); }
+const easeOut = u => 1 - Math.pow(1 - u, 3), easeIn = u => u * u;
+let dark = 0;
+function placeCamera(dt) { const yaw = G.yaw * Math.PI / 180, want = layout.plateTop + .05, D = .92; camY = camY == null ? want : lerp(camY, want, Math.min(1, dt * 2.5)); const cy = camY; cam.position.set(Math.sin(yaw) * D + Math.cos(yaw) * .06, cy + .14, Math.cos(yaw) * D - Math.sin(yaw) * .06); cam.lookAt(Math.cos(yaw) * .08, cy - .03, -Math.sin(yaw) * .08); }
+let camY = null;
+function advance(dt) { const n = Math.max(1, Math.round(dt / (1 / 120))), h = dt / n; for (let i = 0; i < n; i++) { NOW += h; runDemo(); A.step(G, h); drainEvents(); }
+  dark = G.offAt ? clamp((G.t - G.offAt) / 1, 0, 1) : 0; layout = A.layout(G); placeCamera(dt); updateScene(dt); hud(); R.render(scene, cam); drawDev(); }
+let last = performance.now(); function frame(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; advance(dt); requestAnimationFrame(frame); }
+document.fonts && document.fonts.load('400 20px Oswald').then(() => drawDev());
+resize(); advance(1 / 60); if (!REC) requestAnimationFrame(frame);
+function traceOut() { const st = G.steps, slow = [], fast = []; for (let i = 1; i < st.length; i++) { const d = st[i][0] - st[i - 1][0]; if (d > 1e-6 && d < .2) (st[i][2] ? fast : slow).push(d); }
+  const med = a => { const s = a.slice().sort((p, q) => p - q); return s.length ? s[Math.floor(s.length / 2)] : null; };
+  return { revision: REVISION, history: G.history, events: G.log.filter(e => !['click', 'hand'].includes(e.k)), machineSteps: st.length, medianStepInterval: { slow: med(slow), fast: med(fast) }, stageAudit: A.stageAudit(G), layout: A.layout(G), final: { phase: G.phase, make: G.make, ins: G.ins, match: A.match(G), toward: A.REFS[G.ref].name } }; }
+const REVISION = 'r1';
+window.MM = { get G() { return G; }, A, advance, press, renderAudio, traceOut, BANDS: () => BANDS, BTNS: () => BTNS, devRect: () => DC.getBoundingClientRect(), ready: () => WAVBYTES !== null, reset, openInfo };
+</script></body></html>

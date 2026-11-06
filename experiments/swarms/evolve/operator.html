@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Grown Cake Operator</title>
+<style>
+:root { --bg: #050606; --ink: #d9e2de; --dim: #8a9792; --amber: #e8b264; --line: #1f2422; }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --bg: #f4f2ee; --ink: #1d2120; --dim: #5b6662; --amber: #9a5d12; --line: #d6d2ca; } }
+* { box-sizing: border-box; } body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 -apple-system, Arial, sans-serif; padding: 16px; max-width: 760px; }
+h1 { font-size: 18px; letter-spacing: .08em; margin: 0 0 4px; } .dim { color: var(--dim); } a { color: var(--amber); }
+.play { display: block; text-align: center; padding: 16px; margin: 14px 0; border: 1px solid var(--amber); border-radius: 6px; font-size: 17px; letter-spacing: .1em; text-decoration: none; }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; margin: 14px 0; } dt { color: var(--dim); } dd { margin: 0; }
+video { width: 100%; max-width: 360px; display: block; margin: 10px 0; border: 1px solid var(--line); }
+ul { padding-left: 18px; }
+</style></head><body>
+<h1>GROWN CAKE &middot; OPERATOR</h1>
+<div class="dim">Swarm 5, evolved sculpture. The cake grown generation by generation from a disc of dough toward a film frame, then written, candled, lit and blown, all on the memory orb's device.</div>
+<a class="play" href="index.html">PLAY</a>
+<dl>
+<dt>Revision</dt><dd>r2, 2026-11-06: cake only, eight stages, 3D lit mesh (r1 evolved a face and was withdrawn on the user's direction)</dd>
+<dt>Critic verdict</dt><dd>None yet. This builder has no Agent tool; the coordinator runs the independent critic.</dd>
+<dt>Next blocking failure</dt><dd>Builder's own reading: the icing evolves olive-yellow where the film's top is cream; needs a top-colour target. Second: only one of the film's cakes is a target.</dd>
+<dt>Tests</dt><dd>node test.js: 10 of 10 pass (elitism, determinism, convergence 20/20 seeds, trace replay, no face data)</dd>
+</dl>
+<video src="proof.mp4" controls playsinline preload="metadata"></video>
+<ul>
+<li><a href="proof.mp4">proof.mp4</a> (about 18 s, with sound, recorded through the device)</li>
+<li><a href="trace.json">trace.json</a> (every generation of the proof run: seed, settings, scores, genome)</li>
+<li><a href="README.md">README.md</a> (thesis, primitives, measured results, what is weak)</li>
+<li><a href="evolve-core.js">evolve-core.js</a>, <a href="test.js">test.js</a>, <a href="record.js">record.js</a>, <a href="refs.json">refs.json</a></li>
+</ul>
+</body></html>
