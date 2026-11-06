@@ -94,7 +94,7 @@ for i in range(int(d('dots', 34))):
     o = bpy.context.active_object; o.data.materials.append(dot); o.rotation_euler = (0, 0, a); o.scale = (.55, 1, .85)
 # ---- the board and the table
 bpy.ops.mesh.primitive_cylinder_add(vertices=128, radius=R0 * 1.12, depth=.003, location=(0, 0, -.0015)); bpy.context.active_object.data.materials.append(mat('board', (0.55, 0.53, 0.5), rough=.35, metal=1))
-bpy.ops.mesh.primitive_cube_add(size=1, location=(0, .1, -.013)); t = bpy.context.active_object; t.scale = (1.3, .85, .02); t.data.materials.append(mat('table', (0.06, 0.045, 0.032), rough=.6))
+bpy.ops.mesh.primitive_cube_add(size=1, location=(0, -.3, -.013)); t = bpy.context.active_object; t.scale = (1.6, 1.8, .02); t.data.materials.append(mat('table', (0.06, 0.045, 0.032), rough=.6))
 # ---- the inscription: 生日快乐 as piped relief (extruded, bevelled text), red
 fonts = ['/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc', '/usr/share/fonts/opentype/noto/NotoSerifCJK-Bold.ttc']
 try:
@@ -109,7 +109,7 @@ while len(seats) < 7 and g < 4000:
     if any(math.hypot(q[0] - x, q[1] - y) < .17 * R0 for q in seats): continue
     seats.append((x, y))
 kinds = ['red', None, 'red', 'blue', None, 'red', None]; lean = math.radians(d('lean', 7))
-flame = mat('flame', (1, .8, .5), emit=(1.0, 0.72, 0.38), estr=60)
+flame = mat('flame', (1, .8, .5), emit=(1.0, 0.62, 0.25), estr=d('cyFlameE', 14))
 for k, (x, y) in enumerate(seats):
     h = .05 * d('candleLen4', 1) * (.7 + .5 * rnd.random()); sink = .003 + .008 * rnd.random()
     m = bpy.data.materials.new('wax%d' % k); m.use_nodes = True; nt = m.node_tree; b = nt.nodes['Principled BSDF']; b.inputs['Roughness'].default_value = .45
@@ -138,7 +138,7 @@ for k, (x, y) in enumerate(seats):
     lo = bpy.data.objects.new('fl%d' % k, ld); sc.collection.objects.link(lo); lo.parent = piv; lo.location = (0, 0, h + .009)
 # ---- the low, soft frontal fill (as M19)
 ad_ = bpy.data.lights.new('fill', 'AREA'); ad_.energy = d('cyFill', 6.0); ad_.size = 1.0; ad_.color = (1, .7, .45)
-fo = bpy.data.objects.new('fill', ad_); sc.collection.objects.link(fo); fo.location = (0, -1.6, .35)
+fo = bpy.data.objects.new('fill', ad_); sc.collection.objects.link(fo); fo.location = (0.9, -1.3, .3)
 fo.rotation_euler = (Vector((0, 0, .06)) - fo.location).to_track_quat('-Z', 'Y').to_euler()
 # ---- the camera, solved as in render.html M25
 SOL = {'A': dict(major=277, elev=31, roll=10.4, cx=411, cy=403), 'B': dict(major=217, elev=6, roll=0, cx=651, cy=424)}[shot]

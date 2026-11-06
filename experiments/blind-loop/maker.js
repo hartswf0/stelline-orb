@@ -128,9 +128,9 @@ async function fork5(scoresFile) {
   t.rounds.push({ round: M, tool: 'v5: branch A = three.js (EVOLVE-ALL modules for colours/inscription + v5 hand layer, 2x supersampled, matched camera); branch C = Blender 5.2 Cycles (blender_render.py, same genome, matched camera); both finished with H.264', genomes: gens, candidates: cands, scores: null }); saveTrace(t);
   const tmp = path.join(SCRATCH, 'round-' + R), blind = path.join(WORK, 'blind', 'round-' + R), keys = path.join(WORK, 'blind-keys'), repo = path.join(HERE, 'rounds', R);
   [tmp, blind, keys, repo].forEach(d => fs.mkdirSync(d, { recursive: true })); fs.readdirSync(blind).forEach(f => fs.unlinkSync(path.join(blind, f)));
-  waitLoad(10); await renderAll(gens, tmp);
+  waitLoad(+(process.env.WAIT_MIN || 10)); await renderAll(gens, tmp);
   for (const g of gens) { const gj = path.join(tmp, g.id + '.json'), out = path.join(tmp, g.id + '-cy.png'); fs.writeFileSync(gj, JSON.stringify(g.genome));
-    if (fs.existsSync(out)) continue; const l = waitLoad(10); console.log('blender', g.id, 'load', l);
+    if (fs.existsSync(out)) continue; const l = waitLoad(+(process.env.WAIT_MIN || 10)); console.log('blender', g.id, 'load', l);
     cp.execFileSync('python3.13', [path.join(HERE, 'blender_render.py'), gj, out, String(process.env.CY_SAMPLES || 64)], { stdio: ['ignore', 'ignore', 'inherit'], timeout: 45 * 60000 }); }
   const items = [];
   for (const g of gens) { items.push({ id: g.id.replace(`r${R}-`, `r${R}-A-`), branch: 'A', shot: g.genome.scene.shot, src: path.join(tmp, g.id + '.png'), flames: path.join(tmp, g.id + '-flames.png') });
