@@ -7,9 +7,10 @@ const R = { when: new Date().toISOString(), viewport: '390x780 css px, device sc
 function verdict(name, ok, detail) { R.tests[name] = Object.assign({ pass: ok }, detail); if (!ok) fails++; console.log((ok ? 'PASS ' : 'FAIL ') + name + ' ' + JSON.stringify(detail).slice(0, 400)); }
 // horizontal shift of picture B against picture A (grey levels), by least mean absolute difference, then a parabola
 function shiftOf(A, B, W, H, maxS) { const g = d => { const o = new Float32Array(W * H); for (let i = 0; i < W * H; i++) o[i] = d[i * 4] + d[i * 4 + 1] + d[i * 4 + 2]; return o; }; const a = g(A), b = g(B);
-  const cost = s => { let sum = 0, n = 0; for (let y = 0; y < H; y += 2) for (let x = Math.max(0, -s); x < Math.min(W, W - s); x += 1) { const va = a[y * W + x], vb = b[y * W + x + s]; if (va === 0 && vb === 0) continue; sum += Math.abs(va - vb); n++; } return n > 200 ? sum / n : 1e9; };
-  let best = 0, bc = 1e18; const cs = {}; for (let s = -maxS; s <= maxS; s++) { const c = cost(s); cs[s] = c; if (c < bc) { bc = c; best = s; } }
-  const c0 = cs[best - 1], c2 = cs[best + 1]; let sub = 0; if (c0 != null && c2 != null && c0 + c2 - 2 * bc > 0) sub = .5 * (c0 - c2) / (c0 + c2 - 2 * bc); return best + sub; }
+  const cost = (s, ys, xs) => { let sum = 0, n = 0; for (let y = 0; y < H; y += ys) for (let x = Math.max(0, -s); x < Math.min(W, W - s); x += xs) { const va = a[y * W + x], vb = b[y * W + x + s]; if (va === 0 && vb === 0) continue; sum += Math.abs(va - vb); n++; } return n > 50 ? sum / n : 1e9; };
+  let best = 0, bc = 1e18; for (let s = -maxS; s <= maxS; s++) { const c = cost(s, 6, 3); if (c < bc) { bc = c; best = s; } }      // coarse: every 6th row, 3rd column
+  const cs = {}; let b2 = best; bc = 1e18; for (let s = best - 4; s <= best + 4; s++) { const c = cost(s, 1, 1); cs[s] = c; if (c < bc) { bc = c; b2 = s; } }   // fine: every pixel
+  const c0 = cs[b2 - 1], c2 = cs[b2 + 1]; let sub = 0; if (c0 != null && c2 != null && c0 + c2 - 2 * bc > 0) sub = .5 * (c0 - c2) / (c0 + c2 - 2 * bc); return b2 + sub; }
 (async () => { const br = await chromium.launch(); const pg = await br.newPage({ viewport: { width: 390, height: 780 }, deviceScaleFactor: 1 });
   pg.on('pageerror', e => console.log('page error', e.message));
   await pg.goto(URL); await pg.waitForFunction(() => window.MP && MP.ready); await pg.evaluate(() => { MP.film(true); MP.reset(); MP.setKT(0); });
