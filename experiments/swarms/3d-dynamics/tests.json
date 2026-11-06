@@ -1,5 +1,5 @@
 {
- "ran": "2026-11-06T08:10:57.436Z",
+ "ran": "2026-11-06T08:15:32.289Z",
  "pass": 36,
  "fail": 0,
  "tests": [
@@ -53,9 +53,9 @@
    "name": "streamers after a 10 deg tilt: kinetic energy to 1e-6 and asleep within declared 3.5 s of the stand stopping",
    "pass": true,
    "info": {
-    "peak": 0.008931013316627634,
-    "tEnergy": 1.4374999999999605,
-    "tSleep": 3.3458333333331853
+    "peak": 0.0002407201447609306,
+    "tEnergy": 1.4833333333332912,
+    "tSleep": 3.0583333333332017
    }
   },
   {
@@ -118,33 +118,33 @@
    "info": {
     "LOOSE careful": {
      "fell": 0,
-     "rest": false,
-     "minStreamerY": 0.46150173038911046
+     "rest": true,
+     "minStreamerY": 0.4708536057894414
     },
     "LOOSE careless": {
      "fell": 7,
-     "rest": false,
-     "minStreamerY": 0.46150171885247654
+     "rest": true,
+     "minStreamerY": 0.47085364388732515
     },
     "TUNED careful": {
      "fell": 0,
      "rest": true,
-     "minStreamerY": 0.46150172556548236
+     "minStreamerY": 0.4708536056914138
     },
     "TUNED careless": {
      "fell": 1,
      "rest": true,
-     "minStreamerY": 0.4615017095892042
+     "minStreamerY": 0.4708536287995199
     },
     "RIGID careful": {
      "fell": 0,
      "rest": true,
-     "minStreamerY": 0.4615
+     "minStreamerY": 0.47100000000000003
     },
     "RIGID careless": {
      "fell": 0,
      "rest": true,
-     "minStreamerY": 0.4615
+     "minStreamerY": 0.47100000000000003
     }
    }
   },
@@ -168,12 +168,12 @@
    "name": "no streamer passes through the table",
    "pass": true,
    "info": [
-    0.4615,
-    0.4615,
-    0.4615,
-    0.4615,
-    0.4615,
-    0.4615
+    0.4709,
+    0.4709,
+    0.4709,
+    0.4709,
+    0.471,
+    0.471
    ]
   },
   {
@@ -339,9 +339,9 @@
    "tSleep": 1.1374999999999775
   },
   "streamers": {
-   "peak": 0.008931013316627634,
-   "tEnergy": 1.4374999999999605,
-   "tSleep": 3.3458333333331853
+   "peak": 0.0002407201447609306,
+   "tEnergy": 1.4833333333332912,
+   "tSleep": 3.0583333333332017
   },
   "icing": {
    "stopAfterPourEnds": 3.0833333333333814,
@@ -370,33 +370,33 @@
   "tilt": {
    "LOOSE careful": {
     "fell": 0,
-    "rest": false,
-    "minStreamerY": 0.46150173038911046
+    "rest": true,
+    "minStreamerY": 0.4708536057894414
    },
    "LOOSE careless": {
     "fell": 7,
-    "rest": false,
-    "minStreamerY": 0.46150171885247654
+    "rest": true,
+    "minStreamerY": 0.47085364388732515
    },
    "TUNED careful": {
     "fell": 0,
     "rest": true,
-    "minStreamerY": 0.46150172556548236
+    "minStreamerY": 0.4708536056914138
    },
    "TUNED careless": {
     "fell": 1,
     "rest": true,
-    "minStreamerY": 0.4615017095892042
+    "minStreamerY": 0.4708536287995199
    },
    "RIGID careful": {
     "fell": 0,
     "rest": true,
-    "minStreamerY": 0.4615
+    "minStreamerY": 0.47100000000000003
    },
    "RIGID careless": {
     "fell": 0,
     "rest": true,
-    "minStreamerY": 0.4615
+    "minStreamerY": 0.47100000000000003
    }
   },
   "wetIcing": {
