@@ -36,4 +36,13 @@ for sid, x0, x1 in SLABS:
     for i, r in enumerate(rgba): strip[(i // COLS) * ch:(i // COLS + 1) * ch, (i % COLS) * cw:(i % COLS + 1) * cw] = r[Y0:Y1, X0:X1]
     img = np.dstack([strip[..., 2], strip[..., 1], strip[..., 0], strip[..., 3]]); Image.fromarray(img, 'RGBA').save(f'{OUT}/slab_{sid}.webp', 'WEBP', quality=84, alpha_quality=90, method=5)
     res.append({'id': sid, 'x': int(X0), 'y': int(Y0), 'w': int(cw), 'h': int(ch), 'n': len(rgba), 'cols': COLS, 'fps': FPS}); print(sid, cw, ch, flush=True)
+# the film's own cake: body, candles with flames, and the dark contact shadow, cut from the same frames by geometry (the pixels match the frame behind, so seams cannot show)
+yy, xx = np.mgrid[0:720, 0:1280].astype(np.float32)
+body = (((xx - 370) / 165) ** 2 + ((yy - 540) / 108) ** 2 < 1); shadow = (((xx - 370) / 205) ** 2 + ((yy - 608) / 50) ** 2 < 1); cand = (xx > 255) & (xx < 475) & (yy > 372) & (yy < 470)
+ca = cv2.GaussianBlur((body | shadow | cand).astype(np.float32), (0, 0), 7)
+rgba = [np.dstack([f, (ca * 255).astype(np.uint8)]) for f in frames]
+X0, X1, Y0, Y1 = 140, 600, 360, 670; cw, ch = X1 - X0, Y1 - Y0; COLS = 6; ROWS = (len(rgba) + COLS - 1) // COLS; strip = np.zeros((ROWS * ch, COLS * cw, 4), np.uint8)
+for i, r in enumerate(rgba): strip[(i // COLS) * ch:(i // COLS + 1) * ch, (i % COLS) * cw:(i % COLS + 1) * cw] = r[Y0:Y1, X0:X1]
+img = np.dstack([strip[..., 2], strip[..., 1], strip[..., 0], strip[..., 3]]); Image.fromarray(img, 'RGBA').save(f'{OUT}/slab_cake.webp', 'WEBP', quality=86, alpha_quality=90, method=5)
+res.append({'id': 'cake', 'x': X0, 'y': Y0, 'w': cw, 'h': ch, 'n': len(rgba), 'cols': COLS, 'fps': FPS}); print('cake', cw, ch)
 json.dump({'slabs': res, 'w': 1280, 'h': 720}, open(f'{OUT}/slabs.json', 'w'))
