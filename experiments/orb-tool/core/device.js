@@ -15,7 +15,7 @@
   const FONT = '"IBM Plex Mono", ui-monospace, Menlo, monospace';
   function create(cv, orb, opts) {
     opts = opts || {}; const ctx = cv.getContext('2d'), SND = root.CORE_SOUND;
-    const D = { cv, M: null, hot: null, held: null, down: null, disp: [0, 0, 0, 0], flash: {}, grip: null, msg: null, ring: 2, gest: 0 };
+    const D = { cv, quality: 0, touching: null, M: null, hot: null, held: null, down: null, disp: [0, 0, 0, 0], flash: {}, grip: null, msg: null, ring: 2, gest: 0 };
     // ---- what each ring shows: its labels and where the hand has it
     function ringInfo(s, i) { const r = DM.role(s, i); if (!r) return null; const sp = S.spec(r.path), v = S.get(s, r.path);
       const ghost = s.proposals.find(p => root.CORE_OPS.ghostArg(p, r.path)), gv = ghost ? ghost.args[root.CORE_OPS.ghostArg(ghost, r.path)] : null;
@@ -41,7 +41,7 @@
       if (path === 'camera.kneel') return 'kneel ' + v + ' of 10';
       return path.replace(/\./g, ' ') + ' ' + fmt(s, path, v); }
     // ---- geometry
-    function layout() { const dpr = Math.min(2, root.devicePixelRatio || 1), w = cv.clientWidth, h = cv.clientHeight;
+    function layout() { const dpr = D.quality >= 1 ? 1 : Math.min(2, root.devicePixelRatio || 1), w = cv.clientWidth, h = cv.clientHeight;
       if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
       const s = Math.min(w / DW, h / DH) * .98 * dpr; D.M = { s, cx: cv.width / 2, cy: cv.height / 2, dpr }; }
     function toDev(e) { const r = cv.getBoundingClientRect(), M = D.M; return [((e.clientX - r.left) * M.dpr - M.cx) / M.s + DW / 2, ((e.clientY - r.top) * M.dpr - M.cy) / M.s + DH / 2]; }
@@ -62,7 +62,7 @@
     function pdown(e) { layout(); const [x, y] = toDev(e), h = hitAt(x, y); if (!h) return; e.preventDefault(); SND && SND.wake(); try { cv.setPointerCapture(e.pointerId); } catch (er) { }
       if (h.glass) { opts.onUi && opts.onUi('ask'); return; }
       if (h.btn) { D.held = { btn: h.btn, at: performance.now(), ts: e.timeStamp, long: false }; D.flash[h.btn] = performance.now(); return; }
-      D.down = { ring: h.ring, y, acc: 0, g: 'drag-' + (++D.gest) + '-' + Date.now() }; D.ring = h.ring; }
+      D.touching = h.ring; D.down = { ring: h.ring, y, acc: 0, g: 'drag-' + (++D.gest) + '-' + Date.now() }; D.ring = h.ring; }
     // one label step is 24 degrees of the barrel: the label under the finger stays under it
     const STEP = 54 * Math.sin(24 * Math.PI / 180);
     function pmove(e) { if (D.down) { const [, y] = toDev(e), d = y - D.down.y; D.down.y = y; D.down.acc += -d / STEP;
@@ -70,7 +70,7 @@
       if (e.target !== cv) { if (D.hot) D.hot = null; return; } const [x, y] = toDev(e), h = hitAt(x, y), nh = h ? (h.btn || (h.glass ? 'glass' : 'r' + h.ring)) : null;
       if (nh !== D.hot) { D.hot = nh; cv.style.cursor = h ? (h.ring != null ? 'ns-resize' : 'pointer') : 'default'; } }
     // long or short is decided from the pointer events' own timeStamps, so a slow frame cannot turn a tap into a long press
-    function pup(e) { if (D.held) { const H = D.held; D.held = null; const up = e && e.timeStamp != null ? e.timeStamp : performance.now(); press(H.btn, DM.isLong(H.ts != null ? H.ts : H.at, up)); } D.down = null; }
+    function pup(e) { if (D.held) { const H = D.held; D.held = null; const up = e && e.timeStamp != null ? e.timeStamp : performance.now(); press(H.btn, DM.isLong(H.ts != null ? H.ts : H.at, up)); } D.down = null; D.touching = null; }
     cv.addEventListener('pointerdown', pdown); root.addEventListener('pointermove', pmove); root.addEventListener('pointerup', pup); root.addEventListener('pointercancel', pup);
     cv.addEventListener('wheel', e => { layout(); const [x, y] = toDev(e), h = hitAt(x, y); if (h && h.ring != null) { e.preventDefault(); turn(h.ring, e.deltaY > 0 ? -1 : 1, 'wheel-' + h.ring + '-' + Math.floor(performance.now() / 600)); } }, { passive: false });
     root.addEventListener('keydown', e => { if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return; const k = e.key;
@@ -98,11 +98,11 @@
       const tgt = R ? R.pos : 0; D.disp[i] += (tgt - D.disp[i]) * .35; if (Math.abs(tgt - D.disp[i]) > 30 || Math.abs(tgt - D.disp[i]) < .002) D.disp[i] = tgt; const pos = D.disp[i];
       c.save(); rr(c, x0, y0, w, y1 - y0, 6); c.clip();
       if (i === 3) { const g = c.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, rgb(mix(P.lo, P.glow, .5))); g.addColorStop(.25, rgb(mix(P.glow, [255, 255, 255], .4), .95)); g.addColorStop(.6, rgb(mix(P.glow, P.lo, .55))); g.addColorStop(1, rgb(P.lo)); c.fillStyle = g; c.fillRect(x0, y0, w, y1 - y0); }
-      else { c.fillStyle = cylGrad(c, y0, y1, 1); c.fillRect(x0, y0, w, y1 - y0);
+      else { c.fillStyle = cylGrad(c, y0, y1, 1); c.fillRect(x0, y0, w, y1 - y0); if (D.quality < 2) {
         const ph = pos * 24 * Math.PI / 180, dd = 3 * Math.PI / 180; c.strokeStyle = 'rgba(0,0,0,.42)'; c.lineWidth = .6;
         for (let k = -80; k < 80; k++) { const th = k * dd - (ph % dd), kk = Math.round((th + ph) / dd); if (Math.abs(th) > 1.45) continue; const y = cy + rad * Math.sin(th), L = kk % 8 === 0 ? 9 : kk % 4 === 0 ? 6 : 3.5;
           c.globalAlpha = .55 * Math.cos(th); c.beginPath(); c.moveTo(x0 + 2, y); c.lineTo(x0 + 2 + L, y); c.moveTo(x1 - 2 - L, y); c.lineTo(x1 - 2, y); c.stroke(); } c.globalAlpha = 1;
-        c.fillStyle = 'rgba(255,255,255,.35)'; c.fillRect(x0, y0, 1, y1 - y0); c.fillStyle = 'rgba(0,0,0,.45)'; c.fillRect(x1 - 1, y0, 1, y1 - y0); }
+        } c.fillStyle = 'rgba(255,255,255,.35)'; c.fillRect(x0, y0, 1, y1 - y0); c.fillStyle = 'rgba(0,0,0,.45)'; c.fillRect(x1 - 1, y0, 1, y1 - y0); }
       if (R) { const N = R.labels.length;
         for (let k = Math.max(0, Math.floor(pos) - 4); k <= Math.min(N - 1, Math.ceil(pos) + 4); k++) { const th = (k - pos) * 24 * Math.PI / 180; if (Math.abs(th) > 1.4) continue;
           const y = cy + rad * .86 * Math.sin(th), sc = Math.cos(th), on = Math.abs(k - pos) < .5, lab = R.labels[k] || '';
@@ -143,12 +143,12 @@
         if (D.held && D.held.btn === k) { const f = Math.min(1, (now - D.held.at) / LONG); c.beginPath(); c.arc(0, 0, b.r + 4, -Math.PI / 2, -Math.PI / 2 + f * 6.283); c.strokeStyle = f >= 1 ? '#ffd36b' : 'rgba(255,211,107,.5)'; c.lineWidth = 2; c.stroke(); }
         c.restore();
         if (k === 'select') { c.font = '600 ' + MINFONT + 'px ' + FONT; const tw = c.measureText(b.lab).width + 8; c.fillStyle = '#b8352c'; c.fillRect(b.cx - tw / 2, b.cy + b.r + 3, tw, 16); c.fillStyle = '#f4e9e3'; c.textAlign = 'center'; c.fillText(b.lab, b.cx, b.cy + b.r + 15); }
-        else { c.font = '600 ' + MINFONT + 'px ' + FONT; c.textAlign = 'center'; c.fillStyle = 'rgba(240,240,240,.85)'; const lab = k === 'hold' && s.time.off ? 'ON' : k === 'hold' && s.time.hold ? 'RELEASE' : b.lab; c.fillText(lab, b.cx, b.cy + b.r + 13); } } }
+        else { c.font = '600 ' + MINFONT + 'px ' + FONT; c.textAlign = 'center'; c.fillStyle = 'rgba(240,240,240,.85)'; const lab = k === 'hold' && s.time.off ? 'ON' : k === 'hold' && s.time.hold ? 'RELEASE' : b.lab; c.fillText(lab, b.cx, b.cy + b.r + 16); } } }
     function grips(c, now) { const G = D.grip; if (!G || now - G.at > 400) return; const [x0, x1] = RINGS[G.ring], cx = (x0 + x1) / 2;
       c.save(); c.globalAlpha = .5 * (1 - (now - G.at) / 400); for (const [dx, dy] of [[-.25, -.38], [.28, .34]]) { const X = cx + dx * (x1 - x0), Y = (BODY[0] + BODY[1]) / 2 + dy * 100, g = c.createRadialGradient(X, Y, 2, X, Y, 20); g.addColorStop(0, 'rgba(232,190,160,.95)'); g.addColorStop(1, 'rgba(232,190,160,0)');
         c.fillStyle = g; c.beginPath(); c.ellipse(X, Y, 22, 14, 0, 0, 7); c.fill(); } c.restore(); }
     D.draw = draw; D.layout = layout; D.say = say; D.ringInfo = i => ringInfo(orb.raw(), i);
     layout(); return D;
   }
-  root.CORE_DEVICE = { create, DW, DH };
+  root.CORE_DEVICE = { create, DW, DH, BTN, RINGS, BODY, HIT, MINFONT };
 })(typeof window !== 'undefined' ? window : globalThis);
