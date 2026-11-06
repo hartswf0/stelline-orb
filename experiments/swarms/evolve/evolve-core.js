@@ -125,7 +125,7 @@
     let emd = 0; const RM = ref.cake.marginals; for (let ch = 0; ch < 3; ch++) { let ca = 0, cb = 0; for (let b = 0; b < MB; b++) { ca += n ? mg[ch][b] / n : 0; cb += RM[ch][b]; emd += Math.abs(ca - cb) / MB; } } emd /= 3;
     // the joint histogram's Hellinger distance catches wrong hues that the per-channel marginals let through (a pink top on a brown cake)
     let bc = 0; const RH = ref.cake.hist; for (let i = 0; i < h3.length; i++) bc += Math.sqrt((n ? h3[i] / n : 0) * RH[i]); const helJ = Math.sqrt(Math.max(0, 1 - bc));
-    const hel = .5 * Math.min(1, emd / W_CAKE.emdScale) + .5 * helJ;
+    const hel = .7 * Math.min(1, emd / W_CAKE.emdScale) + .3 * helJ;
     const fit = 1 - (W_CAKE.iou * (1 - I) + W_CAKE.hist * hel);
     return { fit, iou: I, hist: hel, emd, helJ, mask: gr.m, grid: CAKE_GRID };
   }
