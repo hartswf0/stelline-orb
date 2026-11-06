@@ -1,7 +1,7 @@
 [
  {
   "id": "film-child-1",
-  "name": "CHILD 1",
+  "name": "CHILD 1 \u00b7 AT THE TABLE",
   "src": "cut/film-child-1.webp",
   "frames": 1,
   "cols": 1,
@@ -11,41 +11,89 @@
   "fps": 0,
   "plane": "table",
   "h": 0.56,
-  "from": "Blade Runner 2049 \u00b7 the Memory Maker scene",
-  "kind": "film",
-  "lift": -0.1
+  "lift": -0.1,
+  "from": "Blade Runner 2049 \u00b7 the Memory Maker scene, 2:35",
+  "kind": "film"
  },
  {
-  "id": "film-child-2",
-  "name": "CHILD 2",
-  "src": "cut/film-child-2.webp",
-  "frames": 1,
-  "cols": 1,
+  "id": "film-child-2-arrive",
+  "name": "CHILD 2 \u00b7 COMES IN",
+  "src": "cut/film-child-2-arrive.webp",
+  "frames": 10,
+  "cols": 10,
   "rows": 1,
-  "fw": 104,
-  "fh": 113,
-  "fps": 0,
+  "fw": 166,
+  "fh": 214,
+  "fps": 11.75,
   "plane": "table",
-  "h": 0.25,
-  "from": "Blade Runner 2049 \u00b7 the Memory Maker scene",
-  "kind": "film",
-  "lift": 0.05
+  "h": 0.26,
+  "lift": 0.05,
+  "from": "Blade Runner 2049 \u00b7 the Memory Maker scene, 2:32",
+  "kind": "film"
  },
  {
-  "id": "film-child-3",
-  "name": "CHILD 3",
-  "src": "cut/film-child-3.webp",
-  "frames": 1,
-  "cols": 1,
-  "rows": 1,
-  "fw": 196,
-  "fh": 330,
-  "fps": 0,
+  "id": "film-child-3-arrive",
+  "name": "CHILD 3 \u00b7 COMES IN",
+  "src": "cut/film-child-3-arrive.webp",
+  "frames": 24,
+  "cols": 8,
+  "rows": 3,
+  "fw": 246,
+  "fh": 300,
+  "fps": 11.75,
   "plane": "table",
   "h": 0.72,
-  "from": "Blade Runner 2049 \u00b7 the Memory Maker scene",
-  "kind": "film",
-  "lift": -0.14
+  "lift": -0.14,
+  "from": "Blade Runner 2049 \u00b7 the Memory Maker scene, 2:32",
+  "kind": "film"
+ },
+ {
+  "id": "film-child-1-blow",
+  "name": "CHILD 1 \u00b7 BLOWS",
+  "src": "cut/film-child-1-blow.webp",
+  "frames": 43,
+  "cols": 9,
+  "rows": 5,
+  "fw": 219,
+  "fh": 300,
+  "fps": 11.73,
+  "plane": "table",
+  "h": 0.5,
+  "lift": -0.12,
+  "from": "Blade Runner 2049 \u00b7 the Memory Maker scene, 3:33",
+  "kind": "film"
+ },
+ {
+  "id": "film-child-2-blow",
+  "name": "CHILD 2 \u00b7 BLOWS",
+  "src": "cut/film-child-2-blow.webp",
+  "frames": 44,
+  "cols": 7,
+  "rows": 7,
+  "fw": 270,
+  "fh": 282,
+  "fps": 11.73,
+  "plane": "table",
+  "h": 0.46,
+  "lift": -0.12,
+  "from": "Blade Runner 2049 \u00b7 the Memory Maker scene, 3:33",
+  "kind": "film"
+ },
+ {
+  "id": "film-child-3-blow",
+  "name": "CHILD 3 \u00b7 BLOWS",
+  "src": "cut/film-child-3-blow.webp",
+  "frames": 43,
+  "cols": 10,
+  "rows": 5,
+  "fw": 200,
+  "fh": 300,
+  "fps": 11.73,
+  "plane": "table",
+  "h": 0.52,
+  "lift": -0.12,
+  "from": "Blade Runner 2049 \u00b7 the Memory Maker scene, 3:33",
+  "kind": "film"
  },
  {
   "id": "apple",
@@ -1594,5 +1642,209 @@
   "h": 1.15,
   "from": "CINEOSIS \u00b7 The Republic \u00b7 Children Must Learn, The (1940)",
   "kind": "cast"
+ },
+ {
+  "id": "place-00",
+  "name": "A KITCHEN",
+  "kind": "place",
+  "layers": {
+   "far": "cut/place-00-far.webp",
+   "mid": "cut/place-00-mid.webp",
+   "near": "cut/place-00-near.webp"
+  },
+  "aspect": 1.3333,
+  "from": "CINEOSIS \u00b7 The Republic multiplane \u00b7 an archive frame, colour, 1950s"
+ },
+ {
+  "id": "place-01",
+  "name": "A FRONT ROOM",
+  "kind": "place",
+  "layers": {
+   "far": "cut/place-01-far.webp",
+   "mid": "cut/place-01-mid.webp",
+   "near": "cut/place-01-near.webp"
+  },
+  "aspect": 1.3333,
+  "from": "CINEOSIS \u00b7 The Republic multiplane \u00b7 an archive frame, colour, 1950s"
+ },
+ {
+  "id": "place-02",
+  "name": "THE STREET OUTSIDE",
+  "kind": "place",
+  "layers": {
+   "far": "cut/place-02-far.webp",
+   "mid": "cut/place-02-mid.webp",
+   "near": "cut/place-02-near.webp"
+  },
+  "aspect": 1.3333,
+  "from": "CINEOSIS \u00b7 The Republic multiplane \u00b7 an archive frame, black and white"
+ },
+ {
+  "id": "place-03",
+  "name": "A SCHOOL CANTEEN",
+  "kind": "place",
+  "layers": {
+   "far": "cut/place-03-far.webp",
+   "mid": "cut/place-03-mid.webp",
+   "near": "cut/place-03-near.webp"
+  },
+  "aspect": 1.3333,
+  "from": "CINEOSIS \u00b7 The Republic multiplane \u00b7 an archive frame, colour, 1960s"
+ },
+ {
+  "id": "place-04",
+  "name": "A RESTAURANT",
+  "kind": "place",
+  "layers": {
+   "far": "cut/place-04-far.webp",
+   "mid": "cut/place-04-mid.webp",
+   "near": "cut/place-04-near.webp"
+  },
+  "aspect": 1.3333,
+  "from": "CINEOSIS \u00b7 The Republic multiplane \u00b7 an archive frame, colour, 1960s"
+ },
+ {
+  "id": "place-05",
+  "name": "A FARMHOUSE WINDOW",
+  "kind": "place",
+  "layers": {
+   "far": "cut/place-05-far.webp",
+   "mid": "cut/place-05-mid.webp",
+   "near": "cut/place-05-near.webp"
+  },
+  "aspect": 1.3333,
+  "from": "CINEOSIS \u00b7 The Republic multiplane \u00b7 an archive frame, black and white"
+ },
+ {
+  "id": "place-06",
+  "name": "A CLEARING IN THE WOODS",
+  "kind": "place",
+  "layers": {
+   "far": "cut/place-06-far.webp",
+   "mid": "cut/place-06-mid.webp",
+   "near": "cut/place-06-near.webp"
+  },
+  "aspect": 1.3333,
+  "from": "CINEOSIS \u00b7 The Republic multiplane \u00b7 an archive frame, colour, 1940s"
+ },
+ {
+  "id": "place-07",
+  "name": "A FARM",
+  "kind": "place",
+  "layers": {
+   "far": "cut/place-07-far.webp",
+   "mid": "cut/place-07-mid.webp",
+   "near": "cut/place-07-near.webp"
+  },
+  "aspect": 1.3333,
+  "from": "CINEOSIS \u00b7 The Republic multiplane \u00b7 an archive frame, colour, 1950s"
+ },
+ {
+  "id": "place-08",
+  "name": "THE DESERT ROAD",
+  "kind": "place",
+  "layers": {
+   "far": "cut/place-08-far.webp",
+   "mid": "cut/place-08-mid.webp",
+   "near": "cut/place-08-near.webp"
+  },
+  "aspect": 1.3333,
+  "from": "CINEOSIS \u00b7 The Republic multiplane \u00b7 an archive frame, colour, 1970s"
+ },
+ {
+  "id": "place-09",
+  "name": "AN OPEN PLAIN",
+  "kind": "place",
+  "layers": {
+   "far": "cut/place-09-far.webp",
+   "mid": "cut/place-09-mid.webp",
+   "near": "cut/place-09-near.webp"
+  },
+  "aspect": 1.3333,
+  "from": "CINEOSIS \u00b7 The Republic multiplane \u00b7 an archive frame, colour"
+ },
+ {
+  "id": "place-10",
+  "name": "A LONG HALL",
+  "kind": "place",
+  "layers": {
+   "far": "cut/place-10-far.webp",
+   "mid": "cut/place-10-mid.webp",
+   "near": "cut/place-10-near.webp"
+  },
+  "aspect": 1.3333,
+  "from": "CINEOSIS \u00b7 The Republic multiplane \u00b7 an archive frame, colour"
+ },
+ {
+  "id": "place-11",
+  "name": "AN OFFICE AFTER HOURS",
+  "kind": "place",
+  "layers": {
+   "far": "cut/place-11-far.webp",
+   "mid": "cut/place-11-mid.webp",
+   "near": "cut/place-11-near.webp"
+  },
+  "aspect": 1.3333,
+  "from": "CINEOSIS \u00b7 The Republic multiplane \u00b7 an archive frame, colour, 1990s"
+ },
+ {
+  "id": "place-12",
+  "name": "AN OFFICE, OPEN PLAN",
+  "kind": "place",
+  "layers": {
+   "far": "cut/place-12-far.webp",
+   "mid": "cut/place-12-mid.webp",
+   "near": "cut/place-12-near.webp"
+  },
+  "aspect": 1.5,
+  "from": "CINEOSIS \u00b7 The Republic multiplane \u00b7 an archive frame, colour, 1990s"
+ },
+ {
+  "id": "place-13",
+  "name": "A VILLAGE STREET",
+  "kind": "place",
+  "layers": {
+   "far": "cut/place-13-far.webp",
+   "mid": "cut/place-13-mid.webp",
+   "near": "cut/place-13-near.webp"
+  },
+  "aspect": 1.7778,
+  "from": "CINEOSIS \u00b7 The Republic multiplane \u00b7 an archive frame, black and white"
+ },
+ {
+  "id": "place-14",
+  "name": "A GRAND ROOM",
+  "kind": "place",
+  "layers": {
+   "far": "cut/place-14-far.webp",
+   "mid": "cut/place-14-mid.webp",
+   "near": "cut/place-14-near.webp"
+  },
+  "aspect": 1.3333,
+  "from": "CINEOSIS \u00b7 The Republic multiplane \u00b7 an archive frame, black and white"
+ },
+ {
+  "id": "place-15",
+  "name": "A PARK",
+  "kind": "place",
+  "layers": {
+   "far": "cut/place-15-far.webp",
+   "mid": "cut/place-15-mid.webp",
+   "near": "cut/place-15-near.webp"
+  },
+  "aspect": 1.3333,
+  "from": "CINEOSIS \u00b7 The Republic multiplane \u00b7 an archive frame, black and white"
+ },
+ {
+  "id": "place-16",
+  "name": "A STADIUM AT NIGHT",
+  "kind": "place",
+  "layers": {
+   "far": "cut/place-16-far.webp",
+   "mid": "cut/place-16-mid.webp",
+   "near": "cut/place-16-near.webp"
+  },
+  "aspect": 1.3333,
+  "from": "CINEOSIS \u00b7 The Republic multiplane \u00b7 an archive frame, colour"
  }
 ]
