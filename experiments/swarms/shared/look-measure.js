@@ -99,7 +99,6 @@ async function evolve(gens) {
       for (const k of keys) { const [a, b] = RANGES[k]; g[k] = (rnd() < 0.5 ? A.g[k] : B.g[k]); if (rnd() < 0.5) g[k] += gauss(rnd) * sigma * (b - a); }
       kids.push({ g: clampG(g) }); }
     for (const k of kids) Object.assign(k, await evalGenome(page, k.g, film));
-    for (const p of pop) { const r = await evalGenome(page, p.g, film); if (r.score > p.score) Object.assign(p, r); }   // re-measure the elite; keep the worse score (guards against a lucky render)
     pop = pop.concat(kids).sort((a, b) => a.score - b.score).slice(0, MU);
     const b0 = pop[0]; if (b0.score < best - 1e-6) { best = b0.score; sigma = Math.min(0.25, sigma * 1.15); } else sigma = Math.max(0.015, sigma * 0.8);
     trace.generations.push({ gen, best: +b0.score.toFixed(3), fails: b0.fails, worst: b0.worstKey + ' ' + b0.worst.toFixed(2), sigma: +sigma.toFixed(4), elite: pop.map(p => +p.score.toFixed(2)), genome: b0.g });
@@ -158,6 +157,6 @@ async function strip() {
   else if (cmd === 'evolve') await evolve(+(process.argv[3] || 30));
   else if (cmd === 'strip') await strip();
   else if (cmd === 'repeat') { const film = loadFilm(), { browser, page } = await openPage(); const g = JSON.parse(fs.readFileSync(GENOME_FILE)).genome, d = await page.evaluate(() => Object.assign({}, LOOK.GENOME));
-    for (const [n, x] of [['accepted', g], ['default', d], ['accepted', g], ['default', d], ['accepted', g]]) { const r = await evalGenome(page, x, film); console.log('repeat', n, r.score.toFixed(3), r.fails); } await browser.close(); }
+    for (const [n, x] of (process.env.LOOK_DEFAULT_FIRST ? [['default', d], ['accepted', g], ['default', d], ['accepted', g]] : [['accepted', g], ['default', d], ['accepted', g], ['default', d], ['accepted', g]])) { const r = await evalGenome(page, x, film); console.log('repeat', n, r.score.toFixed(3), r.fails); } await browser.close(); }
   else console.log('usage: node look-measure.js film|frame|evolve [gens]|strip');
 })().catch(e => { console.error(e); process.exit(1); });

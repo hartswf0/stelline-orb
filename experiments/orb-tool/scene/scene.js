@@ -135,7 +135,7 @@
     // the inscription: the module writes 生日快乐 and the flourish stroke by stroke; any other text is piped from a font, left to right
     const I = { text: null, w: -1, wShown: 0 };
     function buildInscription(text, f) {
-      if (text === '生日快乐' && REF.inscription) { const g = M.inscription.build(T, GN.arr(M.inscription, GN.G.inscription), { t: f, refs: REF.inscription }); g.scale.setScalar(C.s); return g; }
+      if (text === '生日快乐' && REF.inscription) { const g = M.inscription.build(T, GN.arr(M.inscription, GN.G.inscription), { t: f, refs: REF.inscription }); g.scale.setScalar(C.s); g.position.y = .0042 * C.s; return g; }   // lifted onto the cake module's top coat (3 mm) and its ripples
       const cv = document.createElement('canvas'); cv.width = 512; cv.height = 192; const x = cv.getContext('2d'); const chars = [...text], n = chars.length || 1;
       x.font = '700 120px "PingFang SC","Noto Sans CJK SC","Helvetica Neue",Arial,sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
       const full = x.measureText(text).width, sc = Math.min(1, 480 / Math.max(1, full)); x.save(); x.beginPath(); x.rect(0, 0, 256 - full * sc / 2 + full * sc * f, 192); x.clip();

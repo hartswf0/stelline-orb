@@ -1,6 +1,19 @@
 # Cake metamorphosis: the birthday cake as one surface that changes, played on the memory maker's device
 
-SCION 7 // PETER FOLDES (drawn metamorphosis), translated into 3D. Revision 1, 2026-11-06. Not committed.
+SCION 7 // PETER FOLDES (drawn metamorphosis), translated into 3D. Revision 2, 2026-11-06 (after critic round 1, `critic-round1.md`). Not committed.
+
+## Revision 2: what the critic found and what changed
+
+| Critic round 1 | Change | Evidence |
+|---|---|---|
+| LARGEST: turning on past 7 candles carried the hand into INSCRIPTION and MATCH, lit reached 23, a TypeError, no flames, the blow unreachable | Cause: the job list dropped CANDLES the moment 7 stood, so the selected index pointed at the next job while the hand was still turning. Now a job stays selected until HOLD finishes it (a stage ends and waits for HOLD); every count is clamped (candles 0-7, strokes 0-24, lit 0-7); the timed auto-advance is gone. | `tests-play.js` (MEASURED): the critic's scenario with mouse drags only at 390 x 844, 400 px past the end at each of CANDLES, INSCRIPTION, MATCH: 11 of 11 checks pass, max lit 7, no page error, seven flames, HOLD blows, seven out (`tests-play.json`). |
+| Iced to mint, layered to chocolate read as recolouring in bands | The POUR field now runs down in drips (the front's delay varies with angle) and carries a wet lip of extra radius (3.2 mm) at its front, so the new coat visibly flows over the old one. ICED to BROWN DOME is an EVEN shape change (a top-first pour folded the profile: 112 flipped faces in the tests, so it was changed). | tests.js: 0 flips, 0 crossings with the drips. VIEWED: frames of the proof. |
+| 生日快乐 upside down from the default kneel, candles in the strokes | The cap texture now maps its top edge to the far side from the default kneel; the text is smaller and in the middle (radius under 0.07 m); the seven candles moved to one ring at 0.094 m. | VIEWED: frames at 24-26 s read 生日快乐 left to right, upright, candles outside the text. |
+| The C arc outside the frame on mobile | The arc is now `shared/holo.js` (HOLO.arc and HOLO.readout), 0.2 m to the cake's right at candle height; the camera distance is chosen from the frame's aspect so the cake and the arc both fit, and the view is centred between them. | VIEWED at 540 x 960; at 390 x 844 by the same rule (not rendered). |
+| The brown dome a squat cylinder; no tilt toward Ana | Dome profile: 26 mm side and a 74 mm crown. The cake (with its board) tilts 9 degrees toward Ana, a smooth move without clicks and with the rising sweep, once the brown dome is on its way; it levels after the inscription's flourish. | VIEWED. |
+| (FILM-BAR.md) | The look is `shared/look.js` (LOOK.apply with its room, key and candle light, grade, bloom, grain; LOOK.material for icing, piping, board, table, wax, flame, halo, bead; LOOK.reveal for the round-spot switch-on; LOOK.flash for the silver decay, now on the cake only). The device is still this page's own drawing after ana/index.html, not HOLO.device. | |
+
+Also found while repairing: the seam column added for the texture left the axis points with zero normals; with bloom on, one such NaN pixel blacked out the whole frame. Axis and seam normals are now set explicitly.
 
 ## Thesis
 
@@ -52,8 +65,8 @@ MEASURED, `node tests.js` (all transitions in the grammar, under all four pacing
 see `tests-result.json`. At the time of writing: 3555 passed, 0 failed (including the trace checks). 11 morph transitions and 20 cut transitions.
 0 flipped faces, 0 profile self-intersections (tolerance 0), smallest profile area 3.3e-3 m^2 (orientation never inverts).
 Worst volume change in one step 9.7% of the larger form (DOUGH > DOMED SPONGE, EVEN), limit 16%.
-Worst candle anchor move in one morph step 5.49 mm, limit 6 mm. Largest candle jump at a cut 17.4 mm (drum to dome),
-settled over 6 frames, 2.9 mm a frame. Identity proxy: under LINGER, a quarter of the way through its steps the surface has
+Worst candle anchor move in one morph step 5.49 mm, limit 6 mm. Largest candle jump at a cut 33.1 mm (drum to dome, revision 2's rounder dome),
+settled over 9 frames, 3.7 mm a frame. Identity proxy: under LINGER, a quarter of the way through its steps the surface has
 moved 0 to 1.7% of the way to the next key (mean vertex distance); this is a proxy only.
 
 MEASURED, the proof run (`trace.json`, `render.js`): proof.mp4 is 29.97 s, 540 x 960, 30 fps, AAC sound

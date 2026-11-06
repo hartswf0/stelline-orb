@@ -222,7 +222,8 @@
     const cam = new T.OrthographicCamera(-1, 1, 1, -1, 0, 1), quad = new T.Mesh(new T.PlaneGeometry(2, 2)), qs = new T.Scene(); qs.add(quad); quad.frustumCulled = false;
     const M = {}; for (const k in FS) M[k] = new T.ShaderMaterial({ vertexShader: VS, fragmentShader: FS[k], depthTest: false, depthWrite: false, uniforms: {} });
     const P = { W: 1, H: 1, main: null, dofRT: null, half: null, lv: [], focusDist: 1, frame: 0, enabled: { dof: true } };
-    function pass(mat, uniforms, target) { mat.uniforms = uniforms; quad.material = mat; mat.uniformsNeedUpdate = true; renderer.setRenderTarget(target); renderer.render(qs, cam); }
+    // uniforms are updated in place: three r128 keeps the uniforms object it compiled with, so replacing it would freeze the values of the first frame
+    function pass(mat, uniforms, target) { const U = mat.uniforms; for (const k in uniforms) { if (U[k]) U[k].value = uniforms[k].value; else U[k] = { value: uniforms[k].value }; } quad.material = mat; renderer.setRenderTarget(target); renderer.render(qs, cam); }
     P.setSize = (w, h) => { // device pixels
       w = Math.max(2, Math.round(w)); h = Math.max(2, Math.round(h)); if (w === P.W && h === P.H && P.main) return; P.W = w; P.H = h;
       [P.main, P.dofRT, P.half].concat(P.lv.flat()).forEach(r => r && r.dispose());

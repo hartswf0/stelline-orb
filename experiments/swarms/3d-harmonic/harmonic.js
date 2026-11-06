@@ -35,7 +35,7 @@
     { id: 'TOP SHELLS', kind: 'top', rho0: 0.106, A: 0, e: 0.0045, r0: 0.0036, prof: 'shell', need: ['t', 'n'], target: { t: [R11, 0], a: [R11, 0], n: [30, 0] }, choc: { t: [R11, 0], a: [R11, 0], n: [28, 0] }, say: 'SHELLS AROUND THE TOP EDGE' },
     { id: 'SIDE LATTICE', kind: 'side', y0: 0.047, A: 0.016, e: 0, r0: 0.0021, prof: 'const', need: ['t', 'a'], target: { t: [R11, 0], a: [19, 6], n: [R11, 0] }, choc: { t: [R11, 0], a: [17, 0], n: [R11, 0] }, say: 'A GARLAND ROUND THE SIDE' },
     { id: 'INSCRIPTION', auto: true, say: '生日快乐, STROKE BY STROKE, THEN THE FLOURISH' },
-    { id: 'CANDLES', kind: 'candles', rhoC: 0.074, A: 0.018, need: ['t', 'a', 'n'], target: { t: [R11, 0], a: [R11, 6], n: [20, 0] }, say: 'SEVEN CANDLES SET WHERE THE NOZZLE COMES DOWN' },
+    { id: 'CANDLES', kind: 'candles', rhoC: 0.03, A: 0.06, need: ['t', 'a', 'n'], target: { t: [R11, 0], a: [R11, 6], n: [20, 0] }, say: 'SEVEN CANDLES SET WHERE THE NOZZLE COMES DOWN' },
     { id: 'LIGHT', auto: true, revs: 1, say: 'THE CANDLES LIT AS THEY PASS THE MATCH' },
     { id: 'BLOW', auto: true, say: 'BLOW THEM OUT' }];
   // the two film cakes the machine can head toward; the nozzle ratio at the COAT pass picks one
@@ -80,14 +80,14 @@
     '日': [[[.24, .1], [.24, .92]], [[.24, .1], [.76, .1], [.76, .92]], [[.24, .5], [.76, .5]], [[.24, .9], [.76, .9]]],
     '快': [[[.1, .34], [.14, .5]], [[.32, .3], [.27, .42]], [[.21, .06], [.21, .94]], [[.46, .3], [.82, .3], [.82, .52]], [[.38, .52], [.95, .52]], [[.64, .08], [.62, .6], [.42, .93]], [[.67, .62], [.95, .93]]],
     '乐': [[[.8, .07], [.32, .2]], [[.33, .2], [.29, .52], [.86, .52]], [[.57, .3], [.57, .92], [.48, .84]], [[.38, .64], [.25, .82]], [[.72, .64], [.84, .82]]] };
-  const TEXT = { chars: ['生', '日', '快', '乐'], size: 0.029, depth: 0.04, gap: 0.005, z0: 0, r: 0.0026 };   // each glyph is piped 1.4x deep so it survives the kneeling view's foreshortening
+  const TEXT = { chars: ['生', '日', '快', '乐'], size: 0.029, depth: 0.04, gap: 0.005, z0: 0.03, r: 0.0026 };   // each glyph is piped 1.4x deep so it survives the kneeling view's foreshortening
   // strokes in the cake frame on the top surface: the reader kneels at +z, so the glyph's down is +z
   function inscription() { const out = []; const w = TEXT.chars.length * TEXT.size + (TEXT.chars.length - 1) * TEXT.gap, x0 = -w / 2;
     TEXT.chars.forEach((ch, i) => { GLYPHS[ch].forEach((st, j) => { const pts = []; for (let s = 0; s < st.length - 1; s++) { const [a, b] = [st[s], st[s + 1]], n = Math.max(2, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) * 14));
       for (let k = (s ? 1 : 0); k <= n; k++) { const u = k / n; pts.push({ x: x0 + i * (TEXT.size + TEXT.gap) + (a[0] + (b[0] - a[0]) * u) * TEXT.size, y: CAKE.Hc + TEXT.r + MARGIN, z: TEXT.z0 - TEXT.depth / 2 + (a[1] + (b[1] - a[1]) * u) * TEXT.depth, r: TEXT.r, nx: 0, ny: 1, nz: 0 }); } }
       out.push({ ch, stroke: j + 1, pts }); }); });
-    // the flourish: a 3:2 harmonic scroll under the words, closing nothing, but its own phases exact
-    const fl = []; const n = 60; for (let k = 0; k <= n; k++) { const u = k / n; fl.push({ x: -0.046 + 0.092 * u, y: CAKE.Hc + TEXT.r + MARGIN, z: 0.0315 + 0.0032 * Math.sin(TAU * 1.5 * u) - 0.0018 * Math.sin(TAU * 1.0 * u), r: TEXT.r * (0.75 + 0.25 * Math.sin(Math.PI * u)), nx: 0, ny: 1, nz: 0 }); }
+    // the flourish: a 3:2 harmonic scroll in front of the words (toward the reader), clear of them, closing nothing, but its own phases exact
+    const fl = []; const n = 60; for (let k = 0; k <= n; k++) { const u = k / n; fl.push({ x: -0.04 + 0.08 * u, y: CAKE.Hc + TEXT.r + MARGIN, z: 0.071 + 0.0025 * Math.sin(TAU * 1.5 * u) - 0.0012 * Math.sin(TAU * 1.0 * u), r: TEXT.r * (0.75 + 0.25 * Math.sin(Math.PI * u)), nx: 0, ny: 1, nz: 0 }); }
     out.push({ ch: 'flourish', stroke: 1, pts: fl }); return out; }
   // ------------------------------------------------------------------ the cake's surface: signed distance to the coated cake (flat bottom on the board, rounded top edge)
   function cakeSDF(x, y, z) { const rho = Math.hypot(x, z), b = CAKE.bevel, Rc = CAKE.Rc, Hc = CAKE.Hc;
