@@ -2,7 +2,7 @@
  "arc": {
   "R": 84,
   "asp": 0.86,
-  "thick": 17,
+  "thick": 16.717,
   "a0": -104,
   "a1": 46,
   "tail": 14,
@@ -10,7 +10,7 @@
   "capA1": -76,
   "capGain": 1.55,
   "bandIn": 0.18,
-  "bandOut": 0.62,
+  "bandOut": 0.562,
   "edge": 1.2,
   "gaps": [
    -62,
@@ -105,13 +105,13 @@
  },
  "device": {
   "detentDeg": 9,
-  "rate": 11.8,
-  "fastRate": 23.6,
-  "fastAfter": 10,
-  "latency": 0.35,
-  "handGain": 0.22,
-  "stepGain": 0.75,
-  "fastGain": 0.3,
+  "rate": 11.7098,
+  "fastRate": 16,
+  "fastAfter": 8,
+  "latency": 0.423,
+  "handGain": 0.1686,
+  "stepGain": 0.7993,
+  "fastGain": 0.1638,
   "clickRate": 1.6,
   "handRate": 1.442
  },

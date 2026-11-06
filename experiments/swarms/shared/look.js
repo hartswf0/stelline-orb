@@ -33,8 +33,8 @@
   if (!T) throw new Error('LOOK needs THREE (r128) loaded first');
 
   /* ------------------------------------------------------------------ the genome (defaults = accepted values) */
-  const GENOME = {"exposure":1.1,"keyIntensity":2.4,"keyKelvin":2500,"keyCone":0.5,"keySoft":0.75,"keyHeight":1.3,"keyForward":0.5,"candleIntensity":0.9,"candleDecay":1.6,"candleKelvin":1900,"ambient":0.05,"ambientCool":0.6,"bgLevel":0.004,"wbR":1.06,"wbB":0.8,"contrast":1.08,"saturation":1.0,"blackPoint":0.012,"toe":1.15,"bloomStrength":0.55,"bloomRadius":0.7,"bloomThreshold":1.1,"halation":0.5,"flame":3.2,"haloSize":1.0,"grain":0.03,"grainSize":1.2,"aperture":0.9,"vignette":0.55,"spotSteady":0.0,"spotPitch":4,"icingTone":0.92,"icingWarm":0.25,"spongeTone":0.85,"chocoTone":0.5,"tableTone":0.7,"tableWarm":0.5,"roughIcing":0.72,"bumpIcing":1.0,"band":1.0};
-  const RANGES = {exposure:[0.3,3],keyIntensity:[0,8],keyKelvin:[1800,4000],keyCone:[0.2,0.95],keySoft:[0.1,1],keyHeight:[0.6,2.2],keyForward:[-0.4,1.4],candleIntensity:[0,4],candleDecay:[0.6,2.6],candleKelvin:[1400,2600],ambient:[0,0.4],ambientCool:[0,1],bgLevel:[0,0.03],wbR:[0.8,1.4],wbB:[0.45,1.1],contrast:[0.7,1.5],saturation:[0.5,1.6],blackPoint:[0,0.05],toe:[0.7,2],bloomStrength:[0,2],bloomRadius:[0.2,1.6],bloomThreshold:[0.3,3],halation:[0,1],flame:[1,8],haloSize:[0.3,2.5],grain:[0,0.1],grainSize:[0.6,2.5],aperture:[0,3],vignette:[0,1.6],spotSteady:[0,0.2],spotPitch:[2,9],icingTone:[0.4,1.05],icingWarm:[0,1],spongeTone:[0.4,1.05],chocoTone:[0.15,1.2],tableTone:[0.2,1.05],tableWarm:[0,1],roughIcing:[0.3,1],bumpIcing:[0,3],band:[0.2,2.5]};
+  const GENOME = {"exposure":1.1,"keyIntensity":2.4,"keyKelvin":2500,"keyCone":0.5,"keySoft":0.75,"keyHeight":1.3,"keyForward":0.5,"candleIntensity":0.9,"candleDecay":1.6,"candleKelvin":1900,"ambient":0.05,"ambientCool":0.6,"bgLevel":0.004,"wbR":1.06,"wbB":0.8,"contrast":1.08,"saturation":1.0,"blackPoint":0.012,"toe":1.15,"bloomStrength":0.55,"bloomRadius":0.7,"bloomThreshold":1.1,"halation":0.5,"flame":3.2,"halo":1.0,"grain":0.03,"grainSize":1.2,"aperture":0.9,"vignette":0.55,"spotSteady":0.0,"spotPitch":4,"icingTone":0.92,"icingWarm":0.25,"spongeTone":0.85,"chocoTone":1.0,"tableTone":0.7,"tableWarm":0.5,"roughIcing":0.72,"bumpIcing":1.0,"band":1.0};
+  const RANGES = {exposure:[0.3,3],keyIntensity:[0,8],keyKelvin:[1800,4000],keyCone:[0.2,0.95],keySoft:[0.1,1],keyHeight:[0.6,2.2],keyForward:[-0.4,1.4],candleIntensity:[0,4],candleDecay:[0.6,2.6],candleKelvin:[1400,2600],ambient:[0,0.4],ambientCool:[0,1],bgLevel:[0,0.012],wbR:[0.8,1.4],wbB:[0.45,1.1],contrast:[0.7,1.5],saturation:[0.5,1.6],blackPoint:[0,0.05],toe:[0.7,2],bloomStrength:[0,2],bloomRadius:[0.2,1.6],bloomThreshold:[0.3,3],halation:[0,1],flame:[1,8],halo:[0,2.5],grain:[0,0.1],grainSize:[0.6,2.5],aperture:[0,3],vignette:[0,1.6],spotSteady:[0,0.2],spotPitch:[2,9],icingTone:[0.4,1.05],icingWarm:[0,1],spongeTone:[0.4,1.05],chocoTone:[0.3,2.4],tableTone:[0.2,1.05],tableWarm:[0,1],roughIcing:[0.3,1],bumpIcing:[0,3],band:[0.2,2.5]};
   const G = Object.assign({}, GENOME);
 
   /* ------------------------------------------------------------------ helpers */
@@ -160,7 +160,7 @@
     m.userData.lookKind = kind; spotify(m);
     const rec = { m, kind, o }; MATS.push(rec); tint(m, rec); return m;
   }
-  function spriteTint(m, rec) { const s = rec.kind === 'flame' ? G.flame : G.flame * 0.35; m.color.setRGB(s, s, s); }
+  function spriteTint(m, rec) { const s = rec.kind === 'flame' ? G.flame : G.flame * 0.35 * G.halo; m.color.setRGB(s, s, s); }
   function retintAll() { MATS.forEach(r => { if (r.kind === 'flame' || r.kind === 'halo') spriteTint(r.m, r); else tint(r.m, r); }); }
 
   function forMats(obj, fn) { obj.traverse(x => { const ms = x.material ? (Array.isArray(x.material) ? x.material : [x.material]) : []; ms.forEach(m => fn(m, x)); }); }
@@ -197,7 +197,7 @@
       vec3 aces(vec3 x){ return clamp((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14), 0.0, 1.0); }
       vec3 toSRGB(vec3 c){ return mix(c * 12.92, 1.055 * pow(max(c, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055, step(0.0031308, c)); }
       void main(){
-        vec3 c = texture2D(tA, vUv).rgb + vec3(bg);
+        vec3 c = texture2D(tA, vUv).rgb + vec3(bg) * vec3(0.86, 1.0, 0.8);
         vec3 B = texture2D(b0, vUv).rgb * bw.x + texture2D(b1, vUv).rgb * bw.y + texture2D(b2, vUv).rgb * bw.z + texture2D(b3, vUv).rgb * bw.w;
         B *= mix(vec3(1.0), vec3(1.0, 0.62, 0.34), halation);
         c += B * bloom;

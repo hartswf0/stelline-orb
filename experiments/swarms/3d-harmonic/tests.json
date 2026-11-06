@@ -1,5 +1,5 @@
 {
- "ran": "2026-11-06T08:55:27.874Z",
+ "ran": "2026-11-06T09:15:36.734Z",
  "failures": 1,
  "results": [
   {
@@ -20,7 +20,7 @@
    }
   },
   {
-   "name": "3 for both recipes (white, chocolate) the target scores 0 and every one-detent error in a needed gear is out of tolerance (0.8 mm); smallest error distance in mm",
+   "name": "3 for both recipes (white, chocolate) the target scores 0 and every one-detent error in a needed gear is out of tolerance (0.7 mm); smallest error distance in mm",
    "ok": true,
    "detail": {
     "smallest_mm": 0.812,
@@ -675,6 +675,24 @@
     "candles": 7,
     "min_gap_m": 0.00651,
     "at": "candle 1 / flourish1"
+   }
+  },
+  {
+   "name": "7 both film cakes reachable (white sponge / chocolate with orange top), and each rejects the other's bead ring",
+   "ok": true,
+   "detail": {
+    "white": {
+     "over": true,
+     "recipe": "white",
+     "passes": 9,
+     "otherRecipeBeadsRejected": true
+    },
+    "choc": {
+     "over": true,
+     "recipe": "choc",
+     "passes": 9,
+     "otherRecipeBeadsRejected": true
+    }
    }
   },
   {

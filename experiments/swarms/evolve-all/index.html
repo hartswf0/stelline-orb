@@ -104,7 +104,7 @@ function anchorsOf(p) { const s = SUPPORT[p.name]; try { return p.mod.anchors(p.
 function refsFor(n) { const s = SUPPORT[n], r = Object.assign({}, REFS[n] || {}); if (s) r.support = REL.supportInfo(s, P[s].mod, P[s].G); return r; }
 function evalPart(p) { try { p.e = p.mod.evaluate(p.G, refsFor(p.name)); } catch (e) { console.error(p.name, e); p.e = { fit: 0, parts: {} }; } }
 function scoreNow(p) { const st = p.mod.stages[Math.min(p.stage, p.mod.stages.length - 1)]; return BREED.measure(p.e, st[1]); }
-function initPart(n) { const p = P[n]; p.G = BREED.blank(p.mod); p.stage = 0; p.gen = 0; p.done = false; p.made = false; p.brood = null; p.passGens = []; evalPart(p); p.stage = BREED.stageOf(p.mod, p.e); rebuild(p, 1); }
+function initPart(n) { const p = P[n]; p.G = BREED.blank(p.mod); p.stage = 0; p.gen = 0; p.done = false; p.made = false; p.brood = null; p.passGens = []; evalPart(p); p.stage = BREED.advance(p.mod, p.e, 0); rebuild(p, 1); }
 /* where a part sits: on its support's anchor, minus its own base anchor */
 function worldAnchor(n) { const s = SUPPORT[n]; if (!s) return new T.Vector3(); const A = anchorsOf(P[s]), a = findA(A, ATTACH[n]) || [0, 0, 0]; const own = findA(anchorsOf(P[n]), ['base', 'bottom', 'origin']) || [0, 0, 0];
   return P[s].want.clone().add(new T.Vector3(a[0] - own[0], a[1] - own[1], a[2] - own[2])); }
@@ -146,7 +146,7 @@ function hold() { const p = P[S.part]; sound({ k: 'hold' }); S.sinceHold = 0; p.
     if (hi < n) { const k = b.kids[hi]; p.metrics.accepted++; p.G = k.G; p.e = k.e; p.flash = 1; sound({ k: 'flash' }); rebuild(p, 1); reattachDependents(p.name); if (hi !== fb) p.metrics.offBest = (p.metrics.offBest || 0) + 1; }
     TR.choices.push({ t: +NOW.toFixed(2), part: p.name, gen: p.gen, stage: String(p.mod.stages[Math.min(p.stage, p.mod.stages.length - 1)][0]), shown: n, of: b.kids.length, chose: hi < n ? hi : 'parent', fitnessBest: fb, chosenScore: +(hi < n ? sc[hi] : b.parentScore).toFixed(4), bestScore: fb >= 0 ? +sc[fb].toFixed(4) : null, parentScore: +b.parentScore.toFixed(4), notTheBest: hi < n && hi !== fb, by: STYLE || 'person' });
     TR.events.push([+NOW.toFixed(2), p.name, 'gen', p.gen, +scoreNow(p).toFixed(4), hi < n ? hi : -1, n, b.kids.length]);
-    clearKids(p); p.brood = null; const ns = Math.max(p.stage, BREED.stageOf(p.mod, p.e));
+    clearKids(p); p.brood = null; const ns = BREED.advance(p.mod, p.e, p.stage);
     if (ns > p.stage) { for (let s = p.stage; s < ns; s++) p.passGens.push(p.gen); p.metrics.stages += ns - p.stage; p.stage = ns; stagePassed(p); return; }
     if (BUDGET && p.gen >= BUDGET) { p.forced = p.mod.stages.length - p.stage; TR.events.push([+NOW.toFixed(2), p.name, 'budget spent: made as it stands', p.stage]); p.stage = p.mod.stages.length; stagePassed(p); return; } }
   breedNext(p); }
@@ -163,10 +163,10 @@ function showKid(p, i) { const k = p.brood.kids[i], o = buildObj(p, k.G, 1), g =
   if (p.name === 'light') { const m = new T.Mesh(new T.SphereGeometry(.03, 16, 12), new T.MeshBasicMaterial({ color: new T.Color().setHSL(.08, .6, .3 + .5 * k.score) })); m.position.copy(g.position); p.kidsG.add(m); p.brood.objs.push(m); disposeTree(o); return; }
   o.traverse(c => { if (c.isLight) c.intensity = 0; if (c.material) { const ms = Array.isArray(c.material) ? c.material : [c.material]; ms.forEach(m => { m.transparent = true; m.opacity = (m.opacity == null ? 1 : m.opacity) * .85; }); } });
   g.userData.born = NOW; g.userData.score = k.score; p.kidsG.add(g); p.brood.objs.push(g);
-  const h = hintSprite(k.score, p.brood.bar, p.brood.parentScore); h.position.copy(g.position).add(new T.Vector3(0, p.size * .3 + .02, 0)); h.scale.set(p.size * .32, p.size * .08, 1); p.kidsG.add(h); g.userData.hint = h; }
+  const h = hintSprite(k.score, p.brood.bar, p.brood.parentScore, k.ok === false); h.position.copy(g.position).add(new T.Vector3(0, p.size * .3 + .02, 0)); h.scale.set(p.size * .32, p.size * .08, 1); p.kidsG.add(h); g.userData.hint = h; }
 /* the hint over each variant: its score on the stage's measure, the bar to reach (white tick) and the parent's score (grey tick). A hint, not the decision. */
-function hintSprite(v, bar, par) { const c = document.createElement('canvas'); c.width = 128; c.height = 32; const x = c.getContext('2d'); x.fillStyle = 'rgba(0,0,0,.55)'; x.fillRect(0, 10, 128, 10);
-  x.fillStyle = v > par ? 'rgba(232,178,100,.95)' : 'rgba(150,160,156,.8)'; x.fillRect(0, 10, 128 * clamp(v, 0, 1), 10); x.fillStyle = '#fff'; x.fillRect(128 * bar - 1, 4, 3, 22); x.fillStyle = 'rgba(120,130,126,.9)'; x.fillRect(128 * clamp(par, 0, 1) - 1, 8, 2, 14);
+function hintSprite(v, bar, par, broken) { const c = document.createElement('canvas'); c.width = 128; c.height = 32; const x = c.getContext('2d'); x.fillStyle = 'rgba(0,0,0,.55)'; x.fillRect(0, 10, 128, 10);
+  x.fillStyle = broken ? 'rgba(190,70,60,.9)' : v > par ? 'rgba(232,178,100,.95)' : 'rgba(150,160,156,.8)';   // red: keeping it would undo a stage already passed x.fillRect(0, 10, 128 * clamp(v, 0, 1), 10); x.fillStyle = '#fff'; x.fillRect(128 * bar - 1, 4, 3, 22); x.fillStyle = 'rgba(120,130,126,.9)'; x.fillRect(128 * clamp(par, 0, 1) - 1, 8, 2, 14);
   const t = new T.CanvasTexture(c), s = new T.Sprite(new T.SpriteMaterial({ map: t, transparent: true, depthTest: false, depthWrite: false })); s.renderOrder = 6; return s; }
 const HI = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'); x.strokeStyle = 'rgba(255,190,110,.6)'; x.lineWidth = 5; x.beginPath(); x.arc(64, 64, 54, 0, TAU); x.stroke();
   const s = new T.Sprite(new T.SpriteMaterial({ map: new T.CanvasTexture(c), transparent: true, depthTest: false, depthWrite: false, blending: T.AdditiveBlending })); s.renderOrder = 7; s.visible = false; scene.add(s); return s; })();
@@ -272,7 +272,7 @@ const PR = BREED.mulberry32(SEED * 7 + 1), pg = () => BREED.gauss(PR); let act =
 function scriptTick(dt) { if (!STYLE || S.ended || S.off) return; if (act) { act.u += dt / act.dur; const want = act.from + act.deg * Math.min(1, act.u); handTurn(act.ring, want - act.ring.ang); if (act.u >= 1) { gestureEnd(); act = act.queue.length ? startGesture(act.ring, act.queue) : null; } return; }
   const p = P[S.part], si = Math.min(p.stage, p.mod.stages.length - 1);
   const v = { phase: S.phase, since: S.since, sinceHold: S.sinceHold, choiceIndex: choice ? choice.i : 0, want: PLAYER.choose(UIL.round, choice ? choice.cands.length : 3), making: !!S.made, turning: RINGS.some(r => r.target !== r.applied),
-    ui: UI, score: scoreNow(p), bar: p.mod.stages[si][2], strength: VAL.STRENGTH, brood: !!p.brood, hints: p.brood ? p.brood.kids.slice(0, p.brood.shown).map(k => k.score) : [], parentScore: p.brood ? p.brood.parentScore : 0, hi: p.brood ? p.brood.hi : 0, target: p.brood ? p.brood.target : null, sinceSelect: S.sinceSelect, rng: PR, bias: VAL.BIAS, biasStage: p.biasStage, mod: p.mod, stage: p.stage, revealing: p.brood && p.brood.shown < p.brood.kids.length, lambda: UI.lambda };
+    ui: UI, score: scoreNow(p), bar: p.mod.stages[si][2], strength: VAL.STRENGTH, brood: !!p.brood, hints: p.brood ? p.brood.kids.slice(0, p.brood.shown).map(k => k.ok === false ? -1 : k.score) : [], parentScore: p.brood ? p.brood.parentScore : 0, hi: p.brood ? p.brood.hi : 0, target: p.brood ? p.brood.target : null, sinceSelect: S.sinceSelect, rng: PR, bias: VAL.BIAS, biasStage: p.biasStage, mod: p.mod, stage: p.stage, revealing: p.brood && p.brood.shown < p.brood.kids.length, lambda: UI.lambda };
   if (S.phase === 'lit' && S.since > 1.2) { hold(); return; }
   const a = PLAYER.next(STYLE, v); if (a.kind === 'hold') hold(); else if (a.kind === 'select') press('select'); else if (a.kind === 'decide') p.brood.target = a.target;
   else if (a.kind === 'turn') { const ring = ringOf(a.role); if (a.role === 'BIAS') p.biasStage = p.stage; const g = PLAYER.gestures(PLAYER.STYLES[STYLE], ring.ang, a.goal, UI.detent, pg); if (!g.list.length) return; act = startGesture(ring, g.list.slice()); } }

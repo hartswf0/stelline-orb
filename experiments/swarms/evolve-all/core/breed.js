@@ -12,6 +12,8 @@
   function measure(e, m) { if (!e) return 0; if (m === 'fit' || m == null) return +e.fit || 0; const v = e.parts ? e.parts[m] : undefined; return typeof v === 'number' ? v : +e.fit || 0; }
   /* the first stage not yet passed (stages are ordered; a stage counts as passed only when every stage before it passes too) */
   function stageOf(mod, e) { for (let i = 0; i < mod.stages.length; i++) { const [, m, th] = mod.stages[i]; if (measure(e, m) < th) return i; } return mod.stages.length; }
+  /* the stage reached from stage si: stages already passed stay passed (sticky); the current one passes when its own measure reaches its bar */
+  function advance(mod, e, si) { while (si < mod.stages.length && measure(e, mod.stages[si][1]) >= mod.stages[si][2]) si++; return si; }
   /* per-gene weights: no bias = every gene moves; a bias group = that group's genes fully, the rest at 0.2 */
   function weights(mod, bias, freeze) { return mod.genes.map(g => freeze && freeze.includes(g[1]) ? 0 : !bias || bias === 'ALL' ? 1 : g[1] === bias ? 1 : .2); }
   /* the groups named by stages not yet reached: frozen, so (for example) colour does not wander while the shape is being found */
@@ -38,5 +40,5 @@
   function defaults(mod) { return Float64Array.from(mod.genes.map(g => g[4])); }
   function inBounds(mod, G) { return mod.genes.every((g, i) => G[i] >= g[2] - 1e-12 && G[i] <= g[3] + 1e-12 && Number.isFinite(G[i])); }
   function named(mod, G) { const o = {}; mod.genes.forEach((g, i) => o[g[0]] = G[i]); return o; }
-  return { mulberry32, hash, gauss, clamp, measure, stageOf, weights, laterGroups, admissible, breed, pick, blank, defaults, inBounds, named };
+  return { mulberry32, hash, gauss, clamp, measure, stageOf, advance, weights, laterGroups, admissible, breed, pick, blank, defaults, inBounds, named };
 });

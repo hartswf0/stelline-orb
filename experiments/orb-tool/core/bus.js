@@ -46,6 +46,7 @@
       state: () => S.clone(state),
       view: () => viewFn ? viewFn(state) : S.clone(state),
       setView(fn) { viewFn = fn; },
+      _emitStep: (path, value, fast) => emit('step', path, value, fast),
       raw: () => state,                      // read-only reference for renderers each frame (do not mutate)
       do: (o, meta) => doOps(o, meta),
       propose: (o, note, meta) => doOps({ op: 'propose', args: { op: o && o.op, args: o && o.args, note } }, meta),

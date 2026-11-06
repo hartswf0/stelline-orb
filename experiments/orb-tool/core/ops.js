@@ -55,7 +55,7 @@
     candles(s, a) { if (!isObj(a)) return 'candles needs { count }'; const e = setPath(s, 'candles.count', a.count); if (e) return e; s.candles.lit = s.candles.count; s.time.blown = false; return null; },
     hold(s) { s.time.hold = true; return null; },
     release(s) { s.time.hold = false; if (s.people.filter(p => p.kind === 'child').slice(0, 3).every(p => p.arrived >= 10) && s.candles.lit > 0 && s.cake.stage > 0) { s.candles.lit = 0; s.time.blown = true; } return null; },
-    blow(s) { if (s.candles.lit === 0) return 'no candle is lit'; s.candles.lit = 0; s.time.blown = true; return null; },
+    blow(s) { if (s.cake.stage === 0) return 'there is no cake'; if (s.candles.lit === 0) return 'no candle is lit'; s.candles.lit = 0; s.time.blown = true; return null; },
     switchOff(s) { s.time.off = true; return null; },
     switchOn(s) { s.time.off = false; return null; },
     look(s, a) { if (!isObj(a)) return 'look needs { look, place, light }'; let any = false;
