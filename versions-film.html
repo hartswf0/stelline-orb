@@ -7,7 +7,7 @@
 <style>
   html,body{margin:0;background:#000;color:#fff;font:400 12px/1.4 "Barlow Semi Condensed","Arial Narrow",Arial,sans-serif;letter-spacing:.07em;text-transform:uppercase}
   main{max-width:1280px;margin:0 auto;padding:18px}
-  h1{font:600 14px/1 inherit;margin:0 0 14px;letter-spacing:.14em}
+  h1{font:600 14px/1 inherit;margin:0 0 14px;letter-spacing:.14em}h2{font:600 11px/1.2 inherit;margin:22px 0 10px;opacity:.7;letter-spacing:.12em}
   .g{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px}
   figure{margin:0;border:1px solid rgba(255,255,255,.25)}
   video{width:100%;display:block;background:#000}
@@ -17,12 +17,20 @@
 </style>
 </head>
 <body><main>
-<h1>The birthday, in versions</h1>
-<div class="g" id="g"></div>
-<p style="opacity:.6;margin-top:16px;text-transform:none;letter-spacing:.02em">V0 is the original film (213 s). V1 to V3 are generated from the original frame with Kling 2.1 (image to video). Each starts on the same frame.</p>
+<h1>The cake, made</h1>
+<h2>The original film, more ways</h2>
+<div class="g" id="g1"></div>
+<h2>Versions as a game: the controller always shown, the assets being made</h2>
+<div class="g" id="g2"></div>
+<h2>Generated versions of the birthday frame</h2>
+<div class="g" id="g3"></div>
+<p style="opacity:.6;margin-top:16px;text-transform:none;letter-spacing:.02em">The controls in "with controls" are inferred from the footage, not read from it. Generated versions use Kling 2.1 image to video from the original frame.</p>
 </main>
 <script>
-var V=[['v0_original','V0 · Original','The film, 4 s.'],['v1_blowout','V1 · Blow-out','Breath, flames bend and go out, smoke, the light falls.'],['v2_pushin','V2 · Push-in','Slow push toward the cake and the birthday girl; her eyes leave the flames, a faint smile.'],['v3_hologram','V3 · Hologram','Edges like mist, the faces turn toward the cake, faint scanlines.']];
-var g=document.getElementById('g');V.forEach(function(v){var f=document.createElement('figure');f.innerHTML='<video src="assets/versions/'+v[0]+'.mp4" poster="assets/versions/'+v[0]+'.jpg" controls loop muted playsinline preload="metadata"></video><figcaption><b>'+v[1]+'</b><span>'+v[2]+'</span></figcaption>';g.appendChild(f)});
+var S=[
+ ['g1',[['flow/original-flow','The whole flow','The original footage, 2:17 to 2:50: the cake summoned, its looks, the tip, the lettering, the girls, her hands on the orb.'],['flow/original-flow-controls','With controls','The same flow with the orb below it: which ring and key the footage implies at each moment (inferred).']]],
+ ['g2',[['flow/game-arcs-film-plate','Arcs on the film plate','The film\'s own shot with the cake arc, lettering, tilt, a retimed child and the flame-out.'],['flow/game-stage-pad','Stage and pad','The cake built from nothing with the pad in view: scene graph, pen, focus pull, tilt.'],['flow/game-tall-cake','Tall cake','A two-step build with nine candles, lettering, and the camera turning round.'],['flow/game-forest-focus','Forest and focus','The forest plate, the reveal and the focus pull, pad in view.']]],
+ ['g3',[['versions/v0_original','V0 · Original','The film, 4 s.'],['versions/v1_blowout','V1 · Blow-out','Breath, flames bend and go out, smoke, the light falls.'],['versions/v2_pushin','V2 · Push-in','Slow push toward the cake and the birthday girl.'],['versions/v3_hologram','V3 · Hologram','Edges like mist, the faces turn toward the cake.']]]];
+S.forEach(function(s){var g=document.getElementById(s[0]);s[1].forEach(function(v){var f=document.createElement('figure');f.innerHTML='<video src="assets/'+v[0]+'.mp4" poster="assets/'+v[0]+'.jpg" controls loop muted playsinline preload="metadata"></video><figcaption><b>'+v[1]+'</b><span>'+v[2]+'</span></figcaption>';g.appendChild(f)})});
 [].forEach.call(document.querySelectorAll('video'),function(v){v.addEventListener('mouseenter',function(){v.play().catch(function(){})});v.addEventListener('mouseleave',function(){v.pause()})});
 </script></body></html>
