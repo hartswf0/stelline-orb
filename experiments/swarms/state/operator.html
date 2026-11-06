@@ -17,10 +17,10 @@ ul { padding-left: 18px; margin: 4px 0; } li { margin: 3px 0; } .small { font-si
 <div class="small">Tap SCENE (left collar) to watch the proof's own input played through the device, or play it yourself: SELECT picks ROOM, CAKE, CHILDREN or HER; drag a ring up or down. The (i) shows the machine.</div>
 <h2>STATUS</h2>
 <div class="k">
-<div>revision</div><div class="v">r2 · 2026-11-06 · repairs after critic round 1 · uncommitted</div>
-<div>critic verdict</div><div class="v ok">Round 1: PASS with one gap (refusal had no lasting cost). <a href="critic-round1.md">critic-round1.md</a>. Repaired in r2; not yet re-judged.</div>
-<div>next blocking failure</div><div class="v">Critic round 2 on the repairs. Builder's own concern (not a verdict): the lasting cost may be too heavy (6x the fresh wait), and at phone size her face is a few pixels.</div>
-<div>tests</div><div class="v ok">25 of 25 pass (node test.js), including the critic's condition: pressed setup-to-approach 21.7 s vs 3.5 s fresh (6.1x), pause and look back before the blow · measured</div>
+<div>revision</div><div class="v">r3 · 2026-11-06 · repairs after critic rounds 1 and 2 · uncommitted</div>
+<div>critic verdict</div><div class="v ok">Round 2: PASS (<a href="critic-round2.md">critic-round2.md</a>). Its last gap, the memory invisible while she watches, is repaired in r3 and not re-judged. Round 1: <a href="critic-round1.md">critic-round1.md</a>.</div>
+<div>next blocking failure</div><div class="v">None open. A further critic round on r3 is optional. Builder's own concern (not a verdict): the lasting cost may be too heavy (6x the fresh wait), and at phone size her face is a few pixels.</div>
+<div>tests</div><div class="v ok">26 of 26 pass (node test.js), including both critic conditions: pressed setup-to-approach 21.7 s vs 3.5 s fresh; while she watches, a look back or half-step at least every 2.9 s (none fresh) · measured</div>
 <div>playtests</div><div class="v">Two scripted recordings (proof: mouse; phone: touch). No human playtests.</div>
 </div>
 <h2>THE PROOF (25 s, sound)</h2>
@@ -28,7 +28,8 @@ ul { padding-left: 18px; margin: 4px 0; } li { margin: 3px 0; } .small { font-si
 <div class="small">The cake pushed at her: she backs away, then turns her back. Ana calls: she stays turned, then sits and hides. Ana dims the room, brings the cake back slowly and lowers it, brings the three children in to sing, kneels. She peeks, looks, stands, comes, and blows on the last "you". A long HOLD at 23 s ends the memory; the end card opens once it is dark.</div>
 <h2>AFTER BEING PRESSED (48 s, the critic's condition)</h2>
 <video src="pressed.mp4" controls playsinline preload="metadata"></video>
-<div class="small">Ana calls at full strength for 6 s and pushes the cake at her, then sets the same good room as the proof. She hides much longer, comes out at 20.7 s, and on her way stops short of the table with her arms half crossed, looks back at Ana for 3 s, then comes on slowly and blows at 42 s.</div>
+<div class="small">Ana calls at full strength for 6 s and pushes the cake at her, then sets the same good room as the proof. She hides much longer, comes out at 20.7 s, then watches warily: she looks back at Ana and edges toward the cake and back every few seconds, arms drawn in. On her way stops short of the table with her arms half crossed, looks back at Ana for 3 s, then comes on slowly and blows at 42 s.</div>
+<img src="pressed-strip.png" alt="1 fps strip of her wary watching, 21 to 35 s of pressed.mp4">
 <h2>PHONE PLAYTEST (scripted, 390 x 844, touch)</h2>
 <video src="mobile-playtest.mp4" controls playsinline preload="metadata"></video>
 <div class="small">An impatient player: calls, then sets the right circumstances, then calls once more while she is coming. She stops and turns away, and comes again later.</div>

@@ -17,12 +17,12 @@ function shiftOf(A, B, W, H, maxS) { const g = d => { const o = new Float32Array
   const { W, H, F, ZC } = await pg.evaluate(() => ({ W: MP.W, H: MP.H, F: MP.F, ZC: MP.ZC }));
   fs.writeFileSync(path.join(DIR, 'planes.json'), JSON.stringify(await pg.evaluate(() => MP.manifest()), null, 1));
   // ---------- 1. parallax: each card's measured slide between two eye positions against F*db*(1/zc - 1/z)
-  const configs = [{ name: 'start', set: {} }, { name: 'moved', set: { near: 1.4, left: 4.4, right: 2.9, string: 2.2 } }];
+  const configs = [{ name: 'start', set: {} }, { name: 'moved', set: { near: 1.4, left: 3.9, right: 3.6, string: 2.2 } }];
   const rows = []; // (G-dark overlay and the game text are not part of render)
   for (const cf of configs) {
     const info = await pg.evaluate(set => { MP.reset(); MP.setKT(0); for (const [k, z] of Object.entries(set)) MP.P[k].z = z; MP.sortPlanes(); return MP.PLANES.map(p => ({ id: p.id, z: p.z })); }, cf.set);
     const b0 = await pg.evaluate(() => MP.camB(-6)), b1 = await pg.evaluate(() => MP.camB(6));
-    for (let i = 0; i < info.length; i++) { if (cf.name === 'moved' && !['child2', 'child1', 'child3', 'string'].includes(info[i].id)) continue;
+    for (let i = 0; i < info.length; i++) { if (cf.name === 'moved' && !['child2', 'child1', 'child3', 'string', 'bench'].includes(info[i].id)) continue;
       const PAD = 420, pred0 = F * (b1 - b0) * (1 / ZC - 1 / info[i].z);
       // rendered with a wide margin (so a card that leaves the phone's frame is still measured); the matching runs in the page
       const meas = await pg.evaluate(([b0, b1, i, p, maxS, src]) => { const A = MP.render(b0, 0, i, p), B = MP.render(b1, 0, i, p), W = MP.W + 2 * p, H = MP.H + 2 * p; const shiftOf = eval('(' + src + ')'); return shiftOf(A, B, W, H, maxS); }, [b0, b1, i, PAD, Math.ceil(Math.abs(pred0)) + 40, shiftOf.toString()]);
@@ -33,8 +33,8 @@ function shiftOf(A, B, W, H, maxS) { const g = d => { const o = new Float32Array
   const ks = rows.filter(r => Math.abs(1 / ZC - 1 / r.depth) > .05).map(r => r.measuredPx / (1 / ZC - 1 / r.depth)), kMean = ks.reduce((a, b) => a + b, 0) / ks.length, kSpread = Math.max(...ks.map(k => Math.abs(k / kMean - 1)));
   verdict('parallax_proportional_to_inverse_depth', rows.every(r => r.ok) && kSpread < .02, { planes: rows.length, worstPlane: worst.plane, worstErrorPx: worst.errorPx, worstPredictedPx: worst.predictedPx, constantFdb: +kMean.toFixed(1), expectedFdb: +(F * (await pg.evaluate(() => MP.camB(6) - MP.camB(-6)))).toFixed(1), eyeMoveM: +(await pg.evaluate(() => MP.camB(6) - MP.camB(-6))).toFixed(4), maxRelativeSpread: +kSpread.toFixed(4), rows });
   // ---------- 2. occlusion order, and 3. gaps, at many eye positions and depth settings
-  let checked = 0, wrong = 0, holes = 0, seamBad = 0, floatBad = 0, samples = 0; const wrongAt = [];
-  const occConfigs = [{}, { near: 1.4 }, { near: 2.3, string: 2.2 }, { left: 4.4, right: 2.9 }, { string: 2.2, near: 1.4 }];
+  let cutSeen = 0, checked = 0, wrong = 0, holes = 0, seamBad = 0, floatBad = 0, samples = 0; const wrongAt = [];
+  const occConfigs = [{}, { near: 1.4 }, { near: 2.3, string: 2.2 }, { left: 3.9, right: 3.9 }, { string: 2.2, near: 1.4, right: 3.6 }];
   for (const set of occConfigs) for (let yaw = -30; yaw <= 30; yaw += 6) {
     const r = await pg.evaluate(([set, yaw]) => { MP.reset(); MP.setKT(0); for (const [k, z] of Object.entries(set)) MP.P[k].z = z; MP.sortPlanes(); const b = MP.camB(yaw);
       const masks = MP.masks(b, 0), pic = MP.idComposite(b, 0), W = MP.W, H = MP.H, N = W * H, zs = MP.PLANES.map(p => p.z), cols = MP.PLANES.map((p, i) => MP.idColor(i));
@@ -50,15 +50,19 @@ function shiftOf(A, B, W, H, maxS) { const g = d => { const o = new Float32Array
         for (let y = top; y < lipBottom - 1; y++) { const q = y * W + x; if (far.has(key([pic[q * 4], pic[q * 4 + 1], pic[q * 4 + 2]]))) seamBad++; }
         // the cake never floats: just below its lowest pixel in this column is table (or something nearer), never the floor or wall
         let cb = -1; for (let y = H - 1; y >= 0; y--) if (masks[ci][y * W + x] >= 250) { cb = y; break; } if (cb >= 0) { const q = (cb + 2) * W + x; if (far.has(key([pic[q * 4], pic[q * 4 + 1], pic[q * 4 + 2]]))) floatBad++; } }
-      return { checked, wrong, holes, seamBad, floatBad, wrongAt }; }, [set, yaw]);
-    checked += r.checked; wrong += r.wrong; holes += r.holes; seamBad += r.seamBad; floatBad += r.floatBad; samples++; wrongAt.push(...r.wrongAt); }
+      // the cut at the foot of each film card is never seen: no pixel of a child's lowest band shows in the picture
+      let cutSeen = 0; [['near', .27], ['left', .25], ['right', .25]].forEach(([k, frac]) => { const p = MP.P[k], cutV = MP.project(0, p.y0 + p.dy + frac * p.h, p.z, b)[1], col = key(MP.idColor(p.i));
+        for (let q = 0; q < N; q++) { if (((q / W) | 0) <= cutV || masks[p.i][q] < 128) continue; if (key([pic[q * 4], pic[q * 4 + 1], pic[q * 4 + 2]]) === col) cutSeen++; } });
+      return { checked, wrong, holes, seamBad, floatBad, wrongAt, cutSeen }; }, [set, yaw]);
+    cutSeen += r.cutSeen; checked += r.checked; wrong += r.wrong; holes += r.holes; seamBad += r.seamBad; floatBad += r.floatBad; samples++; wrongAt.push(...r.wrongAt); }
   verdict('occlusion_order_follows_depth', wrong === 0, { views: samples, pixelsChecked: checked, wrongPixels: wrong, examples: wrongAt.slice(0, 5) });
   verdict('no_gaps_or_seams', holes === 0 && seamBad === 0 && floatBad === 0, { views: samples, uncoveredPixels: holes, tableSeamPixels: seamBad, cakeFloatingPixels: floatBad });
+  verdict('cut_edges_never_seen', cutSeen === 0, { views: samples, pixelsOfChildrensCutBandsSeen: cutSeen, band: 'near child: lowest 27% of her card (shirt hem, matte cut, dark shoulder); far children: lowest 25%' });
   // ---------- 4. the game: no win from the eye alone at the start; a win after one depth change; the scene ends kept
   const game = await pg.evaluate(() => { const scan = () => { const out = []; for (let y = -30; y <= 30; y += 2) { const s = MP.sight(MP.camB(y), 0); if (s.nCandles === 7 && s.nFaces === 3) out.push(y); } return out; };
-    MP.reset(); MP.setKT(0); const base = scan(); MP.P.right.z = 4.1; MP.sortPlanes(); const moved = scan(); MP.reset(); return { winsFromStart: base, winsWithChildRightAt4_1m: moved }; });
+    MP.reset(); MP.setKT(0); const base = scan(); MP.P.right.z = 3.6; MP.sortPlanes(); const moved = scan(); MP.reset(); return { winsFromStart: base, winsWithChildRightAt3_6m: moved }; });
   const trace = JSON.parse(fs.readFileSync(path.join(DIR, 'trace.json'))); const blowEv = trace.events.find(e => e.k === 'blow'), last = trace.frames[trace.frames.length - 1];
-  verdict('game_needs_viewpoint_and_depth', game.winsFromStart.length === 0 && game.winsWithChildRightAt4_1m.length > 0 && blowEv && blowEv.candles === 7 && blowEv.faces === 3 && last.phase === 'kept', Object.assign(game, { proofBlow: blowEv, proofEndPhase: last.phase }));
+  verdict('game_needs_viewpoint_and_depth', game.winsFromStart.length === 0 && game.winsWithChildRightAt3_6m.length > 0 && blowEv && blowEv.candles === 7 && blowEv.faces === 3 && last.phase === 'kept', Object.assign(game, { proofBlow: blowEv, proofEndPhase: last.phase }));
   // ---------- 5. the device: detents under the hand, then the machine at 11.8 steps a second
   const steps = trace.events.filter(e => e.k === 'step'), trains = []; let cur = [];
   steps.forEach(e => { if (cur.length && e.t - cur[cur.length - 1].t > .2) { trains.push(cur); cur = []; } cur.push(e); }); if (cur.length) trains.push(cur);
@@ -72,5 +76,15 @@ function shiftOf(A, B, W, H, maxS) { const g = d => { const o = new Float32Array
   const sweep = trace.frames.filter(f => f.t > 1.0 && f.t < 2.6), vz = trace.frames[0].vz, meanSp = vz.map((z, i) => sweep.reduce((a, f) => a + f.speed[i], 0) / sweep.length);
   const order = vz.map((z, i) => i).sort((a, b) => vz[a] - vz[b]); let mono = true; for (let k = 1; k < order.length; k++) if (meanSp[order[k]] > meanSp[order[k - 1]] + 1e-6) mono = false;
   let rms = {}; try { const seg = (a, d) => { const o = execSync(`ffmpeg -hide_banner -ss ${a} -t ${d} -i ${path.join(DIR, 'proof.mp4')} -af astats=metadata=0 -f null - 2>&1`).toString(); const m = o.match(/Overall[\s\S]*?RMS level dB:\s*(-?[\d.]+|-inf)/); return m ? m[1] : null; }; rms = { sweep_1_0_to_2_6s: seg(1.0, 1.6), still_4_9_to_5_3s: seg(4.9, .4), afterBlow_8_6_to_9_2s: seg(8.6, .6) }; } catch (e) { rms = { error: e.message }; }
-  verdict('nearer_voices_faster_and_brighter', mono, { voiceDepths: vz.map(z => +z.toFixed(2)), meanScreenSpeedPxPerS: meanSp.map(v => +v.toFixed(1)), bandCentreHz: vz.map(z => Math.round(180 + 5200 * Math.pow(.95 / z, 1.3))), audioRmsDb: rms });
+  const probe = await pg.evaluate(async ([fr, d]) => MP.voiceProbe(fr, d, 1.0, 2.6), [trace.frames, 10]);
+  const byZ = probe.slice().sort((a, b) => a.depth - b.depth); let louderNear = true, lowerNear = true; for (let k = 1; k < byZ.length; k++) { if (byZ[k].rmsDb > byZ[k - 1].rmsDb) louderNear = false; if (byZ[k].zeroCrossHz < byZ[k - 1].zeroCrossHz) lowerNear = false; }
+  verdict('depth_heard_as_separate_bands', louderNear && lowerNear, { window: '1.0-2.6 s of the proof (the long scale sweep), each voice rendered alone', voices: probe });
+  verdict('nearer_voices_pass_faster', mono, { voiceDepths: vz.map(z => +z.toFixed(2)), meanScreenSpeedPxPerS: meanSp.map(v => +v.toFixed(1)), audioRmsDb: rms });
+  { const p2 = await br.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 }); await p2.goto(URL); await p2.waitForFunction(() => window.MP && MP.ready); await p2.evaluate(() => { MP.film(true); MP.reset(); MP.setKT(0); });
+    const r = await p2.evaluate(() => { const out = []; for (const yaw of [0, 4, 8]) { const b = MP.camB(yaw), W = MP.W, H = MP.H, m = MP.masks(b, 0), A = MP.render(b, 0, null, 0, true), B = MP.render(b, 0, null, 0, true, ['tabletop', 'tablefront']);
+        const ci = MP.P.near.i, ti = MP.P.tabletop.i, fi = MP.P.tablefront.i, bi = MP.P.bench.i, L = (d, q) => .2126 * d[q * 4] + .7152 * d[q * 4 + 1] + .0722 * d[q * 4 + 2];
+        for (let y = 0; y + 20 <= H; y += 10) for (let x = 0; x + 20 <= W; x += 10) { let ok = true, overT = 0; for (let yy = y; yy < y + 20 && ok; yy++) for (let xx = x; xx < x + 20; xx++) { const q = yy * W + xx; if (m[ci][q] < 250 || m[bi][q] > 0) { ok = false; break; } if (m[ti][q] > 128 || m[fi][q] > 128) overT++; }
+          if (!ok || overT < 200) continue; let la = 0, lb = 0; for (let yy = y; yy < y + 20; yy++) for (let xx = x; xx < x + 20; xx++) { const q = yy * W + xx; la += L(A, q); lb += L(B, q); } out.push({ yaw, x, y, lumWithTable: +(la / 400).toFixed(2), lumTableHidden: +(lb / 400).toFixed(2), change: +(Math.abs(la - lb) / Math.max(la, 1)).toFixed(4) }); } } return out; });
+    const worstP = r.reduce((a, q) => (!a || q.change > a.change) ? q : a, null);
+    verdict('critic_condition_child_opaque_over_table', r.length > 0 && worstP.change <= .02, { viewport: '1440x900', patchesInsideHerOverTheTable: r.length, worstPatch: worstP }); await p2.close(); }
   R.summary = { failed: fails, passed: Object.keys(R.tests).length - fails }; fs.writeFileSync(path.join(__dirname, 'results.json'), JSON.stringify(R, null, 1)); console.log(R.summary); await br.close(); process.exit(fails ? 1 : 0); })();

@@ -26,7 +26,7 @@ button.x { font: 500 12px 'Oswald', sans-serif; letter-spacing: .12em; color: va
 <h3>THE DEVICE</h3>
 <table>
 <tr><td>SCALE RING</td><td>Where you kneel, in degrees around the cake. Every piece slides by an amount set by its depth: near pieces fast, far pieces slow.</td></tr>
-<tr><td>SELECT</td><td>The piece you work on: near child, child left, child right, balloon.</td></tr>
+<tr><td>SELECT</td><td>The piece you work on: near child (her chair moves with her), child left, child right, balloon.</td></tr>
 <tr><td>KNURLED RING</td><td>The selected piece's depth, in steps of 5 cm. Moved back, a piece is smaller and slides less.</td></tr>
 <tr><td>TRIANGLE RING</td><td>For a child, her time (earlier or later in her performance). For the balloon, its height.</td></tr>
 <tr><td>HOLD</td><td>Tap: freeze the children, or release them so she blows. Hold it down: switch the memory off.</td></tr>
@@ -95,7 +95,7 @@ function kidPlane(key, id, name, sheet, z, x, y0, h, t0, tint) { const S = KIDSH
       if (o.id) { const q = KC.id || (KC.id = document.createElement('canvas')), qx = q.getContext('2d'); q.width = k.width; q.height = k.height; qx.drawImage(k, 0, 0); qx.globalCompositeOperation = 'source-in'; qx.fillStyle = o.id; qx.fillRect(0, 0, q.width, q.height); k = q; }
       c.save(); c.translate(this.x - w / 2, this.y0 + this.dy + h); c.scale(1, -1); if (!o.id && tint) c.filter = tint; c.drawImage(k, 0, 0, k.width, k.height, 0, 0, w, h); c.restore();
     } }); }
-kidPlane('right', 'child3', 'far child, right (film child 3)', 3, 3.15, .30, .50, .66, 1.3, 'brightness(.8) sepia(.12)');
+kidPlane('right', 'child3', 'far child, right (film child 3)', 3, 2.90, .72, .50, .66, 1.3, 'brightness(.8) sepia(.12)');
 kidPlane('left', 'child1', 'far child, left (film child 1)', 1, 3.0, -.30, .50, .66, 0, 'brightness(.88) sepia(.1)');
 P.tabletop = plane({ id: 'tabletop', name: 'table top (far half)', z: 2.78, source: OWN, rights: 'own work',
   draw(c, o) { c.beginPath(); c.moveTo(-1.0, .705); c.lineTo(-.62, .745); c.lineTo(.62, .745); c.lineTo(1.0, .705); c.lineTo(1.0, .40); c.lineTo(-1.0, .40); c.closePath();
@@ -126,9 +126,9 @@ P.tablefront = plane({ id: 'tablefront', name: 'table lip and pedestal (near hal
 kidPlane('near', 'child2', 'near child (film child 2)', 2, 1.95, .12, .50, .62, .6, 'brightness(1.05) sepia(.08)');
 // her chair: she stands behind it; it travels with her, 10 cm nearer, and covers the cut at the foot of her card at every eye angle
 P.bench = plane({ id: 'bench', name: 'the near child\'s chair back (moves with her, 10 cm nearer)', z: 1.85, source: OWN, rights: 'own work', link: 'child2',
-  draw(c, o) { const x = this.x; c.beginPath(); c.moveTo(x - .40, .40); c.lineTo(x - .40, .70); c.quadraticCurveTo(x, .80, x + .40, .70); c.lineTo(x + .40, .40); c.closePath();
-    c.rect(x - .37, 0, .04, .41); c.rect(x + .33, 0, .04, .41);
-    if (o.id) { c.fillStyle = o.id; c.fill(); return; } const g = c.createLinearGradient(0, .78, 0, .40); g.addColorStop(0, '#b98a52'); g.addColorStop(.08, '#6e4a28'); g.addColorStop(.35, '#2a1a0e'); g.addColorStop(1, '#0b0705'); c.fillStyle = g; c.fill(); spotted(c, .012);
+  draw(c, o) { const x = this.x; c.beginPath(); c.moveTo(x - .40, .46); c.lineTo(x - .40, .70); c.quadraticCurveTo(x, .80, x + .40, .70); c.lineTo(x + .40, .46); c.closePath();
+    c.rect(x - .37, 0, .04, .47); c.rect(x + .33, 0, .04, .47);
+    if (o.id) { c.fillStyle = o.id; c.fill(); return; } const g = c.createLinearGradient(0, .78, 0, .40); g.addColorStop(0, '#c4935a'); g.addColorStop(.1, '#7a5430'); g.addColorStop(.45, '#33210f'); g.addColorStop(1, '#0b0705'); c.fillStyle = g; c.fill(); spotted(c, .012);
     c.strokeStyle = 'rgba(255,214,150,.55)'; c.lineWidth = .006; c.beginPath(); c.moveTo(x - .39, .70); c.quadraticCurveTo(x, .795, x + .39, .70); c.stroke(); } });
 // paper lanterns hung at four depths: they fill the dark above the party and slide at their own speeds
 [[1.25, -.22, 1.38, .085], [2.15, .42, 1.52, .11], [3.6, -.62, 1.86, .14], [5.6, .95, 2.45, .2]].forEach(([z, x, y, r], k) => plane({ id: 'lantern' + (k + 1), name: 'paper lantern ' + (k + 1) + ' (hung at ' + z + ' m)', z, x, source: OWN, rights: 'own work',
@@ -185,12 +185,13 @@ function sight(b, t) { const cm = maskOf(P.candles.i, b, t), occ = occluder(ZC, 
 /* -------------------------------------------------------------- sound: the device's grains, the planes' voices, the candles */
 const SPR = { click: [[0, .065], [.115, .065], [.23, .065], [.345, .065], [.46, .065], [.575, .065], [.69, .065], [.805, .065], [.92, .065]], ratchet: [[1.035, .05], [1.135, .05], [1.235, .05], [1.335, .05]], tick: [[1.435, .04], [1.525, .04]], comb: [[1.615, .37]], whirr: [[2.035, .62]] };
 // voices: groups of cards that speak together; louder the faster they slide, brighter the nearer they are
-const VOICES = [{ ids: ['wall'] }, { ids: ['child1', 'child3'] }, { ids: ['tabletop', 'cake', 'tablefront'] }, { ids: ['child2'] }, { ids: ['bench', 'string'] }, { ids: ['chair'] }];
+const VOICES = [{ ids: ['wall', 'lantern4'] }, { ids: ['child1', 'child3', 'lantern3'] }, { ids: ['tabletop', 'cake', 'tablefront', 'lantern2'] }, { ids: ['child2', 'bench'] }, { ids: ['string', 'lantern1'] }, { ids: ['chair'] }];
+function bandOf(z) { return 110 * Math.pow(z / .8, 1.25); }   // 0.86 m: 120 Hz ... 9 m: 2.3 kHz
 function voiceZ(v) { const ps = v.ids.map(id => PLANES.find(p => p.id === id)); return ps.reduce((s, p) => s + p.z, 0) / ps.length; }
 function makeAudio(ac, dest, buf) {
   const A = { ac, buf, voices: [] }, master = ac.createGain(); master.gain.value = .9; master.connect(dest); A.master = master;
   const nb = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate), nd = nb.getChannelData(0), r = rng(5); for (let i = 0; i < nd.length; i++) nd[i] = r() * 2 - 1;
-  VOICES.forEach(() => { const s = ac.createBufferSource(); s.buffer = nb; s.loop = true; const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.4; bp.frequency.value = 1000;
+  VOICES.forEach(() => { const s = ac.createBufferSource(); s.buffer = nb; s.loop = true; const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 7; bp.frequency.value = 1000;
     const g = ac.createGain(); g.gain.value = 0; const pan = ac.createStereoPanner ? ac.createStereoPanner() : null; s.connect(bp).connect(g); if (pan) g.connect(pan).connect(master); else g.connect(master); s.start(0); A.voices.push({ g, pan, bp }); });
   const cb = ac.createBuffer(1, ac.sampleRate * 3, ac.sampleRate), cd = cb.getChannelData(0), r2 = rng(9); for (let i = 0; i < cd.length; i++) { cd[i] += (r2() * 2 - 1) * .05; if (r2() < .0016) { const n = 30 + (r2() * 90 | 0); for (let k = 0; k < n && i + k < cd.length; k++) cd[i + k] += (r2() * 2 - 1) * Math.exp(-k / 14) * .9; } }
   const cs = ac.createBufferSource(); cs.buffer = cb; cs.loop = true; const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 7000; lp.Q.value = .7; const cg = ac.createGain(); cg.gain.value = 0; cs.connect(lp).connect(cg).connect(master); cs.start(0); A.candle = { lp, g: cg };
@@ -205,8 +206,8 @@ function soundEvent(A, e, t) { const k = e.k;
   else if (k === 'select') { for (let i = 0; i < 5; i++) grainAt(A, 'tick', t + i * .055, 1, .3, i); }
   else if (k === 'hold') grainAt(A, 'ratchet', t, 1, .6, e.n);
   else if (k === 'blow') blowAt(A, t); else if (k === 'out' || k === 'wash') washAt(A, t, e.v || 1); else if (k === 'miss') { grainAt(A, 'whirr', t, .8, .35, 0); } }
-function soundFrame(A, f, t) { A.voices.forEach((v, i) => { const z = f.vz[i], g = clamp(f.speed[i] / Math.max(1, W) * .9, 0, .6);
-    v.g.gain.setTargetAtTime(g, t, .03); v.bp.frequency.setTargetAtTime(180 + 5200 * Math.pow(.95 / z, 1.3), t, .05); if (v.pan) v.pan.pan.setTargetAtTime(clamp(f.pan[i], -1, 1), t, .05); });
+function soundFrame(A, f, t) { A.voices.forEach((v, i) => { const z = f.vz[i], g = clamp(f.speed[i] / Math.max(1, W) * 2.6 * Math.pow(.95 / z, .8), 0, 1.4);
+    v.g.gain.setTargetAtTime(g, t, .03); v.bp.frequency.setTargetAtTime(bandOf(z), t, .05); if (v.pan) v.pan.pan.setTargetAtTime(clamp(f.pan[i], -1, 1), t, .05); });
   const c = f.candles; A.candle.lp.frequency.setTargetAtTime(350 + 7600 * c * c, t, .04); A.candle.g.gain.setTargetAtTime((.05 + .09 * c) * f.lit, t, .05); }
 let AC = null, AUD = null;
 function ac() { if (!AC) { AC = new (window.AudioContext || window.webkitAudioContext)(); AUD = makeAudio(AC, AC.destination, null); fetch(BASE + 'device-sounds.wav').then(r => r.arrayBuffer()).then(b => AC.decodeAudioData(b)).then(b => { AUD.buf = b; }).catch(() => { }); }
@@ -215,7 +216,7 @@ const EVENTS = []; let FRAMES = [], NOW = 0, FILM = false;
 function emit(e) { e.t = +NOW.toFixed(4); EVENTS.push(e); if (EVENTS.length > 5000) EVENTS.shift(); if (AUD && !FILM) soundEvent(AUD, e, AC.currentTime); }
 
 /* -------------------------------------------------------------- the game */
-const TARGETS = [{ name: 'NEAR CHILD', p: 'near', zr: [1.40, 2.30], tri: 'time' }, { name: 'CHILD LEFT', p: 'left', zr: [2.90, 4.40], tri: 'time' }, { name: 'CHILD RIGHT', p: 'right', zr: [2.90, 4.40], tri: 'time' }, { name: 'BALLOON', p: 'string', zr: [.90, 2.20], tri: 'height' }];
+const TARGETS = [{ name: 'NEAR CHILD', p: 'near', zr: [1.40, 2.30], tri: 'time' }, { name: 'CHILD LEFT', p: 'left', zr: [2.90, 3.90], tri: 'time' }, { name: 'CHILD RIGHT', p: 'right', zr: [2.90, 3.90], tri: 'time' }, { name: 'BALLOON', p: 'string', zr: [.90, 2.20], tri: 'height' }];
 const G = { sel: 0, hold: true, phase: 'arrange', blowAt: 0, tries: 0, msg: '', msgT: 0, dark: 0, offAt: 0, endAt: 0, last: null, kept: false };
 let KT = 0;   // the children's clock (stops while HOLD is on)
 const RINGS = [{ id: 'scale', ang: 0, target: 0, applied: 0, deg: 5, ix: 0 }, { id: 'knurl', ang: 0, target: 0, applied: 0, deg: 9, ix: 1 }, { id: 'tri', ang: 0, target: 0, applied: 0, deg: 6, ix: 2 }];
@@ -267,7 +268,7 @@ function layoutDev() { const r = devEl.getBoundingClientRect(), pr = DPR; DW = r
 function cylShade(b, base, hi) { const g = dx.createLinearGradient(0, b.cy - b.rad, 0, b.cy + b.rad); g.addColorStop(0, '#0b0c0c'); g.addColorStop(.18, base); g.addColorStop(.42, hi); g.addColorStop(.62, base); g.addColorStop(1, '#070807'); return g; }
 function marksOn(b, list) { list.forEach(([a, fn]) => { const th = (a - b.ring.ang) * Math.PI / 180, c = Math.cos(th); if (c <= .05) return; fn(b.cy - Math.sin(th) * b.rad * .92, c); }); }
 // the scale ring's numbers are degrees around the memory; one detent (5 degrees of barrel) is 2 degrees of kneeling
-const SCALE_NUMS = []; for (let d = -30; d <= 30; d += 10) SCALE_NUMS.push([d / YAW_PER_STEP * 5, String((d + 360) % 360).padStart(2, '0')]);
+const SCALE_NUMS = []; for (let d = -30; d <= 30; d += 10) SCALE_NUMS.push([d / YAW_PER_STEP * 5, String((-d + 360) % 360).padStart(2, '0')]);
 function fitText(s, x, y, w, px, col) { let f = px; dx.font = `500 ${f}px Oswald, sans-serif`; while (dx.measureText(s).width > w && f > 7) { f -= 1; dx.font = `500 ${f}px Oswald, sans-serif`; } dx.fillStyle = col; dx.fillText(s, x, y); }
 function ringRole(r) { const t = tgt(), p = P[t.p];
   if (r.id === 'scale') return ['WHERE YOU KNEEL', `${(Math.round(r.target * YAW_PER_STEP) + 360) % 360}°`];
@@ -297,8 +298,7 @@ function drawDev() { dx.clearRect(0, 0, DW, DH);
     const lab = { select: 'SELECT', hold: 'HOLD', play: 'SCENE', clear: 'CLEAR' }[bt.id]; if (lab) { dx.font = `500 ${Math.round(Math.max(9, bt.r * .5))}px Oswald, sans-serif`; dx.textAlign = 'center'; dx.textBaseline = 'alphabetic';
       if (bt.id === 'select') { const w = dx.measureText(lab).width + 10; dx.fillStyle = '#b8352c'; dx.fillRect(bt.x - w / 2, bt.y - bt.r - 20, w, 15); dx.fillStyle = '#f4e9e3'; dx.fillText(lab, bt.x, bt.y - bt.r - 9); }
       else { dx.fillStyle = 'rgba(160,170,166,.85)'; dx.fillText(lab, bt.x, bt.y + bt.r + 13); } } });
-  const cr = BANDS[6]; dx.textAlign = 'left'; fitText(tgt().name, cr.x + cr.w * .6, BTNS[3].y + 4, cr.w * .4, 13, 'rgba(232,178,100,.9)');
-  fitText(G.hold ? 'HELD' : 'PLAYING', cr.x + cr.w * .6, BTNS[3].y + 20, cr.w * .4, 11, 'rgba(120,130,126,.85)');
+  const cr = BANDS[6]; dx.textAlign = 'center'; dx.textBaseline = 'alphabetic'; fitText(G.hold ? 'SELECTED · HELD' : 'SELECTED · PLAYING', cr.x + cr.w / 2, cr.cy + cr.rad + 15, cr.w - 4, 11, 'rgba(120,130,126,.9)'); fitText(tgt().name, cr.x + cr.w / 2, cr.cy + cr.rad + 30, cr.w - 4, 13, 'rgba(232,178,100,.95)');
   if (HAND) { dx.strokeStyle = 'rgba(230,236,234,.7)'; dx.lineWidth = 2; dx.beginPath(); dx.arc(HAND.x, HAND.y, 14, 0, TAU); dx.stroke(); } }
 let drag = null, HAND = null, PRESS = null;
 DC.addEventListener('pointerdown', e => { ac(); const r = DC.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
@@ -315,7 +315,7 @@ function press(id) { ac(); PRESS = { id, t: NOW };
 document.getElementById('infoClose').onclick = () => document.getElementById('info').classList.remove('on');
 
 /* -------------------------------------------------------------- the scene: a solved game, played on the same device (it makes the proof film) */
-const SCRIPT = [[.2, 'hand', 0, 5, .4], [1.0, 'hand', 0, -12, .6], [2.7, 'press', 'select'], [2.95, 'press', 'select'], [3.3, 'hand', 1, 24, .6], [5.2, 'press', 'hold'], [8.0, 'hand', 0, -6, .5]];
+const SCRIPT = [[.2, 'hand', 0, 5, .4], [1.0, 'hand', 0, -12, .6], [2.7, 'press', 'select'], [2.95, 'press', 'select'], [3.3, 'hand', 1, 14, .5], [5.2, 'press', 'hold'], [8.0, 'hand', 0, -6, .5]];
 let SCENE = null;
 function playScene() { reset(); SCENE = { t0: NOW, i: 0, anims: [] }; }
 function runScene() { if (!SCENE) return; const t = NOW - SCENE.t0;
@@ -327,17 +327,17 @@ function runScene() { if (!SCENE) return; const t = NOW - SCENE.t0;
   if (t > 12) { SCENE = null; HAND = null; } }
 
 /* -------------------------------------------------------------- overlay text in the view, and the plan in the info panel */
-function drawOverlay(c) { c.save(); c.setTransform(DPR, 0, 0, DPR, 0, 0); const s = SIGHT; c.font = '400 12px Oswald, sans-serif'; c.textBaseline = 'top'; c.textAlign = 'left';
-  c.fillStyle = 'rgba(111,124,119,.95)'; c.fillText('CANDLES SEEN', 12, 10); c.fillText('FACES SEEN', 12, 26); c.textAlign = 'right'; c.fillStyle = 'rgba(111,124,119,.95)'; c.fillText(`TRY ${G.tries + (G.phase === 'kept' ? 0 : 1)}`, W - 12, 10);
-  c.textAlign = 'left'; c.fillStyle = s.nCandles === 7 ? '#e8b264' : '#d9e2de'; c.fillText(`${s.nCandles} OF 7`, 96, 10); c.fillStyle = s.nFaces === 3 ? '#e8b264' : '#d9e2de'; c.fillText(`${s.nFaces} OF 3`, 96, 26);
+function drawOverlay(c) { c.save(); c.setTransform(DPR, 0, 0, DPR, 0, 0); const s = G.phase === 'kept' && G.last ? G.last : SIGHT; c.font = '400 12px Oswald, sans-serif'; c.textBaseline = 'top'; c.textAlign = 'left';
+  c.fillStyle = 'rgba(111,124,119,.95)'; c.fillText(G.phase === 'kept' ? 'CANDLES AT THE BLOW' : 'CANDLES SEEN', 12, 10); c.fillText(G.phase === 'kept' ? 'FACES AT THE BLOW' : 'FACES SEEN', 12, 26); c.textAlign = 'right'; c.fillStyle = 'rgba(111,124,119,.95)'; c.fillText(`TRY ${G.tries + (G.phase === 'kept' ? 0 : 1)}`, W - 12, 10);
+  c.textAlign = 'left'; c.fillStyle = s.nCandles === 7 ? '#e8b264' : '#d9e2de'; c.fillText(`${s.nCandles} OF 7`, G.phase === 'kept' ? 140 : 96, 10); c.fillStyle = s.nFaces === 3 ? '#e8b264' : '#d9e2de'; c.fillText(`${s.nFaces} OF 3`, G.phase === 'kept' ? 140 : 96, 26);
   // a small arc over each face that is hidden (the film's child marks), so she knows who is lost
-  [P.left, P.near, P.right].forEach((p, i) => { if (s.faces[i] > .6) return; const [fx, fy, fr] = p.faceAt(), [u, v] = project(fx, fy + fr * 2.2, p.z, camB(V.yaw)); c.strokeStyle = 'rgba(225,236,232,.8)'; c.lineWidth = 2; c.beginPath(); c.arc(u, v, 9, -2.3, 2.3); c.stroke(); });
+  [P.left, P.near, P.right].forEach((p, i) => { if (s.faces[i] > .6 || G.phase === 'kept') return; const [fx, fy, fr] = p.faceAt(), [u, v] = project(fx, fy + fr * 2.2, p.z, camB(V.yaw)); c.strokeStyle = 'rgba(225,236,232,.8)'; c.lineWidth = 2; c.beginPath(); c.arc(u, v, 9, -2.3, 2.3); c.stroke(); });
   if (G.msg) { const a = clamp(1.2 - (NOW - G.msgT) / 8, 0, 1) * (G.phase === 'kept' ? 1 : 1); if (a > 0 || G.phase === 'kept') { c.textAlign = 'center'; c.font = '500 13px Oswald, sans-serif'; c.fillStyle = `rgba(232,178,100,${G.phase === 'kept' ? 1 : a})`; wrap(c, G.msg, W / 2, H - 46, W - 32, 17); } }
   c.restore(); }
 function wrap(c, s, x, y, w, lh) { const words = s.split(' '); let line = '', lines = []; words.forEach(wd => { const t = line ? line + ' ' + wd : wd; if (c.measureText(t).width > w) { lines.push(line); line = wd; } else line = t; }); lines.push(line); lines.forEach((l, i) => c.fillText(l, x, y + (i - lines.length + 2) * lh)); }
 function drawPlan() { const el = document.getElementById('plan'); if (!document.getElementById('info').classList.contains('on')) return; const r = el.getBoundingClientRect(); el.width = r.width * DPR; el.height = r.height * DPR; const c = el.getContext('2d'); c.setTransform(DPR, 0, 0, DPR, 0, 0);
   const PW = r.width, PH = r.height, zmax = 4.3, sx = x => PW / 2 + x / 1.4 * PW / 2, sz = z => PH - 10 - z / zmax * (PH - 20), b = camB(V.yaw);
-  PLANES.forEach(p => { if (p.floor || p.id === 'wall' || p.id === 'candles') return; const w = p.kid ? p.w : { tabletop: 1.4, tablefront: 1.48, cake: .34, bench: .4, chair: .3, string: .17 }[p.id]; const x0 = p.kid || p.id === 'bench' ? p.x : p.id === 'chair' ? -.47 : p.id === 'string' ? -.29 : 0;
+  PLANES.forEach(p => { if (p.floor || p.id === 'wall' || p.id === 'candles') return; const w = p.kid ? p.w : { tabletop: 2.0, tablefront: 2.08, cake: .34, bench: .8, lantern1: .17, lantern2: .22, lantern3: .28, lantern4: .4, chair: .3, string: .17 }[p.id]; const x0 = p.kid || p.id === 'bench' || /^lantern/.test(p.id) ? p.x : p.id === 'chair' ? -.47 : p.id === 'string' ? -.29 : 0;
     c.strokeStyle = p.kid ? '#e8b264' : p.id === 'cake' ? '#f0e6c8' : 'rgba(150,160,156,.7)'; c.lineWidth = p.kid || p.id === 'cake' ? 3 : 1.5; c.beginPath(); c.moveTo(sx(x0 - w / 2), sz(p.z)); c.lineTo(sx(x0 + w / 2), sz(p.z)); c.stroke(); });
   c.strokeStyle = 'rgba(232,178,100,.35)'; c.beginPath(); c.moveTo(sx(b), sz(0)); c.lineTo(sx(0), sz(ZC)); c.stroke(); c.fillStyle = '#e8b264'; c.beginPath(); c.arc(sx(b), sz(0), 4, 0, TAU); c.fill();
   document.getElementById('live').textContent = `Eye at ${b.toFixed(2)} m along its chord (${V.yaw.toFixed(1)} degrees). Depths: ` + ['near', 'left', 'right', 'string'].map(k => `${P[k].id} ${P[k].z.toFixed(2)} m`).join(', ') + '.'; }
@@ -368,12 +368,17 @@ layout(); reset(); requestAnimationFrame(loop);
 window.MP = { ready: false, PLANES, P, G, V, RINGS, EVENTS, TARGETS, get ORDER() { return ORDER; }, get FRAMES() { return FRAMES; }, ZC, PY, D, EYE, get F() { return F; }, get W() { return W; }, get H() { return H; },
   camB, predictedShift, project, sight, sortPlanes, reset, select, handTurn, toggleHold, playScene, STEP_HZ, YAW_PER_STEP,
   film(on) { FILM = on; FRAMES = []; EVENTS.length = 0; NOW = 0; }, step, layout, setKT(t) { KT = t; },
-  render(b, t, only, pad, post, hide) { pad = pad || 0; const saveZ = (hide || []).map(id => { const p = PLANES.find(q => q.id === id); const z = p.z; p.hidden = true; return p; }); const C = document.createElement('canvas'); C.width = W + 2 * pad; C.height = H + 2 * pad; const c = C.getContext('2d'); drawScene(c, b, t, { only, noBlur: true, dpr: 1, pad, noPost: !post }); return c.getImageData(0, 0, C.width, C.height).data; },
+  render(b, t, only, pad, post, hide) { pad = pad || 0; const hid = (hide || []).map(id => { const p = PLANES.find(q => q.id === id); p.hidden = true; return p; }); const C = document.createElement('canvas'); C.width = W + 2 * pad; C.height = H + 2 * pad; const c = C.getContext('2d'); drawScene(c, b, t, { only, noBlur: true, dpr: 1, pad, noPost: !post }); hid.forEach(p => { p.hidden = false; }); return c.getImageData(0, 0, C.width, C.height).data; },
   idColor, idComposite(b, t) { return Array.from(idPicture(b, t)); }, occluder(z, b, t) { return Array.from(occluder(z, b, t)); },
   masks(b, t) { return PLANES.map((p, i) => Array.from(maskOf(i, b, t))); },
   manifest() { return { title: 'Multiplane birthday: plane manifest', units: 'metres; depth is measured from the line the eye moves along; the eye trucks along x only', pivot: { depth: ZC, height: PY, note: 'the cake; a lens shift holds it still on screen' },
     eye: { height: EYE, chordRadius: D, yawRange: [-30, 30], degreesPerStep: YAW_PER_STEP, stepsPerSecond: STEP_HZ }, movable: TARGETS.map(t => ({ name: t.name, plane: P[t.p].id, depthRange: t.zr, depthStep: DZ, triangleRing: t.tri })),
     planes: ORDER.map(i => { const p = PLANES[i]; return { order: ORDER.indexOf(i), id: p.id, name: p.name, depth: p.z0, x: p.x, source: p.source, rights: p.rights, blur: p.blur || 0 }; }) }; },
+  // each depth voice rendered alone from the proof's frames: its level and its pitch region (zero crossings), between t0 and t1
+  voiceProbe: async function (frames, dur, t0, t1) { const out = []; for (let i = 0; i < VOICES.length; i++) { const sr = 48000, oc = new OfflineAudioContext(1, Math.ceil(sr * dur), sr); const A = makeAudio(oc, oc.destination, null); A.candle.g.gain.value = 0;
+      frames.forEach(f => { const g = Object.assign({}, f, { lit: 0, speed: f.speed.map((v, j) => j === i ? v : 0) }); soundFrame(A, g, f.t); }); const buf = await oc.startRendering(), d = buf.getChannelData(0);
+      let ss = 0, n = 0, zc = 0; for (let k = Math.floor(t0 * sr); k < Math.floor(t1 * sr); k++) { ss += d[k] * d[k]; n++; if (k > 0 && (d[k] >= 0) !== (d[k - 1] >= 0)) zc++; }
+      out.push({ voice: VOICES[i].ids.join('+'), depth: +voiceZ(VOICES[i]).toFixed(2), bandHz: Math.round(bandOf(voiceZ(VOICES[i]))), rmsDb: +(10 * Math.log10(ss / n + 1e-12)).toFixed(1), zeroCrossHz: Math.round(zc / 2 / (t1 - t0)) }); } return out; },
   audioRender: async function (frames, events, dur) { const sr = 48000, oc = new OfflineAudioContext(2, Math.ceil(sr * dur), sr); let buf = null;
     try { const ab = await (await fetch(BASE + 'device-sounds.wav')).arrayBuffer(); buf = await oc.decodeAudioData(ab); } catch (e) { }
     const A = makeAudio(oc, oc.destination, buf); events.forEach(e => soundEvent(A, e, e.t)); frames.forEach(f => soundFrame(A, f, f.t));

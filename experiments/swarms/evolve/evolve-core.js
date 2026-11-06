@@ -90,7 +90,7 @@
   function iou(a, b) { let i = 0, u = 0; for (let k = 0; k < a.length; k++) { if (a[k] && b[k]) i++; if (a[k] || b[k]) u++; } return u ? i / u : 0; }
   /* ------------------------------------------------------------------ fitness */
   const HEAD_GRID = [60, 50, -.6, .6, 0, 1], CAKE_GRID = [88, 48, -.55, .55, 0, .6];
-  const W_HEAD = { iou: .5, lm: .5, lmScale: .2 }, W_CAKE = { iou: .6, hist: .4, emdScale: .25 };
+  const W_HEAD = { iou: .5, lm: .5, lmScale: .2 }, W_CAKE = { iou: .6, hist: .4, emdScale: .4 };
   const cache = new WeakMap();
   function refMask(ref, kind) { let c = cache.get(ref); if (!c) { c = {}; cache.set(ref, c); } if (!c[kind]) { const gr = grid(...(kind === 'head' ? HEAD_GRID : CAKE_GRID)); c[kind] = rasterPoly(ref[kind].outline, gr); } return c[kind]; }
   function evalHead(G, ref) { const mesh = headMesh(G), S = project(mesh, 0), bb = bbox(S), s = bb.y1 - bb.y0, norm = { cx: (bb.x0 + bb.x1) / 2, top: bb.y0, s };
@@ -127,7 +127,7 @@
   }
   const evaluate = (kind, G, ref) => kind === 'head' ? evalHead(G, ref) : evalCake(G, ref);
   /* ------------------------------------------------------------------ one generation: lambda children around the parent, elitist (1 + lambda) */
-  const LAMBDA = 8, THRESH = { head: .93, cake: .85 };
+  const LAMBDA = 8, THRESH = { head: .93, cake: .88 };
   function weights(kind, group, bias) { const gs = KIND[kind]; const inG = gs.map(g => group === 'ALL' || g[1] === group); const idx = gs.map((g, i) => i).filter(i => inG[i]);
     return gs.map((g, i) => !inG[i] ? 0 : (bias > 0 && idx[(bias - 1) % idx.length] === i) ? 1.6 : bias > 0 ? .35 : 1); }
   function breed(kind, parent, opts, ref) {   // opts: { seed, gen, sigma, group, bias }
