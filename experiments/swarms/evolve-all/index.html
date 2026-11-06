@@ -293,8 +293,8 @@ function step(dt) { NOW += dt; S.since += dt; S.sinceHold += dt; S.sinceSelect =
   S.yaw = lerp(S.yaw || 0, S.yawT || 0, Math.min(1, dt * 6));
   // parts glide to their anchors (smooth, not stepped)
   PARTS.forEach(n => { const q = P[n]; q.want.copy(worldAnchor(n)); q.holder.position.lerp(q.want, Math.min(1, dt * (q.glide ? 4 : 30))); if (q.glide && q.holder.position.distanceTo(q.want) < .002) q.glide = 0;
-    // parts not yet worked stand as faint primitives; the part being worked, its supports and everything made are solid
-    let anc = false; for (let a = SUPPORT[S.part]; a; a = SUPPORT[a]) if (a === n) anc = true; const al = !(S.phase === 'evolve' || S.phase === 'uichoice') || n === S.part || q.made || anc ? 1 : .2;
+    // parts never offered yet are absent, parts offered but left stand faint; the part being worked, its supports and everything made are solid
+    let anc = false; for (let a = SUPPORT[S.part]; a; a = SUPPORT[a]) if (a === n) anc = true; const al = !(S.phase === 'evolve' || S.phase === 'uichoice') || n === S.part || q.made || anc ? 1 : q.t0 ? .2 : 0; q.holder.visible = al > 0;
     if (al !== q.alphaNow) { q.alphaNow = al; (q.all || []).forEach(([m, o, tr]) => { m.transparent = tr || al < 1; m.opacity = o * al; m.depthWrite = al >= 1; m.needsUpdate = true; }); }
     q.flash = Math.max(0, q.flash - dt / .14); q.mats.forEach(m => m.emissive && m.emissive.setScalar(q.flash * .9)); });
   // variants rise in and hover

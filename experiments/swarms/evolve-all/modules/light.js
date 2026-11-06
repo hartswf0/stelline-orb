@@ -28,7 +28,7 @@
     r = t <= 66 ? 255 : 329.698727446 * Math.pow(t - 60, -.1332047592); g = t <= 66 ? 99.4708025861 * Math.log(t) - 161.1195681661 : 288.1221695283 * Math.pow(t - 60, -.0755148492);
     b = t >= 66 ? 255 : t <= 19 ? 0 : 138.5177312231 * Math.log(t - 10) - 305.0447927307; const c = [r, g, b].map(v => clamp(v, 0, 255) / 255), m = Math.max(...c); return c.map(v => Math.pow(v / m, 2.2)); }
   /* ------------------------------------------------------------------ the synthetic party frame: geometry is fixed, cast once */
-  const FW = 64, FH = 36, CAM = [0, .95, 1.55], LOOK = [0, .45, 0], FOV = 38, CANDLE_P = [0, .6, 0], TY = .43;
+  const FW = 64, FH = 36, CAM = [0, .85, 1.05], LOOK = [0, .45, 0], FOV = 38, CANDLE_P = [0, .6, 0], TY = .43;
   const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]], dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2], nrm = a => { const l = Math.hypot(a[0], a[1], a[2]); return [a[0] / l, a[1] / l, a[2] / l]; };
   const crs = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
   let SCENE = null;

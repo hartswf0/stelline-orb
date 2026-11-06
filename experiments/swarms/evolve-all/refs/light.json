@@ -12,22 +12,27 @@
    214,
    216
   ],
-  "pct": [
-   3.959,
-   9.843,
-   59.746,
-   136.653
+  "fitFrames": [
+   155,
+   156
   ],
-  "pctNote": "luma (Rec.709, sRGB code values 0-255) 10/50/90/99th percentiles, mean over frames",
-  "black": 0.21,
-  "mean": 21.831,
+  "pct": [
+   2.858,
+   9.214,
+   75.296,
+   154.383
+  ],
+  "pctNote": "luma (Rec.709 weights on sRGB code values 0-255) 10/50/90/99th percentiles, mean over fitFrames",
+  "black": 0.2901,
+  "blackNote": "fraction of pixels with luma < 8",
+  "mean": 23.6161,
   "rings": [
-   95.108,
-   46.414,
-   37.961,
-   23.971,
-   13.967,
-   9.521
+   77.758,
+   44.321,
+   55.917,
+   22.17,
+   11.042,
+   10.146
   ],
   "ringEdges": [
    0,
@@ -40,15 +45,44 @@
   ],
   "ringsNote": "mean luma in rings around the candle centroid (brightest 0.05 % pixels), radius in units of frame width",
   "hiRGB": [
-   189.611,
-   141.183,
-   57.862
+   190.803,
+   141.016,
+   50.284
   ],
   "shRGB": [
-   14.622,
-   13.225,
-   6.189
+   14.241,
+   13.1,
+   5.771
   ],
+  "hiNote": "mean sRGB of pixels with luma > 120 (highlights) and with 8 < luma < 40 (shadows)",
+  "allFrames": {
+   "pct": [
+    3.959,
+    9.843,
+    59.746,
+    136.653
+   ],
+   "black": 0.21,
+   "mean": 21.8312,
+   "rings": [
+    95.108,
+    46.414,
+    37.961,
+    23.971,
+    13.967,
+    9.521
+   ],
+   "hiRGB": [
+    189.611,
+    141.183,
+    57.862
+   ],
+   "shRGB": [
+    14.622,
+    13.225,
+    6.189
+   ]
+  },
   "perFrame": [
    {
     "t": 155,
