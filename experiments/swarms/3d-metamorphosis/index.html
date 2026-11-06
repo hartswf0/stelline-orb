@@ -335,6 +335,6 @@ let last = performance.now();
 function loop(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; frame(dt); requestAnimationFrame(loop); }
 document.fonts && document.fonts.load('400 20px Oswald').then(() => drawDev());
 resize(); reset(); drawInscription(0);
-window.PG = { objs: { insc, cake, board, beads, TABLE, cam, R, scene, BODY, HARC }, S, TR, SNDLOG, RINGS, SCRIPT, play() { reset(); TR.steps.length = TR.events.length = TR.frames.length = 0; SNDLOG.length = 0; NOW = 0; S.scene = { t0: 0, i: 0 }; }, advance(dt, quiet) { frame(dt, quiet); }, candidates, tgt, press, pressHold, pressSelect, handTurn, NOW: () => NOW };
+window.PG = { objs: { insc, cake, board, beads, TABLE, cam, R, scene, BODY, HARC }, S, TR, SNDLOG, RINGS, SCRIPT, play() { reset(); TR.steps.length = TR.events.length = TR.frames.length = 0; SNDLOG.length = 0; NOW = 0; S.scene = { t0: 0, i: 0 }; }, advance(dt, quiet) { frame(dt, quiet); }, candidates, tgt, press, stop() { stopScene(); }, dev() { const r = DC.getBoundingClientRect(); return { left: r.left, top: r.top, bands: BANDS.map(b => ({ kind: b.kind, x: b.x, w: b.w, cy: b.cy, rad: b.rad })), btns: BTNS.map(b => ({ id: b.id, x: b.x, y: b.y, r: b.r })) }; }, candleState() { return CANDLES.map(c => ({ placed: c.placed, lit: c.lit, out: !!c.out, flame: +c.f.material.opacity.toFixed(2), visible: c.g.visible })); }, pressHold, pressSelect, handTurn, NOW: () => NOW };
 if (!PROOF) requestAnimationFrame(loop);
 </script></body></html>
