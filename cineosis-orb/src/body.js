@@ -283,9 +283,16 @@ function placeItem(m, it, dt) { const e = it.type === 'cut' ? CATBY[it.ref] : nu
     if (it.fixed) m.rotation.set(0, 0, 0); else m.lookAt(cam.position.x, wp.y, cam.position.z); m.rotateY(it.turn * Math.PI / 180);
     if (it.lean) { const b = hh / 2 - feet * hh; m.translateY(-b); m.rotateX(-it.lean * Math.PI / 180); m.translateY(b); } return; }
   m.scale.set(it.size * (it.wide || 1), it.size * (it.tall || 1), it.size * (it.wide || 1)); m.rotation.set(0, it.turn * Math.PI / 180, (it.lean || 0) * Math.PI / 180, 'YXZ'); if (pl === 'AIR') m.position.set(it.x, TOP + it.up + (it.ref === 'BALLOON' ? .45 : 0) + Math.sin(NOW * .8 + it.id) * .006, it.z); else if (pl === 'BACK') m.position.set(it.x, it.up, it.z); else m.position.set(it.x, y, it.z); }
+/* MATERIALIZING: whatever is put in comes up out of the dark over a second, as the projection finds it; a place fades in behind over two */
+const BORN = new Map(); let had = { cake: false, table: false, place: null };
+function fadeTo(o, k) { o.traverse(x => { const ms = x.material ? (Array.isArray(x.material) ? x.material : [x.material]) : []; ms.forEach(mt => { const u = mt.userData; if (u.op0 == null) { u.op0 = mt.opacity; u.tr0 = mt.transparent; }
+  const tr = k < 1 ? true : u.tr0; if (mt.transparent !== tr) { mt.transparent = tr; mt.needsUpdate = true; } mt.opacity = u.op0 * k; }); }); }
+function materialize() { if (!!DOC.cake !== had.cake) { had.cake = !!DOC.cake; if (had.cake) BORN.set(CAKE, NOW); } if (!!DOC.table !== had.table) { had.table = !!DOC.table; if (had.table) BORN.set(TABLE, NOW); }
+  if (DOC.room.place !== had.place) { had.place = DOC.room.place; if (had.place) BORN.set(PLACEG, NOW); }
+  BORN.forEach((t0, o) => { const dur = o === PLACEG ? 2.2 : 1.1, u = clamp((NOW - t0) / dur, 0, 1), k = u * u * (3 - 2 * u); fadeTo(o, k); if (u >= 1) BORN.delete(o); }); }
 function syncItems(dt) { const ids = new Set(DOC.items.map(it => it.id)); for (const id in ITEMM) if (!ids.has(+id) || dirty.items && ITEMM[id].userData.rebuild) { ITEMG.remove(ITEMM[id]); delete ITEMM[id]; }
   DOC.items.forEach(it => { let m = ITEMM[it.id]; const sig = it.type + it.ref + (it.color || 0); if (m && m.userData.sig !== sig) { ITEMG.remove(m); m = null; }
-    if (!m) { m = it.type === 'cut' ? cutMesh(it) : propMesh(it); if (!m) return; m.userData.item = it.id; m.userData.sig = sig; m.traverse(o => o.userData.item = it.id); ITEMM[it.id] = m; ITEMG.add(m); }
+    if (!m) { m = it.type === 'cut' ? cutMesh(it) : propMesh(it); if (!m) return; BORN.set(m, NOW); m.userData.item = it.id; m.userData.sig = sig; m.traverse(o => o.userData.item = it.id); ITEMM[it.id] = m; ITEMG.add(m); }
     m.userData.plane = it.plane; placeItem(m, it, dt);
     if (it.type === 'cut' && m.userData.cut) { const e = m.userData.cut, sp = [0, 1, .5, 2, 1][it.play], t = S.playT * e.fps * sp; let f = it.play === 0 ? it.frame : Math.floor(t + it.id * 7);
       if (it.play === 4) { const L2 = Math.max(1, (e.frames - 1) * 2); f = Math.floor(t) % L2; if (f >= e.frames) f = L2 - f; } setFrame(m, f); } }); dirty.items = false; }
@@ -297,7 +304,7 @@ function apply(dt) { const cd = DOC.candles;
   if (dirty.cake) { buildCake(DOC.cake ? Object.assign({}, DOC.cake, { candles: cd ? cd.n : 0, out: cd && !cd.lit ? cd.n : 0, spread: cd ? cd.spread : 1, clen: cd ? cd.len : 1, ctype: cd ? cd.ctype || 0 : 0, per: cd ? cd.per : {}, writing: DOC.writing, sketch: DOC.sketch }) : null); dirty.cake = false; }
   if (dirty.table) { buildTable(DOC.table); dirty.table = false; dirty.mess = true; } if (dirty.mess) { buildMess(DOC.room.mess, DOC.table ? DOC.table.w : 0); dirty.mess = false; }
   if (DOC.table) { DOC.table.k = Math.min(1, (DOC.table.k || 0) + dt * 1.5); tableMat.opacity = legMat.opacity = DOC.table.k; tableMat.transparent = legMat.transparent = DOC.table.k < 1; }
-  syncItems(dt); updGhost(); GHOST.children.forEach(m => { const it = m.userData.ghost; if (it) placeItem(m, it, dt); });
+  syncItems(dt); materialize(); updGhost(); GHOST.children.forEach(m => { const it = m.userData.ghost; if (it) placeItem(m, it, dt); });
   const Lt = DOC.light, cw = new T.Vector3(0, TOP + .05, 0), la = Lt.a * Math.PI / 180;
   key.position.set(Math.sin(la) * .95, cw.y + Lt.h, Math.cos(la) * .95); key.target.position.copy(cw); key.color.setRGB(lerp(.72, 1, Lt.warm), lerp(.82, .72, Lt.warm), lerp(1, .45, Lt.warm)); key.intensity = Lt.k;
   keyMark.position.copy(key.position); keyMark.visible = keyLine.visible = S.mode !== 'VIEW' && S.pick === 'light' && !FILM; keyLine.geometry.setFromPoints([key.position, cw]);
