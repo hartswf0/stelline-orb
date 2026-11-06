@@ -1,4 +1,7 @@
-"""blender_render.py — branch C of the blind loop (round 05): the same genome built as a Blender scene and path traced with Cycles.
+"""NOTE (round 06): branch C was dropped. In round 05 it scored 2 at both cameras, no better than three.js (3 at the 146 s camera), at far higher
+cost (about 1-5 min per image at 64 samples on 2 loaded cores). Kept for reference; at the 146 s camera its camera roll/shift did not reproduce the three.js solve.
+
+blender_render.py — branch C of the blind loop (round 05): the same genome built as a Blender scene and path traced with Cycles.
 Usage: python3.13 blender_render.py <genome.json> <out.png> [samples]
 The genome is a maker.js candidate genome ({scene, cake, candles, inscription, table, look}); scene.shot is 'A' (146 s) or 'B' (152.25 s).
 Only the crop region of the 1280x720 frame is rendered (Cycles border + crop), so the output is already cropped like the decoy:
