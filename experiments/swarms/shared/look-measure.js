@@ -40,7 +40,7 @@ const dataUrl = f => (f.endsWith('.bmp') ? 'data:image/bmp;base64,' : 'data:imag
 
 async function openPage() {
   const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
-  const page = await browser.newPage({ viewport: { width: 960, height: 540 }, deviceScaleFactor: 1 });
+  const page = await browser.newPage({ viewport: { width: 640, height: 360 }, deviceScaleFactor: 1 });
   page.on('pageerror', e => console.error('pageerror', e.message)); page.on('console', m => { if (m.type() === 'error') console.error('console', m.text()); });
   await page.goto('file://' + path.join(HERE, 'look-test.html') + '?measure=1');
   await page.waitForFunction(() => window.LOOKTEST && window.LOOK);
@@ -125,8 +125,8 @@ async function frame() {
   const film = loadFilm(), { browser, page } = await openPage();
   const g = fs.existsSync(GENOME_FILE) ? JSON.parse(fs.readFileSync(GENOME_FILE)).genome : null;
   const fin = await evalGenome(page, g || await page.evaluate(() => LOOK.GENOME), film, true);
-  for (const s of ['A', 'B']) { const bx = fin.raw[s].boxes; const fb = k => { const p = (k === 'bg' ? REGIONS[s][k].flat() : REGIONS[s][k]).map(([x, y]) => [x * 0.75, y * 0.75]); return [Math.min(...p.map(q => q[0])), Math.min(...p.map(q => q[1])), Math.max(...p.map(q => q[0])), Math.max(...p.map(q => q[1]))].map(Math.round); };
-    console.log(s, 'render boxes @960', JSON.stringify(bx), '\n  film boxes', JSON.stringify({ top: fb('top'), side: fb('side'), table: REGIONS[s].table ? fb('table') : null, flame: fb('flame') }));
+  for (const s of ['A', 'B']) { const bx = fin.raw[s].boxes; const fb = k => { const p = (k === 'bg' ? REGIONS[s][k].flat() : REGIONS[s][k]).map(([x, y]) => [x * 0.5, y * 0.5]); return [Math.min(...p.map(q => q[0])), Math.min(...p.map(q => q[1])), Math.max(...p.map(q => q[0])), Math.max(...p.map(q => q[1]))].map(Math.round); };
+    console.log(s, 'render boxes @640', JSON.stringify(bx), '\n  film boxes', JSON.stringify({ top: fb('top'), side: fb('side'), table: REGIONS[s].table ? fb('table') : null, flame: fb('flame') }));
     await page.evaluate(([s, g]) => LOOKTEST.frame(s, g), [s, g]); const png = await page.evaluate(() => LOOKTEST.png()); fs.writeFileSync(path.join(SCRATCH, `render-${s}.png`), Buffer.from(png.split(',')[1], 'base64')); }
   console.log('score', fin.score.toFixed(2), 'fails', fin.fails); const bad = Object.entries(fin.terms).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([k, v]) => `${k}=${v.toFixed(2)}`); console.log(bad.join('  '));
   console.log('render', JSON.stringify(round({ A: fin.raw.A.regions, B: fin.raw.B.regions, bloomA: fin.raw.A.bloom.r, bloomB: fin.raw.B.bloom.r, hfA: fin.raw.A.tex.hf }, 2)));
@@ -146,7 +146,7 @@ async function strip() {
   execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', shots[0], '-i', shots[1], '-i', fS, '-filter_complex', '[0][1][2]hstack=3,scale=1920:-2', path.join(HERE, 'look-strip.png')]);
   fs.mkdirSync(WORK, { recursive: true });
   for (const [s, t] of [['A', 146.0], ['B', 155.3]]) { const ff = frameFile(t);
-    execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', ff, '-i', shots[s === 'A' ? 0 : 1], '-filter_complex', '[0]scale=960:540[a];[a][1]hstack=2', path.join(WORK, `side-${s}.png`)]); }
+    execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', ff, '-i', shots[s === 'A' ? 0 : 1], '-filter_complex', '[0]scale=640:360[a];[a][1]hstack=2', path.join(WORK, `side-${s}.png`)]); }
   console.log('wrote', path.join(HERE, 'look-strip.png'), 'and', WORK + '/side-A.png, side-B.png');
 }
 

@@ -212,6 +212,7 @@ function select(i, silent) { S.sel = (i + 3) % 3; const g = G.gears[selId()], k 
 let stepClock = 0;
 function machine(dt) { stepClock += dt; const busy = RINGS.filter(r => r.target !== r.applied && (r.id === 'scale' || !S.run)); if (!busy.length) { stepClock = 0; return; }
   const fast = busy.some(r => Math.abs(r.target - r.applied) > 6), period = fast ? 1 / 23.6 : 1 / 11.8;
+  stepClock = Math.min(stepClock, period * 1.5);   // time banked at the slow rate must not burst out at the fast one
   while (stepClock >= period) { stepClock -= period; busy.forEach(r => { if (r.target === r.applied) return; r.applied += Math.sign(r.target - r.applied); applyStep(r); snd('step', { fast, ring: r.ix }); }); } }
 function applyStep(r) { if (r.id === 'scale') { S.yaw = r.applied * 5; return; }
   const id = selId(), g = G.gears[id]; H.setGear(G, id, r.id === 'knurl' ? r.applied : g.ri, r.id === 'tri' ? r.applied : g.ph);

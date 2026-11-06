@@ -1,5 +1,5 @@
 {
- "ran": "2026-11-06T09:15:36.734Z",
+ "ran": "2026-11-06T09:27:49.752Z",
  "failures": 1,
  "results": [
   {
@@ -696,8 +696,8 @@
    }
   },
   {
-   "name": "5 replaying the trace (79 machine events) reproduces every pass, distance and path hash",
-   "ok": false,
+   "name": "5 replaying the trace (71 machine events) reproduces every pass, distance and path hash",
+   "ok": true,
    "detail": {
     "passes": 10,
     "kept": 9,
@@ -707,19 +707,19 @@
   },
   {
    "name": "6 click trains from the trace: last six steps at 11.8/s (+-10%, 30 fps clock); no 6-step window faster than 23.6/s (+10%)",
-   "ok": true,
+   "ok": false,
    "detail": {
     "slow_tail_rates": [
      11.55,
-     11.52,
-     12.5,
-     12.5
+     11.55,
+     11.55,
+     11.55,
+     11.52
     ],
-    "fastest_6_step_window": 25.75,
+    "fastest_6_step_window": 30,
     "head_rates_reported": [
-     22.12,
-     15.65,
-     20
+     21.02,
+     15.8
     ]
    }
   }

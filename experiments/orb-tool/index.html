@@ -79,6 +79,8 @@
   (async () => {
     if (!Q.has('stub')) { if (!window.THREE) await loadScript('../../ana/assets/three.min.js'); if (await loadScript('scene/scene.js') && window.ORB_SCENE) { try { scene = window.ORB_SCENE.create(viewEl, API); } catch (e) { console.error(e); scene = null; } } }
     API.renderer = scene ? 'scene' : 'stub'; if (!scene) scene = ORB_STUB_SCENE.create(viewEl, API);
+    // if scene/ cannot finish loading its parts, the stub takes over so the view is never empty
+    else if (scene.ready && scene.ready.then) scene.ready.then(null, e => { console.error('scene/ failed, using the stub renderer:', e); try { scene.dispose && scene.dispose(); } catch (er) { } viewEl.querySelectorAll('canvas').forEach(c => c.remove()); scene = ORB_STUB_SCENE.create(viewEl, API); API.renderer = 'stub'; });
     // the agent side, when its files exist: the command language, the richer describe, the pull-up console
     if (!Q.has('nocmd')) { await loadScript('agent/commands.js'); await loadScript('agent/describe.js'); await loadScript('agent/console.js');
       try { if (window.ORB_DESCRIBE && ORB_DESCRIBE.install) ORB_DESCRIBE.install(API); } catch (e) { console.error(e); }
@@ -106,6 +108,7 @@
     sx.setTransform(dpr, 0, 0, dpr, 0, 0); sx.clearRect(0, 0, w, h); const H = bus.history(), cur = bus.cursor(), G = stripGeom(), first = Math.max(0, H.length - Math.floor((w - G.lab - 16) / G.cw));
     for (let i = first; i < H.length; i++) { const x = G.x0 + (i - first) * G.cw, e = H[i], ag = /^agent/.test(e.author); sx.fillStyle = ag ? 'rgba(56,214,224,' + (i < cur ? .9 : .22) + ')' : 'rgba(224,161,90,' + (i < cur ? .9 : .22) + ')';
       sx.fillRect(x, e.via ? 7 : 10, Math.max(2, G.cw - 2), e.via ? 20 : 14); }
+    for (const m of bus.raw().marks) { const x = G.x0 + (m.at + 1 - first) * G.cw - 2; if (x < G.x0) continue; sx.fillStyle = '#f4f4f2'; sx.beginPath(); sx.moveTo(x - 4, 1); sx.lineTo(x + 4, 1); sx.lineTo(x, 6); sx.fill(); }
     const cx = G.x0 + (cur - first) * G.cw - 1; sx.fillStyle = '#e0332b'; sx.fillRect(cx, 3, 2, h - 6);
     const e = H[cur - 1]; sx.font = '600 10px "IBM Plex Mono", monospace'; sx.textAlign = 'right'; sx.fillStyle = '#c9d3d0';
     let t = cur + '/' + H.length + (e ? '  ' + (e.author === 'hand' ? 'HAND' : e.author.toUpperCase()) + ': ' + e.label : '  EMPTY MEMORY'); while (t.length > 3 && sx.measureText(t).width > G.lab) t = t.slice(0, -2); sx.fillText(t, w - 8, h / 2 + 4);

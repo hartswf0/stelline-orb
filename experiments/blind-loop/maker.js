@@ -36,7 +36,7 @@ const SCENE_R = { tiltX: [-0.3, 0.7], tiltZ: [-0.5, 0.3], yaw: [-3.14, 3.14], li
 const SCENE_A = { shot: 'A', tiltX: 0.12, tiltZ: -0.15, yaw: 0.4, lift: 0.06, cx: 0, cz: 0, scale: 1, camX: 0, camY: 0, camZ: 0, lookX: 0, lookY: 0, fov: 1,
   tintR: 1.2, tintG: 1, tintB: 0.8, flameW: 0.7, flameH: 0.8, halo: 0.4, modFlame: 0.3, room: 0.8, bandY: 0.45, time: 2, insLift: 0.003 };
 const SCENE_B = Object.assign({}, SCENE_A, { shot: 'B', tiltX: 0, tiltZ: 0, yaw: 0, lift: 0, scale: 0.9, camZ: 0.08, bandY: 0.25 });
-const LOOK_SEED = { wbB: 0.95, flame: 2.2, halo: 0.6, tableTone: 0.4, keyIntensity: 1.8 };
+const LOOK_SEED = { wbB: 0.95, wbR: 1.0, saturation: 0.72, flame: 2.2, halo: 0.6, tableTone: 0.22, keyIntensity: 1.6, grain: 0.04 };
 function rangeOf(part, key) { if (part === 'scene') return SCENE_R[key]; if (part === 'look') return LOOK_R[key]; const g = mods[part].genes.find(g => g[0] === key); return g && [g[2], g[3]]; }
 const INT = { 'cake.layers': 1, 'candles.count': 1 };
 

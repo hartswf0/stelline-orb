@@ -85,7 +85,7 @@ async function deviceHandle(page) {
     const rings = [0, 1, 2, 3].map(i => ({ mid: D.toPage(D.ringX(i), (D.BODY[0] + D.BODY[1]) / 2), step: D.toPage(D.ringX(i), (D.BODY[0] + D.BODY[1]) / 2 + 22)[1] - D.toPage(D.ringX(i), (D.BODY[0] + D.BODY[1]) / 2)[1] }));
     return { btn, rings }; }); }
 async function glide(page, x, y, ms) { const steps = Math.max(4, Math.round((ms || 300) / 16)); await page.mouse.move(x, y, { steps }); }
-async function tap(page, dev, id, long) { const [x, y] = dev.btn[id]; await glide(page, x, y, 350); await page.mouse.down(); await sleep(long ? 900 : 110); await page.mouse.up(); await sleep(250); }
+async function tap(page, dev, id, long) { const [x, y] = dev.btn[id]; await glide(page, x, y, 220); await page.mouse.down(); await sleep(long ? 900 : 110); await page.mouse.up(); await sleep(180); }
 // turn a ring by about n detents: drag up for +, down for -
 async function turnRing(page, dev, i, n) { const r = dev.rings[i]; const [x, y] = r.mid; await glide(page, x, y, 350); await page.mouse.down();
   const per = 54 * Math.sin(24 * Math.PI / 180); // device units per detent, as core/device.js
@@ -160,7 +160,7 @@ async function runCowork(browser, srv) {
   const AUTH = 'agent:claude', start = Date.now(), events = [];
   const ev = (who, what) => events.push({ t: +((Date.now() - start) / 1000).toFixed(2), who, what });
   async function propose(line, note) { const r = await call(page, 'orb_propose', { line, note, author: AUTH }, AUTH + ' proposes: ' + line + (note ? ' -- ' + note : ''));
-    const ids = (r.text.match(/proposed: (.*)/) || [, ''])[1].split(', ').filter(Boolean); ev('agent', 'propose ' + line + ' -> ' + (ids.join(',') || r.text)); await sleep(900); return ids; }
+    const ids = (r.text.match(/proposed: (.*)/) || [, ''])[1].split(', ').filter(Boolean); ev('agent', 'propose ' + line + ' -> ' + (ids.join(',') || r.text)); await sleep(700); return ids; }
   const decided = async id => { const r = await call(page, 'orb_await_decision', { id, timeout_ms: 8000 }); ev('agent', r.text); await page.evaluate(t => window.__con.out(t, 'ag'), 'agent:claude sees: ' + r.text); return r.text; };
   const pending = () => page.evaluate(() => ORB.state().proposals.map(p => p.id));
 
