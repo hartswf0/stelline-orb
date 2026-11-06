@@ -20,7 +20,7 @@ function shiftOf(A, B, W, H, maxS) { const g = d => { const o = new Float32Array
   const rows = [];
   for (const cf of configs) {
     const info = await pg.evaluate(set => { MP.reset(); MP.setKT(0); for (const [k, z] of Object.entries(set)) MP.P[k].z = z; MP.sortPlanes(); return MP.PLANES.map(p => ({ id: p.id, z: p.z })); }, cf.set);
-    const b0 = await pg.evaluate(() => MP.camB(-20)), b1 = await pg.evaluate(() => MP.camB(20));
+    const b0 = await pg.evaluate(() => MP.camB(-6)), b1 = await pg.evaluate(() => MP.camB(6));
     for (let i = 0; i < info.length; i++) { if (cf.name === 'moved' && !['child2', 'child1', 'child3', 'string'].includes(info[i].id)) continue;
       const A = await pg.evaluate(([b, i]) => MP.render(b, 0, i), [b0, i]), B = await pg.evaluate(([b, i]) => MP.render(b, 0, i), [b1, i]);
       const pred = F * (b1 - b0) * (1 / ZC - 1 / info[i].z), meas = shiftOf(A, B, W, H, Math.ceil(Math.abs(pred)) + 40);
@@ -28,7 +28,7 @@ function shiftOf(A, B, W, H, maxS) { const g = d => { const o = new Float32Array
   const worst = rows.reduce((m, r) => Math.abs(r.errorPx) > Math.abs(m.errorPx) ? r : m, rows[0]);
   // the law itself: measured slide divided by (1/zc - 1/z) should be one constant, F*db, for every card away from the pivot
   const ks = rows.filter(r => Math.abs(1 / ZC - 1 / r.depth) > .05).map(r => r.measuredPx / (1 / ZC - 1 / r.depth)), kMean = ks.reduce((a, b) => a + b, 0) / ks.length, kSpread = Math.max(...ks.map(k => Math.abs(k / kMean - 1)));
-  verdict('parallax_proportional_to_inverse_depth', rows.every(r => r.ok) && kSpread < .02, { planes: rows.length, worstPlane: worst.plane, worstErrorPx: worst.errorPx, worstPredictedPx: worst.predictedPx, constantFdb: +kMean.toFixed(1), expectedFdb: +(F * (await pg.evaluate(() => MP.camB(20) - MP.camB(-20)))).toFixed(1), maxRelativeSpread: +kSpread.toFixed(4), rows });
+  verdict('parallax_proportional_to_inverse_depth', rows.every(r => r.ok) && kSpread < .02, { planes: rows.length, worstPlane: worst.plane, worstErrorPx: worst.errorPx, worstPredictedPx: worst.predictedPx, constantFdb: +kMean.toFixed(1), expectedFdb: +(F * (await pg.evaluate(() => MP.camB(6) - MP.camB(-6)))).toFixed(1), eyeMoveM: +(await pg.evaluate(() => MP.camB(6) - MP.camB(-6))).toFixed(4), maxRelativeSpread: +kSpread.toFixed(4), rows });
   // ---------- 2. occlusion order, and 3. gaps, at many eye positions and depth settings
   let checked = 0, wrong = 0, holes = 0, seamBad = 0, floatBad = 0, samples = 0; const wrongAt = [];
   const occConfigs = [{}, { near: 1.4 }, { near: 2.3, string: 2.2 }, { left: 4.4, right: 2.9 }, { string: 2.2, near: 1.4 }];
@@ -67,7 +67,7 @@ function shiftOf(A, B, W, H, maxS) { const g = d => { const o = new Float32Array
   verdict('view_glides_between_steps', glide > 0 && Math.max(...d2.map(Math.abs)) < 1.0, { movingFrames: moving.length, movingFramesWithoutAStep: glide, maxDegPerFrame: +Math.max(...d1.map(Math.abs)).toFixed(3), maxChangeOfDegPerFrame: +Math.max(...d2.map(Math.abs)).toFixed(3) });
   // ---------- 7. depth tells in the sound: during the long scale sweep, nearer voices move faster (so they are louder) and are tuned brighter
   const sweep = trace.frames.filter(f => f.t > 1.0 && f.t < 2.6), vz = trace.frames[0].vz, meanSp = vz.map((z, i) => sweep.reduce((a, f) => a + f.speed[i], 0) / sweep.length);
-  const order = vz.map((z, i) => i).filter(i => i > 0).sort((a, b) => vz[a] - vz[b]); let mono = true; for (let k = 1; k < order.length; k++) if (meanSp[order[k]] > meanSp[order[k - 1]] + 1e-6) mono = false;
+  const order = vz.map((z, i) => i).sort((a, b) => vz[a] - vz[b]); let mono = true; for (let k = 1; k < order.length; k++) if (meanSp[order[k]] > meanSp[order[k - 1]] + 1e-6) mono = false;
   let rms = {}; try { const seg = (a, d) => { const o = execSync(`ffmpeg -hide_banner -ss ${a} -t ${d} -i ${path.join(DIR, 'proof.mp4')} -af astats=metadata=0 -f null - 2>&1`).toString(); const m = o.match(/Overall[\s\S]*?RMS level dB:\s*(-?[\d.]+|-inf)/); return m ? m[1] : null; }; rms = { sweep_1_0_to_2_6s: seg(1.0, 1.6), still_4_9_to_5_3s: seg(4.9, .4), afterBlow_8_6_to_9_2s: seg(8.6, .6) }; } catch (e) { rms = { error: e.message }; }
   verdict('nearer_voices_faster_and_brighter', mono, { voiceDepths: vz.map(z => +z.toFixed(2)), meanScreenSpeedPxPerS: meanSp.map(v => +v.toFixed(1)), bandCentreHz: vz.map(z => Math.round(180 + 5200 * Math.pow(.95 / z, 1.3))), audioRmsDb: rms });
   R.summary = { failed: fails, passed: Object.keys(R.tests).length - fails }; fs.writeFileSync(path.join(__dirname, 'results.json'), JSON.stringify(R, null, 1)); console.log(R.summary); await br.close(); process.exit(fails ? 1 : 0); })();

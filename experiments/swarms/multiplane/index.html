@@ -184,9 +184,9 @@ function soundEvent(A, e, t) { const k = e.k;
   else if (k === 'select') { for (let i = 0; i < 5; i++) grainAt(A, 'tick', t + i * .055, 1, .3, i); }
   else if (k === 'hold') grainAt(A, 'ratchet', t, 1, .6, e.n);
   else if (k === 'blow') blowAt(A, t); else if (k === 'out' || k === 'wash') washAt(A, t, e.v || 1); else if (k === 'miss') { grainAt(A, 'whirr', t, .8, .35, 0); } }
-function soundFrame(A, f, t) { A.voices.forEach((v, i) => { const z = f.vz[i], g = clamp(f.speed[i] / Math.max(1, W) * 1.3, 0, .5) * Math.pow(.95 / z, .5);
+function soundFrame(A, f, t) { A.voices.forEach((v, i) => { const z = f.vz[i], g = clamp(f.speed[i] / Math.max(1, W) * .9, 0, .6);
     v.g.gain.setTargetAtTime(g, t, .03); v.bp.frequency.setTargetAtTime(180 + 5200 * Math.pow(.95 / z, 1.3), t, .05); if (v.pan) v.pan.pan.setTargetAtTime(clamp(f.pan[i], -1, 1), t, .05); });
-  const c = f.candles; A.candle.lp.frequency.setTargetAtTime(350 + 7600 * c * c, t, .04); A.candle.g.gain.setTargetAtTime((.18 + .22 * c) * f.lit, t, .05); }
+  const c = f.candles; A.candle.lp.frequency.setTargetAtTime(350 + 7600 * c * c, t, .04); A.candle.g.gain.setTargetAtTime((.05 + .09 * c) * f.lit, t, .05); }
 let AC = null, AUD = null;
 function ac() { if (!AC) { AC = new (window.AudioContext || window.webkitAudioContext)(); AUD = makeAudio(AC, AC.destination, null); fetch(BASE + 'device-sounds.wav').then(r => r.arrayBuffer()).then(b => AC.decodeAudioData(b)).then(b => { AUD.buf = b; }).catch(() => { }); }
   if (AC.state === 'suspended') AC.resume(); return AC; }
@@ -326,9 +326,10 @@ const cvEl = cv; let SIGHT = { candles: [1, 1, 1, 1, 1, 1, 1], faces: [1, 1, 1],
 function layout() { const r = cvEl.parentElement.getBoundingClientRect(); DPR = window.MP_DPR || Math.min(2, devicePixelRatio || 1); W = Math.round(r.width); H = Math.round(r.height); cvEl.width = W * DPR; cvEl.height = H * DPR;
   F = 1.45 * Math.min(W, H * .9); VC = H * .55; layoutDev(); }
 function voiceFrame(b, dt) { // each voice: where its cards are on screen and how fast they move (px/s, including growing as they come nearer)
-  const pos = VOICES.map(v => { const ps = v.ids.map(id => PLANES.find(p => p.id === id)); let u = 0, s = 0; ps.forEach(p => { const [uu] = project(p.x || 0, .8, p.z, b); u += uu / ps.length; s += F / p.z / ps.length; }); return [u, s]; });
-  const speed = pos.map((q, i) => lastPos ? Math.hypot(q[0] - lastPos[i][0], (q[1] - lastPos[i][1]) * .5) / Math.max(dt, 1e-4) : 0); lastPos = pos;
-  return { speed, pan: pos.map(q => (q[0] - W / 2) / (W / 2)), vz: VOICES.map(voiceZ) }; }
+  // speed is measured as the eye sees things pass it (no lens shift): a card at depth z passes at F*|db/dt|/z, so near cards rush and far ones creep
+  const pos = VOICES.map(v => { const ps = v.ids.map(id => PLANES.find(p => p.id === id)); let u = 0, s = 0, ul = 0; ps.forEach(p => { u += F * ((p.x || 0) - b) / p.z / ps.length; s += F * .5 / p.z / ps.length; ul += project(p.x || 0, .8, p.z, b)[0] / ps.length; }); return [u, s, ul]; });
+  const speed = pos.map((q, i) => lastPos ? Math.hypot(q[0] - lastPos[i][0], q[1] - lastPos[i][1]) / Math.max(dt, 1e-4) : 0); lastPos = pos;
+  return { speed, pan: pos.map(q => (q[2] - W / 2) / (W / 2)), vz: VOICES.map(voiceZ) }; }
 function step(dt) { NOW += dt; runScene(); machine(dt); follow(dt); game(dt); const b = camB(V.yaw);
   if (frameNo % (FILM ? 1 : 5) === 0 && W > 0) SIGHT = sight(b, NOW);
   const vf = voiceFrame(b, dt), lit = FLAME.filter(f => f.lit).length / 7, cand = SIGHT.candles.reduce((a, q) => a + q, 0) / 7;

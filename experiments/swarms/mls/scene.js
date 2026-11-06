@@ -98,18 +98,21 @@
   // a node on a flame spine (local x,y; y<0 up) under breath strength W (0..~1.3), direction dir (radians, 0 = straight down the page,
   // + toward our right), lit (1 burning .. 0 out). Returns scene coords.
   function flameNode(t, i, x, y, W, dir, lit, size) {
-    size = size || 1; x *= size; y *= size;
-    const cd = CANDLES[i], f = Math.min(1, -y / (84 * size));
-    const sway = (vnoise(t * 2.1 + i * 13.7) - .5) * 5 + (vnoise(t * 7.3 + i * 5.1) - .5) * 2;
-    const stretch = 1 + .08 * (vnoise(t * 3.1 + i * 9.9) - .5);
-    const turb = (vnoise(t * 16 + i * 3.3) - .5) * 10 * Math.min(1, W);
-    const sx = Math.sin(dir), sy = Math.cos(dir);
-    const bendX = W * (sx * 150 + Math.sign(sx) * 18) * f * f + turb * f * f;
-    // the downward bend is capped so the spine stays ordered (dy/df < 0 needs bendY < 42 at the tip): a flame never turns inside out
-    const Wc = Math.min(W, 1.3), bendY = Wc * (14 + 14 * (1 - Math.abs(sx))) * f * f * Math.max(.3, sy);
-    const lengthen = 1 + Wc * (.35 * f * Math.abs(sx) - .3 * (1 - Math.abs(sx))); // outer flames stream longer; the centre one flattens toward us (shorter)
-    const thin = 1 - .4 * Math.min(1, W), k = .1 + .9 * lit;
-    return [cd.x + (x * thin + sway * f * f * Math.max(0, 1 - W) + bendX) * k, cd.y + (y * stretch * lengthen + bendY) * k];
+    // a bending rod: the spine is a curve whose angle grows toward the tip; cross-sections stay perpendicular to it
+    // (an earlier shear model kept them horizontal and collapsed the flame's width as it lay over: fold-overs past the tip)
+    size = size || 1; const cd = CANDLES[i], f = -y / 84, Wc = Math.min(W, 1.3);
+    const sway = (vnoise(t * 2.1 + i * 13.7) - .5) * .12 + (vnoise(t * 7.3 + i * 5.1) - .5) * .05;
+    const stretch = 1 + .08 * (vnoise(t * 3.1 + i * 9.9) - .5), turb = (vnoise(t * 7 + i * 3.3) - .5) * .5 * Math.min(1, W); // 7 Hz: at 16 Hz, sampled at 30 fps, it read as jitter
+    const sx = Math.sin(dir), sg = sx >= 0 ? 1 : -1, ax = Math.abs(sx);
+    const Th = sg * Math.min(1.35, Wc * (.25 + 2.9 * ax)) + sway * Math.max(0, 1 - W) + turb;   // tip angle from upright, capped at 77 deg (past horizontal the inner side folds)
+    const lengthen = 1 + Wc * (.4 * ax - .3 * (1 - ax));                         // outer flames stream longer; the centre one flattens toward us
+    const Lr = 84 * size * stretch * lengthen, thin = 1 - .4 * Math.min(1, W), k = .1 + .9 * lit;
+    const ang = u => Th * Math.pow(Math.max(0, Math.min(1, u)), 1.5);
+    let cx = 0, cy = 0; const N = 24, fe = Math.max(-.2, Math.min(1.2, f));
+    if (fe > 0) for (let s = 0; s < N; s++) { const u = (s + .5) / N * fe, th = ang(u); cx += Math.sin(th) * Lr * fe / N; cy -= Math.cos(th) * Lr * fe / N; }
+    else { cy = -fe * 84 * size; }
+    const th = ang(fe), px = cx + x * size * thin * Math.cos(th), py = cy + x * size * thin * Math.sin(th);
+    return [cd.x + px * k, cd.y + py * k];
   }
 
   // all handle targets for a world state: { face:{fill,purse,open,smile,aim}, curl, lift, flames:[{W,dir,lit}], t }

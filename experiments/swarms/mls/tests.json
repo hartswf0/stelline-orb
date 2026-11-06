@@ -108,8 +108,8 @@
     "folded_triangles": 94
    },
    "flame": {
-    "min_jacobian": -0.256,
-    "folded_triangles": 1617
+    "min_jacobian": 0,
+    "folded_triangles": 0
    }
   },
   "similarity": {
@@ -122,8 +122,8 @@
     "folded_triangles": 0
    },
    "flame": {
-    "min_jacobian": -0.082,
-    "folded_triangles": 40
+    "min_jacobian": 0.003,
+    "folded_triangles": 0
    }
   },
   "rigid": {
@@ -136,8 +136,8 @@
     "folded_triangles": 0
    },
    "flame": {
-    "min_jacobian": -1.117,
-    "folded_triangles": 3005
+    "min_jacobian": -0.896,
+    "folded_triangles": 2886
    }
   }
  },
@@ -157,10 +157,10 @@
     "frames_with_contour_reversal_but_no_handle_reversal": 0
    },
    "flame": {
-    "max_contour_accel_px": 27.1,
-    "max_handle_accel_px": 25.05,
-    "ratio": 1.082,
-    "frames_with_contour_reversal_but_no_handle_reversal": 2
+    "max_contour_accel_px": 18.73,
+    "max_handle_accel_px": 17.52,
+    "ratio": 1.069,
+    "frames_with_contour_reversal_but_no_handle_reversal": 0
    }
   },
   "similarity": {
@@ -177,10 +177,10 @@
     "frames_with_contour_reversal_but_no_handle_reversal": 0
    },
    "flame": {
-    "max_contour_accel_px": 27.03,
-    "max_handle_accel_px": 25.05,
-    "ratio": 1.079,
-    "frames_with_contour_reversal_but_no_handle_reversal": 3
+    "max_contour_accel_px": 18.72,
+    "max_handle_accel_px": 17.52,
+    "ratio": 1.068,
+    "frames_with_contour_reversal_but_no_handle_reversal": 0
    }
   },
   "rigid": {
@@ -197,10 +197,10 @@
     "frames_with_contour_reversal_but_no_handle_reversal": 0
    },
    "flame": {
-    "max_contour_accel_px": 24.46,
-    "max_handle_accel_px": 25.05,
-    "ratio": 0.977,
-    "frames_with_contour_reversal_but_no_handle_reversal": 5
+    "max_contour_accel_px": 17.3,
+    "max_handle_accel_px": 17.52,
+    "ratio": 0.987,
+    "frames_with_contour_reversal_but_no_handle_reversal": 1
    }
   }
  },
@@ -234,7 +234,7 @@
   0.085
  ],
  "machine_rate_hz": 11.79,
- "solve_ms_per_world_frame": 2.67,
+ "solve_ms_per_world_frame": 4.01,
  "vertex_counts": {
   "face": 1628,
   "paper": 555,
@@ -260,11 +260,11 @@
   },
   {
    "name": "no fold-overs in the chosen family of each surface (demo + extremes)",
-   "ok": false
+   "ok": true
   },
   {
    "name": "contours never reverse where their handles do not, chosen families",
-   "ok": false
+   "ok": true
   },
   {
    "name": "contour acceleration at most 1.5x the handles' own, chosen families",
