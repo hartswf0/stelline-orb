@@ -70,3 +70,7 @@ Endpoint `fal-ai/vidu/q1/reference-to-video` with refs 06, 07, 03 works (1920x10
 
 ### U2 on `fal-ai/veo3.1/reference-to-video` (refs 06, 07, 03; 8 s, 1280x720) — better than vidu
 First-person hands keep the knurled chrome orb centred for the whole clip, one hand turns the ring, the room is a long table with chairs, and the cake rises from nothing at the far end. Misses: candles are lit from the start (the beat wants them unlit until U7/U8), the table is longer than the film's, no tilt/frosting flicker. Veo is the endpoint to use for units; add "candles unlit" and keep refs 06/07/08.
+
+## 8. Gemini Omni Flash 1.2 runs (ten birthdays)
+
+`omni.html` / `assets/omni/`: 5 reference videos (3 s, orb-free, cut from the film), 6 frames, and ten prompts that each list all eleven references with one job each. Same six beats and timings in every prompt; only language, cake, children, clothes, room and palette change. Runner: `tools/gen/omni.py` (`run 01 --draft` for a 360p test first). The 1.2 field names are a guess (fal.ai not readable from the session); a 422 reply names the real ones. Blocked on fal balance. Non-English cake writing renders unevenly in Omni: check each frame, and overlay the exact text in post if needed.

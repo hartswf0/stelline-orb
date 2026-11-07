@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ten Birthdays</title>
+<meta name="description" content="One birthday, ten worlds: the same film references and the same beats, restyled by Gemini Omni Flash 1.2. All references, all prompts.">
+<style>
+  :root { --bg: #070807; --ink: #e9ece6; --dim: #9aa39a; --line: #2a2f2a; --acc: #f0b040; }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --bg: #f4f3ee; --ink: #161816; --dim: #5b625b; --line: #d6d6cf; --acc: #9a6200; } }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 system-ui, sans-serif; }
+  main { max-width: 1120px; margin: 0 auto; padding: 28px 16px 80px; }
+  h1, h2 { font-family: ui-monospace, Menlo, monospace; letter-spacing: .02em; } h1 { font-size: 22px; margin: 0 0 6px; } h2 { font-size: 15px; margin: 30px 0 8px; }
+  p, .dim { color: var(--dim); max-width: 74ch; } a { color: var(--acc); }
+  .refs { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+  .refs figure { margin: 0; } .refs video, .refs img { width: 100%; display: block; border: 1px solid var(--line); background: #000; }
+  figcaption { font: 12px/1.45 ui-monospace, Menlo, monospace; color: var(--dim); margin-top: 3px; }
+  .v { border-top: 1px solid var(--line); padding: 16px 0; } .v h3 { font: 600 14px ui-monospace, Menlo, monospace; margin: 0 0 4px; }
+  textarea { width: 100%; height: 150px; background: transparent; color: var(--ink); border: 1px solid var(--line); font: 12px/1.45 ui-monospace, Menlo, monospace; padding: 8px; box-sizing: border-box; }
+  button { font: 13px ui-monospace, Menlo, monospace; background: transparent; color: var(--ink); border: 1px solid var(--ink); padding: 5px 12px; cursor: pointer; margin: 6px 8px 0 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>TEN BIRTHDAYS, ONE FILM</h1>
+  <p>The same eleven references and the same six beats in every prompt, so the cake appears, is written on, the children fade in, one candle lights a face and the flames go out at the same seconds each time. Only the world changes: language, cake, who the children are, what they wear, the room, the colours. The Memory Maker is in none of the references or the results.</p>
+  <p><a href="assets/omni/omni-pack.zip" download>download the pack (references + all ten prompts + prompts.json)</a> · model <code>google/gemini-omni-flash/v1.2/reference-to-video</code> · runner <code>tools/gen/omni.py</code></p>
+  <h2>The references every prompt uses</h2><div class="refs" id="refs"></div>
+  <h2>The ten prompts</h2><div id="list"></div>
+</main>
+<script>
+fetch('assets/omni/prompts.json').then(r => r.json()).then(P => {
+  const R = document.getElementById('refs'); let nv = 0, ni = 0;
+  P.refs.forEach(r => { const f = document.createElement('figure'), v = r.kind === 'video', n = v ? ++nv : ++ni;
+    f.innerHTML = (v ? `<video src="assets/omni/${r.file}" controls loop muted playsinline preload="metadata"></video>` : `<img src="assets/omni/${r.file}" alt="">`) + `<figcaption><b>${r.kind} ${n}</b> · ${r.job.split(':')[0]} · <a href="assets/omni/${r.file}" download>download</a></figcaption>`; R.append(f); });
+  const L = document.getElementById('list');
+  P.variants.forEach(v => { const d = document.createElement('div'); d.className = 'v';
+    d.innerHTML = `<h3>${v.id} · ${v.lang} · ${v.text}</h3><div class="dim">${v.kids}. ${v.where}.</div><textarea readonly></textarea><button>copy prompt</button><a href="assets/omni/prompts/${v.id}_${v.name}.txt" download>download .txt</a>`;
+    d.querySelector('textarea').value = v.prompt; d.querySelector('button').onclick = e => { navigator.clipboard.writeText(v.prompt); e.target.textContent = 'copied'; setTimeout(() => e.target.textContent = 'copy prompt', 1200); }; L.append(d); });
+});
+</script>
+</body>
+</html>
