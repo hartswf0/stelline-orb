@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CINEOSIS-ORB · VIDEO2GAME & STYLE-TRANSFER POSE + PROMPT KIT</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f6f3ec; color: #111111;
+    font-family: "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace;
+    line-height: 1.45; padding-bottom: 60px;
+  }
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: #141716; color: #ffffff; border-bottom: 5px solid #111111;
+    padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px;
+  }
+  .hLeft { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .badge { background: #e85d04; color: #ffffff; padding: 5px 12px; font-weight: 900; font-size: 15px; }
+  h1 { font-size: 20px; font-weight: 900; letter-spacing: 0.02em; }
+  .hControls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  select, .btn {
+    font-family: inherit; font-size: 14px; font-weight: 900;
+    padding: 9px 14px; border: 3px solid #111111; cursor: pointer;
+  }
+  select { background: #ffffff; color: #111111; min-width: 280px; }
+  .btn { background: #2a9d8f; color: #ffffff; text-decoration: none; display: inline-block; }
+  .btn.orange { background: #e85d04; }
+  .btn.dark { background: #141716; border-color: #ffffff; }
+  .container { max-width: 1560px; margin: 0 auto; padding: 20px 24px; }
+  .secHeader {
+    background: #141716; color: #ffffff; padding: 12px 18px; margin: 26px 0 14px;
+    border: 4px solid #111111; display: flex; justify-content: space-between; align-items: center;
+  }
+  .secHeader h2 { font-size: 19px; font-weight: 900; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(720px, 1fr)); gap: 18px; }
+  .card {
+    background: #ffffff; border: 4px solid #111111; display: flex; flex-direction: column;
+    box-shadow: 6px 6px 0 #111111;
+  }
+  .cardHead {
+    background: #141716; color: #ffffff; padding: 10px 14px;
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  }
+  .cardCode { color: #5ff0dc; font-weight: 900; font-size: 14px; }
+  .cardTitle { font-weight: 900; font-size: 16px; }
+  .plates4 {
+    display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 3px solid #111111; background: #0c0e0d;
+  }
+  .plates2 {
+    display: grid; grid-template-columns: 1fr 1fr; border-bottom: 3px solid #111111; background: #0c0e0d;
+  }
+  .plate { border-right: 2px solid #111111; display: flex; flex-direction: column; }
+  .plate:last-child { border-right: none; }
+  .plate img { width: 100%; height: 132px; object-fit: cover; display: block; }
+  .plate span {
+    background: #1b1f1e; color: #d8e2dc; font-size: 11px; font-weight: 800; padding: 4px 7px;
+    display: flex; justify-content: space-between;
+  }
+  .plate a { color: #5ff0dc; text-decoration: none; }
+  .cardBody { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .metaLine { font-size: 13px; font-weight: 700; color: #222222; background: #f0ece1; padding: 6px 10px; border: 2px solid #111111; }
+  textarea {
+    width: 100%; height: 104px; padding: 9px; font-family: inherit; font-size: 13px; font-weight: 700;
+    border: 3px solid #111111; background: #faf8f2; color: #111111; resize: vertical;
+  }
+  .cardActions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="hLeft">
+    <span class="badge">VIDEO2GAME & LOVIS V2G</span>
+    <h1>ICONIC STELLINE SCENES, CAKES & EXACT POSES FOR OTHER BROWSERS</h1>
+  </div>
+  <div class="hControls">
+    <label style="font-weight:900;font-size:14px;">TARGET STYLE:</label>
+    <select id="globalStyleSel"></select>
+    <a class="btn orange" href="cineosis-orb.html">← BACK TO 3D CINEOSIS-ORB</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="secHeader">
+    <h2>SECTION 1 · ALL 16 ICONIC SCENES OF THE ENTIRE SEQUENCE (00:16 – 04:48) WITH RGB, OPENPOSE+EDGE, DEPTH & SAM</h2>
+    <span>Ref: video2game.github.io & lovisdotio/video-to-game</span>
+  </div>
+  <div class="grid" id="shotsGrid"></div>
+
+  <div class="secHeader">
+    <h2>SECTION 2 · ALL 8 CANONICAL CAKES & HERO OBJECTS (TURNTABLE & RECIPE SPECS)</h2>
+    <span>Canonical 7-Candle Cylinder, 11-Flute Bundt, Tilted 45° Piping, Ganache, Rose Crown, Beetle, Horse</span>
+  </div>
+  <div class="grid" id="cakesGrid"></div>
+
+  <div class="secHeader">
+    <h2>SECTION 3 · ALL 8 CHARACTER POSES & MULTI-FRAME SPRITE SHEETS (ACTORS P1–P8)</h2>
+    <span>4-Keyframe Action Pose Strips + Exact OpenPose Joint Specs</span>
+  </div>
+  <div class="grid" id="charsGrid"></div>
+</div>
+
+<script>
+const V2G_STYLES = [
+  {
+    id: 'cardboard',
+    name: 'DIE-CUT CARDBOARD STANDEE (KRAFT & CREAM BOARD)',
+    suffix: 'Rendered as a tactile physical die-cut archival cardboard standee cutout with a crisp 8mm warm cream paper-board outer margin (#F6F0E2), exposed corrugated kraft cardboard beveled edge (#B88A52), solid 100% opaque gouache-and-film interior figure mounted in a slotted walnut tabletop standee base, zero background clutter, isolated on solid #00FF00 chroma or transparent alpha.'
+  },
+  {
+    id: 'video2game',
+    name: 'VIDEO2GAME NEURAL PBR MESH (video2game.github.io)',
+    suffix: 'Formatted for Video2Game (https://video2game.github.io/) neural radiance field to playable Three.js WebGL mesh baking: clean decomposed diffuse albedo + roughness/metallic PBR maps, watertight convex/box collision bounds around the hexagonal oak table and fluted cake cylinder, consistent multi-view photometric geometry, zero motion blur.'
+  },
+  {
+    id: 'lovis_v2g',
+    name: 'LOVIS VIDEO-TO-GAME 2.5D SPRITE SHEET (lovisdotio/video-to-game)',
+    suffix: 'Formatted for lovisdotio/video-to-game (https://github.com/lovisdotio/video-to-game) pose-locked style transfer: preserve exact OpenPose anatomical joint coordinates, head tilt, and Canny silhouette edges frame-for-frame; output a uniform grid sprite sheet with crisp alpha matte, warm 2400K candlelit rim lighting, and painterly stylized game shading.'
+  },
+  {
+    id: 'stopmotion',
+    name: 'STOP-MOTION FELT, WOOD & CLAY DIORAMA (LAIKA / WES ANDERSON)',
+    suffix: 'Handcrafted miniature stop-motion animation diorama made of felted wool clothing, carved basswood furniture, hand-piped royal icing, beeswax candles with glowing warm LED filaments, and subtle thumbprint clay textures photographed with a 50mm macro tilt-shift lens at f/2.8.'
+  },
+  {
+    id: 'kodachrome',
+    name: '1974 ADDIS ABABA KODACHROME 64 SUPER-8 FILM ARCHIVE',
+    suffix: 'Authentic 1974 Kodachrome 64 Super-8 archival home movie frame, halation around warm 2200K birthday candle flames, rich amber/teal Tizita nostalgic color grade, fine organic celluloid grain, 50mm Panavision C-Series anamorphic bokeh.'
+  },
+  {
+    id: 'gouache',
+    name: 'MULTIPLANE HAND-PAINTED GOUACHE ANIMATION CEL',
+    suffix: 'Twentieth-century multiplane animation studio cel painted in opaque Windsor & Newton gouache on heavyweight hot-press illustration board, bold ink contour lines, separated into foreground Z1, tabletop Z2, and midground Z3 parallax planes.'
+  }
+];
+
+const V2G_SHOTS = [
+  { id: '01_canopy', code: 'SHOT 01 · 00:16', title: 'SOLAR CANOPY & ARTIFICIAL FOREST DOME', rgb: 'assets/stelline_frames/sec_016.jpg', pose: 'assets/v2g/pose_01_canopy.jpg', depth: 'assets/depth_canopy.png', sam: 'assets/sam_canopy.png', cam: 'Low-angle tilt up (+68 deg pitch), 35mm anamorphic lens, f/2.8', poseSpec: 'SOLAR.CROWN at (0.43, 0.24); PRIMARY OAK.TRUNK from (0.62, 0.98) to (0.61, 0.50).', prompt: 'Low-angle cinematic shot looking up through a projected artificial oak forest canopy inside Dr. Ana Stelline glass conservatory dome. Volumetric golden sunburst corona at upper-left (x=0.43, y=0.24) casting crepuscular rays through emerald leaves and dark oak trunk at right (x=0.62).' },
+  { id: '02_walk_work', code: 'SHOT 02 · 00:39', title: 'ANA WALKING UP TO WORK IN THE CLEARING', rgb: 'assets/stelline_frames/sec_039.jpg', pose: 'assets/v2g/pose_02_walk_work.jpg', depth: 'assets/depth_clearing.png', sam: 'assets/sam_clearing.png', cam: 'Eye-level medium-wide shot, 50mm anamorphic, f/2.0', poseSpec: 'Ana center-frame: head (0.49, 0.34), shoulders (0.42, 0.45)-(0.56, 0.45), hands holding Orb at waist (0.49, 0.63).', prompt: 'Dr. Ana Stelline in a soft white pleated laboratory smock walking forward out of a misty green forest projection into her dark circular memory chamber, holding the cylindrical silver-and-brass Memory Weaver Orb with both hands at waist height (x=0.49, y=0.63).' },
+  { id: '03_beetle_leaf', code: 'SHOT 03 · 00:25', title: 'EMERALD JEWEL BEETLE ON HOLOGRAPHIC LEAF', rgb: 'assets/stelline_frames/sec_025.jpg', pose: 'assets/v2g/pose_03_beetle_leaf.jpg', depth: 'assets/depth_leaf.png', sam: 'assets/sam_leaf.png', cam: 'Macro 3/4 profile shot, 100mm macro lens, f/4.0', poseSpec: 'Scarab carapace ellipse at (0.52, 0.52, rx=0.22, ry=0.14); 6 articulated tarsal legs gripping leaf vein.', prompt: 'Extreme close-up of a holographic metallic emerald jewel beetle (Chrysina resplendens) perched on a translucent backlit green leaf inside the dark Stelline chamber. Iridescent green-gold chitin elytra, six articulated legs gripping the leaf edge.' },
+  { id: '04_beetle_eye', code: 'SHOT 04 · 00:34', title: 'BEETLE COMPOUND EYES & FOCUS RING', rgb: 'assets/stelline_frames/sec_034.jpg', pose: 'assets/v2g/pose_04_beetle_eye.jpg', depth: 'assets/depth_bugeye.png', sam: 'assets/sam_bugeye.png', cam: 'Extreme microscope macro, 120mm lens', poseSpec: 'Left compound eye sphere at (0.38, 0.52, r=0.12); right eye / head capsule at (0.64, 0.48, r=0.10).', prompt: 'Microscopic macro photograph of the emerald jewel beetle head and compound eyes coming into razor-sharp focus as Ana turns the focus ring on the Memory Weaver Orb. Hexagonal ommatidia facets, fine golden sensory setae hairs.' },
+  { id: '05_orb_hands', code: 'SHOT 05 · 02:13', title: 'ANA HOLDING THE 5-RING MEMORY WEAVER ORB', rgb: 'assets/stelline_frames/ref_orb_select.png', pose: 'assets/v2g/pose_05_orb_hands.jpg', depth: 'assets/depth_cakespawn.png', sam: 'assets/sam_cakespawn.png', cam: 'Medium close-up front shot, 50mm lens', poseSpec: 'Ana head at (0.52, 0.22); left wrist (0.43, 0.68) and right wrist (0.61, 0.68) rotating knurled Orb barrel at (0.52, 0.68).', prompt: 'Medium close-up of Dr. Ana Stelline in her dark chamber holding the precision machined 5-ring metallic Memory Weaver Orb controller with both hands at chest level (x=0.52, y=0.68), her fingertips resting on the knurled encoder rings.' },
+  { id: '06_cake_spawn', code: 'SHOT 06 · 02:18', title: 'CAKE SPAWN: FLAT WHITE CYLINDER & 6 CANDLES', rgb: 'assets/stelline_frames/ref_0217_spawn.png', pose: 'assets/v2g/pose_06_cake_spawn.jpg', depth: 'assets/depth_cakespawn.png', sam: 'assets/sam_cakespawn.png', cam: 'Over-the-hologram medium shot, 50mm lens', poseSpec: 'Flat cylindrical cake at (cx=0.46, cy=0.58, rx=0.14) with 6 candles; C-arc reticle at (0.32, 0.44); Ana at right (0.68, 0.36).', prompt: 'Inside the dark memory chamber, a holographic birthday cake materializes in mid-air at (x=0.46, y=0.58) as a simple flat white frosted cylinder topped with six red-and-white spiral candles and a floating white C-arc reticle at (x=0.32, y=0.44).' },
+  { id: '07_cake_bundt', code: 'SHOT 07 · 02:23', title: 'CAKE MORPHS INTO DOMED FLUTED BUNDT + RETICLE', rgb: 'assets/stelline_frames/ref_0223_bundt.png', pose: 'assets/v2g/pose_07_cake_bundt.jpg', depth: 'assets/depth_bundtmorph.png', sam: 'assets/sam_bundtmorph.png', cam: 'Medium shot, 50mm lens', poseSpec: 'Domed 11-flute bundt cake at (cx=0.45, cy=0.58, rx=0.15) with 7 lit candles; C-arc reticle at (0.30, 0.41).', prompt: 'As Ana twists the Make ring on the Orb, the floating birthday cake morphs into a domed, 11-flute vanilla-and-rose bundt cake at (x=0.45, y=0.58) with pearl bead border and seven lit birthday candles.' },
+  { id: '08_cake_icing', code: 'SHOT 08 · 02:26', title: 'CAKE TILTS 45° FOR RED ICING PIPING (生日快樂)', rgb: 'assets/stelline_frames/ref_0226_icing.png', pose: 'assets/v2g/pose_08_cake_icing.jpg', depth: 'assets/depth_redicing.png', sam: 'assets/sam_redicing.png', cam: 'Medium close-up, cake tilted 45 degrees toward camera', poseSpec: 'Cake tilted 45 deg at (cx=0.36, cy=0.54) showing top crown with 4 red piped characters 生日快樂; C-arc reticle at (0.52, 0.47).', prompt: 'The floating birthday cake is held tilted at a 45-degree angle at (x=0.36, y=0.54) facing the viewer while four crimson-red icing characters (生日快樂) and an underline flourish are piped onto the white frosting between five candles.' },
+  { id: '09_kids_ghost', code: 'SHOT 09 · 02:33', title: 'HEXAGONAL TABLE & 3 CHILDREN FADING IN AS GHOSTS', rgb: 'assets/stelline_frames/ref_0233_cutouts.png', pose: 'assets/v2g/pose_09_kids_ghost.jpg', depth: 'assets/depth_cutouts.png', sam: 'assets/sam_cutouts.png', cam: 'Eye-level wide table shot, 40mm anamorphic', poseSpec: 'Hexagonal oak tabletop (0.20, 0.68)-(0.80, 0.68); cake at (0.48, 0.64); 3 translucent child cutouts at Left (0.30, 0.38), Center (0.48, 0.35), Right (0.66, 0.37).', prompt: 'A hexagonal warm oak table materializes beneath the seven-candle birthday cake at (x=0.48, y=0.64). Around the far side of the table, three children fade in as 40%-opaque luminous holographic projections with small white C-arc reticles above their heads.' },
+  { id: '10_party_table', code: 'SHOT 10 · 02:38', title: 'SOLID PARTY TABLE: 4 CHILDREN & UNTIDY DETAILS', rgb: 'assets/stelline_frames/sec_158.jpg', pose: 'assets/v2g/pose_10_party_table.jpg', depth: 'assets/depth_cutouts.png', sam: 'assets/sam_cutouts.png', cam: 'Eye-level birthday table tableau, 40mm lens', poseSpec: 'Hexagonal table (0.16, 0.70)-(0.84, 0.70); 4 solid children seated at (0.20, 0.42), (0.35, 0.37), (0.51, 0.35), and (0.69, 0.38) around cake at (0.49, 0.65).', prompt: 'Full birthday party tableau around the hexagonal wooden table inside the dark chamber: four children are 100% solid and warmly lit by the seven flickering birthday candles at center (x=0.49, y=0.65) with untidy lived-in tabletop props.' },
+  { id: '11_time_hands', code: 'SHOT 11 · 02:40', title: 'BOTH HANDS TURNING THE TIME BARREL IN THE DARK', rgb: 'assets/stelline_frames/sec_160.jpg', pose: 'assets/v2g/pose_11_time_hands.jpg', depth: 'assets/depth_miniature.png', sam: 'assets/sam_miniature.png', cam: 'Close-up on hands & cylindrical Orb lens, 65mm lens', poseSpec: 'Orb barrel centered at (0.48, 0.56, r=0.16); left hand (0.26, 0.72) and right hand (0.70, 0.72) twisting rings.', prompt: 'Close-up in the darkened memory chamber of Dr. Ana Stelline hands gripping the knurled metallic Time ring of the cylindrical Orb controller at (x=0.48, y=0.56), twisting the barrel back and forth to scrub time.' },
+  { id: '12_boy_candle', code: 'SHOT 12 · 02:53', title: 'CANDLELIGHT FLICKERING ON BIRTHDAY BOY FACE', rgb: 'assets/stelline_frames/sec_173.jpg', pose: 'assets/v2g/pose_12_boy_candle.jpg', depth: 'assets/depth_blowcandles.png', sam: 'assets/sam_blowcandles.png', cam: 'Intimate portrait close-up, 85mm f/1.4 lens', poseSpec: 'Boy head at (0.54, 0.42) in 3/4 left profile; glowing birthday candles in lower-left foreground at (0.32, 0.78).', prompt: 'Intimate close-up portrait of a young boy at the birthday table (head at x=0.54, y=0.42), his cheek and dark eyes illuminated solely by the warm, flickering 2200K glow of birthday candles in the lower-left foreground (x=0.32, y=0.78).' },
+  { id: '13_blow_wish', code: 'SHOT 13 · 02:57', title: 'THREE CHILDREN LEANING IN TO BLOW OUT THE 7 CANDLES', rgb: 'assets/stelline_frames/sec_177.jpg', pose: 'assets/v2g/pose_13_blow_wish.jpg', depth: 'assets/depth_blowcandles.png', sam: 'assets/sam_blowcandles.png', cam: 'Medium close-up across the cake, 50mm lens', poseSpec: 'Cake in foreground (0.48, 0.76) with 7 bending flames; 3 children leaning forward at Left (0.28, 0.38), Center (0.48, 0.32), Right (0.70, 0.36).', prompt: 'Three children lean forward together over the seven-candle birthday cake in the foreground (x=0.48, y=0.76) — blonde girl on left (x=0.28, y=0.38), child at center (x=0.48, y=0.32) with cheeks puffed, and dark-haired girl on right (x=0.70, y=0.36) — blowing out the seven golden candle flames.' },
+  { id: '14_ana_fade', code: 'SHOT 14 · 03:46', title: 'THE CANDLES GO OUT ON ANA FACE (WARM -> DARK)', rgb: 'assets/stelline_frames/sec_189.jpg', pose: 'assets/v2g/pose_14_ana_fade.jpg', depth: 'assets/depth_miniature.png', sam: 'assets/sam_miniature.png', cam: 'Medium close-up reaction portrait, 65mm lens', poseSpec: 'Ana head centered at (0.50, 0.40), lips slightly parted in a quiet gasp; warm amber key light fading to a third.', prompt: 'Close-up reaction shot of Dr. Ana Stelline (x=0.50, y=0.40) watching her finished birthday memory: she gasps softly with a tender smile as the warm golden reflection of the seven birthday candles on her face dims to a third when the candles are blown out.' },
+  { id: '15_wood_horse', code: 'SHOT 15 · 04:43', title: 'CARVED WOODEN HORSE (6·10·21) & MEMORY READER', rgb: 'assets/stelline_frames/sec_283.jpg', pose: 'assets/v2g/pose_15_wood_horse.jpg', depth: 'assets/depth_horsecarve.png', sam: 'assets/sam_horsecarve.png', cam: 'Macro tabletop product shot, 65mm lens', poseSpec: 'Hand-carved wooden horse torso at (0.48, 0.56); neck & head rising to (0.64, 0.34); 4 legs on table with 6·10·21 under hooves.', prompt: 'Macro close-up of the hand-carved dark oak wooden toy horse (6·10·21) standing at (x=0.48, y=0.56) with worn tactile woodgrain patina, rough knife-carved facets, and warm amber rim light.' },
+  { id: '16_snow_hands', code: 'SHOT 16 · 04:48', title: 'FIRST WINTER: SNOW FALLING ON OPEN HANDS', rgb: 'assets/stelline_frames/sec_288.jpg', pose: 'assets/v2g/pose_16_snow_hands.jpg', depth: 'assets/depth_snow.png', sam: 'assets/sam_snow.png', cam: 'High-angle close-up on open palm catching snowflakes, 50mm lens', poseSpec: 'Forearm entering from lower-left (0.24, 0.84) to wrist (0.42, 0.62) and open palm/fingers at (0.56, 0.54).', prompt: 'Poetic close-up of an open hand extended palm-up from lower-left (x=0.24, y=0.84) to center (x=0.56, y=0.54) as glowing crystalline snowflakes drift down through the dark air and melt on the skin.' }
+];
+
+const V2G_CAKES = [
+  { id: 'cake_00', code: 'CAKE 01 · CANONICAL FILM', title: 'VANILLA CYLINDER + 生日快樂 + 7 STRIPED WICKS', img: 'assets/shelf/cake_film_00.jpg', pose: 'assets/v2g/pose_08_cake_icing.jpg', recipe: 'shape: round cylinder | tiers: 1 | icing: white buttercream | text: 生日快樂 (red brush pipe) | border: pearl beads | candles: 7', prompt: 'Canonical Blade Runner 2049 Ana Stelline birthday cake: single-tier round vanilla cylinder cake with smooth white buttercream frosting, pearl bead bottom border, four red brush-piped Chinese characters (生日快樂) on the top surface, and 7 lit red-and-white spiral birthday candles on a porcelain plate over a hexagonal oak table.' },
+  { id: 'cake_01', code: 'CAKE 02 · KEPT BUNDT', title: '11-FLUTE DOMED BUNDT + 24 SMARTIES + 7 CANDLES', img: 'assets/shelf/cake_film_01.jpg', pose: 'assets/v2g/pose_07_cake_bundt.jpg', recipe: 'shape: 11-flute bundt ring | bundt: 0.96 | icing: warm cream glaze | smarties: 24 | candles: 7 lit', prompt: '11-flute domed bundt birthday cake with glossy warm cream poured glaze, 24 colorful Smarties candy studs arranged around the fluted crown, pearl bead base border, and 7 lit striped birthday candles.' },
+  { id: 'cake_02', code: 'CAKE 03 · DARK GANACHE', title: 'CHOCOLATE MIRROR GLAZE + BERRIES + 3 WICKS', img: 'assets/shelf/cake_film_02.jpg', pose: 'assets/v2g/pose_06_cake_spawn.jpg', recipe: 'shape: round torte | icing: dark chocolate ganache (#462818) | drips: 0.80 | topping: berries | candles: 3', prompt: 'Rich dark chocolate ganache birthday torte with heavy mirror-glaze drips down the cylinder sides, dark berries around the rim, and 3 tall glowing birthday candles under a tight dramatic spotlight.' },
+  { id: 'cake_03', code: 'CAKE 04 · ROSE CROWN', title: '2-TIER ROSE-GLAZE CROWN + 24 SMARTIES + BALLOONS', img: 'assets/shelf/cake_film_03.jpg', pose: 'assets/v2g/pose_10_party_table.jpg', recipe: 'shape: 2-tier round | bundt: 0.68 | icing: rose pink (#EAA5B2) | smarties: 24 | candles: 7 lit', prompt: 'Festive two-tier rose-pink glazed birthday cake with fluted upper crown, 24 candy Smarties, white piped garlands, and 7 glowing birthday candles surrounded by party balloons and untidy table props.' },
+  { id: 'cake_04', code: 'CAKE 05 · TILTED PIPING', title: '45-DEGREE TILTED CAKE FOR RED CALLIGRAPHY (生日快樂)', img: 'assets/stelline_frames/ref_0226_icing.png', pose: 'assets/v2g/pose_08_cake_icing.jpg', recipe: 'tilt: 45 deg toward camera | icing: white | calligraphy: 生日快樂 + underline flourish | candles: 5 lit', prompt: 'Floating holographic birthday cake tilted at a 45-degree angle toward the viewer while crimson-red icing calligraphy (生日快樂) is piped across the top surface between five lit candles.' },
+  { id: 'cake_05', code: 'CAKE 06 · MELTED PORCH', title: 'HUMID SUMMER HALF-MELTED BIRTHDAY CAKE', img: 'assets/shelf/cake_made_14.jpg', pose: 'assets/v2g/pose_07_cake_bundt.jpg', recipe: 'shape: slumped asymmetric cake | sculpt: +35% twist/melt | icing: rose buttercream | candles: 7 leaning', prompt: 'Nostalgic half-melted summer birthday cake on a wooden porch table: slumped rose-pink buttercream frosting sliding down one side, leaning wax-dripping birthday candles, crumbs and a cut slice on a paper saucer.' },
+  { id: 'cake_06', code: 'HERO 07 · JEWEL BEETLE', title: 'STELLINE METALLIC EMERALD SCARAB BEETLE', img: 'assets/shelf/bug_film_00.jpg', pose: 'assets/v2g/pose_03_beetle_leaf.jpg', recipe: 'kind: Chrysina resplendens scarab | material: emerald chitin (metalness 0.85, roughness 0.22) | legs: 6', prompt: 'Photoreal 3D game asset of Dr. Ana Stelline metallic emerald jewel beetle (Chrysina resplendens), iridescent green-and-gold chitin carapace, fine golden setae bristles, and six articulated legs on a glass leaf.' },
+  { id: 'cake_07', code: 'HERO 08 · WOODEN HORSE', title: 'CARVED OAK TOY HORSE (6·10·21 INSCRIPTION)', img: 'assets/stelline_frames/sec_283.jpg', pose: 'assets/v2g/pose_15_wood_horse.jpg', recipe: 'kind: hand-carved wooden horse | material: aged dark oak (#5C3818) | inscription: 6·10·21 on base', prompt: 'Hand-carved dark oak wooden toy horse from Blade Runner 2049 with knife-faceted torso, curved neck, worn patina, and the date 6·10·21 carved into the underside of its hooves.' }
+];
+
+const V2G_CHARS = [
+  { id: 'char_01', code: 'ACTOR P1 · NORTH SEAT', title: 'WISH GIRL BLOWING CANDLES (9×5 GRID, 43 FRAMES)', img: 'assets/v2g/char_01_wish_girl.jpg', sheet: 'ana/cut/film-child-1-blow.webp', poseSpec: 'Front-facing bust; head tilted -8 deg down; eyes closed; lips rounded in blowing O-shape; white cardigan; 2200K upward candlelit chiaroscuro.', prompt: 'Die-cut cardboard standee character sprite sheet (9 columns x 5 rows, 43 frames) of a young blonde girl in a white cardigan seated at the north side of a birthday table, leaning forward with eyes closed and lips rounded to blow out seven birthday candles. Warm 2200K upward candlelit chiaroscuro on her face, solid opaque interior, cream archival die-cut paper-board border.' },
+  { id: 'char_02', code: 'ACTOR P2 · WEST SEAT', title: 'BLONDE SISTER SMILING IN CANDLELIGHT (7×7 GRID, 44 FRAMES)', img: 'assets/v2g/char_02_sister_smile.jpg', sheet: 'ana/cut/film-child-2-blow.webp', poseSpec: '3/4 right-facing bust portrait; warm gentle smile watching the birthday wish; shoulder-length blonde hair catching golden rim light.', prompt: 'Die-cut cardboard standee character sprite sheet (7 columns x 7 rows, 44 frames) of a young blonde sister in a white shirt seated at the left side of the birthday table, turning her head 3/4 right with a warm nostalgic smile in flickering 2200K candlelight. Solid opaque interior with cream die-cut cardboard border.' },
+  { id: 'char_03', code: 'ACTOR P3 · EAST SEAT', title: 'DARK-HAIRED FRIEND LEANING OVER TABLE (10×5 GRID, 43 FRAMES)', img: 'assets/v2g/char_03_friend_lean.jpg', sheet: 'ana/cut/film-child-3-blow.webp', poseSpec: '3/4 left-facing upper body; leaning forward at 22 deg torso angle with hands resting on table edge; long dark hair.', prompt: 'Die-cut cardboard standee character sprite sheet (10 columns x 5 rows, 43 frames) of a dark-haired girl leaning eagerly across the right side of the hexagonal birthday table, smiling and blowing toward the center candles. Warm golden candlelit rim light, solid opaque figure, cream die-cut cardboard border.' },
+  { id: 'char_04', code: 'ACTOR P4 · CENTER-RIGHT', title: 'BIRTHDAY BOY PUFFING CHEEKS TO BLOW (6×5 GRID, 28 FRAMES)', img: 'assets/v2g/char_04_bday_boy.jpg', sheet: 'assets/girls/boy_c.webp', poseSpec: '3/4 left profile close-up; dark tousled hair; cheeks puffed full of air and lips pursed to blow out the candles.', prompt: 'Die-cut cardboard standee character sprite sheet (6 columns x 5 rows, 28 frames) of the young birthday boy in 3/4 left profile puffing his cheeks full of air to blow out the birthday candles, warm orange-gold 2200K candle flame reflection on his cheek and eyes, cream die-cut cardboard border.' },
+  { id: 'char_05', code: 'ACTOR P5 · TABLE GUEST', title: 'COUSIN LEO SMILING IN CANDLELIGHT (6×12 GRID, 71 FRAMES)', img: 'assets/v2g/char_05_cousin_leo.jpg', sheet: 'assets/girls/guest_b.webp', poseSpec: '3/4 left-facing bust; relaxed joyful expression; subtle head nod and blink cycle across 71 frames.', prompt: 'Die-cut cardboard standee character sprite sheet (6 columns x 12 rows, 71 frames) of a young boy seated at the birthday table smiling warmly as the candles flicker, subtle natural head movement and blinking, warm 2200K chiaroscuro lighting, cream die-cut cardboard standee border.' },
+  { id: 'char_06', code: 'ACTOR P6 · FOREGROUND RIM', title: 'YOUNG K RIM-LIT PROFILE (6×7 GRID, 41 FRAMES)', img: 'assets/v2g/char_06_young_k.jpg', sheet: 'assets/boys/hair_b.webp', poseSpec: 'Front-left bust portrait; dramatic cool/warm dual rim light along jawline and ear; contemplative gaze.', prompt: 'Die-cut cardboard standee character sprite sheet (6 columns x 7 rows, 41 frames) of a young boy in a grey crew-neck t-shirt with dramatic golden rim lighting along his hair and cheek, looking toward the birthday cake with a quiet nostalgic expression, cream die-cut cardboard border.' },
+  { id: 'char_07', code: 'ACTOR P7 · DUO STANDEE', title: 'TWO SISTERS TOGETHER AT TABLE (6×7 GRID, 41 FRAMES)', img: 'assets/v2g/char_07_two_sisters.jpg', sheet: 'assets/slabs/slab_small.webp', poseSpec: 'Two-figure grouped standee: older sister standing behind at left with chin near younger sister seated in foreground.', prompt: 'Die-cut cardboard standee duo sprite sheet (6 columns x 7 rows, 41 frames) showing two sisters together at the birthday table — the older sister leaning over the shoulder of her younger blonde sister as the candle flames glow at lower right — wrapped in a single shared cream die-cut cardboard standee border.' },
+  { id: 'char_08', code: 'ACTOR P8 · THE WEAVER', title: 'DR. ANA STELLINE HOLDING MEMORY ORB (16×1 STRIP, 16 FRAMES)', img: 'assets/v2g/char_08_ana_weaver.jpg', sheet: 'assets/cutouts/stelline_ana.webp', poseSpec: 'Medium waist-up portrait; white pleated laboratory dress; both hands raised holding the silver Memory Weaver Orb.', prompt: 'Die-cut cardboard standee sprite strip (16 horizontal frames) of Dr. Ana Stelline in her white pleated laboratory coat holding the cylindrical metallic Memory Weaver Orb with both hands, looking tenderly at the birthday party scene she is crafting, cream die-cut cardboard standee border.' }
+];
+
+const sel = document.getElementById('globalStyleSel');
+V2G_STYLES.forEach((s, i) => {
+  const o = document.createElement('option');
+  o.value = i; o.textContent = s.name;
+  sel.appendChild(o);
+});
+
+function renderAll() {
+  const st = V2G_STYLES[+sel.value || 0];
+
+  const shotsGrid = document.getElementById('shotsGrid');
+  shotsGrid.innerHTML = '';
+  V2G_SHOTS.forEach(s => {
+    const fullPrompt = `[TARGET: ${st.name}]\n[SCENE: ${s.code} — ${s.title}]\nPROMPT: ${s.prompt}\nEXACT POSE & GEOMETRY LOCK: ${s.poseSpec}\nCAMERA & LENS: ${s.cam}\nSTYLE SPEC: ${st.suffix}`;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="cardHead"><span class="cardCode">${s.code}</span><span class="cardTitle">${s.title}</span></div>
+      <div class="plates4">
+        <div class="plate"><img src="${s.rgb}" loading="lazy"><span>1·RGB <a href="${s.rgb}" download>DL</a></span></div>
+        <div class="plate"><img src="${s.pose}" loading="lazy"><span>2·POSE+EDGE <a href="${s.pose}" download>DL</a></span></div>
+        <div class="plate"><img src="${s.depth}" loading="lazy"><span>3·DEPTH <a href="${s.depth}" download>DL</a></span></div>
+        <div class="plate"><img src="${s.sam}" loading="lazy"><span>4·SAM <a href="${s.sam}" download>DL</a></span></div>
+      </div>
+      <div class="cardBody">
+        <div class="metaLine"><strong>POSE & RIG:</strong> ${s.poseSpec} · <em>${s.cam}</em></div>
+        <textarea readonly>${fullPrompt}</textarea>
+        <div class="cardActions">
+          <button class="btn orange" onclick="navigator.clipboard.writeText(this.parentElement.previousElementSibling.value);this.textContent='COPIED!';setTimeout(()=>this.textContent='COPY PROMPT',1400)">COPY PROMPT</button>
+          <a class="btn" href="${s.pose}" download>DOWNLOAD POSE PLATE</a>
+          <a class="btn dark" href="${s.rgb}" download>DOWNLOAD FILM RGB</a>
+        </div>
+      </div>
+    `;
+    shotsGrid.appendChild(card);
+  });
+
+  const cakesGrid = document.getElementById('cakesGrid');
+  cakesGrid.innerHTML = '';
+  V2G_CAKES.forEach(c => {
+    const fullPrompt = `[TARGET: ${st.name}]\n[HERO ASSET: ${c.code} — ${c.title}]\nPROMPT: ${c.prompt}\nRECIPE SPEC: ${c.recipe}\nSTYLE SPEC: ${st.suffix}`;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="cardHead"><span class="cardCode">${c.code}</span><span class="cardTitle">${c.title}</span></div>
+      <div class="plates2">
+        <div class="plate"><img src="${c.img}" style="height:160px;object-fit:contain;" loading="lazy"><span>1·CANONICAL CAKE <a href="${c.img}" download>DL</a></span></div>
+        <div class="plate"><img src="${c.pose}" style="height:160px;object-fit:cover;" loading="lazy"><span>2·GEOMETRY WIREFRAME <a href="${c.pose}" download>DL</a></span></div>
+      </div>
+      <div class="cardBody">
+        <div class="metaLine"><strong>RECIPE:</strong> ${c.recipe}</div>
+        <textarea readonly>${fullPrompt}</textarea>
+        <div class="cardActions">
+          <button class="btn orange" onclick="navigator.clipboard.writeText(this.parentElement.previousElementSibling.value);this.textContent='COPIED!';setTimeout(()=>this.textContent='COPY PROMPT',1400)">COPY PROMPT</button>
+          <a class="btn" href="${c.img}" download>DOWNLOAD CAKE REF</a>
+        </div>
+      </div>
+    `;
+    cakesGrid.appendChild(card);
+  });
+
+  const charsGrid = document.getElementById('charsGrid');
+  charsGrid.innerHTML = '';
+  V2G_CHARS.forEach(ch => {
+    const fullPrompt = `[TARGET: ${st.name}]\n[CHARACTER POSE SHEET: ${ch.code} — ${ch.title}]\nPROMPT: ${ch.prompt}\nANATOMICAL POSE: ${ch.poseSpec}\nSTYLE SPEC: ${st.suffix}`;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="cardHead"><span class="cardCode">${ch.code}</span><span class="cardTitle">${ch.title}</span></div>
+      <div class="plates2">
+        <div class="plate"><img src="${ch.img}" style="height:168px;object-fit:contain;background:#f6f1e6;" loading="lazy"><span>1·4-KEYFRAME POSE STRIP <a href="${ch.img}" download>DL</a></span></div>
+        <div class="plate"><img src="${ch.sheet}" style="height:168px;object-fit:cover;" loading="lazy"><span>2·FULL SPRITE SHEET <a href="${ch.sheet}" download>DL</a></span></div>
+      </div>
+      <div class="cardBody">
+        <div class="metaLine"><strong>POSE SPEC:</strong> ${ch.poseSpec}</div>
+        <textarea readonly>${fullPrompt}</textarea>
+        <div class="cardActions">
+          <button class="btn orange" onclick="navigator.clipboard.writeText(this.parentElement.previousElementSibling.value);this.textContent='COPIED!';setTimeout(()=>this.textContent='COPY PROMPT',1400)">COPY PROMPT</button>
+          <a class="btn" href="${ch.img}" download>DOWNLOAD POSE CARD</a>
+          <a class="btn dark" href="${ch.sheet}" download>DOWNLOAD SPRITE SHEET (.WEBP)</a>
+        </div>
+      </div>
+    `;
+    charsGrid.appendChild(card);
+  });
+}
+
+sel.onchange = renderAll;
+renderAll();
+</script>
+</body>
+</html>

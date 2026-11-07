@@ -29,7 +29,8 @@
 </div>
 <input type="file" id="fileImporter" multiple accept="image/*,video/*,audio/*,.json,.glb,.gltf" style="display:none">
 
-<script src="assets/three.min.js"></script>
+<script src="assets/three.min.js">
+</script>
 <script src="assets/GLTFExporter.js"></script>
 <script src="assets/v6/qrcode.js"></script>
 <script>
@@ -174,38 +175,38 @@ const FINISHES = [
 ];
 
 const CUTOUT_CLIPS = [
-  { id: 'stelline_walk', name: 'ANA · WALK UP TO WORK', file: 'assets/cutouts/stelline_walk.webp', frames: 8, fps: 6, aspect: 1.0, h: 0.74, plane: 3 },
-  { id: 'stelline_talk', name: 'ANA · UNTIDY DETAILS', file: 'assets/cutouts/stelline_talk.webp', frames: 8, fps: 6, aspect: 1.0, h: 0.68, plane: 2 },
-  { id: 'stelline_hands_orb', name: 'ANA · HANDS ON ORB', file: 'assets/cutouts/stelline_hands_orb.webp', frames: 8, fps: 8, aspect: 1.0, h: 0.44, plane: 0 },
-  { id: 'stelline_child_left', name: 'WEST SEAT · GIRL LAUGHING', file: 'assets/cutouts/stelline_child_left.webp', frames: 8, fps: 8, aspect: 1.0, h: 0.54, plane: 1 },
-  { id: 'stelline_child_center', name: 'NORTH SEAT · BIRTHDAY BOY', file: 'assets/cutouts/stelline_child_center.webp', frames: 8, fps: 8, aspect: 1.0, h: 0.52, plane: 1 },
-  { id: 'stelline_child_right', name: 'EAST SEAT · FRIEND SMILING', file: 'assets/cutouts/stelline_child_right.webp', frames: 8, fps: 8, aspect: 1.0, h: 0.56, plane: 1 },
-  { id: 'stelline_candle_face', name: 'CANDLELIGHT · WISH FACE', file: 'assets/cutouts/stelline_candle_face.webp', frames: 8, fps: 8, aspect: 1.0, h: 0.48, plane: 0 },
-  { id: 'stelline_child1', name: 'CHILD 1 · LEFT TABLE', file: 'assets/cutouts/stelline_child1.webp', frames: 16, fps: 10, aspect: 1.377, h: 0.56, plane: 1 },
-  { id: 'stelline_child2', name: 'CHILD 2 · CENTER TABLE', file: 'assets/cutouts/stelline_child2.webp', frames: 16, fps: 10, aspect: 1.377, h: 0.44, plane: 1 },
-  { id: 'stelline_child3', name: 'CHILD 3 · RIGHT TABLE', file: 'assets/cutouts/stelline_child3.webp', frames: 16, fps: 10, aspect: 1.636, h: 0.64, plane: 1 },
-  { id: 'stelline_boy_blow', name: 'BIRTHDAY BOY · LEANING', file: 'assets/cutouts/stelline_boy_blow.webp', frames: 16, fps: 12, aspect: 1.636, h: 0.52, plane: 0 },
-  { id: 'stelline_blow_trio', name: 'CHILDREN · BLOWING CANDLES', file: 'assets/cutouts/stelline_blow_trio.webp', frames: 16, fps: 10, aspect: 1.45, h: 0.58, plane: 1 },
-  { id: 'stelline_ana', name: 'ANA STELLINE · WEAVER', file: 'assets/cutouts/stelline_ana.webp', frames: 16, fps: 10, aspect: 1.241, h: 0.72, plane: 3 },
-  { id: 'stelline_beetle', name: 'STELLINE BEETLE · MACRO', file: 'assets/cutouts/stelline_beetle.webp', frames: 16, fps: 12, aspect: 1.778, h: 0.34, plane: 0 },
-  { id: 'cineosis_00', name: 'CINEOSIS · PHOTOGRAPHER', file: 'assets/cutouts/cineosis_00.webp', frames: 24, fps: 8, aspect: 0.505, h: 0.68, plane: 2 },
-  { id: 'cineosis_01', name: 'CINEOSIS · BYSTANDER', file: 'assets/cutouts/cineosis_01.webp', frames: 24, fps: 8, aspect: 0.604, h: 0.66, plane: 3 },
-  { id: 'cineosis_02', name: 'CINEOSIS · DESERT WALKER', file: 'assets/cutouts/cineosis_02.webp', frames: 24, fps: 8, aspect: 0.505, h: 0.68, plane: 3 },
-  { id: 'cineosis_03', name: 'CINEOSIS · DUSK FIGURE', file: 'assets/cutouts/cineosis_03.webp', frames: 24, fps: 8, aspect: 1.626, h: 0.54, plane: 3 },
-  { id: 'cineosis_04', name: 'CINEOSIS · HOME MOVIE KID', file: 'assets/cutouts/cineosis_04.webp', frames: 18, fps: 8, aspect: 1.045, h: 0.52, plane: 1 },
-  { id: 'cineosis_05', name: 'CINEOSIS · DIGGING HANDS', file: 'assets/cutouts/cineosis_05.webp', frames: 24, fps: 8, aspect: 1.005, h: 0.42, plane: 0 },
-  { id: 'cineosis_06', name: 'CINEOSIS · GESTURE HANDS', file: 'assets/cutouts/cineosis_06.webp', frames: 24, fps: 8, aspect: 0.595, h: 0.46, plane: 0 },
-  { id: 'cineosis_07', name: 'CINEOSIS · ARCHIVE FACE', file: 'assets/cutouts/cineosis_07.webp', frames: 24, fps: 8, aspect: 0.36, h: 0.64, plane: 2 },
-  { id: 'cineosis_08', name: 'CINEOSIS · BIRDS LIFTING', file: 'assets/cutouts/cineosis_08.webp', frames: 24, fps: 10, aspect: 1.316, h: 0.75, plane: 5 },
-  { id: 'cineosis_09', name: 'CINEOSIS · RIDGE ANIMAL', file: 'assets/cutouts/cineosis_09.webp', frames: 24, fps: 8, aspect: 1.1, h: 0.56, plane: 4 },
-  { id: 'shm_horse', name: 'SHM · TROTTING HORSE', file: 'assets/cutouts/shm_horse.webp', frames: 16, fps: 10, aspect: 1.0, h: 0.54, plane: 2 },
-  { id: 'shm_giraffe', name: 'SHM · WALKING GIRAFFE', file: 'assets/cutouts/shm_giraffe.webp', frames: 16, fps: 10, aspect: 0.818, h: 0.82, plane: 3 },
-  { id: 'shm_butterfly', name: 'SHM · BUTTERFLY', file: 'assets/cutouts/shm_butterfly.webp', frames: 16, fps: 12, aspect: 1.0, h: 0.32, plane: 0 },
-  { id: 'shm_lantern', name: 'SHM · SWINGING LANTERN', file: 'assets/cutouts/shm_lantern.webp', frames: 16, fps: 10, aspect: 0.9, h: 0.45, plane: 1 },
-  { id: 'shm_guitar', name: 'SHM · STRUMMING GUITAR', file: 'assets/cutouts/shm_guitar.webp', frames: 16, fps: 10, aspect: 0.9, h: 0.5, plane: 2 },
-  { id: 'shm_cat', name: 'SHM · PROWLING CAT', file: 'assets/cutouts/shm_cat.webp', frames: 16, fps: 10, aspect: 1.111, h: 0.38, plane: 1 },
-  { id: 'shm_palm', name: 'SHM · SWAYING PALM', file: 'assets/cutouts/shm_palm.webp', frames: 16, fps: 8, aspect: 0.818, h: 0.95, plane: 4 },
-  { id: 'shm_cloud', name: 'SHM · DRIFTING CLOUD', file: 'assets/cutouts/shm_cloud.webp', frames: 16, fps: 8, aspect: 1.467, h: 0.6, plane: 5 }
+  { id: 'child1_blow',   name: 'WISH GIRL · BLOWING',     short: 'WISH GIRL',   file: 'ana/cut/film-child-1-blow.webp', cols: 9,  rows: 5,  frames: 43, fps: 10, cropX: 0.08, cropW: 0.84, cropY: 0.76, aspect: 0.82, h: 0.56, plane: 1 },
+  { id: 'child2_blow',   name: 'BLONDE SISTER · SMILE',   short: 'SISTER',      file: 'ana/cut/film-child-2-blow.webp', cols: 7,  rows: 7,  frames: 44, fps: 10, cropX: 0.10, cropW: 0.80, cropY: 0.88, aspect: 0.84, h: 0.54, plane: 1 },
+  { id: 'child3_blow',   name: 'DARK-HAIRED FRIEND',      short: 'FRIEND',      file: 'ana/cut/film-child-3-blow.webp', cols: 10, rows: 5,  frames: 43, fps: 10, cropX: 0.08, cropW: 0.84, cropY: 0.90, aspect: 0.78, h: 0.56, plane: 1 },
+  { id: 'boy_c_blow',    name: 'BIRTHDAY BOY · WISH',     short: 'BDAY BOY',    file: 'assets/girls/boy_c.webp',        cols: 6,  rows: 5,  frames: 28, fps: 10, cropX: 0.34, cropW: 0.62, cropY: 0.86, aspect: 0.82, h: 0.54, plane: 1 },
+  { id: 'guest_b_smile', name: 'COUSIN LEO · SMILING',    short: 'COUSIN LEO',  file: 'assets/girls/guest_b.webp',      cols: 6,  rows: 12, frames: 71, fps: 12, cropX: 0.18, cropW: 0.74, cropY: 0.92, aspect: 0.82, h: 0.54, plane: 1 },
+  { id: 'boy_hair_b',    name: 'YOUNG K · RIM LIGHT',     short: 'YOUNG K',     file: 'assets/boys/hair_b.webp',        cols: 6,  rows: 7,  frames: 41, fps: 10, cropX: 0.29, cropW: 0.52, cropY: 0.94, aspect: 0.80, h: 0.56, plane: 1 },
+  { id: 'slab_small',    name: 'TWO SISTERS · TABLE',     short: '2 SISTERS',   file: 'assets/slabs/slab_small.webp',   cols: 6,  rows: 7,  frames: 41, fps: 10, cropX: 0.06, cropW: 0.88, cropY: 0.92, aspect: 0.76, h: 0.60, plane: 1 },
+  { id: 'slab_girl',     name: 'GIRL IN CANDLELIGHT',     short: 'CANDLE GIRL', file: 'assets/slabs/slab_girl.webp',    cols: 6,  rows: 7,  frames: 41, fps: 10, cropX: 0.08, cropW: 0.84, cropY: 0.74, aspect: 0.78, h: 0.56, plane: 1 },
+  { id: 'slab_asian',    name: 'FRIEND LEANING IN',       short: 'LEAN FRIEND', file: 'assets/slabs/slab_asian.webp',   cols: 6,  rows: 7,  frames: 41, fps: 10, cropX: 0.08, cropW: 0.84, cropY: 0.90, aspect: 0.74, h: 0.56, plane: 1 },
+  { id: 'slab_boy',      name: 'BROTHER WATCHING',        short: 'BROTHER',     file: 'assets/slabs/slab_boy.webp',     cols: 6,  rows: 7,  frames: 41, fps: 10, cropX: 0.08, cropW: 0.84, cropY: 0.92, aspect: 0.76, h: 0.52, plane: 1 },
+  { id: 'tall_a_guest',  name: 'TALL COUSIN · STANDING',  short: 'TALL COUSIN', file: 'assets/boys/tall_a.webp',        cols: 6,  rows: 3,  frames: 14, fps: 8,  cropX: 0.12, cropW: 0.76, cropY: 0.94, aspect: 0.82, h: 0.60, plane: 2 },
+  { id: 'left_a_guest',  name: 'WEST SEAT · GUEST',       short: 'WEST GUEST',  file: 'assets/boys/left_a.webp',        cols: 6,  rows: 7,  frames: 38, fps: 10, cropX: 0.10, cropW: 0.80, cropY: 0.92, aspect: 0.78, h: 0.56, plane: 1 },
+  { id: 'stelline_ana',  name: 'ANA STELLINE · WEAVER',   short: 'ANA WEAVER',  file: 'assets/cutouts/stelline_ana.webp', cols: 16, rows: 1, frames: 16, fps: 10, cropX: 0.55, cropW: 0.43, cropY: 0.96, aspect: 0.72, h: 0.64, plane: 2 },
+  { id: 'right_a_guest', name: 'EAST SEAT · GUEST',       short: 'EAST GUEST',  file: 'assets/boys/right_a.webp',       cols: 6,  rows: 7,  frames: 38, fps: 10, cropX: 0.10, cropW: 0.80, cropY: 0.92, aspect: 0.78, h: 0.56, plane: 1 },
+  { id: 'cineosis_00',   name: 'PHOTOGRAPHER · ARCHIVE',  short: 'PHOTOGRPHR',  file: 'assets/cutouts/cineosis_00.webp', cols: 24, rows: 1, frames: 24, fps: 8,  cropX: 0.02, cropW: 0.96, cropY: 0.96, aspect: 0.65, h: 0.62, plane: 2 },
+  { id: 'cineosis_01',   name: 'BYSTANDER · COAT',        short: 'BYSTANDER',   file: 'assets/cutouts/cineosis_01.webp', cols: 24, rows: 1, frames: 24, fps: 8,  cropX: 0.02, cropW: 0.96, cropY: 0.96, aspect: 0.68, h: 0.62, plane: 2 },
+  { id: 'cineosis_02',   name: 'WINTER WALKER',           short: 'WALKER',      file: 'assets/cutouts/cineosis_02.webp', cols: 24, rows: 1, frames: 24, fps: 8,  cropX: 0.02, cropW: 0.96, cropY: 0.96, aspect: 0.65, h: 0.62, plane: 3 },
+  { id: 'hair_a_guest',  name: 'YOUNG FRIEND · TABLE',    short: 'YOUNG FRND',  file: 'assets/boys/hair_a.webp',        cols: 6,  rows: 3,  frames: 15, fps: 8,  cropX: 0.22, cropW: 0.72, cropY: 0.94, aspect: 0.82, h: 0.54, plane: 1 },
+  { id: 'cineosis_04',   name: 'HOME MOVIE CHILD',        short: 'MOVIE KID',   file: 'assets/cutouts/cineosis_04.webp', cols: 18, rows: 1, frames: 18, fps: 8,  cropX: 0.04, cropW: 0.92, cropY: 0.96, aspect: 0.85, h: 0.54, plane: 1 },
+  { id: 'tall_b_guest',  name: 'OLDER BROTHER · BACK',    short: 'OLD BROTHR',  file: 'assets/boys/tall_b.webp',        cols: 6,  rows: 7,  frames: 38, fps: 10, cropX: 0.12, cropW: 0.76, cropY: 0.92, aspect: 0.78, h: 0.60, plane: 2 },
+  { id: 'small_a_guest', name: 'LITTLE COUSIN · SEAT',    short: 'LIL COUSIN',  file: 'assets/boys/small_a.webp',       cols: 6,  rows: 3,  frames: 15, fps: 8,  cropX: 0.14, cropW: 0.74, cropY: 0.92, aspect: 0.80, h: 0.50, plane: 1 },
+  { id: 'dark_a_guest',  name: 'NIGHT GUEST · SMILE',     short: 'NIGHT GUEST', file: 'assets/boys/dark_a.webp',        cols: 6,  rows: 6,  frames: 32, fps: 10, cropX: 0.12, cropW: 0.76, cropY: 0.92, aspect: 0.78, h: 0.56, plane: 2 },
+  { id: 'cineosis_08',   name: 'BIRDS LIFTING · DUSK',    short: 'DUSK BIRDS',  file: 'assets/cutouts/cineosis_08.webp', cols: 24, rows: 1, frames: 24, fps: 10, cropX: 0.02, cropW: 0.96, cropY: 0.96, aspect: 1.15, h: 0.64, plane: 4 },
+  { id: 'shm_horse',     name: 'CARVED HORSE · TROTTING', short: 'HORSE',       file: 'assets/cutouts/shm_horse.webp',   cols: 16, rows: 1, frames: 16, fps: 10, cropX: 0.02, cropW: 0.96, cropY: 0.96, aspect: 0.92, h: 0.52, plane: 2 },
+  { id: 'shm_giraffe',   name: 'PAPER GIRAFFE · WALK',    short: 'GIRAFFE',     file: 'assets/cutouts/shm_giraffe.webp', cols: 16, rows: 1, frames: 16, fps: 10, cropX: 0.02, cropW: 0.96, cropY: 0.96, aspect: 0.80, h: 0.68, plane: 3 },
+  { id: 'shm_butterfly', name: 'PAPER BUTTERFLY',         short: 'BUTTERFLY',   file: 'assets/cutouts/shm_butterfly.webp', cols: 16, rows: 1, frames: 16, fps: 12, cropX: 0.02, cropW: 0.96, cropY: 0.96, aspect: 0.92, h: 0.36, plane: 0 },
+  { id: 'shm_lantern',   name: 'WARM PARTY LANTERN',      short: 'LANTERN',     file: 'assets/cutouts/shm_lantern.webp', cols: 16, rows: 1, frames: 16, fps: 10, cropX: 0.02, cropW: 0.96, cropY: 0.96, aspect: 0.86, h: 0.46, plane: 1 },
+  { id: 'shm_guitar',    name: 'PORCH GUITAR PLAYER',     short: 'GUITAR',      file: 'assets/cutouts/shm_guitar.webp',  cols: 16, rows: 1, frames: 16, fps: 10, cropX: 0.02, cropW: 0.96, cropY: 0.96, aspect: 0.86, h: 0.52, plane: 2 },
+  { id: 'shm_cat',       name: 'TABLETOP CAT',            short: 'PARTY CAT',   file: 'assets/cutouts/shm_cat.webp',     cols: 16, rows: 1, frames: 16, fps: 10, cropX: 0.02, cropW: 0.96, cropY: 0.96, aspect: 0.96, h: 0.40, plane: 1 },
+  { id: 'shm_palm',      name: 'COURTYARD PALM TREE',     short: 'PALM TREE',   file: 'assets/cutouts/shm_palm.webp',    cols: 16, rows: 1, frames: 16, fps: 8,  cropX: 0.02, cropW: 0.96, cropY: 0.96, aspect: 0.82, h: 0.78, plane: 3 },
+  { id: 'shm_cloud',     name: 'WINTER DRIFT CLOUD',      short: 'CLOUD',       file: 'assets/cutouts/shm_cloud.webp',   cols: 16, rows: 1, frames: 16, fps: 8,  cropX: 0.02, cropW: 0.96, cropY: 0.96, aspect: 1.25, h: 0.52, plane: 4 },
+  { id: 'girl_a_cake',   name: 'BIRTHDAY GIRL · SLICE',   short: 'GIRL SLICE',  file: 'assets/girls/girl_a.webp',        cols: 6,  rows: 12, frames: 71, fps: 10, cropX: 0.42, cropW: 0.54, cropY: 0.92, aspect: 0.82, h: 0.54, plane: 1 }
 ];
 
 const PROP_KINDS = [
@@ -235,11 +236,11 @@ const TIZITA_CHAPTERS = [
     table: { style: 0, width: 1.08 },
     propCount: 9,
     cutouts: [
-      { clip: 3, a: Math.PI - 0.72, plane: 1, face: 8, s: 1.02, speed: 1.0 },
-      { clip: 4, a: Math.PI,        plane: 1, face: 0, s: 1.05, speed: 1.0 },
-      { clip: 5, a: Math.PI + 0.72, plane: 1, face: -8, s: 1.02, speed: 1.0 },
-      { clip: 0, a: -0.52,          plane: 3, face: 12, s: 1.0, speed: 0.9 },
-      { clip: 6, a: 0.32,           plane: 0, face: -10, s: 0.92, speed: 1.0 }
+      { clip: 0,  a: Math.PI,        plane: 1, face: 0,   s: 1.06, speed: 1.0 },
+      { clip: 1,  a: Math.PI - 0.85, plane: 1, face: 10,  s: 1.02, speed: 1.0 },
+      { clip: 3,  a: Math.PI + 0.85, plane: 1, face: -10, s: 1.02, speed: 1.0 },
+      { clip: 5,  a: -1.18,          plane: 1, face: 14,  s: 0.98, speed: 1.0 },
+      { clip: 12, a: 1.18,           plane: 2, face: -14, s: 1.04, speed: 0.95 }
     ],
     etch: { surface: 0, phrase: 2, x: 0, y: 0, col: 0, pts: [] },
     light: { a: 34, h: 0.82, warm: 0.82, k: 1.48 },
@@ -547,11 +548,11 @@ const DOC0 = () => ({
   table: { style: 0, width: 1.08 },
   props: makeDefaultProps(8),
   cutouts: [
-    { clip: 0, a: Math.PI - 0.65, plane: 1, face: 0, s: 1.0, speed: 1.0 },
-    { clip: 1, a: Math.PI - 0.02, plane: 1, face: 0, s: 1.0, speed: 1.0 },
-    { clip: 2, a: Math.PI + 0.62, plane: 1, face: 0, s: 1.0, speed: 1.0 },
-    { clip: 3, a: 0.35, plane: 0, face: -12, s: 0.95, speed: 1.0 },
-    { clip: 17, a: -0.95, plane: 2, face: 15, s: 0.9, speed: 1.0 }
+    { clip: 0,  a: Math.PI,        plane: 1, face: 0,   s: 1.06, speed: 1.0 },
+    { clip: 1,  a: Math.PI - 0.85, plane: 1, face: 10,  s: 1.02, speed: 1.0 },
+    { clip: 3,  a: Math.PI + 0.85, plane: 1, face: -10, s: 1.02, speed: 1.0 },
+    { clip: 5,  a: -1.18,          plane: 1, face: 14,  s: 0.98, speed: 1.0 },
+    { clip: 12, a: 1.18,           plane: 2, face: -14, s: 1.04, speed: 0.95 }
   ],
   etch: { surface: 0, phrase: 1, x: 0, y: 0, col: 0, pts: [] },
   light: { a: 38, h: 0.82, warm: 0.78, k: 1.45 },
@@ -875,11 +876,18 @@ function buildProps() {
   });
 }
 
-/* =============================================================== 7. SEGMENTED VIDEO CUTOUT ENGINE + TUFTE SC-0XX CALLOUT FLAGS */
+/* =============================================================== 7. DIE-CUT CARDBOARD STANDEE ENGINE + WOODEN SLOTTED PLINTHS */
 const baseCutoutTex = {};
 function getCutoutBaseTex(clipIdx, onReady) {
   const info = CUTOUT_CLIPS[clamp(clipIdx, 0, CUTOUT_CLIPS.length - 1)];
-  if (baseCutoutTex[info.id]) { if (baseCutoutTex[info.id].image) onReady(baseCutoutTex[info.id], info); return info; }
+  if (!info.file) {
+    if (baseCutoutTex[info.id] && baseCutoutTex[info.id].image) onReady(baseCutoutTex[info.id], info);
+    return info;
+  }
+  if (baseCutoutTex[info.id]) {
+    if (baseCutoutTex[info.id].image) onReady(baseCutoutTex[info.id], info);
+    return info;
+  }
   const t = new T.TextureLoader().load(info.file, tex => {
     tex.encoding = T.sRGBEncoding; tex.wrapS = tex.wrapT = T.ClampToEdgeWrapping;
     onReady(tex, info);
@@ -889,29 +897,204 @@ function getCutoutBaseTex(clipIdx, onReady) {
   return info;
 }
 
-function makeTufteCalloutTex(scCode, subTxt, hexCol, isSel) {
-  const c = document.createElement('canvas'); c.width = 256; c.height = 72;
+// High-Contrast Readable Person Badge above each Cardboard Standee
+function makeTufteCalloutTex(pBadge, nameTxt, hexCol, isSel) {
+  const c = document.createElement('canvas'); c.width = 360; c.height = 96;
   const x = c.getContext('2d');
   x.fillStyle = isSel ? '#111111' : '#faf8f2';
-  x.fillRect(2, 2, 252, 68);
-  x.strokeStyle = '#111111'; x.lineWidth = 4;
-  x.strokeRect(2, 2, 252, 68);
+  x.fillRect(4, 4, 352, 88);
+  x.strokeStyle = '#111111'; x.lineWidth = 6;
+  x.strokeRect(4, 4, 352, 88);
   x.fillStyle = hexCol || '#e85d04';
-  x.fillRect(2, 2, 14, 68);
-  x.font = '900 26px "IBM Plex Mono", Menlo, monospace';
+  x.fillRect(4, 4, 88, 88);
+  x.font = '900 38px "IBM Plex Mono", Menlo, monospace';
+  x.fillStyle = '#ffffff'; x.textAlign = 'center';
+  x.fillText(pBadge, 48, 62);
+  x.textAlign = 'left';
+  x.font = '900 30px "IBM Plex Mono", Menlo, monospace';
   x.fillStyle = isSel ? '#ffffff' : '#111111';
-  x.fillText(scCode, 24, 34);
-  x.font = '700 17px "IBM Plex Mono", Menlo, monospace';
+  x.fillText(nameTxt.slice(0, 12), 106, 48);
+  x.font = '700 20px "IBM Plex Mono", Menlo, monospace';
   x.fillStyle = isSel ? '#5ff0dc' : '#444444';
-  x.fillText(subTxt.slice(0, 18), 24, 58);
+  x.fillText(isSel ? 'SELECTED · SPIN RINGS' : 'DRAG TO MOVE', 106, 78);
   const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding;
   return t;
 }
 
+// Shared offscreen buffer for fast 2-Pass Chamfer Distance Die-Cut Cardboard Standee rendering
+const _standeeWorkCv = document.createElement('canvas');
+_standeeWorkCv.width = 180; _standeeWorkCv.height = 220;
+const _standeeWorkCx = _standeeWorkCv.getContext('2d', { willReadFrequently: true });
+const _standeeDist = new Uint16Array(180 * 220);
+const _standeeMask = new Uint8Array(180 * 220);
+
+function renderCardboardStandeeFrame(act, info, fIdx, actorIdx, isSel) {
+  const W = 180, H = 220;
+  const wx = _standeeWorkCx;
+  wx.clearRect(0, 0, W, H);
+
+  const bTex = baseCutoutTex[info.id];
+  const img = bTex && bTex.image;
+  const cols = info.cols || info.frames || 1;
+  const rows = info.rows || 1;
+
+  if (info.liveVideo && info.liveVideo.readyState >= 2) {
+    wx.drawImage(info.liveVideo, 20, 16, W - 40, H - 44);
+  } else if (img && img.width > 0) {
+    const col = fIdx % cols;
+    const row = Math.floor(fIdx / cols) % rows;
+    const cellW = img.width / cols;
+    const cellH = img.height / rows;
+    const sx = (col + (info.cropX || 0)) * cellW;
+    const sy = row * cellH;
+    const sw = cellW * (info.cropW || 1);
+    const sh = cellH * (info.cropY || 1);
+    wx.drawImage(img, sx, sy, sw, sh, 16, 12, W - 32, H - 36);
+  } else {
+    // Immediate clean illustrated standee silhouette while sprite sheet loads
+    wx.fillStyle = '#e8c49a';
+    wx.beginPath(); wx.arc(W / 2, 74, 30, 0, TAU); wx.fill();
+    wx.fillStyle = ['#d9534f', '#2a9d8f', '#e85d04', '#1d70b8', '#7209b7'][actorIdx % 5];
+    wx.beginPath(); wx.ellipse(W / 2, 162, 52, 54, 0, Math.PI, TAU); wx.fill();
+  }
+
+  const id = wx.getImageData(0, 0, W, H);
+  const d = id.data;
+  _standeeMask.fill(0);
+
+  // 1. Smooth Row-Hull Die-Cut Silhouette Filter (eliminates internal holes, Swiss-cheese hair gaps & detached islands)
+  let sumX = 0, cntX = 0;
+  for (let y = 12; y < H - 22; y += 2) {
+    for (let x = 14; x < W - 14; x += 2) {
+      if (d[(y * W + x) * 4 + 3] > 80) { sumX += x; cntX++; }
+    }
+  }
+  const medX = cntX > 0 ? (sumX / cntX) : (W >> 1);
+  const rowL = new Int16Array(H).fill(-1);
+  const rowR = new Int16Array(H).fill(-1);
+  let yMin = H, yMax = 0;
+  for (let y = 12; y < H - 22; y++) {
+    let l = -1, r = -1, count = 0;
+    for (let x = 14; x < W - 14; x++) {
+      if (Math.abs(x - medX) > 60) continue;
+      if (d[(y * W + x) * 4 + 3] > 80) {
+        if (l < 0) l = x;
+        r = x;
+        count++;
+      }
+    }
+    if (count >= 3) {
+      rowL[y] = l; rowR[y] = r;
+      if (y < yMin) yMin = y;
+      if (y > yMax) yMax = y;
+    }
+  }
+  if (yMin <= yMax) {
+    let lastL = rowL[yMin], lastR = rowR[yMin];
+    for (let y = yMin; y <= yMax; y++) {
+      if (rowL[y] < 0) { rowL[y] = lastL; rowR[y] = lastR; }
+      else { lastL = rowL[y]; lastR = rowR[y]; }
+    }
+    for (let y = yMin; y <= yMax; y++) {
+      let sL = 0, sR = 0, n = 0;
+      for (let ky = Math.max(yMin, y - 4); ky <= Math.min(yMax, y + 4); ky++) {
+        sL += rowL[ky]; sR += rowR[ky]; n++;
+      }
+      const l = Math.max(12, Math.round(sL / n));
+      const r = Math.min(W - 13, Math.round(sR / n));
+      for (let x = l; x <= r; x++) {
+        const i = y * W + x, p = i * 4;
+        _standeeMask[i] = 1;
+        if (d[p + 3] < 48) {
+          d[p] = 36; d[p + 1] = 30; d[p + 2] = 26; d[p + 3] = 255;
+        }
+      }
+    }
+  }
+
+  // 2. 2-Pass Chamfer Distance Transform (in 1/3 px units) for exact Die-Cut Cardboard Border
+  const INF = 9999;
+  for (let i = 0; i < W * H; i++) _standeeDist[i] = _standeeMask[i] ? 0 : INF;
+  for (let y = 1; y < H - 1; y++) {
+    let rowOff = y * W;
+    for (let x = 1; x < W - 1; x++) {
+      const i = rowOff + x;
+      if (_standeeDist[i] === 0) continue;
+      let m = _standeeDist[i - 1] + 3;
+      if (_standeeDist[i - W] + 3 < m) m = _standeeDist[i - W] + 3;
+      if (_standeeDist[i - W - 1] + 4 < m) m = _standeeDist[i - W - 1] + 4;
+      if (_standeeDist[i - W + 1] + 4 < m) m = _standeeDist[i - W + 1] + 4;
+      _standeeDist[i] = m;
+    }
+  }
+  for (let y = H - 2; y >= 1; y--) {
+    let rowOff = y * W;
+    for (let x = W - 2; x >= 1; x--) {
+      const i = rowOff + x;
+      let m = _standeeDist[i];
+      if (_standeeDist[i + 1] + 3 < m) m = _standeeDist[i + 1] + 3;
+      if (_standeeDist[i + W] + 3 < m) m = _standeeDist[i + W] + 3;
+      if (_standeeDist[i + W - 1] + 4 < m) m = _standeeDist[i + W - 1] + 4;
+      if (_standeeDist[i + W + 1] + 4 < m) m = _standeeDist[i + W + 1] + 4;
+      _standeeDist[i] = m;
+    }
+  }
+
+  // 3. Composite Opaque Brightened Person + Cream Die-Cut Paper-Board + Corrugated Kraft Bevel
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const i = y * W + x, p = i * 4, dist = _standeeDist[i];
+      if (dist === 0) {
+        // Inside figure: 100% solid opaque with warm candlelit exposure lift
+        const r0 = d[p], g0 = d[p + 1], b0 = d[p + 2];
+        d[p]     = Math.min(255, Math.round(Math.pow(r0 / 255, 0.76) * 245 + 16));
+        d[p + 1] = Math.min(255, Math.round(Math.pow(g0 / 255, 0.78) * 235 + 12));
+        d[p + 2] = Math.min(255, Math.round(Math.pow(b0 / 255, 0.82) * 220 + 8));
+        d[p + 3] = 255;
+      } else if (dist <= 16) {
+        // Warm Cream Die-Cut Archival Board Margin (#F6F0E2)
+        const grain = ((x * 17 + y * 31) & 7) - 3;
+        d[p] = 246 + grain; d[p + 1] = 240 + grain; d[p + 2] = 226 + grain; d[p + 3] = 255;
+      } else if (dist <= 23) {
+        // Corrugated Kraft Cardboard Bevel (#B88A52)
+        const rib = ((x + y) & 3) === 0 ? -12 : 6;
+        d[p] = 184 + rib; d[p + 1] = 138 + rib; d[p + 2] = 82 + rib; d[p + 3] = 255;
+      } else if (dist <= 28) {
+        // Crisp Dark Die-Cut Ink Outline (#181410)
+        d[p] = 24; d[p + 1] = 20; d[p + 2] = 16; d[p + 3] = 255;
+      } else {
+        d[p + 3] = 0;
+      }
+    }
+  }
+  wx.putImageData(id, 0, 0);
+
+  // 4. Draw onto actor's 320x400 Hi-DPI Standee Canvas + Bottom Wooden Standee Slot Label
+  const ox2 = act.ctx;
+  ox2.clearRect(0, 0, 320, 400);
+  ox2.drawImage(_standeeWorkCv, 0, 0, W, H, 10, 6, 300, 366);
+
+  // Tactile Cardboard Standee Base Strip at bottom
+  ox2.fillStyle = isSel ? '#e85d04' : '#3a2614';
+  ox2.fillRect(36, 356, 248, 38);
+  ox2.strokeStyle = '#f6f0e2'; ox2.lineWidth = 4;
+  ox2.strokeRect(36, 356, 248, 38);
+  ox2.font = '900 22px "IBM Plex Mono", Menlo, monospace';
+  ox2.fillStyle = '#ffffff'; ox2.textAlign = 'center';
+  ox2.fillText('P' + (actorIdx + 1) + ' · ' + (info.short || info.name.slice(0, 10)), 160, 383);
+
+  act.tex.needsUpdate = true;
+}
+
+const standeePlinthGeo = new T.CylinderGeometry(0.11, 0.125, 0.024, 24);
+const standeeSlotGeo = new T.BoxGeometry(0.19, 0.028, 0.026);
+const standeePlinthMat = mistify(new T.MeshStandardMaterial({ color: 0x6b4423, roughness: 0.72 }));
+
 const cutoutActors = [];
 function syncCutouts(dt) {
   while (cutoutActors.length > DOC.cutouts.length) {
-    const old = cutoutActors.pop(); CAST_G.remove(old.mesh);
+    const old = cutoutActors.pop();
+    CAST_G.remove(old.group);
     if (old.tag) CAST_G.remove(old.tag);
   }
   DOC.cutouts.forEach((c, idx) => {
@@ -919,64 +1102,86 @@ function syncCutouts(dt) {
     let act = cutoutActors[idx];
     const isSel = idx === S.castIdx;
     const pIdx = clamp(c.plane || 0, 0, PLANE_Z.length - 1);
-    const scCode = 'SC-' + String(c.clip + 1).padStart(3, '0');
-    const tagKey = scCode + '|' + pIdx + '|' + isSel;
+    const pBadge = 'P' + (idx + 1);
+    const shortName = info.short || info.name.split('·')[0].trim();
+    const tagKey = pBadge + '|' + shortName + '|' + pIdx + '|' + isSel;
 
     if (!act || act.clipIdx !== c.clip) {
-      if (act) { CAST_G.remove(act.mesh); if (act.tag) CAST_G.remove(act.tag); }
-      const placeholderMat = mistify(new T.MeshStandardMaterial({
-        color: 0xffffff, transparent: true, alphaTest: 0.25, side: T.DoubleSide,
-        roughness: 0.85, emissive: 0xffffff, emissiveIntensity: 0.22
-      }));
-      const mesh = new T.Mesh(new T.PlaneGeometry(1, 1), placeholderMat);
-      mesh.castShadow = true; mesh.userData.cutoutIdx = idx;
-      CAST_G.add(mesh);
+      if (act) { CAST_G.remove(act.group); if (act.tag) CAST_G.remove(act.tag); }
+      const cv = document.createElement('canvas'); cv.width = 320; cv.height = 400;
+      const ctx = cv.getContext('2d');
+      const tex = new T.CanvasTexture(cv); tex.encoding = T.sRGBEncoding; tex.anisotropy = 4;
 
-      const tagMat = new T.SpriteMaterial({ map: makeTufteCalloutTex(scCode, 'Z' + (pIdx + 1) + '=' + PLANE_Z[pIdx] + 'm', PLANE_CSS[pIdx], isSel), toneMapped: false });
+      const mat = mistify(new T.MeshStandardMaterial({
+        map: tex, transparent: true, alphaTest: 0.35, side: T.DoubleSide,
+        roughness: 0.65, metalness: 0.02, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 0.28
+      }));
+      const group = new T.Group(); group.userData.cutoutIdx = idx;
+      const mesh = new T.Mesh(new T.PlaneGeometry(1, 1), mat);
+      mesh.castShadow = true; mesh.userData.cutoutIdx = idx;
+      group.add(mesh);
+
+      // Physical 3D Slotted Wooden Standee Base under the cardboard cutout!
+      const plinth = new T.Mesh(standeePlinthGeo, standeePlinthMat);
+      plinth.position.y = 0.012; plinth.castShadow = plinth.receiveShadow = true;
+      plinth.userData.cutoutIdx = idx;
+      const slot = new T.Mesh(standeeSlotGeo, standeePlinthMat);
+      slot.position.y = 0.024; slot.userData.cutoutIdx = idx;
+      group.add(plinth, slot);
+      CAST_G.add(group);
+
+      const tagMat = new T.SpriteMaterial({ map: makeTufteCalloutTex(pBadge, shortName, PLANE_CSS[pIdx], isSel), toneMapped: false });
       const tag = new T.Sprite(tagMat);
-      tag.scale.set(0.22, 0.062, 1);
+      tag.scale.set(0.28, 0.075, 1);
       tag.userData.cutoutIdx = idx;
       CAST_G.add(tag);
 
-      act = cutoutActors[idx] = { mesh, tag, tagKey, clipIdx: c.clip, tex: null, frames: info.frames, fps: info.fps, aspect: info.aspect };
-      getCutoutBaseTex(c.clip, (bTex, inf) => {
-        const cloned = bTex.clone(); cloned.needsUpdate = true; cloned.encoding = T.sRGBEncoding;
-        cloned.repeat.set(1 / inf.frames, 1);
-        act.tex = cloned;
-        placeholderMat.map = cloned; placeholderMat.emissiveMap = cloned; placeholderMat.needsUpdate = true;
+      act = cutoutActors[idx] = {
+        group, mesh, plinth, slot, tag, tagKey,
+        clipIdx: c.clip, cv, ctx, tex,
+        frames: info.frames || 1, fps: info.fps || 8,
+        aspect: info.aspect || 0.82, lastFrame: -1, loaded: false
+      };
+      renderCardboardStandeeFrame(act, info, (info.frames > 16 ? 4 : 0), idx, isSel);
+      getCutoutBaseTex(c.clip, () => {
+        act.loaded = true; act.lastFrame = -1;
+        renderCardboardStandeeFrame(act, info, (info.frames > 16 ? 4 : 0), idx, isSel);
       });
     }
+
     if (act.tagKey !== tagKey && act.tag) {
       act.tagKey = tagKey;
-      act.tag.material.map = makeTufteCalloutTex(scCode, 'Z' + (pIdx + 1) + '=' + PLANE_Z[pIdx] + 'm', PLANE_CSS[pIdx], isSel);
+      act.tag.material.map = makeTufteCalloutTex(pBadge, shortName, PLANE_CSS[pIdx], isSel);
       act.tag.material.needsUpdate = true;
+      act.lastFrame = -1;
     }
 
-    const mesh = act.mesh; mesh.userData.cutoutIdx = idx;
-    if (info && info.liveVideo && info.liveCtx && act.tex) {
-      if (info.liveVideo.readyState >= 2) { info.liveDraw(); act.tex.needsUpdate = true; }
-    } else if (act.tex && act.frames > 1) {
-      const fIdx = Math.floor(NOW * act.fps * (c.speed == null ? 1 : c.speed) + idx * 3) % act.frames;
-      act.tex.offset.x = ((fIdx + act.frames) % act.frames) / act.frames;
+    const startF = act.frames > 16 ? 4 : 0;
+    const fSpan = Math.max(1, act.frames - startF);
+    const fIdx = startF + (Math.floor(NOW * act.fps * (c.speed == null ? 1 : c.speed) + idx * 3) % fSpan);
+    if (fIdx !== act.lastFrame || (info.liveVideo && info.liveVideo.readyState >= 2)) {
+      act.lastFrame = fIdx;
+      renderCardboardStandeeFrame(act, info, fIdx, idx, isSel);
     }
+
     const r = PLANE_Z[pIdx];
     const h = (info.h || 0.56) * (c.s || 1);
-    const w = h * (info.aspect || 1);
-    mesh.scale.set(w, h, 1);
-    const baseElev = c.plane >= 5 ? TOP + 0.55 : TOP - 0.12;
-    mesh.position.set(Math.sin(c.a) * r, baseElev + h / 2, Math.cos(c.a) * r);
-    mesh.updateMatrixWorld(true);
-    const wp = mesh.getWorldPosition(new T.Vector3());
-    mesh.lookAt(cam.position.x, wp.y, cam.position.z);
-    mesh.rotateY((c.face || 0) * Math.PI / 180);
+    const w = h * (info.aspect || 0.82);
+    act.mesh.scale.set(w, h, 1);
+    act.mesh.position.set(0, h / 2 + 0.015, 0);
+
+    // Position the standee cleanly at table-rim level so everyone sits right around the table!
+    const baseElev = c.plane >= 4 ? TOP + 0.35 : TOP - 0.14;
+    act.group.position.set(Math.sin(c.a) * r, baseElev, Math.cos(c.a) * r);
+    act.group.lookAt(cam.position.x, baseElev, cam.position.z);
+    act.group.rotateY((c.face || 0) * Math.PI / 180);
 
     if (act.tag) {
-      act.tag.position.set(Math.sin(c.a) * r, baseElev + h + 0.055, Math.cos(c.a) * r);
+      act.tag.position.set(Math.sin(c.a) * r, baseElev + h + 0.065, Math.cos(c.a) * r);
       act.tag.visible = !FILM;
     }
   });
 
-  // Keep Onion-Tube floor rings crisp and legible in Paper Draft / CAST / ONION modes
   planeGuides.children.forEach((ringMesh, pIdx) => {
     const selCut = DOC.cutouts[S.castIdx];
     const baseOp = S.paperMode ? 0.72 : (S.mode === 'CAST' || S.view.preset === 'ONION' ? 0.45 : 0.22);
@@ -1129,43 +1334,81 @@ function accordionChord(bellows, vel) {
   } catch (e) {}
 }
 
-/* =============================================================== 10. THE 5 RINGS & ACCORDION REGISTER ENGINE */
+/* =============================================================== 10. THE 5 RINGS & 4-STEP GUIDED REGISTER ENGINE */
 const list = (n, get, set, L) => ({ n, v: get, set: v => set(clamp(Math.round(v), 0, L.length - 1)), st: 1, f: v => L[clamp(Math.round(v), 0, L.length - 1)], lo: 0, hi: L.length - 1, step: true });
 const num = (n, get, set, lo, hi, st, f, wrap) => ({ n, v: get, set: v => set(wrap ? ((v - lo) % (hi - lo) + (hi - lo)) % (hi - lo) + lo : clamp(+v.toFixed(4), lo, hi)), st, f, lo, hi, wrap });
 
+// Map any internal mode to one of the 4 easy-to-learn Operator Steps (0..3)
+const STEP_MODES = ['TIZITA', 'HERO', 'CAST', 'LIGHT'];
+const STEP_TITLES = [
+  '1 · PICK SCENE',
+  '2 · BUILD CAKE',
+  '3 · PLACE PEOPLE',
+  '4 · LIGHT & MIST'
+];
+const STEP_GUIDES = [
+  'STEP 1: Spin Ring 1 to choose a Birthday Story, or Ring 2 for Music.',
+  'STEP 2: Spin Ring 1 for Cake Shape, Ring 3 for Icing Words, Ring 4 for Candles.',
+  'STEP 3: Spin Ring 1 to pick a Person (P1–P5), or drag P1–P5 around the Table Map!',
+  'STEP 4: Spin Ring 1 for Camera View, Ring 4 to Blow Out Candles, Ring 5 for Mist.'
+];
+
+function getStepIndex() {
+  if (S.mode === 'TIZITA') return 0;
+  if (S.mode === 'HERO' || S.mode === 'ETCH') return 1;
+  if (S.mode === 'CAST' || S.mode === 'MESS') return 2;
+  return 3; // LIGHT, FLIGHT, SCION
+}
+
+const SHORT_HERO_NAMES = [
+  'BUNDT CAKE', 'LAYER CAKE', 'ROSE DOME', '3-TIER CAKE', 'MELTED CAKE',
+  'BITTEN CAKE', 'CHOC TORTE', 'SHORTCAKE', 'CROQUEM', 'SHEET CAKE',
+  '13-CANDLE', 'BEA CAKE', 'IZZY CAKE', 'NIA CAKE', 'MARA CAKE',
+  'SEED CAKE', 'WOOD HORSE', 'BEETLE', 'UNICORN', 'SNOWGLOBE',
+  'LANTERN', 'CAMERA', 'TEACUPS', 'CLAY FORM'
+];
+
 function rings() {
   const H = DOC.hero, Tbl = DOC.table, E = DOC.etch, Lt = DOC.light, Fl = DOC.flight;
-  // Accordion gear multiplier: expanding the bellows amplifies continuous scroll-wheel throws
   const gear = 1 + DOC.bellows * 1.15;
 
   if (S.mode === 'TIZITA') {
     return [
-      list('BIRTHDAY STORY', () => S.tizitaIdx || 0, v => loadTizitaChapter(v), TIZITA_CHAPTERS.map(c => c.title)),
-      list('SOUND MIX', () => curMixIdx, v => cycleAudioMix(v), AUDIO_MIXES.map(m => m.label)),
-      list('OLED FILM CLIP', () => curClipIdx, v => cycleMonitorClip(v), MONITOR_CLIPS.map(c => c.label)),
-      list('HERO OBJECT', () => H.preset, v => { H.preset = v; dirty.hero = true; }, HERO_PRESETS.map(p => p.name)),
-      num('TIZITA MIST', () => DOC.bellows, v => setBellows(v), 0, 1, 0.04, v => Math.round(v * 100) + '% MIST')
+      list('1 · STORY', () => S.tizitaIdx || 0, v => loadTizitaChapter(v), TIZITA_CHAPTERS.map((c, i) => 'CH ' + (i + 1) + ' · ' + c.title.split(' ')[2])),
+      list('2 · MUSIC', () => curMixIdx, v => cycleAudioMix(v), ['SYNTH ONLY', 'SOUL MIX', 'DIALOGUE', 'FULL SONG']),
+      list('3 · VIDEO', () => curClipIdx, v => cycleMonitorClip(v), ['ANA WALK', 'UNTIDY TALK', 'WISH CRAFT', 'FULL REEL']),
+      list('4 · TABLE', () => Tbl.style, v => { Tbl.style = v; dirty.table = true; }, TABLE_STYLES.map(s => s[0].split(' ')[0])),
+      num('5 · MIST', () => DOC.bellows, v => setBellows(v), 0, 1, 0.05, v => Math.round(v * 100) + '% MIST')
     ];
   }
   if (S.mode === 'HERO') {
     return [
-      list('HERO OBJECT', () => H.preset, v => { H.preset = v; const P = HERO_PRESETS[v]; if (P.icing != null) H.finish = P.icing; if (P.candles != null) H.candles = P.candles; dirty.hero = true; }, HERO_PRESETS.map(p => p.name)),
-      list('FINISH', () => H.finish, v => { H.finish = v; dirty.hero = true; }, FINISHES.map(f => f[0])),
-      num('SCULPT', () => H.sculpt, v => { H.sculpt = v; dirty.hero = true; }, -1, 1, 0.06 * gear, v => (v >= 0 ? '+' : '') + Math.round(v * 100) + '%'),
-      num('CANDLES', () => H.candles, v => { H.candles = Math.round(v); dirty.hero = true; }, 0, 16, 1, v => Math.round(v) ? Math.round(v) + (H.lit ? ' LIT' : ' OUT') : 'NONE'),
-      num('SCALE', () => H.scale, v => { H.scale = v; dirty.hero = true; }, 0.5, 1.8, 0.05 * gear, v => '×' + v.toFixed(2))
+      list('1 · CAKE', () => H.preset, v => { H.preset = v; const P = HERO_PRESETS[v]; if (P.icing != null) H.finish = P.icing; if (P.candles != null) H.candles = P.candles; dirty.hero = true; }, SHORT_HERO_NAMES),
+      list('2 · FROST', () => H.finish, v => { H.finish = v; dirty.hero = true; }, FINISHES.map(f => f[0].split(' ')[0])),
+      list('3 · WORDS', () => E.phrase, v => {
+        if (v === 6) { E.pts = []; E.phrase = 0; }
+        else { E.phrase = v; }
+        dirty.etch = true;
+      }, ['NO TEXT', 'HAPPY BDAY', 'CHINESE', '6·10·21', 'MAKE WISH', 'STELLINE', 'CLEAR']),
+      num('4 · CANDLES', () => H.candles, v => { H.candles = Math.round(v); dirty.hero = true; }, 0, 16, 1, v => Math.round(v) ? Math.round(v) + (H.lit ? ' LIT' : ' OUT') : 'NONE'),
+      num('5 · SCULPT', () => H.sculpt, v => { H.sculpt = v; dirty.hero = true; }, -0.6, 0.6, 0.06 * gear, v => (v >= 0 ? '+' : '') + Math.round(v * 100) + '%')
     ];
   }
   if (S.mode === 'CAST') {
     const N = Math.max(1, DOC.cutouts.length);
     S.castIdx = clamp(S.castIdx, 0, N - 1);
-    const C = DOC.cutouts[S.castIdx] || { clip: 0, a: 0, plane: 1, face: 0, s: 1, speed: 1 };
+    const C = DOC.cutouts[S.castIdx] || { clip: 0, a: Math.PI, plane: 1, face: 0, s: 1, speed: 1 };
     return [
-      list('PICK CUTOUT', () => S.castIdx, v => { S.castIdx = v; }, DOC.cutouts.map((c, i) => '#' + (i + 1) + ' ' + CUTOUT_CLIPS[clamp(c.clip, 0, CUTOUT_CLIPS.length - 1)].name.split('·')[0].trim())),
-      list('VIDEO CLIP', () => C.clip, v => { C.clip = v; C.plane = CUTOUT_CLIPS[v].plane; }, CUTOUT_CLIPS.map(c => c.name)),
-      num('AROUND', () => C.a * 57.2958, v => { C.a = v / 57.2958; }, 0, 360, 5 * gear, v => Math.round(v) + '°', true),
-      list('DEPTH PLANE', () => C.plane, v => { C.plane = v; }, PLANE_NAMES),
-      num('SIZE / FPS', () => C.s, v => { C.s = v; C.speed = 0.6 + v * 0.5; }, 0.45, 1.85, 0.05 * gear, v => '×' + v.toFixed(2))
+      list('1 · PERSON', () => S.castIdx, v => { S.castIdx = v; }, DOC.cutouts.map((c, i) => 'P' + (i + 1) + ' ' + (CUTOUT_CLIPS[clamp(c.clip, 0, CUTOUT_CLIPS.length - 1)].short || 'GUEST'))),
+      list('2 · ACTOR', () => C.clip, v => { C.clip = v; }, CUTOUT_CLIPS.map(c => c.short || c.name.slice(0, 10))),
+      num('3 · SEAT', () => C.a * 57.2958, v => { C.a = v / 57.2958; }, 0, 360, 8 * gear, v => Math.round(((v % 360) + 360) % 360) + '°', true),
+      list('4 · DEPTH', () => C.plane, v => { C.plane = v; }, ['Z1 NEAR', 'Z2 TABLE', 'Z3 MID', 'Z4 ROOM', 'Z5 FAR', 'Z6 DOME']),
+      num('5 · MESS', () => DOC.props.length, v => {
+        const target = Math.round(v);
+        while (DOC.props.length < target) { const i = DOC.props.length; DOC.props.push({ kind: i % PROP_KINDS.length, a: (i * 2.4) % TAU, r: 0.22 + (i % 5) * 0.06, rot: i * 1.3, s: 1 }); }
+        if (DOC.props.length > target) DOC.props.length = target;
+        dirty.props = true;
+      }, 0, 24, 1, v => Math.round(v) + ' ITEMS')
     ];
   }
   if (S.mode === 'MESS') {
@@ -1173,54 +1416,35 @@ function rings() {
     S.propIdx = clamp(S.propIdx, 0, N - 1);
     const P = DOC.props[S.propIdx] || { kind: 0, a: 0, r: 0.35, rot: 0, s: 1 };
     return [
-      num('MESS COUNT', () => DOC.props.length, v => {
+      num('1 · MESS', () => DOC.props.length, v => {
         const target = Math.round(v);
         while (DOC.props.length < target) { const i = DOC.props.length; DOC.props.push({ kind: i % PROP_KINDS.length, a: (i * 2.4) % TAU, r: 0.22 + (i % 5) * 0.07, rot: i * 1.3, s: 1 }); }
         if (DOC.props.length > target) DOC.props.length = target;
         dirty.props = true;
       }, 0, 24, 1, v => Math.round(v) + ' ITEMS'),
-      list('PROP KIND', () => P.kind, v => { P.kind = v; dirty.props = true; }, PROP_KINDS),
-      num('AROUND', () => P.a * 57.2958, v => { P.a = v / 57.2958; dirty.props = true; }, 0, 360, 6 * gear, v => Math.round(v) + '°', true),
-      num('TABLE RAD', () => P.r, v => { P.r = v; dirty.props = true; }, 0.14, 0.58, 0.02 * gear, v => Math.round(v * 100) + ' CM'),
-      list('TABLE WOOD', () => Tbl.style, v => { Tbl.style = v; dirty.table = true; }, TABLE_STYLES.map(s => s[0]))
+      list('2 · ITEM', () => P.kind, v => { P.kind = v; dirty.props = true; }, PROP_KINDS.map(k => k.split(' ').slice(-1)[0])),
+      num('3 · ANGLE', () => P.a * 57.2958, v => { P.a = v / 57.2958; dirty.props = true; }, 0, 360, 8 * gear, v => Math.round(v) + '°', true),
+      num('4 · RADIUS', () => P.r, v => { P.r = v; dirty.props = true; }, 0.14, 0.58, 0.02 * gear, v => Math.round(v * 100) + ' CM'),
+      list('5 · TABLE', () => Tbl.style, v => { Tbl.style = v; dirty.table = true; }, TABLE_STYLES.map(s => s[0].split(' ')[0]))
     ];
   }
   if (S.mode === 'ETCH') {
     return [
-      list('SURFACE', () => E.surface, v => { E.surface = v; dirty.etch = true; }, ['CAKE TOP', 'CAKE SIDE', 'TABLETOP', 'AIR FILAMENT']),
-      list('PHRASE', () => E.phrase, v => { if (v === 6) { E.pts = []; E.phrase = 0; say('ETCH CLEARED · SHAKE'); } else E.phrase = v; dirty.etch = true; }, ETCH_PHRASES),
-      num('ETCH X · L', () => E.x, v => { pushEtchStep(v - E.x, 0); }, -1, 1, 0.04 * gear, v => (v >= 0 ? '+' : '') + Math.round(v * 100)),
-      num('ETCH Y · R', () => E.y, v => { pushEtchStep(0, v - E.y); }, -1, 1, 0.04 * gear, v => (v >= 0 ? '+' : '') + Math.round(v * 100)),
-      list('INK COLOUR', () => E.col, v => { E.col = v; dirty.etch = true; }, ETCH_COLS.map(c => c[0]))
+      list('1 · SURFACE', () => E.surface, v => { E.surface = v; dirty.etch = true; }, ['CAKE TOP', 'CAKE SIDE', 'TABLETOP', '3D AIR']),
+      list('2 · PHRASE', () => E.phrase, v => { if (v === 6) { E.pts = []; E.phrase = 0; } else E.phrase = v; dirty.etch = true; }, ['FREEHAND', 'HAPPY BDAY', 'CHINESE', '6·10·21', 'MAKE WISH', 'STELLINE', 'CLEAR']),
+      num('3 · ETCH X', () => E.x, v => { pushEtchStep(v - E.x, 0); }, -1, 1, 0.04 * gear, v => (v >= 0 ? '+' : '') + Math.round(v * 100)),
+      num('4 · ETCH Y', () => E.y, v => { pushEtchStep(0, v - E.y); }, -1, 1, 0.04 * gear, v => (v >= 0 ? '+' : '') + Math.round(v * 100)),
+      list('5 · COLOR', () => E.col, v => { E.col = v; dirty.etch = true; }, ['ROSE', 'CREAM', 'GOLD', 'CHOC', 'CYAN', 'EMBER'])
     ];
   }
-  if (S.mode === 'LIGHT') {
-    const V = S.view, P = Object.keys(VIEWS);
-    return [
-      list('CAMERA SHOT', () => Math.max(0, P.indexOf(V.preset)), v => setView(P[v]), P),
-      num('LIGHT ORBIT', () => Lt.a, v => { Lt.a = v; }, -180, 180, 8 * gear, v => Math.round(v) + '°', true),
-      num('LIGHT ELEV', () => Lt.h, v => { Lt.h = v; }, 0.1, 1.8, 0.05 * gear, v => Math.round(v * 100) + ' CM'),
-      num('WARMTH', () => Lt.warm, v => { Lt.warm = v; }, 0, 1, 0.05, v => Math.round(lerp(6500, 2200, v) / 100) * 100 + ' K'),
-      list('FLAMES', () => DOC.hero.lit, v => { DOC.hero.lit = v; dirty.hero = true; }, ['BLOWN OUT', 'ALL LIT'])
-    ];
-  }
-  if (S.mode === 'SCION') {
-    const ev = evaluateScionMemory();
-    return [
-      list('SWARM ACTION', () => S.scionActIdx || 0, v => { S.scionActIdx = v; runScionRingAction(v); }, ['INSPECT SCORE (' + ev.total + ')', 'REPAIR GAP', 'SWARM AUTO-BUILD', 'FORK MUTATION', 'MASHUP RANDOM']),
-      list('MATTE MODE', () => S.matteIdx || 0, v => { S.matteIdx = v; S.matteMode = ['CUTOUT', 'POLAROID', 'RAW'][v]; say('IMPORT MATTE · ' + S.matteMode); }, ['AUTO CUTOUT', 'POLAROID FRAME', 'RAW ALPHA']),
-      list('CHECKPOINT', () => S.ckptRingIdx || 0, v => { S.ckptRingIdx = v; if (v === 1) savePeakCheckpoint(); else if (v === 2) restorePeakCheckpoint(); }, ['CURRENT STATE', 'SAVE PEAK', 'RESTORE PEAK']),
-      list('REMIX SOURCE', () => S.tizitaIdx || 0, v => { S.tizitaIdx = v; forkBirthdayFromChapter(v, false); }, TIZITA_CHAPTERS.map(c => 'FORK ' + c.title.slice(0, 16))),
-      list('SHARE / EXPORT', () => 0, v => { if (v === 1) copyBirthdayShareLink(); else if (v === 2) exportBirthdayCartridge(); else if (v === 3) openScionModal(); }, ['READY', 'COPY SHARE URL', 'EXPORT .JSON', 'OPEN STUDIO'])
-    ];
-  }
-  // FLIGHT mode (Accordion Bellows & 6DoF Particle Flight)
+  // LIGHT / FLIGHT / SCION -> Step 4 (Light, Camera, Wish & Mist)
+  const V = S.view, P = ['EYE', 'WIDE', 'MACRO', 'SHOULDER', 'TOP'];
   return [
-    num('BELLOWS MIST', () => DOC.bellows, v => setBellows(v), 0, 1, 0.04, v => Math.round(v * 100) + '% MIST'),
-    num('SWOOP YAW', () => Fl.swoop, v => { Fl.swoop = v; S.view.yaw += v * 0.08; S.view.preset = 'FREE'; }, -2, 2, 0.1, v => (v >= 0 ? '+' : '') + v.toFixed(1) + ' RAD'),
-    num('PITCH ALT', () => S.view.pitch, v => { S.view.pitch = v; S.view.preset = 'FREE'; }, -0.25, 1.45, 0.04, v => Math.round(v * 57.3) + '°'),
-    num('BANK ROLL', () => Fl.bank, v => { Fl.bank = v; S.view.roll = v * Math.PI / 180; }, -45, 45, 3, v => (v >= 0 ? '+' : '') + Math.round(v) + '°'),
-    num('TURBULENCE', () => Fl.curl, v => { Fl.curl = v; MU.uCurl.value = v; }, 0, 1.5, 0.08, v => Math.round(v * 100) + '%')
+    list('1 · CAMERA', () => Math.max(0, P.indexOf(V.preset)), v => setView(P[v]), ['EYE VIEW', 'WIDE ROOM', 'CLOSE UP', 'SHOULDER', 'TOP MAP']),
+    num('2 · LIGHT', () => Lt.a, v => { Lt.a = v; }, -180, 180, 10 * gear, v => Math.round(v) + '°', true),
+    num('3 · WARMTH', () => Lt.warm, v => { Lt.warm = v; }, 0, 1, 0.05, v => Math.round(lerp(6500, 2200, v) / 100) * 100 + 'K'),
+    list('4 · FLAMES', () => DOC.hero.lit, v => { DOC.hero.lit = v; dirty.hero = true; }, ['BLOWN OUT', 'ALL LIT']),
+    num('5 · MIST', () => DOC.bellows, v => setBellows(v), 0, 1, 0.05, v => Math.round(v * 100) + '% MIST')
   ];
 }
 
@@ -1238,7 +1462,6 @@ OR.setPixelRatio(Math.min(2, devicePixelRatio)); OR.outputEncoding = T.sRGBEncod
 OR.toneMapping = T.ACESFilmicToneMapping; OR.toneMappingExposure = 1.06;
 orbEl.append(OR.domElement);
 const OS = new T.Scene(); OS.background = new T.Color(0x0c0e0d);
-// Near-orthographic narrow-FOV camera so the hardware deck & Tufte typography fill ~95% of #orb with zero distortion
 const OC = new T.PerspectiveCamera(13.5, 2, 0.1, 30);
 
 (function studio() {
@@ -1273,16 +1496,14 @@ const PAT = [
 const ORB = new T.Group(); OS.add(ORB);
 const alu = new T.MeshPhysicalMaterial({ color: 0xd4d1c8, metalness: 0.92, roughness: 0.28, clearcoat: 0.25 });
 const darkAlu = new T.MeshPhysicalMaterial({ color: 0x1b1e1d, metalness: 0.85, roughness: 0.42 });
-const RX = [-0.50, -0.25, 0, 0.25, 0.50], RW = 0.232, RR = 0.245, BODY = 0.225;
+const RX = [-0.50, -0.25, 0, 0.25, 0.50], RW = 0.236, RR = 0.245, BODY = 0.225;
 let LEFT_FLANGE = null, RIGHT_FLANGE = null;
 const BELLOWS_RIBS = [];
 
 (function buildOrbChassis() {
-  // Anodized lower barrel core
   const core = new T.Mesh(new T.CylinderGeometry(BODY, BODY, 2.28, 72), darkAlu);
   core.rotation.z = Math.PI / 2; core.position.y = -0.24; ORB.add(core);
 
-  // Internal copper/cyan accordion harmonic ribs (visible when bellows expand)
   for (let k = -8; k <= 8; k++) {
     const rib = new T.Mesh(
       new T.TorusGeometry(BODY + 0.006, 0.004, 8, 64),
@@ -1292,7 +1513,6 @@ const BELLOWS_RIBS = [];
     ORB.add(rib); BELLOWS_RIBS.push(rib);
   }
 
-  // Left & Right Telescoping Accordion End-Flanges (drag horizontally to expand/compress Accordion Bellows!)
   const capT = normalTex(PAT[1], 256, 64); capT.repeat.set(2, 1);
   const flangeMat = new T.MeshPhysicalMaterial({ color: 0xb8b4aa, metalness: 0.9, roughness: 0.34, normalMap: capT });
 
@@ -1309,27 +1529,25 @@ const BELLOWS_RIBS = [];
   rfIris.rotation.y = Math.PI / 2; rfIris.position.x = 0.065; RIGHT_FLANGE.add(rfIris); ORB.userData.iris = rfIris;
 })();
 
-// 5 Wide Knurled Encoder Barrels + Flat High-Contrast Tufte Data Collars (520x250px each)
+// 5 Wide Knurled Encoder Barrels + Giant-Typography Data Collars (560x280px each)
 const RINGS = [], FLAT = []; let PORTRAIT = false;
-const RING_OP_CODES = ['MOVE', 'TRIM', 'ROLL', 'LIFT', 'STORE'];
-const RING_ACCENTS = ['#e85d04', '#2a9d8f', '#1d70b8', '#2b9348', '#d62828'];
+const RING_ACCENTS = ['#e85d04', '#2a9d8f', '#1d70b8', '#2b9348', '#7209b7'];
 
 RX.forEach((x, i) => {
   const g = new T.Group(); g.position.set(x, -0.24, 0); g.userData.ring = i; ORB.add(g);
   const nt = normalTex(PAT[i], 512, 64); nt.repeat.set(2, 1);
-  const m = new T.Mesh(new T.CylinderGeometry(RR, RR, RW - 0.010, 96, 1, true), new T.MeshPhysicalMaterial({
+  const m = new T.Mesh(new T.CylinderGeometry(RR, RR, RW - 0.008, 96, 1, true), new T.MeshPhysicalMaterial({
     color: [0xd8d5ce, 0xcac7bf, 0xdcd9d2, 0xcecbc3, 0xd6d3cc][i], metalness: 0.95, roughness: 0.28, normalMap: nt, normalScale: new T.Vector2(1.3, 1.3)
   }));
   m.rotation.z = Math.PI / 2; m.userData.ring = i; g.add(m);
 
-  const lit = new T.Mesh(new T.TorusGeometry(RR + 0.002, 0.0035, 8, 96), new T.MeshBasicMaterial({ color: PLANE_HEX[i], toneMapped: false }));
+  const lit = new T.Mesh(new T.TorusGeometry(RR + 0.002, 0.004, 8, 96), new T.MeshBasicMaterial({ color: PLANE_HEX[i], toneMapped: false }));
   lit.rotation.y = Math.PI / 2; g.add(lit);
 
-  // Flat-facing Tufte Data Collar over the front of each ring for 100% un-warped legibility
-  const lc = document.createElement('canvas'); lc.width = 520; lc.height = 250;
+  const lc = document.createElement('canvas'); lc.width = 560; lc.height = 280;
   const lt = new T.CanvasTexture(lc); lt.encoding = T.sRGBEncoding; lt.anisotropy = 8;
-  const lp = new T.Mesh(new T.PlaneGeometry(RW * 0.96, RW * 0.96 * (250 / 520)), new T.MeshBasicMaterial({ map: lt, transparent: false, toneMapped: false }));
-  lp.position.set(0, 0.02, RR + 0.015);
+  const lp = new T.Mesh(new T.PlaneGeometry(RW * 0.98, RW * 0.98 * (280 / 560)), new T.MeshBasicMaterial({ map: lt, transparent: false, toneMapped: false }));
+  lp.position.set(0, 0.01, RR + 0.016);
   lp.userData.ring = i; lp.userData.keepW = true; FLAT.push(lp);
   const lg = new T.Group(); lg.position.set(x, -0.24, 0); lg.add(lp); ORB.add(lg);
   RINGS.push({ g, m, lit, ang: 0, target: 0, lc, lt, lp, lg, key: '', x0: x });
@@ -1340,62 +1558,46 @@ function drawDialLabels() {
   RINGS.forEach((R0, i) => {
     const r = RS[i], hot = i === S.lastRing || i === S.hoverRing;
     const accent = RING_ACCENTS[i];
-    const opVerb = RING_OP_CODES[i];
     const valStr = r ? String(r.f(r.v())) : '—';
-    const key = r ? (r.n + '|' + valStr + '|' + hot + '|' + DOC.bellows.toFixed(2)) : '-';
+    const key = r ? (r.n + '|' + valStr + '|' + hot) : '-';
     if (key === R0.key) return; R0.key = key;
 
-    const x = R0.lc.getContext('2d'), W = 520, H = 250;
-    // Crisp Tufte Paper-Ink Collar (inverts header when active!)
-    x.fillStyle = hot ? '#ffffff' : '#f4f1ea';
+    const x = R0.lc.getContext('2d'), W = 560, H = 280;
+    x.fillStyle = hot ? '#ffffff' : '#faf8f2';
     x.fillRect(0, 0, W, H);
-    x.strokeStyle = '#111111'; x.lineWidth = 8;
-    x.strokeRect(4, 4, W - 8, H - 8);
+    x.strokeStyle = '#111111'; x.lineWidth = 10;
+    x.strokeRect(5, 5, W - 10, H - 10);
 
-    // Top Black/Accent Header Bar
-    x.fillStyle = hot ? '#111111' : '#222625';
-    x.fillRect(8, 8, W - 16, 54);
+    // Giant Top Header Bar (74px tall, 38px Bold Typography)
+    x.fillStyle = hot ? accent : '#181b1a';
+    x.fillRect(10, 10, W - 20, 74);
     x.fillStyle = accent;
-    x.fillRect(8, 8, 88, 54);
-    x.font = '900 26px "IBM Plex Mono", Menlo, monospace';
+    x.fillRect(10, 10, 22, 74);
+    x.font = '900 38px "IBM Plex Mono", Menlo, monospace';
     x.fillStyle = '#ffffff'; x.textAlign = 'center';
-    x.fillText(opVerb, 52, 44);
-    x.textAlign = 'left'; x.font = '800 25px "IBM Plex Mono", Menlo, monospace';
-    x.fillStyle = '#ffffff';
-    x.fillText(r ? r.n.slice(0, 16) : '', 108, 44);
+    x.fillText(r ? r.n : 'RING ' + (i + 1), W / 2, 60);
 
-    // Center Main Value Readout (Massive High-Contrast Typography)
-    x.textAlign = 'center';
+    // Massive Main Value Readout (76px Bold Typography)
     x.fillStyle = '#111111';
-    let fs = 58;
+    let fs = 76;
     x.font = '900 ' + fs + 'px "IBM Plex Mono", Menlo, monospace';
-    while (x.measureText(valStr).width > W - 36 && fs > 24) {
-      fs -= 2;
+    while (x.measureText(valStr).width > W - 40 && fs > 38) {
+      fs -= 4;
       x.font = '900 ' + fs + 'px "IBM Plex Mono", Menlo, monospace';
     }
-    x.fillText(valStr, W / 2, 146);
+    x.fillText(valStr, W / 2, 178);
 
-    // Bottom Tufte Quantitative Scale + Tick Marks
+    // Bottom Quantitative Progress Bar (36px tall)
     const u = v01(r);
-    const bx = 28, by = 188, bw = W - 56, bh = 22;
+    const bx = 24, by = 216, bw = W - 48, bh = 38;
     x.fillStyle = '#dedad0'; x.fillRect(bx, by, bw, bh);
-    x.fillStyle = accent; x.fillRect(bx, by, Math.max(8, bw * u), bh);
-    x.strokeStyle = '#111111'; x.lineWidth = 3; x.strokeRect(bx, by, bw, bh);
-    for (let t = 1; t < 10; t++) {
-      const tx = bx + (bw * t) / 10;
-      x.beginPath(); x.moveTo(tx, by); x.lineTo(tx, by + (t === 5 ? bh : 8)); x.stroke();
-    }
-    // Numeric percentage / index sub-caption
-    x.font = '700 18px "IBM Plex Mono", Menlo, monospace';
-    x.fillStyle = '#444444'; x.textAlign = 'left';
-    x.fillText('R' + (i + 1) + ' KNURL', bx, 234);
-    x.textAlign = 'right';
-    x.fillText(Math.round(u * 100) + '%', bx + bw, 234);
+    x.fillStyle = accent; x.fillRect(bx, by, Math.max(14, bw * u), bh);
+    x.strokeStyle = '#111111'; x.lineWidth = 4; x.strokeRect(bx, by, bw, bh);
     R0.lt.needsUpdate = true;
   });
 }
 
-// FULL-SPAN HIGH-DPI TUFTE × TEENAGE ENGINEERING BRIDGE DISPLAY (2400 x 620 px)
+// FULL-SPAN HIGH-DPI BRIDGE DISPLAY (2400 x 620 px)
 const OLED = document.createElement('canvas'); OLED.width = 2400; OLED.height = 620;
 const ox = OLED.getContext('2d'), oledTex = new T.CanvasTexture(OLED);
 oledTex.encoding = T.sRGBEncoding; oledTex.anisotropy = 8; oledTex.minFilter = T.LinearFilter;
@@ -1404,52 +1606,44 @@ const oledBack = new T.Mesh(new T.BoxGeometry(2.34, 0.61, 0.03), darkAlu); oledG
 const oledM = new T.Mesh(new T.PlaneGeometry(2.30, 0.594), new T.MeshBasicMaterial({ map: oledTex, toneMapped: false }));
 oledM.position.z = 0.017; oledM.userData.oled = true; oledG.add(oledM);
 
-// 12 SQUARE TEENAGE-ENGINEERING MECHANICAL KEYS (6 Left Cap + 6 Right Cap)
+// ONLY 4 LARGE, UNMISTAKABLE TEENAGE-ENGINEERING MECHANICAL KEYS (2 Left Wing + 2 Right Wing)
 const BTN = {};
 function makeKeyCapTex(code, sub, accentHex, isDark) {
-  const c = document.createElement('canvas'); c.width = 280; c.height = 150;
+  const c = document.createElement('canvas'); c.width = 480; c.height = 260;
   const x = c.getContext('2d');
-  x.fillStyle = isDark ? '#141716' : '#f4f1ea';
-  x.fillRect(0, 0, 280, 150);
-  x.strokeStyle = '#111111'; x.lineWidth = 8;
-  x.strokeRect(4, 4, 272, 142);
+  x.fillStyle = isDark ? '#141716' : '#faf8f2';
+  x.fillRect(0, 0, 480, 260);
+  x.strokeStyle = '#111111'; x.lineWidth = 12;
+  x.strokeRect(6, 6, 468, 248);
   x.fillStyle = accentHex;
-  x.fillRect(8, 8, 264, 18);
-  x.font = '900 44px "IBM Plex Mono", Menlo, monospace';
+  x.fillRect(12, 12, 456, 36);
+  x.font = '900 78px "IBM Plex Mono", Menlo, monospace';
   x.fillStyle = isDark ? '#ffffff' : '#111111';
   x.textAlign = 'center';
-  x.fillText(code, 140, 82);
-  x.font = '700 22px "IBM Plex Mono", Menlo, monospace';
-  x.fillStyle = isDark ? '#8fe9dc' : '#444444';
-  x.fillText(sub, 140, 122);
-  const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.anisotropy = 4;
+  x.fillText(code, 240, 146);
+  x.font = '800 36px "IBM Plex Mono", Menlo, monospace';
+  x.fillStyle = isDark ? '#5ff0dc' : '#333333';
+  x.fillText(sub, 240, 214);
+  const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.anisotropy = 8;
   return t;
 }
 
 const KEY_DEFS = [
-  // Left 2x3 Mechanical Key Matrix (x = -0.96, -0.76)
-  ['MODE',  'CYCLE 0-7', -0.96, -0.09, '#e85d04', true],
-  ['VIEW',  'DRAFT/3D',  -0.76, -0.09, '#1d70b8', false],
-  ['ADD',   '+ CUTOUT',  -0.96, -0.24, '#2a9d8f', false],
-  ['PLACE', '+ MESS',    -0.76, -0.24, '#2b9348', false],
-  ['IMP',   'LOAD FILE', -0.96, -0.39, '#e0483a', false],
-  ['UNDO',  'STEP BACK', -0.76, -0.39, '#555555', false],
-  // Right 2x3 Mechanical Key Matrix (x = +0.76, +0.96)
-  ['MIX',   'AUDIO 1-3',  0.76, -0.09, '#e85d04', false],
-  ['CLIP',  'OLED REEL',  0.96, -0.09, '#1d70b8', false],
-  ['SWARM', 'AUTO-BUILD', 0.76, -0.24, '#2a9d8f', true],
-  ['FORK',  'REMIX GEN',  0.96, -0.24, '#7209b7', false],
-  ['PAIR',  'PHONE QR',   0.76, -0.39, '#e0483a', false],
-  ['KEEP',  'EXPORT OUT', 0.96, -0.39, '#2b9348', false]
+  // Left Wing: 2 Giant Keys (STEP 1-4 & VIEW MODE)
+  ['MODE',  'STEP 1 -> 4', -0.86, -0.13, '#e85d04', true],
+  ['VIEW',  '3D / PAPER',  -0.86, -0.35, '#1d70b8', false],
+  // Right Wing: 2 Giant Keys (AUTO BUILD & PHONE QR / SAVE)
+  ['SWARM', 'AUTO BUILD',   0.86, -0.13, '#2a9d8f', true],
+  ['PAIR',  'QR / SHARE',   0.86, -0.35, '#e0483a', false]
 ];
 
 KEY_DEFS.forEach(([n, sub, kx, ky, acc, isDark]) => {
-  const g = new T.Group(); g.position.set(kx, ky, RR + 0.01); g.userData.keepW = true; ORB.add(g);
-  const bezel = new T.Mesh(new T.BoxGeometry(0.182, 0.132, 0.03), darkAlu);
+  const g = new T.Group(); g.position.set(kx, ky, RR + 0.012); g.userData.keepW = true; ORB.add(g);
+  const bezel = new T.Mesh(new T.BoxGeometry(0.365, 0.195, 0.032), darkAlu);
   bezel.userData.btn = n; g.add(bezel);
-  const cap = new T.Mesh(new T.PlaneGeometry(0.172, 0.122), new T.MeshBasicMaterial({ map: makeKeyCapTex(n, sub, acc, isDark), toneMapped: false }));
-  cap.position.z = 0.017; cap.userData.btn = n; g.add(cap); FLAT.push(cap);
-  BTN[n] = { g, cap, z0: 0.017, down: 0 };
+  const cap = new T.Mesh(new T.PlaneGeometry(0.348, 0.180), new T.MeshBasicMaterial({ map: makeKeyCapTex(n, sub, acc, isDark), toneMapped: false }));
+  cap.position.z = 0.018; cap.userData.btn = n; g.add(cap); FLAT.push(cap);
+  BTN[n] = { g, cap, z0: 0.018, down: 0 };
 });
 
 function fitOrb() {
@@ -1483,7 +1677,7 @@ function toggleStageViewMode() {
     if (floorMesh) floorMesh.material.color.setHex(0xf0ece1);
     if (gridLines) { gridLines.material.color.setHex(0x111111); gridLines.material.opacity = 0.25; }
     setView('WIDE');
-    say('VIEW · TUFTE ARCHITECTURAL PAPER DRAFT (C-BUS)');
+    say('VIEW · TUFTE PAPER DRAFT');
   } else if (pick === 'ONION') {
     S.paperMode = true;
     scene.background.setHex(0xfaf8f2);
@@ -1492,7 +1686,7 @@ function toggleStageViewMode() {
     if (floorMesh) floorMesh.material.color.setHex(0xf4f1ea);
     if (gridLines) { gridLines.material.color.setHex(0x111111); gridLines.material.opacity = 0.35; }
     setView('ONION');
-    say('VIEW · ONION TUBE AXIAL MULTIPLANE BARREL');
+    say('VIEW · TOP MULTIPLANE MAP');
   } else {
     S.paperMode = false;
     scene.background.setHex(0x090c0b);
@@ -1501,7 +1695,7 @@ function toggleStageViewMode() {
     if (floorMesh) floorMesh.material.color.setHex(0x0b0e0d);
     if (gridLines) { gridLines.material.color.setHex(0x283632); gridLines.material.opacity = 0.42; }
     setView(pick);
-    say('VIEW · STELLINE CHAMBER (' + pick + ')');
+    say('VIEW · 3D CHAMBER (' + pick + ')');
   }
   oledDirty = true;
 }
@@ -1520,13 +1714,6 @@ function setBellows(v, fromRemote) {
   });
   fitOrb();
 
-  if (DOC.bellows > 0.72 && prev <= 0.72 && S.mode !== 'FLIGHT') {
-    setMode('FLIGHT', true);
-    say('ACCORDION OPEN · FLIGHT & SPACETIME MIST REGISTER');
-  } else if (DOC.bellows < 0.25 && prev >= 0.25 && S.mode === 'FLIGHT') {
-    setMode('HERO', true);
-    say('ACCORDION COMPRESSED · MATTER CRAFT REGISTER');
-  }
   if (Math.abs(DOC.bellows - prev) > 0.025) accordionChord(DOC.bellows, (DOC.bellows - prev) * 10);
   oledDirty = true; drawDialLabels();
   if (!fromRemote && window.REMOTE) window.REMOTE({ k: 'bellows', v: DOC.bellows });
@@ -1537,7 +1724,7 @@ function setMode(m, fromInternal) {
   S.mode = m; oledDirty = true;
   RINGS.forEach(r => r.key = '');
   drawDialLabels();
-  if (!fromInternal) say('OPERATION REGISTER · ' + m);
+  if (!fromInternal) say('STEP · ' + STEP_TITLES[getStepIndex()]);
 }
 
 let orbPitchV = 0; ORB.rotation.x = 0.0;
@@ -1575,8 +1762,8 @@ function scrub(i, frac, fromRemote) {
 function press(b, long, fromRemote) {
   tick('press'); ORB.push(b);
   if (b === 'MODE') {
-    const idx = (MODES.indexOf(S.mode) + 1) % MODES.length;
-    setMode(MODES[idx]);
+    const nextStep = (getStepIndex() + 1) % STEP_MODES.length;
+    setMode(STEP_MODES[nextStep]);
   } else if (b === 'VIEW') {
     toggleStageViewMode();
   } else if (b === 'PLACE') {
@@ -1585,7 +1772,7 @@ function press(b, long, fromRemote) {
     DOC.props.push({ kind: i % PROP_KINDS.length, a: Math.random() * TAU, r: 0.22 + Math.random() * 0.30, rot: Math.random() * TAU, s: 0.92 + Math.random() * 0.22 });
     S.propIdx = DOC.props.length - 1; dirty.props = true;
     motionNote((i % 10) / 10, Math.sin(DOC.props[S.propIdx].a), 0.35);
-    say('PLACED ON TABLE · ' + PROP_KINDS[DOC.props[S.propIdx].kind] + ' (' + DOC.props.length + ' ITEMS)');
+    say('ADDED TABLE MESS · ' + PROP_KINDS[DOC.props[S.propIdx].kind]);
   } else if (b === 'IMP') {
     const fi = document.getElementById('fileImporter');
     if (long || !fi) spawnDemoCustomAsset();
@@ -1600,33 +1787,19 @@ function press(b, long, fromRemote) {
     if (typeof forkBirthdayFromChapter === 'function') forkBirthdayFromChapter((S.tizitaIdx + 1) % TIZITA_CHAPTERS.length, false);
   } else if (b === 'ADD') {
     snap(true);
-    if (S.mode === 'CAST') {
-      const nextClip = (DOC.cutouts.length * 3 + 5) % CUTOUT_CLIPS.length;
-      const info = CUTOUT_CLIPS[nextClip];
-      DOC.cutouts.push({ clip: nextClip, a: (Math.random() - 0.5) * 2.2 + Math.PI, plane: info.plane, face: 0, s: 1, speed: 1 });
-      S.castIdx = DOC.cutouts.length - 1;
-      say('ADDED CUTOUT · ' + info.name);
-    } else if (S.mode === 'MESS') {
-      const i = DOC.props.length;
-      DOC.props.push({ kind: i % PROP_KINDS.length, a: Math.random() * TAU, r: 0.2 + Math.random() * 0.34, rot: Math.random() * TAU, s: 0.9 + Math.random() * 0.25 });
-      S.propIdx = DOC.props.length - 1; dirty.props = true;
-      say('ADDED TABLE PROP · ' + PROP_KINDS[DOC.props[S.propIdx].kind]);
-    } else if (S.mode === 'ETCH') {
-      for (let t = 0; t <= 24; t++) { const a = t / 24 * TAU; pushEtchStep(Math.cos(a) * 0.08, Math.sin(a) * 0.08); }
-      say('ETCHED ROSETTE RING');
-    } else {
-      const nextClip = (DOC.cutouts.length * 3 + 1) % CUTOUT_CLIPS.length;
-      const info = CUTOUT_CLIPS[nextClip];
-      DOC.cutouts.push({ clip: nextClip, a: (Math.random() - 0.5) * 2.0 + Math.PI, plane: info.plane, face: 0, s: 1, speed: 1 });
-      S.castIdx = DOC.cutouts.length - 1;
-      say('ADDED CUTOUT · ' + info.name);
-    }
+    const nextClip = (DOC.cutouts.length * 2 + 1) % 14;
+    const info = CUTOUT_CLIPS[nextClip];
+    const angle = (Math.PI - 1.1 + DOC.cutouts.length * 0.55) % TAU;
+    DOC.cutouts.push({ clip: nextClip, a: angle, plane: info.plane || 1, face: 0, s: 1, speed: 1 });
+    S.castIdx = DOC.cutouts.length - 1;
+    setMode('CAST', true);
+    say('ADDED PERSON · P' + DOC.cutouts.length + ' ' + info.short);
   } else if (b === 'DEL') {
     snap(true);
     if (DOC.cutouts.length > 1) {
       const rem = DOC.cutouts.splice(S.castIdx, 1)[0];
       S.castIdx = Math.max(0, S.castIdx - 1);
-      say('REMOVED CUTOUT · ' + CUTOUT_CLIPS[rem.clip].name);
+      say('REMOVED · ' + CUTOUT_CLIPS[rem.clip].short);
     }
   } else if (b === 'UNDO') {
     const from = long ? REDO : UNDO, to = long ? UNDO : REDO, s = from.pop();
@@ -1722,7 +1895,7 @@ const PAIR = (function () {
         S.showQrOnOled = false;
         resize();
       }
-      if (!was) say('PHONE CONTROLLER PAIRED · FULL STAGE ACTIVE');
+      if (!was) say('PHONE CONTROLLER PAIRED');
     }
     if (m.type === 'act') {
       if (m.k === 'turn') turn(m.i, m.steps, true);
@@ -1758,9 +1931,9 @@ const PAIR = (function () {
           for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) cx.fillRect((c + 1) * cell, (r + 1) * cell, cell, cell);
           qrCanvasCache = cv;
         } catch (e) {}
-        say('DIEGETIC QR ACTIVE ON BRIDGE DISPLAY · ROOM ' + room);
+        say('SCAN QR CODE ON RIGHT PANEL · ROOM ' + room);
       } else {
-        say('DIEGETIC QR CLOSED');
+        say('QR PANEL CLOSED');
       }
       oledDirty = true;
     },
@@ -1771,7 +1944,7 @@ const PAIR = (function () {
   return P;
 })();
 
-/* =============================================================== 14. DIEGETIC INTERACTION: OLED RAYCAST ZONES, RINGS, KEYS & 3D STAGE */
+/* =============================================================== 14. DIEGETIC INTERACTION: 3-PANEL BRIDGE DISPLAY, RINGS, KEYS & 3D STAGE */
 const oray = new T.Raycaster(), ondc = new T.Vector2(); let odrag = null; const optrs = new Map();
 function orbHit(e) {
   const r = OR.domElement.getBoundingClientRect();
@@ -1788,112 +1961,108 @@ function orbHit(e) {
   return o ? o.userData : null;
 }
 
-// Handle direct clicks & drags inside the 4 zones of the 2400x620 Bridge Display!
+// Handle direct clicks & drags inside the 3 spacious panels of the 2400x620 Bridge Display
 function handleOledClick(px, py, isDrag) {
-  // ZONE 1 (px: 0..550): Optical Monitor, Loupe, Futures Cone & Audio Mix
-  if (px < 550) {
+  // TOP GUIDED 4-STEP BAR (py: 0..86)
+  if (py < 86) {
     if (isDrag) return;
-    if (py < 430) {
-      cycleMonitorClip();
-    } else if (py < 525) {
-      const fIdx = clamp(Math.floor((px - 14) / 130), 0, 3);
-      S.futuresMode = FUTURES_MODES[fIdx];
-      const targetMist = [0.0, 0.08, 0.22, 0.48][fIdx];
-      setBellows(targetMist);
-      say('FUTURES CONE · ' + S.futuresMode + ' (' + Math.round(targetMist * 100) + '% MIST)');
+    tick('press');
+    if (px < 1940) {
+      const sIdx = clamp(Math.floor(px / 485), 0, 3);
+      setMode(STEP_MODES[sIdx]);
     } else {
-      cycleAudioMix();
+      if (typeof toggleV2GModal === 'function') toggleV2GModal();
     }
-    oledDirty = true;
+    oledDirty = true; drawDialLabels();
     return;
   }
 
-  // ZONE 2 (px: 550..1240): Concentric Onion Tube (c-bus) Multiplane Radar + Bound Verb Strip
-  if (px >= 550 && px < 1240) {
-    const cx = 895, cy = 268, maxR = 218;
-    if (py >= 522 && !isDrag) {
-      // Bottom bound verb strip: MOVE | TRIM | ROLL | LIFT | SPLIT | ROUTE | STORE
-      const verbs = ['MOVE', 'TRIM', 'ROLL', 'LIFT', 'SPLIT', 'ROUTE', 'STORE'];
-      const vIdx = clamp(Math.floor((px - 564) / ((1226 - 564) / 7)), 0, 6);
-      const vb = verbs[vIdx];
+  // PANEL 1 — LEFT (px: 0..740): Live Film Monitor + 2 Big Action Pads
+  if (px < 740) {
+    if (isDrag) return;
+    tick('press');
+    if (py < 425) {
+      cycleMonitorClip();
+    } else if (py >= 520) {
+      if (px < 370) spawnDemoCustomAsset();
+      else cycleAudioMix();
+    } else {
+      loadTizitaChapter((S.tizitaIdx + 1) % TIZITA_CHAPTERS.length);
+    }
+    oledDirty = true; drawDialLabels();
+    return;
+  }
+
+  // PANEL 2 — CENTER (px: 740..1500): Interactive Tabletop & Multiplane Map (P1..P6)
+  if (px >= 740 && px < 1500) {
+    const cx = 1120, cy = 304;
+    if (py >= 520 && !isDrag) {
       tick('press');
-      if (vb === 'MOVE') { setMode('CAST'); S.lastRing = 0; say('BOUND · MOVE CUTOUT AROUND TABLE'); }
-      else if (vb === 'TRIM') { setMode('CAST'); S.lastRing = 4; say('BOUND · TRIM CUTOUT SCALE / SPEED'); }
-      else if (vb === 'ROLL') { setMode('CAST'); S.lastRing = 2; turn(2, 3); say('BOUND · ROLL AZIMUTH +15°'); }
-      else if (vb === 'LIFT') {
-        setMode('CAST');
-        const c = DOC.cutouts[S.castIdx];
-        if (c) { c.plane = (c.plane + 1) % PLANE_Z.length; say('BOUND · LIFT TO ' + PLANE_NAMES[c.plane]); }
+      const btnIdx = clamp(Math.floor((px - 756) / 244), 0, 2);
+      if (btnIdx === 0) press('ADD');
+      else if (btnIdx === 1) press('PLACE');
+      else {
+        DOC.hero.lit = DOC.hero.lit ? 0 : 1;
+        dirty.hero = true;
+        motionNote(DOC.hero.lit ? 0.85 : 0.25, 0, 0.45);
+        say(DOC.hero.lit ? 'CANDLES RELIT!' : 'WISH MADE · CANDLES BLOWN OUT!');
       }
-      else if (vb === 'SPLIT') { press('ADD'); }
-      else if (vb === 'ROUTE') { loadTizitaChapter((S.tizitaIdx + 1) % TIZITA_CHAPTERS.length); }
-      else if (vb === 'STORE') { if (typeof savePeakCheckpoint === 'function') savePeakCheckpoint(); }
       oledDirty = true; drawDialLabels();
       return;
     }
-    // Inside the circular Onion Tube radar: select or drag cutout angle & depth ring!
+
+    // Drag or click Person P1..P6 around the table map!
     const dx = px - cx, dy = py - cy;
     const dist = Math.hypot(dx, dy);
-    const ang = Math.atan2(dx, dy); // matches Math.sin(a), Math.cos(a)
-    let bestP = 0, bestD = 999;
-    PLANE_Z.forEach((z, pi) => {
-      const rPx = 38 + pi * 33;
+    const ang = Math.atan2(dx, dy);
+    let bestP = 1, bestD = 999;
+    for (let pi = 0; pi < 5; pi++) {
+      const rPx = 56 + pi * 34;
       if (Math.abs(dist - rPx) < bestD) { bestD = Math.abs(dist - rPx); bestP = pi; }
-    });
+    }
     if (!isDrag) {
-      // Find closest cutout in radar
       let bestC = S.castIdx, minDist = 999;
       DOC.cutouts.forEach((c, idx) => {
-        const rPx = 38 + clamp(c.plane || 0, 0, 5) * 33;
+        const rPx = 56 + clamp(c.plane || 0, 0, 4) * 34;
         const ux = cx + Math.sin(c.a) * rPx, uy = cy + Math.cos(c.a) * rPx;
         const d = Math.hypot(px - ux, py - uy);
         if (d < minDist) { minDist = d; bestC = idx; }
       });
-      if (minDist < 48) {
+      if (minDist < 62) {
         S.castIdx = bestC; setMode('CAST', true);
-        say('SELECTED ' + CUTOUT_CLIPS[DOC.cutouts[bestC].clip].name);
+        say('SELECTED P' + (bestC + 1) + ' · ' + CUTOUT_CLIPS[DOC.cutouts[bestC].clip].name);
       } else if (DOC.cutouts[S.castIdx]) {
         DOC.cutouts[S.castIdx].a = ang;
         DOC.cutouts[S.castIdx].plane = bestP;
-        motionNote(((ang % TAU) + TAU) % TAU / TAU, clamp(dx / maxR, -1, 1), 0.3);
+        motionNote(((ang % TAU) + TAU) % TAU / TAU, clamp(dx / 200, -1, 1), 0.3);
       }
     } else if (DOC.cutouts[S.castIdx]) {
       DOC.cutouts[S.castIdx].a = ang;
       DOC.cutouts[S.castIdx].plane = bestP;
-      motionNote(((ang % TAU) + TAU) % TAU / TAU, clamp(dx / maxR, -1, 1), 0.25);
+      motionNote(((ang % TAU) + TAU) % TAU / TAU, clamp(dx / 200, -1, 1), 0.25);
     }
     oledDirty = true; drawDialLabels();
     return;
   }
 
-  // ZONE 3 (px: 1240..1830): Birthday Chapter Header, SCION 5-Invariant Bars, Spectrum & Diegetic Action Pads
-  if (px >= 1240 && px < 1830 && !isDrag) {
+  // PANEL 3 — RIGHT (px: 1500..2400): 5 Giant Ring Control Rows (R1..R5) or QR Panel
+  if (px >= 1500 && !isDrag) {
     tick('press');
-    if (S.showQrOnOled) { S.showQrOnOled = false; oledDirty = true; return; }
-    if (py < 110) {
-      loadTizitaChapter((S.tizitaIdx + 1) % TIZITA_CHAPTERS.length);
-    } else if (py < 410) {
-      if (typeof scionRepairPrimaryGap === 'function') scionRepairPrimaryGap();
-    } else if (py >= 515) {
-      const actIdx = clamp(Math.floor((px - 1252) / 140), 0, 3);
-      if (actIdx === 0 && typeof scionSwarmAutoBuild === 'function') scionSwarmAutoBuild();
-      else if (actIdx === 1 && typeof savePeakCheckpoint === 'function') savePeakCheckpoint();
-      else if (actIdx === 2 && typeof forkBirthdayFromChapter === 'function') forkBirthdayFromChapter((S.tizitaIdx + 1) % TIZITA_CHAPTERS.length, false);
-      else if (actIdx === 3 && typeof spawnDemoCustomAsset === 'function') spawnDemoCustomAsset();
+    if (S.showQrOnOled && py < 520) {
+      S.showQrOnOled = false; oledDirty = true; return;
     }
-    oledDirty = true; drawDialLabels();
-    return;
-  }
-
-  // ZONE 4 (px: 1830..2400): LIVE BOUND OPERATIONS 8-Row Table
-  if (px >= 1830 && !isDrag) {
-    if (py >= 58 && py < 538) {
-      const rowIdx = clamp(Math.floor((py - 58) / 60), 0, MODES.length - 1);
-      tick('press');
-      setMode(MODES[rowIdx]);
-    } else if (py >= 538) {
-      if (px < 2115) press('IMP');
-      else press('KEEP');
+    if (py >= 94 && py < 514) {
+      const rIdx = clamp(Math.floor((py - 94) / 84), 0, 4);
+      const stepDir = px < 1950 ? -1 : 1;
+      turn(rIdx, stepDir);
+    } else if (py >= 520) {
+      if (px < 1800) {
+        if (typeof scionSwarmAutoBuild === 'function') scionSwarmAutoBuild();
+      } else if (px < 2150) {
+        if (typeof toggleV2GModal === 'function') toggleV2GModal(true);
+      } else {
+        PAIR.open();
+      }
     }
     oledDirty = true; drawDialLabels();
   }
@@ -1958,7 +2127,7 @@ OR.domElement.addEventListener('wheel', e => {
   if (u.ring != null) turn(u.ring, e.deltaY < 0 ? 1 : -1);
 }, { passive: false });
 
-// Direct 3D Room Manipulation: Drag Cutouts around table/planes, Drag Props on tabletop, or Orbit Camera!
+// Direct 3D Room Manipulation: Drag Cardboard Standees around table, Drag Props, or Orbit Camera
 const rray = new T.Raycaster(), rndc = new T.Vector2(), floorPlane = new T.Plane(new T.Vector3(0, 1, 0), -TOP);
 let rdrag = null;
 R.domElement.addEventListener('contextmenu', e => e.preventDefault());
@@ -1974,7 +2143,7 @@ R.domElement.addEventListener('pointerdown', e => {
     if (o && o.userData.cutoutIdx != null) {
       S.castIdx = o.userData.cutoutIdx; setMode('CAST', true);
       rdrag = { kind: 'cutout', idx: S.castIdx };
-      say('DRAGGING CUTOUT · ' + CUTOUT_CLIPS[DOC.cutouts[S.castIdx].clip].name);
+      say('MOVING P' + (S.castIdx + 1) + ' · ' + CUTOUT_CLIPS[DOC.cutouts[S.castIdx].clip].name);
       return;
     }
   }
@@ -1982,9 +2151,9 @@ R.domElement.addEventListener('pointerdown', e => {
   if (pHits.length) {
     let o = pHits[0].object; while (o && o.userData.propIdx == null) o = o.parent;
     if (o && o.userData.propIdx != null) {
-      S.propIdx = o.userData.propIdx; setMode('MESS', true);
+      S.propIdx = o.userData.propIdx;
       rdrag = { kind: 'prop', idx: S.propIdx };
-      say('DRAGGING PROP · ' + PROP_KINDS[DOC.props[S.propIdx].kind]);
+      say('MOVING TABLE ITEM · ' + PROP_KINDS[DOC.props[S.propIdx].kind]);
       return;
     }
   }
@@ -2040,305 +2209,221 @@ addEventListener('keydown', e => {
   else if (e.key === 'p' || e.key === 'P') PAIR.open();
 });
 
-/* =============================================================== 15. TUFTE × TEENAGE ENGINEERING 2400x620 BRIDGE DISPLAY */
+/* =============================================================== 15. HIGH-LEGIBILITY 3-PANEL BRIDGE DISPLAY (2400x620) */
 function drawOLED() {
   const W = OLED.width, H = OLED.height, x = ox;
-  // High-Contrast Architectural Paper Canvas (#FAF8F2) with Brutalist 3px Black Framing
   x.fillStyle = '#faf8f2'; x.fillRect(0, 0, W, H);
-  x.strokeStyle = '#111111'; x.lineWidth = 6; x.strokeRect(3, 3, W - 6, H - 6);
+  x.strokeStyle = '#111111'; x.lineWidth = 8; x.strokeRect(4, 4, W - 8, H - 8);
 
   const ch = TIZITA_CHAPTERS[S.tizitaIdx || 0];
   const clipInfo = MONITOR_CLIPS[curClipIdx] || MONITOR_CLIPS[0];
-  const activeCut = DOC.cutouts[S.castIdx] || DOC.cutouts[0];
-  const activeClipObj = activeCut ? CUTOUT_CLIPS[clamp(activeCut.clip, 0, CUTOUT_CLIPS.length - 1)] : CUTOUT_CLIPS[0];
+  const curStep = getStepIndex();
+  const ev = typeof evaluateScionMemory === 'function' ? evaluateScionMemory() : { total: 94, verdict: 'BAR MET' };
 
   // =========================================================================
-  // ZONE 1 (x: 0..550): OPTICAL MONITOR, SC-0XX LOUPE & FUTURES CONE BAR
+  // TOP GUIDED 4-STEP BAR (y: 0..84) — LARGE, EFFORTLESS TO READ & CLICK
   // =========================================================================
-  x.strokeStyle = '#111111'; x.lineWidth = 4;
-  x.beginPath(); x.moveTo(550, 0); x.lineTo(550, H); x.stroke();
+  x.fillStyle = '#181b1a'; x.fillRect(4, 4, W - 8, 82);
+  STEP_TITLES.forEach((stTitle, si) => {
+    const sx = 12 + si * 482, sy = 12, sw = 472, sh = 66;
+    const on = si === curStep;
+    x.fillStyle = on ? '#e85d04' : '#faf8f2';
+    x.fillRect(sx, sy, sw, sh);
+    x.strokeStyle = '#111111'; x.lineWidth = 4; x.strokeRect(sx, sy, sw, sh);
+    x.font = '900 34px "IBM Plex Mono", Menlo, monospace';
+    x.fillStyle = on ? '#ffffff' : '#111111';
+    x.textAlign = 'center';
+    x.fillText(stTitle, sx + sw / 2, sy + 45);
+  });
 
-  // Top Brutalist Callout Header (F1 · HOLD 2x POSSIBLE + Red Timecode Badge)
-  x.fillStyle = '#111111'; x.fillRect(14, 14, 376, 52);
-  x.font = '900 22px "IBM Plex Mono", Menlo, monospace'; x.fillStyle = '#ffffff'; x.textAlign = 'left';
-  x.fillText('F' + ((S.tizitaIdx || 0) + 1) + ' · ' + S.futuresMode + ' · ' + clipInfo.label.slice(0, 16), 24, 47);
-  // Vermilion Timecode Badge (00:57:00)
-  x.fillStyle = '#e0483a'; x.fillRect(398, 14, 138, 52);
-  x.fillStyle = '#ffffff'; x.textAlign = 'center'; x.font = '900 23px "IBM Plex Mono", Menlo, monospace';
-  const tcSec = Math.floor(oledVideo && oledVideo.currentTime ? oledVideo.currentTime : NOW) % 60;
-  x.fillText('00:57:' + String(tcSec).padStart(2, '0'), 467, 47);
+  // Rightmost Score / Auto-Build Pill (x: 1944..2388)
+  x.fillStyle = ev.total >= 88 ? '#2b9348' : '#2a9d8f';
+  x.fillRect(1944, 12, 442, 66);
+  x.strokeStyle = '#111111'; x.lineWidth = 4; x.strokeRect(1944, 12, 442, 66);
+  x.font = '900 32px "IBM Plex Mono", Menlo, monospace';
+  x.fillStyle = '#ffffff'; x.textAlign = 'center';
+  x.fillText('V2G PROMPTS · ' + ev.total + 'PT', 2165, 57);
 
-  // Optical Video Monitor (x: 14..536, y: 74..416)
-  const vx = 14, vy = 74, vw = 522, vh = 342;
+  // =========================================================================
+  // PANEL 1 — LEFT (x: 0..740, y: 86..620): FILM MONITOR & PLAIN-ENGLISH GUIDE
+  // =========================================================================
+  x.strokeStyle = '#111111'; x.lineWidth = 6;
+  x.beginPath(); x.moveTo(740, 86); x.lineTo(740, H); x.stroke();
+
+  // Live Stelline Film Monitor (x: 20..720, y: 100..418)
+  const vx = 20, vy = 100, vw = 700, vh = 318;
   x.fillStyle = '#0c100f'; x.fillRect(vx, vy, vw, vh);
   try {
-    const walkTex = baseCutoutTex['stelline_walk'] || getCutoutBaseTex(0, () => {});
-    if (oledVideo && oledVideo.readyState >= 2 && oledVideo.currentTime > 0.3) {
+    if (oledVideo && oledVideo.readyState >= 2 && oledVideo.currentTime > 0.2) {
       x.drawImage(oledVideo, vx, vy, vw, vh);
-    } else if (walkTex && walkTex.image) {
-      const fw = walkTex.image.width / 8, fh = walkTex.image.height, fi = Math.floor(NOW * 6) % 8;
-      x.drawImage(walkTex.image, fi * fw, 0, fw, fh, vx + 80, vy + 8, vw - 160, vh - 16);
     }
   } catch (e) {}
-  x.strokeStyle = '#111111'; x.lineWidth = 4; x.strokeRect(vx, vy, vw, vh);
+  x.strokeStyle = '#111111'; x.lineWidth = 5; x.strokeRect(vx, vy, vw, vh);
 
-  // Top-Right Cutout Loupe Box (SC-0XX) overlapping the monitor corner (c-bus style!)
-  if (activeCut && activeClipObj) {
-    const lx = vx + vw - 168, ly = vy + 10, lw = 158, lh = 142;
-    x.fillStyle = '#faf8f2'; x.fillRect(lx, ly, lw, lh);
-    x.strokeStyle = '#111111'; x.lineWidth = 4; x.strokeRect(lx, ly, lw, lh);
-    const bTex = baseCutoutTex[activeClipObj.id];
-    if (bTex && bTex.image) {
-      const fw = bTex.image.width / (activeClipObj.frames || 1), fh = bTex.image.height;
-      const fIdx = Math.floor(NOW * (activeClipObj.fps || 8)) % (activeClipObj.frames || 1);
-      x.drawImage(bTex.image, fIdx * fw, 0, fw, fh, lx + 12, ly + 26, lw - 24, lh - 34);
-    }
-    x.fillStyle = '#111111'; x.fillRect(lx + lw - 86, ly, 86, 26);
-    x.fillStyle = '#ffffff'; x.font = '900 17px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
-    x.fillText('SC-' + String(activeCut.clip + 1).padStart(3, '0'), lx + lw - 43, ly + 19);
-  }
+  // Top-left Chapter & Clip Pill inside Monitor
+  x.fillStyle = 'rgba(17, 17, 17, 0.88)'; x.fillRect(vx + 8, vy + 8, 520, 44);
+  x.font = '900 24px "IBM Plex Mono", Menlo, monospace'; x.fillStyle = '#f6c978'; x.textAlign = 'left';
+  x.fillText(ch.title.slice(0, 28), vx + 20, vy + 38);
 
-  // Dialogue Subtitle Bar inside bottom of Monitor
-  x.fillStyle = 'rgba(17, 17, 17, 0.86)'; x.fillRect(vx + 2, vy + vh - 38, vw - 4, 36);
-  x.fillStyle = '#faf8f2'; x.font = '700 17px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'left';
-  x.fillText(clipInfo.quote.slice(0, 46), vx + 12, vy + vh - 14);
+  // Bottom Subtitle Bar inside Monitor (26px Bold)
+  x.fillStyle = 'rgba(17, 17, 17, 0.88)'; x.fillRect(vx + 4, vy + vh - 48, vw - 8, 44);
+  x.fillStyle = '#ffffff'; x.font = '800 24px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'left';
+  x.fillText(clipInfo.quote.slice(0, 42), vx + 16, vy + vh - 18);
 
-  // Futures Cone Selector Strip (y: 428..490): POSSIBLE | PLAUSIBLE | PROBABLE | PREFERRED
-  const fw = 127;
-  FUTURES_MODES.forEach((fm, idx) => {
-    const fx = 14 + idx * (fw + 4), fy = 428, fh = 56;
-    const on = S.futuresMode === fm;
-    x.fillStyle = on ? '#111111' : '#ffffff';
-    x.fillRect(fx, fy, fw, fh);
-    x.strokeStyle = '#111111'; x.lineWidth = 3; x.strokeRect(fx, fy, fw, fh);
-    x.fillStyle = on ? '#ffffff' : '#111111';
-    x.font = '900 18px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
-    x.fillText(fm, fx + fw / 2, fy + 35);
-  });
+  // Plain-English Guide Banner (y: 430..512)
+  x.fillStyle = '#f0ece1'; x.fillRect(20, 430, 700, 82);
+  x.strokeStyle = '#111111'; x.lineWidth = 4; x.strokeRect(20, 430, 700, 82);
+  x.fillStyle = '#e85d04'; x.fillRect(20, 430, 14, 82);
+  x.font = '900 25px "IBM Plex Mono", Menlo, monospace'; x.fillStyle = '#111111'; x.textAlign = 'left';
+  const guideStr = (NOW - S.msgT < 4.0 && S.msg) ? S.msg : STEP_GUIDES[curStep];
+  x.fillText(guideStr.slice(0, 42), 46, 466);
+  x.font = '700 22px "IBM Plex Mono", Menlo, monospace'; x.fillStyle = '#444444';
+  x.fillText(guideStr.slice(42, 86) || ('STORY: ' + ch.title.slice(5, 36) + ' [TAP FOR NEXT]'), 46, 498);
 
-  // Bottom Audio Mix & Layer Strip (y: 496..602)
-  x.fillStyle = '#111111'; x.fillRect(14, 498, 522, 46);
-  x.fillStyle = '#f6c978'; x.font = '900 19px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'left';
-  x.fillText(AUDIO_MIXES[curMixIdx].label + ' [CLICK TO CYCLE]', 26, 527);
+  // 2 Giant Action Pads at Bottom of Panel 1 (y: 524..604)
+  x.fillStyle = '#e85d04'; x.fillRect(20, 524, 342, 80);
+  x.strokeStyle = '#111111'; x.lineWidth = 4; x.strokeRect(20, 524, 342, 80);
+  x.fillStyle = '#ffffff'; x.font = '900 28px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
+  x.fillText('+ ADD PHOTO', 191, 574);
 
-  x.fillStyle = '#eae6dc'; x.fillRect(14, 552, 522, 50);
-  x.strokeStyle = '#111111'; x.lineWidth = 2; x.strokeRect(14, 552, 522, 50);
-  x.fillStyle = '#111111'; x.font = '800 18px "IBM Plex Mono", Menlo, monospace';
-  const statusStr = (NOW - S.msgT < 4.5 && S.msg) ? S.msg : ch.lyric;
-  x.fillText(statusStr.slice(0, 48), 24, 583);
+  x.fillStyle = '#181b1a'; x.fillRect(378, 524, 342, 80);
+  x.strokeStyle = '#111111'; x.lineWidth = 4; x.strokeRect(378, 524, 342, 80);
+  x.fillStyle = '#f6c978'; x.font = '900 28px "IBM Plex Mono", Menlo, monospace';
+  const shortMix = ['SYNTH', 'SOUL MIX', 'DIALOGUE', 'ANTHEM'][curMixIdx] || 'MUSIC';
+  x.fillText('MUSIC: ' + shortMix, 549, 574);
 
   // =========================================================================
-  // ZONE 2 (x: 550..1240): CONCENTRIC ONION TUBE (C-BUS) MULTIPLANE RADAR
+  // PANEL 2 — CENTER (x: 740..1500, y: 86..620): TABLETOP & PEOPLE MAP
   // =========================================================================
-  x.strokeStyle = '#111111'; x.lineWidth = 4;
-  x.beginPath(); x.moveTo(1240, 0); x.lineTo(1240, H); x.stroke();
+  x.strokeStyle = '#111111'; x.lineWidth = 6;
+  x.beginPath(); x.moveTo(1500, 86); x.lineTo(1500, H); x.stroke();
 
-  const rcx = 895, rcy = 268;
-  // Architectural millimeter graph grid inside Zone 2
-  x.strokeStyle = '#e5e0d4'; x.lineWidth = 1;
-  for (let gx = 565; gx < 1235; gx += 28) { x.beginPath(); x.moveTo(gx, 10); x.lineTo(gx, 515); x.stroke(); }
-  for (let gy = 14; gy < 515; gy += 28) { x.beginPath(); x.moveTo(555, gy); x.lineTo(1235, gy); x.stroke(); }
+  const rcx = 1120, rcy = 304;
+  // Subtle graph grid
+  x.strokeStyle = '#e5e0d4'; x.lineWidth = 1.5;
+  for (let gx = 768; gx < 1490; gx += 36) { x.beginPath(); x.moveTo(gx, 92); x.lineTo(gx, 514); x.stroke(); }
+  for (let gy = 104; gy < 514; gy += 36) { x.beginPath(); x.moveTo(748, gy); x.lineTo(1490, gy); x.stroke(); }
 
-  // Perspective vanishing rays from center toward top-right loupe (exact c-bus tunnel rays!)
-  x.save();
-  x.strokeStyle = 'rgba(29, 112, 184, 0.25)'; x.lineWidth = 1.5;
-  for (let k = -4; k <= 4; k++) {
-    x.beginPath(); x.moveTo(rcx, rcy); x.lineTo(1235, 70 + k * 22); x.stroke();
-  }
-  x.restore();
+  // Map Title Pill at Top of Panel 2
+  x.fillStyle = '#181b1a'; x.fillRect(760, 96, 720, 44);
+  x.fillStyle = '#ffffff'; x.font = '900 26px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
+  x.fillText('TABLE MAP · DRAG P1–P' + DOC.cutouts.length + ' AROUND CAKE', rcx, 127);
 
-  // 6 Concentric Multiplane Rings (Z1..Z6)
-  PLANE_Z.forEach((zVal, pi) => {
-    const rad = 38 + pi * 33;
+  // 4 Concentric Depth Rings (Z1..Z4) + Center Cake Disk
+  for (let pi = 0; pi < 4; pi++) {
+    const rad = 56 + pi * 34;
     x.strokeStyle = PLANE_CSS[pi];
-    x.lineWidth = (activeCut && activeCut.plane === pi) ? 4.5 : 2.5;
+    x.lineWidth = 3.5;
     x.beginPath(); x.arc(rcx, rcy, rad, 0, TAU); x.stroke();
-  });
+  }
+  x.fillStyle = '#f2b84b'; x.beginPath(); x.arc(rcx, rcy, 34, 0, TAU); x.fill();
+  x.strokeStyle = '#111111'; x.lineWidth = 4; x.stroke();
+  x.fillStyle = '#111111'; x.font = '900 20px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
+  x.fillText('CAKE', rcx, rcy + 7);
 
-  // Red Vertical Timecode / Optical Axis Line (00:57:00)
-  x.strokeStyle = '#e0483a'; x.lineWidth = 3;
-  x.beginPath(); x.moveTo(rcx, 22); x.lineTo(rcx, 512); x.stroke();
-  x.fillStyle = '#e0483a'; x.fillRect(rcx - 54, 14, 108, 30);
-  x.fillStyle = '#ffffff'; x.font = '900 17px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
-  x.fillText('Z1..Z6 TUBE', rcx, 35);
-
-  // Draw Curved Arc Cells & SC-0XX Callout Boxes for each Segmented Cutout on its Ring!
+  // Draw Each Person Badge (P1..P6) Clearly Around the Table Map
   DOC.cutouts.forEach((c, idx) => {
-    const pi = clamp(c.plane || 0, 0, 5);
-    const rad = 38 + pi * 33;
-    const aCenter = Math.PI / 2 - c.a; // map 3D azimuth to radar canvas angle
-    const arcSpan = 0.36;
-    const isSel = idx === S.castIdx;
-
-    // Curved storyboard cell arc
-    x.strokeStyle = PLANE_CSS[pi];
-    x.lineWidth = isSel ? 18 : 12;
-    x.beginPath(); x.arc(rcx, rcy, rad, aCenter - arcSpan, aCenter + arcSpan); x.stroke();
-
-    // Callout Box SC-0XX
+    const pi = clamp(c.plane || 0, 0, 4);
+    const rad = 56 + pi * 34;
     const bx = rcx + Math.sin(c.a) * rad, by = rcy + Math.cos(c.a) * rad;
-    const scTxt = 'SC-' + String(c.clip + 1).padStart(3, '0');
-    x.fillStyle = isSel ? '#111111' : '#ffffff';
-    x.fillRect(bx - 38, by - 14, 76, 28);
-    x.strokeStyle = '#111111'; x.lineWidth = 2.5;
-    x.strokeRect(bx - 38, by - 14, 76, 28);
-    x.fillStyle = isSel ? '#ffffff' : '#111111';
-    x.font = '900 16px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
-    x.fillText(scTxt, bx, by + 6);
+    const isSel = idx === S.castIdx;
+    const shortLbl = 'P' + (idx + 1);
+
+    // Curved arc showing person's seat span
+    const aCenter = Math.PI / 2 - c.a;
+    x.strokeStyle = PLANE_CSS[pi];
+    x.lineWidth = isSel ? 18 : 10;
+    x.beginPath(); x.arc(rcx, rcy, rad, aCenter - 0.25, aCenter + 0.25); x.stroke();
+
+    // Big Readable Badge Box (72x44)
+    x.fillStyle = isSel ? '#e85d04' : '#111111';
+    x.fillRect(bx - 36, by - 22, 72, 44);
+    x.strokeStyle = '#ffffff'; x.lineWidth = 3;
+    x.strokeRect(bx - 36, by - 22, 72, 44);
+    x.fillStyle = '#ffffff';
+    x.font = '900 28px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
+    x.fillText(shortLbl, bx, by + 10);
   });
 
-  // Bottom Bound Verb Bar inside Zone 2 (y: 524..598): MOVE | TRIM | ROLL | LIFT | SPLIT | ROUTE | STORE
-  const verbs = [
-    ['MOVE', '#2b9348'], ['TRIM', '#2a9d8f'], ['ROLL', '#1d70b8'],
-    ['LIFT', '#1d70b8'], ['SPLIT', '#2b9348'], ['ROUTE', '#e85d04'], ['STORE', '#e85d04']
+  // 3 Big Map Buttons at Bottom of Panel 2 (y: 524..604)
+  const mapBtns = [
+    ['+ PERSON', '#2a9d8f'],
+    ['+ MESS (' + DOC.props.length + ')', '#2b9348'],
+    [DOC.hero.lit ? 'BLOW CANDLES' : 'LIGHT CANDLES', '#e85d04']
   ];
-  const vw2 = 94;
-  verbs.forEach(([vb, vcol], vi) => {
-    const vx2 = 562 + vi * (vw2 + 2), vy2 = 528, vh2 = 68;
-    const hot = vi === S.lastRing;
-    x.fillStyle = hot ? vcol : '#ffffff';
-    x.fillRect(vx2, vy2, vw2, vh2);
-    x.strokeStyle = '#111111'; x.lineWidth = 3; x.strokeRect(vx2, vy2, vw2, vh2);
-    x.fillStyle = hot ? '#ffffff' : vcol;
-    x.font = '900 20px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
-    x.fillText(vb, vx2 + vw2 / 2, vy2 + 42);
+  mapBtns.forEach(([blbl, bcol], bi) => {
+    const bx = 758 + bi * 244, by = 524, bw = 236, bh = 80;
+    x.fillStyle = bcol; x.fillRect(bx, by, bw, bh);
+    x.strokeStyle = '#111111'; x.lineWidth = 4; x.strokeRect(bx, by, bw, bh);
+    x.fillStyle = '#ffffff'; x.font = '900 26px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
+    x.fillText(blbl, bx + bw / 2, by + 50);
   });
 
   // =========================================================================
-  // ZONE 3 (x: 1240..1830): SCION CRITIC, TUFTE SPARKLINES, SPECTRUM & QR
+  // PANEL 3 — RIGHT (x: 1500..2400, y: 86..620): 5 GIANT RING ROWS (R1..R5)
   // =========================================================================
-  x.strokeStyle = '#111111'; x.lineWidth = 4;
-  x.beginPath(); x.moveTo(1830, 0); x.lineTo(1830, H); x.stroke();
-
-  const z3x = 1254, z3w = 562;
-  const ev = typeof evaluateScionMemory === 'function' ? evaluateScionMemory() : { total: 92, messScore: 18, depthScore: 22, lightScore: 19, traceScore: 18, breathScore: 15, verdict: 'BAR MET', primaryGap: 'Ready' };
-
-  // Top Chapter & Lineage Header (Click to cycle 12 Tizita Birthdays)
-  x.fillStyle = '#111111'; x.fillRect(z3x, 14, z3w, 84);
-  x.fillStyle = '#e85d04'; x.fillRect(z3x, 14, 14, 84);
-  x.textAlign = 'left'; x.font = '900 22px "IBM Plex Mono", Menlo, monospace'; x.fillStyle = '#ffffff';
-  x.fillText(ch.title.slice(0, 34), z3x + 26, 48);
-  x.font = '700 17px "IBM Plex Mono", Menlo, monospace'; x.fillStyle = '#f6c978';
-  const genNum = (DOC.meta && DOC.meta.generation) || 1;
-  x.fillText('GEN ' + genNum + ' · SCION ' + ev.total + '/100 (' + ev.verdict + ') [CLICK NEXT]', z3x + 26, 80);
-
+  const z3x = 1516, z3w = 868;
   if (S.showQrOnOled && qrCanvasCache) {
-    // Diegetic QR Code rendered directly inside Zone 3!
-    x.fillStyle = '#ffffff'; x.fillRect(z3x, 108, z3w, 490);
-    x.strokeStyle = '#111111'; x.lineWidth = 4; x.strokeRect(z3x, 108, z3w, 490);
-    x.drawImage(qrCanvasCache, z3x + 135, 124, 290, 290);
-    x.fillStyle = '#111111'; x.font = '900 26px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
-    x.fillText('ROOM CODE · ' + (PAIR.room || 'SYNC'), z3x + z3w / 2, 448);
-    x.font = '700 17px "IBM Plex Mono", Menlo, monospace'; x.fillStyle = '#444444';
-    x.fillText(PAIR.url().slice(0, 44), z3x + z3w / 2, 480);
-    x.fillStyle = '#e0483a'; x.fillText('[CLICK HERE OR PRESS PAIR KEY TO CLOSE QR]', z3x + z3w / 2, 514);
+    x.fillStyle = '#ffffff'; x.fillRect(z3x, 96, z3w, 418);
+    x.strokeStyle = '#111111'; x.lineWidth = 5; x.strokeRect(z3x, 96, z3w, 418);
+    x.drawImage(qrCanvasCache, z3x + 30, 114, 380, 380);
+    x.fillStyle = '#111111'; x.font = '900 42px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'left';
+    x.fillText('PHONE REMOTE', z3x + 436, 185);
+    x.font = '900 36px "IBM Plex Mono", Menlo, monospace'; x.fillStyle = '#e85d04';
+    x.fillText('ROOM: ' + (PAIR.room || 'SYNC'), z3x + 436, 245);
+    x.font = '700 24px "IBM Plex Mono", Menlo, monospace'; x.fillStyle = '#333333';
+    x.fillText('Scan with phone camera', z3x + 436, 305);
+    x.fillText('to spin rings & bellows', z3x + 436, 340);
+    x.fillStyle = '#e0483a'; x.font = '900 26px "IBM Plex Mono", Menlo, monospace';
+    x.fillText('[TAP TO CLOSE QR]', z3x + 436, 420);
   } else {
-    // 5 SCION Invariant Tufte Horizon Bars (y: 112..330)
-    const bars = [
-      ['MESS (UNTIDY)', ev.messScore, 20, '#e85d04'],
-      ['DEPTH (Z1..Z6)', ev.depthScore, 25, '#2a9d8f'],
-      ['LIGHT (KELVIN)', ev.lightScore, 20, '#1d70b8'],
-      ['TRACE (PIPING)', ev.traceScore, 20, '#7209b7'],
-      ['BREATH (MIST)',  ev.breathScore, 15, '#2b9348']
-    ];
-    bars.forEach(([blbl, bval, bmax, bcol], bi) => {
-      const by = 114 + bi * 42;
-      x.textAlign = 'left'; x.font = '800 18px "IBM Plex Mono", Menlo, monospace'; x.fillStyle = '#111111';
-      x.fillText(blbl, z3x + 4, by + 24);
-      const tx = z3x + 190, tw = 285, th = 24;
-      x.fillStyle = '#e4e0d5'; x.fillRect(tx, by + 4, tw, th);
-      x.fillStyle = bcol; x.fillRect(tx, by + 4, (tw * bval) / bmax, th);
-      x.strokeStyle = '#111111'; x.lineWidth = 2.5; x.strokeRect(tx, by + 4, tw, th);
-      x.textAlign = 'right'; x.fillStyle = '#111111';
-      x.fillText(bval + '/' + bmax, z3x + z3w - 4, by + 24);
-    });
+    const RS = rings();
+    RS.forEach((r, ri) => {
+      const ry = 96 + ri * 84, rh = 78;
+      const hot = ri === S.lastRing || ri === S.hoverRing;
+      const acc = RING_ACCENTS[ri];
+      const valStr = r ? String(r.f(r.v())) : '—';
 
-    // Primary Gap Diagnosis Box (Click to execute Bounded Repair)
-    x.fillStyle = '#f0ece1'; x.fillRect(z3x, 330, z3w, 72);
-    x.strokeStyle = '#111111'; x.lineWidth = 2.5; x.strokeRect(z3x, 330, z3w, 72);
-    x.textAlign = 'left'; x.font = '800 16px "IBM Plex Mono", Menlo, monospace'; x.fillStyle = '#e0483a';
-    x.fillText('CRITIC [CLICK TO REPAIR]: ' + ev.primaryGap.slice(0, 38), z3x + 10, 356);
-    x.fillStyle = '#222222'; x.font = '600 15px "IBM Plex Mono", Menlo, monospace';
-    x.fillText(ev.primaryGap.slice(38, 92) || ev.acceptance.slice(0, 54), z3x + 10, 384);
+      x.fillStyle = hot ? '#181b1a' : '#ffffff';
+      x.fillRect(z3x, ry, z3w, rh);
+      x.strokeStyle = '#111111'; x.lineWidth = 4; x.strokeRect(z3x, ry, z3w, rh);
 
-    // 44-Band Tizita Audio Spectrum & Accordion Expansion Readout (y: 412..506)
-    if (mixAnalyser) { try { mixAnalyser.getByteFrequencyData(mixData); } catch (e) {} }
-    x.fillStyle = '#111111'; x.fillRect(z3x, 412, z3w, 92);
-    const nB = 40, bw3 = 11;
-    for (let b = 0; b < nB; b++) {
-      const raw = mixAnalyser ? (mixData[b] / 255) : 0;
-      const synthPulse = Math.max(0, 1 - (performance.now() - lastMotionSndT) / 280) * (0.4 + 0.35 * Math.sin(NOW * 18 + b * 0.7));
-      const amp = clamp(Math.max(raw, synthPulse, 0.1 + 0.06 * Math.sin(NOW * 4 + b * 0.4)), 0.08, 1.0);
-      const bh3 = Math.round(amp * 58);
-      x.fillStyle = b % 4 === 0 ? '#e85d04' : '#5ff0dc';
-      x.fillRect(z3x + 12 + b * (bw3 + 2.5), 494 - bh3, bw3, bh3);
-    }
-    x.fillStyle = '#ffffff'; x.font = '800 16px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'right';
-    x.fillText('ACCORDION EXP ' + Math.round(DOC.bellows * 100) + '% · k×' + (1 + DOC.bellows * 1.15).toFixed(2), z3x + z3w - 12, 434);
+      // Left Color Badge R1..R5
+      x.fillStyle = acc; x.fillRect(z3x, ry, 96, rh);
+      x.font = '900 36px "IBM Plex Mono", Menlo, monospace';
+      x.fillStyle = '#ffffff'; x.textAlign = 'center';
+      x.fillText('R' + (ri + 1), z3x + 48, ry + 52);
 
-    // 4 Diegetic Action Pads at bottom of Zone 3 (y: 514..600)
-    const acts = [['SWARM BUILD', '#2a9d8f'], ['SAVE PEAK', '#1d70b8'], ['FORK REMIX', '#7209b7'], ['+DEMO PHOTO', '#e85d04']];
-    const aw = 136;
-    acts.forEach(([albl, acol], ai) => {
-      const ax = z3x + ai * (aw + 6), ay = 516, ah = 82;
-      x.fillStyle = acol; x.fillRect(ax, ay, aw, ah);
-      x.strokeStyle = '#111111'; x.lineWidth = 3; x.strokeRect(ax, ay, aw, ah);
-      x.fillStyle = '#ffffff'; x.font = '900 18px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
-      x.fillText(albl, ax + aw / 2, ay + 48);
+      // Parameter Name (34px Bold)
+      x.textAlign = 'left';
+      x.font = '900 34px "IBM Plex Mono", Menlo, monospace';
+      x.fillStyle = hot ? '#ffffff' : '#111111';
+      const cleanName = r ? r.n.replace(/^[0-9]+\s*·\s*/, '') : '';
+      x.fillText(cleanName, z3x + 116, ry + 51);
+
+      // Current Value + Step Arrows on Right (36px Bold)
+      x.textAlign = 'right';
+      x.font = '900 36px "IBM Plex Mono", Menlo, monospace';
+      x.fillStyle = hot ? '#5ff0dc' : acc;
+      x.fillText('< ' + valStr.slice(0, 14) + ' >', z3x + z3w - 20, ry + 52);
     });
   }
 
-  // =========================================================================
-  // ZONE 4 (x: 1830..2400): LIVE BOUND OPERATIONS (8-ROW BRUTALIST TABLE)
-  // =========================================================================
-  const z4x = 1830, z4w = W - z4x;
-  x.fillStyle = '#111111'; x.fillRect(z4x, 0, z4w, 58);
-  x.fillStyle = '#ffffff'; x.font = '900 25px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'left';
-  x.fillText('LIVE BOUND OPERATIONS', z4x + 20, 38);
+  // Bottom 3 Giant Studio Buttons in Panel 3 (y: 524..604): AUTO-BUILD | V2G PROMPTS | PHONE QR
+  x.fillStyle = '#2a9d8f'; x.fillRect(z3x, 524, 280, 80);
+  x.strokeStyle = '#111111'; x.lineWidth = 4; x.strokeRect(z3x, 524, 280, 80);
+  x.fillStyle = '#ffffff'; x.font = '900 26px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
+  x.fillText('AUTO-BUILD', z3x + 140, 573);
 
-  const OP_ROWS = [
-    ['tizita', 'TIZITA', '12 BIRTHDAYS ARCHIVE — ' + (S.tizitaIdx + 1) + '/12'],
-    ['hero',   'HERO',   'CENTER PLATE / CAKE — ' + HERO_PRESETS[DOC.hero.preset].name.slice(0, 14)],
-    ['cast',   'CAST',   'MULTIPLANE CUTOUTS — ' + DOC.cutouts.length + ' ACTIVE'],
-    ['mess',   'MESS',   'UNTIDY TABLE PROPS — ' + DOC.props.length + ' ITEMS'],
-    ['etch',   'ETCH',   '3D ICING FILAMENT — ' + ETCH_PHRASES[DOC.etch.phrase]],
-    ['light',  'LIGHT',  'CHIAROSCURO & FLAME — ' + Math.round(lerp(6500, 2200, DOC.light.warm)) + 'K'],
-    ['flight', 'FLIGHT', 'ACCORDION MIST — ' + Math.round(DOC.bellows * 100) + '%'],
-    ['scion',  'SCION',  'SWARM & CRITIC GAME — ' + ev.total + ' PT']
-  ];
+  x.fillStyle = '#e85d04'; x.fillRect(z3x + 292, 524, 336, 80);
+  x.strokeStyle = '#111111'; x.lineWidth = 4; x.strokeRect(z3x + 292, 524, 336, 80);
+  x.fillStyle = '#ffffff'; x.font = '900 26px "IBM Plex Mono", Menlo, monospace';
+  x.fillText('V2G POSE+PROMPTS', z3x + 460, 573);
 
-  OP_ROWS.forEach(([code, title, desc], ri) => {
-    const ry = 58 + ri * 60, rh = 60;
-    const isAct = S.mode === title;
-    x.fillStyle = isAct ? '#111111' : '#faf8f2';
-    x.fillRect(z4x, ry, z4w, rh);
-    x.strokeStyle = '#111111'; x.lineWidth = 2.5;
-    x.beginPath(); x.moveTo(z4x, ry + rh); x.lineTo(W, ry + rh); x.stroke();
-
-    x.font = '900 20px "IBM Plex Mono", Menlo, monospace';
-    x.fillStyle = isAct ? '#5ff0dc' : '#111111';
-    x.textAlign = 'left';
-    x.fillText(code, z4x + 16, ry + 28);
-
-    x.font = '800 18px "IBM Plex Mono", Menlo, monospace';
-    x.fillStyle = isAct ? '#ffffff' : '#111111';
-    x.fillText(title, z4x + 112, ry + 24);
-
-    x.font = '600 15px "IBM Plex Mono", Menlo, monospace';
-    x.fillStyle = isAct ? '#d4ece8' : '#555555';
-    x.fillText(desc.slice(0, 34), z4x + 112, ry + 48);
-  });
-
-  // Bottom Import / Export Row (y: 538..620)
-  x.fillStyle = '#e85d04'; x.fillRect(z4x + 8, 544, 272, 64);
-  x.strokeStyle = '#111111'; x.lineWidth = 3; x.strokeRect(z4x + 8, 544, 272, 64);
-  x.fillStyle = '#ffffff'; x.font = '900 20px "IBM Plex Mono", Menlo, monospace'; x.textAlign = 'center';
-  x.fillText('IMP · LOAD MEDIA', z4x + 144, 583);
-
-  x.fillStyle = '#111111'; x.fillRect(z4x + 288, 544, 272, 64);
-  x.strokeStyle = '#111111'; x.lineWidth = 3; x.strokeRect(z4x + 288, 544, 272, 64);
-  x.fillStyle = '#5ff0dc'; x.font = '900 20px "IBM Plex Mono", Menlo, monospace';
-  x.fillText('OUT · SHARE JSON', z4x + 424, 583);
+  x.fillStyle = '#181b1a'; x.fillRect(z3x + 640, 524, 228, 80);
+  x.strokeStyle = '#111111'; x.lineWidth = 4; x.strokeRect(z3x + 640, 524, 228, 80);
+  x.fillStyle = '#5ff0dc'; x.font = '900 26px "IBM Plex Mono", Menlo, monospace';
+  x.fillText('PHONE QR', z3x + 754, 573);
 
   oledTex.needsUpdate = true;
 }
@@ -2876,12 +2961,13 @@ function scionSwarmAutoBuild() {
   // 4-Agent Swarm Pass: Staging + Untidy Mess + Piping + Lighting & Mist
   const planes = [0, 1, 1, 2, 3, 4];
   while (DOC.cutouts.length < 5) {
-    const nextClip = (DOC.cutouts.length * 5 + 3) % CUTOUT_CLIPS.length;
+    const nextClip = (DOC.cutouts.length * 2 + 1) % 14;
     DOC.cutouts.push({ clip: nextClip, a: Math.PI, plane: 1, face: 0, s: 1.0, speed: 1.0 });
   }
+  const goodAngles = [Math.PI, Math.PI - 0.85, Math.PI + 0.85, -1.18, 1.18, Math.PI - 1.45];
   DOC.cutouts.forEach((c, i) => {
     c.plane = planes[i % planes.length];
-    c.a = (Math.PI - 0.88 + i * 0.48) % TAU;
+    c.a = goodAngles[i % goodAngles.length];
   });
   while (DOC.props.length < 12) {
     const i = DOC.props.length;
@@ -3136,6 +3222,729 @@ window.CINEOSIS = window.CINEOSI = {
   TIZITA_CHAPTERS, AUDIO_MIXES, MONITOR_CLIPS, HERO_PRESETS, CUTOUT_CLIPS, PROP_KINDS, PLANE_NAMES, PAIR,
   advance(dt) { update(dt); render(); }
 };
+
+/* =============================================================== 17. VIDEO2GAME & LOVIS VIDEO-TO-GAME ICONIC SCENE, CAKE & POSE PROMPT WORKBENCH */
+const V2G_STYLES = [
+  {
+    id: 'cardboard',
+    name: 'DIE-CUT CARDBOARD STANDEE (KRAFT & CREAM BOARD)',
+    suffix: 'Rendered as a tactile physical die-cut archival cardboard standee cutout with a crisp 8mm warm cream paper-board outer margin (#F6F0E2), exposed corrugated kraft cardboard beveled edge (#B88A52), solid 100% opaque gouache-and-film interior figure mounted in a slotted walnut tabletop standee base, zero background clutter, isolated on solid #00FF00 chroma or transparent alpha.'
+  },
+  {
+    id: 'video2game',
+    name: 'VIDEO2GAME NEURAL PBR MESH (video2game.github.io)',
+    suffix: 'Formatted for Video2Game (https://video2game.github.io/) neural radiance field to playable Three.js WebGL mesh baking: clean decomposed diffuse albedo + roughness/metallic PBR maps, watertight convex/box collision bounds around the hexagonal oak table and fluted cake cylinder, consistent multi-view photometric geometry, zero motion blur.'
+  },
+  {
+    id: 'lovis_v2g',
+    name: 'LOVIS VIDEO-TO-GAME 2.5D SPRITE SHEET (lovisdotio/video-to-game)',
+    suffix: 'Formatted for lovisdotio/video-to-game (https://github.com/lovisdotio/video-to-game) pose-locked style transfer: preserve exact OpenPose anatomical joint coordinates, head tilt, and Canny silhouette edges frame-for-frame; output a uniform grid sprite sheet with crisp alpha matte, warm 2400K candlelit rim lighting, and painterly stylized game shading.'
+  },
+  {
+    id: 'stopmotion',
+    name: 'STOP-MOTION FELT, WOOD & CLAY DIORAMA (LAIKA / WES ANDERSON)',
+    suffix: 'Handcrafted miniature stop-motion animation diorama made of felted wool clothing, carved basswood furniture, hand-piped royal icing, beeswax candles with glowing warm LED filaments, and subtle thumbprint clay textures photographed with a 50mm macro tilt-shift lens at f/2.8.'
+  },
+  {
+    id: 'kodachrome',
+    name: '1974 ADDIS ABABA KODACHROME 64 SUPER-8 FILM ARCHIVE',
+    suffix: 'Authentic 1974 Kodachrome 64 Super-8 archival home movie frame, halation around warm 2200K birthday candle flames, rich amber/teal Tizita nostalgic color grade, fine organic celluloid grain, 50mm Panavision C-Series anamorphic bokeh.'
+  },
+  {
+    id: 'gouache',
+    name: 'MULTIPLANE HAND-PAINTED GOUACHE ANIMATION CEL',
+    suffix: 'Twentieth-century multiplane animation studio cel painted in opaque Windsor & Newton gouache on heavyweight hot-press illustration board, bold ink contour lines, separated into foreground Z1, tabletop Z2, and midground Z3 parallax planes.'
+  }
+];
+
+const V2G_SHOTS = [
+  {
+    id: '01_canopy', code: 'SHOT 01 · 00:16', title: 'SOLAR CANOPY & ARTIFICIAL FOREST DOME',
+    rgb: 'assets/stelline_frames/sec_016.jpg', pose: 'assets/v2g/pose_01_canopy.jpg',
+    depth: 'assets/depth_canopy.png', sam: 'assets/sam_canopy.png',
+    cam: 'Low-angle tilt up (+68 deg pitch), 35mm anamorphic lens, f/2.8, volumetric god-rays',
+    poseSpec: 'SOLAR.CROWN at (cx=0.43, cy=0.24); PRIMARY OAK.TRUNK rising from (0.62, 0.98) to (0.61, 0.50); 4 main canopy boughs radiating across upper frame.',
+    prompt: 'Low-angle cinematic shot looking up through a projected artificial oak forest canopy inside Dr. Ana Stelline glass conservatory dome. Volumetric golden sunburst corona at upper-left (x=0.43, y=0.24) casting crepuscular rays through emerald leaves and dark oak trunk at right (x=0.62). Maintain exact trunk silhouette and canopy aperture geometry.',
+    stagePreset: { chapter: 10, preset: 18, finish: 6, candles: 0, bellows: 0.28, view: 'WIDE' }
+  },
+  {
+    id: '02_walk_work', code: 'SHOT 02 · 00:39', title: 'ANA WALKING UP TO WORK IN THE CLEARING',
+    rgb: 'assets/stelline_frames/sec_039.jpg', pose: 'assets/v2g/pose_02_walk_work.jpg',
+    depth: 'assets/depth_clearing.png', sam: 'assets/sam_clearing.png',
+    cam: 'Eye-level medium-wide shot, 50mm anamorphic, f/2.0, shallow depth of field',
+    poseSpec: 'Ana center-frame: head (0.49, 0.34), neck (0.49, 0.43), shoulders (0.42, 0.45)-(0.56, 0.45), elbows bent holding Memory Weaver Orb at waist (0.49, 0.63).',
+    prompt: 'Dr. Ana Stelline in a soft white pleated laboratory smock walking forward out of a misty green forest projection into her dark circular memory chamber, holding the cylindrical silver-and-brass Memory Weaver Orb with both hands at waist height (x=0.49, y=0.63). Soft overhead conservatory dome backlight.',
+    stagePreset: { chapter: 10, preset: 16, finish: 2, candles: 7, bellows: 0.18, view: 'WIDE' }
+  },
+  {
+    id: '03_beetle_leaf', code: 'SHOT 03 · 00:25', title: 'EMERALD JEWEL BEETLE ON HOLOGRAPHIC LEAF',
+    rgb: 'assets/stelline_frames/sec_025.jpg', pose: 'assets/v2g/pose_03_beetle_leaf.jpg',
+    depth: 'assets/depth_leaf.png', sam: 'assets/sam_leaf.png',
+    cam: 'Macro 3/4 profile shot, 100mm macro lens, f/4.0, specular chitin reflections',
+    poseSpec: 'Scarab carapace ellipse at (0.52, 0.52, rx=0.22, ry=0.14); 6 articulated tarsal legs gripping leaf vein from (0.34, 0.68) to (0.68, 0.68); antennae extended left.',
+    prompt: 'Extreme close-up of a holographic metallic emerald jewel beetle (Chrysina resplendens) perched on a translucent backlit green leaf inside the dark Stelline chamber. Iridescent green-gold chitin elytra, six articulated legs gripping the leaf edge, warm golden rim light.',
+    stagePreset: { chapter: 10, preset: 17, finish: 6, candles: 0, bellows: 0.05, view: 'MACRO' }
+  },
+  {
+    id: '04_beetle_eye', code: 'SHOT 04 · 00:34', title: 'BEETLE COMPOUND EYES & FOCUS RING',
+    rgb: 'assets/stelline_frames/sec_034.jpg', pose: 'assets/v2g/pose_04_beetle_eye.jpg',
+    depth: 'assets/depth_bugeye.png', sam: 'assets/sam_bugeye.png',
+    cam: 'Extreme microscope macro, 120mm lens, razor-thin focal plane pulling into crisp focus',
+    poseSpec: 'Left compound eye sphere at (0.38, 0.52, r=0.12); right eye / head capsule at (0.64, 0.48, r=0.10); golden sensory setae bristles along mandible ridge.',
+    prompt: 'Microscopic macro photograph of the emerald jewel beetle head and compound eyes coming into razor-sharp focus as Ana turns the focus ring on the Memory Weaver Orb. Hexagonal ommatidia facets, fine golden sensory setae hairs, metallic emerald-and-brass specular highlights against deep chamber black.',
+    stagePreset: { chapter: 10, preset: 17, finish: 6, candles: 0, bellows: 0.0, view: 'MACRO' }
+  },
+  {
+    id: '05_orb_hands', code: 'SHOT 05 · 02:13', title: 'ANA HOLDING THE 5-RING MEMORY WEAVER ORB',
+    rgb: 'assets/stelline_frames/ref_orb_select.png', pose: 'assets/v2g/pose_05_orb_hands.jpg',
+    depth: 'assets/depth_cakespawn.png', sam: 'assets/sam_cakespawn.png',
+    cam: 'Medium close-up front shot, 50mm lens, warm bounce light on face and fingers',
+    poseSpec: 'Ana head at (0.52, 0.22) looking down at hologram; shoulders (0.36, 0.42)-(0.68, 0.42); left wrist (0.43, 0.68) and right wrist (0.61, 0.68) rotating knurled Orb barrel at (0.52, 0.68).',
+    prompt: 'Medium close-up of Dr. Ana Stelline in her dark chamber holding the precision machined 5-ring metallic Memory Weaver Orb controller with both hands at chest level (x=0.52, y=0.68), her fingertips resting on the knurled encoder rings while warm holographic light illuminates her face from below.',
+    stagePreset: { chapter: 0, preset: 0, finish: 2, candles: 6, bellows: 0.0, view: 'EYE' }
+  },
+  {
+    id: '06_cake_spawn', code: 'SHOT 06 · 02:18', title: 'CAKE SPAWN: FLAT WHITE CYLINDER & 6 CANDLES',
+    rgb: 'assets/stelline_frames/ref_0217_spawn.png', pose: 'assets/v2g/pose_06_cake_spawn.jpg',
+    depth: 'assets/depth_cakespawn.png', sam: 'assets/sam_cakespawn.png',
+    cam: 'Over-the-hologram medium shot, 50mm lens, holographic C-arc HUD reticle',
+    poseSpec: 'Flat cylindrical cake at (cx=0.46, cy=0.58, rx=0.14, h=0.11) with 6 vertical candles; white holographic C-arc reticle floating at (0.32, 0.44, r=0.065) with leader line to cake; Ana at right (0.68, 0.36).',
+    prompt: 'Inside the dark memory chamber, a holographic birthday cake materializes in mid-air at (x=0.46, y=0.58) as a simple flat white frosted cylinder topped with six red-and-white spiral candles. Beside the cake floats a crisp white holographic C-arc reticle with tick needles at (x=0.32, y=0.44), while Ana Stelline watches from the right.',
+    stagePreset: { chapter: 0, preset: 1, finish: 2, candles: 6, bellows: 0.0, view: 'EYE' }
+  },
+  {
+    id: '07_cake_bundt', code: 'SHOT 07 · 02:23', title: 'CAKE MORPHS INTO DOMED FLUTED BUNDT + RETICLE',
+    rgb: 'assets/stelline_frames/ref_0223_bundt.png', pose: 'assets/v2g/pose_07_cake_bundt.jpg',
+    depth: 'assets/depth_bundtmorph.png', sam: 'assets/sam_bundtmorph.png',
+    cam: 'Medium shot, 50mm lens, warm candlelit subsurface scattering on icing',
+    poseSpec: 'Domed 11-flute bundt cake at (cx=0.45, cy=0.58, rx=0.15, h=0.12) with 7 lit candles and bottom bead border; C-arc reticle at (0.30, 0.41) with rotating needle; Ana at right (0.68, 0.35).',
+    prompt: 'As Ana twists the Make ring on the Orb, the floating birthday cake morphs into a domed, 11-flute vanilla-and-rose bundt cake at (x=0.45, y=0.58) with pearl bead border and seven lit birthday candles. The white holographic C-arc reticle at (x=0.30, y=0.41) swings its needle in sync with her fingers.',
+    stagePreset: { chapter: 0, preset: 0, finish: 3, candles: 7, bellows: 0.0, view: 'EYE' }
+  },
+  {
+    id: '08_cake_icing', code: 'SHOT 08 · 02:26', title: 'CAKE TILTS 45° FOR RED ICING PIPING (生日快樂)',
+    rgb: 'assets/stelline_frames/ref_0226_icing.png', pose: 'assets/v2g/pose_08_cake_icing.jpg',
+    depth: 'assets/depth_redicing.png', sam: 'assets/sam_redicing.png',
+    cam: 'Medium close-up, cake tilted 45 degrees toward camera to expose top icing surface',
+    poseSpec: 'Cake tilted 45 deg at (cx=0.36, cy=0.54, rx=0.15, ry=0.11) showing top crown with 4 red piped characters 生日快樂 and underline flourish; C-arc reticle between cake and her face at (0.52, 0.47).',
+    prompt: 'The floating birthday cake is held tilted at a 45-degree angle at (x=0.36, y=0.54) facing the viewer so its top surface is clearly visible, while four crimson-red icing characters (生日快樂) and a curved underline flourish are piped onto the white frosting between the candles. Holographic C-arc reticle at center (x=0.52, y=0.47).',
+    stagePreset: { chapter: 0, preset: 1, finish: 2, candles: 5, phrase: 2, bellows: 0.0, view: 'MACRO' }
+  },
+  {
+    id: '09_kids_ghost', code: 'SHOT 09 · 02:33', title: 'HEXAGONAL TABLE & 3 CHILDREN FADING IN AS GHOSTS',
+    rgb: 'assets/stelline_frames/ref_0233_cutouts.png', pose: 'assets/v2g/pose_09_kids_ghost.jpg',
+    depth: 'assets/depth_cutouts.png', sam: 'assets/sam_cutouts.png',
+    cam: 'Eye-level wide table shot, 40mm anamorphic lens, holographic translucent ghosts',
+    poseSpec: 'Hexagonal oak tabletop from (0.20, 0.68) to (0.80, 0.68); cake at (0.48, 0.64); 3 translucent child cutouts at Left (0.30, 0.38), Center (0.48, 0.35), Right (0.66, 0.37) with floating C-arc reticles above each head.',
+    prompt: 'A hexagonal warm oak table materializes beneath the seven-candle birthday cake at (x=0.48, y=0.64). Around the far side of the table, three children fade in as 40%-opaque luminous holographic projections at left (x=0.30), center (x=0.48), and right (x=0.66), each with a small white holographic C-arc reticle floating above their head.',
+    stagePreset: { chapter: 0, preset: 0, finish: 2, candles: 7, bellows: 0.15, view: 'EYE' }
+  },
+  {
+    id: '10_party_table', code: 'SHOT 10 · 02:38', title: 'SOLID PARTY TABLE: 4 CHILDREN & UNTIDY DETAILS',
+    rgb: 'assets/stelline_frames/sec_158.jpg', pose: 'assets/v2g/pose_10_party_table.jpg',
+    depth: 'assets/depth_cutouts.png', sam: 'assets/sam_cutouts.png',
+    cam: 'Eye-level birthday table tableau, 40mm lens, warm 2400K candle glow against dark chamber',
+    poseSpec: 'Hexagonal table (0.16, 0.70)-(0.84, 0.70); 4 solid children seated at (0.20, 0.42), (0.35, 0.37), (0.51, 0.35), and (0.69, 0.38) leaning toward the 7-candle cake at (0.49, 0.65).',
+    prompt: 'Full birthday party tableau around the hexagonal wooden table inside the dark chamber: four children are now 100% solid and warmly lit by the seven flickering birthday candles at center (x=0.49, y=0.65). Untidy lived-in birthday details on the tabletop: paper plates, cake crumbs, party hats, and warm golden chiaroscuro on their smiling faces.',
+    stagePreset: { chapter: 0, preset: 0, finish: 0, candles: 7, bellows: 0.0, view: 'EYE' }
+  },
+  {
+    id: '11_time_hands', code: 'SHOT 11 · 02:40', title: 'BOTH HANDS TURNING THE TIME BARREL IN THE DARK',
+    rgb: 'assets/stelline_frames/sec_160.jpg', pose: 'assets/v2g/pose_11_time_hands.jpg',
+    depth: 'assets/depth_miniature.png', sam: 'assets/sam_miniature.png',
+    cam: 'Close-up on hands & cylindrical Orb lens in low-key chiaroscuro, 65mm lens',
+    poseSpec: 'Orb barrel centered at (0.48, 0.56, r=0.16); left hand entering from (0.26, 0.72) and right hand from (0.70, 0.72) twisting opposite rings to scrub time.',
+    prompt: 'Close-up in the darkened memory chamber of Dr. Ana Stelline hands gripping the knurled metallic Time ring of the cylindrical Orb controller at (x=0.48, y=0.56), twisting the barrel back and forth to scrub the children birthday performance forward and backward in time. Warm amber candle reflection glinting off the brushed steel rings.',
+    stagePreset: { chapter: 0, preset: 0, finish: 0, candles: 7, bellows: 0.05, view: 'MACRO' }
+  },
+  {
+    id: '12_boy_candle', code: 'SHOT 12 · 02:53', title: 'CANDLELIGHT FLICKERING ON BIRTHDAY BOY FACE',
+    rgb: 'assets/stelline_frames/sec_173.jpg', pose: 'assets/v2g/pose_12_boy_candle.jpg',
+    depth: 'assets/depth_blowcandles.png', sam: 'assets/sam_blowcandles.png',
+    cam: 'Intimate portrait close-up, 85mm f/1.4 lens, lit solely by 2200K candle flame',
+    poseSpec: 'Boy head at (0.54, 0.42) in 3/4 left profile; shoulders (0.40, 0.68)-(0.70, 0.68); glowing birthday candles in lower-left foreground at (0.32, 0.78).',
+    prompt: 'Intimate close-up portrait of a young boy at the birthday table (head at x=0.54, y=0.42), his cheek and dark eyes illuminated solely by the warm, flickering 2200K glow of birthday candles in the lower-left foreground (x=0.32, y=0.78). Deep velvety shadows, nostalgic Tizita warmth, shallow 85mm f/1.4 depth of field.',
+    stagePreset: { chapter: 8, preset: 5, finish: 0, candles: 4, bellows: 0.0, view: 'MACRO' }
+  },
+  {
+    id: '13_blow_wish', code: 'SHOT 13 · 02:57', title: 'THREE CHILDREN LEANING IN TO BLOW OUT THE 7 CANDLES',
+    rgb: 'assets/stelline_frames/sec_177.jpg', pose: 'assets/v2g/pose_13_blow_wish.jpg',
+    depth: 'assets/depth_blowcandles.png', sam: 'assets/sam_blowcandles.png',
+    cam: 'Medium close-up across the cake, 50mm lens, dynamic flame trails & puffed cheeks',
+    poseSpec: 'Cake in foreground (0.48, 0.76, rx=0.18) with 7 bending flames; 3 children leaning forward at Left (0.28, 0.38), Center (0.48, 0.32), and Right (0.70, 0.36) blowing air.',
+    prompt: 'The climax of the birthday memory: three children lean forward together over the seven-candle birthday cake in the foreground (x=0.48, y=0.76) — blonde girl on left (x=0.28, y=0.38), child at center (x=0.48, y=0.32) with cheeks puffed, and dark-haired girl on right (x=0.70, y=0.36) — blowing out the seven golden candle flames in unison.',
+    stagePreset: { chapter: 9, preset: 10, finish: 1, candles: 13, bellows: 0.0, view: 'EYE' }
+  },
+  {
+    id: '14_ana_fade', code: 'SHOT 14 · 03:46', title: 'THE CANDLES GO OUT ON ANA FACE (WARM -> DARK)',
+    rgb: 'assets/stelline_frames/sec_189.jpg', pose: 'assets/v2g/pose_14_ana_fade.jpg',
+    depth: 'assets/depth_miniature.png', sam: 'assets/sam_miniature.png',
+    cam: 'Medium close-up reaction portrait of Ana Stelline, 65mm lens, light dropping 70%',
+    poseSpec: 'Ana head centered at (0.50, 0.40), lips slightly parted in a quiet gasp; shoulders (0.34, 0.66)-(0.66, 0.66); warm amber key light fading into cool chamber twilight.',
+    prompt: 'Close-up reaction shot of Dr. Ana Stelline (x=0.50, y=0.40) watching her finished birthday memory: she gasps softly with a tender, wistful smile as the warm golden reflection of the seven birthday candles on her face flickers and dims to a third when the children blow out the wish.',
+    stagePreset: { chapter: 0, preset: 0, finish: 0, candles: 7, lit: 0, bellows: 0.12, view: 'EYE' }
+  },
+  {
+    id: '15_wood_horse', code: 'SHOT 15 · 04:43', title: 'CARVED WOODEN HORSE (6·10·21) & MEMORY READER',
+    rgb: 'assets/stelline_frames/sec_283.jpg', pose: 'assets/v2g/pose_15_wood_horse.jpg',
+    depth: 'assets/depth_horsecarve.png', sam: 'assets/sam_horsecarve.png',
+    cam: 'Macro tabletop product shot, 65mm lens, carved wood grain & brass patina',
+    poseSpec: 'Hand-carved wooden horse torso at (0.48, 0.56, rx=0.18, ry=0.10); neck & head rising to (0.64, 0.34); 4 carved legs standing on table with 6·10·21 carved under hooves.',
+    prompt: 'Macro close-up of the hand-carved dark oak wooden toy horse (6·10·21) standing at (x=0.48, y=0.56) with worn tactile woodgrain patina, rough knife-carved facets, and warm amber rim light inside the memory chamber.',
+    stagePreset: { chapter: 11, preset: 16, finish: 5, candles: 0, bellows: 0.35, view: 'MACRO' }
+  },
+  {
+    id: '16_snow_hands', code: 'SHOT 16 · 04:48', title: 'FIRST WINTER: SNOW FALLING ON OPEN HANDS',
+    rgb: 'assets/stelline_frames/sec_288.jpg', pose: 'assets/v2g/pose_16_snow_hands.jpg',
+    depth: 'assets/depth_snow.png', sam: 'assets/sam_snow.png',
+    cam: 'High-angle close-up on open palm catching snowflakes, 50mm lens, f/2.0',
+    poseSpec: 'Forearm entering from lower-left (0.24, 0.84) to wrist (0.42, 0.62) and open palm/fingers at (0.56, 0.54) catching crystalline snow particles.',
+    prompt: 'Poetic close-up of an open hand extended palm-up from lower-left (x=0.24, y=0.84) to center (x=0.56, y=0.54) as glowing crystalline snowflakes drift down through the dark air and melt on the skin. Deep nostalgic Tizita mood, soft cyan-and-amber bokeh.',
+    stagePreset: { chapter: 11, preset: 19, finish: 2, candles: 0, bellows: 0.72, view: 'EYE' }
+  }
+];
+
+const V2G_CAKES = [
+  {
+    id: 'cake_00', code: 'CAKE 01 · CANONICAL FILM', title: 'VANILLA CYLINDER + 生日快樂 + 7 STRIPED WICKS',
+    img: 'assets/shelf/cake_film_00.jpg', pose: 'assets/v2g/pose_08_cake_icing.jpg',
+    recipe: 'shape: round cylinder | tiers: 1 | icing: white buttercream | text: 生日快樂 (red brush pipe) | border: pearl beads | candles: 7 red-white spiral | table: hex oak',
+    prompt: 'Canonical Blade Runner 2049 Ana Stelline birthday cake: single-tier round vanilla cylinder cake with smooth white buttercream frosting, pearl bead bottom border, four red brush-piped Chinese characters (生日快樂) on the top surface, and 7 lit red-and-white spiral birthday candles on a porcelain plate over a hexagonal oak table.',
+    heroSpec: { preset: 1, finish: 2, sculpt: 0, candles: 7, lit: 1, phrase: 2 }
+  },
+  {
+    id: 'cake_01', code: 'CAKE 02 · KEPT BUNDT', title: '11-FLUTE DOMED BUNDT + 24 SMARTIES + 7 CANDLES',
+    img: 'assets/shelf/cake_film_01.jpg', pose: 'assets/v2g/pose_07_cake_bundt.jpg',
+    recipe: 'shape: 11-flute bundt ring | bundt: 0.96 | icing: warm cream glaze | drips: 0.25 | smarties: 24 candy studs | candles: 7 lit',
+    prompt: '11-flute domed bundt birthday cake with glossy warm cream poured glaze, 24 colorful Smarties candy studs arranged around the fluted crown, pearl bead base border, and 7 lit striped birthday candles casting warm 2200K chiaroscuro light.',
+    heroSpec: { preset: 0, finish: 1, sculpt: 0.04, candles: 7, lit: 1, phrase: 1 }
+  },
+  {
+    id: 'cake_02', code: 'CAKE 03 · DARK GANACHE', title: 'CHOCOLATE MIRROR GLAZE + BERRIES + 3 WICKS',
+    img: 'assets/shelf/cake_film_02.jpg', pose: 'assets/v2g/pose_06_cake_spawn.jpg',
+    recipe: 'shape: round torte | icing: dark chocolate ganache (#462818) | drips: 0.80 | topping: berries | candles: 3 spotlight wicks',
+    prompt: 'Rich dark chocolate ganache birthday torte with heavy mirror-glaze drips down the cylinder sides, dark berries around the rim, and 3 tall glowing birthday candles under a tight dramatic spotlight.',
+    heroSpec: { preset: 6, finish: 4, sculpt: 0, candles: 3, lit: 1, phrase: 4 }
+  },
+  {
+    id: 'cake_03', code: 'CAKE 04 · ROSE CROWN', title: '2-TIER ROSE-GLAZE CROWN + 24 SMARTIES + BALLOONS',
+    img: 'assets/shelf/cake_film_03.jpg', pose: 'assets/v2g/pose_10_party_table.jpg',
+    recipe: 'shape: 2-tier round | bundt: 0.68 | icing: rose pink (#EAA5B2) | glaze: 0.90 | smarties: 24 | candles: 7 lit',
+    prompt: 'Festive two-tier rose-pink glazed birthday cake with fluted upper crown, 24 candy Smarties, white piped garlands, and 7 glowing birthday candles surrounded by party balloons and untidy table props.',
+    heroSpec: { preset: 3, finish: 3, sculpt: 0.06, candles: 7, lit: 1, phrase: 1 }
+  },
+  {
+    id: 'cake_04', code: 'CAKE 05 · TILTED PIPING', title: '45-DEGREE TILTED CAKE FOR RED CALLIGRAPHY (生日快樂)',
+    img: 'assets/stelline_frames/ref_0226_icing.png', pose: 'assets/v2g/pose_08_cake_icing.jpg',
+    recipe: 'tilt: 45 deg toward camera | icing: white | calligraphy: 生日快樂 + underline flourish | candles: 5 lit',
+    prompt: 'Floating holographic birthday cake tilted at a 45-degree angle toward the viewer while crimson-red icing calligraphy (生日快樂) is piped across the top surface between five lit candles.',
+    heroSpec: { preset: 2, finish: 2, sculpt: 0, candles: 5, lit: 1, phrase: 2 }
+  },
+  {
+    id: 'cake_05', code: 'CAKE 06 · MELTED PORCH', title: 'HUMID SUMMER HALF-MELTED BIRTHDAY CAKE',
+    img: 'assets/shelf/cake_made_14.jpg', pose: 'assets/v2g/pose_07_cake_bundt.jpg',
+    recipe: 'shape: slumped asymmetric cake | sculpt: +35% twist/melt | icing: rose buttercream | candles: 7 leaning',
+    prompt: 'Nostalgic half-melted summer birthday cake on a wooden porch table: slumped rose-pink buttercream frosting sliding down one side, leaning wax-dripping birthday candles, crumbs and a cut slice on a paper saucer.',
+    heroSpec: { preset: 4, finish: 3, sculpt: 0.32, candles: 7, lit: 1, phrase: 4 }
+  },
+  {
+    id: 'cake_06', code: 'HERO 07 · JEWEL BEETLE', title: 'STELLINE METALLIC EMERALD SCARAB BEETLE',
+    img: 'assets/shelf/bug_film_00.jpg', pose: 'assets/v2g/pose_03_beetle_leaf.jpg',
+    recipe: 'kind: Chrysina resplendens scarab | material: emerald chitin (metalness 0.85, roughness 0.22) | legs: 6 articulated',
+    prompt: 'Photoreal 3D game asset of Dr. Ana Stelline metallic emerald jewel beetle (Chrysina resplendens), iridescent green-and-gold chitin carapace, fine golden setae bristles, and six articulated legs on a glass leaf.',
+    heroSpec: { preset: 17, finish: 6, sculpt: 0, candles: 0, lit: 0, phrase: 0 }
+  },
+  {
+    id: 'cake_07', code: 'HERO 08 · WOODEN HORSE', title: 'CARVED OAK TOY HORSE (6·10·21 INSCRIPTION)',
+    img: 'assets/stelline_frames/sec_283.jpg', pose: 'assets/v2g/pose_15_wood_horse.jpg',
+    recipe: 'kind: hand-carved wooden horse | material: aged dark oak (#5C3818) | inscription: 6·10·21 on base',
+    prompt: 'Hand-carved dark oak wooden toy horse from Blade Runner 2049 with knife-faceted torso, curved neck, worn patina, and the date 6·10·21 carved into the underside of its hooves.',
+    heroSpec: { preset: 16, finish: 5, sculpt: 0, candles: 0, lit: 0, phrase: 3 }
+  }
+];
+
+const V2G_CHARS = [
+  {
+    id: 'char_01', code: 'ACTOR P1 · NORTH SEAT', title: 'WISH GIRL BLOWING CANDLES (9×5 GRID, 43 FRAMES)',
+    img: 'assets/v2g/char_01_wish_girl.jpg', sheet: 'ana/cut/film-child-1-blow.webp', clipIdx: 0,
+    poseSpec: 'Front-facing bust portrait; head tilted -8 deg down toward candles; eyes softly closed; lips rounded in blowing O-shape; white cardigan over cream top; lit from below by 2200K candle flames.',
+    prompt: 'Die-cut cardboard standee character sprite sheet (9 columns x 5 rows, 43 frames) of a young blonde girl in a white cardigan seated at the north side of a birthday table, leaning forward with eyes closed and lips rounded to blow out seven birthday candles. Warm 2200K upward candlelit chiaroscuro on her face, solid opaque interior, cream archival die-cut paper-board border.'
+  },
+  {
+    id: 'char_02', code: 'ACTOR P2 · WEST SEAT', title: 'BLONDE SISTER SMILING IN CANDLELIGHT (7×7 GRID, 44 FRAMES)',
+    img: 'assets/v2g/char_02_sister_smile.jpg', sheet: 'ana/cut/film-child-2-blow.webp', clipIdx: 1,
+    poseSpec: '3/4 right-facing bust portrait; warm gentle smile watching the birthday wish; shoulder-length blonde hair catching golden rim light; white crew-neck shirt.',
+    prompt: 'Die-cut cardboard standee character sprite sheet (7 columns x 7 rows, 44 frames) of a young blonde sister in a white shirt seated at the left side of the birthday table, turning her head 3/4 right with a warm nostalgic smile in flickering 2200K candlelight. Solid opaque interior with cream die-cut cardboard border.'
+  },
+  {
+    id: 'char_03', code: 'ACTOR P3 · EAST SEAT', title: 'DARK-HAIRED FRIEND LEANING OVER TABLE (10×5 GRID, 43 FRAMES)',
+    img: 'assets/v2g/char_03_friend_lean.jpg', sheet: 'ana/cut/film-child-3-blow.webp', clipIdx: 2,
+    poseSpec: '3/4 left-facing upper body; leaning forward at 22 deg torso angle with hands resting on table edge; long dark hair; sleeveless summer top.',
+    prompt: 'Die-cut cardboard standee character sprite sheet (10 columns x 5 rows, 43 frames) of a dark-haired girl leaning eagerly across the right side of the hexagonal birthday table, smiling and blowing toward the center candles. Warm golden candlelit rim light, solid opaque figure, cream die-cut cardboard border.'
+  },
+  {
+    id: 'char_04', code: 'ACTOR P4 · CENTER-RIGHT', title: 'BIRTHDAY BOY PUFFING CHEEKS TO BLOW (6×5 GRID, 28 FRAMES)',
+    img: 'assets/v2g/char_04_bday_boy.jpg', sheet: 'assets/girls/boy_c.webp', clipIdx: 3,
+    poseSpec: '3/4 left profile close-up; dark tousled hair with bangs; cheeks puffed full of air and lips pursed to blow out the candles; strong warm key light on left cheek.',
+    prompt: 'Die-cut cardboard standee character sprite sheet (6 columns x 5 rows, 28 frames) of the young birthday boy in 3/4 left profile puffing his cheeks full of air to blow out the birthday candles, warm orange-gold 2200K candle flame reflection on his cheek and eyes, cream die-cut cardboard border.'
+  },
+  {
+    id: 'char_05', code: 'ACTOR P5 · TABLE GUEST', title: 'COUSIN LEO SMILING IN CANDLELIGHT (6×12 GRID, 71 FRAMES)',
+    img: 'assets/v2g/char_05_cousin_leo.jpg', sheet: 'assets/girls/guest_b.webp', clipIdx: 4,
+    poseSpec: '3/4 left-facing bust; relaxed joyful expression; subtle head nod and blink cycle across 71 frames; warm candle bounce light from lower left.',
+    prompt: 'Die-cut cardboard standee character sprite sheet (6 columns x 12 rows, 71 frames) of a young boy seated at the birthday table smiling warmly as the candles flicker, subtle natural head movement and blinking, warm 2200K chiaroscuro lighting, cream die-cut cardboard standee border.'
+  },
+  {
+    id: 'char_06', code: 'ACTOR P6 · FOREGROUND RIM', title: 'YOUNG K RIM-LIT PROFILE (6×7 GRID, 41 FRAMES)',
+    img: 'assets/v2g/char_06_young_k.jpg', sheet: 'assets/boys/hair_b.webp', clipIdx: 5,
+    poseSpec: 'Front-left bust portrait; dramatic cool/warm dual rim light along jawline and ear; contemplative gaze toward the birthday table.',
+    prompt: 'Die-cut cardboard standee character sprite sheet (6 columns x 7 rows, 41 frames) of a young boy in a grey crew-neck t-shirt with dramatic golden rim lighting along his hair and cheek, looking toward the birthday cake with a quiet nostalgic expression, cream die-cut cardboard border.'
+  },
+  {
+    id: 'char_07', code: 'ACTOR P7 · DUO STANDEE', title: 'TWO SISTERS TOGETHER AT TABLE (6×7 GRID, 41 FRAMES)',
+    img: 'assets/v2g/char_07_two_sisters.jpg', sheet: 'assets/slabs/slab_small.webp', clipIdx: 6,
+    poseSpec: 'Two-figure grouped standee: older sister standing behind at left (head at 0.32, 0.36) with chin near younger sister seated in foreground (head at 0.58, 0.62) by candle glow.',
+    prompt: 'Die-cut cardboard standee duo sprite sheet (6 columns x 7 rows, 41 frames) showing two sisters together at the birthday table — the older sister leaning over the shoulder of her younger blonde sister as the candle flames glow at lower right — wrapped in a single shared cream die-cut cardboard standee border.'
+  },
+  {
+    id: 'char_08', code: 'ACTOR P8 · THE WEAVER', title: 'DR. ANA STELLINE HOLDING MEMORY ORB (16×1 STRIP, 16 FRAMES)',
+    img: 'assets/v2g/char_08_ana_weaver.jpg', sheet: 'assets/cutouts/stelline_ana.webp', clipIdx: 12,
+    poseSpec: 'Medium waist-up portrait; white pleated laboratory dress; both hands raised holding the silver Memory Weaver Orb at chest height; warm holographic bounce light.',
+    prompt: 'Die-cut cardboard standee sprite strip (16 horizontal frames) of Dr. Ana Stelline in her white pleated laboratory coat holding the cylindrical metallic Memory Weaver Orb with both hands, looking tenderly at the birthday party scene she is crafting, cream die-cut cardboard standee border.'
+  }
+];
+
+// Inject high-contrast Tufte x Teenage Engineering V2G Workbench Modal DOM + CSS
+(function initV2GWorkbenchDOM() {
+  const style = document.createElement('style');
+  style.textContent = `
+    #v2gDrawer {
+      position: fixed; inset: 12px 16px auto 16px; height: calc(64vh - 20px); min-height: 440px; max-height: 680px;
+      background: #faf8f2; color: #111111; border: 5px solid #111111;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.75); z-index: 9999;
+      display: none; flex-direction: column; font-family: "IBM Plex Mono", Menlo, monospace;
+      overflow: hidden;
+    }
+    #v2gDrawer.open { display: flex; }
+    .v2gTop {
+      display: flex; align-items: center; justify-content: space-between;
+      background: #141716; color: #ffffff; padding: 10px 16px; border-bottom: 4px solid #111111; gap: 10px;
+    }
+    .v2gTitle { font-size: 18px; font-weight: 900; letter-spacing: 0.03em; color: #ffffff; display: flex; align-items: center; gap: 10px; }
+    .v2gBadge { background: #e85d04; color: #fff; padding: 4px 10px; font-size: 14px; font-weight: 900; }
+    .v2gTabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .v2gTab {
+      background: #262b29; color: #d8e2dc; border: 3px solid #111; padding: 7px 14px;
+      font-size: 14px; font-weight: 900; cursor: pointer; font-family: inherit;
+    }
+    .v2gTab.active { background: #e85d04; color: #ffffff; border-color: #ffffff; }
+    .v2gClose {
+      background: #e0483a; color: #fff; border: 3px solid #fff; padding: 7px 14px;
+      font-size: 15px; font-weight: 900; cursor: pointer; font-family: inherit;
+    }
+    .v2gBody {
+      display: grid; grid-template-columns: 330px 1fr; flex: 1; min-height: 0; overflow: hidden;
+    }
+    .v2gList {
+      border-right: 4px solid #111111; overflow-y: auto; background: #f0ece1; padding: 8px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .v2gItem {
+      background: #ffffff; border: 3px solid #111111; padding: 9px 11px; cursor: pointer;
+      display: flex; flex-direction: column; gap: 3px; text-align: left; font-family: inherit;
+    }
+    .v2gItem.active { background: #141716; color: #ffffff; border-color: #e85d04; border-width: 4px; }
+    .v2gItemCode { font-size: 12px; font-weight: 900; color: #e85d04; }
+    .v2gItem.active .v2gItemCode { color: #5ff0dc; }
+    .v2gItemName { font-size: 14px; font-weight: 900; line-height: 1.25; }
+    .v2gDetail {
+      padding: 14px 18px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #faf8f2;
+    }
+    .v2gPlates {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+    }
+    .v2gPlateCard {
+      background: #141716; border: 3px solid #111111; display: flex; flex-direction: column; overflow: hidden;
+    }
+    .v2gPlateCard img {
+      width: 100%; height: 128px; object-fit: cover; display: block; background: #090c0b;
+    }
+    .v2gPlateLbl {
+      padding: 5px 8px; font-size: 12px; font-weight: 900; color: #ffffff; background: #141716;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .v2gControlsRow {
+      display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+      background: #eae6dc; padding: 10px 12px; border: 3px solid #111111;
+    }
+    .v2gSelect {
+      flex: 1; min-width: 240px; padding: 8px 10px; font-size: 14px; font-weight: 800;
+      font-family: inherit; border: 3px solid #111111; background: #ffffff; color: #111111;
+    }
+    .v2gBtn {
+      background: #141716; color: #ffffff; border: 3px solid #111111; padding: 9px 14px;
+      font-size: 14px; font-weight: 900; cursor: pointer; font-family: inherit;
+    }
+    .v2gBtn.orange { background: #e85d04; color: #ffffff; }
+    .v2gBtn.teal { background: #2a9d8f; color: #ffffff; }
+    .v2gBtn.green { background: #2b9348; color: #ffffff; }
+    .v2gPromptBox {
+      width: 100%; min-height: 112px; padding: 12px; font-size: 14px; font-weight: 700; line-height: 1.45;
+      font-family: "IBM Plex Mono", Menlo, monospace; border: 3px solid #111111; background: #ffffff; color: #111111;
+      resize: vertical;
+    }
+    .v2gMetaGrid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; font-weight: 700;
+    }
+    .v2gMetaCard {
+      background: #f0ece1; border: 2px solid #111111; padding: 8px 11px;
+    }
+  `;
+  document.head.appendChild(style);
+
+  const drawer = document.createElement('div');
+  drawer.id = 'v2gDrawer';
+  drawer.innerHTML = `
+    <div class="v2gTop">
+      <div class="v2gTitle">
+        <span class="v2gBadge">VIDEO2GAME KIT</span>
+        <span>ICONIC STELLINE SCENES, CAKES & EXACT POSES FOR OTHER BROWSERS</span>
+      </div>
+      <div class="v2gTabs">
+        <button class="v2gTab active" data-cat="shots">1 · 16 ICONIC SCENES</button>
+        <button class="v2gTab" data-cat="cakes">2 · 8 CAKES & HEROES</button>
+        <button class="v2gTab" data-cat="chars">3 · 8 CHARACTER POSES</button>
+        <a href="video2game-kit.html" target="_blank" class="v2gTab" style="text-decoration:none;background:#1d70b8;color:#fff;">OPEN FULL PAGE ↗</a>
+      </div>
+      <button class="v2gClose" id="v2gCloseBtn">CLOSE [ESC]</button>
+    </div>
+    <div class="v2gBody">
+      <div class="v2gList" id="v2gListEl"></div>
+      <div class="v2gDetail">
+        <div class="v2gPlates" id="v2gPlatesEl"></div>
+        <div class="v2gControlsRow">
+          <label style="font-weight:900;font-size:14px;">TARGET STYLE:</label>
+          <select class="v2gSelect" id="v2gStyleSel"></select>
+          <button class="v2gBtn orange" id="v2gCopyPromptBtn">COPY PROMPT</button>
+          <button class="v2gBtn teal" id="v2gCopyImgBtn">COPY POSE+RGB IMAGE</button>
+          <button class="v2gBtn" id="v2gDownloadSheetBtn">DOWNLOAD 4-PLATE PNG</button>
+          <button class="v2gBtn green" id="v2gStageBtn">LOAD ONTO 3D ORB STAGE</button>
+        </div>
+        <textarea class="v2gPromptBox" id="v2gPromptOut" readonly></textarea>
+        <div class="v2gMetaGrid">
+          <div class="v2gMetaCard" id="v2gPoseMeta"></div>
+          <div class="v2gMetaCard">
+            <strong>ROUND-TRIP PASTE FROM OTHER BROWSER (CMD+V):</strong><br>
+            Generate your stylized frame or character sprite in another browser (<a href="https://video2game.github.io/" target="_blank" style="color:#e85d04">video2game.github.io</a> / <a href="https://github.com/lovisdotio/video-to-game" target="_blank" style="color:#e85d04">lovisdotio/video-to-game</a> / Gemini / Midjourney), copy the image, and press <strong>Cmd+V (Ctrl+V)</strong> here to place it directly on the birthday table!
+            <div style="margin-top:6px;display:flex;gap:6px;">
+              <label style="font-size:12px;"><input type="radio" name="v2gPasteTarget" value="cutout" checked> Paste as Cardboard Standee</label>
+              <label style="font-size:12px;"><input type="radio" name="v2gPasteTarget" value="cake"> Paste onto Cake</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(drawer);
+})();
+
+let v2gState = { cat: 'shots', idx: 9, styleIdx: 0 };
+
+function buildV2GPromptText() {
+  const st = V2G_STYLES[v2gState.styleIdx] || V2G_STYLES[0];
+  if (v2gState.cat === 'shots') {
+    const s = V2G_SHOTS[v2gState.idx] || V2G_SHOTS[0];
+    return [
+      `[TARGET: ${st.name}]`,
+      `[SCENE: ${s.code} — ${s.title}]`,
+      `PROMPT: ${s.prompt}`,
+      `EXACT POSE & GEOMETRY LOCK: ${s.poseSpec}`,
+      `CAMERA & LENS: ${s.cam}`,
+      `STYLE & CONDITIONING SPEC: ${st.suffix}`
+    ].join('\n');
+  } else if (v2gState.cat === 'cakes') {
+    const c = V2G_CAKES[v2gState.idx] || V2G_CAKES[0];
+    return [
+      `[TARGET: ${st.name}]`,
+      `[HERO ASSET: ${c.code} — ${c.title}]`,
+      `PROMPT: ${c.prompt}`,
+      `CANONICAL RECIPE PARAMETERS: ${c.recipe}`,
+      `STYLE & TURNTABLE SPEC: ${st.suffix}`
+    ].join('\n');
+  } else {
+    const ch = V2G_CHARS[v2gState.idx] || V2G_CHARS[0];
+    return [
+      `[TARGET: ${st.name}]`,
+      `[CHARACTER POSE SHEET: ${ch.code} — ${ch.title}]`,
+      `PROMPT: ${ch.prompt}`,
+      `EXACT ANATOMICAL POSE: ${ch.poseSpec}`,
+      `STYLE & SPRITE GRID SPEC: ${st.suffix}`
+    ].join('\n');
+  }
+}
+
+function renderV2GWorkbench() {
+  const listEl = document.getElementById('v2gListEl');
+  const platesEl = document.getElementById('v2gPlatesEl');
+  const styleSel = document.getElementById('v2gStyleSel');
+  const promptOut = document.getElementById('v2gPromptOut');
+  const poseMeta = document.getElementById('v2gPoseMeta');
+  if (!listEl) return;
+
+  if (!styleSel.options.length) {
+    V2G_STYLES.forEach((st, i) => {
+      const opt = document.createElement('option');
+      opt.value = i; opt.textContent = st.name;
+      styleSel.appendChild(opt);
+    });
+    styleSel.onchange = () => {
+      v2gState.styleIdx = +styleSel.value;
+      promptOut.value = buildV2GPromptText();
+    };
+  }
+
+  const items = v2gState.cat === 'shots' ? V2G_SHOTS : (v2gState.cat === 'cakes' ? V2G_CAKES : V2G_CHARS);
+  v2gState.idx = clamp(v2gState.idx, 0, items.length - 1);
+
+  listEl.innerHTML = '';
+  items.forEach((it, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'v2gItem' + (idx === v2gState.idx ? ' active' : '');
+    btn.innerHTML = `<span class="v2gItemCode">${it.code}</span><span class="v2gItemName">${it.title}</span>`;
+    btn.onclick = () => { v2gState.idx = idx; renderV2GWorkbench(); };
+    listEl.appendChild(btn);
+  });
+
+  const cur = items[v2gState.idx];
+  if (v2gState.cat === 'shots') {
+    platesEl.innerHTML = `
+      <div class="v2gPlateCard"><img src="${cur.rgb}" alt="RGB"><div class="v2gPlateLbl"><span>1 · FILM RGB</span><a href="${cur.rgb}" download style="color:#5ff0dc">DL</a></div></div>
+      <div class="v2gPlateCard"><img src="${cur.pose}" alt="POSE"><div class="v2gPlateLbl"><span>2 · OPENPOSE + EDGE</span><a href="${cur.pose}" download style="color:#5ff0dc">DL</a></div></div>
+      <div class="v2gPlateCard"><img src="${cur.depth}" alt="DEPTH"><div class="v2gPlateLbl"><span>3 · MIDAS DEPTH</span><a href="${cur.depth}" download style="color:#5ff0dc">DL</a></div></div>
+      <div class="v2gPlateCard"><img src="${cur.sam}" alt="SAM"><div class="v2gPlateLbl"><span>4 · SAM MATTE</span><a href="${cur.sam}" download style="color:#5ff0dc">DL</a></div></div>
+    `;
+    poseMeta.innerHTML = `<strong>EXACT POSE & CAMERA RIG:</strong><br>${cur.poseSpec}<br><span style="color:#e85d04">${cur.cam}</span>`;
+  } else if (v2gState.cat === 'cakes') {
+    platesEl.innerHTML = `
+      <div class="v2gPlateCard" style="grid-column: span 2;"><img src="${cur.img}" style="height:150px;object-fit:contain;" alt="CAKE"><div class="v2gPlateLbl"><span>1 · CANONICAL CAKE REFERENCE</span><a href="${cur.img}" download style="color:#5ff0dc">DL</a></div></div>
+      <div class="v2gPlateCard" style="grid-column: span 2;"><img src="${cur.pose}" style="height:150px;object-fit:cover;" alt="WIREFRAME"><div class="v2gPlateLbl"><span>2 · 3D CYLINDER & WICK WIREFRAME</span><a href="${cur.pose}" download style="color:#5ff0dc">DL</a></div></div>
+    `;
+    poseMeta.innerHTML = `<strong>CANONICAL CAKE RECIPE (made.json):</strong><br>${cur.recipe}`;
+  } else {
+    platesEl.innerHTML = `
+      <div class="v2gPlateCard" style="grid-column: span 3;"><img src="${cur.img}" style="height:165px;object-fit:contain;background:#f6f1e6;" alt="POSE STRIP"><div class="v2gPlateLbl"><span>1 · 4-KEYFRAME ACTION POSE SHEET</span><a href="${cur.img}" download style="color:#5ff0dc">DL</a></div></div>
+      <div class="v2gPlateCard"><img src="${cur.sheet}" style="height:165px;object-fit:cover;" alt="FULL GRID"><div class="v2gPlateLbl"><span>2 · FULL SPRITE GRID</span><a href="${cur.sheet}" download style="color:#5ff0dc">DL</a></div></div>
+    `;
+    poseMeta.innerHTML = `<strong>CHARACTER ANATOMICAL POSE SPEC:</strong><br>${cur.poseSpec}`;
+  }
+
+  promptOut.value = buildV2GPromptText();
+}
+
+function toggleV2GModal(forceOpen) {
+  const dr = document.getElementById('v2gDrawer');
+  if (!dr) return;
+  const next = forceOpen != null ? forceOpen : !dr.classList.contains('open');
+  dr.classList.toggle('open', next);
+  if (next) {
+    renderV2GWorkbench();
+    say('OPENED VIDEO2GAME ICONIC SCENE, CAKE & POSE PROMPT KIT');
+  } else {
+    say('CLOSED VIDEO2GAME PROMPT KIT');
+  }
+}
+
+// Wire up V2G Workbench buttons & tabs
+(function bindV2GEvents() {
+  document.querySelectorAll('.v2gTab[data-cat]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.v2gTab[data-cat]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      v2gState.cat = btn.getAttribute('data-cat');
+      v2gState.idx = 0;
+      renderV2GWorkbench();
+    });
+  });
+
+  const closeBtn = document.getElementById('v2gCloseBtn');
+  if (closeBtn) closeBtn.onclick = () => toggleV2GModal(false);
+
+  const copyPromptBtn = document.getElementById('v2gCopyPromptBtn');
+  if (copyPromptBtn) {
+    copyPromptBtn.onclick = () => {
+      const txt = buildV2GPromptText();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).catch(() => {});
+      }
+      copyPromptBtn.textContent = 'COPIED PROMPT!';
+      setTimeout(() => copyPromptBtn.textContent = 'COPY PROMPT', 1600);
+      say('COPIED VIDEO2GAME STYLE-TRANSFER PROMPT TO CLIPBOARD');
+    };
+  }
+
+  // Build composite 2x2 or side-by-side PNG for copying to clipboard or downloading
+  async function buildCompositeSheetCanvas() {
+    const cv = document.createElement('canvas'); cv.width = 1280; cv.height = 720;
+    const cx = cv.getContext('2d');
+    cx.fillStyle = '#101413'; cx.fillRect(0, 0, 1280, 720);
+
+    const loadImg = url => new Promise(res => {
+      const im = new Image(); im.crossOrigin = 'anonymous';
+      im.onload = () => res(im); im.onerror = () => res(null);
+      im.src = url;
+    });
+
+    if (v2gState.cat === 'shots') {
+      const s = V2G_SHOTS[v2gState.idx];
+      const [imRgb, imPose, imDepth, imSam] = await Promise.all([
+        loadImg(s.rgb), loadImg(s.pose), loadImg(s.depth), loadImg(s.sam)
+      ]);
+      if (imRgb) cx.drawImage(imRgb, 0, 0, 640, 360);
+      if (imPose) cx.drawImage(imPose, 640, 0, 640, 360);
+      if (imDepth) cx.drawImage(imDepth, 0, 360, 640, 360);
+      if (imSam) cx.drawImage(imSam, 640, 360, 640, 360);
+    } else {
+      const items = v2gState.cat === 'cakes' ? V2G_CAKES : V2G_CHARS;
+      const cur = items[v2gState.idx];
+      const [im1, im2] = await Promise.all([loadImg(cur.img), loadImg(cur.pose || cur.sheet)]);
+      if (im1) cx.drawImage(im1, 20, 40, 600, 640);
+      if (im2) cx.drawImage(im2, 660, 40, 600, 640);
+    }
+    return cv;
+  }
+
+  const copyImgBtn = document.getElementById('v2gCopyImgBtn');
+  if (copyImgBtn) {
+    copyImgBtn.onclick = async () => {
+      try {
+        const cv = await buildCompositeSheetCanvas();
+        cv.toBlob(async blob => {
+          if (blob && navigator.clipboard && window.ClipboardItem) {
+            await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+            copyImgBtn.textContent = 'IMAGE COPIED!';
+            setTimeout(() => copyImgBtn.textContent = 'COPY POSE+RGB IMAGE', 1600);
+            say('COPIED COMPOSITE POSE+RGB IMAGE TO CLIPBOARD · PASTE IN OTHER BROWSER');
+          }
+        }, 'image/png');
+      } catch (e) {
+        say('USE DOWNLOAD PNG BUTTON IN THIS BROWSER');
+      }
+    };
+  }
+
+  const dlBtn = document.getElementById('v2gDownloadSheetBtn');
+  if (dlBtn) {
+    dlBtn.onclick = async () => {
+      const cv = await buildCompositeSheetCanvas();
+      const a = document.createElement('a');
+      a.href = cv.toDataURL('image/png');
+      a.download = 'v2g_conditioning_' + v2gState.cat + '_' + (v2gState.idx + 1) + '.png';
+      document.body.appendChild(a); a.click(); a.remove();
+      say('DOWNLOADED 4-PLATE V2G CONDITIONING SHEET (.PNG)');
+    };
+  }
+
+  const stageBtn = document.getElementById('v2gStageBtn');
+  if (stageBtn) {
+    stageBtn.onclick = () => {
+      snap(true);
+      if (v2gState.cat === 'shots') {
+        const s = V2G_SHOTS[v2gState.idx];
+        const st = s.stagePreset || {};
+        if (st.chapter != null) loadTizitaChapter(st.chapter, true);
+        if (st.preset != null) DOC.hero.preset = st.preset;
+        if (st.finish != null) DOC.hero.finish = st.finish;
+        if (st.candles != null) DOC.hero.candles = st.candles;
+        DOC.hero.lit = st.lit != null ? st.lit : 1;
+        if (st.phrase != null) DOC.etch.phrase = st.phrase;
+        if (st.bellows != null) setBellows(st.bellows, true);
+        if (st.view) setView(st.view);
+        dirty.hero = dirty.table = dirty.props = dirty.etch = true;
+        say('STAGED ICONIC SHOT ON 3D ORB · ' + s.title);
+      } else if (v2gState.cat === 'cakes') {
+        const c = V2G_CAKES[v2gState.idx];
+        Object.assign(DOC.hero, c.heroSpec);
+        if (c.heroSpec.phrase != null) DOC.etch.phrase = c.heroSpec.phrase;
+        dirty.hero = dirty.etch = true;
+        setMode('HERO', true);
+        say('STAGED CANONICAL CAKE · ' + c.title);
+      } else {
+        const ch = V2G_CHARS[v2gState.idx];
+        if (DOC.cutouts[S.castIdx]) {
+          DOC.cutouts[S.castIdx].clip = ch.clipIdx;
+        } else {
+          DOC.cutouts.push({ clip: ch.clipIdx, a: Math.PI, plane: 1, face: 0, s: 1.05, speed: 1 });
+          S.castIdx = DOC.cutouts.length - 1;
+        }
+        setMode('CAST', true);
+        say('ASSIGNED CHARACTER POSE · ' + ch.title);
+      }
+      toggleV2GModal(false);
+      oledDirty = true; drawDialLabels();
+    };
+  }
+
+  addEventListener('keydown', e => {
+    if (e.key === 'Escape') toggleV2GModal(false);
+    else if ((e.key === 'g' || e.key === 'G') && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+      toggleV2GModal();
+    }
+  });
+
+  // Cmd+V / Ctrl+V Clipboard Image Receiver: Paste any style-transferred image from another browser directly onto the 3D stage!
+  addEventListener('paste', e => {
+    const items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const file = items[i].getAsFile();
+        if (!file) continue;
+        const targetEl = document.querySelector('input[name="v2gPasteTarget"]:checked');
+        const targetMode = targetEl ? targetEl.value : 'cutout';
+        if (targetMode === 'cake') {
+          const reader = new FileReader();
+          reader.onload = ev => {
+            const img = new Image();
+            img.onload = () => {
+              const tex = new T.Texture(img);
+              tex.encoding = T.sRGBEncoding; tex.needsUpdate = true;
+              benchTexCache['custom_pasted_cake'] = tex;
+              HERO_PRESETS[0].kind = 'bench_cake';
+              HERO_PRESETS[0].file = 'custom_pasted_cake';
+              tex.repeat.set(1, 1);
+              DOC.hero.preset = 0; dirty.hero = true;
+              say('PASTED STYLE-TRANSFERRED CAKE IMAGE FROM CLIPBOARD!');
+            };
+            img.src = ev.target.result;
+          };
+          reader.readAsDataURL(file);
+        } else {
+          importUserImageFile(file, 'CUTOUT');
+          say('PASTED STYLE-TRANSFERRED STANDEE FROM OTHER BROWSER!');
+        }
+        toggleV2GModal(false);
+        break;
+      }
+    }
+  });
+})();
+
+window.toggleV2GModal = toggleV2GModal;
+window.toggleV2GDrawer = toggleV2GModal;
+window.setV2GTab = function(cat) {
+  v2gState.cat = cat;
+  v2gState.idx = 0;
+  document.querySelectorAll(".v2gTab[data-cat]").forEach(b => b.classList.toggle("active", b.dataset.cat === cat));
+  renderV2GWorkbench();
+};
+window.stageV2GScene = function(idx) {
+  v2gState.cat = "shots";
+  v2gState.idx = idx;
+  renderV2GWorkbench();
+  const btn = document.getElementById("v2gStageBtn");
+  if (btn) btn.click();
+};
+
 </script>
 </body>
 </html>

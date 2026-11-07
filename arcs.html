@@ -18,7 +18,7 @@
 </head>
 <body>
 <canvas id="gl"></canvas>
-<canvas id="ana" width="1280" height="720" style="display:none"></canvas><svg id="ov"></svg>
+<canvas id="ana" width="1280" height="720" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;filter:blur(7px)"></canvas><svg id="ov"></svg>
 <div id="ret"><svg id="rsvg"><path id="rBand"/><path id="rWedge"/><g id="rTicks"></g><g id="rNotch"></g><rect id="rMark"/><path id="rInner"/><path id="rInner2"/><line id="rN1"/><line id="rN2"/><text id="rL1"></text><text id="rL2"></text><g id="rCode"></g></svg></div>
 <div id="menu"></div>
 <div id="state"></div><div id="hint">[ ] turn the orb · tab: version, surface, orientation, each child · b write it · space hold / play · v her seat · r pause</div>
@@ -31,44 +31,27 @@
   var ST = window.STAGE, T = ST.T, N = ST.nodes, C = ST.C, clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
   var TE = 5.5, TEND = 7.4, PAUSE = TE - .7;                      // the flame goes out at TE; Ana stops the party just before the breath
   var VARIANTS = [
-    { name: 'LOW', t: { r: 1.05, h: .62 }, drip: .3, gloss: .5, shells: 36, candles: 5, ch: .3, ring: .6, lean: 0 },
-    { name: 'TALL CANDLES', t: { r: 1.0, h: .78 }, drip: .5, gloss: .5, shells: 30, candles: 5, ch: .75, ring: .5, lean: 0 },
-    { name: 'HOMEMADE', t: { r: 1.02, h: .7 }, drip: .95, gloss: .1, shells: 18, candles: 4, ch: .55, ring: .6, lean: 1 },
-    { name: 'GENERATED', t: { r: 1.05, h: .62 }, drip: .3, gloss: .5, shells: 36, candles: 0, ch: .3, ring: .6, lean: 0, gen: true }
+    { name: 'LOW', t: { r: 1.05, h: .72 }, drip: .3, gloss: .5, shells: 36, candles: 5, ch: .42, ring: .6, lean: 0 },
+    { name: 'TALL CANDLES', t: { r: .92, h: .95 }, drip: .5, gloss: .5, shells: 30, candles: 5, ch: 1.2, ring: .5, lean: 0 },
+    { name: 'HOMEMADE', t: { r: 1.0, h: .85 }, drip: .95, gloss: .1, shells: 18, candles: 4, ch: .55, ring: .6, lean: 1 }
   ];
   var PERF = [   // the six children of the film's wide shot, each a full-body clip placed at the shot's own coordinates. Two carry a timing arc.
     { id: 'left', name: 'LEFT', delay: 0 }, { id: 'small', name: 'SMALL', delay: 0 }, { id: 'back', name: 'BACK', delay: 0 },
     { id: 'girl', name: 'BIRTHDAY GIRL', key: 1.7, keyName: 'BREATH OUT', delay: 0, arc: true },
     { id: 'asian', name: 'GIRL AT RIGHT', key: 1.4, keyName: 'GLANCE', delay: 0, arc: true },
-    { id: 'boy', name: 'BOY', delay: 0 }, { id: 'cake', name: 'CAKE', delay: 0, cake: true }
+    { id: 'boy', name: 'BOY', delay: 0 }
   ];
-  var film = true, v = 0, ins = 0, tilt = 0, autoIns = 0, view = 'ana', held = true, t = PAUSE, sel = 'ver', slabs = {}, imgs = {}, cards = {};
+  var v = 0, ins = 0, tilt = 0, autoIns = 0, view = 'ana', held = true, t = PAUSE, sel = 'ver', slabs = {}, imgs = {}, cards = {};
   var PLATE = { z: -1.2 }, plateReady = false;
-  PERF.forEach(function (p) { var cv = document.createElement('canvas'), tex = new T.CanvasTexture(cv); tex.encoding = T.sRGBEncoding; var m = new T.MeshBasicMaterial({ map: tex, alphaTest: .35, side: T.DoubleSide, depthTest: false }), mesh = new T.Mesh(new T.PlaneGeometry(1, 1), m); mesh.renderOrder = 11; mesh.visible = false; ST.SETA.add(mesh); cards[p.id] = { cv: cv, g: cv.getContext('2d'), tex: tex, mat: m, mesh: mesh }; });
+  PERF.forEach(function (p) { var cv = document.createElement('canvas'), tex = new T.CanvasTexture(cv); tex.encoding = T.sRGBEncoding; var m = new T.MeshBasicMaterial({ map: tex, alphaTest: .35, side: T.DoubleSide }), mesh = new T.Mesh(new T.PlaneGeometry(1, 1), m); mesh.visible = false; ST.SETA.add(mesh); cards[p.id] = { cv: cv, g: cv.getContext('2d'), tex: tex, mat: m, mesh: mesh }; });
   fetch('assets/slabs/slabs.json').then(function (r) { return r.json(); }).then(function (j) { var need = j.slabs.length, done = 0; j.slabs.forEach(function (c) { slabs[c.id] = c; var i = new Image(); i.onload = function () { if (++done === need) go(); }; i.src = 'assets/slabs/slab_' + c.id + '.webp'; imgs[c.id] = i; }); });
-  var PF = [], pfN = 0, pcv = document.createElement('canvas'); pcv.width = 960; pcv.height = 540; var pg = pcv.getContext('2d'), vtex = new T.CanvasTexture(pcv); vtex.encoding = T.sRGBEncoding; var pfLast = -1;
-  for (var pi = 1; pi <= 41; pi++) (function (i) { var im = new Image(); im.onload = function () { pfN++; pfLast = -1; }; im.src = 'assets/plate/p_' + String(i).padStart(3, '0') + '.jpg'; PF[i - 1] = im; })(pi);
-  var baseMesh = new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshBasicMaterial({ map: vtex })); baseMesh.renderOrder = -10; baseMesh.visible = false; ST.SETA.add(baseMesh);
-  var genMesh = new T.Mesh(new T.BufferGeometry(), new T.MeshStandardMaterial({ roughness: .9, color: 0xc8b890 })); genMesh.visible = false; genMesh.castShadow = false; ST.SETA.add(genMesh);
-  Promise.all([fetch('assets/gen/cake_trellis.json').then(function (r) { return r.json(); }), fetch('assets/gen/cake_trellis.bin').then(function (r) { return r.arrayBuffer(); })]).then(function (r) { var m = r[0], buf = r[1], g = new T.BufferGeometry(), nv = m.v;
-    g.setAttribute('position', new T.BufferAttribute(new Float32Array(buf, 0, nv * 3), 3)); g.setAttribute('uv', new T.BufferAttribute(new Float32Array(buf, nv * 12, nv * 2), 2)); g.setIndex(new T.BufferAttribute(new Uint16Array(buf, nv * 20, m.i), 1)); g.computeVertexNormals();
-    var s = 2.1 / (m.max[0] - m.min[0]); genMesh.geometry = g; genMesh.scale.setScalar(s); genMesh.position.set(0, .09 - m.min[1] * s, 0);
-    new T.TextureLoader().load('assets/gen/cake_trellis.jpg', function (tx) { tx.encoding = T.sRGBEncoding; tx.flipY = false; genMesh.material.map = tx; genMesh.material.color.setHex(0xffffff); genMesh.material.needsUpdate = true; }); });
-  var snuffInfo = null, snuffMesh = new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshBasicMaterial({ transparent: true, opacity: 0, depthTest: false, depthWrite: false })); snuffMesh.renderOrder = -4; snuffMesh.visible = false; ST.SETA.add(snuffMesh);
-  fetch('assets/plate/snuff.json').then(function (r) { return r.json(); }).then(function (j) { snuffInfo = j; new T.TextureLoader().load('assets/plate/snuff.webp', function (tx) { tx.encoding = T.sRGBEncoding; snuffMesh.material.map = tx; snuffMesh.material.needsUpdate = true; }); });
-  var patch = null, patchMesh = new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshBasicMaterial({ alphaTest: .35, depthTest: false, depthWrite: false })); patchMesh.renderOrder = -5; patchMesh.visible = false; ST.SETA.add(patchMesh);
-  fetch('assets/plate/patch.json').then(function (r) { return r.json(); }).then(function (j) { patch = j; new T.TextureLoader().load('assets/plate/patch.webp', function (tx) { tx.encoding = T.sRGBEncoding; patchMesh.material.map = tx; patchMesh.material.needsUpdate = true; }); });
   /* the plate: the six slabs laid on one plane behind the table, facing the camera, in the shot's own layout */
-  ST.scene.add(new T.AmbientLight(0x4a3418, .45)); var warmFill = new T.PointLight(0xffa850, .6, 7, 1.6); warmFill.position.set(.2, 1.9, 2.6); ST.scene.add(warmFill); ST.scene.traverse(function (o) { if (o.isHemisphereLight) { o.color.setHex(0x4a3418); o.groundColor.setHex(0x120a04); o.intensity = .5; } if (o.isSpotLight) o.intensity = 0; });
   var tmpO = new T.PerspectiveCamera();
   function placePlate() {
     var yaw = C.yaw * Math.PI / 180, pit = C.pitch * Math.PI / 180, cp = Math.cos(pit), pos = new T.Vector3(C.tx + Math.sin(yaw) * cp * C.D, C.ty + Math.sin(pit) * C.D, C.tz + Math.cos(yaw) * cp * C.D), tg = new T.Vector3(C.tx, C.ty, C.tz);
     var f = tg.clone().sub(pos).normalize(), dist = C.D + 1.4, vf = 2 * Math.atan(12 / C.focal), U = 2 * dist * Math.tan(vf / 2) / 720; tmpO.position.copy(pos); tmpO.lookAt(tg); var q = tmpO.quaternion.clone();
     var r = new T.Vector3(1, 0, 0).applyQuaternion(q), up = new T.Vector3(0, 1, 0).applyQuaternion(q), P = pos.clone().add(f.clone().multiplyScalar(dist));
-    PERF.forEach(function (p) { var c = slabs[p.id], cd = cards[p.id]; if (!c) return; var d2 = p.cake ? dist - .5 : dist, U2 = U * d2 / dist, P2 = pos.clone().add(f.clone().multiplyScalar(d2)), wp = P2.clone().add(r.clone().multiplyScalar((c.x + c.w / 2 - 640) * U2)).add(up.clone().multiplyScalar((360 - (c.y + c.h / 2)) * U2)); ST.SETA.worldToLocal(wp); cd.mesh.position.copy(wp); cd.mesh.quaternion.copy(q); cd.mesh.scale.set(c.w * U2, c.h * U2, 1); });
-    var dB = dist + .7, UB = U * dB / dist, wp0 = pos.clone().add(f.clone().multiplyScalar(dB)); ST.SETA.worldToLocal(wp0); baseMesh.position.copy(wp0); baseMesh.quaternion.copy(q); baseMesh.scale.set(1280 * UB, 720 * UB, 1);
-    if (patch) { var pp = P.clone().add(r.clone().multiplyScalar((patch.x + patch.w / 2 - 640) * U)).add(up.clone().multiplyScalar((360 - (patch.y + patch.h / 2)) * U)); ST.SETA.worldToLocal(pp); patchMesh.position.copy(pp); patchMesh.quaternion.copy(q); patchMesh.scale.set(patch.w * U, patch.h * U, 1); }
-    if (snuffInfo) { var sp = P.clone().add(r.clone().multiplyScalar((snuffInfo.x + snuffInfo.w / 2 - 640) * U)).add(up.clone().multiplyScalar((360 - (snuffInfo.y + snuffInfo.h / 2)) * U)); ST.SETA.worldToLocal(sp); snuffMesh.position.copy(sp); snuffMesh.quaternion.copy(q); snuffMesh.scale.set(snuffInfo.w * U, snuffInfo.h * U, 1); }
+    PERF.forEach(function (p) { var c = slabs[p.id], cd = cards[p.id]; if (!c) return; var wp = P.clone().add(r.clone().multiplyScalar((c.x + c.w / 2 - 640) * U)).add(up.clone().multiplyScalar((360 - (c.y + c.h / 2)) * U)); ST.SETA.worldToLocal(wp); cd.mesh.position.copy(wp); cd.mesh.quaternion.copy(q); cd.mesh.scale.set(c.w * U, c.h * U, 1); });
     plateReady = true;
   }
   /* the cake: built once, then swapped in place */
@@ -76,9 +59,8 @@
     var g = 0; while (ST.S.history.length && g++ < 40) ST.undo(); var V = VARIANTS[v];
     N.tier1.p = { r: V.t.r, h: V.t.h }; N.icing.p = { t: .06, drip: V.drip, gloss: V.gloss }; N.border.p = { size: .11, count: V.shells }; N.candles.p = { n: 0, h: V.ch, ring: V.ring, rot: .4, rad: .042 };
     ['table', 'tier', 'icing', 'border'].forEach(function (s) { ST.place(s); }); for (var i = 0; i < V.candles; i++) ST.place('candle'); ST.place('flame');
-    N.tier1.body.material = dotMat; N.table.obj.material = goldMat; N.table.obj.scale.set(1.45, 1, 1.45); N.table.obj.position.x = 1.15; N.table.obj.rotation.y = Math.PI / 6; N.candles.p.rad = .042; N.flames.p = { s: .9, f: .9, lt: .45 }; if (N.candles.obj) N.candles.obj.traverse(function (o) { if (o.isMesh && o.geometry.type === 'CylinderGeometry' && o.geometry.parameters.radiusTop > .02) o.material = candleMat; }); ST.post.uniforms.exposure.value = .95; N.border.obj.castShadow = false; ST.keyLight.castShadow = false; dressTable(); ST.cakeG.traverse(function (o) { if (o.isMesh && o.material && o.material.color && o.material.map == null && o.material.roughness < .7) { o.material = creamMat; } }); ST.SETA.traverse(function (o) { if (o.geometry && (o.geometry.type === 'TorusGeometry' || (o.geometry.type === 'CircleGeometry' && o.geometry.parameters.radius === 30))) o.visible = false; });
+    N.tier1.body.material = dotMat; N.table.obj.material = goldMat; N.table.obj.scale.set(1.45, 1, 1.45); N.table.obj.position.x = 1.15; N.table.obj.rotation.y = Math.PI / 6; N.candles.p.rad = .042; N.flames.p = { s: .9, f: .9, lt: .85 }; N.border.obj.castShadow = false; ST.cakeG.traverse(function (o) { if (o.isMesh && o.material && o.material.color && o.material.map == null && o.material.roughness < .7) { o.material = creamMat; } }); ST.SETA.traverse(function (o) { if (o.geometry && o.geometry.type === 'TorusGeometry') o.material.color.setHex(0x2c3236); });
     ST.instant(); if (V.lean) N.tier1.obj.scale.set(1.1, 1, .92); inscribe(); orient();
-    ST.cakeG.visible = !film && !VARIANTS[v].gen; genMesh.visible = !film && !!VARIANTS[v].gen; if (dressed) dressed.visible = !film; patchMesh.visible = !film && plateReady;
     if (t >= TE) N.flames.exists = false;
   }
 
@@ -91,10 +73,8 @@
   ];
   var FLOUR = [[0.2, -0.8], [3, -1.3], [6.5, -0.6], [10, -1.2], [14, -0.7], [18, -1.0]];
   var dotTex = (function () { var c = document.createElement('canvas'); c.width = 256; c.height = 128; var g = c.getContext('2d'); g.fillStyle = '#e9dfc4'; g.fillRect(0, 0, 256, 128); for (var y = 0; y < 5; y++) for (var x = 0; x < 12; x++) { var cx = x * 22 + (y % 2) * 11 + 8, cy = y * 26 + 14; g.fillStyle = 'rgba(40,24,14,.85)'; g.beginPath(); g.arc(cx, cy, 4.2, 0, 7); g.fill(); } var t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(2, 1); return t; })();
-  var dotMat = new T.MeshStandardMaterial({ map: dotTex, roughness: .95, color: 0x54482f }), goldMat = new T.MeshStandardMaterial({ color: 0x8a6420, emissive: 0x0e0802, roughness: .7 });
-  var creamTex = (function () { var c = document.createElement('canvas'); c.width = c.height = 256; var g = c.getContext('2d'); g.fillStyle = '#d6c498'; g.fillRect(0, 0, 256, 256); for (var i = 0; i < 700; i++) { var a = Math.random(); g.fillStyle = a < .5 ? 'rgba(255,244,214,.35)' : 'rgba(120,92,52,.25)'; g.beginPath(); g.ellipse(Math.random() * 256, Math.random() * 256, 2 + Math.random() * 7, 1.5 + Math.random() * 4, Math.random() * 3, 0, 7); g.fill(); } var t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(2, 2); return t; })();
-  var candleMat = new T.MeshStandardMaterial({ color: 0xe6d49a, roughness: .6 });
-  var creamMat = new T.MeshStandardMaterial({ map: creamTex, roughness: .95, color: 0x6a5c44 });
+  var dotMat = new T.MeshStandardMaterial({ map: dotTex, roughness: .75 }), goldMat = new T.MeshStandardMaterial({ color: 0x8a6420, emissive: 0x0e0802, roughness: .7 });
+  var creamMat = new T.MeshStandardMaterial({ color: 0xb8a77c, roughness: .85 });
   var insG = null, insMat = new T.MeshStandardMaterial({ color: 0xc8301e, roughness: .32 });
   function inscribe() {
     if (insG) { ST.cakeG.remove(insG); insG.traverse(function (o) { if (o.geometry) o.geometry.dispose(); }); insG = null; } if (ins <= 0) return;
@@ -109,7 +89,7 @@
   function orient() { var th = tilt * Math.PI / 180, py = (N.tier1.exists ? N.tier1.p.h * .5 : .4) + .09; ST.cakeG.rotation.z = th; ST.cakeG.position.set(py * Math.sin(th), py * (1 - Math.cos(th)) + (tilt ? .25 * Math.sin(th) : 0), 0); }
   function setView(w) {
     view = w;
-    if (w === 'ana') { var U0 = 2 * 10.2 * Math.tan(Math.atan(12 / 50)) / 720; Object.assign(C, { yaw: 0, pitch: 16, roll: 0, D: 10.2, tx: 270 * U0, ty: .55 + 150 * U0, tz: 0, focal: 50, stop: 2.4 }); C.sy = 0; C.sp = 16; C.foff = 1.5; }
+    if (w === 'ana') { var U0 = 2 * 10.2 * Math.tan(Math.atan(12 / 50)) / 720; Object.assign(C, { yaw: 0, pitch: 16, roll: 0, D: 10.2, tx: 270 * U0, ty: .55 + 150 * U0, tz: 0, focal: 50, stop: 2.4 }); C.sy = 0; C.sp = 16; C.foff = 0; }
     else { Object.assign(C, { yaw: 180, pitch: -3, roll: 0, D: 4.9, ty: 1.35, tx: 0, tz: 2.0, focal: 30, stop: 2.8 }); C.sy = 180; C.sp = -3; C.foff = -2.0; }
     C.iy = C.ip = C.ir = 0; if (w === 'ana' && Object.keys(slabs).length) placePlate();
   }
@@ -119,18 +99,16 @@
   function arcPath(cx, cy, r, a0, a1) { var p = function (a) { return (cx + Math.cos(a * Math.PI / 180) * r).toFixed(1) + ' ' + (cy + Math.sin(a * Math.PI / 180) * r).toFixed(1); }; return 'M' + p(a0) + ' A' + r + ' ' + r + ' 0 ' + ((a1 - a0) > 180 ? 1 : 0) + ' 1 ' + p(a1); }
   function el(n, at, txt) { var e = document.createElementNS(NS, n); for (var k in at) e.setAttribute(k, at[k]); if (txt) e.textContent = txt; return e; }
   var lastClear = 100;
-  var lastTouch = -1e9; function touched() { lastTouch = performance.now(); }
   function draw() {
-    ov.style.opacity = performance.now() - lastTouch < 3500 ? 1 : 0; ov.style.transition = 'opacity .6s';
     while (ov.firstChild) ov.removeChild(ov.firstChild);
     // the cake's arc: it stays beside the cake while the cake is worked on. Its inner tick reads whichever property the orb is on: version, surface, orientation.
     var ti = ST.topInfo(), ca = scr(2.9, ti.y + 2.4, 0.2), g = el('g', { 'class': (sel === 'ver' || sel === 'ins' || sel === 'tilt') ? 'sel' : '' }); ov.appendChild(g);
     var R = 86, a0 = -150, a1 = -30, mode = sel === 'ins' ? 'ins' : sel === 'tilt' ? 'tilt' : 'ver', cy2 = ca[1] + R * .6, pos = function (u, r) { var a = (a0 + (a1 - a0) * u) * Math.PI / 180; return [ca[0] + Math.cos(a) * r, cy2 + Math.sin(a) * r, a]; };
     g.appendChild(el('path', { d: arcPath(ca[0], cy2, R, a0, a1), 'class': 'a' })); g.appendChild(el('path', { d: arcPath(ca[0], cy2, R - 9, a0, a1), 'class': 'a', opacity: .25 }));
-    var marks = mode === 'ver' ? ['FILM'].concat(VARIANTS.map(function (V) { return V.name; })).map(function (n, i) { return [i / VARIANTS.length, n]; }) : mode === 'ins' ? [[.0, ''], ['生日快乐'.length ? .22 : 0, '生'], [.44, '日'], [.66, '快'], [.82, '乐'], [1, '~']] : [[0, '0'], [.5, '30'], [1, '60']];
+    var marks = mode === 'ver' ? VARIANTS.map(function (V, i) { return [i / 2, V.name]; }) : mode === 'ins' ? [[.0, ''], ['生日快乐'.length ? .22 : 0, '生'], [.44, '日'], [.66, '快'], [.82, '乐'], [1, '~']] : [[0, '0'], [.5, '30'], [1, '60']];
     marks.forEach(function (m, i) { var p = pos(m[0], R), q = pos(m[0], R + 9); g.appendChild(el('line', { x1: p[0], y1: p[1], x2: q[0], y2: q[1], 'class': 'n' })); if (m[1]) g.appendChild(el('text', { x: q[0] + Math.cos(q[2]) * 4, y: q[1] - 4, 'text-anchor': m[0] < .2 ? 'end' : m[0] > .8 ? 'start' : 'middle', opacity: .6 }, m[1])); });
-    var u = mode === 'ver' ? (film ? 0 : v + 1) / VARIANTS.length : mode === 'ins' ? ins : tilt / 60, tp = pos(u, R), ti2 = pos(u, R - 9); g.appendChild(el('circle', { cx: tp[0], cy: tp[1], r: 4.5, fill: '#fff' })); g.appendChild(el('line', { x1: tp[0], y1: tp[1], x2: ti2[0], y2: ti2[1], stroke: '#fff', 'stroke-width': 2 }));
-    var label = mode === 'ver' ? (film ? 'FILM' : VARIANTS[v].name) : mode === 'ins' ? '生日快乐 ' + Math.round(ins * 100) + '%' : Math.round(tilt) + '°';
+    var u = mode === 'ver' ? v / 2 : mode === 'ins' ? ins : tilt / 60, tp = pos(u, R), ti2 = pos(u, R - 9); g.appendChild(el('circle', { cx: tp[0], cy: tp[1], r: 4.5, fill: '#fff' })); g.appendChild(el('line', { x1: tp[0], y1: tp[1], x2: ti2[0], y2: ti2[1], stroke: '#fff', 'stroke-width': 2 }));
+    var label = mode === 'ver' ? VARIANTS[v].name : mode === 'ins' ? '生日快乐 ' + Math.round(ins * 100) + '%' : Math.round(tilt) + '°';
     g.appendChild(el('text', { x: ca[0], y: cy2 + 20, 'text-anchor': 'middle', opacity: .95 }, label)); 
     // the arc over each child: when she reacts, against when the flame goes out
     PERF.forEach(function (p) {
@@ -151,24 +129,7 @@
       if (y1 < ey1 && y0 > ey0) cov.push([x - hw, x + hw]); });
     var covered = 0; cov.sort(function (p, q) { return p[0] - q[0]; }); var cur = ex0; cov.forEach(function (c) { var s = Math.max(c[0], cur, ex0), e = Math.min(c[1], ex1); if (e > s) { covered += e - s; cur = e; } }); return 100 * (1 - covered / Math.max(1, ex1 - ex0));
   }
-  (function () { var g = document.getElementById('ana').getContext('2d'), lg = g.createLinearGradient(870, 0, 1180, 0); lg.addColorStop(0, '#1a130b'); lg.addColorStop(.3, '#060504'); lg.addColorStop(1, '#020302'); g.fillStyle = lg;
-    g.beginPath(); g.ellipse(1030, 320, 118, 160, .06, 0, 7); g.fill(); g.fillRect(960, 420, 130, 110);
-    g.beginPath(); g.moveTo(800, 720); g.quadraticCurveTo(815, 560, 930, 515); g.lineTo(1160, 500); g.quadraticCurveTo(1280, 520, 1280, 600); g.lineTo(1280, 720); g.closePath(); g.fill(); })();
-  var dressed = null;
-  function mkTex(w, h, fn) { var c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); var t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; return t; }
-  function dressTable() {
-    if (dressed) { ST.SETA.remove(dressed); }
-    var g = new T.Group(); dressed = g; ST.SETA.add(g);
-    var R = 2.2 * 1.45, geo = new T.CircleGeometry(R, 6); geo.rotateX(-Math.PI / 2); geo.rotateY(Math.PI / 6); var pos = geo.attributes.position, uv = geo.attributes.uv, cx = 1.15;
-    for (var i = 0; i < pos.count; i++) { var wx = pos.getX(i) + cx, wz = pos.getZ(i); uv.setXY(i, wx / 8 + .5, wz / 8 + .5 + .05); }
-    var tex = mkTex(256, 256, function (c, w, hh) { var gr = c.createRadialGradient(w / 2, hh / 2, 4, w / 2, hh / 2, w * .5); gr.addColorStop(0, 'rgb(232,168,66)'); gr.addColorStop(.28, 'rgb(190,128,44)'); gr.addColorStop(.55, 'rgb(86,52,18)'); gr.addColorStop(1, 'rgb(6,4,2)'); c.fillStyle = gr; c.fillRect(0, 0, w, hh); });
-    
-    var sh = new T.Mesh(new T.PlaneGeometry(3.6, 3.6), new T.MeshBasicMaterial({ map: mkTex(128, 128, function (c, w, hh) { var gr = c.createRadialGradient(w / 2, hh / 2, 10, w / 2, hh / 2, w / 2); gr.addColorStop(0, 'rgba(0,0,0,.95)'); gr.addColorStop(.5, 'rgba(0,0,0,.7)'); gr.addColorStop(.8, 'rgba(0,0,0,.25)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = gr; c.fillRect(0, 0, w, hh); }), transparent: true, depthWrite: false })); sh.rotation.x = -Math.PI / 2; sh.position.set(0.05, .112, .18); g.add(sh);
-    if (N.table.obj) N.table.obj.visible = false;
-  }
-
-  var snuffLast = 0;
-  function snuffDraw(k) { snuffLast = k; snuffMesh.material.opacity = k; snuffMesh.visible = k > 0 && plateReady; }
+  (function () { var g = document.getElementById('ana').getContext('2d'); g.fillStyle = '#030504'; g.beginPath(); g.ellipse(1035, 300, 120, 150, .05, 0, 7); g.fill(); g.beginPath(); g.moveTo(790, 720); g.quadraticCurveTo(820, 520, 960, 470); g.lineTo(1200, 470); g.quadraticCurveTo(1280, 500, 1280, 560); g.lineTo(1280, 720); g.closePath(); g.fill(); })();
   function go() {
     ST.start(); cake(); setView('ana'); document.getElementById('state').textContent = ''; var last = performance.now();
     window.__frameHook = function (dt) {
@@ -176,28 +137,24 @@
       if (autoIns) { ins = Math.min(1, ins + dt / 4); inscribe(); if (ins >= 1) autoIns = 0; }
       // the shared event: the flame goes out
       var out = t >= TE; if (N.flames.exists === out) { N.flames.exists = !out; if (!out) N.flames.lit = 1; }
-      var fall = clamp((t - TE) / 1.4, 0, 1); ST.post.uniforms.exposure.value = .95 - .38 * fall * fall; snuffDraw(film && view === 'ana' ? clamp((t - TE) / .6, 0, 1) : 0);
-      var fi = clamp(Math.floor((t - PAUSE + .6) * 12), 0, 40); if (fi !== pfLast && PF[fi] && PF[fi].complete && PF[fi].naturalWidth) { pg.drawImage(PF[fi], 0, 0); vtex.needsUpdate = true; pfLast = fi; } baseMesh.visible = view === 'ana' && plateReady; patchMesh.visible = !film && view === 'ana' && plateReady;
       PERF.forEach(function (p) { var cd = cards[p.id], c = slabs[p.id], im = imgs[p.id]; if (!c || !im.naturalWidth) return; var ct = clamp(t - PAUSE + .6 - p.delay, 0, c.n / c.fps - .01), k = clamp(Math.floor(ct * c.fps), 0, c.n - 1);
-        if (cd.cv.width !== c.w) { cd.cv.width = c.w; cd.cv.height = c.h; } cd.g.clearRect(0, 0, c.w, c.h); cd.g.filter = 'blur(.9px)'; cd.g.drawImage(im, (k % c.cols) * c.w, Math.floor(k / c.cols) * c.h, c.w, c.h, 0, 0, c.w, c.h); cd.tex.needsUpdate = true;
-        cd.mesh.visible = view === 'ana' && plateReady && !p.cake && Math.abs(p.delay) > .04; cd.mat.color.setRGB(1, 1, 1); });
-      ST.flameSprites.forEach(function (f) { f.gl.visible = false; });
+        if (cd.cv.width !== c.w) { cd.cv.width = c.w; cd.cv.height = c.h; } cd.g.clearRect(0, 0, c.w, c.h); cd.g.drawImage(im, (k % c.cols) * c.w, Math.floor(k / c.cols) * c.h, c.w, c.h, 0, 0, c.w, c.h); cd.tex.needsUpdate = true;
+        cd.mesh.visible = view === 'ana' && plateReady; var f = out ? .72 : 1; cd.mat.color.setRGB(f, f, f); });
       lastClear = clearEyes(); draw();
       document.getElementById('state').innerHTML = (view === 'ana' ? 'ANA, WORKING' : 'THE BIRTHDAY SEAT') + '<br>' + (held ? 'HELD' : out ? 'FLAME OUT' : 'PLAYING') + ' · ' + t.toFixed(1) + ' S<br>' + (sel === 'ver' ? 'ARC: CAKE · VERSION' : sel === 'ins' ? 'ARC: CAKE · SURFACE' : sel === 'tilt' ? 'ARC: CAKE · ORIENTATION' : 'ARC: ' + PERF.filter(function (p) { return p.id === sel; })[0].name);
     };
   }
   /* the orb: one roll = one detent on the chosen arc */
   function roll(d) {
-    touched();
-    if (sel === 'ver') { var d0 = film ? 0 : v + 1, nd = clamp(d0 + d, 0, VARIANTS.length); if (nd !== d0) { film = nd === 0; v = Math.max(0, nd - 1); cake(); } }
-    else if (sel === 'ins') { if (film) { film = false; cake(); } autoIns = 0; ins = clamp(ins + d * .035, 0, 1); inscribe(); }
-    else if (sel === 'tilt') { if (film) { film = false; cake(); } tilt = clamp(tilt + d * 3, 0, 60); orient(); }
+    if (sel === 'ver') { var nv = clamp(v + d, 0, 2); if (nv !== v) { v = nv; cake(); } }
+    else if (sel === 'ins') { autoIns = 0; ins = clamp(ins + d * .035, 0, 1); inscribe(); }
+    else if (sel === 'tilt') { tilt = clamp(tilt + d * 3, 0, 60); orient(); }
     else { var p = PERF.filter(function (q) { return q.id === sel; })[0]; p.delay = clamp(p.delay + d * .1, -1, 7); }
   }
-  addEventListener('keydown', function (e) { var k = e.key; if (k === ']' || k === 'ArrowRight') roll(1); else if (k === '[' || k === 'ArrowLeft') roll(-1); else if (k === 'Tab') { touched(); e.preventDefault(); var ids = ['ver', 'ins', 'tilt'].concat(PERF.map(function (p) { return p.id; })); sel = ids[(ids.indexOf(sel) + 1) % ids.length]; } else if (k === ' ') { e.preventDefault(); held = !held; if (!held && t >= TEND - .01) t = PAUSE; } else if (k.toLowerCase() === 'v') setView(view === 'ana' ? 'seat' : 'ana'); else if (k.toLowerCase() === 'r') { t = PAUSE; held = true; } else if (k.toLowerCase() === 'b') { sel = 'ins'; ins = 0; autoIns = 1; } else if (k === '?' || k === '/') document.body.classList.toggle('help'); });
+  addEventListener('keydown', function (e) { var k = e.key; if (k === ']' || k === 'ArrowRight') roll(1); else if (k === '[' || k === 'ArrowLeft') roll(-1); else if (k === 'Tab') { e.preventDefault(); var ids = ['ver', 'ins', 'tilt'].concat(PERF.map(function (p) { return p.id; })); sel = ids[(ids.indexOf(sel) + 1) % ids.length]; } else if (k === ' ') { e.preventDefault(); held = !held; if (!held && t >= TEND - .01) t = PAUSE; } else if (k.toLowerCase() === 'v') setView(view === 'ana' ? 'seat' : 'ana'); else if (k.toLowerCase() === 'r') { t = PAUSE; held = true; } else if (k.toLowerCase() === 'b') { sel = 'ins'; ins = 0; autoIns = 1; } else if (k === '?' || k === '/') document.body.classList.toggle('help'); });
   addEventListener('wheel', function (e) { roll(e.deltaY > 0 ? 1 : -1); }, { passive: true });
   var sx = null; document.getElementById('gl').addEventListener('pointerdown', function (e) { sx = e.clientX; }); addEventListener('pointermove', function (e) { if (sx == null) return; if (Math.abs(e.clientX - sx) > 36) { roll(e.clientX > sx ? 1 : -1); sx = e.clientX; } }); addEventListener('pointerup', function () { sx = null; });
-  window.__arcs = { snuff: function () { return snuffLast; }, roll: roll, sel: function (s) { sel = s; }, ins: function (x) { ins = x; inscribe(); }, tilt: function (x) { tilt = x; orient(); }, view: setView, hold: function (h) { held = h; }, t: function (x) { t = x; }, state: function () { return { plate: plateReady, v: v, ins: ins, tilt: tilt, t: t, clear: lastClear, delay: PERF.map(function (p) { return p.delay; }) }; } };
+  window.__arcs = { roll: roll, sel: function (s) { sel = s; }, ins: function (x) { ins = x; inscribe(); }, tilt: function (x) { tilt = x; orient(); }, view: setView, hold: function (h) { held = h; }, t: function (x) { t = x; }, state: function () { return { plate: plateReady, v: v, ins: ins, tilt: tilt, t: t, clear: lastClear, delay: PERF.map(function (p) { return p.delay; }) }; } };
 })();
 </script>
 </body>
