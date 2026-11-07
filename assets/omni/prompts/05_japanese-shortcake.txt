@@ -1,27 +1,25 @@
 Gemini Omni Flash 1.2 / reference-to-video. 15 seconds, 16:9, 720p draft then 1080p keeper, native audio.
 
 REFERENCES (all attached; each has one job, use only that job):
-- video 1 (v1_cake-appears.mp4): MOTION of the cake: it appears out of nothing in a dark room, flickers through different icings, then tilts toward the camera. Copy this motion, timing and the lit-from-the-cake light. Do not copy the cake itself.
-- video 2 (v2_writing-upright.mp4): MOTION of the writing: seen over a dark shoulder, red icing is piped stroke by stroke on the cake top, the cake swings upright, a pale white crescent arc hangs beside it. Copy the camera, the arc and the pacing.
-- video 3 (v3_children-fade.mp4): MOTION of the children: they are not there, then ghost-transparent, then solid, gathered round a lit table. Copy the fade-in and the seating.
-- video 4 (v4_candle-on-face.mp4): LIGHT on a face: one candle at the frame edge lights a child's face from below and from one side, everything else is dark. Copy this light and framing.
-- video 5 (v5_candles-out.mp4): MOTION of the flames going out: a face is lit, the candles go out and the warm light leaves the face. Copy the fall of light.
-- image 1 (i1_room-before-cake.jpg): ROOM: the empty dark room with one pale line of light along the horizon. Keep this architecture, this darkness and this camera height. Treat as a guide for the room, not as the opening frame.
-- image 2 (i2_cake-floating.jpg): POSITION of the cake: floating just above the floor, left of frame, a few candles lit. Keep this placement.
-- image 3 (i3_writing-reticle.jpg): FRAMING of the writing shot: low, over a shoulder, cake on the left, white crescent arc between the cake and the shoulder.
-- image 4 (i4_children-lit-table.jpg): SEATING: children in a half ring round a table lit only by the cake, the table top a bright flat plane in the dark.
-- image 5 (i5_boy-face-candle.jpg): FACE LIGHT: a child's face lit by one candle, soft, warm, shadow behind. Keep the intimacy and the shallow depth of field.
-- image 6 (i6_face-lit.jpg): CLOSE FACE: a face lit warm from below at the moment before the candles go out.
-Everything else about each reference (people, clothes, cake, room contents, language, colours) is NOT to be copied: it is replaced by the brief below.
+- video 1 (u_ui-strip-hud.mp4): UI LOCK (the whole screen layout): the top 62% is the world with a thin HUD (title, numbered list at right, green arcs), the bottom 38% is the fixed controller: a chrome five-ring barrel with a panel above it. COPY THE BOTTOM 38% EXACTLY, every frame: same chrome barrel, same rings, same panel, same position, same size, same text layout. Only the small readouts and a thin teal highlight on one ring may change.
+- video 2 (v1_cake-appears.mp4): WORLD MOTION of the cake (orb-free film shot): it appears out of nothing in a dark room, flickers through icings, tilts toward the camera. Copy the motion and the light, not the cake.
+- video 3 (v3_children-fade.mp4): WORLD MOTION of the children (orb-free film shot): not there, ghost-transparent, then solid round a lit table. Copy the fade-in and the seating.
+- image 1 (ui1_pick-cake.jpg): UI FRAME 1: exact layout of the screen and of the controller. The controller strip must look like this in every frame.
+- image 2 (ui2_walk-around.jpg): UI FRAME 2: same layout, a different ring highlighted, a HUD title bottom left of the world area. Same controller.
+- image 3 (ui3_children-come.jpg): UI FRAME 3: same layout while the children appear. Same controller.
+- image 4 (i1_room-before-cake.jpg): ROOM (orb-free film shot): the empty dark room with one pale line of light along the horizon. Keep this architecture, darkness and camera height in the top 62% of the frame.
+- image 5 (i3_writing-reticle.jpg): FRAMING of the writing beat (orb-free film shot): low, cake on the left, a pale white crescent arc beside it.
+- image 6 (i4_children-lit-table.jpg): SEATING (orb-free film shot): children in a half ring round a table lit only by the cake.
+Everything else in the references (people, clothes, cake, room contents, language, colours) is NOT copied: it is replaced by the brief below.
 
 WORLD: a tatami room with sliding paper doors lit from behind. Cake: a tall strawberry shortcake, white cream, one perfect strawberry per slice, red icing writing. Children: five children in 1970s school uniforms: navy sailor collars, caps, white knee socks, a paper party hat. Palette: milk white, strawberry red and soft grey-green. Language of the cake writing: Japanese.
 
 STRUCTURE (one continuous 15 second take):
-[0-2.5s] The empty dark room: a tatami room with sliding paper doors lit from behind. Only the pale line of light on the horizon. Stillness.
-[2.5-6s] From nothing, a tall strawberry shortcake, white cream, one perfect strawberry per slice, red icing writing appears low and left of the frame. It flickers through three different icings (white, caramel, then a pale blue) and tilts toward the camera, as in video 1.
-[6-9s] The cake swings upright. Red icing writes itself across the top, stroke by stroke, reading exactly "お誕生日おめでとう" (Otanjōbi omedetō). A pale white crescent arc hangs beside the cake as in video 2.
-[9-12s] Five children in 1970s school uniforms: navy sailor collars, caps, white knee socks, a paper party hat fade in around the table: first as faint ghosts, then solid, as in video 3. Their faces catch the cake light.
-[12-14s] One candle burns on one child's face, as in video 4: warm light from below, the rest dark.
-[14-15s] The candles go out together, the warm light leaves the faces, the room returns to dark, as in video 5.
+[0-2.5s] The empty dark room: a tatami room with sliding paper doors lit from behind. Only the pale line of light on the horizon. Stillness. HUD title: "PICK THE CAKE"; ring 2 is the lit one on the strip.
+[2.5-6s] From nothing, a tall strawberry shortcake, white cream, one perfect strawberry per slice, red icing writing appears low and left. It flickers through three different icings (white, caramel, then a pale blue) and tilts toward the camera. HUD title: "WALK AROUND IT"; ring 3 is the lit one on the strip.
+[6-9s] The cake swings upright. Red icing writes itself across the top, stroke by stroke, reading exactly "お誕生日おめでとう" (Otanjōbi omedetō). A pale white crescent arc hangs beside it. HUD title: "WRITE ON IT"; ring 4 is the lit one on the strip.
+[9-12s] Five children in 1970s school uniforms: navy sailor collars, caps, white knee socks, a paper party hat fade in around the table: first faint ghosts, then solid. Their faces catch the cake light. HUD title: "THE CHILDREN COME"; ring 2 is the lit one on the strip.
+[12-14s] One candle burns on one child's face: warm light from below, the rest dark. HUD title: "LOOK AT THEM"; ring 3 is the lit one on the strip.
+[14-15s] The candles go out together, the warm light leaves the faces, the room returns to dark. HUD title: "BLOW THEM OUT"; ring 4 is the lit one on the strip.
 
-Hard rules. Do not show any device, orb, lens, controller, camera or glowing gadget anywhere, and nothing in anyone's hands except a cake knife or a plate. No adult is in focus; if an adult appears it is a dark silhouette at the frame edge. One continuous locked-off wide-to-medium cinema shot, no scene cuts, slow, handheld-still. Dark, film-grained, anamorphic, low key; the only light is the cake and its candles plus one pale line of light on the horizon. No music, no captions except the cake writing. Audio: room tone, a soft rising hum when the cake appears, a small sigh of breath at the end when the flames go out.
+Layout: 16:9. The top 62% of the frame is the world, the bottom 38% is the controller strip copied from the UI references, locked: it never moves, never changes shape, never gets redrawn, never gets a new design. The thin HUD (title and a numbered list at the right, in English, as in the UI references) stays in the world area. In the world: no other device, orb, lens or camera, and nothing in anyone's hands except a cake knife or a plate. Hard rules. Do not show any device, orb, lens, controller, camera or glowing gadget anywhere, and nothing in anyone's hands except a cake knife or a plate. No adult is in focus; if an adult appears it is a dark silhouette at the frame edge. One continuous locked-off wide-to-medium cinema shot, no scene cuts, slow, handheld-still. Dark, film-grained, anamorphic, low key; the only light is the cake and its candles plus one pale line of light on the horizon. No music, no captions except the cake writing. Audio: room tone, a soft rising hum when the cake appears, a small sigh of breath at the end when the flames go out.

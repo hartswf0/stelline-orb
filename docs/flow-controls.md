@@ -16,3 +16,7 @@ I cannot open flow.google.com or drive your browser from this session: it has no
 - **Extend / "Add to scene"** to join the clips; keep the same ingredients attached.
 - Each clip prompt must say: "no device, orb, lens, controller or glowing gadget anywhere; nothing in anyone's hands".
 - Download each clip, then run `stack.sh` on it.
+
+## Update: the #film frames are the controller reference
+`assets/omni/refs/ui1-3_*.jpg` and `u_ui-strip-hud.mp4` are cut from `assets/stelline-orb-film.mp4` (the #film page): world on top with the HUD, the chrome five-ring barrel and panel below. Main prompts attach them FIRST and tell the model to copy the bottom 38% of the frame exactly; this is the layout to keep. Reference budget (Omni 1.2): 6 images, 3 short videos, so the main set is 3 UI frames + 3 world frames + UI clip + 2 orb-free film clips. If the strip still drifts, use the world-only prompts (`*_scene-only.txt`) and `tools/flow/stack.sh`: that cannot drift.
+In Flow: attach the three UI frames as the first ingredients, then the room and seating frames; paste the main prompt.

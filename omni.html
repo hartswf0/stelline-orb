@@ -23,20 +23,21 @@
 <body>
 <main>
   <h1>TEN BIRTHDAYS, ONE FILM</h1>
-  <p>The same eleven references and the same six beats in every prompt, so the cake appears, is written on, the children fade in, one candle lights a face and the flames go out at the same seconds each time. Only the world changes: language, cake, who the children are, what they wear, the room, the colours. The Memory Maker is in none of the references or the results.</p>
+  <p>Every main prompt carries the same nine references (three videos, six images) and the same six beats; the controller strip is copied from the #film frames, so it is the same one every time, so the cake appears, is written on, the children fade in, one candle lights a face and the flames go out at the same seconds each time. Only the world changes: language, cake, who the children are, what they wear, the room, the colours. The Memory Maker is in none of the references or the results.</p>
   <p><a href="assets/omni/omni-pack.zip" download>download the pack (references + all ten prompts + prompts.json)</a> · model <code>google/gemini-omni-flash/v1.2/reference-to-video</code> · runner <code>tools/gen/omni.py</code></p>
-  <h2>The references every prompt uses</h2><div class="refs" id="refs"></div>
+  <h2>Main set: world + the locked controller (copied from the #film frames)</h2><div class="refs" id="refs"></div>
+  <h2>Fallback set: world only (stack the real controller under it afterwards)</h2><div class="refs" id="refs2"></div>
   <h2>The ten prompts</h2><div id="list"></div>
 </main>
 <script>
 fetch('assets/omni/prompts.json').then(r => r.json()).then(P => {
-  const R = document.getElementById('refs'); let nv = 0, ni = 0;
-  P.refs.forEach(r => { const f = document.createElement('figure'), v = r.kind === 'video', n = v ? ++nv : ++ni;
-    f.innerHTML = (v ? `<video src="assets/omni/${r.file}" controls loop muted playsinline preload="metadata"></video>` : `<img src="assets/omni/${r.file}" alt="">`) + `<figcaption><b>${r.kind} ${n}</b> · ${r.job.split(':')[0]} · <a href="assets/omni/${r.file}" download>download</a></figcaption>`; R.append(f); });
+  const show = (list, R) => { let nv = 0, ni = 0; list.forEach(r => { const f = document.createElement('figure'), v = r.kind === 'video', n = v ? ++nv : ++ni;
+    f.innerHTML = (v ? `<video src="assets/omni/${r.file}" controls loop muted playsinline preload="metadata"></video>` : `<img src="assets/omni/${r.file}" alt="">`) + `<figcaption><b>${r.kind} ${n}</b> · ${r.job.split(':')[0]} · <a href="assets/omni/${r.file}" download>download</a></figcaption>`; R.append(f); }); };
+  show(P.refs, document.getElementById('refs')); show(P.refs_scene, document.getElementById('refs2'));
   const L = document.getElementById('list');
   P.variants.forEach(v => { const d = document.createElement('div'); d.className = 'v';
-    d.innerHTML = `<h3>${v.id} · ${v.lang} · ${v.text}</h3><div class="dim">${v.kids}. ${v.where}.</div><textarea readonly></textarea><button>copy prompt</button><a href="assets/omni/prompts/${v.id}_${v.name}.txt" download>download .txt</a>`;
-    d.querySelector('textarea').value = v.prompt; d.querySelector('button').onclick = e => { navigator.clipboard.writeText(v.prompt); e.target.textContent = 'copied'; setTimeout(() => e.target.textContent = 'copy prompt', 1200); }; L.append(d); });
+    d.innerHTML = `<h3>${v.id} · ${v.lang} · ${v.text}</h3><div class="dim">${v.kids}. ${v.where}.</div><textarea readonly></textarea><button data-k="prompt">copy main prompt</button><button data-k="prompt_scene">copy world-only prompt</button><a href="assets/omni/prompts/${v.id}_${v.name}.txt" download>.txt</a> · <a href="assets/omni/prompts/${v.id}_${v.name}_scene-only.txt" download>world-only .txt</a>`;
+    d.querySelector('textarea').value = v.prompt; d.querySelectorAll('button').forEach(b => b.onclick = e => { navigator.clipboard.writeText(v[b.dataset.k]); const t = b.textContent; b.textContent = 'copied'; setTimeout(() => b.textContent = t, 1200); }); L.append(d); });
 });
 </script>
 </body>

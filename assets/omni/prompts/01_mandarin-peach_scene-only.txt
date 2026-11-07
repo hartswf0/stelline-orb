@@ -1,0 +1,25 @@
+Gemini Omni Flash 1.2 / reference-to-video. 15 seconds, 16:9, 720p draft then 1080p keeper, native audio.
+
+REFERENCES (all attached; each has one job, use only that job):
+- video 1 (v1_cake-appears.mp4): MOTION of the cake: it appears out of nothing in a dark room, flickers through different icings, then tilts toward the camera. Copy this motion, timing and the lit-from-the-cake light. Do not copy the cake itself.
+- video 2 (v2_writing-upright.mp4): MOTION of the writing: seen over a dark shoulder, red icing is piped stroke by stroke on the cake top, the cake swings upright, a pale white crescent arc hangs beside it. Copy the camera, the arc and the pacing.
+- video 3 (v3_children-fade.mp4): MOTION of the children: they are not there, then ghost-transparent, then solid, gathered round a lit table. Copy the fade-in and the seating.
+- image 1 (i1_room-before-cake.jpg): ROOM: the empty dark room with one pale line of light along the horizon. Keep this architecture, darkness and camera height. A guide for the room, not the opening frame.
+- image 2 (i2_cake-floating.jpg): POSITION of the cake: floating just above the floor, left of frame, a few candles lit. Keep this placement.
+- image 3 (i3_writing-reticle.jpg): FRAMING of the writing shot: low, over a shoulder, cake on the left, white crescent arc between the cake and the shoulder.
+- image 4 (i4_children-lit-table.jpg): SEATING: children in a half ring round a table lit only by the cake, the table top a bright flat plane in the dark.
+- image 5 (i5_boy-face-candle.jpg): FACE LIGHT: a child's face lit by one candle, soft, warm, shadow behind. Keep the intimacy and the shallow depth of field.
+- image 6 (i6_face-lit.jpg): CLOSE FACE: a face lit warm from below at the moment before the candles go out.
+Everything else in the references (people, clothes, cake, room contents, language, colours) is NOT copied: it is replaced by the brief below.
+
+WORLD: a bare 1980s apartment room with a paper lantern and a tiled floor. Cake: a pale pink longevity-peach sponge shaped like a peach, cream and a green marzipan leaf, red icing writing. Children: five children in padded cotton jackets, red scarves and cloth shoes, cropped hair and two plaits. Palette: cherry red, jade and warm tungsten. Language of the cake writing: Mandarin.
+
+STRUCTURE (one continuous 15 second take):
+[0-2.5s] The empty dark room: a bare 1980s apartment room with a paper lantern and a tiled floor. Only the pale line of light on the horizon. Stillness.
+[2.5-6s] From nothing, a pale pink longevity-peach sponge shaped like a peach, cream and a green marzipan leaf, red icing writing appears low and left. It flickers through three different icings (white, caramel, then a pale blue) and tilts toward the camera.
+[6-9s] The cake swings upright. Red icing writes itself across the top, stroke by stroke, reading exactly "生日快乐" (Shēngrì kuàilè). A pale white crescent arc hangs beside it.
+[9-12s] Five children in padded cotton jackets, red scarves and cloth shoes, cropped hair and two plaits fade in around the table: first faint ghosts, then solid. Their faces catch the cake light.
+[12-14s] One candle burns on one child's face: warm light from below, the rest dark.
+[14-15s] The candles go out together, the warm light leaves the faces, the room returns to dark.
+
+Hard rules. Do not show any device, orb, lens, controller, camera or glowing gadget anywhere, and nothing in anyone's hands except a cake knife or a plate. No adult is in focus; if an adult appears it is a dark silhouette at the frame edge. One continuous locked-off wide-to-medium cinema shot, no scene cuts, slow, handheld-still. Dark, film-grained, anamorphic, low key; the only light is the cake and its candles plus one pale line of light on the horizon. No music, no captions except the cake writing. Audio: room tone, a soft rising hum when the cake appears, a small sigh of breath at the end when the flames go out.
