@@ -694,7 +694,7 @@ const arcSVG = (d, i, w, dash, col) => d ? `<path d="${d}" fill="none" stroke="$
 let AIM = null;   // the current aim hit, shared with CAPTURE
 function updReticle() {
   RET.children.forEach(o => o.visible = false); let svg = ''; const W = roomEl.clientWidth, H = roomEl.clientHeight; RET.updateMatrixWorld(true); MEM.updateMatrixWorld(true); CAKE.updateMatrixWorld(true);
-  if (S.exporting || (S.pull || 0) > .15) { retSVG.innerHTML = ''; return; }
+  if (S.exporting || S.stageOnly || (S.pull || 0) > .15) { retSVG.innerHTML = ''; return; }
   const activeGesture = (NOW - gestureT) < 1.35 || !!hover || !!ST;
   if (S.mode === 'MAKE') { const t = toolName(), vt = verbTool(); let p = hover || { x: W / 2, y: H / 2 }; let h;
     if (!hover && t !== 'SPAWN' && clayMesh && vt !== 'CHILD' && vt !== 'SNUFF' && vt !== 'TABLE' && vt !== 'LIGHT') { h = aimHit(); const q = h && scr(h.world); if (q) p = { x: q[0], y: q[1] }; } else h = t === 'SPAWN' ? hitAt(p.x, p.y, 'table') : hitAt(p.x, p.y); AIM = h;
@@ -952,7 +952,8 @@ function reticleWant() { return null; const tw = targetWorld(); if ((!clayMesh &
   const fmt = n => (RS[n] ? RS[n].n.toLowerCase().replace(/ /g, '_') + '  ' + RS[n].f(RS[n].v()).toLowerCase() : '');
   const lines = [curNode().name.toLowerCase().replace(/ /g, '_') + '_' + S.mode.toLowerCase(), fmt(2) + '   ' + fmt(3), fmt(4)];
   return { pos, q, sc: tw.r * (tw.kind === 'child' ? .42 : .55), spin: RT.rot, cur: cv, lines }; }
-function updFilmReticles(dt) { RT.pop = Math.max(0, (RT.pop || 0) - dt * 3); const w = reticleWant(); driveReticle(RT.main, dt, w);
+function updFilmReticles(dt) { if (S.exporting || S.stageOnly) { if (RT && RT.main && RT.main.g) RT.main.g.visible = false; if (typeof retLight !== 'undefined') retLight.intensity = 0; return; }
+  RT.pop = Math.max(0, (RT.pop || 0) - dt * 3); const w = reticleWant(); driveReticle(RT.main, dt, w);
   const cmr = RT.main.pos; if (cmr) { retLight.position.copy(cmr).add(new T.Vector3(0, .25, .2)); retLight.intensity = .9 * RT.main.alpha; }
   // a small reticle over each child, its leader running down to the head
   const camU = new T.Vector3(0, 1, 0).applyQuaternion(cam.quaternion), camR = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion), tsel = curNode();
@@ -1143,7 +1144,7 @@ function ghand(m, ud, parent) { m.renderOrder = 31; m.userData.gz = ud; m.userDa
   const ctr = new T.Mesh(new T.BoxGeometry(.14, .14, .14), gmat(0xe8f2ee)); ghand(ctr, { ring: 2, kind: 'uniform' }, GZM.SIZE);
   const dot = new T.Mesh(new T.SphereGeometry(.05, 16, 10), gmat(0xe8f2ee, .8)); GZM.MOVE.add(dot); dot.renderOrder = 31; })();
 function gizmoScale() { const n = nodeCenter(); return { c: n.c, k: cam.position.distanceTo(n.c) * .15 }; }
-function updGizmo() { const on = isXf() && !S.exporting && (clayMesh || DOC.cast.length || DOC.hasTable) && curNode().k !== 'cam'; GZ.visible = !!on; if (!on) return; const g = gizmoScale(); GZ.position.copy(g.c); GZ.scale.setScalar(g.k);
+function updGizmo() { const on = isXf() && !S.exporting && !S.stageOnly && (clayMesh || DOC.cast.length || DOC.hasTable) && curNode().k !== 'cam'; GZ.visible = !!on; if (!on) return; const g = gizmoScale(); GZ.position.copy(g.c); GZ.scale.setScalar(g.k);
   for (const k in GZM) GZM[k].visible = k === S.mode; const hotR = drag && drag.gz ? drag.gz.ring : S.lastRing;
   GHAND.forEach(m => { const ud = m.userData.gz, hot = ud.ring === hotR || ud.ring2 === hotR || (gzHover && gzHover === m); m.material.color.setHex(hot ? 0xffffff : m.userData.base); m.material.opacity = hot ? 1 : ud.kind === 'plane' ? .45 : .82; }); }
 let gzHover = null;
@@ -1169,7 +1170,7 @@ function clickPick(x, y) { ndc.set(x / roomEl.clientWidth * 2 - 1, -y / roomEl.c
 const dataSVG = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); dataSVG.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;font-family:ui-monospace,Menlo,monospace'; roomEl.append(dataSVG);
 const GRN = '#7dff8a';
 function updDataReticle() {
-  if (S.exporting || PHONE) { dataSVG.innerHTML = ''; return; }
+  if (S.exporting || S.stageOnly || PHONE) { dataSVG.innerHTML = ''; return; }
   let out = '';
   const age = NOW - gestureT;
   if (age <= 1.35 && (S.pull || 0) <= .15 && S.mode !== 'MAKE') {
@@ -1773,7 +1774,7 @@ function renderRoom() { placeCam(); const pr = R.getPixelRatio(), w = Math.round
   const f = .033, N = CINE.on ? (CINE.N || 1.6) : S.mode === 'MAKE' ? 4 : 1.8; dofR.uniforms.tC.value = rtR.texture; dofR.uniforms.tD.value = rtR.depthTexture; dofR.uniforms.near.value = cam.near; dofR.uniforms.far.value = cam.far; dofR.uniforms.fd.value = FOCUS_NOW; dofR.uniforms.px.value.set(1 / w, 1 / h);
   dofR.uniforms.cine.value = CINE.on ? 1 : 0; dofR.uniforms.gt.value = (NOW * 37.3) % 100;
   dofR.uniforms.k.value = (f / N) * f / Math.max(.05, FOCUS_NOW - f) / .024 * h * .5; R.render(dQ, dC);
-  R.autoClear = false; R.clearDepth(); R.render(retScene, cam); R.autoClear = true; }
+  if (!S.exporting && !S.stageOnly) { R.autoClear = false; R.clearDepth(); R.render(retScene, cam); R.autoClear = true; } }
 function update(dt) { NOW += dt; HU.uTime.value = NOW;
   if (CINE.on) { cineCam(dt); cineWorld(dt); }
   // playback: stepped frames honour their holds; tweened playback morphs the clay between frames
@@ -1869,7 +1870,19 @@ addEventListener('drop', e => { e.preventDefault(); if (e.dataTransfer && e.data
 addEventListener('keydown', e => { if ((e.key === 'i' || e.key === 'I') && !e.metaKey && !e.ctrlKey) wFileImp.click(); });
 
 /* =============================================================== a handle for scripts: tests, and the film */
-window.FORGE = { S, get DOC() { return DOC; }, turn, press, rings, scrub, nodes, curNode, pickTo, setMode, setVerb, GUIDE, GSTEPS, PAIR, CINE, setCine, CAM_SHOTS, KID_POSES, applyCamShot, applyKidPose, now: () => NOW, gizmoHit, gizmoDrag, setStretch, setPull, VERBS, MODES, spawn, place, hitAt, strokeStart, strokeMove, strokeEnd, snapshot, showFrame, cam, CAKE, ORB, RINGS, BTN, OC, perf: () => perf,
+function setStageOnly(on) {
+  S.stageOnly = !!on;
+  document.body.classList.toggle('paired', !!on);
+  document.body.classList.remove('cine');
+  if (typeof dataSVG !== 'undefined' && dataSVG) dataSVG.style.display = on ? 'none' : '';
+  if (typeof retSVG !== 'undefined' && retSVG) retSVG.style.display = on ? 'none' : '';
+  document.querySelectorAll('#room > div, #room > aside').forEach(el => { el.style.display = on ? 'none' : ''; });
+  resize();
+  render();
+}
+if (/[?&]stage=1/.test(location.search)) setTimeout(() => setStageOnly(true), 120);
+addEventListener('keydown', e => { if ((e.key === 'o' || e.key === 'O') && !e.metaKey && !e.ctrlKey) setStageOnly(!S.stageOnly); });
+window.FORGE = { S, get DOC() { return DOC; }, turn, press, rings, scrub, nodes, curNode, pickTo, setMode, setVerb, GUIDE, GSTEPS, PAIR, CINE, setCine, setStageOnly, CAM_SHOTS, KID_POSES, applyCamShot, applyKidPose, now: () => NOW, gizmoHit, gizmoDrag, setStretch, setPull, VERBS, MODES, spawn, place, hitAt, strokeStart, strokeMove, strokeEnd, snapshot, showFrame, cam, CAKE, ORB, RINGS, BTN, OC, perf: () => perf,
   manual() { auto = false; }, setAim(x, y) { hover = x == null ? null : { x, y }; }, aim: () => AIM, advance(dt) { update(dt); render(); }, step(dt) { update(dt); placeCam(); cam.updateMatrixWorld(); }, worldToRoom(v) { const p = v.clone().project(cam); return [(p.x + 1) / 2 * roomEl.clientWidth, (1 - p.y) / 2 * roomEl.clientHeight]; }, local(v) { return CAKE.localToWorld(v.clone()); } };
 </script>
 </body>

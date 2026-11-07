@@ -1,58 +1,868 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Stelline Moments</title>
-<meta name="description" content="The moments in The Memory Maker where her hands on the orb, the change on screen and the white reticle can be read together, frame by frame.">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<title>STELLINE · THE MOMENTS — Segmented Orb-Free Video Reference Hub</title>
+<meta name="description" content="Complete suite of 100% Memory-Maker-free segmented reference videos (.mp4) for every canonical birthday cake sculpting and party moment: actual film crops, isolated segmented mattes on black, best 3D stage-only renders, volumetric mist, and Depth+Canny conditioning for style transfer.">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root { --bg: #070807; --ink: #e9ece6; --dim: #9aa39a; --line: #2a2f2a; --obs: #9fe8d8; --inf: #f0b040; --plot: #e9ece6; }
-  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --bg: #f4f3ee; --ink: #161816; --dim: #5b625b; --line: #d6d6cf; --obs: #1f6f63; --inf: #9a6200; --plot: #161816; } }
-  :root[data-theme="light"] { --bg: #f4f3ee; --ink: #161816; --dim: #5b625b; --line: #d6d6cf; --obs: #1f6f63; --inf: #9a6200; --plot: #161816; }
-  html, body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 "IBM Plex Sans", system-ui, sans-serif; }
-  main { max-width: 1120px; margin: 0 auto; padding: 28px 16px 80px; }
-  h1, h2 { font-family: "IBM Plex Mono", monospace; font-weight: 600; letter-spacing: .02em; } h1 { font-size: 22px; margin: 0 0 6px; } h2 { font-size: 15px; margin: 0 0 8px; }
-  p { max-width: 72ch; } .dim { color: var(--dim); } a { color: var(--inf); }
-  section { border-top: 1px solid var(--line); padding: 26px 0 8px; }
-  .strip { overflow-x: auto; margin: 8px 0; } .strip img { display: block; height: auto; max-width: none; border: 1px solid var(--line); }
-  .cap { font: 12px "IBM Plex Mono", monospace; color: var(--dim); margin: 2px 0 10px; }
-  .notes { font: 13px/1.6 "IBM Plex Mono", monospace; margin: 8px 0; padding: 0; list-style: none; }
-  .notes li { display: grid; grid-template-columns: 74px 92px 1fr; gap: 8px; }
-  .obs { color: var(--obs); } .inf { color: var(--inf); }
-  svg.plot { width: 100%; max-width: 760px; height: 150px; display: block; margin: 6px 0; }
-  .orb { font: 13px "IBM Plex Mono", monospace; margin: 6px 0 0; }
-  .orb a { margin-right: 14px; }
+  :root {
+    --bg: #060807;
+    --panel: #0c100e;
+    --card: #101614;
+    --ink: #ecf0ea;
+    --dim: #95a097;
+    --line: #242c28;
+    --obs: #66f0d8;
+    --inf: #f5b642;
+    --grn: #5ce68b;
+    --red: #ff6448;
+    --plot: #ecf0ea;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 14.5px/1.55 var(--sans);
+  }
+  main {
+    max-width: 1380px;
+    margin: 0 auto;
+    padding: 24px 20px 96px;
+  }
+  h1, h2, h3 {
+    font-family: var(--mono);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    margin: 0;
+  }
+  a { color: var(--inf); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .dim { color: var(--dim); }
+
+  /* Top Hero & Global Control Bar */
+  .top-header {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    padding: 20px 22px;
+    margin-bottom: 22px;
+  }
+  .top-title-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .top-title-row h1 {
+    font-size: 21px;
+    color: var(--ink);
+  }
+  .zero-orb-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font: 700 11px var(--mono);
+    letter-spacing: 0.08em;
+    color: #07120d;
+    background: var(--obs);
+    padding: 5px 11px;
+    text-transform: uppercase;
+  }
+  .lead {
+    max-width: 96ch;
+    margin: 0 0 14px;
+    color: var(--dim);
+    font-size: 13.5px;
+  }
+  .lead b { color: var(--ink); }
+
+  /* Global Action Bar */
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    font: 600 11.5px var(--mono);
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font: 600 11.5px var(--mono);
+    letter-spacing: 0.04em;
+    padding: 7px 12px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink);
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .btn:hover {
+    border-color: var(--obs);
+    background: #16201c;
+    text-decoration: none;
+  }
+  .btn.primary {
+    background: var(--inf);
+    color: #0a0906;
+    border-color: var(--inf);
+    font-weight: 700;
+  }
+  .btn.primary:hover {
+    background: #ffc861;
+  }
+  .btn.teal {
+    border-color: var(--obs);
+    color: var(--obs);
+  }
+  .btn.active {
+    background: var(--obs);
+    color: #07120d;
+    border-color: var(--obs);
+  }
+
+  /* Jump Nav */
+  .jump-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 24px;
+  }
+  .jump-pill {
+    font: 600 11px var(--mono);
+    padding: 6px 10px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--dim);
+  }
+  .jump-pill:hover {
+    border-color: var(--inf);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .jump-pill b { color: var(--inf); }
+
+  /* Master Supercuts Section */
+  .master-box {
+    border: 1px solid var(--obs);
+    background: linear-gradient(180deg, #0c1512 0%, #090d0b 100%);
+    padding: 20px;
+    margin-bottom: 32px;
+  }
+  .master-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .master-head h2 {
+    font-size: 16px;
+    color: var(--obs);
+  }
+
+  /* Video Grid (3-up on desktop, 2-up on tablet, 1-up on mobile) */
+  .vgrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 12px 0 16px;
+  }
+  @media (max-width: 1060px) {
+    .vgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 660px) {
+    .vgrid { grid-template-columns: 1fr; }
+  }
+  .vcard {
+    border: 1px solid var(--line);
+    background: var(--card);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .vcard-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--line);
+    font: 600 11px var(--mono);
+    background: #0b0f0d;
+  }
+  .vcard-tag {
+    color: var(--obs);
+    letter-spacing: 0.04em;
+  }
+  .vcard-tag.gold { color: var(--inf); }
+  .vcard-tag.grn { color: var(--grn); }
+  .vcard-res {
+    color: var(--dim);
+    font-size: 10.5px;
+  }
+  .vcard video {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    display: block;
+    object-fit: cover;
+  }
+  .vcard-foot {
+    padding: 9px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-top: 1px solid var(--line);
+    background: #0b0f0d;
+    margin-top: auto;
+  }
+  .vcard-desc {
+    font-size: 11.5px;
+    color: var(--dim);
+    line-height: 1.35;
+  }
+  .dl-btn {
+    flex: 0 0 auto;
+    font: 700 11px var(--mono);
+    padding: 6px 10px;
+    background: var(--inf);
+    color: #090805;
+    border: 1px solid var(--inf);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .dl-btn:hover {
+    background: #ffd074;
+    text-decoration: none;
+  }
+
+  /* Moment Section */
+  section.moment-sec {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    padding: 22px;
+    margin-bottom: 26px;
+  }
+  .moment-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 14px;
+  }
+  .moment-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .moment-kicker {
+    font: 700 11px var(--mono);
+    color: var(--obs);
+    letter-spacing: 0.08em;
+  }
+  .moment-head h2 {
+    font-size: 18px;
+    color: var(--ink);
+  }
+  .moment-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Strip */
+  .strip-label {
+    font: 600 11px var(--mono);
+    color: var(--dim);
+    margin: 6px 0 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .strip {
+    overflow-x: auto;
+    margin: 4px 0 12px;
+    border: 1px solid var(--line);
+    background: #000;
+  }
+  .strip img {
+    display: block;
+    height: 124px;
+    width: auto;
+    max-width: none;
+  }
+
+  /* Prompt Bar */
+  .prompt-box {
+    border: 1px solid var(--line);
+    background: #080b0a;
+    padding: 10px 12px;
+    margin: 12px 0;
+    font: 11.5px/1.5 var(--mono);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
+  }
+  .prompt-box b { color: var(--inf); }
+  .prompt-box .neg { color: #e88372; display: block; margin-top: 3px; }
+
+  /* Telemetry & Notes Collapsible / Footer */
+  .telemetry-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 18px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .telemetry-grid { grid-template-columns: 1fr; }
+  }
+  svg.plot {
+    width: 100%;
+    height: 145px;
+    display: block;
+    background: #080b0a;
+    border: 1px solid var(--line);
+  }
+  .notes {
+    font: 12px/1.55 var(--mono);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .notes li {
+    display: grid;
+    grid-template-columns: 64px 82px 1fr;
+    gap: 8px;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .obs { color: var(--obs); font-weight: 600; }
+  .inf { color: var(--inf); font-weight: 600; }
+
+  #toastMsg {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    background: var(--obs);
+    color: #05100c;
+    font: 700 12px var(--mono);
+    padding: 10px 16px;
+    border: 2px solid #fff;
+    display: none;
+    z-index: 999;
+  }
 </style>
 </head>
 <body>
 <main>
-  <h1>STELLINE · THE MOMENTS</h1>
-  <p class="dim">In these moments her hands on the orb, the change on screen and the white reticle can be read together. Each was pulled at 12 frames a second and measured: the sharpness of each of the beetle's eyes, the cake's size and tilt, the reticle's needles, how much of each child is there, and the light on a face. The measurements are curves, and the orb plays them: in these beats ring 4 is turned by the film itself, and turning it by hand finds the frame where the film had that value.</p>
-  <p class="dim"><span class="obs">OBSERVED</span> means it is in the frames. <span class="inf">INFERRED</span> means it is a reading of what the orb did, made from what is observed.</p>
-  <div id="list"></div>
+  <header class="top-header">
+    <div class="top-title-row">
+      <h1>STELLINE · THE MOMENTS — SEGMENTED VIDEO REFERENCE HUB</h1>
+      <span class="zero-orb-badge">100% MEMORY-MAKER-FREE · STAGE &amp; SUBJECT ONLY</span>
+    </div>
+    <p class="lead">
+      Every reference video on this page has been <b>segmented, cropped, and clean-plated so the Memory Maker barrel, lens rings, and UI overlays NEVER appear in the frame</b>.
+      Each canonical moment provides <b>6 synchronized, 1-click downloadable <code>.MP4</code> reference videos</b>:
+      <b>(1) Actual Film Subject Close-Up</b> (like the moment strip below),
+      <b>(2) Best 3D Multi-Tier &amp; Standees Stage Render</b> (zero Orb UI),
+      <b>(3) Isolated Segmented Subject on Pure Black</b> (<code>#000000</code> foreground matte),
+      <b>(4) Wide Chamber Clean Plate</b> (Ana &amp; Memory Maker erased),
+      <b>(5) Best 3D Chamber Film / Volumetric Mist</b>, and
+      <b>(6) Frame-Locked Depth + Canny Edge Conditioning</b> for video-to-video style transfer (<code>Runway</code>, <code>Kling</code>, <code>Veo</code>, <code>Video2Game</code>, <code>ControlNet</code>).
+    </p>
+    <div class="toolbar">
+      <button class="btn active" id="btnPlayAll" onclick="toggleAllVideos(true)">PLAY ALL VIDEOS</button>
+      <button class="btn" id="btnPauseAll" onclick="toggleAllVideos(false)">PAUSE ALL</button>
+      <button class="btn" onclick="setGlobalSpeed(0.25, this)">0.25x</button>
+      <button class="btn" onclick="setGlobalSpeed(0.5, this)">0.5x</button>
+      <button class="btn active" onclick="setGlobalSpeed(1.0, this)">1.0x</button>
+      <button class="btn primary" onclick="downloadAllMasterVideos()">DOWNLOAD ALL 6 MASTER REELS (.MP4)</button>
+      <button class="btn teal" onclick="copyCurlScript()">COPY BATCH DOWNLOAD SCRIPT (ALL 59 .MP4s)</button>
+      <a class="btn" href="weaver.html?stage=1">OPEN 3D STAGE-ONLY ENGINE (NO ORB UI)</a>
+      <a class="btn" href="cineosis-orb.html?stage=1">OPEN CINEOSIS STAGE-ONLY (NO ORB UI)</a>
+    </div>
+  </header>
+
+  <nav class="jump-nav" id="jumpNav" aria-label="Moment navigation"></nav>
+
+  <!-- MASTER FULL-SEQUENCE SUPERCUTS -->
+  <div class="master-box" id="masters">
+    <div class="master-head">
+      <div>
+        <div class="moment-kicker">FULL-SEQUENCE STYLE-TRANSFER MASTERS · 960x540 · 24 FPS H.264</div>
+        <h2>THE BEST COMPLETE BIRTHDAY &amp; CAKE SCULPTING VIDEOS (ZERO MEMORY MAKER IN SCENE)</h2>
+      </div>
+      <div class="moment-actions">
+        <button class="btn primary" onclick="downloadAllMasterVideos()">DOWNLOAD ALL 6 MASTER .MP4s</button>
+      </div>
+    </div>
+    <div class="vgrid" id="masterGrid"></div>
+  </div>
+
+  <!-- INDIVIDUAL CANONICAL MOMENTS -->
+  <div id="momentList"></div>
 </main>
+
+<div id="toastMsg">COPIED TO CLIPBOARD</div>
+
 <script>
-const IMG = { 6: [['ring_fingers', 'her fingers on the lens rings']], 7: [['eye_right', 'the right eye (screen right), 00:31-00:35'], ['eye_left', 'the left eye, same times']],
-  25: [['cake_spawn', 'the cake appears, tries on frostings, tilts']], 26: [['bundt_reticle', 'cylinder to bundt, the reticle beside it'], ['reticle_needles', 'the reticle, enlarged: the needles swing'], ['hands_lens', 'her hands on the lens, same frames']],
-  27: [['icing_writing', 'the writing piped stroke by stroke, then the cake turns upright']], 29: [['children_fade', 'the children: ghosts, then solid']], 31: [['lens_dark', 'both hands on the barrel in the dark']],
-  36: [['boy_candle', 'one candle, its light on his face'], ['girl_face', 'the next face (03:15.7-03:17.7)']], 46: [['blow_out', 'the light leaving her face as the candles go out']] };
-const TIMES = { 6: 28.75, 7: 31.0, 25: 137.5, 26: 141.5, 27: 144.75, 29: 152.0, 31: 159.25, 36: 173.0, 46: 226.5 };
+const MASTER_VIDEOS = [
+  {
+    tag: "MASTER 01 · ACTUAL FILM CLOSE-UP SUPERCUT",
+    tagClass: "gold",
+    title: "Actual Film Cake Sculpt & Party Supercut (Close-Up · No Orb)",
+    desc: "Continuous 24fps actual-film supercut of the cake appearing, trying on frostings, morphing to bundt, red piping, children fading in, candlelight close-ups, and blowing out the 7 candles — 100% cropped/cleaned to the cake & party.",
+    src: "assets/moments_videos/master_01_film_closeup_supercut.mp4",
+    file: "stelline_master_01_actual_film_closeup_no_orb.mp4"
+  },
+  {
+    tag: "MASTER 02 · BEST 3D MULTI-TIER & STANDEES (STAGE ONLY)",
+    tagClass: "",
+    title: "Best 3D Multi-Tier Cake Sculpt & Die-Cut Children (100% Stage-Only)",
+    desc: "Full 6-Act 3D engine recording (Bundt -> Drum -> Dome -> 2-Tier Cake, Spin-12 Flutes, Rose/White/Gold Piping, Cherries, 7 Candles, 3 Die-Cut Children, Optical DOF Pull, Blow-Out & Mist) with ZERO Memory Maker UI.",
+    src: "assets/moments_videos/master_00_stelline_3d_stage_only.mp4",
+    file: "stelline_master_02_best3d_multitier_stage_only.mp4"
+  },
+  {
+    tag: "MASTER 03 · SEGMENTED ISOLATED SUBJECTS ON BLACK",
+    tagClass: "grn",
+    title: "Isolated Segmented Cake & Children Matte (#000000 Pure Black)",
+    desc: "Continuous pixel-accurate foreground segmentation matte across all birthday moments: strictly the isolated cake being sculpted and the isolated table & children on pure black.",
+    src: "assets/moments_videos/master_03_segmented_isolated_supercut.mp4",
+    file: "stelline_master_03_segmented_isolated_on_black.mp4"
+  },
+  {
+    tag: "MASTER 04 · BEST 3D CHAMBER FILM (WEAVER STAGE ONLY)",
+    tagClass: "",
+    title: "Weaver 3D Chamber Film — Cake From Nothing to Party (Zero Orb)",
+    desc: "Full 68-second 3D chamber film ('A Birthday Cake, From Nothing') with the bottom-right mini-orb and reticle completely removed — pure dark chamber cake sculpting and party table.",
+    src: "assets/moments_videos/master_04_best3d_weaver_stage_only.mp4",
+    file: "stelline_master_04_weaver_3d_chamber_no_orb.mp4"
+  },
+  {
+    tag: "MASTER 05 · ACTUAL FILM WIDE CHAMBER (ANA ERASED)",
+    tagClass: "gold",
+    title: "Actual Film Wide Chamber Supercut (Ana & Memory Maker Erased)",
+    desc: "Full 16:9 dark dome chamber across all birthday moments with Ana Stelline, K, and the Memory Maker completely erased into the clean chamber background plate.",
+    src: "assets/moments_videos/master_02_film_chamber_supercut.mp4",
+    file: "stelline_master_05_actual_film_wide_chamber_clean.mp4"
+  },
+  {
+    tag: "MASTER 06 · DEPTH + CANNY EDGE CONDITIONING",
+    tagClass: "grn",
+    title: "Full-Sequence Depth Anything V2 + Canny Edge Conditioning",
+    desc: "Frame-locked Depth Anything V2 + Canny structural edge + subject silhouette conditioning supercut for structure-preserving video-to-video style transfer.",
+    src: "assets/moments_videos/master_06_depth_edge_supercut.mp4",
+    file: "stelline_master_06_depth_edge_conditioning.mp4"
+  }
+];
+
+const MOMENTS_DATA = [
+  {
+    n: 25,
+    timeRange: "02:17.50 – 02:21.50",
+    kicker: "MOMENT 25 · CAKE SPAWN, FROSTING MORPH & TILT · 47 FRAMES",
+    title: "THE CAKE APPEARS, TRIES ON FROSTINGS, AND TILTS",
+    facet: "APPEAR & TILT (NO ORB IN FRAME)",
+    strips: [
+      ["cake_spawn", "02:17.60 – 02:21.10 · The cake appears on the dark chamber floor, tries on chocolate, pale blue, white, and gold frostings, and tilts toward the camera (100% Orb-free)"]
+    ],
+    prompt: "Cinematic close-up of a round birthday cake with glowing lit candles materializing on a dark reflective obsidian chamber floor, morphing through rich dark chocolate ganache, pale buttercream, and warm golden frosting while tilting smoothly toward the camera, warm candlelight reflections, shallow depth of field, 35mm anamorphic film grain.",
+    neg: "memory maker device, silver cylindrical lens barrel, camera hardware, UI HUD overlay, bottom control panel, reticle, hands holding lens, person standing on right, text, watermark",
+    videos: [
+      { tag: "01 · ACTUAL FILM (CLOSE-UP CROP)", cls: "gold", desc: "Exact film moment cropped to the cake spawning, morphing frostings & tilting (matches strip above)", src: "assets/moments_videos/m25_film_closeup.mp4", dl: "moment25_01_actual_film_cake_spawn_closeup.mp4" },
+      { tag: "02 · BEST 3D MULTI-TIER (STAGE ONLY)", cls: "", desc: "3D engine cake evolutions (Bundt, Drum, Dome, 2-Tier) & frosting morph with zero Orb UI", src: "assets/moments_videos/m25_stelline3d.mp4", dl: "moment25_02_best3d_cake_evolutions_no_orb.mp4" },
+      { tag: "03 · ISOLATED SEGMENTED CAKE (BLACK)", cls: "grn", desc: "Segmented isolated cake & candles (k=0 matte) morphing and tilting on pure #000000 black", src: "assets/moments_videos/m25_seg_isolated.mp4", dl: "moment25_03_segmented_isolated_cake_black.mp4" },
+      { tag: "04 · ACTUAL FILM WIDE CHAMBER (CLEAN)", cls: "gold", desc: "Full 16:9 dark dome chamber with Ana & Memory Maker completely erased into clean plate b25", src: "assets/moments_videos/m25_film_chamber_clean.mp4", dl: "moment25_04_actual_film_wide_chamber_clean.mp4" },
+      { tag: "05 · VOLUMETRIC MIST / 3D CHAMBER", cls: "", desc: "Volumetric golden point-cloud mist of the birthday cake spawning & tilting on pure black", src: "assets/mist/cake.mp4", dl: "moment25_05_volumetric_mist_cake_spawn.mp4" },
+      { tag: "06 · DEPTH + CANNY CONDITIONING", cls: "grn", desc: "Per-frame Depth Anything V2 + Canny edge conditioning clip for video style transfer", src: "assets/moments_videos/m25_cond_depth_edge.mp4", dl: "moment25_06_depth_edge_conditioning.mp4" }
+    ]
+  },
+  {
+    n: 26,
+    timeRange: "02:21.50 – 02:24.75",
+    kicker: "MOMENT 26 · CYLINDER TO FLUTED BUNDT SCULPTING · 38 FRAMES",
+    title: "THE CAKE SCULPTS FROM A FLAT CYLINDER INTO A DOMED FLUTED BUNDT",
+    facet: "BUNDT FLUTES & CANDLE COUNT (NO ORB IN FRAME)",
+    strips: [
+      ["bundt_sculpt_clean", "02:21.45 – 02:24.40 · Clean subject strip: flat white cylinder cake morphs into a domed 12-flute bundt cake as candles adjust (Ana, K & reticle completely removed)"]
+    ],
+    prompt: "Cinematic close-up of a tilted round white sponge cake smoothly sculpting and morphing into a domed 12-flute golden bundt cake with lit birthday candles in a dark studio chamber, soft warm key light, tactile patisserie crumb texture, 35mm film look.",
+    neg: "memory maker device, silver cylindrical lens barrel, camera hardware, UI HUD overlay, bottom control panel, white reticle arc, person kneeling, hands on lens, text, watermark",
+    videos: [
+      { tag: "01 · ACTUAL FILM (CLOSE-UP CROP)", cls: "gold", desc: "Actual film close-up of the cylinder-to-bundt morph with Ana, K, and reticle erased", src: "assets/moments_videos/m26_film_closeup.mp4", dl: "moment26_01_actual_film_bundt_sculpt_closeup.mp4" },
+      { tag: "02 · BEST 3D SCULPT & FLUTES (STAGE ONLY)", cls: "", desc: "3D engine radial Spin-12 flute sculpting and multi-tier rose/chocolate/white frosting (zero Orb)", src: "assets/moments_videos/m26_stelline3d.mp4", dl: "moment26_02_best3d_flute_sculpt_no_orb.mp4" },
+      { tag: "03 · ISOLATED SEGMENTED BUNDT (BLACK)", cls: "grn", desc: "Segmented isolated cake (k=0 matte) morphing from cylinder to fluted bundt on #000000 black", src: "assets/moments_videos/m26_seg_isolated.mp4", dl: "moment26_03_segmented_isolated_bundt_black.mp4" },
+      { tag: "04 · ACTUAL FILM WIDE CHAMBER (CLEAN)", cls: "gold", desc: "Full 16:9 dark dome chamber with Ana (k=1) and K (k=2) erased into clean plate b26", src: "assets/moments_videos/m26_film_chamber_clean.mp4", dl: "moment26_04_actual_film_wide_chamber_clean.mp4" },
+      { tag: "05 · WEAVER 3D CHAMBER SCULPT", cls: "", desc: "Clean 3D chamber film of the cake crown and flutes forming in the dark dome (zero Orb)", src: "assets/moments_videos/m26_best3d_stage.mp4", dl: "moment26_05_weaver3d_chamber_sculpt_no_orb.mp4" },
+      { tag: "06 · DEPTH + CANNY CONDITIONING", cls: "grn", desc: "Per-frame Depth Anything V2 + 12-flute structural edge conditioning clip", src: "assets/moments_videos/m26_cond_depth_edge.mp4", dl: "moment26_06_depth_edge_conditioning.mp4" }
+    ]
+  },
+  {
+    n: 27,
+    timeRange: "02:24.75 – 02:28.50",
+    kicker: "MOMENT 27 · RED PIPING CALLIGRAPHY & UPRIGHT RELEASE · 44 FRAMES",
+    title: "THE RED ICING CALLIGRAPHY IS PIPED STROKE BY STROKE, THEN THE CAKE TURNS UPRIGHT",
+    facet: "ICING PIPING & UPRIGHT TILT (NO ORB IN FRAME)",
+    strips: [
+      ["icing_writing", "02:24.75 – 02:28.20 · Tilted toward the camera to show its top with five lit candles, red icing pipes 生日快樂 stroke by stroke with an underline flourish, then tilts upright"]
+    ],
+    prompt: "Macro cinematic shot of a tilted round white frosted birthday cake with five glowing candles in a dark room as glossy crimson red icing pipes festive calligraphy across the top crown, then the cake smoothly tilts upright into profile, warm candle glow.",
+    neg: "memory maker device, silver cylindrical lens barrel, camera hardware, UI HUD overlay, bottom control panel, white reticle arc, woman silhouette, hands, text overlay, watermark",
+    videos: [
+      { tag: "01 · ACTUAL FILM (CLOSE-UP CROP)", cls: "gold", desc: "Actual film close-up of red piping calligraphy & upright tilt (Ana & reticle erased)", src: "assets/moments_videos/m27_film_closeup.mp4", dl: "moment27_01_actual_film_icing_piping_closeup.mp4" },
+      { tag: "02 · BEST 3D PIPING & CANDLES (STAGE ONLY)", cls: "", desc: "3D engine 360-degree beaded borders, rosettes, cherries, berries, sprinkles & 7 lit candles (zero Orb)", src: "assets/moments_videos/m27_stelline3d.mp4", dl: "moment27_02_best3d_piping_and_candles_no_orb.mp4" },
+      { tag: "03 · ISOLATED SEGMENTED CAKE (BLACK)", cls: "grn", desc: "Segmented isolated cake (k=0 matte) receiving red icing and turning upright on #000000 black", src: "assets/moments_videos/m27_seg_isolated.mp4", dl: "moment27_03_segmented_isolated_icing_black.mp4" },
+      { tag: "04 · ACTUAL FILM WIDE CHAMBER (CLEAN)", cls: "gold", desc: "Full 16:9 dark dome chamber with Ana (k=1) and reticle (k=2) erased into clean plate b27", src: "assets/moments_videos/m27_film_chamber_clean.mp4", dl: "moment27_04_actual_film_wide_chamber_clean.mp4" },
+      { tag: "05 · WEAVER 3D CANDLES & PEARLS", cls: "", desc: "Clean 3D chamber film of the seven candles rising and base pearls piping around the cake", src: "assets/moments_videos/m27_best3d_stage.mp4", dl: "moment27_05_weaver3d_candles_piping_no_orb.mp4" },
+      { tag: "06 · DEPTH + CANNY CONDITIONING", cls: "grn", desc: "Per-frame Depth Anything V2 + calligraphy & candle edge conditioning clip", src: "assets/moments_videos/m27_cond_depth_edge.mp4", dl: "moment27_06_depth_edge_conditioning.mp4" }
+    ]
+  },
+  {
+    n: 29,
+    timeRange: "02:32.00 – 02:36.00",
+    kicker: "MOMENT 29 · HEXAGONAL TABLE & CHILDREN MATERIALIZING · 47 FRAMES",
+    title: "THE GLOWING TABLE APPEARS UNDER THE CAKE & THE CHILDREN FADE IN",
+    facet: "TABLE & CHILDREN APPEARANCE (NO ORB IN FRAME)",
+    strips: [
+      ["children_fade", "02:32.00 – 02:36.00 · The warm hexagonal wooden table appears beneath the lit birthday cake; the children materialize from translucent ghosts into solid figures"]
+    ],
+    prompt: "Cinematic medium shot inside a dark spherical chamber: a warm honey-lit hexagonal wooden table materializes beneath a birthday cake with glowing candles as young children fade in from translucent golden light into solid joyful party guests around the table, 35mm film.",
+    neg: "memory maker device, silver cylindrical lens barrel, camera hardware, UI HUD overlay, bottom control panel, reticle, text, watermark",
+    videos: [
+      { tag: "01 · ACTUAL FILM (PARTY TABLE CROP)", cls: "gold", desc: "Actual film shot focused on the hexagonal table & children materializing around the lit cake", src: "assets/moments_videos/m29_film_closeup.mp4", dl: "moment29_01_actual_film_children_fade_closeup.mp4" },
+      { tag: "02 · BEST 3D CHILDREN ARRIVE (STAGE ONLY)", cls: "", desc: "3D engine scene of the 3 die-cut children materializing around the 2-tier birthday cake (zero Orb)", src: "assets/moments_videos/m29_stelline3d.mp4", dl: "moment29_02_best3d_children_arrive_no_orb.mp4" },
+      { tag: "03 · ISOLATED SEGMENTED PARTY (BLACK)", cls: "grn", desc: "Segmented isolated cake + hexagonal table + children (k=0..4) materializing on #000000 black", src: "assets/moments_videos/m29_seg_isolated.mp4", dl: "moment29_03_segmented_isolated_party_black.mp4" },
+      { tag: "04 · ACTUAL FILM WIDE CHAMBER (CLEAN)", cls: "gold", desc: "Full 16:9 wide chamber shot of the table and children fading in (small head reticles cleaned)", src: "assets/moments_videos/m29_film_chamber_clean.mp4", dl: "moment29_04_actual_film_wide_chamber_clean.mp4" },
+      { tag: "05 · VOLUMETRIC MIST CHILDREN", cls: "", desc: "Volumetric golden point-cloud mist of the children materializing around the birthday cake", src: "assets/mist/children.mp4", dl: "moment29_05_volumetric_mist_children_fade.mp4" },
+      { tag: "06 · DEPTH + CANNY CONDITIONING", cls: "grn", desc: "Per-frame Depth Anything V2 + multi-child pose & table edge conditioning clip", src: "assets/moments_videos/m29_cond_depth_edge.mp4", dl: "moment29_06_depth_edge_conditioning.mp4" }
+    ]
+  },
+  {
+    n: 36,
+    timeRange: "02:53.00 – 02:58.00",
+    kicker: "MOMENTS 36 & 37 · CANDLELIGHT ON THE BOY'S FACE & SISTER'S SMILE · 58 FRAMES",
+    title: "CANDLELIGHT FLICKERING ON THE BIRTHDAY BOY'S CHEEK & THE SISTER'S FACE",
+    facet: "WARM CANDLELIGHT FLICKER (100% PURE SCENE · NO ORB)",
+    strips: [
+      ["boy_candle", "02:53.00 – 02:55.75 · One foreground candle on the cake; its warm golden flicker moves across the birthday boy's cheek"],
+      ["girl_face", "02:55.75 – 02:58.00 · Reverse close-up: the birthday girl and two friends lit by the warm golden birthday candles"]
+    ],
+    prompt: "Intimate cinematic close-up portrait of a young boy and girl at a birthday table in a dark room, their faces illuminated solely by the warm flickering golden flames of birthday candles on a frosted cake in the foreground, shallow depth of field, soulful nostalgia, 35mm film.",
+    neg: "memory maker device, silver cylindrical lens barrel, camera hardware, UI HUD overlay, bottom control panel, text, watermark",
+    videos: [
+      { tag: "01 · ACTUAL FILM (BOY & SISTER CLOSE-UP)", cls: "gold", desc: "Actual film close-up of the boy gazing at the candle & sister smiling in warm candlelight (Shots 36+37)", src: "assets/moments_videos/m36_film_closeup.mp4", dl: "moment36_01_actual_film_candlelight_faces.mp4" },
+      { tag: "02 · BEST 3D OPTICAL DOF FOCUS (STAGE ONLY)", cls: "", desc: "3D engine 28-tap optical Circle-of-Confusion focus rack between the lit cake and the children (zero Orb)", src: "assets/moments_videos/m36_stelline3d.mp4", dl: "moment36_02_best3d_optical_focus_pull_no_orb.mp4" },
+      { tag: "03 · ISOLATED SEGMENTED FACES & CAKE", cls: "grn", desc: "Segmented isolated boy, sister, friends, and foreground lit cake on pure #000000 black", src: "assets/moments_videos/m36_seg_isolated.mp4", dl: "moment36_03_segmented_isolated_faces_cake_black.mp4" },
+      { tag: "04 · ACTUAL FILM FULL FRAME", cls: "gold", desc: "Full 16:9 clean frame sequence of Shots 36 & 37 with zero UI", src: "assets/moments_videos/m36_film_chamber_clean.mp4", dl: "moment36_04_actual_film_full_frame.mp4" },
+      { tag: "05 · WEAVER 3D CLOSE-UP CANDLELIGHT", cls: "", desc: "Clean 3D close-up of the seven flickering candles illuminating the children's faces (zero Orb)", src: "assets/moments_videos/m36_best3d_stage.mp4", dl: "moment36_05_weaver3d_closeup_candlelight.mp4" },
+      { tag: "06 · DEPTH + CANNY CONDITIONING", cls: "grn", desc: "Per-frame Depth Anything V2 + facial contour & candle flame edge conditioning clip", src: "assets/moments_videos/m36_cond_depth_edge.mp4", dl: "moment36_06_depth_edge_conditioning.mp4" }
+    ]
+  },
+  {
+    n: 39,
+    timeRange: "03:00.50 – 03:05.75",
+    kicker: "MOMENT 39 · SIX CHILDREN GATHERED AROUND THE LIT CAKE · 11 KEYFRAMES",
+    title: "THE FULL PARTY TABLE: SIX CHILDREN GATHERED AROUND THE GLOWING BIRTHDAY CAKE",
+    facet: "ENSEMBLE TABLE STAGING (100% PURE SCENE · NO ORB, NO ANA)",
+    strips: [
+      ["party_table_39_clean", "03:00.50 – 03:05.75 · Canonical ensemble shot: six children gathered around the glowing birthday cake on the table in the dark chamber (zero Ana, zero Memory Maker)"]
+    ],
+    prompt: "Cinematic medium-close ensemble shot of six children gathered around a round frosted birthday cake with seven glowing candles on a wooden table in a pitch-black chamber, warm golden upward candlelight on their faces, nostalgic childhood memory, 35mm film.",
+    neg: "memory maker device, silver cylindrical lens barrel, camera hardware, UI HUD overlay, bottom control panel, adult standing, text, watermark",
+    videos: [
+      { tag: "01 · ACTUAL FILM (ENSEMBLE PARTY TABLE)", cls: "gold", desc: "Actual film shot of the six children gathered around the glowing birthday cake on the table (Shot 39)", src: "assets/moments_videos/m39_film_closeup.mp4", dl: "moment39_01_actual_film_party_table_ensemble.mp4" },
+      { tag: "02 · BEST 3D ENSEMBLE TABLE (STAGE ONLY)", cls: "", desc: "3D engine ensemble shot of the 2-tier cake and children around the hexagonal table (zero Orb)", src: "assets/moments_videos/m39_stelline3d.mp4", dl: "moment39_02_best3d_party_table_no_orb.mp4" },
+      { tag: "03 · ISOLATED SEGMENTED CAKE & CHILDREN", cls: "grn", desc: "Segmented isolated birthday cake and six children (k=0,1,2) on pure #000000 black", src: "assets/moments_videos/m39_seg_isolated.mp4", dl: "moment39_03_segmented_isolated_ensemble_black.mp4" },
+      { tag: "04 · ACTUAL FILM FULL FRAME", cls: "gold", desc: "Full 16:9 clean frame sequence of Shot 39 (zero Ana, zero Orb)", src: "assets/moments_videos/m39_film_chamber_clean.mp4", dl: "moment39_04_actual_film_full_frame.mp4" },
+      { tag: "05 · WEAVER 3D PARTY TABLE", cls: "", desc: "Clean 3D chamber film of the glowing birthday cake and children at the table (zero Orb)", src: "assets/moments_videos/m39_best3d_stage.mp4", dl: "moment39_05_weaver3d_party_table_no_orb.mp4" },
+      { tag: "06 · DEPTH + CANNY CONDITIONING", cls: "grn", desc: "Per-frame Depth Anything V2 + 6-child group pose & cake edge conditioning clip", src: "assets/moments_videos/m39_cond_depth_edge.mp4", dl: "moment39_06_depth_edge_conditioning.mp4" }
+    ]
+  },
+  {
+    n: 44,
+    timeRange: "03:33.25 – 03:37.00",
+    kicker: "MOMENT 44 · FULL PARTY CIRCLE LAUGHING BEFORE THE WISH · 44 FRAMES",
+    title: "THE CHILDREN LEAN IN AROUND THE SEVEN CANDLES BEFORE THE WISH",
+    facet: "PRE-WISH ANTICIPATION (ANA ERASED · NO ORB)",
+    strips: [
+      ["party_circle_44_clean", "03:33.25 – 03:37.00 · Clean party circle strip: the children laugh and lean in around the glowing birthday cake before blowing out the candles (Ana's silhouette completely removed)"]
+    ],
+    prompt: "Cinematic medium shot of children laughing and leaning in closely around a glowing birthday cake with seven lit candles on a warm wooden table inside a dark chamber, golden candlelight illuminating their excited faces before making a wish, 35mm film.",
+    neg: "memory maker device, silver cylindrical lens barrel, camera hardware, UI HUD overlay, bottom control panel, woman silhouette in foreground, text, watermark",
+    videos: [
+      { tag: "01 · ACTUAL FILM (PARTY CIRCLE CLOSE-UP)", cls: "gold", desc: "Actual film party circle cropped & cleaned to the children and cake (Ana's silhouette removed)", src: "assets/moments_videos/m44_film_closeup.mp4", dl: "moment44_01_actual_film_party_circle_closeup.mp4" },
+      { tag: "02 · BEST 3D PRE-WISH TABLE (STAGE ONLY)", cls: "", desc: "3D engine orbit around the lit birthday cake and children right before the wish (zero Orb)", src: "assets/moments_videos/m44_stelline3d.mp4", dl: "moment44_02_best3d_prewish_table_no_orb.mp4" },
+      { tag: "03 · ISOLATED SEGMENTED PARTY (BLACK)", cls: "grn", desc: "Segmented isolated cake and children (k=0..3) on pure #000000 black (zero Ana)", src: "assets/moments_videos/m44_seg_isolated.mp4", dl: "moment44_03_segmented_isolated_party_circle_black.mp4" },
+      { tag: "04 · ACTUAL FILM WIDE CHAMBER (ANA ERASED)", cls: "gold", desc: "Full 16:9 dark dome chamber with Ana on the right completely replaced by clean chamber wall", src: "assets/moments_videos/m44_film_chamber_clean.mp4", dl: "moment44_04_actual_film_wide_chamber_clean.mp4" },
+      { tag: "05 · WEAVER 3D GLOWING TABLE", cls: "", desc: "Clean 3D chamber film of the children and seven glowing candles at peak warmth (zero Orb)", src: "assets/moments_videos/m44_best3d_stage.mp4", dl: "moment44_05_weaver3d_glowing_table_no_orb.mp4" },
+      { tag: "06 · DEPTH + CANNY CONDITIONING", cls: "grn", desc: "Per-frame Depth Anything V2 + party circle pose & candle edge conditioning clip", src: "assets/moments_videos/m44_cond_depth_edge.mp4", dl: "moment44_06_depth_edge_conditioning.mp4" }
+    ]
+  },
+  {
+    n: 46,
+    timeRange: "03:46.50 – 03:49.00",
+    kicker: "MOMENT 46 · MAKING THE WISH & BLOWING OUT THE CANDLES · 29 FRAMES",
+    title: "INHALING THE WISH & BLOWING OUT THE SEVEN CANDLES AS THE LIGHT FADES",
+    facet: "FLAME EXTINGUISH & LIGHT FALLOFF (100% PURE SCENE · NO ORB)",
+    strips: [
+      ["blow_out", "03:46.50 – 03:49.00 · She gasps with mouth open in warm golden light, then blows out the seven candles as the light on her face falls to a third"]
+    ],
+    prompt: "Cinematic close-up of a young girl and friend at a birthday table in a dark room inhaling deeply and blowing out the birthday candles, the warm golden candlelight on their faces fading into cool twilight shadow with wisps of candle smoke, 35mm film.",
+    neg: "memory maker device, silver cylindrical lens barrel, camera hardware, UI HUD overlay, bottom control panel, text, watermark",
+    videos: [
+      { tag: "01 · ACTUAL FILM (BLOWING OUT CANDLES)", cls: "gold", desc: "Actual film close-up of inhaling the wish and blowing out the candles as light falls (Shot 46)", src: "assets/moments_videos/m46_film_closeup.mp4", dl: "moment46_01_actual_film_blow_out_candles.mp4" },
+      { tag: "02 · BEST 3D BLOW-OUT & MIST (STAGE ONLY)", cls: "", desc: "3D engine candle blow-out and dissolution into 6,000 golden memory particles (zero Orb UI)", src: "assets/moments_videos/m46_stelline3d.mp4", dl: "moment46_02_best3d_blow_out_and_mist_no_orb.mp4" },
+      { tag: "03 · ISOLATED SEGMENTED CHILDREN (BLACK)", cls: "grn", desc: "Segmented isolated children (k=0,1) blowing out the candles on pure #000000 black", src: "assets/moments_videos/m46_seg_isolated.mp4", dl: "moment46_03_segmented_isolated_blow_out_black.mp4" },
+      { tag: "04 · VOLUMETRIC MIST BLOW-OUT", cls: "", desc: "Volumetric golden point-cloud mist of the children inhaling and blowing out the candles", src: "assets/mist/blow.mp4", dl: "moment46_04_volumetric_mist_blow_out.mp4" },
+      { tag: "05 · WEAVER 3D MEMORY CRYSTALLIZATION", cls: "", desc: "Clean 3D chamber film of the candles going out and the table crystallizing into light", src: "assets/moments_videos/m46_best3d_stage.mp4", dl: "moment46_05_weaver3d_memory_crystallize_no_orb.mp4" },
+      { tag: "06 · DEPTH + CANNY CONDITIONING", cls: "grn", desc: "Per-frame Depth Anything V2 + facial expression & light-falloff conditioning clip", src: "assets/moments_videos/m46_cond_depth_edge.mp4", dl: "moment46_06_depth_edge_conditioning.mp4" }
+    ]
+  },
+  {
+    n: 7,
+    timeRange: "00:31.00 – 00:35.00",
+    kicker: "MOMENT 07 · PROLOGUE MACRO: THE BEETLE'S EYES RACK INTO FOCUS · 47 FRAMES",
+    title: "THE EMERALD BEETLE ON THE LEAF: RIGHT EYE THEN LEFT EYE SHARPEN",
+    facet: "OCULUS.DX / OCULUS.SN FOCUS RACK (100% PURE MACRO · NO ORB)",
+    strips: [
+      ["eye_right", "00:31.00 – 00:35.00 · Right compound eye (screen right) racks to x24 sharpness at 00:32.35, softens, then sharpens again"],
+      ["eye_left", "00:31.00 – 00:35.00 · Left compound eye at the same timestamps: independent dual-plane optical focus"]
+    ],
+    prompt: "Extreme macro wildlife cinematography of an iridescent emerald-green beetle perched on a sunlit dewy leaf, shallow depth of field racking focus cleanly across the hexagonal facets of its right compound eye and then its left compound eye, bokeh forest background.",
+    neg: "memory maker device, silver cylindrical lens barrel, camera hardware, UI HUD overlay, fingers on lens, text, watermark",
+    videos: [
+      { tag: "01 · ACTUAL FILM (MACRO BEETLE CROP)", cls: "gold", desc: "Actual film macro shot of the beetle on the leaf as its compound eyes rack into focus (Shot 07)", src: "assets/moments_videos/m07_film_closeup.mp4", dl: "moment07_01_actual_film_beetle_macro.mp4" },
+      { tag: "02 · ISOLATED SEGMENTED BEETLE (BLACK)", cls: "grn", desc: "Segmented isolated emerald beetle (k=0 matte) on pure #000000 black", src: "assets/moments_videos/m07_seg_isolated.mp4", dl: "moment07_02_segmented_isolated_beetle_black.mp4" },
+      { tag: "03 · ACTUAL FILM FULL MACRO FRAME", cls: "gold", desc: "Full 16:9 macro frame sequence of Shot 07 with zero UI", src: "assets/moments_videos/m07_film_chamber_clean.mp4", dl: "moment07_03_actual_film_full_macro.mp4" },
+      { tag: "04 · DEPTH + CANNY CONDITIONING", cls: "grn", desc: "Per-frame Depth Anything V2 + compound eye & leg contour conditioning clip", src: "assets/moments_videos/m07_cond_depth_edge.mp4", dl: "moment07_04_depth_edge_conditioning.mp4" }
+    ]
+  }
+];
+
 const fmt = s => Math.floor(s / 60) + ':' + (s % 60).toFixed(2).padStart(5, '0');
-fetch('assets/v6/moments.json').then(r => r.json()).then(M => { const L = document.getElementById('list');
-  for (const n of Object.keys(M).sort((a, b) => TIMES[a] - TIMES[b])) { const m = M[n], s = document.createElement('section');
-    let h = `<h2>${fmt(TIMES[n])} · ${m.title}</h2>`;
-    for (const [img, cap] of IMG[n] || []) h += `<div class="strip"><img src="assets/v6/moments/${img}.jpg" alt="${cap}"></div><div class="cap">${cap}</div>`;
-    h += plot(m.curves);
-    h += '<ul class="notes">' + m.notes.slice().sort((a, b) => a[0] - b[0]).map(([t, s]) => { const k = s.startsWith('OBSERVED') ? 'obs' : 'inf'; return `<li><span>${fmt(t)}</span><span class="${k}">${s.split(':')[0]}</span><span>${s.slice(s.indexOf(':') + 1).trim()}</span></li>`; }).join('') + '</ul>';
-    h += `<div class="orb">On the orb: ring 4 in WATCH is <b>${(m.facet || m.ring || '').toUpperCase()}</b> here, played by the film. <a href="hand-orb.html?t=${n}.02">open the orb at this moment</a><a href="hand-orb.html?t=${n}.02&play=1">watch it play</a></div>`;
-    s.innerHTML = h; L.append(s); } });
-function plot(C) { const keys = Object.keys(C); let t0 = 1e9, t1 = -1e9; for (const k of keys) for (const [t] of C[k]) { t0 = Math.min(t0, t); t1 = Math.max(t1, t); }
-  const W = 760, H = 150, pad = 26, X = t => pad + (t - t0) / Math.max(.01, t1 - t0) * (W - pad * 2), Y = v => H - pad - v * (H - pad * 2), dash = ['', '6 4', '2 3', '10 3'];
-  let s = `<svg class="plot" viewBox="0 0 ${W} ${H}" role="img" aria-label="measured curves"><line x1="${pad}" y1="${H - pad}" x2="${W - pad}" y2="${H - pad}" stroke="currentColor" opacity=".25"/>`;
-  keys.forEach((k, i) => { s += `<polyline fill="none" stroke="var(--plot)" stroke-width="1.6" stroke-dasharray="${dash[i % 4]}" points="${C[k].map(([t, v]) => X(t).toFixed(1) + ',' + Y(v).toFixed(1)).join(' ')}"/>`;
-    const last = C[k][C[k].length - 1]; s += `<text x="${Math.min(W - 4, X(last[0]) + 4)}" y="${Y(last[1]) - 4}" font-family="IBM Plex Mono" font-size="11" fill="var(--plot)" text-anchor="end">${k}</text>`; });
-  s += `<text x="${pad}" y="${H - 6}" font-family="IBM Plex Mono" font-size="11" fill="currentColor" opacity=".6">${fmt(t0)}</text><text x="${W - pad}" y="${H - 6}" font-family="IBM Plex Mono" font-size="11" fill="currentColor" opacity=".6" text-anchor="end">${fmt(t1)}</text></svg>`; return s; }
+
+function showToast(msg) {
+  const el = document.getElementById('toastMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+  clearTimeout(window.__toastT);
+  window.__toastT = setTimeout(() => { el.style.display = 'none'; }, 2400);
+}
+
+function posterFor(src) {
+  const base = src.split('/').pop().replace(/\.mp4$/i, '');
+  if (src.includes('assets/mist/')) return `assets/moments_videos/posters/mist_${base}.jpg`;
+  return `assets/moments_videos/posters/${base}.jpg`;
+}
+
+function renderVideoCard(v) {
+  const poster = posterFor(v.src);
+  return `
+    <div class="vcard">
+      <div class="vcard-top">
+        <span class="vcard-tag ${v.cls || v.tagClass || ''}">${v.tag}</span>
+        <span class="vcard-res">960x540 · 24fps</span>
+      </div>
+      <video data-src="${v.src}" src="${v.src}" poster="${poster}" loop muted playsinline preload="metadata" controls></video>
+      <div class="vcard-foot">
+        <div class="vcard-desc">${v.desc}</div>
+        <a class="dl-btn" href="${v.src}" download="${v.dl || v.file}">DOWNLOAD .MP4</a>
+      </div>
+    </div>
+  `;
+}
+
+function plot(C) {
+  if (!C) return '';
+  const keys = Object.keys(C);
+  if (!keys.length) return '';
+  let t0 = 1e9, t1 = -1e9;
+  for (const k of keys) for (const [t] of C[k]) { t0 = Math.min(t0, t); t1 = Math.max(t1, t); }
+  const W = 680, H = 140, pad = 24;
+  const X = t => pad + (t - t0) / Math.max(0.01, t1 - t0) * (W - pad * 2);
+  const Y = v => H - pad - v * (H - pad * 2);
+  const cols = ['#66f0d8', '#f5b642', '#5ce68b', '#ff7a66'];
+  let s = `<svg class="plot" viewBox="0 0 ${W} ${H}" role="img" aria-label="measured telemetry curves">`;
+  s += `<line x1="${pad}" y1="${H - pad}" x2="${W - pad}" y2="${H - pad}" stroke="#2a3530" stroke-width="1"/>`;
+  s += `<line x1="${pad}" y1="${pad}" x2="${W - pad}" y2="${pad}" stroke="#19211d" stroke-width="1" stroke-dasharray="3 3"/>`;
+  keys.forEach((k, i) => {
+    const col = cols[i % cols.length];
+    s += `<polyline fill="none" stroke="${col}" stroke-width="2" points="${C[k].map(([t, v]) => X(t).toFixed(1) + ',' + Y(v).toFixed(1)).join(' ')}"/>`;
+    const last = C[k][C[k].length - 1];
+    s += `<text x="${Math.min(W - 6, X(last[0]) - 2)}" y="${Math.max(14, Y(last[1]) - 6)}" font-family="IBM Plex Mono" font-size="11" font-weight="600" fill="${col}" text-anchor="end">${k.toUpperCase()}</text>`;
+  });
+  s += `<text x="${pad}" y="${H - 6}" font-family="IBM Plex Mono" font-size="10.5" fill="#95a097">${fmt(t0)}</text>`;
+  s += `<text x="${W - pad}" y="${H - 6}" font-family="IBM Plex Mono" font-size="10.5" fill="#95a097" text-anchor="end">${fmt(t1)}</text></svg>`;
+  return s;
+}
+
+// Render Master Grid
+document.getElementById('masterGrid').innerHTML = MASTER_VIDEOS.map(renderVideoCard).join('');
+
+// Render Jump Nav
+document.getElementById('jumpNav').innerHTML =
+  `<a class="jump-pill" href="#masters"><b>MASTERS</b> · Full Supercuts (6)</a>` +
+  MOMENTS_DATA.map(m => `<a class="jump-pill" href="#moment-${m.n}"><b>M${m.n}</b> · ${m.timeRange.split('–')[0].trim()} ${m.title.slice(0, 26)}...</a>`).join('');
+
+// Load moments.json for curves & notes, and render all Moment cards
+fetch('assets/v6/moments.json').then(r => r.json()).catch(() => ({})).then(MJSON => {
+  const container = document.getElementById('momentList');
+  let html = '';
+  for (const m of MOMENTS_DATA) {
+    const mj = MJSON[String(m.n)] || {};
+    const curves = mj.curves || null;
+    const notes = (mj.notes || []).filter(([, txt]) => !/hands turn|fingers turn|holds the lens at her waist/i.test(txt));
+
+    html += `<section class="moment-sec" id="moment-${m.n}">`;
+    html += `
+      <div class="moment-head">
+        <div class="moment-title-group">
+          <div class="moment-kicker">${m.kicker} · ${m.facet}</div>
+          <h2>${m.timeRange} · ${m.title}</h2>
+        </div>
+        <div class="moment-actions">
+          <button class="btn primary" onclick="downloadMomentVideos(${m.n})">DOWNLOAD ALL ${m.videos.length} VIDEOS (M${m.n})</button>
+          <button class="btn teal" onclick="copyMomentPrompt(${m.n})">COPY STYLE-TRANSFER PROMPT</button>
+          <a class="btn" href="weaver.html?stage=1">OPEN IN 3D STAGE (NO ORB)</a>
+        </div>
+      </div>
+    `;
+
+    for (const [img, cap] of m.strips) {
+      html += `
+        <div class="strip-label">
+          <span>CANONICAL FILM STRIP (100% ORB-FREE SUBJECT CROP)</span>
+          <a href="assets/v6/moments/${img}.jpg" download="moment${m.n}_strip_${img}.jpg">DOWNLOAD STRIP (.JPG)</a>
+        </div>
+        <div class="strip"><img src="assets/v6/moments/${img}.jpg" alt="${cap}"></div>
+        <div class="dim" style="font:11.5px var(--mono);margin-bottom:12px;">${cap}</div>
+      `;
+    }
+
+    html += `<div class="vgrid">${m.videos.map(renderVideoCard).join('')}</div>`;
+
+    html += `
+      <div class="prompt-box">
+        <div>
+          <b>STYLE-TRANSFER PROMPT (M${m.n} · ZERO HARDWARE):</b> ${m.prompt}
+          <span class="neg"><b>NEGATIVE PROMPT:</b> ${m.neg}</span>
+        </div>
+        <button class="btn teal" onclick="copyMomentPrompt(${m.n})">COPY PROMPT</button>
+      </div>
+    `;
+
+    if (curves || notes.length) {
+      html += `<div class="telemetry-grid">`;
+      html += `<div><div class="strip-label"><span>MEASURED 12-FPS FRAME TELEMETRY CURVE</span></div>${plot(curves)}</div>`;
+      html += `<ul class="notes">` + notes.map(([t, s]) => {
+        const k = s.startsWith('OBSERVED') ? 'obs' : 'inf';
+        return `<li><span>${fmt(t)}</span><span class="${k}">${s.split(':')[0]}</span><span>${s.slice(s.indexOf(':') + 1).trim()}</span></li>`;
+      }).join('') + `</ul>`;
+      html += `</div>`;
+    }
+
+    html += `</section>`;
+  }
+  container.innerHTML = html;
+  initVideoObserver();
+});
+
+let globalAutoPlay = true;
+function initVideoObserver() {
+  if (!('IntersectionObserver' in window)) return;
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      const v = en.target;
+      if (en.isIntersecting && globalAutoPlay) {
+        v.play().catch(() => {});
+      } else {
+        v.pause();
+      }
+    });
+  }, { rootMargin: '120px 0px', threshold: 0.1 });
+  document.querySelectorAll('video').forEach(v => io.observe(v));
+}
+
+function toggleAllVideos(play) {
+  globalAutoPlay = play;
+  document.getElementById('btnPlayAll').classList.toggle('active', play);
+  document.getElementById('btnPauseAll').classList.toggle('active', !play);
+  document.querySelectorAll('video').forEach(v => {
+    if (play) v.play().catch(() => {});
+    else v.pause();
+  });
+}
+
+function setGlobalSpeed(rate, btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => {
+    if (b.textContent.endsWith('x')) b.classList.remove('active');
+  });
+  btn.classList.add('active');
+  document.querySelectorAll('video').forEach(v => { v.playbackRate = rate; });
+  showToast('PLAYBACK SPEED SET TO ' + rate + 'x');
+}
+
+function triggerDownload(url, filename) {
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function downloadAllMasterVideos() {
+  MASTER_VIDEOS.forEach((v, i) => {
+    setTimeout(() => triggerDownload(v.src, v.file), i * 350);
+  });
+  showToast('DOWNLOADING ALL 6 MASTER .MP4 REELS...');
+}
+
+function downloadMomentVideos(n) {
+  const m = MOMENTS_DATA.find(x => x.n === n);
+  if (!m) return;
+  m.videos.forEach((v, i) => {
+    setTimeout(() => triggerDownload(v.src, v.dl), i * 350);
+  });
+  showToast(`DOWNLOADING ALL ${m.videos.length} VIDEOS FOR MOMENT ${n}...`);
+}
+
+function copyMomentPrompt(n) {
+  const m = MOMENTS_DATA.find(x => x.n === n);
+  if (!m) return;
+  const txt = `${m.prompt} --no ${m.neg}`;
+  navigator.clipboard.writeText(txt).catch(() => {});
+  showToast(`COPIED MOMENT ${n} ORB-FREE PROMPT`);
+}
+
+function copyCurlScript() {
+  const base = location.origin + location.pathname.replace(/\/[^/]*$/, '/');
+  const lines = ['#!/usr/bin/env bash', 'mkdir -p stelline_moments_videos && cd stelline_moments_videos'];
+  MASTER_VIDEOS.forEach(v => lines.push(`curl -L -O "${base}${v.src}"`));
+  MOMENTS_DATA.forEach(m => m.videos.forEach(v => lines.push(`curl -L -o "${v.dl}" "${base}${v.src}"`)));
+  navigator.clipboard.writeText(lines.join('\n')).catch(() => {});
+  showToast('COPIED BASH CURL SCRIPT FOR ALL 59 ORB-FREE VIDEOS');
+}
 </script>
 </body>
 </html>

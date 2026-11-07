@@ -3945,6 +3945,19 @@ window.stageV2GScene = function(idx) {
   if (btn) btn.click();
 };
 
+window.setStageOnly = function(on) {
+  const active = on == null ? !document.body.classList.contains('paired') : !!on;
+  document.body.classList.toggle('paired', active);
+  document.body.classList.remove('film');
+  if (typeof resize === 'function') resize();
+};
+if (/[?&]stage=1/.test(location.search)) setTimeout(() => window.setStageOnly(true), 120);
+window.addEventListener('keydown', e => {
+  if ((e.key === 'o' || e.key === 'O') && !e.metaKey && !e.ctrlKey && (!document.activeElement || !['INPUT','TEXTAREA'].includes(document.activeElement.tagName))) {
+    window.setStageOnly();
+  }
+});
+
 </script>
 </body>
 </html>
