@@ -722,35 +722,170 @@ function updReticle() {
   retSVG.innerHTML = ''; }
 
 
-/* =============================================================== THE CAST: the children, cut from the film's own frame, added one by one around the table and lit by the 3D scene */
+/* =============================================================== THE CAST: Die-Cut Cardboard Standee Performers around the table */
 const KIDS = [
-  { file: 'stelline_child1.webp', label: 'CHILD 1 · WEST', frames: 16, fps: 10, h: .56, base: TABLE_Y - .1, da: -.66, pts: [] },
-  { file: 'stelline_child2.webp', label: 'CHILD 2 · CENTER', frames: 16, fps: 10, h: .38, base: TABLE_Y + .02, da: -.04, pts: [] },
-  { file: 'stelline_child3.webp', label: 'CHILD 3 · EAST', frames: 16, fps: 10, h: .70, base: TABLE_Y - .14, da: .58, pts: [] },
-  { file: 'stelline_walk.webp',   label: 'ANA · WALK TO WORK', frames: 8, fps: 6, h: .76, base: TABLE_Y - .16, da: -1.25, pts: [] },
-  { file: 'stelline_talk.webp',   label: 'ANA · UNTIDY DETAILS', frames: 8, fps: 6, h: .68, base: TABLE_Y - .12, da: 1.25, pts: [] },
-  { file: 'stelline_candle_face.webp', label: 'WISH · CANDLE FACE', frames: 8, fps: 8, h: .48, base: TABLE_Y + .01, da: .28, pts: [] }
+  { url: 'ana/cut/film-child-1-blow.webp', label: 'CHILD 1 · WEST', cols: 9, rows: 5, frames: 43, cropX: 0.08, cropW: 0.84, cropY: 0.76, fps: 10, h: .48, base: TABLE_Y - .03, da: -.66, pts: [] },
+  { url: 'ana/cut/film-child-2-blow.webp', label: 'CHILD 2 · CENTER', cols: 7, rows: 7, frames: 44, cropX: 0.10, cropW: 0.80, cropY: 0.88, fps: 10, h: .46, base: TABLE_Y - .02, da: -.04, pts: [] },
+  { url: 'ana/cut/film-child-3-blow.webp', label: 'CHILD 3 · EAST', cols: 10, rows: 5, frames: 43, cropX: 0.08, cropW: 0.84, cropY: 0.90, fps: 10, h: .50, base: TABLE_Y - .03, da: .58, pts: [] },
+  { url: 'assets/girls/boy_c.webp',        label: 'BIRTHDAY BOY', cols: 6, rows: 5, frames: 28, cropX: 0.34, cropW: 0.62, cropY: 0.86, fps: 10, h: .50, base: TABLE_Y - .03, da: -1.25, pts: [] },
+  { url: 'assets/girls/guest_b.webp',      label: 'PARTY FRIEND', cols: 6, rows: 12, frames: 71, cropX: 0.18, cropW: 0.74, cropY: 0.92, fps: 10, h: .48, base: TABLE_Y - .03, da: 1.25, pts: [] },
+  { url: 'assets/boys/hair_b.webp',        label: 'CANDLE WATCHER', cols: 6, rows: 7, frames: 41, cropX: 0.29, cropW: 0.52, cropY: 0.94, fps: 10, h: .48, base: TABLE_Y - .02, da: .28, pts: [] }
 ];
-const kidTex = KIDS.map(k => { const t = new T.TextureLoader().load('assets/cutouts/' + k.file, tt => {
-  const fw = tt.image.width / (k.frames || 1), fh = tt.image.height;
-  k.aspect = fw / fh;
-  tt.repeat.set(1 / (k.frames || 1), 1);
-  try { const c = document.createElement('canvas'), w = 96, h = Math.max(48, Math.round(96 / k.aspect)); c.width = w; c.height = h; const x = c.getContext('2d'); x.drawImage(tt.image, 0, 0, fw, fh, 0, 0, w, h); const d = x.getImageData(0, 0, w, h).data, pts = [];
-    for (let y = 0; y < h; y += 2) for (let u = 0; u < w; u += 2) { const idx = (y * w + u) * 4; if (d[idx + 3] > 64) pts.push([u / w - .5, .5 - y / h, d[idx] / 255, d[idx + 1] / 255, d[idx + 2] / 255]); }
-    k.pts = pts; mistDirty = true; } catch (e) { }
-  castDirty = true; }); t.encoding = T.sRGBEncoding; return t; });
+const _wStandeeScratch = document.createElement('canvas'); _wStandeeScratch.width = 192; _wStandeeScratch.height = 256;
+const _wStandeeCtx = _wStandeeScratch.getContext('2d', { willReadFrequently: true });
+const _wDist = new Float32Array(192 * 256);
+
+function renderWeaverStandee(ctx, img, sx, sy, sw, sh, W, H, kSpec) {
+  const SW = 192, SH = 256, PAD = 16;
+  _wStandeeCtx.clearRect(0, 0, SW, SH);
+  const cx0 = sx + sw * (kSpec && kSpec.cropX || 0.06);
+  const cy0 = sy + sh * 0.02;
+  const cw0 = sw * (kSpec && kSpec.cropW || 0.88);
+  const ch0 = sh * (kSpec && kSpec.cropY || 0.88);
+  _wStandeeCtx.drawImage(img, cx0, cy0, cw0, ch0, PAD, PAD, SW - PAD * 2, SH - PAD * 2);
+  const id = _wStandeeCtx.getImageData(0, 0, SW, SH), d = id.data;
+  const INF = 9999;
+  _wDist.fill(INF);
+  let sumX = 0, cntX = 0;
+  for (let y = PAD; y < SH - PAD; y += 2) {
+    for (let x = PAD; x < SW - PAD; x += 2) {
+      if (d[(y * SW + x) * 4 + 3] > 80) { sumX += x; cntX++; }
+    }
+  }
+  const medX = cntX > 0 ? (sumX / cntX) : (SW >> 1);
+  const rowL = new Int16Array(SH).fill(-1), rowR = new Int16Array(SH).fill(-1);
+  let yMin = SH, yMax = 0;
+  for (let y = PAD; y < SH - PAD; y++) {
+    let l = -1, r = -1, c = 0;
+    for (let x = PAD; x < SW - PAD; x++) {
+      if (Math.abs(x - medX) > 68) continue;
+      if (d[(y * SW + x) * 4 + 3] > 80) { if (l < 0) l = x; r = x; c++; }
+    }
+    if (c >= 3) { rowL[y] = l; rowR[y] = r; if (y < yMin) yMin = y; if (y > yMax) yMax = y; }
+  }
+  if (yMin <= yMax) {
+    let lL = rowL[yMin], lR = rowR[yMin];
+    for (let y = yMin; y <= yMax; y++) {
+      if (rowL[y] < 0) { rowL[y] = lL; rowR[y] = lR; } else { lL = rowL[y]; lR = rowR[y]; }
+    }
+    for (let y = yMin; y <= yMax; y++) {
+      let sL = 0, sR = 0, n = 0;
+      for (let ky = Math.max(yMin, y - 4); ky <= Math.min(yMax, y + 4); ky++) { sL += rowL[ky]; sR += rowR[ky]; n++; }
+      const l = Math.max(PAD, Math.round(sL / n)), r = Math.min(SW - PAD - 1, Math.round(sR / n));
+      for (let x = l; x <= r; x++) {
+        const i = y * SW + x, p = i * 4;
+        _wDist[i] = 0;
+        if (d[p + 3] < 48) { d[p] = 36; d[p + 1] = 30; d[p + 2] = 26; d[p + 3] = 255; }
+      }
+    }
+  }
+  for (let y = 1; y < SH - 1; y++) {
+    let row = y * SW;
+    for (let x = 1; x < SW - 1; x++) {
+      const idx = row + x;
+      if (_wDist[idx] > 0) {
+        let m = _wDist[idx - 1] + 1;
+        if (_wDist[idx - SW] + 1 < m) m = _wDist[idx - SW] + 1;
+        if (_wDist[idx - SW - 1] + 1.414 < m) m = _wDist[idx - SW - 1] + 1.414;
+        if (_wDist[idx - SW + 1] + 1.414 < m) m = _wDist[idx - SW + 1] + 1.414;
+        if (m < _wDist[idx]) _wDist[idx] = m;
+      }
+    }
+  }
+  for (let y = SH - 2; y >= 1; y--) {
+    let row = y * SW;
+    for (let x = SW - 2; x >= 1; x--) {
+      const idx = row + x;
+      if (_wDist[idx] > 0) {
+        let m = _wDist[idx + 1] + 1;
+        if (_wDist[idx + SW] + 1 < m) m = _wDist[idx + SW] + 1;
+        if (_wDist[idx + SW + 1] + 1.414 < m) m = _wDist[idx + SW + 1] + 1.414;
+        if (_wDist[idx + SW - 1] + 1.414 < m) m = _wDist[idx + SW - 1] + 1.414;
+        if (m < _wDist[idx]) _wDist[idx] = m;
+      }
+    }
+  }
+  for (let i = 0; i < SW * SH; i++) {
+    const dist = _wDist[i], p = i * 4;
+    if (dist === 0) {
+      d[p]     = Math.min(255, Math.round(Math.pow(d[p] / 255, 0.78) * 245 + 14));
+      d[p + 1] = Math.min(255, Math.round(Math.pow(d[p + 1] / 255, 0.80) * 238 + 10));
+      d[p + 2] = Math.min(255, Math.round(Math.pow(d[p + 2] / 255, 0.84) * 225 + 6));
+      d[p + 3] = 255;
+    } else if (dist <= 5.2) {
+      d[p] = 246; d[p + 1] = 240; d[p + 2] = 226; d[p + 3] = 255;
+    } else if (dist <= 7.2) {
+      d[p] = 184; d[p + 1] = 138; d[p + 2] = 82; d[p + 3] = 255;
+    } else if (dist <= 8.8) {
+      d[p] = 24; d[p + 1] = 20; d[p + 2] = 16; d[p + 3] = 255;
+    } else {
+      d[p + 3] = 0;
+    }
+  }
+  _wStandeeCtx.putImageData(id, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  ctx.drawImage(_wStandeeScratch, 0, 0, SW, SH, 0, 0, W, H);
+}
+
+const kidTex = KIDS.map(k => {
+  const can = document.createElement('canvas'); can.width = 256; can.height = 340;
+  const ctx = can.getContext('2d');
+  const t = new T.CanvasTexture(can); t.encoding = T.sRGBEncoding;
+  t.userData = { can, ctx, img: null, lastFrame: -1 };
+  const img = new Image(); img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    t.userData.img = img;
+    const cols = k.cols || 8, rows = k.rows || 1;
+    const fw = img.width / cols, fh = img.height / rows;
+    k.aspect = (fw / fh) * 0.92;
+    const s0 = k.frames > 16 ? 4 : 0;
+    renderWeaverStandee(ctx, img, (s0 % cols) * fw, Math.floor(s0 / cols) * fh, fw, fh, can.width, can.height, k);
+    t.needsUpdate = true;
+    try {
+      const id = ctx.getImageData(0, 0, can.width, can.height).data, pts = [];
+      for (let y = 0; y < can.height; y += 5) for (let u = 0; u < can.width; u += 5) {
+        const idx = (y * can.width + u) * 4;
+        if (id[idx + 3] > 128) pts.push([u / can.width - .5, .5 - y / can.height, id[idx] / 255, id[idx + 1] / 255, id[idx + 2] / 255]);
+      }
+      k.pts = pts; mistDirty = true;
+    } catch (e) {}
+    castDirty = true; oledDirty = true;
+  };
+  img.src = k.url;
+  return t;
+});
 const CASTG = new T.Group(); MEM.add(CASTG); const castMesh = {}; let castDirty = true;
 const CAST_ONION = new T.Group(); MEM.add(CAST_ONION); const castOnionMesh = {};
-function castObj(c) { if (castMesh[c.id]) return castMesh[c.id]; const k = KIDS[c.i]; const m = new T.Mesh(new T.PlaneGeometry(1, 1), holo(new T.MeshStandardMaterial({ map: kidTex[c.i], emissiveMap: kidTex[c.i], emissive: 0xffd4a6, emissiveIntensity: .16, color: 0xfff2e2, roughness: .64, metalness: .04, transparent: true, alphaTest: .06, side: T.DoubleSide, depthWrite: true })));
-  m.material.customProgramCacheKey = () => 'holo-kid'; m.userData.cast = c.id; CASTG.add(m); castMesh[c.id] = m; return m; }
-function castOnionObj(c) { if (castOnionMesh[c.id]) return castOnionMesh[c.id]; const m = new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshBasicMaterial({ map: kidTex[c.i], color: 0x5ff0dc, transparent: true, opacity: .24, alphaTest: .08, side: T.DoubleSide, depthWrite: false, toneMapped: false }));
+const _plinthMatW = new T.MeshStandardMaterial({ color: 0xb88648, roughness: .75, metalness: .08 });
+function castObj(c) {
+  if (castMesh[c.id]) return castMesh[c.id];
+  const m = new T.Mesh(new T.PlaneGeometry(1, 1), holo(new T.MeshStandardMaterial({ map: kidTex[c.i], emissiveMap: kidTex[c.i], emissive: 0xffffff, emissiveIntensity: .34, color: 0xffffff, roughness: .65, metalness: .02, transparent: true, alphaTest: .15, side: T.DoubleSide, depthWrite: true })));
+  m.material.customProgramCacheKey = () => 'holo-kid-standee';
+  const plinth = new T.Mesh(new T.CylinderGeometry(.24, .27, .026, 20), _plinthMatW);
+  plinth.position.set(0, -.49, 0);
+  m.add(plinth);
+  m.userData.cast = c.id; CASTG.add(m); castMesh[c.id] = m; return m;
+}
+function castOnionObj(c) { if (castOnionMesh[c.id]) return castOnionMesh[c.id]; const m = new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshBasicMaterial({ map: kidTex[c.i], color: 0x5ff0dc, transparent: true, opacity: .24, alphaTest: .15, side: T.DoubleSide, depthWrite: false, toneMapped: false }));
   CAST_ONION.add(m); castOnionMesh[c.id] = m; return m; }
 function placeCast(dt) { const list = S.tweenCast || DOC.cast;
   const ids = new Set(list.map(c => c.id)); for (const id in castMesh) if (!ids.has(+id)) { CASTG.remove(castMesh[id]); delete castMesh[id]; mistDirty = true; }
   const cp = cam.position.clone(); MEM.worldToLocal(cp);
-  list.forEach(c => { const m = castObj(c), k = KIDS[c.i], asp = k.aspect || .7; const prevVis = c.vis || 0; c.vis = (c.vis == null ? (c.op || 1) : c.vis) + ((c.op || 0) - (c.vis == null ? (c.op || 1) : c.vis)) * Math.min(1, dt * 6.0);
+  list.forEach(c => { const m = castObj(c), k = KIDS[c.i], asp = k.aspect || .72, kt = kidTex[c.i];
+    const prevVis = c.vis || 0; c.vis = (c.vis == null ? (c.op || 1) : c.vis) + ((c.op || 0) - (c.vis == null ? (c.op || 1) : c.vis)) * Math.min(1, dt * 6.0);
     if (Math.abs(c.vis - prevVis) > .02) mistDirty = true;
-    if (k.frames > 1 && kidTex[c.i]) { const fi = Math.floor(NOW * (k.fps || 10) + c.i * 5) % k.frames; kidTex[c.i].offset.x = fi / k.frames; }
+    if (kt && kt.userData && kt.userData.img) {
+      const startF = k.frames > 16 ? 4 : 0;
+      const spanF = Math.max(1, k.frames - startF);
+      const fi = startF + (Math.floor(NOW * (k.fps || 8) + c.i * 3) % spanF);
+      if (fi !== kt.userData.lastFrame) {
+        kt.userData.lastFrame = fi;
+        const cols = k.cols || 8, rows = k.rows || 1, img = kt.userData.img;
+        const fw = img.width / cols, fh = img.height / rows;
+        renderWeaverStandee(kt.userData.ctx, img, (fi % cols) * fw, Math.floor(fi / cols) * fh, fw, fh, kt.userData.can.width, kt.userData.can.height, k);
+        kt.needsUpdate = true;
+      }
+    }
     const hh = k.h * (c.s || 1) * (c.sh || 1); m.scale.set(k.h * asp * (c.s || 1) * (c.sw || 1), hh, 1); m.position.set(Math.cos(c.a) * c.r, k.base + hh / 2 + (c.lift || 0), Math.sin(c.a) * c.r);
     m.lookAt(MEM.localToWorld(new T.Vector3(cp.x, m.position.y, cp.z))); m.rotateY((c.yaw || 0) * Math.PI / 180); m.rotateX(-(c.tilt || 0) * Math.PI / 180); m.rotateZ((c.roll || 0) * Math.PI / 180);
     m.material.opacity = c.vis; m.visible = c.vis > .02; });
@@ -879,41 +1014,31 @@ RX.forEach((x, i) => { const g = new T.Group(); g.position.x = x; g.userData.rin
     const mark = new T.Mesh(new T.BoxGeometry(w, .004, k === 0 ? .013 : .008), new T.MeshBasicMaterial({ color: col }));
     mark.position.set(0, Math.cos(a) * (RR + .0012), Math.sin(a) * (RR + .0012)); mark.rotation.x = a; mark.userData.ring = i; g.add(mark); }
   const lit = new T.Mesh(new T.TorusGeometry(RR + .0018, .0026, 8, 128), new T.MeshBasicMaterial({ color: 0x5ff0dc, toneMapped: false })); lit.rotation.y = Math.PI / 2; g.add(lit);
-  const lc = document.createElement('canvas'); lc.width = 520; lc.height = 250; const lt = new T.CanvasTexture(lc); lt.encoding = T.sRGBEncoding; lt.anisotropy = 8;
-  const la = .18, lp = new T.Mesh(new T.PlaneGeometry(RW * 1.05, RW * 1.05 * 250 / 520), new T.MeshBasicMaterial({ map: lt, transparent: true, toneMapped: false })); lp.position.set(0, Math.sin(la) * (RR + .018), Math.cos(la) * (RR + .018)); lp.rotation.x = -la; FLAT.push(lp); lp.userData.ring = i; lp.userData.keepW = true;
+  const lc = document.createElement('canvas'); lc.width = 560; lc.height = 280; const lt = new T.CanvasTexture(lc); lt.encoding = T.sRGBEncoding; lt.anisotropy = 8;
+  const la = .18, lp = new T.Mesh(new T.PlaneGeometry(RW * 1.07, RW * 1.07 * 280 / 560), new T.MeshBasicMaterial({ map: lt, transparent: true, toneMapped: false })); lp.position.set(0, Math.sin(la) * (RR + .018), Math.cos(la) * (RR + .018)); lp.rotation.x = -la; FLAT.push(lp); lp.userData.ring = i; lp.userData.keepW = true;
   const lg = new T.Group(); lg.position.x = x; lg.add(lp); ORB.add(lg);
   RINGS.push({ g, m, lit, ang: 0, target: 0, lc, lt, lp, lg, key: '', stretch: 0 }); });
 const TUFTE_RING_COLS = ['#2b9348', '#2a9d8f', '#1d70b8', '#7209b7', '#e85d04'];
 const TUFTE_RING_ROLES = ['MODE', 'PICK', 'TRIM', 'LIFT', 'STORE'];
 function drawDialLabels() { const RS = rings(); RINGS.forEach((R0, i) => { const r = RS[i], hot = i === S.lastRing || i === S.hoverRing, col = TUFTE_RING_COLS[i];
-  const key = r ? r.n + '|' + r.f(r.v()) + '|' + hot + '|' + col : '-'; if (key === R0.key) return; R0.key = key; const x = R0.lc.getContext('2d'), W = 520, H = 250; x.clearRect(0, 0, W, H);
-  x.fillStyle = hot ? '#111111' : '#F4F1EA';
+  const key = r ? r.n + '|' + r.f(r.v()) + '|' + hot + '|' + col : '-'; if (key === R0.key) return; R0.key = key; const x = R0.lc.getContext('2d'), W = 560, H = 280; x.clearRect(0, 0, W, H);
+  x.fillStyle = hot ? '#111111' : '#FAF8F2';
   x.fillRect(4, 4, W - 8, H - 8);
-  x.lineWidth = hot ? 5 : 3; x.strokeStyle = hot ? col : '#111111'; x.strokeRect(4, 4, W - 8, H - 8);
-  x.fillStyle = col; x.fillRect(4, 4, W - 8, 38);
-  x.font = '700 22px ui-monospace, Menlo, monospace'; x.fillStyle = '#FFFFFF'; x.textAlign = 'left';
-  x.fillText('R' + (i + 1) + ' · ' + TUFTE_RING_ROLES[i], 14, 30);
-  x.textAlign = 'right'; x.fillText(r ? r.n.slice(0, 12) : '—', W - 14, 30);
-  if (!r) { x.textAlign = 'center'; x.fillStyle = '#888888'; x.font = '700 44px ui-monospace, Menlo, monospace'; x.fillText('—', W / 2, 136); }
+  x.lineWidth = hot ? 7 : 5; x.strokeStyle = hot ? col : '#111111'; x.strokeRect(4, 4, W - 8, H - 8);
+  x.fillStyle = col; x.fillRect(4, 4, W - 8, 60);
+  x.font = '700 34px ui-monospace, Menlo, monospace'; x.fillStyle = '#FFFFFF'; x.textAlign = 'center';
+  x.fillText('R' + (i + 1) + ' · ' + (r ? r.n.slice(0, 12) : TUFTE_RING_ROLES[i]), W / 2, 46);
+  if (!r) { x.textAlign = 'center'; x.fillStyle = '#888888'; x.font = '700 58px ui-monospace, Menlo, monospace'; x.fillText('—', W / 2, 165); }
   else {
     let v = String(r.f(r.v())).toUpperCase();
     x.fillStyle = hot ? '#FAF8F2' : '#111111';
-    let fs = 54; x.font = '700 ' + fs + 'px ui-monospace, Menlo, monospace';
-    while (x.measureText(v).width > W - 32 && fs > 24) { fs -= 2; x.font = '700 ' + fs + 'px ui-monospace, Menlo, monospace'; }
-    x.textAlign = 'center'; x.fillText(v, W / 2, 134);
-    const u = v01(r), bx = 20, by = 166, bw = W - 40, bh = 22;
-    x.fillStyle = hot ? '#262825' : '#DEDAD0'; x.fillRect(bx, by, bw, bh);
-    x.fillStyle = col; x.fillRect(bx, by, Math.max(8, bw * u), bh);
-    x.strokeStyle = '#111111'; x.lineWidth = 2; x.strokeRect(bx, by, bw, bh);
-    for (let t = 0; t <= 10; t++) {
-      const tx = bx + (bw * t) / 10;
-      x.strokeStyle = hot ? '#888888' : '#333333'; x.lineWidth = t % 5 === 0 ? 2.5 : 1.2;
-      x.beginPath(); x.moveTo(tx, by + bh); x.lineTo(tx, by + bh + (t % 5 === 0 ? 12 : 7)); x.stroke();
-    }
-    x.font = '700 19px ui-monospace, Menlo, monospace'; x.fillStyle = hot ? '#A8B0A8' : '#444444';
-    x.textAlign = 'left'; x.fillText('0%', bx, H - 14);
-    x.textAlign = 'center'; x.fillText(Math.round(u * 100) + '%', W / 2, H - 14);
-    x.textAlign = 'right'; x.fillText('100%', bx + bw, H - 14);
+    let fs = 74; x.font = '700 ' + fs + 'px ui-monospace, Menlo, monospace';
+    while (x.measureText(v).width > W - 36 && fs > 34) { fs -= 4; x.font = '700 ' + fs + 'px ui-monospace, Menlo, monospace'; }
+    x.textAlign = 'center'; x.fillText(v, W / 2, 164);
+    const u = v01(r), bx = 24, by = 204, bw = W - 48, bh = 36;
+    x.fillStyle = hot ? '#262825' : '#E5E0D5'; x.fillRect(bx, by, bw, bh);
+    x.fillStyle = col; x.fillRect(bx, by, Math.max(12, bw * u), bh);
+    x.strokeStyle = '#111111'; x.lineWidth = 3; x.strokeRect(bx, by, bw, bh);
   }
   R0.lt.needsUpdate = true; }); }
 // fixed index ticks between the rings, as on the prop
@@ -1342,7 +1467,7 @@ function drawOLED() {
   x.fillStyle = '#0c100f'; x.fillRect(vx, vy, vw, vh);
   try {
     if (oledVideo && oledVideo.readyState >= 2) x.drawImage(oledVideo, vx, vy, vw, vh);
-    else if (kidTex[3] && kidTex[3].image) { const fw = kidTex[3].image.width / 8, fh = kidTex[3].image.height, fi = Math.floor(NOW * 6) % 8; x.drawImage(kidTex[3].image, fi * fw, 0, fw, fh, vx + 40, vy + 4, vw - 80, vh - 8); }
+    else if (kidTex[0] && kidTex[0].image) { x.drawImage(kidTex[0].image, 0, 0, kidTex[0].image.width, kidTex[0].image.height, vx + 130, vy + 6, vw - 260, vh - 12); }
   } catch (e) {}
   x.strokeStyle = '#111111'; x.lineWidth = 3; x.strokeRect(vx, vy, vw, vh);
 
@@ -1353,8 +1478,7 @@ function drawOLED() {
   const c0 = DOC.cast.length ? DOC.cast[DOC.cast.length - 1] : { i: 0 };
   const k0 = KIDS[c0.i] || KIDS[0], kt = kidTex[c0.i] || kidTex[0];
   if (kt && kt.image) {
-    const fw = kt.image.width / (k0.frames || 1), fh = kt.image.height, fi = Math.floor(NOW * 8) % (k0.frames || 1);
-    x.drawImage(kt.image, fi * fw, 0, fw, fh, lx + 18, ly + 18, lw - 36, lh - 24);
+    x.drawImage(kt.image, 0, 0, kt.image.width, kt.image.height, lx + 16, ly + 12, lw - 32, lh - 18);
   }
   x.fillStyle = '#111111'; x.fillRect(lx + lw - 68, ly, 68, 22);
   x.font = '700 14px ui-monospace, Menlo, monospace'; x.fillStyle = '#FFFFFF'; x.textAlign = 'center';

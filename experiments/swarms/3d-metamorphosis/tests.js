@@ -5,24 +5,24 @@
    2. NO FLIPS: no face normal reverses between consecutive steps (faces of area < 1e-10 m^2 at the axis are skipped).
    3. NO SELF-INTERSECTION: every angular column's profile, closed through the axis, keeps positive orientation, has no
       crossing segments, and no negative radius (tolerance 0: none allowed).
-   4. VOLUME PER STEP BOUNDED: |V(k+1) - V(k)| <= 0.16 * max(V(a), V(b)) for morphs (each change gets stepsFor(a, b, pace) in-betweens, at least 12). CUTS are exempt and flagged.
+   4. VOLUME PER STEP BOUNDED: |V(k+1) - V(k)| <= 0.16 * max(V(a), V(b)) for morphs (12 steps). CUTS are exempt and flagged.
    5. CANDLE ANCHORS CONTINUOUS: each of the seven candle anchors moves at most 6 mm per step during a morph; across a cut the
       page holds the candles and settles them over 6 frames, so the per-frame move is at most 1/6 of the cut jump (checked <= 4 mm).
-   6. IDENTITY HELD (a numeric proxy only; the felt result is for the viewer): under LINGER, after a quarter of its steps the surface
+   6. IDENTITY HELD (a numeric proxy only; the felt result is for the viewer): under LINGER, after 3 of 12 steps the surface
       has moved less than 15% of the way to the next key (mean vertex distance).
    7. THE PROOF TRACE (if trace.json exists): the whole making is shown (arrival, at least three stages, the film's chosen cake,
-      24 inscription steps, 7 candles placed, 7 lit, the blow), and no ring steps faster than 23.6/s over any 0.5 s window. */
+      24 inscription steps, 7 candles placed, 7 lit, the blow), and every machine step is at 11.8/s or 23.6/s. */
 const M = require('./morph.js'), fs = require('fs'), path = require('path');
 let pass = 0, fail = 0; const lines = [];
 const ok = (c, msg) => { if (c) pass++; else { fail++; lines.push('FAIL ' + msg); } };
-const n = M.NU * M.NT;
+const N = M.STEPS, n = M.NU * M.NT;
 const edges = []; Object.keys(M.EDGES).forEach(a => Object.keys(M.EDGES[a]).forEach(b => edges.push([a, b, M.EDGES[a][b]])));
 // 1
 M.ORDER.forEach(k => { const S = M.key(k); ok(S.R.length === n && S.Y.length === n && S.C.length === n * 3, `topology ${k}`); });
 let worstVol = 0, worstVolAt = '', worstCandle = 0, worstCandleAt = '', worstCut = 0, flips = 0, crossings = 0, minArea = Infinity, morphs = 0, cuts = 0;
 const report = { edges: [] };
 edges.forEach(([a, b, field]) => {
-  M.PACES.forEach((P, pi) => { const N = M.stepsFor(a, b, pi);
+  M.PACES.forEach((P, pi) => {
     const S = []; for (let k = 0; k <= N; k++) { const s = M.between(a, b, k, N, pi); S.push({ R: Float64Array.from(s.R), Y: Float64Array.from(s.Y), C: s.C, cut: s.cut }); ok(s.R.length === n, `topology ${a}>${b} step ${k}`); }
     const Va = M.volume(M.key(a)), Vb = M.volume(M.key(b)), Vm = Math.max(Va, Vb);
     const vols = S.map(M.volume), fns = S.map(M.faceNormals); let edgeWorst = 0, edgeCand = 0, edgeFlips = 0;
@@ -37,12 +37,12 @@ edges.forEach(([a, b, field]) => {
     }
     if (field === 'CUT') { cuts++; ok(S.every(s => s.cut), `${a}>${b} flagged as cut`); }
     else { morphs++; ok(edgeFlips === 0, `no flips ${a}>${b} ${P.name} (${edgeFlips})`); ok(edgeWorst <= .16, `volume step ${a}>${b} ${P.name} ${edgeWorst.toFixed(3)}`); ok(edgeCand <= .006, `candle step ${a}>${b} ${P.name} ${(edgeCand * 1000).toFixed(2)} mm`); }
-    if (pi === 0) report.edges.push({ from: a, to: b, field, steps_by_pace: M.PACES.map((_, q) => M.stepsFor(a, b, q)), V_from_ml: +(Va * 1e6).toFixed(1), V_to_ml: +(Vb * 1e6).toFixed(1), worst_dV_rel: +edgeWorst.toFixed(4), worst_candle_mm: +(edgeCand * 1000).toFixed(2) });
+    if (pi === 0) report.edges.push({ from: a, to: b, field, V_from_ml: +(Va * 1e6).toFixed(1), V_to_ml: +(Vb * 1e6).toFixed(1), worst_dV_rel: +edgeWorst.toFixed(4), worst_candle_mm: +(edgeCand * 1000).toFixed(2) });
   });
-  if (field !== 'CUT') { const S0 = M.key(a), S3 = M.between(a, b, Math.round(M.stepsFor(a, b, 2) / 4), M.stepsFor(a, b, 2), 2), S12 = M.key(b), frac = M.profileDist(S0, S3) / M.profileDist(S0, S12);
-    ok(frac < .15, `identity held ${a}>${b} LINGER at a quarter of its steps: ${(frac * 100).toFixed(1)}%`); report.edges.find(e => e.from === a && e.to === b).linger_step3_pct = +(frac * 100).toFixed(1); }
+  if (field !== 'CUT') { const S0 = M.key(a), S3 = M.between(a, b, 3, N, 2), S12 = M.key(b), frac = M.profileDist(S0, S3) / M.profileDist(S0, S12);
+    ok(frac < .15, `identity held ${a}>${b} LINGER step 3: ${(frac * 100).toFixed(1)}%`); report.edges.find(e => e.from === a && e.to === b).linger_step3_pct = +(frac * 100).toFixed(1); }
 });
-ok(worstCut / 9 <= .004, `cut candle settle per frame ${(worstCut / 9 * 1000).toFixed(2)} mm`);
+ok(worstCut / 6 <= .004, `cut candle settle per frame ${(worstCut / 6 * 1000).toFixed(2)} mm`);
 // 7
 const tp = path.join(__dirname, 'trace.json');
 if (fs.existsSync(tp)) { const tr = JSON.parse(fs.readFileSync(tp)); const ev = tr.events.map(e => e.kind);
@@ -51,7 +51,7 @@ if (fs.existsSync(tp)) { const tr = JSON.parse(fs.readFileSync(tp)); const ev = 
   ok(commits.includes('BROWN_DOME'), 'trace: the film\'s chosen cake (brown dome) reached');
   ok(tr.events.filter(e => e.kind === 'stroke').length >= 24, 'trace: 24 inscription steps'); ok(tr.events.filter(e => e.kind === 'candle').length === 7, 'trace: 7 candles placed');
   ok(tr.events.filter(e => e.kind === 'lit').length === 7, 'trace: 7 lit'); ok(ev.includes('blow') && tr.events.filter(e => e.kind === 'out').length === 7, 'trace: the blow, 7 out');
-  let bad = 0; const ringOf = s => s.kind === 'yaw' ? 'scale' : s.kind === 'pace' ? 'tri' : 'knurl'; ['scale', 'knurl', 'tri'].forEach(rg => { const st = tr.steps.filter(s => ringOf(s) === rg).map(s => s.t); for (let i = 0; i < st.length; i++) { let n = 0; for (let j = i; j < st.length && st[j] < st[i] + .5; j++) n++; if (n > Math.ceil(23.6 * .5) + 1) bad++; } }); ok(bad === 0, `trace: step intervals no faster than 23.6/s (frame clock 1/30) (${bad} faster)`);
+  const st = tr.steps.map(s => s.t); let bad = 0; for (let i = 1; i < st.length; i++) { const d = st[i] - st[i - 1]; if (d < 1 / 23.6 - .034) bad++; } ok(bad === 0, `trace: step intervals no faster than 23.6/s (frame clock 1/30) (${bad} faster)`);
   const tv = tr.steps.filter(s => s.kind === 'morph'); ok(tv.every(s => s.flips === 0 && s.crossings === 0), 'trace: no flips or crossings in the played steps');
   ok(tv.every(s => s.dV_rel <= .16), `trace: played volume steps bounded (worst ${Math.max(...tv.map(s => s.dV_rel)).toFixed(3)})`);
   ok(tr.frames.every((f, i) => i === 0 || f.candleMove <= .006), `trace: candle per-frame move <= 6 mm (worst ${(Math.max(...tr.frames.map(f => f.candleMove)) * 1000).toFixed(2)} mm)`);

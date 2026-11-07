@@ -32,13 +32,3 @@ Open: whether the lettering is freehand piping, typed text, or a prepared inscri
 - V moves the camera to the birthday girl's seat, and the same take is read from there.
 
 What the footage does not give us: the candles going out (the clip cuts away), the third girl, and any label on an arc.
-
-## Plate-based build (arcs.html, latest)
-
-The default view of `arcs.html` is the film's own wide shot (213.15-216.55 s, 41 frames at 960x540 in `assets/plate/`) used as the base plate, so the table, the wall band, the horizon and the lit adult at right are film pixels. The six children are full-body cut-outs (`assets/slabs/`) laid over it; they appear only when a child's timing arc moves away from zero, so the retimed child replaces the original at her new time (the original shows through at her edges as a ghost).
-The cake arc has a FILM detent (the plate's own cake) and three 3D cakes. A clean-plate patch (`assets/plate/patch.webp`, made by `tools/boys/cake_patch.py`) covers the film's cake when a 3D cake is selected. Lettering and tilt work on the 3D cakes only.
-3D cakes now sit on the plate's table with warm light and a clean-plate patch under them; the film cake is the default.
-
-## Generated cake (fal)
-
-`assets/gen/cake_trellis.*` is an image-to-3D model (fal-ai/trellis, 4,798 vertices, baked texture) of the film's own cake, generated from a crop of the 213 s frame. It is the GENERATED detent on the cake arc in `arcs.html`. The generation key lives on the environment, not in the repo.

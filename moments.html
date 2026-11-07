@@ -23,11 +23,6 @@
   svg.plot { width: 100%; max-width: 760px; height: 150px; display: block; margin: 6px 0; }
   .orb { font: 13px "IBM Plex Mono", monospace; margin: 6px 0 0; }
   .orb a { margin-right: 14px; }
-  .clips { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; margin: 10px 0 6px; }
-  figure.clip { margin: 0; } figure.clip video { width: 100%; display: block; background: #000; border: 1px solid var(--line); }
-  figure.clip figcaption { font: 12px/1.45 "IBM Plex Mono", monospace; color: var(--dim); margin-top: 4px; } figure.clip figcaption b { color: var(--ink); font-weight: 500; }
-  .dl { font: 13px "IBM Plex Mono", monospace; margin: 8px 0 18px; } .dl a { margin-right: 16px; }
-  .note { font: 12px/1.5 "IBM Plex Mono", monospace; color: var(--dim); margin: 6px 0; }
 </style>
 </head>
 <body>
@@ -35,30 +30,23 @@
   <h1>STELLINE · THE MOMENTS</h1>
   <p class="dim">In these moments her hands on the orb, the change on screen and the white reticle can be read together. Each was pulled at 12 frames a second and measured: the sharpness of each of the beetle's eyes, the cake's size and tilt, the reticle's needles, how much of each child is there, and the light on a face. The measurements are curves, and the orb plays them: in these beats ring 4 is turned by the film itself, and turning it by hand finds the frame where the film had that value.</p>
   <p class="dim"><span class="obs">OBSERVED</span> means it is in the frames. <span class="inf">INFERRED</span> means it is a reading of what the orb did, made from what is observed.</p>
-  <div class="dl"><b>Reference clips, no Memory Maker in them:</b> <a href="assets/moments/moments-clips.zip" download>download all (zip)</a><a href="assets/moments/catalog.json">catalog.json</a><a href="assets/moments/README.md">what is and is not in them</a></div>
-  <p class="dim">Each moment below has the film's own shot, cut at its cut points, as a clip you can download. These are inputs for style transfer and for cloning a moment and varying it, so the orb is never in them. Where Ana holds it the clip is cropped to the cake; where the orb is the subject there is no clip.</p>
   <div id="list"></div>
-  <section><h2>The whole scene, shot by shot</h2><p class="dim">Every other orb-free shot from the cake and children sequence.</p><div class="clips" id="library"></div></section>
 </main>
-<script src="assets/moments/clips.js"></script>
 <script>
-const CL = { 6: [5], 7: [7], 25: [24, 25], 26: [26], 27: [27], 29: [29, 30], 31: [], 36: [35, 36, 37], 46: [46] }, NOCLIP = { 6: 'the orb close-up (shot 6) is the Memory Maker itself, so it is not offered. The clip is the beetle just before.', 31: 'both hands on the orb: the orb is the whole shot, so there is no clip.' };
 const IMG = { 6: [['ring_fingers', 'her fingers on the lens rings']], 7: [['eye_right', 'the right eye (screen right), 00:31-00:35'], ['eye_left', 'the left eye, same times']],
   25: [['cake_spawn', 'the cake appears, tries on frostings, tilts']], 26: [['bundt_reticle', 'cylinder to bundt, the reticle beside it'], ['reticle_needles', 'the reticle, enlarged: the needles swing'], ['hands_lens', 'her hands on the lens, same frames']],
   27: [['icing_writing', 'the writing piped stroke by stroke, then the cake turns upright']], 29: [['children_fade', 'the children: ghosts, then solid']], 31: [['lens_dark', 'both hands on the barrel in the dark']],
   36: [['boy_candle', 'one candle, its light on his face'], ['girl_face', 'the next face (03:15.7-03:17.7)']], 46: [['blow_out', 'the light leaving her face as the candles go out']] };
 const TIMES = { 6: 28.75, 7: 31.0, 25: 137.5, 26: 141.5, 27: 144.75, 29: 152.0, 31: 159.25, 36: 173.0, 46: 226.5 };
 const fmt = s => Math.floor(s / 60) + ':' + (s % 60).toFixed(2).padStart(5, '0');
-Promise.all([fetch('assets/v6/moments.json').then(r => r.json()), CLIPS.ready]).then(([M]) => { const L = document.getElementById('list');
+fetch('assets/v6/moments.json').then(r => r.json()).then(M => { const L = document.getElementById('list');
   for (const n of Object.keys(M).sort((a, b) => TIMES[a] - TIMES[b])) { const m = M[n], s = document.createElement('section');
     let h = `<h2>${fmt(TIMES[n])} · ${m.title}</h2>`;
     for (const [img, cap] of IMG[n] || []) h += `<div class="strip"><img src="assets/v6/moments/${img}.jpg" alt="${cap}"></div><div class="cap">${cap}</div>`;
-    h += `<div class="clips" id="cl${n}"></div>` + (NOCLIP[n] ? `<div class="note">${NOCLIP[n]}</div>` : '');
     h += plot(m.curves);
     h += '<ul class="notes">' + m.notes.slice().sort((a, b) => a[0] - b[0]).map(([t, s]) => { const k = s.startsWith('OBSERVED') ? 'obs' : 'inf'; return `<li><span>${fmt(t)}</span><span class="${k}">${s.split(':')[0]}</span><span>${s.slice(s.indexOf(':') + 1).trim()}</span></li>`; }).join('') + '</ul>';
     h += `<div class="orb">On the orb: ring 4 in WATCH is <b>${(m.facet || m.ring || '').toUpperCase()}</b> here, played by the film. <a href="hand-orb.html?t=${n}.02">open the orb at this moment</a><a href="hand-orb.html?t=${n}.02&play=1">watch it play</a></div>`;
-    s.innerHTML = h; L.append(s); CLIPS.shots(CL[n] || [], s.querySelector('.clips')); }
-  const used = new Set(Object.values(CL).flat()), lib = document.getElementById('library'); CLIPS.shots(CLIPS.ids().filter(i => !used.has(i)), lib); });
+    s.innerHTML = h; L.append(s); } });
 function plot(C) { const keys = Object.keys(C); let t0 = 1e9, t1 = -1e9; for (const k of keys) for (const [t] of C[k]) { t0 = Math.min(t0, t); t1 = Math.max(t1, t); }
   const W = 760, H = 150, pad = 26, X = t => pad + (t - t0) / Math.max(.01, t1 - t0) * (W - pad * 2), Y = v => H - pad - v * (H - pad * 2), dash = ['', '6 4', '2 3', '10 3'];
   let s = `<svg class="plot" viewBox="0 0 ${W} ${H}" role="img" aria-label="measured curves"><line x1="${pad}" y1="${H - pad}" x2="${W - pad}" y2="${H - pad}" stroke="currentColor" opacity=".25"/>`;
