@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SCION WORK FUTURES v3.0 · Master Repository Index &amp; Copyable AI Agent Prompts</title>
+<meta name="description" content="Complete Master Manifest of all 46 Stelline Memory Orb surfaces, 217-item Cinematographic Video Families Atlas, 6 SCION Invariants, and copyable prompts for future AI SCION Work Futures.">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050706; --panel: #0b100e; --card: #101614; --line: #24302b;
+    --ink: #ecf0ec; --dim: #8f9c95; --cy: #5ff0dc; --amb: #f0b040; --mag: #e668b8; --grn: #86e69c;
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    --sans: "IBM Plex Sans", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.55 var(--sans); scroll-behavior: smooth; }
+  a { color: var(--cy); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  header {
+    position: sticky; top: 0; z-index: 40; background: rgba(5, 8, 7, .95); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line); padding: 12px 22px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+  }
+  .brand { font: 700 13px var(--mono); letter-spacing: .06em; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .pill { background: rgba(95,240,220,.13); border: 1px solid var(--cy); color: var(--cy); padding: 3px 8px; font-size: 11px; }
+  .nav { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn {
+    font: 600 11px var(--mono); padding: 6px 11px; border: 1px solid var(--line); background: #121917;
+    color: var(--ink); cursor: pointer; letter-spacing: .05em; display: inline-flex; align-items: center; gap: 6px; text-decoration: none !important;
+  }
+  .btn:hover { border-color: var(--cy); color: var(--cy); }
+  .btn.amber { border-color: var(--amb); color: var(--amb); background: rgba(240,176,64,.11); }
+  .btn.cy { border-color: var(--cy); color: #041210; background: var(--cy); }
+
+  main { max-width: 1480px; margin: 0 auto; padding: 24px 22px 84px; }
+  .hero { background: var(--panel); border: 1px solid var(--line); padding: 22px 24px; margin-bottom: 20px; }
+  .eyebrow { font: 600 11px var(--mono); color: var(--amb); letter-spacing: .12em; text-transform: uppercase; }
+  h1 { font: 700 24px/1.2 var(--mono); margin: 6px 0 10px; color: #fff; }
+  .lede { color: #cad6d0; max-width: 92ch; margin: 0 0 14px; font-size: 15px; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin-top: 14px; }
+  .stat { background: var(--card); border: 1px solid var(--line); padding: 10px 12px; font-family: var(--mono); }
+  .stat b { display: block; font-size: 18px; color: var(--cy); }
+  .stat span { font-size: 10.5px; color: var(--dim); }
+
+  .sec { margin-top: 30px; }
+  .secHead { border-bottom: 1px solid var(--line); padding-bottom: 7px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; }
+  .secHead h2 { margin: 0; font: 700 15px var(--mono); color: var(--amb); letter-spacing: .06em; text-transform: uppercase; }
+  .secHead span { font: 400 11.5px var(--mono); color: var(--dim); }
+
+  .invGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 12px; }
+  .inv { background: var(--card); border: 1px solid var(--line); padding: 13px 15px; }
+  .inv b { font: 600 12px var(--mono); color: var(--cy); display: block; margin-bottom: 5px; }
+  .inv p { margin: 0; font-size: 13px; color: var(--dim); line-height: 1.48; }
+
+  .catGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 14px; }
+  .catBox { background: var(--panel); border: 1px solid var(--line); padding: 14px 16px; }
+  .catBox h3 { margin: 0 0 10px; font: 600 12.5px var(--mono); color: var(--cy); letter-spacing: .06em; text-transform: uppercase; border-bottom: 1px solid #1b2420; padding-bottom: 6px; }
+  .surfList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+  .surfList li { display: grid; grid-template-columns: 78px 1fr; gap: 10px; font-size: 12.5px; align-items: baseline; border-bottom: 1px dashed #18201d; padding-bottom: 6px; }
+  .surfList li:last-child { border-bottom: 0; padding-bottom: 0; }
+  .codeTag { font: 700 10.5px var(--mono); color: var(--amb); }
+  .surfDesc { color: var(--dim); font-size: 12px; }
+
+  .taxGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 10px; }
+  .taxCard { background: var(--card); border: 1px solid var(--line); padding: 11px 13px; font-family: var(--mono); font-size: 11px; }
+  .taxCard h4 { margin: 0 0 8px; color: var(--amb); font-size: 11.5px; letter-spacing: .05em; }
+  .taxRow { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dashed #1a231f; color: var(--ink); }
+  .taxRow:last-child { border-bottom: 0; }
+  .taxRow i { font-style: normal; color: var(--cy); font-weight: 700; }
+
+  .promptCard { background: var(--panel); border: 1px solid var(--line); margin-bottom: 16px; }
+  .promptBar {
+    padding: 9px 14px; background: #0e1513; border-bottom: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .promptBar b { font: 700 12px var(--mono); color: var(--amb); letter-spacing: .04em; }
+  .promptBar small { font: 400 11px var(--mono); color: var(--dim); }
+  .promptCard pre {
+    margin: 0; padding: 14px 16px; white-space: pre-wrap; word-break: break-word;
+    font: 400 12px/1.52 var(--mono); color: #d8e8e2; max-height: 330px; overflow-y: auto; background: #070a09;
+  }
+  code { font-family: var(--mono); font-size: .9em; color: var(--cy); background: rgba(95,240,220,.1); padding: 1px 4px; }
+  @media (max-width: 720px) { .catGrid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <span class="pill">SCION v3.0 · SCI-2049</span>
+    <span>MASTER REPOSITORY MANIFEST &amp; AI SCION WORK FUTURES</span>
+  </div>
+  <nav class="nav">
+    <a class="btn cy" href="index.html">← ORBITAL MAIN INDEX</a>
+    <a class="btn amber" href="video-families.html">🎬 VIDEO FAMILIES (217)</a>
+    <a class="btn" href="bday-training.html">🎂 BDAY TRAINING (78)</a>
+    <a class="btn" href="film.html">📽 DIRECTOR FILM SUITE</a>
+    <a class="btn" href="cake-rig.html">🎛 CAKE RIG 3D</a>
+    <a class="btn" href="process.html">📜 SCION CASE 02</a>
+    <a class="btn" href="docs/scion-work-futures.md">⬇ RAW .MD</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="eyebrow">1000 Small Futures × SCION DIEGETIC v3.0 · Autonomous Handoff &amp; Continuation Surface</div>
+    <h1>Everything Built on `main` — Plus Prompts for Future AI SCION Work Futures</h1>
+    <p class="lede">
+      This surface unifies the entire Stelline Memory Orb repository into one inspectable manifest: every interactive instrument (`46` HTML builds), all `217` videos and reference plates grouped across `6` cinematographic axes, the `41` handmade 3D Cake Rig archetypes, the `6`-way moment decompositions, the `10`-world Gemini Omni 1.2 pack, and **five copy-ready continuation prompts** so future AI SCION agents inherit all invariants and build the next generation of speculative instruments without regression.
+    </p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <a class="btn cy" href="#prompts">⬇ JUMP TO COPYABLE AI SCION PROMPTS</a>
+      <a class="btn amber" href="#surfaces">EXPLORE ALL 46 REPOSITORY SURFACES</a>
+      <a class="btn" href="#taxonomy">VIEW 217-VIDEO 6-AXIS TAXONOMY</a>
+    </div>
+    <div class="stats" id="heroStats"></div>
+  </section>
+
+  <section class="sec" id="prompts">
+    <div class="secHead">
+      <h2>1 · Copyable Prompts for Future AI SCION Work Futures (`SCION v3.0`)</h2>
+      <span>Paste directly into any coding agent, research model, `/boost`, or `/teamwork` multi-agent swarm</span>
+    </div>
+
+    <div class="promptCard">
+      <div class="promptBar">
+        <div><b>PROMPT A · SCION WORK FUTURES v3.0 — MASTER AUTONOMOUS AGENT BOOTSTRAP</b><br><small>System / Opening Prompt · Grounds any future AI agent in all 46 surfaces, 217 videos &amp; 6 invariants</small></div>
+        <button class="btn amber" data-copy="pa">COPY PROMPT A</button>
+      </div>
+      <pre id="pa">You are operating inside SCION DIEGETIC v3.0 (Stelline Memory Orb / 1000 Small Futures).
+
+Before proposing or writing code, ground yourself in the repository's canonical indexes:
+1. Master Entry &amp; Manifest: `index.html` (orbital machine + `[MANIFEST]` drawer) and `scion-futures.html`.
+2. 217-Item Video Families Atlas: `video-families.html` + `assets/video-families/catalog.json` (classifying every `.mp4` and reference plate across 8 Camera Angles `ANG-01..08`, 8 Cut Structures `CUT-01..08`, 5 Camera Motions `MOT-01..05`, 6 Shot Scales `SCL-01..06`, 7 Frame Layouts `LAY-01..07`, and 8 Source Lineages `SRC-01..08`).
+3. 78-Item Segmented Birthday Corpus &amp; 41 3D Cake Rig Models: `bday-training.html`, `BDAY TRAINING/labels.json`, `assets/bday-training/handmade_models.json`, and `cake-rig.html` (`window.RIG`, supporting `?angle=`, `?model=`, `?replay=`).
+4. Grounded 5-Ring Weaver &amp; Museum Film Engine: `orb-film-studio.html` (`?museum=1`, `?notext=1`, `?reticle=aside|off`, `?stage=1`), `film.html`, `versions-film.html`, and `omni.html` (`assets/omni/prompts.json`).
+5. Theory &amp; Dual-Critic Spec: `docs/scion-diegetic.md`, `docs/scion-work-futures.md`, and `process.html`.
+
+Enforce all 6 SCION Invariants on every task:
+- Strip or lock bottom controller panels at `y_split`; prefer `?museum=1` screenless 5-ring barrels or `?stage=1` clean world plates stacked via `tools/flow/stack.sh`.
+- Never wrap arcs or text lists around the cake; use only `reticle=off` or the single right-side `)` crescent (`reticle=aside`).
+- Keep world plates 100% orb-free and gadget-free.
+- Preserve per-layer independent clocks `q_i(t) = q_i(t_0) + r_i(t - t_0) + dq_i` and real practical authoring/export (`.USDA`, `.GLB`, `.OBJ`, `.png` Bearing Cards).
+- Never use continuous WebAudio `OscillatorNode` drones; use 3–5ms filtered noise detent clicks only.
+- Re-run `python3 tools/bday-training/build_video_families_atlas.py` whenever `.mp4` assets are added or modified so `video-families.html` and `catalog.json` stay 100% synchronized, and audit with both Blind Visual Critic A and Operative Critic B before pushing to `main`.</pre>
+    </div>
+
+    <div class="promptCard">
+      <div class="promptBar">
+        <div><b>PROMPT B · WORK FUTURE I — CAMERA-ANGLE &amp; CUT-CONDITIONED WORLD MODELS (OMNI / VEO / VIDEO2GAME)</b><br><small>Generative Video &amp; World Models · Binds the 5 physical Orb rings to explicit Angle &amp; Cut Families</small></div>
+        <button class="btn amber" data-copy="pb">COPY PROMPT B</button>
+      </div>
+      <pre id="pb">Task: Build SCION WORK FUTURE I — Cinematographic Grammar Conditioning &amp; Controllable Video2Game World Synthesis using `assets/video-families/catalog.json` (217 items) and `assets/moments_videos/` (60 6-way aligned decomposition clips).
+
+1. MULTI-MODAL CONDITIONING PAIRS:
+   Pair each synchronized moment (`m07, m25, m26, m27, m29, m36, m39, m44, m46`) across its 6 aligned passes:
+   - Structural Input: `cond_depth_edge` (MiDaS depth + Canny edge) + `seg_isolated` (foreground RGBA matte) + 3D `CAMERA_RIG_PRESETS` (`p, yaw, pitch, f, N, fd`) from `angle_family` (`ANG-01..ANG-08`).
+   - Target World Output: `film_chamber_clean` / `film_closeup` (`LAY-03` clean orb-free cinema frame).
+
+2. DISCRETE RING-TO-CINEMATOGRAPHY BINDING:
+   Bind the 5 physical rings of the Orb to explicit cinematographic families during generation &amp; live playback:
+   - Ring 1 (`ANGLE FAMILY`): Steps deterministically across `ANG-07 Wide Dome (24mm)` -> `ANG-03 Party Tableau (40mm)` -> `ANG-04 Chamber Tilt (35mm)` -> `ANG-02 Hero 3/4 (50mm)` -> `ANG-05 Crown Writing (50mm, 46°)` -> `ANG-01 Intimate Face CU (85mm f/1.6)` -> `ANG-08 Macro ECU (100mm f/2.0)`.
+   - Ring 2 (`SUBJECT / VARIANT`): Selects cultural world &amp; cake archetype (`41` archetypes in `handmade_models.json` × `10` cultural briefs in `assets/omni/prompts.json`).
+   - Ring 3 (`STAGE MORPH / PIPING`): Scrubs `CUT-02` stage morph detents and stroke-by-stroke native calligraphy.
+   - Ring 4 (`CANDLE / BOUNCE`): Scrubs flame count (`0..12`) and physically coupled `3200K -> cool dome` face relighting (`R:0.41, G:0.34, B:0.15` blow-out ratio).
+   - Ring 5 (`LOCAL TIME / REWIND`): Scrubs `CUT-06` ghost solidification (`0% -> 100%`) through `CUT-07` reverse-time smoke rewind (`r = -1`).
+
+3. CONTROLLER COMPOSITE LOCK:
+   Render world generation strictly as `LAY-03` (`16:9` orb-free clean stage) and composite the real interactive WebGL Museum Screenless 5-Ring controller (`LAY-02`) live in the browser or via `tools/flow/stack.sh` so hardware geometry never drifts by a single pixel.</pre>
+    </div>
+
+    <div class="promptCard">
+      <div class="promptBar">
+        <div><b>PROMPT C · WORK FUTURE II — INVERSE-CAD COMPILER (`VIDEO -> MASK -> LATHE -> TACTILE UI REPLAY`)</b><br><small>Embodied CAD &amp; Vision · Compiles raw craft videos into zero-fault physical roller programs</small></div>
+        <button class="btn amber" data-copy="pc">COPY PROMPT C</button>
+      </div>
+      <pre id="pc">Task: Build SCION WORK FUTURE II — Autonomous Video-to-Tactile-CAD Compiler (`Video -> Segmentation -> Parametric Rig -> Physical Roller Replay`).
+
+Starting from `tools/bday-training/process_bday_training.py`, `tools/bday-training/analyze_angles_cuts.py`, `tools/bday-training/build_handmade_models.py`, and `cake-rig.html` (`window.RIG`):
+
+1. INGEST &amp; DE-CHROME:
+   Given any new video clip or batch, automatically detect and strip any UI/controller region (`y_split`), detect hard scene cuts (`cuts_s`) vs in-place stage morphs (`morph_jumps_s`), and classify `angle_family` + `motion_family`.
+
+2. 4D GEOMETRIC &amp; PHOTOMETRIC EXTRACTION:
+   At each detected stage boundary `[t_k, t_{k+1}]`, extract:
+   - Foreground semantic masks (`SAM 2 / Mask R-CNN`) for primary craft body, attachments (wicks/bristles/toppings), hands/tools, and support plane.
+   - Differentiable 2D lathe or spline cross-section `P(t_k)`, aspect ratio `H/D`, surface normal anisotropy (horizontal trowel ruffle vs vertical flute count), dominant sRGB material hex, and point-light emitter count.
+
+3. INVERSE UI PROGRAM SYNTHESIS (`0 FAULTS`):
+   Compile the extracted geometric delta `P(t_0) -> P(t_K)` into the shortest human-legible sequence of physical controller operations (`SELECT target -> EXTRUDE / INFLATE / BEVEL / CANDLES / PIPE / LENS / FOCUS -> ACCEPT`), verifying every step through `OPS[op].apply` in `cake-rig.html` with zero geometric self-intersection faults.
+
+4. DELIVERABLE:
+   Emit a replayable `?replay=&lt;id&gt;` URL, an interactive side-by-side `Measured CV Silhouette vs Handmade 3D Rig` card, and one-click `.USDA` / `.GLB` / `.OBJ` production assets.</pre>
+    </div>
+
+    <div class="promptCard">
+      <div class="promptBar">
+        <div><b>PROMPT D · WORK FUTURE III — SCION CASE 03..N &amp; PHYSICAL ROTARY HARDWARE COMMONS</b><br><small>Speculative Media Archaeology · Esper (1982), Spatial Gloves (2002), Heptapod Ink (2016) &amp; WebHID Encoders</small></div>
+        <button class="btn amber" data-copy="pd">COPY PROMPT D</button>
+      </div>
+      <pre id="pd">Task: Execute a new SCION DIEGETIC Case Study (`Case 03..N`) or Physical Hardware Bridge under the 1000 Small Futures / SCION v3.0 protocol.
+
+Candidate Speculative Apparatuses:
+- Case 03: The Esper Photo-Depth Inspector (Blade Runner, 1982) — voice + trackball pan-around-the-corner monocular-to-3D room reconstructor with real practical family-photo depth archaeology.
+- Case 04: Minority Report Spatial Glove Scrubbers (2002) — bimanual WebXR / MediaPipe multi-clock video &amp; 3D scene choreography wall for real documentary editing.
+- Case 05: Arrival Heptapod Logogram Ink Well (2016) — non-linear circular-time calligraphic instrument (`r_i` bidirectional ink mist) that compiles circular phrases into executable temporal schedules.
+- Hardware Bridge: Pair physical 5-ring rotary encoders (WebHID / BLE / ESP32 detented magnetic rings) or bimanual phone-as-orb (`WebRTC` + `DeviceOrientation` clutch in `cake-rig.html` and `orb-film-studio.html`) so eyes never leave the projection dome.
+
+Required Deliverables for Any New Case:
+1. Open-matte shot &amp; cut taxonomy (`catalog.json` + `video-families.html` shelf).
+2. Per-frame semantic segmentation + depth relief + registered 3D procedural rig.
+3. Strict bijection between physical hardware degrees of freedom and scene parameters, with `3–5ms` transient mechanical foley only.
+4. Real-world practical authoring studio ("imagine each element could be otherwise") exporting archival `.png` cards, `.GLB`/`.USDA` scenes, and shareable deep-link URLs.
+5. Full pass from Blind Visual Critic A and Operative Surface Critic B.</pre>
+    </div>
+
+    <div class="promptCard">
+      <div class="promptBar">
+        <div><b>PROMPT E · WORK FUTURE IV — 5-AGENT AUTONOMOUS SCION SWARM &amp; BLIND CRITIC LOOP</b><br><small>Multi-Agent Orchestration · Strict Builder vs Blind Dual-Critic role separation</small></div>
+        <button class="btn amber" data-copy="pe">COPY PROMPT E</button>
+      </div>
+      <pre id="pe">Launch a 5-agent SCION v3.0 Swarm on the target task, enforcing strict role separation between Builders and Blind Critics:
+
+- AGENT 1 (Corpus &amp; Cinematography Archivist): Runs OpenCV/SAM/MiDaS pipelines (`process_bday_training.py`, `analyze_angles_cuts.py`, `build_video_families_atlas.py`), strips UI chrome at `y_split`, classifies camera angles &amp; cuts, and verifies 100% asset/poster integrity.
+- AGENT 2 (3D Optical &amp; Shader Rig Engineer): Builds grounded Three.js scenes (`LAB` + `MEM` two-collection separation, ACESFilmic tone mapping, contact shadows, 24-tap CoC depth-of-field, and per-layer local clocks `r_i`).
+- AGENT 3 (Diegetic Hardware &amp; Tactile CAD Crafter): Wires the 5-ring / 5-roller physical operative surface, fault-checked geometry operations (`ACCEPT / CANCEL / UNDO`), `3–5ms` mechanical detent foley, and `.USDA`/`.GLB`/`.png` export.
+- AGENT 4 (BLIND CRITIC A — Visual &amp; Cinematographic Frame Critic): Receives ONLY rendered frames/videos and ground-truth reference plates (no builder rationales). Audits 16:9 framing, table grounding, warm-to-cool blow-out ratios, absence of wrapped reticle clutter, and controller stability.
+- AGENT 5 (BLIND CRITIC B — Bijective Operative &amp; Utility Critic): Tests the live UI cold. Verifies every visual change is causally driven by the rings, tests fault recovery (`CANCEL`/`UNDO`), verifies zero broken links on `index.html`, and completes an end-to-end custom build + export.
+
+No commit pushes to `main` until both Blind Critics return `VERDICT: BAR MET` with zero blocking defects.</pre>
+    </div>
+  </section>
+
+  <section class="sec" id="invariants">
+    <div class="secHead">
+      <h2>2 · Six Non-Negotiable SCION Invariants</h2>
+      <span>Hard lessons verified across 5 Blind Critic rounds &amp; 217 video captures</span>
+    </div>
+    <div class="invGrid">
+      <div class="inv"><b>I · CONTROLLER LOCK &amp; `y_split` DE-CHROMING</b><p>Generative video models redraw complex UI panels over time. Either attach the <code>?museum=1</code> screenless 5-ring barrel as a UI-lock reference, OR generate <code>LAY-03</code> clean stage-only video and composite the real WebGL controller beneath via <code>tools/flow/stack.sh</code>. Always strip <code>y &gt;= y_split</code> before CV segmentation.</p></div>
+      <div class="inv"><b>II · SIDE `)` CRESCENT RETICLE ONLY</b><p>Never wrap numbered lists, HUD callouts, or concentric circles around the cake. Use either <code>reticle=off</code> (zero reticle) or the single pale smoked-glass <code>)</code> crescent standing to the right of the cake (<code>reticle=aside</code>), curving concave-toward-cake.</p></div>
+      <div class="inv"><b>III · 100% ORB-FREE WORLD PLATES</b><p>Inside the holographic memory room, never show a handheld orb, lens, phone, or glowing gadget in any character's hands (only a cake knife, match, or plate). The Orb belongs strictly to the operator's hands below.</p></div>
+      <div class="inv"><b>IV · PER-LAYER INDEPENDENT CLOCKS (`r_i`)</b><p>Every addressable layer (<code>cake</code>, <code>icing</code>, <code>flames</code>, <code>children</code>, <code>beetle_eyes</code>) runs its own local clock <code>q_i(t) = q_i(t_0) + r_i(t - t_0) + dq_i</code>. Holding children at <code>r=0</code> while rotating the lit cake (<code>r=1</code>) sweeps live 3200K bounce across frozen faces.</p></div>
+      <div class="inv"><b>V · TRANSIENT MECHANICAL FOLEY ONLY</b><p>Zero continuous <code>OscillatorNode</code> drones or synth pads. Emit only rate-limited (<code>&gt;55ms</code>), <code>3–5ms</code> filtered noise micro-clicks (<code>1100–3100Hz</code>) on physical ball-detent crossings and switch actuations.</p></div>
+      <div class="inv"><b>VI · PRACTICAL AUTHORING &amp; DUAL CRITICS</b><p>Every speculative instrument must let anyone create something real (custom piped birthday cakes, custom insect holotypes, <code>.USDA</code>/<code>.GLB</code>/<code>.png</code> exports) and pass both Blind Visual Critic A and Operative Critic B.</p></div>
+    </div>
+  </section>
+
+  <section class="sec" id="taxonomy">
+    <div class="secHead">
+      <h2>3 · Complete 217-Item Cinematographic Video Taxonomy (Live from `catalog.js`)</h2>
+      <span><a href="video-families.html">Open Interactive Video Families Atlas ↗</a> · <a href="assets/video-families/catalog.json" download>Download catalog.json</a></span>
+    </div>
+    <div class="taxGrid" id="taxGrid"></div>
+  </section>
+
+  <section class="sec" id="surfaces">
+    <div class="secHead">
+      <h2>4 · Complete Master Index of All Repository Surfaces (`main`)</h2>
+      <span>Every HTML instrument, video atlas, console, archive edition, and specification</span>
+    </div>
+    <div class="catGrid">
+      <div class="catBox">
+        <h3>I · Flagship Tactile Orb &amp; 3D CAD Instruments</h3>
+        <ul class="surfList">
+          <li><span class="codeTag">CIN-0024</span><div><a href="cineosis-orb.html"><b>Cineosis-Orb</b> (`cineosis-orb.html`)</a><div class="surfDesc">Tizita multiplane cutout &amp; memory instrument: 12 birthdays, 32 cutouts, live OLED, SCION critic &amp; Etch-A-Sketch piping.</div></div></li>
+          <li><span class="codeTag">OFS-0028</span><div><a href="orb-film-studio.html"><b>Orb Film Studio / Grounded Weaver</b> (`orb-film-studio.html`)</a><div class="surfDesc">Grounded 5-ring engine supporting <code>?museum=1</code> screenless, <code>?notext=1</code>, <code>?reticle=aside|off</code>, <code>?stage=1</code>, GLTF/OBJ export.</div></div></li>
+          <li><span class="codeTag">RIG-0027</span><div><a href="cake-rig.html"><b>Cake Rig 3D Studio</b> (`cake-rig.html`)</a><div class="surfDesc">5-roller CAD slab (<code>EXTRUDE, INFLATE, BEVEL, CANDLES, LENS, FOCUS</code>) + 24-tap DOF shot camera &amp; <code>?angle= / ?replay=</code> presets.</div></div></li>
+          <li><span class="codeTag">ORB-0505</span><div><a href="field-orb-05.html"><b>Field Orb 05 · Stelline-Orb-Pro</b> (`field-orb-05.html`)</a><div class="surfDesc">Virtual production stage uniting Quill/Shapelab/Animotive paradigms with capacitive squeeze &amp; USD/OBJ FixFlip export.</div></div></li>
+          <li><span class="codeTag">VSP-0016</span><div><a href="vesper.html"><b>Vesper Field Orb 04</b> (`vesper.html`)</a><div class="surfDesc">Patent reference studio: 3 rings, 1 thumb hold key, and independent per-layer clocks (Claims 1–18).</div></div></li>
+          <li><span class="codeTag">WVR-0020</span><div><a href="weaver.html"><b>Memory Weaver</b> (`weaver.html`)</a><div class="surfDesc">Telescoping barrel ends to 24k mist with physically-lit 2D cutouts around the hexagonal table.</div></div></li>
+          <li><span class="codeTag">MKR-0022</span><div><a href="maker.html"><b>First-Person Memory Maker</b> (`maker.html`)</a><div class="surfDesc">Kneel where Ana kneels inside the cylindrical glass chamber; build from empty darkness.</div></div></li>
+          <li><span class="codeTag">LOT-0131</span><div><a href="stelline-memory-orb.html"><b>Stelline Memory Orb · Lot 131</b> (`stelline-memory-orb.html`)</a><div class="surfDesc">12-shot Open Matte SAM + DPT-MiDaS compositor with Bespoke Bug &amp; Birthday Builder + PNG/URL imprint.</div></div></li>
+        </ul>
+      </div>
+
+      <div class="catBox">
+        <h3>II · Video Families, Segmented Corpora &amp; Film Suites</h3>
+        <ul class="surfList">
+          <li><span class="codeTag">FAM-0217</span><div><a href="video-families.html"><b>Master Video Families Atlas</b> (`video-families.html`)</a><div class="surfDesc">All 217 videos &amp; plates grouped by 8 Angles, 8 Cuts, 5 Motions, 6 Scales, 7 Layouts &amp; 8 Lineages.</div></div></li>
+          <li><span class="codeTag">BDY-0078</span><div><a href="bday-training.html"><b>Birthday Training Corpus</b> (`bday-training.html`)</a><div class="surfDesc">78 clips segmented above <code>y_split</code> (Mask R-CNN + GrabCut), 8 era standee sheets &amp; 41 handmade 3D Rig models.</div></div></li>
+          <li><span class="codeTag">FLM-0021</span><div><a href="film.html"><b>Director Film Suite + 10× Cake Prompts</b> (`film.html`)</a><div class="surfDesc">8 grounded Orb Film batches (Museum No-Screen, Zero-Text, <code>)</code> Side Reticle, Stage-Only) + 40 prompts.</div></div></li>
+          <li><span class="codeTag">VFM-0026</span><div><a href="versions-film.html"><b>All Film Batches Side-by-Side</b> (`versions-film.html`)</a><div class="surfDesc">Side-by-side comparison of Museum, Zero-Text, Grounded, Flow, H3 Max, and Kling 2.1 video batches.</div></div></li>
+          <li><span class="codeTag">OMN-0025</span><div><a href="omni.html"><b>Ten Birthdays · Gemini Omni 1.2 Pack</b> (`omni.html`)</a><div class="surfDesc">10 global cultural birthday worlds with Museum No-Screen, 5-Ring UI Lock, and World-Only reference packs.</div></div></li>
+          <li><span class="codeTag">MOM-0003</span><div><a href="moments.html"><b>BR2049 Moments &amp; Curves</b> (`moments.html`)</a><div class="surfDesc">Measured 12fps curves + 6-way synchronized moment decompositions (`assets/moments_videos/`).</div></div></li>
+          <li><span class="codeTag">DSN-0002</span><div><a href="designs.html"><b>Counterfactual Designs &amp; Blind Critic</b> (`designs.html`)</a><div class="surfDesc">14 pixel-remade eye, calligraphy &amp; flame counterfactuals audited across 5 blind critic rounds.</div></div></li>
+          <li><span class="codeTag">V2G-0029</span><div><a href="video2game-kit.html"><b>Video2Game Iconic Kit</b> (`video2game-kit.html`)</a><div class="surfDesc">Die-cut cardboard standees, 4-step ultra-legible console, and iconic scene/cake/pose kit.</div></div></li>
+        </ul>
+      </div>
+
+      <div class="catBox">
+        <h3>III · Paired Stage, Pad, Bench, Mist &amp; Standee Surfaces</h3>
+        <ul class="surfList">
+          <li><span class="codeTag">STG-0019</span><div><a href="stage.html"><b>Stage (Second Screen)</b> (`stage.html`)</a><div class="surfDesc">Paired chamber viewport receiving live WebRTC / BroadcastChannel state from handheld orb or pad.</div></div></li>
+          <li><span class="codeTag">PAD-0031</span><div><a href="pad.html"><b>Stage Pad Console</b> (`pad.html`)</a><div class="surfDesc">Scene graph, calligraphy pen, focus pull, and ring controller paired directly to Stage.</div></div></li>
+          <li><span class="codeTag">ARC-0030</span><div><a href="arcs.html"><b>Diegetic Arcs Plate</b> (`arcs.html`)</a><div class="surfDesc">Direct manipulation of film-plate arcs, stroke lettering, retimed child holds, and blow-out.</div></div></li>
+          <li><span class="codeTag">BNC-0000</span><div><a href="bench.html"><b>Cutout &amp; 3D Bench</b> (`bench.html`)</a><div class="surfDesc">Segmented film cutouts of people &amp; trees combined with live 3D cakes and beetles.</div></div></li>
+          <li><span class="codeTag">STU-0001</span><div><a href="studio.html"><b>Orb Whole-Interface Studio</b> (`studio.html`)</a><div class="surfDesc">Cake, beetle eye, candlelit face, and top writing unified on one tactile orb surface.</div></div></li>
+          <li><span class="codeTag">CKO-0018</span><div><a href="cake-orb.html"><b>Cake Orb Shelf</b> (`cake-orb.html`)</a><div class="surfDesc">Every cake, bug, and film reference on the shelf, turned by 3 rings and 1 thumb.</div></div></li>
+          <li><span class="codeTag">CAK-0015</span><div><a href="cake.html"><b>The Cake Manual</b> (`cake.html`)</a><div class="surfDesc">8-chapter interactive manual: "Blender's first lesson is a donut; the Orb's first lesson is the cake."</div></div></li>
+          <li><span class="codeTag">MST-0020</span><div><a href="mist.html"><b>Mist</b> (`mist.html`)</a> · <a href="mist-renders.html"><b>Mist Renders</b> (`mist-renders.html`)</a> · <a href="party.html"><b>Party</b> (`party.html`)</a><div class="surfDesc">Salience point-cloud memory mist &amp; segmented party standee compositions.</div></div></li>
+        </ul>
+      </div>
+
+      <div class="catBox">
+        <h3>IV · Engine Lineage (`V1`–`V5`), Mobile &amp; SCION Specifications</h3>
+        <ul class="surfList">
+          <li><span class="codeTag">VER-0009</span><div><a href="versions.html"><b>All Versions Archive</b> (`versions.html`)</a><div class="surfDesc">Comparative archive across V1–V5, Mobile Touch Edition, and preset deep links.</div></div></li>
+          <li><span class="codeTag">ORB-0405</span><div><a href="hand-orb.html"><b>Hand Orb v6</b> (`hand-orb.html`)</a> · <a href="hand-orb-v5.html"><b>Orb v5</b></a> · <a href="hand-orb-proof.html"><b>Proof</b></a><div class="surfDesc">114-beat footage atlas, MediaPipe hand tracking, WebRTC phone pairing &amp; blind critic proof.</div></div></li>
+          <li><span class="codeTag">MOB-0008</span><div><a href="mobile.html"><b>Mobile Touch Edition</b> (`mobile.html`)</a><div class="surfDesc">48vh dome + 52vh bimanual thumb dock for portrait phone operation.</div></div></li>
+          <li><span class="codeTag">V1–V4</span><div><a href="v4-master.html"><b>v4-master</b></a> · <a href="v4-sam-midas-relief.html"><b>v4-midas</b></a> · <a href="v3-hybrid-3d.html"><b>v3-hybrid</b></a> · <a href="v2-webgl-sculptor.html"><b>v2-sculptor</b></a> · <a href="v1-canvas-lab.html"><b>v1-lab</b></a><div class="surfDesc">Complete preserved evolutionary ladder from 2D bearing physics to SAM+MiDaS 200×140 WebGL relief.</div></div></li>
+          <li><span class="codeTag">FLD-0012</span><div><a href="field-orb.html"><b>Field Orb</b> (`field-orb.html`)</a> · <a href="ana/index.html"><b>Ana Cut</b> (`ana/`)</a> · <a href="cineosis-orb/index.html"><b>CineosisPkg</b> (`cineosis-orb/`)</a><div class="surfDesc">Independent layer-clock prototype and standalone sub-packages.</div></div></li>
+          <li><span class="codeTag">PRC-0011</span><div><a href="process.html"><b>SCION Case 02 Process &amp; Prompts</b> (`process.html`)</a><div class="surfDesc">Provenance, inverse-bootstrap virtuous cycle, lineage credits, and SCION v2.0 prompts.</div></div></li>
+          <li><span class="codeTag">IDN / SPC</span><div><a href="identity.html"><b>Identity Rules</b> (`identity.html`)</a> · <a href="docs/Vesper_Field_Orb_04_Patent_Specification.pdf"><b>Vesper Patent PDF (14p)</b></a> · <a href="docs/scion-diegetic.md"><b>SCION Spec</b></a><div class="surfDesc">Typography/grid rules, 14-page patent specification, and raw Markdown specs in <code>docs/</code>.</div></div></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="assets/video-families/catalog.js"></script>
+<script>
+(function () {
+  const C = window.VIDEO_FAMILIES_CATALOG || { total_items: 217, total_videos: 216, total_reference_plates: 1, total_duration_s: 2745.9, total_detected_shots: 397, taxonomy: {}, counts: {} };
+  const mins = (C.total_duration_s / 60).toFixed(1);
+  document.getElementById('heroStats').innerHTML = [
+    ['46 HTML SURFACES', 'INDEXED ON MAIN ORBIT & MANIFEST'],
+    [C.total_items + ' CORPUS ITEMS', `${C.total_videos} MP4 VIDEOS + ${C.total_reference_plates} 9×3 PLATE (${mins} MIN)`],
+    [C.total_detected_shots + ' SUB-SHOTS', '8 ANGLES × 8 CUTS × 5 MOTIONS × 7 LAYOUTS'],
+    ['41 3D ARCHETYPES', 'ZERO-FAULT HANDMADE CAKE RIG MODELS'],
+    ['5 SCION PROMPTS', 'READY FOR FUTURE AI SCION WORK FUTURES']
+  ].map(([v, k]) => `<div class="stat"><b>${v}</b><span>${k}</span></div>`).join('');
+
+  const AXES = [
+    ['angle_families', '1 · CAMERA ANGLE FAMILIES (8)'],
+    ['cut_families', '2 · CUT & EDIT FAMILIES (8)'],
+    ['source_families', '3 · VIDEO LINEAGE FAMILIES (8)'],
+    ['layout_families', '4 · FRAME & UI LAYOUT FAMILIES (7)'],
+    ['scale_families', '5 · SHOT SCALE FAMILIES (6)'],
+    ['motion_families', '6 · CAMERA MOTION FAMILIES (5)']
+  ];
+  document.getElementById('taxGrid').innerHTML = AXES.map(([ax, title]) => {
+    const tax = C.taxonomy[ax] || {};
+    const cnt = C.counts[ax] || {};
+    const rows = Object.keys(tax).map(k => `<div class="taxRow"><span>${tax[k].code} · ${tax[k].title}</span><i>${cnt[k] || 0}</i></div>`).join('');
+    return `<div class="taxCard"><h4>${title}</h4>${rows}</div>`;
+  }).join('');
+
+  document.querySelectorAll('[data-copy]').forEach(btn => {
+    btn.onclick = () => {
+      const el = document.getElementById(btn.dataset.copy);
+      if (!el) return;
+      navigator.clipboard.writeText(el.textContent).then(() => {
+        const prev = btn.textContent;
+        btn.textContent = '✓ COPIED TO CLIPBOARD';
+        setTimeout(() => { btn.textContent = prev; }, 1600);
+      });
+    };
+  });
+})();
+</script>
+</body>
+</html>

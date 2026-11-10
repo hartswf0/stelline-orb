@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
-"""Build the Master 150-Item Cinematographic Video Families Atlas across the entire
-Stelline Orb repository (`78 BDAY TRAINING` items + `72 assets/**/*.mp4` videos).
+"""Build the Master 217-Item Cinematographic Video Families Atlas across the entire
+Stelline Orb repository (`78 BDAY TRAINING` items + `139 assets/**/*.mp4` videos = 217 items).
 
 Groups every video across 6 orthogonal Cinematographic & Production Family axes:
   1. `angle_family`  — 8 Camera Angle & Elevation Families (with 3D Cake Rig lens presets)
   2. `cut_family`    — 8 Cut & Edit Structure Families (hard cuts, montages, multi-act, morphs, rewinds, counterfactuals)
   3. `motion_family` — 5 Camera Motion Families (locked, dolly push-in, handheld rack, turntable orbit, multi-angle)
   4. `scale_family`  — 6 Shot Scale Progression Families (ECU/CU macro, MCU hero, MFS tableau, wide-to-close, EWS dome, multi-scale)
-  5. `layout_family` — 6 Frame & UI Layout Families (clean cinema, reticle arc, 5-ring Weaver barrel, split stage+pad, dotbar, 9x3 grid)
-  6. `source_family` — 7 Video Type & Lineage Families (Bday Weaver Corpus, Canonical BR2049 Shots, Counterfactual Designs,
-                       Director Engine Films, Flow/Controller Stacks, Gemini Omni 1.2 Refs, Generative Benchmarks & Mist)
+  5. `layout_family` — 7 Frame & UI Layout Families (5-ring barrel HUD, museum screenless 5-ring, clean cinema, side ')' reticle,
+                       split stage+pad, depth/isolated conditioning pass, 9x3 grid)
+  6. `source_family` — 8 Video Type & Lineage Families (Bday Weaver Corpus, 6-Way Moment Decompositions, Canonical BR2049 Shots,
+                       Counterfactual Designs, Director & Museum Orb Films, Flow/Controller Stacks, Gemini Omni 1.2 Refs,
+                       Generative Benchmarks & Mist)
 
 Outputs:
   - `assets/video-families/thumbs/*.webp`
@@ -106,14 +108,14 @@ FAMILY_TAXONOMY = {
         "MULTI_SHOT_MONTAGE": {
             "code": "CUT-03",
             "title": "Multi-Shot Coverage Montage",
-            "spec": "2–6 Hard Scene Cuts",
-            "desc": "Edited montage cutting across distinct camera angles and shot scales (e.g. crown writing -> wide tableau -> close-up blow-out).",
+            "spec": "2–9 Hard Scene Cuts",
+            "desc": "Edited montage or supercut cutting across distinct camera angles and shot scales (e.g. Moments 07->25->26->27->29->36->39->44->46).",
         },
         "MULTI_ACT_DIRECTED_FILM": {
             "code": "CUT-04",
             "title": "Multi-Act Directed Sequence Film",
             "spec": "20s–118s · Choreographed Acts",
-            "desc": "Long-form multi-beat director films, guided Weaver sessions, and original BR2049 scene flows spanning full memory construction.",
+            "desc": "Long-form multi-beat director films, Museum screenless suites, guided Weaver sessions, and master BR2049 scene flows.",
         },
         "AB_COUNTERFACTUAL_PLATE": {
             "code": "CUT-05",
@@ -213,39 +215,45 @@ FAMILY_TAXONOMY = {
     "layout_families": {
         "WEAVER_5RING_BARREL_HUD": {
             "code": "LAY-01",
-            "title": "Weaver 5-Ring Controller Strip",
-            "spec": "Top ~62% World + Bottom 38% Chrome Barrel",
-            "desc": "Locked composite screen with clean dark world above and the 5-ring machined silver barrel + angled OLED below.",
+            "title": "Weaver 5-Ring Barrel + OLED Strip",
+            "spec": "Top ~64% World + Angled OLED + 5-Ring Barrel",
+            "desc": "Composite screen with dark chamber above and the 5-ring silver barrel + angled OLED/waveform panel below.",
+        },
+        "MUSEUM_SCREENLESS_5RING": {
+            "code": "LAY-02",
+            "title": "Museum Screenless 5-Ring Barrel (Zero Text)",
+            "spec": "Top 75% World + Pure Brushed 5-Ring Barrel",
+            "desc": "Gallery-grade screenless 5-ring Memory Orb below (OLED & struts removed, zero text anywhere) with grounded stage above.",
         },
         "CLEAN_CINEMA_ORB_FREE": {
-            "code": "LAY-02",
-            "title": "Clean Orb-Free Cinema Frame",
-            "spec": "100% World · Zero UI / Zero Device",
-            "desc": "Pure cinema shots with no controller, reticle, or HUD chrome—ready directly as R2V/I2V world references.",
+            "code": "LAY-03",
+            "title": "Clean Orb-Free Cinema / 3D Stage",
+            "spec": "100% World · Zero UI / Zero Hardware",
+            "desc": "Pure full-frame cinema shots and grounded 3D stages with zero controller or reticle chrome—ready for R2V/I2V & stacking.",
         },
         "CINEMA_WITH_RETICLE_ARC": {
-            "code": "LAY-03",
-            "title": "Cinema Frame + Pale Crescent Reticle",
-            "spec": "World + Diegetic White Arc Beside Cake",
-            "desc": "Full-frame world shot accompanied by the thin pale crescent reticle with ticks standing beside the cake.",
+            "code": "LAY-04",
+            "title": "Cinema Frame + Side ')' Crescent Reticle",
+            "spec": "World + Film-Accurate ')' Arc Beside Cake",
+            "desc": "Full-frame world shot accompanied by the pale smoked-glass ')' crescent curving concave-toward-cake on the right.",
+        },
+        "DECOMP_DEPTH_ISOLATED_PASS": {
+            "code": "LAY-05",
+            "title": "Isolated Subject / Depth+Edge Conditioning",
+            "spec": "RGBA Matte on Black · MiDaS Depth + Canny Edge",
+            "desc": "ControlNet / Video2Game structural conditioning passes: isolated segmented foregrounds, depth+edge maps, and 24k mist clouds.",
         },
         "SPLIT_STAGE_PAD_CONSOLE": {
-            "code": "LAY-04",
+            "code": "LAY-06",
             "title": "Stacked Stage + Pad / Timeline Console",
             "spec": "Dual-Surface Interactive Rig (960×984 / 1280×864)",
-            "desc": "Tall or split composite pairing the live 3D chamber viewport on top with the full Stage Pad, scene graph, or inferred orb timeline below.",
+            "desc": "Tall composite pairing the live 3D chamber viewport on top with Stage Pad, scene graph, or inferred orb timeline below.",
         },
         "CHAMBER_MINIMAL_DOTBAR": {
-            "code": "LAY-05",
-            "title": "Open-Matte + Minimal Transport Bar",
-            "spec": "Top 87% Scene + Translucent Bottom Strip",
-            "desc": "Open-matte chamber studies with a thin translucent bottom playback bar auto-detected at y_split.",
-        },
-        "REFERENCE_GRID_9X3": {
-            "code": "LAY-06",
-            "title": "9×3 Decomposition Contact Sheet",
-            "spec": "3-Column Ground-Truth Matrix",
-            "desc": "Multi-shot segmentation benchmark comparing Close-Up, Full Clean Chamber, and Isolated RGBA Subject.",
+            "code": "LAY-07",
+            "title": "Open-Matte + Minimal Transport Bar / 9×3 Grid",
+            "spec": "Top 87% Scene + Translucent Strip or 9×3 Plate",
+            "desc": "Open-matte chamber studies with a thin translucent bottom playback bar (`y_split`) plus the 9×3 ground-truth sheet.",
         },
     },
     "source_families": {
@@ -255,494 +263,416 @@ FAMILY_TAXONOMY = {
             "spec": "78 Segmented & Labeled Items",
             "desc": "Multi-era birthday cakes, calligraphy piping, tabletop baker hands, temporal rewinds, and Weaver 5-ring renders.",
         },
-        "FILM_CANON_MOMENTS": {
+        "MOMENTS_6WAY_DECOMP": {
             "code": "SRC-02",
-            "title": "Canonical BR2049 Film Moments",
-            "spec": "18 Shots (`moments/shot*` + `maker/`)",
+            "title": "6-Way Aligned Moment Decompositions (`moments_videos/`)",
+            "spec": "60 Multi-Modal Clips (9 Moments × 6 Passes + 7 Supercuts)",
+            "desc": "Synchronized per-moment Close-Up, Clean Chamber, Isolated Mask, Depth+Edge Conditioning, Best3D Stage, and Stelline3D passes.",
+        },
+        "FILM_CANON_MOMENTS": {
+            "code": "SRC-03",
+            "title": "Canonical BR2049 Film Moments (`moments/shot*`)",
+            "spec": "18 Shots + Master 64s Scene",
             "desc": "Exact shot-cut plates from The Memory Maker (Shots 05–47) plus the master 64s Memory Maker sequence.",
         },
         "COUNTERFACTUAL_DESIGNS": {
-            "code": "SRC-03",
-            "title": "Pixel-Remade Counterfactual Designs",
-            "spec": "14 Plates (`moments/design_*`)",
-            "desc": "Blind-critic tested pixel interventions on Shot 07 (eyes), Shot 27 (writing & flames), Shot 29, Shot 36, and Shot 44.",
+            "code": "SRC-04",
+            "title": "Pixel-Remade Counterfactual Designs (`moments/design_*`)",
+            "spec": "14 Blind-Critic Plates",
+            "desc": "Pixel interventions on Shot 07 (eyes), Shot 27 (writing & flames), Shot 29, Shot 36, and Shot 44.",
         },
         "DIRECTOR_ENGINE_FILMS": {
-            "code": "SRC-04",
-            "title": "Director Engine Films & Feature Reels",
-            "spec": "8 Films (`stelline-orb-film`, `orbfilm/`, `clips/`)",
-            "desc": "Real-time WebGL 5-Ring Director Films (standard, reticle-off, reticle-aside), Cineosis Tizita film, and Stelline archive reels.",
+            "code": "SRC-05",
+            "title": "Director & Museum Orb Film Suites (`orbfilm/`, `clips/`)",
+            "spec": "14 Engine Films & Archive Reels",
+            "desc": "8 grounded Orb Film batches (Museum No-Screen, No-Text, ')' Side Reticle, Stage-Only), Cineosis Tizita, and Stelline reels.",
         },
         "FLOW_CONTROLLER_STACKS": {
-            "code": "SRC-05",
-            "title": "Flow & Stacked Controller Demos",
-            "spec": "10 Captures (`flow/`, `weaver/`, `demo/`)",
+            "code": "SRC-06",
+            "title": "Flow & Stacked Controller Demos (`flow/`, `weaver/`, `demo/`)",
+            "spec": "10 Interactive Captures",
             "desc": "Synchronized controller-under-world stacks, Weaver guided sessions, Stage+Pad builds, and Arcs plate demos.",
         },
         "OMNI_1_2_REFS": {
-            "code": "SRC-06",
-            "title": "Gemini Omni 1.2 Reference Pack",
-            "spec": "7 Reference Clips (`omni/refs/`)",
-            "desc": "UI-lock controller strips and orb-free world motion clips driving the 10-language Gemini Omni Flash 1.2 birthday pack.",
+            "code": "SRC-07",
+            "title": "Gemini Omni 1.2 Reference Pack (`omni/refs/`)",
+            "spec": "8 UI-Lock & Motion Refs",
+            "desc": "Museum No-Screen & 5-Ring UI-lock strips plus orb-free world motion clips driving the 10-language Omni birthday pack.",
         },
         "GEN_MODELS_AND_MIST": {
-            "code": "SRC-07",
+            "code": "SRC-08",
             "title": "Generative Benchmarks & Volumetric Mist",
-            "spec": "15 Clips (`generated/`, `units/`, `versions/`, `mist/`)",
+            "spec": "14 Clips (`generated/`, `units/`, `versions/`, `mist/`)",
             "desc": "MiniMax H3 Max, Kling 2.1, Veo 3.1 R2V, Vidu R2V multi-reference units, version comparisons, and Mist layer plates.",
         },
     },
 }
 
-
-# Curated cinematographic ground-truth metadata for the 72 videos in `assets/`
 CURATED_ASSETS = {
     "assets/stelline-orb-film.mp4": {
         "title": "Stelline Orb Director Film (Master 8-Act Cut)",
         "notes": "Master 34.1s 1280×720 real-time engine film: cast sponge -> 12-flute Bundt -> glaze -> 生日快樂 piping -> 7 candles -> held children multi-clock.",
-        "source_family": "DIRECTOR_ENGINE_FILMS",
-        "angle_family": "HERO_PEDESTAL_3Q_25DEG",
-        "cut_family": "MULTI_ACT_DIRECTED_FILM",
-        "motion_family": "MULTI_ANGLE_CUTS",
-        "scale_family": "MULTI_SCALE_COVERAGE",
-        "layout_family": "WEAVER_5RING_BARREL_HUD",
-        "era": "2049_chamber",
+        "source_family": "DIRECTOR_ENGINE_FILMS", "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+        "cut_family": "MULTI_ACT_DIRECTED_FILM", "motion_family": "MULTI_ANGLE_CUTS",
+        "scale_family": "MULTI_SCALE_COVERAGE", "layout_family": "WEAVER_5RING_BARREL_HUD", "era": "2049_chamber",
+    },
+    "assets/orbfilm/orb-film-museum-no-screen.mp4": {
+        "title": "Museum Batch A · Screenless 5-Ring Orb · No Reticle · Zero Text",
+        "notes": "Gallery-grade screenless 5-ring brushed metal barrel below + heroic grounded 4-cake build, 3 warmly lit children, blow-out, and mist weave above.",
+        "source_family": "DIRECTOR_ENGINE_FILMS", "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+        "cut_family": "MULTI_ACT_DIRECTED_FILM", "motion_family": "MULTI_ANGLE_CUTS",
+        "scale_family": "MULTI_SCALE_COVERAGE", "layout_family": "MUSEUM_SCREENLESS_5RING", "era": "2049_chamber",
+    },
+    "assets/orbfilm/orb-film-museum-side-reticle.mp4": {
+        "title": "Museum Batch A · Screenless 5-Ring Orb + Side ')' Reticle",
+        "notes": "Top OLED screen & struts removed; refined 5-ring barrel below, grounded walnut table, zero text, and film-accurate ')' crescent beside cake.",
+        "source_family": "DIRECTOR_ENGINE_FILMS", "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+        "cut_family": "MULTI_ACT_DIRECTED_FILM", "motion_family": "MULTI_ANGLE_CUTS",
+        "scale_family": "MULTI_SCALE_COVERAGE", "layout_family": "MUSEUM_SCREENLESS_5RING", "era": "2049_chamber",
+    },
+    "assets/orbfilm/orb-film-no-text.mp4": {
+        "title": "Zero-Text Batch B · Graphical Wave Panel · No Reticle",
+        "notes": "Zero text characters anywhere on stage or controller (pure harmonic wave telemetry panel) + grounded 4-cake evolution and 3 children.",
+        "source_family": "DIRECTOR_ENGINE_FILMS", "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+        "cut_family": "MULTI_ACT_DIRECTED_FILM", "motion_family": "MULTI_ANGLE_CUTS",
+        "scale_family": "MULTI_SCALE_COVERAGE", "layout_family": "WEAVER_5RING_BARREL_HUD", "era": "2049_chamber",
+    },
+    "assets/orbfilm/orb-film-no-text-side-reticle.mp4": {
+        "title": "Zero-Text Batch B · Graphical Wave Panel + Side ')' Reticle",
+        "notes": "Non-verbal waveform OLED + 5-ring barrel below, zero text in stage, grounded walnut table, and ')' side crescent reticle.",
+        "source_family": "DIRECTOR_ENGINE_FILMS", "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+        "cut_family": "MULTI_ACT_DIRECTED_FILM", "motion_family": "MULTI_ANGLE_CUTS",
+        "scale_family": "MULTI_SCALE_COVERAGE", "layout_family": "WEAVER_5RING_BARREL_HUD", "era": "2049_chamber",
     },
     "assets/orbfilm/orb-film-no-reticle.mp4": {
-        "title": "Orb Director Film · Reticle Removed",
-        "notes": "Re-recorded from the same 5-ring engine & director script with all wrapping reticle arcs and numbered lists stripped; HUD caption & barrel stay.",
-        "source_family": "DIRECTOR_ENGINE_FILMS",
-        "angle_family": "HERO_PEDESTAL_3Q_25DEG",
-        "cut_family": "MULTI_ACT_DIRECTED_FILM",
-        "motion_family": "MULTI_ANGLE_CUTS",
-        "scale_family": "MULTI_SCALE_COVERAGE",
-        "layout_family": "WEAVER_5RING_BARREL_HUD",
-        "era": "2049_chamber",
+        "title": "Grounded Batch C · Orb Film · Reticle Removed",
+        "notes": "Grounded director film with wrapping arcs, numbered lists, and cake circles removed; HUD caption and 5-ring barrel stay.",
+        "source_family": "DIRECTOR_ENGINE_FILMS", "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+        "cut_family": "MULTI_ACT_DIRECTED_FILM", "motion_family": "MULTI_ANGLE_CUTS",
+        "scale_family": "MULTI_SCALE_COVERAGE", "layout_family": "WEAVER_5RING_BARREL_HUD", "era": "2049_chamber",
     },
     "assets/orbfilm/orb-film-reticle-aside.mp4": {
-        "title": "Orb Director Film · Crescent Reticle Aside",
-        "notes": "Re-recorded with one pale white crescent reticle standing beside the cake (as in BR2049 Shot 26/27) plus locked bottom 5-ring controller.",
-        "source_family": "DIRECTOR_ENGINE_FILMS",
-        "angle_family": "HERO_PEDESTAL_3Q_25DEG",
-        "cut_family": "MULTI_ACT_DIRECTED_FILM",
-        "motion_family": "MULTI_ANGLE_CUTS",
-        "scale_family": "MULTI_SCALE_COVERAGE",
-        "layout_family": "WEAVER_5RING_BARREL_HUD",
-        "era": "2049_chamber",
+        "title": "Grounded Batch C · Orb Film · Side ')' Crescent Reticle",
+        "notes": "Grounded director film with porcelain stand shadow and smoked-glass ')' crescent curving concave-toward-cake on the right.",
+        "source_family": "DIRECTOR_ENGINE_FILMS", "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+        "cut_family": "MULTI_ACT_DIRECTED_FILM", "motion_family": "MULTI_ANGLE_CUTS",
+        "scale_family": "MULTI_SCALE_COVERAGE", "layout_family": "WEAVER_5RING_BARREL_HUD", "era": "2049_chamber",
+    },
+    "assets/orbfilm/orb-film-stage-grounded.mp4": {
+        "title": "Grounded Batch C · Stage-Only (Zero Hardware · No Reticle)",
+        "notes": "100% full-frame grounded 3D stage with zero controller hardware and zero text — clean plate ready for R2V style transfer or controller stacking.",
+        "source_family": "DIRECTOR_ENGINE_FILMS", "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+        "cut_family": "MULTI_ACT_DIRECTED_FILM", "motion_family": "MULTI_ANGLE_CUTS",
+        "scale_family": "MULTI_SCALE_COVERAGE", "layout_family": "CLEAN_CINEMA_ORB_FREE", "era": "2049_chamber",
+    },
+    "assets/orbfilm/orb-film-stage-side-reticle.mp4": {
+        "title": "Grounded Batch C · Stage-Only + Side ')' Reticle (Zero Hardware)",
+        "notes": "100% full-frame grounded 3D stage with the film-accurate ')' side crescent and zero bottom hardware.",
+        "source_family": "DIRECTOR_ENGINE_FILMS", "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+        "cut_family": "MULTI_ACT_DIRECTED_FILM", "motion_family": "MULTI_ANGLE_CUTS",
+        "scale_family": "MULTI_SCALE_COVERAGE", "layout_family": "CINEMA_WITH_RETICLE_ARC", "era": "2049_chamber",
     },
     "assets/clips/cineosis_tizita_film.mp4": {
         "title": "Cineosis-Orb × Tizita Multiplane Birthday Film",
         "notes": "19.8s multiplane cutout chamber sequence blending segmented party standees, live OLED viewfinder, and Tizita memory atmosphere.",
-        "source_family": "DIRECTOR_ENGINE_FILMS",
-        "angle_family": "TABLE_TABLEAU_EYE_10DEG",
-        "cut_family": "MULTI_ACT_DIRECTED_FILM",
-        "motion_family": "DOLLY_PUSH_IN",
-        "scale_family": "WIDE_TO_CLOSE_PUSH",
-        "layout_family": "WEAVER_5RING_BARREL_HUD",
-        "era": "2049_chamber",
+        "source_family": "DIRECTOR_ENGINE_FILMS", "angle_family": "TABLE_TABLEAU_EYE_10DEG",
+        "cut_family": "MULTI_ACT_DIRECTED_FILM", "motion_family": "DOLLY_PUSH_IN",
+        "scale_family": "WIDE_TO_CLOSE_PUSH", "layout_family": "WEAVER_5RING_BARREL_HUD", "era": "2049_chamber",
     },
     "assets/clips/stelline_birthday_craft.mp4": {
         "title": "Stelline Archive · Birthday Memory Craft Reel",
         "notes": "94.5s reference study of Dr. Ana Stelline crafting the birthday cake, piping calligraphy, fading in children, and sculpting candlelight.",
-        "source_family": "DIRECTOR_ENGINE_FILMS",
-        "angle_family": "CHAMBER_FLOATING_TILT_10DEG",
-        "cut_family": "MULTI_ACT_DIRECTED_FILM",
-        "motion_family": "MULTI_ANGLE_CUTS",
-        "scale_family": "MULTI_SCALE_COVERAGE",
-        "layout_family": "CLEAN_CINEMA_ORB_FREE",
-        "era": "2049_chamber",
+        "source_family": "DIRECTOR_ENGINE_FILMS", "angle_family": "CHAMBER_FLOATING_TILT_10DEG",
+        "cut_family": "MULTI_ACT_DIRECTED_FILM", "motion_family": "MULTI_ANGLE_CUTS",
+        "scale_family": "MULTI_SCALE_COVERAGE", "layout_family": "CLEAN_CINEMA_ORB_FREE", "era": "2049_chamber",
     },
     "assets/clips/stelline_how_memories_work.mp4": {
         "title": "Stelline Archive · How Memories Work Dialogue Scene",
         "notes": "67.5s multi-shot chamber sequence intercutting Ana Stelline in the glass dome with Officer K discussing authentic vs crafted memory detail.",
-        "source_family": "DIRECTOR_ENGINE_FILMS",
-        "angle_family": "WIDE_ARCHITECTURAL_DOME",
-        "cut_family": "MULTI_ACT_DIRECTED_FILM",
-        "motion_family": "MULTI_ANGLE_CUTS",
-        "scale_family": "MULTI_SCALE_COVERAGE",
-        "layout_family": "CLEAN_CINEMA_ORB_FREE",
-        "era": "2049_chamber",
+        "source_family": "DIRECTOR_ENGINE_FILMS", "angle_family": "WIDE_ARCHITECTURAL_DOME",
+        "cut_family": "MULTI_ACT_DIRECTED_FILM", "motion_family": "MULTI_ANGLE_CUTS",
+        "scale_family": "MULTI_SCALE_COVERAGE", "layout_family": "CLEAN_CINEMA_ORB_FREE", "era": "2049_chamber",
     },
     "assets/clips/stelline_oled_reel.mp4": {
         "title": "Stelline OLED Viewfinder Loop Reel",
         "notes": "118s compact 420×236 diegetic micro-display reel streamed inside the angled glass OLED viewfinder of Cineosis-Orb and Field Orb.",
-        "source_family": "DIRECTOR_ENGINE_FILMS",
-        "angle_family": "MACRO_SPECIMEN_ECU",
-        "cut_family": "MULTI_ACT_DIRECTED_FILM",
-        "motion_family": "MULTI_ANGLE_CUTS",
-        "scale_family": "MULTI_SCALE_COVERAGE",
-        "layout_family": "CLEAN_CINEMA_ORB_FREE",
-        "era": "2049_chamber",
+        "source_family": "DIRECTOR_ENGINE_FILMS", "angle_family": "MACRO_SPECIMEN_ECU",
+        "cut_family": "MULTI_ACT_DIRECTED_FILM", "motion_family": "MULTI_ANGLE_CUTS",
+        "scale_family": "MULTI_SCALE_COVERAGE", "layout_family": "CLEAN_CINEMA_ORB_FREE", "era": "2049_chamber",
     },
     "assets/clips/stelline_walk_to_work.mp4": {
         "title": "Stelline Laboratories · Walk Into the Containment Dome",
         "notes": "36.0s architectural approach into Stelline Laboratories establishing the cylindrical glass partition and forest/chamber atmosphere.",
-        "source_family": "DIRECTOR_ENGINE_FILMS",
-        "angle_family": "WIDE_ARCHITECTURAL_DOME",
-        "cut_family": "MULTI_SHOT_MONTAGE",
-        "motion_family": "MULTI_ANGLE_CUTS",
-        "scale_family": "EXTREME_WIDE_DOME",
-        "layout_family": "CLEAN_CINEMA_ORB_FREE",
-        "era": "2049_chamber",
+        "source_family": "DIRECTOR_ENGINE_FILMS", "angle_family": "WIDE_ARCHITECTURAL_DOME",
+        "cut_family": "MULTI_SHOT_MONTAGE", "motion_family": "MULTI_ANGLE_CUTS",
+        "scale_family": "EXTREME_WIDE_DOME", "layout_family": "CLEAN_CINEMA_ORB_FREE", "era": "2049_chamber",
     },
     "assets/maker/memory-maker.mp4": {
         "title": "The Memory Maker · Master Reference Scene (64s)",
         "notes": "High-bitrate 1280×720 master capture of the Memory Maker sequence uniting hands-on-orb shots, reticle arcs, cake sculpting, and children.",
-        "source_family": "FILM_CANON_MOMENTS",
-        "angle_family": "ARTISAN_BENCH_HANDS_30DEG",
-        "cut_family": "MULTI_ACT_DIRECTED_FILM",
-        "motion_family": "MULTI_ANGLE_CUTS",
-        "scale_family": "MULTI_SCALE_COVERAGE",
-        "layout_family": "CINEMA_WITH_RETICLE_ARC",
-        "era": "2049_chamber",
+        "source_family": "FILM_CANON_MOMENTS", "angle_family": "ARTISAN_BENCH_HANDS_30DEG",
+        "cut_family": "MULTI_ACT_DIRECTED_FILM", "motion_family": "MULTI_ANGLE_CUTS",
+        "scale_family": "MULTI_SCALE_COVERAGE", "layout_family": "CINEMA_WITH_RETICLE_ARC", "era": "2049_chamber",
     },
-    # Flow, Weaver & Demo captures
     "assets/flow/original-flow.mp4": {
         "title": "Original Film Flow (02:17–02:50 Continuous Sequence)",
         "notes": "33.5s canonical BR2049 birthday crafting flow: cake summoned, icing swaps, 25° tilt, Bundt morph, 生日快樂 piping, children fade-in.",
-        "source_family": "FLOW_CONTROLLER_STACKS",
-        "angle_family": "CHAMBER_FLOATING_TILT_10DEG",
-        "cut_family": "MULTI_SHOT_MONTAGE",
-        "motion_family": "MULTI_ANGLE_CUTS",
-        "scale_family": "MULTI_SCALE_COVERAGE",
-        "layout_family": "CINEMA_WITH_RETICLE_ARC",
-        "era": "2049_chamber",
+        "source_family": "FLOW_CONTROLLER_STACKS", "angle_family": "CHAMBER_FLOATING_TILT_10DEG",
+        "cut_family": "MULTI_SHOT_MONTAGE", "motion_family": "MULTI_ANGLE_CUTS",
+        "scale_family": "MULTI_SCALE_COVERAGE", "layout_family": "CINEMA_WITH_RETICLE_ARC", "era": "2049_chamber",
     },
     "assets/flow/original-flow-controls.mp4": {
         "title": "Original Film Flow + Inferred Orb Controls Below",
         "notes": "960×800 stacked composite pairing the 33.5s original footage above with the live inferred ring & key timeline strip below.",
-        "source_family": "FLOW_CONTROLLER_STACKS",
-        "angle_family": "CHAMBER_FLOATING_TILT_10DEG",
-        "cut_family": "MULTI_SHOT_MONTAGE",
-        "motion_family": "MULTI_ANGLE_CUTS",
-        "scale_family": "MULTI_SCALE_COVERAGE",
-        "layout_family": "SPLIT_STAGE_PAD_CONSOLE",
-        "era": "2049_chamber",
+        "source_family": "FLOW_CONTROLLER_STACKS", "angle_family": "CHAMBER_FLOATING_TILT_10DEG",
+        "cut_family": "MULTI_SHOT_MONTAGE", "motion_family": "MULTI_ANGLE_CUTS",
+        "scale_family": "MULTI_SCALE_COVERAGE", "layout_family": "SPLIT_STAGE_PAD_CONSOLE", "era": "2049_chamber",
     },
     "assets/flow/game-arcs-film-plate.mp4": {
         "title": "Game Flow · Diegetic Arcs on the Film Plate",
         "notes": "87.1s interactive capture driving diegetic cake arcs, stroke lettering, 25° tilt, retimed child hold, and flame blow-out over the film plate.",
-        "source_family": "FLOW_CONTROLLER_STACKS",
-        "angle_family": "CHAMBER_FLOATING_TILT_10DEG",
-        "cut_family": "MULTI_ACT_DIRECTED_FILM",
-        "motion_family": "LOCKED_STATIC",
-        "scale_family": "MEDIUM_CLOSE_HERO",
-        "layout_family": "CINEMA_WITH_RETICLE_ARC",
-        "era": "2049_chamber",
+        "source_family": "FLOW_CONTROLLER_STACKS", "angle_family": "CHAMBER_FLOATING_TILT_10DEG",
+        "cut_family": "MULTI_ACT_DIRECTED_FILM", "motion_family": "LOCKED_STATIC",
+        "scale_family": "MEDIUM_CLOSE_HERO", "layout_family": "CINEMA_WITH_RETICLE_ARC", "era": "2049_chamber",
     },
     "assets/flow/game-forest-focus.mp4": {
         "title": "Game Flow · Forest Reveal & Focus Pull w/ Pad",
         "notes": "20.0s 960×984 stacked capture of the forest clearing depth reveal and optical focus rack with the interactive Pad visible below.",
-        "source_family": "FLOW_CONTROLLER_STACKS",
-        "angle_family": "MACRO_SPECIMEN_ECU",
-        "cut_family": "SINGLE_CONTINUOUS_TAKE",
-        "motion_family": "HANDHELD_DRIFT_RACK",
-        "scale_family": "TIGHT_CLOSE_UP_MACRO",
-        "layout_family": "SPLIT_STAGE_PAD_CONSOLE",
-        "era": "2049_chamber",
+        "source_family": "FLOW_CONTROLLER_STACKS", "angle_family": "MACRO_SPECIMEN_ECU",
+        "cut_family": "SINGLE_CONTINUOUS_TAKE", "motion_family": "HANDHELD_DRIFT_RACK",
+        "scale_family": "TIGHT_CLOSE_UP_MACRO", "layout_family": "SPLIT_STAGE_PAD_CONSOLE", "era": "2049_chamber",
     },
     "assets/flow/game-stage-pad.mp4": {
         "title": "Game Flow · Cake Built From Nothing on Stage + Pad",
         "notes": "72.8s 960×984 dual-screen capture building the birthday cake from an empty chamber via scene graph, pen calligraphy, DOF pull, and tilt.",
-        "source_family": "FLOW_CONTROLLER_STACKS",
-        "angle_family": "HERO_PEDESTAL_3Q_25DEG",
-        "cut_family": "MULTI_ACT_DIRECTED_FILM",
-        "motion_family": "TURNTABLE_ORBIT",
-        "scale_family": "MEDIUM_CLOSE_HERO",
-        "layout_family": "SPLIT_STAGE_PAD_CONSOLE",
-        "era": "2049_chamber",
+        "source_family": "FLOW_CONTROLLER_STACKS", "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+        "cut_family": "MULTI_ACT_DIRECTED_FILM", "motion_family": "TURNTABLE_ORBIT",
+        "scale_family": "MEDIUM_CLOSE_HERO", "layout_family": "SPLIT_STAGE_PAD_CONSOLE", "era": "2049_chamber",
     },
     "assets/flow/game-tall-cake.mp4": {
         "title": "Game Flow · Two-Tier Tall 9-Candle Cake & Orbit",
         "notes": "82.4s 960×984 capture constructing a tall 2-step 9-candle cake with crown lettering and continuous orbital camera sweep.",
-        "source_family": "FLOW_CONTROLLER_STACKS",
-        "angle_family": "HERO_PEDESTAL_3Q_25DEG",
-        "cut_family": "MULTI_ACT_DIRECTED_FILM",
-        "motion_family": "TURNTABLE_ORBIT",
-        "scale_family": "MEDIUM_CLOSE_HERO",
-        "layout_family": "SPLIT_STAGE_PAD_CONSOLE",
-        "era": "2049_chamber",
+        "source_family": "FLOW_CONTROLLER_STACKS", "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+        "cut_family": "MULTI_ACT_DIRECTED_FILM", "motion_family": "TURNTABLE_ORBIT",
+        "scale_family": "MEDIUM_CLOSE_HERO", "layout_family": "SPLIT_STAGE_PAD_CONSOLE", "era": "2049_chamber",
     },
     "assets/demo/arcs-demo.mp4": {
         "title": "Arcs UI Demo · Reticle & Ring Scrubbing",
         "notes": "87.1s demonstration of `arcs.html` driving cake variant swaps, calligraphy strokes, and flame extinction directly through diegetic arcs.",
-        "source_family": "FLOW_CONTROLLER_STACKS",
-        "angle_family": "CHAMBER_FLOATING_TILT_10DEG",
-        "cut_family": "MULTI_ACT_DIRECTED_FILM",
-        "motion_family": "LOCKED_STATIC",
-        "scale_family": "MEDIUM_CLOSE_HERO",
-        "layout_family": "CINEMA_WITH_RETICLE_ARC",
-        "era": "2049_chamber",
+        "source_family": "FLOW_CONTROLLER_STACKS", "angle_family": "CHAMBER_FLOATING_TILT_10DEG",
+        "cut_family": "MULTI_ACT_DIRECTED_FILM", "motion_family": "LOCKED_STATIC",
+        "scale_family": "MEDIUM_CLOSE_HERO", "layout_family": "CINEMA_WITH_RETICLE_ARC", "era": "2049_chamber",
     },
     "assets/demo/stage-pad-demo.mp4": {
         "title": "Stage + Pad Paired Instrument Demo",
         "notes": "72.8s 960×984 paired demonstration of `stage.html` + `pad.html` sculpting geometry, piping top script, and pulling aperture focus.",
-        "source_family": "FLOW_CONTROLLER_STACKS",
-        "angle_family": "HERO_PEDESTAL_3Q_25DEG",
-        "cut_family": "MULTI_ACT_DIRECTED_FILM",
-        "motion_family": "TURNTABLE_ORBIT",
-        "scale_family": "MEDIUM_CLOSE_HERO",
-        "layout_family": "SPLIT_STAGE_PAD_CONSOLE",
-        "era": "2049_chamber",
+        "source_family": "FLOW_CONTROLLER_STACKS", "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+        "cut_family": "MULTI_ACT_DIRECTED_FILM", "motion_family": "TURNTABLE_ORBIT",
+        "scale_family": "MEDIUM_CLOSE_HERO", "layout_family": "SPLIT_STAGE_PAD_CONSOLE", "era": "2049_chamber",
     },
     "assets/weaver/weaver-cake-film.mp4": {
         "title": "Weaver Engine · Full Chamber Cake & 24k Mist Film",
         "notes": "76.6s 1280×720 capture of `weaver.html` telescoping barrel rings building the cake, lighting 2D child standees, and dissolving to 24k mist.",
-        "source_family": "FLOW_CONTROLLER_STACKS",
-        "angle_family": "HERO_PEDESTAL_3Q_25DEG",
-        "cut_family": "MULTI_ACT_DIRECTED_FILM",
-        "motion_family": "TURNTABLE_ORBIT",
-        "scale_family": "WIDE_TO_CLOSE_PUSH",
-        "layout_family": "WEAVER_5RING_BARREL_HUD",
-        "era": "2049_chamber",
+        "source_family": "FLOW_CONTROLLER_STACKS", "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+        "cut_family": "MULTI_ACT_DIRECTED_FILM", "motion_family": "TURNTABLE_ORBIT",
+        "scale_family": "WIDE_TO_CLOSE_PUSH", "layout_family": "WEAVER_5RING_BARREL_HUD", "era": "2049_chamber",
     },
     "assets/weaver/weaver-cake-guided.mp4": {
         "title": "Weaver Engine · Guided Step-by-Step Console Session",
         "notes": "76.6s 1280×864 tall capture showing guided prompts alongside the telescoping 5-ring Weaver instrument and physically-lit chamber table.",
-        "source_family": "FLOW_CONTROLLER_STACKS",
-        "angle_family": "HERO_PEDESTAL_3Q_25DEG",
-        "cut_family": "MULTI_ACT_DIRECTED_FILM",
-        "motion_family": "TURNTABLE_ORBIT",
-        "scale_family": "WIDE_TO_CLOSE_PUSH",
-        "layout_family": "SPLIT_STAGE_PAD_CONSOLE",
-        "era": "2049_chamber",
+        "source_family": "FLOW_CONTROLLER_STACKS", "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+        "cut_family": "MULTI_ACT_DIRECTED_FILM", "motion_family": "TURNTABLE_ORBIT",
+        "scale_family": "WIDE_TO_CLOSE_PUSH", "layout_family": "SPLIT_STAGE_PAD_CONSOLE", "era": "2049_chamber",
     },
-    # Omni 1.2 Reference Pack
+    # Omni 1.2 Refs
+    "assets/omni/refs/u_museum-no-screen.mp4": {
+        "title": "Omni Ref U0 · Museum Screenless 5-Ring UI Lock (Zero Text)",
+        "notes": "UI-LOCK reference from the Museum No-Screen batch: screenless 5-ring brushed metal barrel below + grounded walnut table & zero text above.",
+        "source_family": "OMNI_1_2_REFS", "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+        "cut_family": "SINGLE_CONTINUOUS_TAKE", "motion_family": "LOCKED_STATIC",
+        "scale_family": "MEDIUM_CLOSE_HERO", "layout_family": "MUSEUM_SCREENLESS_5RING", "era": "2049_chamber",
+    },
     "assets/omni/refs/u_ui-strip-hud.mp4": {
         "title": "Omni Ref U1 · Locked 5-Ring UI Strip + Aside Reticle",
         "notes": "3.0s UI-LOCK reference for Gemini Omni Flash 1.2: top 62% dark world w/ pale crescent beside cake + locked bottom 38% 5-ring chrome barrel.",
-        "source_family": "OMNI_1_2_REFS",
-        "angle_family": "HERO_PEDESTAL_3Q_25DEG",
-        "cut_family": "SINGLE_CONTINUOUS_TAKE",
-        "motion_family": "LOCKED_STATIC",
-        "scale_family": "MEDIUM_CLOSE_HERO",
-        "layout_family": "WEAVER_5RING_BARREL_HUD",
-        "era": "2049_chamber",
+        "source_family": "OMNI_1_2_REFS", "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+        "cut_family": "SINGLE_CONTINUOUS_TAKE", "motion_family": "LOCKED_STATIC",
+        "scale_family": "MEDIUM_CLOSE_HERO", "layout_family": "WEAVER_5RING_BARREL_HUD", "era": "2049_chamber",
     },
     "assets/omni/refs/alt-no-reticle/u_ui-strip-hud.mp4": {
         "title": "Omni Ref U1-Alt · Locked 5-Ring UI Strip (No Reticle)",
         "notes": "3.0s alternate UI-LOCK reference with zero reticle in the world area and identical locked bottom 38% 5-ring silver barrel.",
-        "source_family": "OMNI_1_2_REFS",
-        "angle_family": "HERO_PEDESTAL_3Q_25DEG",
-        "cut_family": "SINGLE_CONTINUOUS_TAKE",
-        "motion_family": "LOCKED_STATIC",
-        "scale_family": "MEDIUM_CLOSE_HERO",
-        "layout_family": "WEAVER_5RING_BARREL_HUD",
-        "era": "2049_chamber",
+        "source_family": "OMNI_1_2_REFS", "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+        "cut_family": "SINGLE_CONTINUOUS_TAKE", "motion_family": "LOCKED_STATIC",
+        "scale_family": "MEDIUM_CLOSE_HERO", "layout_family": "WEAVER_5RING_BARREL_HUD", "era": "2049_chamber",
     },
     "assets/omni/refs/v1_cake-appears.mp4": {
         "title": "Omni Ref V1 · World Motion: Cake Appears & Tilts",
         "notes": "3.0s orb-free motion reference: cake materializes out of darkness, flickers through icings, and tilts 25° toward the lens.",
-        "source_family": "OMNI_1_2_REFS",
-        "angle_family": "CHAMBER_FLOATING_TILT_10DEG",
-        "cut_family": "STAGE_MORPH_DETENT_SWAP",
-        "motion_family": "LOCKED_STATIC",
-        "scale_family": "MEDIUM_CLOSE_HERO",
-        "layout_family": "CLEAN_CINEMA_ORB_FREE",
-        "era": "2049_chamber",
+        "source_family": "OMNI_1_2_REFS", "angle_family": "CHAMBER_FLOATING_TILT_10DEG",
+        "cut_family": "STAGE_MORPH_DETENT_SWAP", "motion_family": "LOCKED_STATIC",
+        "scale_family": "MEDIUM_CLOSE_HERO", "layout_family": "CLEAN_CINEMA_ORB_FREE", "era": "2049_chamber",
     },
     "assets/omni/refs/v2_writing-upright.mp4": {
         "title": "Omni Ref V2 · World Motion: Red Piping & Upright Swing",
         "notes": "3.0s over-shoulder reference: red 生日快樂 icing pipes stroke-by-stroke across top plane before the cake swings upright beside the white arc.",
-        "source_family": "OMNI_1_2_REFS",
-        "angle_family": "HIGH_CROWN_WRITING_45DEG",
-        "cut_family": "SINGLE_CONTINUOUS_TAKE",
-        "motion_family": "HANDHELD_DRIFT_RACK",
-        "scale_family": "TIGHT_CLOSE_UP_MACRO",
-        "layout_family": "CINEMA_WITH_RETICLE_ARC",
-        "era": "2049_chamber",
+        "source_family": "OMNI_1_2_REFS", "angle_family": "HIGH_CROWN_WRITING_45DEG",
+        "cut_family": "SINGLE_CONTINUOUS_TAKE", "motion_family": "HANDHELD_DRIFT_RACK",
+        "scale_family": "TIGHT_CLOSE_UP_MACRO", "layout_family": "CINEMA_WITH_RETICLE_ARC", "era": "2049_chamber",
     },
     "assets/omni/refs/v3_children-fade.mp4": {
         "title": "Omni Ref V3 · World Motion: Children Ghost-Fade Around Table",
         "notes": "3.0s orb-free reference: empty table -> ghost-transparent silhouettes -> solid children seated in a half-ring lit by the cake.",
-        "source_family": "OMNI_1_2_REFS",
-        "angle_family": "TABLE_TABLEAU_EYE_10DEG",
-        "cut_family": "HOLOGRAM_GHOST_MATERIALIZE",
-        "motion_family": "LOCKED_STATIC",
-        "scale_family": "MEDIUM_FULL_TABLEAU",
-        "layout_family": "CLEAN_CINEMA_ORB_FREE",
-        "era": "2049_chamber",
+        "source_family": "OMNI_1_2_REFS", "angle_family": "TABLE_TABLEAU_EYE_10DEG",
+        "cut_family": "HOLOGRAM_GHOST_MATERIALIZE", "motion_family": "LOCKED_STATIC",
+        "scale_family": "MEDIUM_FULL_TABLEAU", "layout_family": "CLEAN_CINEMA_ORB_FREE", "era": "2049_chamber",
     },
     "assets/omni/refs/v4_candle-on-face.mp4": {
         "title": "Omni Ref V4 · World Motion: Single Candle on Boy's Face",
         "notes": "2.5s shallow-DOF 85mm close-up reference: warm 3200K flame light flickering from below on a child's face against deep darkness.",
-        "source_family": "OMNI_1_2_REFS",
-        "angle_family": "INTIMATE_CANDLE_FACE_CU",
-        "cut_family": "SINGLE_CONTINUOUS_TAKE",
-        "motion_family": "HANDHELD_DRIFT_RACK",
-        "scale_family": "TIGHT_CLOSE_UP_MACRO",
-        "layout_family": "CLEAN_CINEMA_ORB_FREE",
-        "era": "2049_chamber",
+        "source_family": "OMNI_1_2_REFS", "angle_family": "INTIMATE_CANDLE_FACE_CU",
+        "cut_family": "SINGLE_CONTINUOUS_TAKE", "motion_family": "HANDHELD_DRIFT_RACK",
+        "scale_family": "TIGHT_CLOSE_UP_MACRO", "layout_family": "CLEAN_CINEMA_ORB_FREE", "era": "2049_chamber",
     },
     "assets/omni/refs/v5_candles-out.mp4": {
         "title": "Omni Ref V5 · World Motion: Flames Extinguish & Light Leaves Face",
         "notes": "2.6s close-up blow-out reference: candles go out together, warm 3200K bounce drops off the birthday girl's face into cool dark room tone.",
-        "source_family": "OMNI_1_2_REFS",
-        "angle_family": "INTIMATE_CANDLE_FACE_CU",
-        "cut_family": "SINGLE_CONTINUOUS_TAKE",
-        "motion_family": "HANDHELD_DRIFT_RACK",
-        "scale_family": "TIGHT_CLOSE_UP_MACRO",
-        "layout_family": "CLEAN_CINEMA_ORB_FREE",
-        "era": "2049_chamber",
+        "source_family": "OMNI_1_2_REFS", "angle_family": "INTIMATE_CANDLE_FACE_CU",
+        "cut_family": "SINGLE_CONTINUOUS_TAKE", "motion_family": "HANDHELD_DRIFT_RACK",
+        "scale_family": "TIGHT_CLOSE_UP_MACRO", "layout_family": "CLEAN_CINEMA_ORB_FREE", "era": "2049_chamber",
     },
     # Generative Runs, Multi-Ref Units, Versions & Mist
     "assets/generated/h3max-weaver-ux.mp4": {
         "title": "MiniMax H3 Max · 1080p Cake Built w/ Controller in Frame",
         "notes": "10.1s 1920×1080 text-to-video generation where a cake builds from nothing while the 5-ring controller and OLED panel remain in frame.",
-        "source_family": "GEN_MODELS_AND_MIST",
-        "angle_family": "HERO_PEDESTAL_3Q_25DEG",
-        "cut_family": "STAGE_MORPH_DETENT_SWAP",
-        "motion_family": "DOLLY_PUSH_IN",
-        "scale_family": "WIDE_TO_CLOSE_PUSH",
-        "layout_family": "WEAVER_5RING_BARREL_HUD",
-        "era": "2049_chamber",
+        "source_family": "GEN_MODELS_AND_MIST", "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+        "cut_family": "STAGE_MORPH_DETENT_SWAP", "motion_family": "DOLLY_PUSH_IN",
+        "scale_family": "WIDE_TO_CLOSE_PUSH", "layout_family": "WEAVER_5RING_BARREL_HUD", "era": "2049_chamber",
     },
     "assets/generated/gen-A-summon.mp4": {
         "title": "Kling 2.1 Gen-A · Summon & Red Lettering w/ Orb Panel",
         "notes": "5.0s I2V from original frame + orb panel: cake rises from table and red icing characters form across the crown.",
-        "source_family": "GEN_MODELS_AND_MIST",
-        "angle_family": "CHAMBER_FLOATING_TILT_10DEG",
-        "cut_family": "HOLOGRAM_GHOST_MATERIALIZE",
-        "motion_family": "DOLLY_PUSH_IN",
-        "scale_family": "MEDIUM_CLOSE_HERO",
-        "layout_family": "WEAVER_5RING_BARREL_HUD",
-        "era": "2049_chamber",
+        "source_family": "GEN_MODELS_AND_MIST", "angle_family": "CHAMBER_FLOATING_TILT_10DEG",
+        "cut_family": "HOLOGRAM_GHOST_MATERIALIZE", "motion_family": "DOLLY_PUSH_IN",
+        "scale_family": "MEDIUM_CLOSE_HERO", "layout_family": "WEAVER_5RING_BARREL_HUD", "era": "2049_chamber",
     },
     "assets/generated/gen-B-lettering.mp4": {
         "title": "Kling 2.1 Gen-B · Crown Lettering & 25° Tip w/ Panel",
         "notes": "5.0s I2V starting at Shot 27 lettering with controller panel below: cake tips toward camera while candles burn.",
-        "source_family": "GEN_MODELS_AND_MIST",
-        "angle_family": "HIGH_CROWN_WRITING_45DEG",
-        "cut_family": "SINGLE_CONTINUOUS_TAKE",
-        "motion_family": "HANDHELD_DRIFT_RACK",
-        "scale_family": "TIGHT_CLOSE_UP_MACRO",
-        "layout_family": "WEAVER_5RING_BARREL_HUD",
-        "era": "2049_chamber",
+        "source_family": "GEN_MODELS_AND_MIST", "angle_family": "HIGH_CROWN_WRITING_45DEG",
+        "cut_family": "SINGLE_CONTINUOUS_TAKE", "motion_family": "HANDHELD_DRIFT_RACK",
+        "scale_family": "TIGHT_CLOSE_UP_MACRO", "layout_family": "WEAVER_5RING_BARREL_HUD", "era": "2049_chamber",
     },
     "assets/generated/gen-C-from-nothing.mp4": {
         "title": "Kling 2.1 Gen-C · Layer-by-Layer Build on Stage + Pad",
         "notes": "5.0s 960×960 I2V starting from Stage+Pad: hex table materializes and cake stacks layer by layer above the controller panel.",
-        "source_family": "GEN_MODELS_AND_MIST",
-        "angle_family": "HERO_PEDESTAL_3Q_25DEG",
-        "cut_family": "STAGE_MORPH_DETENT_SWAP",
-        "motion_family": "LOCKED_STATIC",
-        "scale_family": "MEDIUM_CLOSE_HERO",
-        "layout_family": "SPLIT_STAGE_PAD_CONSOLE",
-        "era": "2049_chamber",
+        "source_family": "GEN_MODELS_AND_MIST", "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+        "cut_family": "STAGE_MORPH_DETENT_SWAP", "motion_family": "LOCKED_STATIC",
+        "scale_family": "MEDIUM_CLOSE_HERO", "layout_family": "SPLIT_STAGE_PAD_CONSOLE", "era": "2049_chamber",
     },
     "assets/generated/gen-D-candles.mp4": {
         "title": "Kling 2.1 Gen-D · Sequential Candle Ignition on Stage + Pad",
         "notes": "5.0s 960×960 I2V: candles ignite one by one spreading warm 3200K table bounce while the lower pad panel animates.",
-        "source_family": "GEN_MODELS_AND_MIST",
-        "angle_family": "HERO_PEDESTAL_3Q_25DEG",
-        "cut_family": "SINGLE_CONTINUOUS_TAKE",
-        "motion_family": "DOLLY_PUSH_IN",
-        "scale_family": "MEDIUM_CLOSE_HERO",
-        "layout_family": "SPLIT_STAGE_PAD_CONSOLE",
-        "era": "2049_chamber",
+        "source_family": "GEN_MODELS_AND_MIST", "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+        "cut_family": "SINGLE_CONTINUOUS_TAKE", "motion_family": "DOLLY_PUSH_IN",
+        "scale_family": "MEDIUM_CLOSE_HERO", "layout_family": "SPLIT_STAGE_PAD_CONSOLE", "era": "2049_chamber",
     },
     "assets/units/U2-veo/U2-cake-appears.mp4": {
         "title": "Unit U2 (Veo 3.1 R2V) · First-Person Orb Summons Cake",
         "notes": "8.0s multi-reference Veo 3.1 generation preserving first-person hands on the silver Memory Orb while summoning the birthday cake.",
-        "source_family": "GEN_MODELS_AND_MIST",
-        "angle_family": "ARTISAN_BENCH_HANDS_30DEG",
-        "cut_family": "HOLOGRAM_GHOST_MATERIALIZE",
-        "motion_family": "HANDHELD_DRIFT_RACK",
-        "scale_family": "MEDIUM_CLOSE_HERO",
-        "layout_family": "CINEMA_WITH_RETICLE_ARC",
-        "era": "2049_chamber",
+        "source_family": "GEN_MODELS_AND_MIST", "angle_family": "ARTISAN_BENCH_HANDS_30DEG",
+        "cut_family": "HOLOGRAM_GHOST_MATERIALIZE", "motion_family": "HANDHELD_DRIFT_RACK",
+        "scale_family": "MEDIUM_CLOSE_HERO", "layout_family": "CINEMA_WITH_RETICLE_ARC", "era": "2049_chamber",
     },
     "assets/units/U2-vidu/U2-cake-appears.mp4": {
         "title": "Unit U2 (Vidu R2V 1080p) · Multi-Reference Cake Summon",
         "notes": "5.4s 1920×1080 Vidu reference-to-video unit testing handheld orb retention and low-key chamber cake materialization.",
-        "source_family": "GEN_MODELS_AND_MIST",
-        "angle_family": "ARTISAN_BENCH_HANDS_30DEG",
-        "cut_family": "HOLOGRAM_GHOST_MATERIALIZE",
-        "motion_family": "HANDHELD_DRIFT_RACK",
-        "scale_family": "MEDIUM_CLOSE_HERO",
-        "layout_family": "CINEMA_WITH_RETICLE_ARC",
-        "era": "2049_chamber",
+        "source_family": "GEN_MODELS_AND_MIST", "angle_family": "ARTISAN_BENCH_HANDS_30DEG",
+        "cut_family": "HOLOGRAM_GHOST_MATERIALIZE", "motion_family": "HANDHELD_DRIFT_RACK",
+        "scale_family": "MEDIUM_CLOSE_HERO", "layout_family": "CINEMA_WITH_RETICLE_ARC", "era": "2049_chamber",
     },
     "assets/versions/v0_original.mp4": {
         "title": "Birthday Frame V0 · Canonical Film Baseline (4.2s)",
         "notes": "Baseline 4.2s canonical film plate of the children gathered around the lit birthday cake for A/B comparison against V1–V3.",
-        "source_family": "GEN_MODELS_AND_MIST",
-        "angle_family": "TABLE_TABLEAU_EYE_10DEG",
-        "cut_family": "SINGLE_CONTINUOUS_TAKE",
-        "motion_family": "LOCKED_STATIC",
-        "scale_family": "MEDIUM_FULL_TABLEAU",
-        "layout_family": "CLEAN_CINEMA_ORB_FREE",
-        "era": "2049_chamber",
+        "source_family": "GEN_MODELS_AND_MIST", "angle_family": "TABLE_TABLEAU_EYE_10DEG",
+        "cut_family": "SINGLE_CONTINUOUS_TAKE", "motion_family": "LOCKED_STATIC",
+        "scale_family": "MEDIUM_FULL_TABLEAU", "layout_family": "CLEAN_CINEMA_ORB_FREE", "era": "2049_chamber",
     },
     "assets/versions/v1_blowout.mp4": {
         "title": "Birthday Frame V1 · Breath, Flame-Out & Falling Light",
         "notes": "5.0s variation from the canonical birthday frame: breath bends all flames out into curling smoke as warm face light falls away.",
-        "source_family": "GEN_MODELS_AND_MIST",
-        "angle_family": "TABLE_TABLEAU_EYE_10DEG",
-        "cut_family": "SINGLE_CONTINUOUS_TAKE",
-        "motion_family": "LOCKED_STATIC",
-        "scale_family": "MEDIUM_FULL_TABLEAU",
-        "layout_family": "CLEAN_CINEMA_ORB_FREE",
-        "era": "2049_chamber",
+        "source_family": "GEN_MODELS_AND_MIST", "angle_family": "TABLE_TABLEAU_EYE_10DEG",
+        "cut_family": "SINGLE_CONTINUOUS_TAKE", "motion_family": "LOCKED_STATIC",
+        "scale_family": "MEDIUM_FULL_TABLEAU", "layout_family": "CLEAN_CINEMA_ORB_FREE", "era": "2049_chamber",
     },
     "assets/versions/v2_pushin.mp4": {
         "title": "Birthday Frame V2 · Slow Dolly Push-In to Birthday Girl",
         "notes": "5.0s camera-motion study pushing slowly across the glowing cake toward the central birthday girl.",
-        "source_family": "GEN_MODELS_AND_MIST",
-        "angle_family": "TABLE_TABLEAU_EYE_10DEG",
-        "cut_family": "SINGLE_CONTINUOUS_TAKE",
-        "motion_family": "DOLLY_PUSH_IN",
-        "scale_family": "WIDE_TO_CLOSE_PUSH",
-        "layout_family": "CLEAN_CINEMA_ORB_FREE",
-        "era": "2049_chamber",
+        "source_family": "GEN_MODELS_AND_MIST", "angle_family": "TABLE_TABLEAU_EYE_10DEG",
+        "cut_family": "SINGLE_CONTINUOUS_TAKE", "motion_family": "DOLLY_PUSH_IN",
+        "scale_family": "WIDE_TO_CLOSE_PUSH", "layout_family": "CLEAN_CINEMA_ORB_FREE", "era": "2049_chamber",
     },
     "assets/versions/v3_hologram.mp4": {
         "title": "Birthday Frame V3 · Mist-Edge Hologram Turn",
         "notes": "5.0s volumetric variation where figure edges dissolve like spacetime mist as the children turn toward the burning candles.",
-        "source_family": "GEN_MODELS_AND_MIST",
-        "angle_family": "TABLE_TABLEAU_EYE_10DEG",
-        "cut_family": "HOLOGRAM_GHOST_MATERIALIZE",
-        "motion_family": "HANDHELD_DRIFT_RACK",
-        "scale_family": "MEDIUM_FULL_TABLEAU",
-        "layout_family": "CLEAN_CINEMA_ORB_FREE",
-        "era": "2049_chamber",
+        "source_family": "GEN_MODELS_AND_MIST", "angle_family": "TABLE_TABLEAU_EYE_10DEG",
+        "cut_family": "HOLOGRAM_GHOST_MATERIALIZE", "motion_family": "HANDHELD_DRIFT_RACK",
+        "scale_family": "MEDIUM_FULL_TABLEAU", "layout_family": "CLEAN_CINEMA_ORB_FREE", "era": "2049_chamber",
     },
     "assets/mist/blow.mp4": {
         "title": "Mist Layer Plate · Candle Blow-Out (`mist/blow.mp4`)",
         "notes": "6.0s 960×540 source memory plate segmented into particle-mist salience fields for `mist.html` (blow-out beat).",
-        "source_family": "GEN_MODELS_AND_MIST",
-        "angle_family": "INTIMATE_CANDLE_FACE_CU",
-        "cut_family": "SINGLE_CONTINUOUS_TAKE",
-        "motion_family": "HANDHELD_DRIFT_RACK",
-        "scale_family": "TIGHT_CLOSE_UP_MACRO",
-        "layout_family": "CLEAN_CINEMA_ORB_FREE",
-        "era": "2049_chamber",
+        "source_family": "GEN_MODELS_AND_MIST", "angle_family": "INTIMATE_CANDLE_FACE_CU",
+        "cut_family": "SINGLE_CONTINUOUS_TAKE", "motion_family": "HANDHELD_DRIFT_RACK",
+        "scale_family": "TIGHT_CLOSE_UP_MACRO", "layout_family": "DECOMP_DEPTH_ISOLATED_PASS", "era": "2049_chamber",
     },
     "assets/mist/cake.mp4": {
         "title": "Mist Layer Plate · Floating Cake (`mist/cake.mp4`)",
         "notes": "6.0s 960×540 source memory plate driving the volumetric cake-summon particle cloud in `mist.html`.",
-        "source_family": "GEN_MODELS_AND_MIST",
-        "angle_family": "CHAMBER_FLOATING_TILT_10DEG",
-        "cut_family": "STAGE_MORPH_DETENT_SWAP",
-        "motion_family": "LOCKED_STATIC",
-        "scale_family": "MEDIUM_CLOSE_HERO",
-        "layout_family": "CLEAN_CINEMA_ORB_FREE",
-        "era": "2049_chamber",
+        "source_family": "GEN_MODELS_AND_MIST", "angle_family": "CHAMBER_FLOATING_TILT_10DEG",
+        "cut_family": "STAGE_MORPH_DETENT_SWAP", "motion_family": "LOCKED_STATIC",
+        "scale_family": "MEDIUM_CLOSE_HERO", "layout_family": "DECOMP_DEPTH_ISOLATED_PASS", "era": "2049_chamber",
     },
     "assets/mist/children.mp4": {
         "title": "Mist Layer Plate · Children Around Table (`mist/children.mp4`)",
         "notes": "6.0s 960×540 source memory plate driving the children half-ring salience point cloud in `mist.html`.",
-        "source_family": "GEN_MODELS_AND_MIST",
-        "angle_family": "TABLE_TABLEAU_EYE_10DEG",
-        "cut_family": "HOLOGRAM_GHOST_MATERIALIZE",
-        "motion_family": "LOCKED_STATIC",
-        "scale_family": "MEDIUM_FULL_TABLEAU",
-        "layout_family": "CLEAN_CINEMA_ORB_FREE",
-        "era": "2049_chamber",
+        "source_family": "GEN_MODELS_AND_MIST", "angle_family": "TABLE_TABLEAU_EYE_10DEG",
+        "cut_family": "HOLOGRAM_GHOST_MATERIALIZE", "motion_family": "LOCKED_STATIC",
+        "scale_family": "MEDIUM_FULL_TABLEAU", "layout_family": "DECOMP_DEPTH_ISOLATED_PASS", "era": "2049_chamber",
     },
 }
 
-# Canonical BR2049 shot mapping (`assets/moments/shot*.mp4`)
+MOMENTS_DECOMP_INFO = {
+    "m07": ("Moment 07 (00:31) · Beetle Compound Eyes Focus", "MACRO_SPECIMEN_ECU", "SINGLE_CONTINUOUS_TAKE", "HANDHELD_DRIFT_RACK", "TIGHT_CLOSE_UP_MACRO"),
+    "m25": ("Moment 25 (02:17) · Cake Appears, Frostings & 25° Tilt", "CHAMBER_FLOATING_TILT_10DEG", "STAGE_MORPH_DETENT_SWAP", "LOCKED_STATIC", "MEDIUM_CLOSE_HERO"),
+    "m26": ("Moment 26 (02:21) · Cylinder to 12-Flute Bundt Morph", "CHAMBER_FLOATING_TILT_10DEG", "STAGE_MORPH_DETENT_SWAP", "LOCKED_STATIC", "MEDIUM_CLOSE_HERO"),
+    "m27": ("Moment 27 (02:24) · Red 生日快樂 Piping & Upright Swing", "HIGH_CROWN_WRITING_45DEG", "SINGLE_CONTINUOUS_TAKE", "HANDHELD_DRIFT_RACK", "TIGHT_CLOSE_UP_MACRO"),
+    "m29": ("Moment 29 (02:32) · Children Ghost-Fade Solidification", "TABLE_TABLEAU_EYE_10DEG", "HOLOGRAM_GHOST_MATERIALIZE", "LOCKED_STATIC", "MEDIUM_FULL_TABLEAU"),
+    "m36": ("Moment 36 (02:53) · Single Candle Light on Boy's Face", "INTIMATE_CANDLE_FACE_CU", "SINGLE_CONTINUOUS_TAKE", "HANDHELD_DRIFT_RACK", "TIGHT_CLOSE_UP_MACRO"),
+    "m39": ("Moment 39 (03:00) · Dim Chamber Table & Children", "TABLE_TABLEAU_EYE_10DEG", "SINGLE_CONTINUOUS_TAKE", "LOCKED_STATIC", "MEDIUM_FULL_TABLEAU"),
+    "m44": ("Moment 44 (03:33) · Warm Lit Table & Children Circle", "TABLE_TABLEAU_EYE_10DEG", "SINGLE_CONTINUOUS_TAKE", "LOCKED_STATIC", "MEDIUM_FULL_TABLEAU"),
+    "m46": ("Moment 46 (03:46) · Candles Blow Out on Her Face", "INTIMATE_CANDLE_FACE_CU", "SINGLE_CONTINUOUS_TAKE", "HANDHELD_DRIFT_RACK", "TIGHT_CLOSE_UP_MACRO"),
+}
+
+MODALITY_LABELS = {
+    "film_closeup": ("Close-Up Clean Film Plate", "CLEAN_CINEMA_ORB_FREE", "Cropped orb-free close-up film plate isolating subject choreography."),
+    "film_chamber_clean": ("Full Clean Chamber Plate", "CLEAN_CINEMA_ORB_FREE", "Uncropped 16:9 clean containment chamber plate with zero hardware."),
+    "seg_isolated": ("Isolated RGBA Subject Matte", "DECOMP_DEPTH_ISOLATED_PASS", "SAM/Mask-RCNN foreground subject isolated on pure black for compositing & R2V."),
+    "cond_depth_edge": ("Depth + Canny Edge Conditioning", "DECOMP_DEPTH_ISOLATED_PASS", "DPT-MiDaS monocular depth + structural Canny edge pass for ControlNet / Video2Game."),
+    "best3d_stage": ("Best3D Weaver Grounded Stage", "CLEAN_CINEMA_ORB_FREE", "Grounded 3D Weaver stage-only reconstruction synchronized to the film moment."),
+    "stelline3d": ("Stelline 3D Engine Reconstruction", "CLEAN_CINEMA_ORB_FREE", "Real-time Three.js Stelline 3D procedural + relief reconstruction of the moment."),
+}
+
+MASTER_SUPERCUTS = {
+    "master_00_stelline_3d_stage_only.mp4": ("Master Supercut 00 · Stelline 3D Grounded Stage-Only", "HERO_PEDESTAL_3Q_25DEG", "CLEAN_CINEMA_ORB_FREE", "Complete multi-shot 3D grounded stage supercut across all canonical birthday moments (zero hardware)."),
+    "master_01_film_closeup_supercut.mp4": ("Master Supercut 01 · Canonical Film Close-Ups (No Orb)", "INTIMATE_CANDLE_FACE_CU", "CLEAN_CINEMA_ORB_FREE", "Multi-shot close-up supercut across Moments 07–46 with the Memory Maker excluded."),
+    "master_02_film_chamber_supercut.mp4": ("Master Supercut 02 · Full Clean Chamber Supercut", "TABLE_TABLEAU_EYE_10DEG", "CLEAN_CINEMA_ORB_FREE", "Multi-shot full-frame clean chamber supercut across Moments 07–46."),
+    "master_03_segmented_isolated_supercut.mp4": ("Master Supercut 03 · Isolated RGBA Subjects Supercut", "HERO_PEDESTAL_3Q_25DEG", "DECOMP_DEPTH_ISOLATED_PASS", "Multi-shot isolated foreground matte supercut across Moments 07–46 on black."),
+    "master_04_best3d_weaver_stage_only.mp4": ("Master Supercut 04 · Best3D Weaver Stage-Only Supercut", "HERO_PEDESTAL_3Q_25DEG", "CLEAN_CINEMA_ORB_FREE", "Complete grounded Weaver 3D stage-only supercut spanning cake sculpt, piping, children, and blow-out."),
+    "master_05_mist_pointcloud_supercut.mp4": ("Master Supercut 05 · 24k Volumetric Mist Point-Cloud Supercut", "TABLE_TABLEAU_EYE_10DEG", "DECOMP_DEPTH_ISOLATED_PASS", "Multi-shot volumetric salience particle-mist supercut across cake, children, and candle blow-out."),
+    "master_06_depth_edge_supercut.mp4": ("Master Supercut 06 · Depth + Structural Edge Supercut", "HERO_PEDESTAL_3Q_25DEG", "DECOMP_DEPTH_ISOLATED_PASS", "Multi-shot DPT-MiDaS depth + Canny edge conditioning supercut across Moments 07–46."),
+}
+
 SHOT_RULES = {
     "shot05_beetle-on-leaf.mp4": ("MACRO_SPECIMEN_ECU", "SINGLE_CONTINUOUS_TAKE", "HANDHELD_DRIFT_RACK", "TIGHT_CLOSE_UP_MACRO", "CLEAN_CINEMA_ORB_FREE"),
     "shot07_beetle-eyes-focus.mp4": ("MACRO_SPECIMEN_ECU", "SINGLE_CONTINUOUS_TAKE", "HANDHELD_DRIFT_RACK", "TIGHT_CLOSE_UP_MACRO", "CLEAN_CINEMA_ORB_FREE"),
@@ -783,7 +713,6 @@ DESIGN_NOTES = {
 
 
 def analyze_video_fast(abs_path, layout_hint):
-    """Fast sequential O(N) OpenCV cut, motion, scale, thumbnail, and sub-shot strip extractor."""
     cap = cv2.VideoCapture(abs_path)
     w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) or 1280)
     h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) or 720)
@@ -791,9 +720,10 @@ def analyze_video_fast(abs_path, layout_hint):
     n_frames = max(1, int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 1))
     dur = round(n_frames / fps, 2)
 
-    # Determine clean world height above any controller panel
     if layout_hint == "WEAVER_5RING_BARREL_HUD":
         y_split = int(h * 0.64)
+    elif layout_hint == "MUSEUM_SCREENLESS_5RING":
+        y_split = int(h * 0.74)
     elif layout_hint == "SPLIT_STAGE_PAD_CONSOLE":
         y_split = int(h * 0.56)
     elif layout_hint == "CHAMBER_MINIMAL_DOTBAR":
@@ -838,7 +768,6 @@ def analyze_video_fast(abs_path, layout_hint):
         edge_boxes.append((w_rel, h_rel))
 
         times.append(round(f_idx / fps, 2))
-        # Keep downscaled 320x180 RGB frames in RAM for hero thumb & shot strips
         raw_frames.append(cv2.cvtColor(cv2.resize(sc, (480, 270), interpolation=cv2.INTER_AREA), cv2.COLOR_BGR2RGB))
         f_idx += 1
     cap.release()
@@ -909,7 +838,8 @@ def normalize_bday_item(it):
     layout_fam = cin.get("layout_family", "WEAVER_5RING_BARREL_HUD")
     if layout_fam == "CHAMBER_DOME_RIM_CLEAN":
         layout_fam = "CLEAN_CINEMA_ORB_FREE"
-    cut_fam = cin.get("cut_family", "SINGLE_CONTINUOUS_TAKE")
+    elif layout_fam == "REFERENCE_GRID_9X3":
+        layout_fam = "CHAMBER_MINIMAL_DOTBAR"
     return {
         "id": it["id"],
         "corpus": "bday_training",
@@ -930,7 +860,7 @@ def normalize_bday_item(it):
         "subshots_strip": cin.get("subshots_strip"),
         "source_family": "BDAY_WEAVER_CORPUS",
         "angle_family": cin.get("angle_family", "HERO_PEDESTAL_3Q_25DEG"),
-        "cut_family": cut_fam,
+        "cut_family": cin.get("cut_family", "SINGLE_CONTINUOUS_TAKE"),
         "motion_family": cin.get("motion_family", "LOCKED_STATIC"),
         "scale_family": cin.get("scale_family", "MEDIUM_CLOSE_HERO"),
         "layout_family": layout_fam,
@@ -948,10 +878,34 @@ def normalize_bday_item(it):
 def build_asset_item(idx, rel_path, moments_cat):
     bname = os.path.basename(rel_path)
     abs_path = os.path.join(ROOT, rel_path)
-    item_id = f"vid_{idx:02d}"
+    item_id = f"vid_{idx:03d}"
 
     if rel_path in CURATED_ASSETS:
         meta = dict(CURATED_ASSETS[rel_path])
+    elif rel_path.startswith("assets/moments_videos/"):
+        if bname in MASTER_SUPERCUTS:
+            title, ang, lay_f, notes = MASTER_SUPERCUTS[bname]
+            meta = {
+                "title": title, "notes": notes,
+                "source_family": "MOMENTS_6WAY_DECOMP", "angle_family": ang,
+                "cut_family": "MULTI_SHOT_MONTAGE", "motion_family": "MULTI_ANGLE_CUTS",
+                "scale_family": "MULTI_SCALE_COVERAGE", "layout_family": lay_f, "era": "2049_chamber",
+            }
+        else:
+            stem = bname.replace(".mp4", "")
+            m_code = stem.split("_")[0]
+            mod_key = "_".join(stem.split("_")[1:])
+            m_title, ang, cut_f, mot_f, scl_f = MOMENTS_DECOMP_INFO.get(
+                m_code, (f"Moment {m_code}", "HERO_PEDESTAL_3Q_25DEG", "SINGLE_CONTINUOUS_TAKE", "LOCKED_STATIC", "MEDIUM_CLOSE_HERO")
+            )
+            mod_lbl, lay_f, mod_desc = MODALITY_LABELS.get(mod_key, (mod_key, "CLEAN_CINEMA_ORB_FREE", "Synchronized moment modality pass."))
+            meta = {
+                "title": f"{m_title} · [{mod_lbl}]",
+                "notes": f"{mod_desc} Aligned 6-way decomposition pass (`{bname}`).",
+                "source_family": "MOMENTS_6WAY_DECOMP", "angle_family": ang,
+                "cut_family": cut_f, "motion_family": mot_f,
+                "scale_family": scl_f, "layout_family": lay_f, "era": "2049_chamber",
+            }
     elif rel_path.startswith("assets/moments/shot"):
         ang, cut_f, mot_f, scl_f, lay_f = SHOT_RULES[bname]
         shot_num = bname.split("_")[0].replace("shot", "").lstrip("0") or "0"
@@ -961,50 +915,37 @@ def build_asset_item(idx, rel_path, moments_cat):
         meta = {
             "title": f"BR2049 Shot {int(shot_num):02d} · {lbl[:1].upper() + lbl[1:]}",
             "notes": f"Canonical orb-free film moment ({t0:.2f}s–{t1:.2f}s in open-matte master){' · cropped to cake' if m_info.get('cropped') else ''}.",
-            "source_family": "FILM_CANON_MOMENTS",
-            "angle_family": ang,
-            "cut_family": cut_f,
-            "motion_family": mot_f,
-            "scale_family": scl_f,
-            "layout_family": lay_f,
-            "era": "2049_chamber",
+            "source_family": "FILM_CANON_MOMENTS", "angle_family": ang,
+            "cut_family": cut_f, "motion_family": mot_f,
+            "scale_family": scl_f, "layout_family": lay_f, "era": "2049_chamber",
         }
     elif rel_path.startswith("assets/moments/design_"):
         title, ang, lay_f, notes = DESIGN_NOTES[bname]
         meta = {
-            "title": title,
-            "notes": notes,
-            "source_family": "COUNTERFACTUAL_DESIGNS",
-            "angle_family": ang,
+            "title": title, "notes": notes,
+            "source_family": "COUNTERFACTUAL_DESIGNS", "angle_family": ang,
             "cut_family": "AB_COUNTERFACTUAL_PLATE",
             "motion_family": "HANDHELD_DRIFT_RACK" if ang in ("MACRO_SPECIMEN_ECU", "INTIMATE_CANDLE_FACE_CU", "HIGH_CROWN_WRITING_45DEG") else "LOCKED_STATIC",
             "scale_family": "TIGHT_CLOSE_UP_MACRO" if ang != "TABLE_TABLEAU_EYE_10DEG" else "MEDIUM_FULL_TABLEAU",
-            "layout_family": lay_f,
-            "era": "2049_chamber",
+            "layout_family": lay_f, "era": "2049_chamber",
         }
     else:
         meta = {
             "title": bname.replace(".mp4", "").replace("_", " ").title(),
             "notes": f"Repository video asset `{rel_path}`.",
-            "source_family": "GEN_MODELS_AND_MIST",
-            "angle_family": "HERO_PEDESTAL_3Q_25DEG",
-            "cut_family": "SINGLE_CONTINUOUS_TAKE",
-            "motion_family": "LOCKED_STATIC",
-            "scale_family": "MEDIUM_CLOSE_HERO",
-            "layout_family": "CLEAN_CINEMA_ORB_FREE",
-            "era": "2049_chamber",
+            "source_family": "GEN_MODELS_AND_MIST", "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+            "cut_family": "SINGLE_CONTINUOUS_TAKE", "motion_family": "LOCKED_STATIC",
+            "scale_family": "MEDIUM_CLOSE_HERO", "layout_family": "CLEAN_CINEMA_ORB_FREE", "era": "2049_chamber",
         }
 
     cm, raw_frames, sub_frames = analyze_video_fast(abs_path, meta["layout_family"])
 
-    # Save crisp WebP hero thumbnail (pick brightest non-black frame near 45% mark)
     thumb_rel = f"assets/video-families/thumbs/{item_id}.webp"
     if raw_frames:
         mid_k = len(raw_frames) // 2
         best_f = max(raw_frames[max(0, mid_k - 3) : min(len(raw_frames), mid_k + 4)] or raw_frames, key=lambda fr: float(fr.mean()))
         Image.fromarray(best_f).save(os.path.join(ROOT, thumb_rel), "WEBP", quality=82)
 
-    # Save multi-shot strip if >= 2 detected sub-shots
     subshot_rel = None
     if len(sub_frames) >= 2:
         step_pick = max(1, len(sub_frames) // 6)
@@ -1074,11 +1015,8 @@ def main():
     counts = {}
     grouped_ids = {}
     for axis_key, field in axes:
-        c_map = {}
-        g_map = {}
-        for fam_k in FAMILY_TAXONOMY[axis_key]:
-            c_map[fam_k] = 0
-            g_map[fam_k] = []
+        c_map = {fam_k: 0 for fam_k in FAMILY_TAXONOMY[axis_key]}
+        g_map = {fam_k: [] for fam_k in FAMILY_TAXONOMY[axis_key]}
         for it in all_items:
             v = it[field]
             c_map[v] = c_map.get(v, 0) + 1
@@ -1092,7 +1030,7 @@ def main():
 
     catalog = {
         "name": "Stelline Memory Orb · Master Cinematographic Video Families Atlas",
-        "version": "2.0",
+        "version": "3.0",
         "total_items": len(all_items),
         "total_videos": sum(1 for it in all_items if it["kind"] == "video"),
         "total_reference_plates": sum(1 for it in all_items if it["kind"] != "video"),
@@ -1110,7 +1048,7 @@ def main():
     with open(os.path.join(OUT_DIR, "catalog.js"), "w", encoding="utf-8") as f:
         f.write("window.VIDEO_FAMILIES_CATALOG = " + json.dumps(catalog, ensure_ascii=False) + ";\n")
 
-    print(f"[MASTER VIDEO FAMILIES] Built 150-item unified catalog in {time.time() - t0:.1f}s!")
+    print(f"[MASTER VIDEO FAMILIES v3.0] Built {len(all_items)}-item unified catalog in {time.time() - t0:.1f}s!")
     print(f"  Total items: {catalog['total_items']} ({catalog['total_videos']} videos + {catalog['total_reference_plates']} plate) · {total_duration_s}s runtime · {total_detected_shots} sub-shots")
     for axis_key, _ in axes:
         print(f"  {axis_key:16s}: {counts[axis_key]}")

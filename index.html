@@ -3,20 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Stelline Memory Orb</title>
-<meta name="description" content="One surface linking every Stelline Memory Orb build: studio, designs, moments, orb prototypes, archive and specification.">
+<title>Stelline Memory Orb · Master Orbital Index &amp; SCION Work Futures</title>
+<meta name="description" content="Master orbital state machine and complete manifest linking all 46 Stelline Memory Orb surfaces, 217-item Cinematographic Video Families Atlas, 78 segmented birthday clips, and copyable AI SCION v3.0 Work Futures prompts.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{--k:#000;--w:#fff;--d:rgba(255,255,255,.28);--f:"Barlow Semi Condensed","DIN Alternate","Roboto Condensed","Arial Narrow",Arial,sans-serif}
+  :root{--k:#000;--w:#fff;--d:rgba(255,255,255,.28);--cy:#5ff0dc;--amb:#f0b040;--f:"Barlow Semi Condensed","DIN Alternate","Roboto Condensed","Arial Narrow",Arial,sans-serif;--m:"IBM Plex Mono",ui-monospace,Menlo,monospace}
   *{box-sizing:border-box}
   html,body{height:100%;margin:0;background:var(--k);color:var(--w);font:400 13px/1.3 var(--f);letter-spacing:.06em;overflow:hidden}
   button{font:inherit;letter-spacing:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+  a{color:inherit}
   :focus-visible{outline:2px solid var(--w);outline-offset:3px}
   /* tags row: state, always the same place */
-  #tags{position:fixed;left:0;right:0;top:0;height:44px;display:flex;gap:44px;align-items:center;padding:0 5vw;z-index:30;pointer-events:none;text-transform:uppercase}
-  #tags span:last-child{margin-left:auto}
+  #tags{position:fixed;left:0;right:0;top:0;height:44px;display:flex;gap:32px;align-items:center;padding:0 5vw;z-index:30;pointer-events:none;text-transform:uppercase}
+  #tags .tEnd{margin-left:auto;display:flex;gap:20px;align-items:center;pointer-events:auto}
   #tags b{font-weight:600}
+  .qLink{border-bottom:1px solid rgba(255,255,255,.65);padding-bottom:1px;text-decoration:none;opacity:.85}
+  .qLink:hover{opacity:1;border-bottom-color:var(--cy);color:var(--cy)}
   /* REST: the machine */
   #m{position:fixed;inset:0;width:100%;height:100%;overflow:visible}
   #m .rule{stroke:var(--d);stroke-width:1;vector-effect:non-scaling-stroke}
@@ -25,16 +28,20 @@
   #m .trail{fill:none;stroke:rgba(255,255,255,.35);stroke-width:1;vector-effect:non-scaling-stroke}
   .node{cursor:pointer;outline:none}
   .node .dot{fill:var(--w)} .node .halo{fill:none;stroke:var(--w);stroke-width:2;opacity:0}
+  .node.accent .dot{fill:var(--cy)} .node.amber .dot{fill:var(--amb)}
   .node.seen .dot{fill:var(--k);stroke:var(--w);stroke-width:2}
   .node:hover .halo,.node:focus-visible .halo,.node.on .halo{opacity:1}
-  .node text{fill:var(--w);font:500 15px var(--f);letter-spacing:.08em;opacity:0;pointer-events:none}
+  .node text{fill:var(--w);font:500 14px var(--f);letter-spacing:.08em;opacity:0;pointer-events:none}
   .node:hover text,.node:focus-visible text,.node.on text{opacity:1}
-  #card{position:fixed;z-index:20;width:240px;background:var(--k);border:1px solid var(--w);pointer-events:none;opacity:0;transition:opacity .12s}
+  #card{position:fixed;z-index:20;width:255px;background:var(--k);border:1px solid var(--w);pointer-events:none;opacity:0;transition:opacity .12s}
   #card.show{opacity:1}
   #card img{display:block;width:100%;height:135px;object-fit:cover;filter:grayscale(1) contrast(1.1)}
-  #card div{padding:10px 12px 12px}#card b{display:block;font-weight:600;font-size:15px;text-transform:uppercase;margin-bottom:3px}#card span{opacity:.75}
-  #rest{position:fixed;left:5vw;bottom:34px;z-index:10;text-transform:uppercase}
-  #rest button{border-bottom:1px solid var(--w);padding-bottom:2px}
+  #card div{padding:10px 12px 12px}#card b{display:block;font-weight:600;font-size:15px;text-transform:uppercase;margin-bottom:3px}#card span{opacity:.78}
+  #rest{position:fixed;left:5vw;right:5vw;bottom:26px;z-index:10;text-transform:uppercase;display:flex;flex-wrap:wrap;gap:22px;align-items:center;justify-content:space-between;pointer-events:none}
+  #rest > div{display:flex;gap:20px;flex-wrap:wrap;align-items:center;pointer-events:auto}
+  #rest button,#rest a{border-bottom:1px solid var(--w);padding-bottom:2px;text-decoration:none}
+  #rest .cyBtn{color:var(--cy);border-bottom-color:var(--cy)}
+  #rest .ambBtn{color:var(--amb);border-bottom-color:var(--amb)}
   /* READY/WORKING/CHANGED: the frame */
   #frame{position:fixed;inset:44px 3vw 3vh;z-index:25;border:1px solid rgba(255,255,255,.7);background:var(--k);display:none}
   body[data-s=working] #frame,body[data-s=ready] #frame,body[data-s=changed] #frame,body[data-s=fault] #frame{display:block}
@@ -44,10 +51,10 @@
   #frame iframe{width:100%;height:100%;border:0;display:block;background:#000}
   #frame .pt{position:absolute;width:7px;height:7px;border-radius:50%;background:var(--w);top:50%;margin-top:-3px}
   #frame .pt.l{left:-4px}#frame .pt.r{right:-4px}
-  #rail{position:absolute;right:0;top:14px;bottom:56px;width:70px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:0 0 0 0}
-  #rail button{width:54px;padding:5px 0;text-align:center;font-size:12px;font-weight:500;border-left:2px solid transparent;opacity:.55}
+  #rail{position:absolute;right:0;top:14px;bottom:56px;width:70px;display:flex;flex-direction:column;justify-content:flex-start;gap:2px;align-items:center;overflow-y:auto;padding:2px 0}
+  #rail button{flex:0 0 auto;width:56px;padding:4px 0;text-align:center;font-size:11px;font-weight:500;border-left:2px solid transparent;opacity:.55}
   #rail button:hover{opacity:1}#rail button[aria-current=true]{opacity:1;border-left-color:var(--w);font-weight:600}
-  #rail button.seen::after{content:"";display:block;width:4px;height:4px;border-radius:50%;background:var(--w);margin:3px auto 0}
+  #rail button.seen::after{content:"";display:block;width:4px;height:4px;border-radius:50%;background:var(--w);margin:2px auto 0}
   #bar{position:absolute;left:34px;right:76px;bottom:12px;height:34px;display:flex;align-items:center;gap:22px;text-transform:uppercase}
   #bar .rec{white-space:nowrap}#bar .rec b{font-weight:600}
   #prog{display:flex;gap:6px;flex:0 0 auto}#prog i{display:block;height:5px;background:rgba(255,255,255,.25);width:46px;border-radius:2px}
@@ -63,11 +70,35 @@
   #msg{position:absolute;left:34px;top:14px;right:76px;bottom:56px;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;text-align:center;text-transform:uppercase;background:var(--k);z-index:2}
   body[data-s=fault] #msg{display:flex}
   #msg b{font-size:22px;font-weight:600}
+
+  /* Whisper-quiet Master Index & AI SCION Work Futures Overlay ([M]) */
+  #manifest{position:fixed;inset:44px 3vw 3vh;z-index:45;background:rgba(4,6,5,.97);border:1px solid rgba(255,255,255,.75);display:none;flex-direction:column;font:400 12px/1.48 var(--m);letter-spacing:.02em;text-transform:none}
+  #manifest.on{display:flex}
+  .mfHead{padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.2);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;background:#080b0a}
+  .mfTabs{display:flex;gap:8px;flex-wrap:wrap}
+  .mfTab{padding:6px 11px;border:1px solid rgba(255,255,255,.28);font:600 11px var(--m);text-transform:uppercase;letter-spacing:.06em;opacity:.75}
+  .mfTab:hover{opacity:1}
+  .mfTab.on{border-color:var(--cy);color:var(--cy);opacity:1;background:rgba(95,240,220,.1)}
+  .mfBody{padding:18px;overflow-y:auto;flex:1}
+  .mfPane{display:none}.mfPane.on{display:block}
+  .mfGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:12px}
+  .mfBox{border:1px solid rgba(255,255,255,.2);padding:12px 14px;background:#090c0b}
+  .mfBox h3{margin:0 0 8px;font:600 12px var(--m);color:var(--amb);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid rgba(255,255,255,.14);padding-bottom:5px}
+  .mfRow{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dashed rgba(255,255,255,.12);align-items:baseline}
+  .mfRow:last-child{border-bottom:0}
+  .mfCode{color:var(--cy);font-weight:600;white-space:nowrap;font-size:11px}
+  .mfOpen{border-bottom:1px solid var(--amb);color:var(--amb);font-size:10.5px;white-space:nowrap;text-transform:uppercase}
+  .mfPrompt{border:1px solid rgba(255,255,255,.24);background:#060807;margin-bottom:14px}
+  .mfPBar{padding:8px 12px;background:#0d1210;border-bottom:1px solid rgba(255,255,255,.18);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  .mfPBar b{color:var(--amb);font-size:11.5px;text-transform:uppercase}
+  .mfCopy{border:1px solid var(--cy);color:var(--cy);padding:4px 9px;font:600 10.5px var(--m);text-transform:uppercase}
+  .mfPrompt pre{margin:0;padding:12px 14px;white-space:pre-wrap;word-break:break-word;color:#d8e6e0;max-height:220px;overflow-y:auto;font:400 11.5px/1.48 var(--m)}
+
   @media(max-width:760px){
-    #tags{gap:16px;padding:0 16px;font-size:11px}#tags span:nth-child(2){display:none}
-    #frame{inset:44px 8px 8px}
+    #tags{gap:12px;padding:0 14px;font-size:11px}#tags span:nth-child(2){display:none}
+    #frame,#manifest{inset:44px 8px 8px}
     #frame .view,#msg{left:8px;right:8px;bottom:104px}
-    #rail{left:8px;right:8px;top:auto;bottom:56px;width:auto;height:44px;flex-direction:row;overflow-x:auto;justify-content:flex-start;gap:4px}
+    #rail{left:8px;right:8px;top:auto;bottom:56px;width:auto;height:44px;flex-direction:row;overflow-x:auto;overflow-y:hidden;justify-content:flex-start;gap:4px}
     #rail button{flex:0 0 auto;width:46px;border-left:0;border-bottom:2px solid transparent}#rail button[aria-current=true]{border-bottom-color:var(--w)}
     #bar{left:8px;right:8px;gap:12px}#prog i{width:22px}
     #frame .pt{display:none}
@@ -77,9 +108,17 @@
 </head>
 <body data-s="rest">
 
-<div id="tags" role="status" aria-live="polite"><span id="tN">1</span><span>User <b>Operator</b></span><span id="tS"><b>Rest</b></span><span id="tO">Select a node</span></div>
+<div id="tags" role="status" aria-live="polite">
+  <span id="tN">37</span>
+  <span>User <b>Operator</b></span>
+  <span id="tS"><b>Rest</b></span>
+  <span id="tO">Select a node</span>
+  <span class="tEnd">
+    <button class="qLink" id="bManifestTop" type="button">Manifest &amp; AI Scion Prompts [M]</button>
+  </span>
+</div>
 
-<svg id="m" viewBox="0 0 1600 1200" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Stelline Memory Orb. Twenty-one nodes on an orbit; each opens one build.">
+<svg id="m" viewBox="0 0 1600 1200" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Stelline Memory Orb. Thirty-seven nodes on an orbit; each opens one build.">
   <g id="rules"></g>
   <circle class="orbit" cx="800" cy="600" r="490"/>
   <g id="lines"></g>
@@ -89,7 +128,19 @@
 </svg>
 
 <div id="card" aria-hidden="true"><img alt=""><div><b></b><span></span></div></div>
-<div id="rest"><button id="resume" hidden></button></div>
+
+<div id="rest">
+  <div>
+    <button id="resume" hidden></button>
+    <button id="bManifest" class="cyBtn" type="button">Master Manifest · 46 Surfaces · 217 Videos [M]</button>
+    <button id="bScionQuick" class="ambBtn" type="button">AI Scion Work Futures Prompts ↗</button>
+  </div>
+  <div>
+    <a href="video-families.html" class="cyBtn">Video Families (217) ↗</a>
+    <a href="bday-training.html">Bday Training (78) ↗</a>
+    <a href="scion-futures.html" class="ambBtn">Scion v3.0 Spec ↗</a>
+  </div>
+</div>
 
 <section id="frame" aria-label="Open build">
   <span class="pt l"></span><span class="pt r"></span>
@@ -103,87 +154,221 @@
   </div>
 </section>
 
+<aside id="manifest" aria-label="Master Repository Manifest and AI SCION Work Futures">
+  <div class="mfHead">
+    <div><b style="color:var(--cy);letter-spacing:.08em">STELLINE ORB · MASTER MANIFEST &amp; AI SCION WORK FUTURES (v3.0)</b></div>
+    <div class="mfTabs">
+      <button class="mfTab on" data-mpane="mpSurfaces" type="button">1 · All 37 Orbital Nodes &amp; 46 Files</button>
+      <button class="mfTab" data-mpane="mpVideos" type="button">2 · 217 Videos · 6-Axis Families</button>
+      <button class="mfTab" data-mpane="mpScion" type="button">3 · Future AI SCION Prompts</button>
+      <a class="mfTab" href="scion-futures.html" target="_blank" rel="noopener" style="text-decoration:none;color:var(--amb);border-color:var(--amb)">Full Page ↗</a>
+      <button class="mfTab" id="bManifestClose" type="button">Close [Esc]</button>
+    </div>
+  </div>
+  <div class="mfBody">
+    <div class="mfPane on" id="mpSurfaces">
+      <div class="mfGrid" id="mfNodesGrid"></div>
+    </div>
+    <div class="mfPane" id="mpVideos">
+      <p style="margin:0 0 12px;color:rgba(255,255,255,.76)">Every video across <code>BDAY TRAINING/</code> (78 items) and <code>assets/**</code> (139 MP4s across <code>moments_videos/</code>, <code>moments/</code>, <code>orbfilm/</code>, <code>clips/</code>, <code>flow/</code>, <code>weaver/</code>, <code>omni/refs/</code>, <code>generated/</code>, <code>units/</code>, <code>versions/</code>, <code>mist/</code>, <code>maker/</code>, <code>demo/</code>) is indexed in <a href="video-families.html" style="color:var(--cy)">video-families.html</a> and <a href="assets/video-families/catalog.json" style="color:var(--amb)">assets/video-families/catalog.json</a>.</p>
+      <div class="mfGrid">
+        <div class="mfBox"><h3>Camera Angle Families (8 · Cake Rig Linked)</h3>
+          <div class="mfRow"><span class="mfCode">ANG-01</span><span>Intimate Candlelit Face CU (0°–8° · 85mm f/1.6)</span><b>46</b></div>
+          <div class="mfRow"><span class="mfCode">ANG-02</span><span>Hero Pedestal 3/4 View (18°–35° · 50mm f/2.8)</span><b>47</b></div>
+          <div class="mfRow"><span class="mfCode">ANG-03</span><span>Across-Table Party Tableau (6°–15° · 40mm f/2.4)</span><b>47</b></div>
+          <div class="mfRow"><span class="mfCode">ANG-04</span><span>Low Chamber Floating &amp; 25° Tilt (5°–16° · 35mm)</span><b>28</b></div>
+          <div class="mfRow"><span class="mfCode">ANG-05</span><span>High-Angle Crown Calligraphy (38°–58° · 50mm)</span><b>22</b></div>
+          <div class="mfRow"><span class="mfCode">ANG-06</span><span>Artisan Bench &amp; Hands-on-Orb (20°–35° · 45mm)</span><b>8</b></div>
+          <div class="mfRow"><span class="mfCode">ANG-07</span><span>Wide Architectural Dome (2°–12° · 24mm)</span><b>7</b></div>
+          <div class="mfRow"><span class="mfCode">ANG-08</span><span>Extreme Macro Specimen &amp; OLED (100mm f/2.0)</span><b>12</b></div>
+        </div>
+        <div class="mfBox"><h3>Cut &amp; Edit Structure Families (8)</h3>
+          <div class="mfRow"><span class="mfCode">CUT-01</span><span>Single Continuous Take (0 hard cuts)</span><b>100</b></div>
+          <div class="mfRow"><span class="mfCode">CUT-02</span><span>Stage Morph &amp; Ring-Detent Swap</span><b>42</b></div>
+          <div class="mfRow"><span class="mfCode">CUT-03</span><span>Multi-Shot Coverage Montage (2–9 cuts)</span><b>15</b></div>
+          <div class="mfRow"><span class="mfCode">CUT-04</span><span>Multi-Act Directed Sequence Film (20s–118s)</span><b>21</b></div>
+          <div class="mfRow"><span class="mfCode">CUT-05</span><span>Pixel-Remade Counterfactual Plate (1.5s)</span><b>14</b></div>
+          <div class="mfRow"><span class="mfCode">CUT-06</span><span>Hologram &amp; Ghost Materialization</span><b>20</b></div>
+          <div class="mfRow"><span class="mfCode">CUT-07</span><span>Temporal Rewind &amp; Reverse Scrub (r &lt; 0)</span><b>4</b></div>
+          <div class="mfRow"><span class="mfCode">CUT-08</span><span>9×3 Ground-Truth Segmentation Plate</span><b>1</b></div>
+        </div>
+        <div class="mfBox"><h3>Video Source Lineages (8)</h3>
+          <div class="mfRow"><span class="mfCode">SRC-01</span><span>Birthday Training Corpus (`BDAY TRAINING/`)</span><b>78</b></div>
+          <div class="mfRow"><span class="mfCode">SRC-02</span><span>6-Way Moment Decompositions (`moments_videos/`)</span><b>60</b></div>
+          <div class="mfRow"><span class="mfCode">SRC-03</span><span>Canonical BR2049 Film Moments (`moments/shot*`)</span><b>19</b></div>
+          <div class="mfRow"><span class="mfCode">SRC-04</span><span>Counterfactual Designs (`moments/design_*`)</span><b>14</b></div>
+          <div class="mfRow"><span class="mfCode">SRC-05</span><span>Director &amp; Museum Orb Film Suites (`orbfilm/`)</span><b>14</b></div>
+          <div class="mfRow"><span class="mfCode">SRC-06</span><span>Flow &amp; Stacked Controller Demos (`flow/`, `weaver/`)</span><b>10</b></div>
+          <div class="mfRow"><span class="mfCode">SRC-07</span><span>Gemini Omni 1.2 Reference Pack (`omni/refs/`)</span><b>8</b></div>
+          <div class="mfRow"><span class="mfCode">SRC-08</span><span>Generative Benchmarks &amp; Volumetric Mist</span><b>14</b></div>
+        </div>
+        <div class="mfBox"><h3>Motion (5) · Scale (6) · Layout (7)</h3>
+          <div class="mfRow"><span class="mfCode">MOTION</span><span>Locked (95) · Handheld/Rack (73) · Multi-Cut (29) · Push-In (12) · Orbit (8)</span><b>217</b></div>
+          <div class="mfRow"><span class="mfCode">SCALE</span><span>CU/ECU (74) · MCU Hero (54) · MFS Tableau (43) · Multi-Scale (28) · Push (12) · EWS (6)</span><b>217</b></div>
+          <div class="mfRow"><span class="mfCode">LAYOUT</span><span>5-Ring HUD (81) · Clean Cinema (76) · Depth/Mask (24) · ')' Reticle (17) · Split Pad (8) · Dotbar/9×3 (8) · Museum Screenless (3)</span><b>217</b></div>
+          <div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap">
+            <a class="mfOpen" href="video-families.html">Open Video Families Atlas ↗</a>
+            <a class="mfOpen" href="bday-training.html">Open Bday Training (78) ↗</a>
+            <a class="mfOpen" href="cake-rig.html">Open Cake Rig 3D ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mfPane" id="mpScion">
+      <p style="margin:0 0 12px;color:rgba(255,255,255,.78)">Copy-ready continuation prompts for future autonomous AI SCION agents. Full 5-prompt specification in <a href="scion-futures.html" style="color:var(--cy)">scion-futures.html</a> and <a href="docs/scion-work-futures.md" style="color:var(--amb)">docs/scion-work-futures.md</a>.</p>
+      <div class="mfPrompt">
+        <div class="mfPBar"><b>Prompt A · SCION Work Futures v3.0 — Master Autonomous Agent Bootstrap</b><button class="mfCopy" data-mcopy="mpA" type="button">Copy Prompt</button></div>
+        <pre id="mpA">You are operating inside SCION DIEGETIC v3.0 (Stelline Memory Orb / 1000 Small Futures).
+Ground yourself in: (1) `index.html` + `scion-futures.html` (46 surfaces), (2) `video-families.html` + `assets/video-families/catalog.json` (217 videos/plates across 8 Angles, 8 Cuts, 5 Motions, 6 Scales, 7 Layouts, 8 Lineages), (3) `bday-training.html` + `BDAY TRAINING/labels.json` + `cake-rig.html` (`window.RIG`, 41 3D models, `?angle= / ?replay=`), (4) `orb-film-studio.html` (`?museum=1`, `?notext=1`, `?reticle=aside|off`, `?stage=1`) + `film.html` + `omni.html`, and (5) `docs/scion-work-futures.md`.
+Enforce all 6 SCION Invariants: (1) Lock/strip controller chrome at `y_split` (`?museum=1` screenless 5-ring or `tools/flow/stack.sh`), (2) Never wrap text/circles around cake—use only `reticle=off` or right-side `)` crescent (`reticle=aside`), (3) Keep world plates 100% orb-free, (4) Preserve independent per-layer clocks `q_i(t) = q_i(t_0) + r_i(t - t_0) + dq_i`, (5) Zero continuous `OscillatorNode` drones (`3–5ms` filtered noise detent clicks only), (6) Re-run `python3 tools/bday-training/build_video_families_atlas.py` on any video additions and pass Blind Visual Critic A + Operative Critic B before pushing to `main`.</pre>
+      </div>
+      <div class="mfPrompt">
+        <div class="mfPBar"><b>Prompt B · Future I &amp; II — Angle/Cut-Conditioned World Models &amp; Inverse-CAD Compiler</b><button class="mfCopy" data-mcopy="mpB" type="button">Copy Prompt</button></div>
+        <pre id="mpB">Extend SCION WORK FUTURES across Generative World Models &amp; Tactile Inverse-CAD:
+1. Bind the 5 physical Orb rings to deterministic Cinematographic Families from `assets/video-families/catalog.json`: R1 selects `angle_family` (`ANG-01..08` with 24mm–100mm lens presets), R2 selects cultural world &amp; 3D cake archetype, R3 scrubs `CUT-02` stage morphs &amp; stroke calligraphy, R4 drives `0..12` flames &amp; `3200K -> cool` face bounce (`R:0.41, G:0.34, B:0.15`), R5 scrubs `CUT-06` ghost fade-in through `CUT-07` reverse smoke rewind (`r = -1`). Pair 6-way aligned passes in `assets/moments_videos/` (`cond_depth_edge + seg_isolated -> film_chamber_clean`) and composite the live WebGL Museum 5-Ring barrel beneath `LAY-03` world renders.
+2. For any new craft video, strip UI at `y_split`, segment masks + 2D/3D profiles across detected stage boundaries, compile into zero-fault `window.RIG` physical roller steps (`EXTRUDE, INFLATE, BEVEL, CANDLES, LENS, FOCUS`), and export `.USDA / .GLB / .OBJ`.</pre>
+      </div>
+      <div class="mfPrompt">
+        <div class="mfPBar"><b>Prompt C · Future III &amp; IV — SCION Case 03..N Apparatuses, WebHID Hardware &amp; 5-Agent Swarm</b><button class="mfCopy" data-mcopy="mpC" type="button">Copy Prompt</button></div>
+        <pre id="mpC">Run a 5-Agent SCION v3.0 Swarm (1: CV/Cinematography Archivist, 2: 3D Optical/Shader Rig Engineer, 3: Diegetic 5-Ring Hardware/Foley Crafter, 4: Blind Visual Frame Critic A, 5: Blind Bijective Operative Critic B) to port SCION DIEGETIC to new speculative apparatuses (Case 03 Esper Depth Inspector, Case 04 Spatial Multi-Clock Glove Wall, Case 05 Circular-Time Calligraphic Well) or WebHID/WebRTC physical 5-ring rotary hardware, requiring `VERDICT: BAR MET` from both Blind Critics before pushing to `main`.</pre>
+      </div>
+    </div>
+  </div>
+</aside>
+
 <script>
 (function(){
 'use strict';
 var N=[
- {id:'cineosis',s:'CIN',c:'CIN-0024',t:'Cineosis-Orb',h:'cineosis-orb.html',                d:'Tizita Multiplane Cutout & Memory Instrument: 12 soulful birthdays across time and space, 32 segmented video cutouts around the table, live OLED film viewfinder, Tizita × Stelline audio mixes, Etch-A-Sketch 3D piping, and Accordion Bellows flight.', i:'assets/cake/c7.jpg',a:0,r:12},
- {id:'film',    s:'FLM',c:'FLM-0021',t:'Director Film',h:'film.html',                       d:'8-Batch Grounded Orb Film Suite: Museum-Grade Screenless 5-Ring Orb, Zero-Text Batch, Film-Accurate ")" Side Reticle, Clean No-Reticle, Stage-Only, and 10 Prompts beneath each Cake.', i:'assets/orbfilm/orb-film-museum-side-reticle.jpg',a:6,r:12},
- {id:'omni',    s:'OMN',c:'OMN-0025',t:'Ten Birthdays',h:'omni.html',                       d:'Ten Birthdays, One Film: Museum No-Screen & Zero-Text reference packs + 4 Cakes × 10 Prompts across global eras and people.', i:'assets/orbfilm/orb-film-museum-no-screen.jpg',a:74,r:10},
- {id:'vfm',     s:'VFM',c:'VFM-0026',t:'Film Batches', h:'versions-film.html',              d:'All re-recorded Orb Film batches side by side: Museum No-Screen, No-Text, ")" Side Crescent, No-Reticle, and generated variants.', i:'assets/orbfilm/orb-film-reticle-aside.jpg',a:87,r:9},
- {id:'maker',   s:'MKR',c:'MKR-0022',t:'Memory Maker',h:'maker.html',                       d:'First-person Memory Maker: kneel where Ana kneels; empty until you make it, only true controls, telescoping ends to mist.', i:'assets/cake/c7.jpg',a:354,r:10},
- {id:'stage',   s:'STG',c:'STG-0019',t:'Stage',       h:'stage.html',                        d:'Second screen. Pair the handheld orb: five rings, tilt, spread, a lens with real depth of field, a cake built from nothing.', i:'assets/bench/kids.webp',a:13,r:11},
- {id:'weaver',  s:'WVR',c:'WVR-0020',t:'Weaver',      h:'weaver.html',                       d:'Memory Weaver (VOIDBASTARD-TAO): telescoping barrel ends to 24k mist, physically-lit 2D cutouts around the table, zero side-text clutter.', i:'assets/cake/c0.jpg',a:25,r:10},
- {id:'mist',    s:'MST',c:'MST-0020',t:'Mist',        h:'mist.html',                         d:'The birthday memory, kept by what it felt like. Hold to recall, slide to data.', i:'assets/sec_156.jpg',a:33,r:9},
- {id:'bench',   s:'BNC',c:'BNC-0000',t:'Bench',       h:'bench.html',                        d:'Film cut-outs of the people and trees, with 3D cakes and bugs. Pick one, turn it, hold the rest.', i:'assets/bench/kids.webp',a:41,r:11},
- {id:'studio',  s:'STU',c:'STU-0001',t:'Studio',      h:'studio.html',                       d:'Cake, bug eye, face and writing. The orb is the whole interface.', i:'assets/site/cakes.jpg',a:20, r:11},
- {id:'designs', s:'DSN',c:'DSN-0002',t:'Designs',     h:'designs.html',                      d:'Stelline Designs.',                                                i:'assets/depth_bugeye.png',a:52,r:7},
- {id:'cakeorb', s:'CKO',c:'CKO-0018',t:'Cake orb',    h:'cake-orb.html',                     d:'Every cake, bug and film reference, turned by three rings and one thumb.', i:'assets/shelf/cake_film_00.jpg',a:66,r:8},
- {id:'moments', s:'MOM',c:'MOM-0003',t:'Moments',     h:'moments.html',                      d:'Her hands on the orb, the change on screen and the reticle, read together.',                                                i:'assets/sec_141.jpg',a:82,r:7},
- {id:'families',s:'FAM',c:'FAM-0150',t:'Video Families',h:'video-families.html',             d:'All 150 Stelline Orb videos & plates grouped into families of camera angles, cuts, motion, scale, layout and lineage.',    i:'assets/video-families/thumbs/vid_55.webp',a:96,r:11},
- {id:'cake',    s:'CAK',c:'CAK-0015',t:'The Cake',    h:'cake.html',                         d:'Blender\'s first lesson is a donut; the orb\'s first lesson is the cake.', i:'assets/cake/c0.jpg',a:104,r:8},
- {id:'bday',    s:'BDY',c:'BDY-0078',t:'Bday Training',h:'bday-training.html',               d:'78 birthday training clips segmented above y_split, grouped by angle/cut families, and built as 41 Cake Rig 3D models.',   i:'assets/bday-training/thumbs/bday_10.webp',a:115,r:10},
- {id:'orbv5',   s:'OV5',c:'ORB-0504',t:'Orb v5',      h:'hand-orb-v5.html',                  d:'Stelline Memory Orb, v5.',                                          i:'assets/sam_blowcandles.png',a:126,r:7},
- {id:'orb',     s:'ORB',c:'ORB-0405',t:'Hand orb',    h:'hand-orb.html',                     d:'Stelline Memory Orb.',                                              i:'assets/depth_clearing.png',a:146,r:6},
- {id:'proof',   s:'PRF',c:'PRF-0406',t:'Proof',       h:'hand-orb-proof.html',               d:'Hand Orb Proof.',                                                   i:'assets/depth_leaf.png',a:166,r:6},
- {id:'lot',     s:'L31',c:'LOT-0131',t:'Lot 131',     h:'stelline-memory-orb.html',          d:'Stelline Laboratories animatronic memory orb, lot 131.',            i:'assets/sec_026.jpg',a:196,r:8},
- {id:'mobile',  s:'MOB',c:'MOB-0008',t:'Mobile',      h:'mobile.html',                       d:'Stelline Laboratories memory orb, mobile.',                         i:'assets/sec_035.jpg',a:216,r:6},
- {id:'versions',s:'VER',c:'VER-0009',t:'Versions',    h:'versions.html',                     d:'All versions and the mobile archive.',                              i:'assets/depth_miniature.png',a:256,r:7},
- {id:'v4',      s:'V4M',c:'V4M-0010',t:'V4 master',   h:'v4-master.html',                    d:'The previous master build.',                                        i:'assets/sam_cutouts.png',a:276,r:6},
- {id:'process', s:'PRC',c:'PRC-0011',t:'Process',     h:'process.html',                      d:'Case study: process and prompts.',                                  i:'assets/sec_153.jpg',a:304,r:6},
- {id:'vesper',  s:'VSP',c:'VSP-0016',t:'Cake Orb 04', h:'vesper.html',                       d:'Vesper Field Orb 04: 3 rings, 1 thumb, live per-layer clocks.',     i:'assets/cake/c7.jpg',a:314,r:9},
- {id:'orb05',   s:'F05',c:'ORB-0505',t:'Field Orb 05',h:'field-orb-05.html',                 d:'3D Horizontal 5-Ring Scroll Engine: 5 normal-mapped rings, 5 housing buttons, angled glass OLED, 28-tap DOF, and spacetime mist.',i:'assets/cake/c7.jpg',a:326,r:10},
- {id:'field',   s:'FLD',c:'FLD-0012',t:'Field orb',   h:'field-orb.html',                    d:'Hold and jog: independent layer clocks, live.',                     i:'assets/sec_146.jpg',a:338,r:8},
- {id:'ident',   s:'IDN',c:'IDN-0013',t:'Identity',    h:'identity.html',                     d:'The type, grid and colour rules.',                                  i:'',a:346,r:5},
- {id:'spec',    s:'SPC',c:'SPC-0014',t:'Specification',h:'docs/Vesper_Field_Orb_04_Patent_Specification.pdf',d:'Fictional patent specification, 14 pages.',                   i:'',a:2,r:5}
+ {id:'cineosis',s:'CIN',c:'CIN-0024',t:'Cineosis-Orb',   h:'cineosis-orb.html',     k:'flag', d:'Tizita Multiplane Cutout & Memory Instrument: 12 soulful birthdays, 32 segmented video cutouts, live OLED viewfinder, SCION critic, Etch-A-Sketch 3D piping, and Accordion Bellows flight.', i:'assets/cake/c7.jpg',a:0,r:12},
+ {id:'film',    s:'FLM',c:'FLM-0021',t:'Director Film',  h:'film.html',             k:'film', d:'8-Batch Grounded Orb Film Suite: Museum-Grade Screenless 5-Ring Orb, Zero-Text Batch, Film-Accurate ")" Side Reticle, Clean No-Reticle, Stage-Only, and 10 Prompts beneath each Cake.', i:'assets/orbfilm/orb-film-museum-side-reticle.jpg',a:10,r:11},
+ {id:'ofs',     s:'OFS',c:'OFS-0028',t:'Orb Film Studio',h:'orb-film-studio.html',  k:'flag', d:'Grounded 5-Ring Memory Weaver Engine powering the Museum No-Screen (?museum=1), Zero-Text (?notext=1), ")" Side Reticle, Stage-Only (?stage=1), and GLTF/OBJ exports.', i:'assets/orbfilm/orb-film-museum-no-screen.jpg',a:20,r:10},
+ {id:'stage',   s:'STG',c:'STG-0019',t:'Stage',          h:'stage.html',            k:'pair', d:'Second screen. Pair the handheld orb: five rings, tilt, spread, a lens with real depth of field, a cake built from nothing.', i:'assets/bench/kids.webp',a:30,r:10},
+ {id:'pad',     s:'PAD',c:'PAD-0031',t:'Stage Pad',      h:'pad.html',              k:'pair', d:'Paired control pad for Stage: live scene graph, top-plane calligraphy pen, aperture/focus pull, and ring detents.', i:'assets/flow/game-stage-pad.jpg',a:40,r:8},
+ {id:'studio',  s:'STU',c:'STU-0001',t:'Studio',         h:'studio.html',           k:'flag', d:'Cake, bug eye, face and writing. The orb is the whole interface.', i:'assets/site/cakes.jpg',a:50,r:10},
+ {id:'weaver',  s:'WVR',c:'WVR-0020',t:'Weaver',         h:'weaver.html',           k:'flag', d:'Memory Weaver (VOIDBASTARD-TAO): telescoping barrel ends to 24k mist, physically-lit 2D cutouts around the table, zero side-text clutter.', i:'assets/cake/c0.jpg',a:60,r:10},
+ {id:'mist',    s:'MST',c:'MST-0020',t:'Mist',           h:'mist.html',             k:'pair', d:'The birthday memory, kept by what it felt like. Hold to recall, slide to data.', i:'assets/sec_156.jpg',a:70,r:9},
+ {id:'mistr',   s:'MSR',c:'MSR-0033',t:'Mist Renders',   h:'mist-renders.html',     k:'pair', d:'Segmented volumetric salience plates and point-cloud renders across cake, children, and candle blow-out.', i:'assets/mist/children.jpg',a:79,r:7},
+ {id:'bench',   s:'BNC',c:'BNC-0000',t:'Bench',          h:'bench.html',            k:'pair', d:'Film cut-outs of the people and trees, with 3D cakes and bugs. Pick one, turn it, hold the rest.', i:'assets/bench/kids.webp',a:89,r:10},
+ {id:'party',   s:'PRY',c:'PRY-0032',t:'Party Standees', h:'party.html',            k:'pair', d:'Segmented birthday party standees arranged in depth around the candlelit table.', i:'assets/weaver/weaver-vs-film.jpg',a:98,r:7},
+ {id:'v2g',     s:'V2G',c:'V2G-0029',t:'Video2Game Kit', h:'video2game-kit.html',   k:'film', d:'Clean die-cut cardboard standees, 4-step ultra-legible console, and Video2Game iconic scene/cake/pose kit.', i:'assets/moments_videos/posters/m29_best3d_stage.jpg',a:108,r:9},
+ {id:'designs', s:'DSN',c:'DSN-0002',t:'Designs',        h:'designs.html',          k:'film', d:'14 pixel-remade counterfactuals (beetle eyes, piped writing, blown flames) audited across five blind critic rounds.', i:'assets/depth_bugeye.png',a:118,r:8},
+ {id:'arcs',    s:'ARC',c:'ARC-0030',t:'Diegetic Arcs',  h:'arcs.html',             k:'pair', d:'Direct manipulation of film-plate crescent arcs, stroke lettering, 25° tilt, retimed child hold, and blow-out.', i:'assets/flow/game-arcs-film-plate.jpg',a:128,r:8},
+ {id:'cakeorb', s:'CKO',c:'CKO-0018',t:'Cake Orb',       h:'cake-orb.html',         k:'flag', d:'Every cake, bug and film reference, turned by three rings and one thumb.', i:'assets/shelf/cake_film_00.jpg',a:138,r:8},
+ {id:'omni',    s:'OMN',c:'OMN-0025',t:'Ten Birthdays',  h:'omni.html',             k:'film', d:'Ten Birthdays, One Film: Museum No-Screen & Zero-Text reference packs + 4 Cakes × 10 Prompts across global eras and people.', i:'assets/orbfilm/orb-film-museum-no-screen.jpg',a:148,r:10},
+ {id:'moments', s:'MOM',c:'MOM-0003',t:'Moments',        h:'moments.html',          k:'film', d:'Her hands on the orb, 12fps measured curves, white reticle, and 60 6-way synchronized moment decompositions.', i:'assets/sec_141.jpg',a:158,r:9},
+ {id:'vfm',     s:'VFM',c:'VFM-0026',t:'Film Batches',   h:'versions-film.html',    k:'film', d:'All re-recorded Orb Film batches side by side: Museum No-Screen, No-Text, ")" Side Crescent, No-Reticle, and generated variants.', i:'assets/orbfilm/orb-film-reticle-aside.jpg',a:168,r:9},
+ {id:'families',s:'FAM',c:'FAM-0217',t:'Video Families', h:'video-families.html',   k:'corp', cls:'accent', d:'Master Cinematographic Video Families Atlas: all 217 repository videos & plates grouped by 8 Angles, 8 Cuts, 5 Motions, 6 Scales, 7 Layouts & 8 Lineages.', i:'assets/video-families/thumbs/vid_001.webp',a:178,r:12},
+ {id:'bday',    s:'BDY',c:'BDY-0078',t:'Bday Training',  h:'bday-training.html',    k:'corp', cls:'accent', d:'78 birthday training clips segmented above y_split, grouped by angle/cut families, with 8 era cutout sheets & 41 Cake Rig 3D models.', i:'assets/bday-training/thumbs/bday_10.webp',a:188,r:11},
+ {id:'cakerig', s:'RIG',c:'RIG-0027',t:'Cake Rig 3D',    h:'cake-rig.html',         k:'flag', cls:'accent', d:'5-roller physical CAD slab (select, extrude, inflate, bevel, candles, accept/cancel/undo) + 24-tap DOF shot camera & 8 Angle Family presets.', i:'assets/bday-training/thumbs/bday_51.webp',a:198,r:10},
+ {id:'cake',    s:'CAK',c:'CAK-0015',t:'The Cake',       h:'cake.html',             k:'spec', d:'Blender\'s first lesson is a donut; the orb\'s first lesson is the cake.', i:'assets/cake/c0.jpg',a:208,r:8},
+ {id:'orbv5',   s:'OV5',c:'ORB-0504',t:'Orb v5',         h:'hand-orb-v5.html',      k:'arch', d:'Stelline Memory Orb, v5.', i:'assets/sam_blowcandles.png',a:218,r:7},
+ {id:'orb',     s:'ORB',c:'ORB-0405',t:'Hand Orb',       h:'hand-orb.html',         k:'arch', d:'Unified Cinema Bench: 114-beat footage atlas, MediaPipe hand tracking, WebRTC phone pairing & IMPRINT scoring.', i:'assets/depth_clearing.png',a:228,r:7},
+ {id:'proof',   s:'PRF',c:'PRF-0406',t:'Proof',          h:'hand-orb-proof.html',   k:'arch', d:'Hand Orb Proof & blind critic evaluation.', i:'assets/depth_leaf.png',a:238,r:6},
+ {id:'lot',     s:'L31',c:'LOT-0131',t:'Lot 131',        h:'stelline-memory-orb.html',k:'flag',d:'Stelline Laboratories animatronic memory orb, Lot 131: 12-shot Open Matte SAM + DPT-MiDaS + Bespoke Bug & Cake Studio.', i:'assets/sec_026.jpg',a:248,r:9},
+ {id:'mobile',  s:'MOB',c:'MOB-0008',t:'Mobile',         h:'mobile.html',           k:'arch', d:'Portrait thumb-ergonomic touch edition (48vh dome + 52vh bimanual dock).', i:'assets/sec_035.jpg',a:258,r:6},
+ {id:'versions',s:'VER',c:'VER-0009',t:'Versions',       h:'versions.html',         k:'arch', d:'All engine versions (V1–V5) and the mobile archive.', i:'assets/depth_miniature.png',a:268,r:8},
+ {id:'v4',      s:'V4M',c:'V4M-0010',t:'V4 Master',      h:'v4-master.html',        k:'arch', d:'V4 SAM + DPT-MiDaS relief master build.', i:'assets/sam_cutouts.png',a:278,r:6},
+ {id:'process', s:'PRC',c:'PRC-0011',t:'SCION Process',  h:'process.html',          k:'spec', d:'SCION DIEGETIC Case 02 provenance, virtuous cycle, and foundational v2.0 prompts.', i:'assets/sec_153.jpg',a:288,r:8},
+ {id:'scion',   s:'SCI',c:'SCI-2049',t:'SCION Futures',  h:'scion-futures.html',    k:'spec', cls:'amber', d:'Master Repository Manifest & Copyable Prompts for Future AI SCION Work Futures (SCION v3.0): 46 surfaces, 217 videos, 6 invariants & 5 continuation prompts.', i:'assets/orbfilm/orb-film-stage-side-reticle.jpg',a:298,r:12},
+ {id:'vesper',  s:'VSP',c:'VSP-0016',t:'Cake Orb 04',    h:'vesper.html',           k:'flag', d:'Vesper Field Orb 04: 3 rings, 1 thumb, live independent per-layer clocks.', i:'assets/cake/c7.jpg',a:308,r:9},
+ {id:'orb05',   s:'F05',c:'ORB-0505',t:'Field Orb 05',   h:'field-orb-05.html',     k:'flag', d:'3D Horizontal 5-Ring Scroll Engine: 5 normal-mapped rings, capacitive squeeze, 28-tap DOF, spacetime mist & USD/OBJ export.', i:'assets/cake/c7.jpg',a:318,r:10},
+ {id:'field',   s:'FLD',c:'FLD-0012',t:'Field Orb',      h:'field-orb.html',        k:'arch', d:'Hold and jog: independent layer clocks, live.', i:'assets/sec_146.jpg',a:328,r:7},
+ {id:'ident',   s:'IDN',c:'IDN-0013',t:'Identity',       h:'identity.html',         k:'spec', d:'The type, grid and colour rules.', i:'',a:337,r:5},
+ {id:'spec',    s:'SPC',c:'SPC-0014',t:'Specification',  h:'docs/Vesper_Field_Orb_04_Patent_Specification.pdf',k:'spec',d:'Vesper Field Orb 04 Patent Specification, 14 pages (PDF).', i:'',a:345,r:6},
+ {id:'maker',   s:'MKR',c:'MKR-0022',t:'Memory Maker',   h:'maker.html',            k:'flag', d:'First-person Memory Maker: kneel where Ana kneels; empty until you make it, only true controls, telescoping ends to mist.', i:'assets/cake/c7.jpg',a:353,r:10}
+];
+var EXTRA_ARCHIVES=[
+ ['v1-canvas-lab.html','V1 Canvas Bearing Lab'],['v1-canvas-3d.html','V1 Canvas 3D'],['v2-pure-3d.html','V2 Pure 3D'],['v2-procedural-3d.html','V2 Procedural 3D'],
+ ['v2-webgl-sculptor.html','V2 WebGL Sculptor'],['v3-hybrid-3d.html','V3 Hybrid 3D'],['v3-hybrid-models.html','V3 Hybrid Models'],
+ ['v4-sam-relief.html','V4 SAM Relief'],['v4-sam-midas-relief.html','V4 SAM+MiDaS Relief'],['cineosi-orb.html','Cineosi-Orb Alias'],
+ ['docs/scion-work-futures.md','SCION v3.0 Work Futures (.md)'],['docs/scion-diegetic.md','SCION v2.0 Spec (.md)'],['docs/prompts.md','Case 02 Prompts (.md)']
 ];
 var CX=800,CY=600,R=490,NS='http://www.w3.org/2000/svg';
 var $=function(s){return document.querySelector(s)},body=document.body;
 function el(n,at,p){var e=document.createElementNS(NS,n);for(var k in at)e.setAttribute(k,at[k]);if(p)p.appendChild(e);return e}
 function pos(a){var t=(a-90)*Math.PI/180;return [CX+R*Math.cos(t),CY+R*Math.sin(t)]}
-/* persisted trace (recovery): visited nodes in order */
 var trace=[],hist=[],cur=null,store=null;
 try{store=window.localStorage;trace=JSON.parse(store.getItem('orb.trace')||'[]').filter(function(i){return N.some(function(n){return n.id===i})})}catch(e){trace=[]}
 function save(){try{store&&store.setItem('orb.trace',JSON.stringify(trace))}catch(e){}}
 function byId(i){return N.filter(function(n){return n.id===i})[0]}
-/* rules: vertical hairlines, like the instrument's own frame */
 [.395,.485,.505,.595,.62].forEach(function(x){el('line',{x1:x*1600,x2:x*1600,y1:-2400,y2:3600,'class':'rule'},$('#rules'))});
-/* nodes */
 var gN=$('#nodes');
-N.forEach(function(n,ix){
+N.forEach(function(n){
   var p=pos(n.a);n.x=p[0];n.y=p[1];
-  var g=el('g',{'class':'node',tabindex:0,role:'button','aria-label':n.t+'. '+n.d,'data-id':n.id,transform:'translate('+n.x+' '+n.y+')'},gN);
-  el('circle',{r:Math.max(24,n.r*2.6),fill:'transparent'},g);el('circle',{'class':'halo',r:n.r*2.3},g);el('circle',{'class':'dot',r:n.r},g);
-  var right=n.x>CX;var t=el('text',{x:right?n.r*2.3+14:-(n.r*2.3+14),y:5,'text-anchor':right?'start':'end'},g);t.textContent=n.c;
+  var g=el('g',{'class':'node'+(n.cls?' '+n.cls:''),tabindex:0,role:'button','aria-label':n.t+'. '+n.d,'data-id':n.id,transform:'translate('+n.x+' '+n.y+')'},gN);
+  el('circle',{r:Math.max(22,n.r*2.4),fill:'transparent'},g);el('circle',{'class':'halo',r:n.r*2.2},g);el('circle',{'class':'dot',r:n.r},g);
+  var right=n.x>CX;var t=el('text',{x:right?n.r*2.2+13:-(n.r*2.2+13),y:5,'text-anchor':right?'start':'end'},g);t.textContent=n.c;
   n.g=g;
   g.addEventListener('mouseenter',function(){hover(n)});g.addEventListener('focus',function(){hover(n)});
   g.addEventListener('mouseleave',unhover);g.addEventListener('blur',unhover);
   g.addEventListener('click',function(){open(n.id)});
   g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();open(n.id)}});
 });
-/* rail inside the frame: every build is one press away */
-var rail=$('#rail');N.forEach(function(n){var b=document.createElement('button');b.textContent=n.s;b.title=n.t;b.setAttribute('data-id',n.id);b.setAttribute('aria-label',n.t);b.addEventListener('click',function(){open(n.id)});rail.appendChild(b)});
+var rail=$('#rail');N.forEach(function(n){var b=document.createElement('button');b.textContent=n.s;b.title=n.c+' · '+n.t;b.setAttribute('data-id',n.id);b.setAttribute('aria-label',n.t);b.addEventListener('click',function(){open(n.id)});rail.appendChild(b)});
+
+/* Populate Master Manifest Overlay */
+var CATS={
+  corp:'I · Video Families (217) & Segmented Corpora (78)',
+  flag:'II · Flagship Tactile Orb & 3D CAD Instruments',
+  film:'III · Film Suites, Multi-Modal Moments & Omni 1.2',
+  pair:'IV · Paired Stage, Pad, Arcs, Bench & Mist',
+  spec:'V · SCION Work Futures, Process & Patent Specs',
+  arch:'VI · Evolutionary Engine Lineage (V1–V5 & Mobile)'
+};
+var mfGrid=$('#mfNodesGrid');
+Object.keys(CATS).forEach(function(ck){
+  var box=document.createElement('div');box.className='mfBox';
+  var items=N.filter(function(n){return n.k===ck});
+  var html='<h3>'+CATS[ck]+'</h3>'+items.map(function(n){
+    return '<div class="mfRow"><div><span class="mfCode">'+n.c+'</span> · <b>'+n.t+'</b> <span style="opacity:.62">('+n.h+')</span><div style="opacity:.7;font-size:11px;margin-top:2px">'+n.d+'</div></div><div style="display:flex;gap:8px"><button class="mfOpen" data-open="'+n.id+'" type="button">Orbit</button><a class="mfOpen" href="'+n.h+'" target="_blank" rel="noopener">Tab ↗</a></div></div>';
+  }).join('');
+  if(ck==='arch'){
+    html+='<div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,.15);font-size:11px;opacity:.8"><b>Preserved Sub-Editions &amp; Raw Docs:</b> '+EXTRA_ARCHIVES.map(function(x){return '<a href="'+x[0]+'" target="_blank" rel="noopener" style="color:var(--cy);margin-right:10px">'+x[1]+' ↗</a>'}).join('')+'</div>';
+  }
+  box.innerHTML=html;mfGrid.appendChild(box);
+});
+
+function toggleManifest(forceOn,paneId){
+  var mf=$('#manifest');
+  var on=forceOn!=null?forceOn:!mf.classList.contains('on');
+  mf.classList.toggle('on',on);
+  if(on&&paneId)switchPane(paneId);
+}
+function switchPane(pid){
+  [].forEach.call(document.querySelectorAll('.mfTab[data-mpane]'),function(t){t.classList.toggle('on',t.getAttribute('data-mpane')===pid)});
+  [].forEach.call(document.querySelectorAll('.mfPane'),function(p){p.classList.toggle('on',p.id===pid)});
+}
+[].forEach.call(document.querySelectorAll('.mfTab[data-mpane]'),function(t){t.onclick=function(){switchPane(t.getAttribute('data-mpane'))}});
+[].forEach.call(document.querySelectorAll('[data-open]'),function(b){b.onclick=function(){toggleManifest(false);open(b.getAttribute('data-open'))}});
+[].forEach.call(document.querySelectorAll('[data-mcopy]'),function(b){b.onclick=function(){
+  var el=document.getElementById(b.getAttribute('data-mcopy'));if(!el)return;
+  navigator.clipboard.writeText(el.textContent).then(function(){var prev=b.textContent;b.textContent='Copied ✓';setTimeout(function(){b.textContent=prev},1500)});
+}});
+$('#bManifest').onclick=function(){toggleManifest(true,'mpSurfaces')};
+$('#bManifestTop').onclick=function(){toggleManifest(null,'mpSurfaces')};
+$('#bScionQuick').onclick=function(){toggleManifest(true,'mpScion')};
+$('#bManifestClose').onclick=function(){toggleManifest(false)};
+
 function paint(){
   N.forEach(function(n){n.g.classList.toggle('seen',trace.indexOf(n.id)>-1);n.g.classList.toggle('on',cur===n.id)});
   [].forEach.call(rail.children,function(b){var id=b.getAttribute('data-id');b.classList.toggle('seen',trace.indexOf(id)>-1);b.setAttribute('aria-current',cur===id)});
-  $('#trail').setAttribute('points',trace.map(function(i){var n=byId(i);return n.x+','+n.y}).join(' '));
+  $('#trail').setAttribute('points',trace.map(function(i){var n=byId(i);return n?n.x+','+n.y:''}).filter(Boolean).join(' '));
   var L=$('#lines');L.innerHTML='';
-  if(hov||cur){var n=hov||byId(cur);el('line',{x1:CX,y1:CY,x2:n.x,y2:n.y,'class':'link'},L)}
+  if(hov||cur){var n=hov||byId(cur);if(n)el('line',{x1:CX,y1:CY,x2:n.x,y2:n.y,'class':'link'},L)}
 }
-/* card */
 var hov=null,card=$('#card');
-function hover(n){hov=n;var im=card.querySelector('img');im.style.display=n.i?'block':'none';if(n.i)im.src=n.i;card.querySelector('b').textContent=n.t;card.querySelector('span').textContent=n.d;
-  var r=n.g.getBoundingClientRect(),w=240,h=card.offsetHeight||210;var x=r.left+r.width/2<innerWidth/2?r.right+18:r.left-w-18;x=Math.max(8,Math.min(innerWidth-w-8,x));var y=Math.max(52,Math.min(innerHeight-h-8,r.top+r.height/2-h/2));
-  card.style.left=x+'px';card.style.top=y+'px';card.classList.add('show');$('#tO').textContent=n.c;paint()}
-function unhover(){hov=null;card.classList.remove('show');$('#tO').textContent=cur?byId(cur).c:(trace.length?'Trace '+trace.length+'/'+N.length:'Select a node');paint()}
-/* states */
+function hover(n){hov=n;var im=card.querySelector('img');im.style.display=n.i?'block':'none';if(n.i)im.src=n.i;card.querySelector('b').textContent=n.c+' · '+n.t;card.querySelector('span').textContent=n.d;
+  var r=n.g.getBoundingClientRect(),w=255,h=card.offsetHeight||210;var x=r.left+r.width/2<innerWidth/2?r.right+18:r.left-w-18;x=Math.max(8,Math.min(innerWidth-w-8,x));var y=Math.max(52,Math.min(innerHeight-h-8,r.top+r.height/2-h/2));
+  card.style.left=x+'px';card.style.top=y+'px';card.classList.add('show');$('#tO').textContent=n.c+' · '+n.t;paint()}
+function unhover(){hov=null;card.classList.remove('show');$('#tO').textContent=cur?byId(cur).c:(trace.length?'Trace '+trace.length+'/'+N.length:'Select a node ('+N.length+')');paint()}
 function setS(s,label){body.dataset.s=s;$('#tS').innerHTML='<b>'+(label||s)+'</b>'}
 var fr=$('#fr'),token=0,loadTimer=0;
 function setProg(n){[].forEach.call($('#prog').children,function(i,ix){i.classList.toggle('on',ix<n)})}
 function open(id,quiet){
-  var n=byId(id);if(!n)return;var prev=cur;hov=null;card.classList.remove('show');
+  var n=byId(id);if(!n)return;toggleManifest(false);var prev=cur;hov=null;card.classList.remove('show');
   var my=++token;cur=id;if(prev&&hist[hist.length-1]!==prev)hist.push(prev);
-  $('#rC').textContent=n.c;$('#tO').textContent=n.c;$('#tN').textContent=String(N.indexOf(n)+1);
+  $('#rC').textContent=n.c;$('#tO').textContent=n.c;$('#tN').textContent=String(N.indexOf(n)+1)+'/'+N.length;
   var r=n.g.getBoundingClientRect();$('#frame').style.transformOrigin=(r.left+r.width/2)+'px '+(r.top+r.height/2)+'px';
   $('#aBack').hidden=!hist.length;$('#aStop').hidden=false;setProg(0);
   setS('working','Working');paint();
@@ -197,22 +382,25 @@ function open(id,quiet){
       paint()};
     fr.src=n.h;clearTimeout(loadTimer);loadTimer=setTimeout(function(){fail('No response in 15 s')},15000);
   };
-  /* is it there? same-origin check, skipped when the browser cannot ask (file://) */
   var ok=function(r){if(my!==token)return;r&&r.ok===false?fail('Not found ('+r.status+')'):go()};
   try{fetch(n.h,{method:'HEAD'}).then(ok,function(){if(my===token)go()})}catch(e){go()}
 }
 function stop(){token++;clearTimeout(loadTimer);fr.onload=null;fr.src='about:blank';$('#aStop').hidden=true;setProg(0);exit()}
-function exit(){token++;clearTimeout(loadTimer);var was=cur;fr.onload=null;fr.src='about:blank';cur=null;hist=[];setS('rest','Rest');$('#tN').textContent='1';location.replace('#');unhover();
-  var rb=$('#resume');if(was||trace.length){var last=was||trace[trace.length-1];rb.hidden=false;rb.textContent='Resume '+byId(last).c;rb.onclick=function(){open(last,true)}}paint()}
+function exit(){token++;clearTimeout(loadTimer);var was=cur;fr.onload=null;fr.src='about:blank';cur=null;hist=[];setS('rest','Rest');$('#tN').textContent=String(N.length);location.replace('#');unhover();
+  var rb=$('#resume');if(was||trace.length){var last=was||trace[trace.length-1];if(byId(last)){rb.hidden=false;rb.textContent='Resume '+byId(last).c;rb.onclick=function(){open(last,true)}}}paint()}
 function back(){var p=hist.pop();if(p){cur=null;open(p)}}
 $('#aStop').onclick=stop;$('#aExit').onclick=exit;$('#mR').onclick=exit;$('#aBack').onclick=back;
 $('#aOpen').onclick=function(){var n=byId(cur);if(n)window.open(n.h,'_blank','noopener')};
-addEventListener('keydown',function(e){if(e.key==='Escape'&&body.dataset.s!=='rest'){body.dataset.s==='working'?stop():exit()}});
-/* boot: REST (or a deep link) */
+addEventListener('keydown',function(e){
+  if(e.key==='Escape'){if($('#manifest').classList.contains('on')){toggleManifest(false);return}if(body.dataset.s!=='rest'){body.dataset.s==='working'?stop():exit()}}
+  if((e.key==='m'||e.key==='M')&&body.dataset.s==='rest'&&!e.metaKey&&!e.ctrlKey){toggleManifest(null,'mpSurfaces')}
+});
 var h=(location.hash||'').slice(1);
-if(h&&byId(h))open(h,true);else{setS('rest','Rest');var l=trace[trace.length-1];if(l){var rb=$('#resume');rb.hidden=false;rb.textContent='Resume '+byId(l).c;rb.onclick=function(){open(l,true)}}paint()}
+if(h==='manifest')toggleManifest(true,'mpSurfaces');
+else if(h==='prompts')toggleManifest(true,'mpScion');
+else if(h&&byId(h))open(h,true);else{setS('rest','Rest');var l=trace[trace.length-1];if(l&&byId(l)){var rb=$('#resume');rb.hidden=false;rb.textContent='Resume '+byId(l).c;rb.onclick=function(){open(l,true)}}paint()}
 addEventListener('hashchange',function(){var i=(location.hash||'').slice(1);if(i&&byId(i)&&i!==cur)open(i,true)});
-window.__machine={open:open,exit:exit,state:function(){return body.dataset.s}};
+window.__machine={open:open,exit:exit,toggleManifest:toggleManifest,nodes:N,state:function(){return body.dataset.s}};
 })();
 </script>
 </body>
