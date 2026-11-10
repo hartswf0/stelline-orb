@@ -110,6 +110,17 @@ The question was how to bring every clip, and every model made from a clip, onto
 
 **Limits.** The cast is a flat sheet cut with one mask for all eight poses, so anyone who moves outside the mask is clipped, and the sheet does not parallax. Where the plate's own candles fall inside the people mask they remain on the sheet, behind the orb's candles (cutting them out left candle-shaped holes). The cake is the recipe's reading of the plate, not its pixels (candle styles and decoration differ). The table and room are Orb 05's, the same in every scene. The 44 dropped clips have no build-out.
 
+## 2f. Two Outside Loops Run Against The Archive: A Game (`games/breath/`)
+
+The request was to run `lovisdotio/video-to-game` and Video2Game to make real games. What happened, plainly:
+
+- **video-to-game** (an agent skill, MIT, cloned and read): its loop was followed step for step **except the one it rests on**, generating every asset on fal. Every call to `queue.fal.run` returned `403 User is locked. Reason: Exhausted balance`. The calls are written (`tools/games/fal_assets.py`) and unrun. The game therefore uses assets this repository had already taken from the videos.
+- **Video2Game**: its project page is outside this session's network, and its method (a NeRF from a moving camera, on a GPU) does not fit ten-second locked-camera clips on a machine with no GPU. Its shape was kept: geometry, a collider, simple physics, a browser game. The geometry is the orb's cake, exported as GLB.
+
+**The game, The Breath.** You are the breath. Aim with mouse or arrows, hold space to blow, carry it from flame to flame before the candles burn down; a breath begun on the third beat carries further; the next cake comes with its own people; five cakes make a sitting. Each of the 33 kept clips is a level: its cake as a real 3D model (`levels/<id>/cake.glb`, built by Orb 05's rings and exported by `tools/games/export_levels.cjs`), its own cast, the archive's grid camera and bar clock. The lung, the beat and the candles' time are read off the `)` crescent; there is no other interface. `games/breath/README.md` tabulates each step of both loops against what was done, what stood in, and what differs from the videos.
+
+**Proved by play, as that skill requires** (`tools/games/play.cjs`, `pairs.cjs`): a keyboard-only scenario reading only `window.__game.state` plays and films a sitting; two bad tunings were found and fixed that way; side-by-side pairs with the plates exposed a lighting fault, since fixed.
+
 ---
 
 ## 3. Copyable Prompts for Future AI SCION Work Futures

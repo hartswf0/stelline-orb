@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>The Breath</title>
+<meta name="description" content="You are the breath. Thirty-three birthday cakes, each made from a video: sweep the flames out before the candles burn down, and blow on the third beat.">
+<style>
+  html, body { margin: 0; height: 100%; background: #030403; overflow: hidden; user-select: none; -webkit-user-select: none; touch-action: none; cursor: crosshair; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  #hud { pointer-events: none; }
+</style>
+<script type="importmap">{ "imports": { "three": "../vendor/three/build/three.module.min.js", "three/addons/": "../vendor/three/examples/jsm/" } }</script>
+</head>
+<body>
+<canvas id="gl"></canvas><canvas id="hud"></canvas>
+<script src="levels/index.js"></script>
+<script type="module">
+/* THE BREATH. A game made from the birthday archive by the video-to-game loop (study the video, take its assets from its own frames, build one file in
+   Three.js, match the look, play it), with the reconstruction step of Video2Game filled by what this repository already has:
+     the cake    a real 3D model: the Memory Weaver built the clip's recipe by its rings and the clay was exported (levels/<id>/cake.glb)
+     the people  cut from the clip's own frames, eight poses across its bar (assets/normalized/cast)
+     the clock   the archive's bar: four beats at 73.83 bpm, the breath on the third
+     collision   the cake is a collider: breath that meets it splashes and goes round
+   The mechanic is the one every clip shows: the candles are blown out. You are the breath.
+     mouse or arrows aim · hold space (or press) to blow · R starts the cake again
+   A breath begun on the third beat carries further. Put every flame out before the candles burn down and the next cake comes, with its own people.
+   ?clip=bday_35 starts on a level · ?autostart skips the title · ?seed=N fixes which candles relight · ?look=camcorder90|clean · ?manual lets a
+   script step frames (window.__game.advance). window.__game.state is what a player can see, for playtests. */
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+const Q = new URLSearchParams(location.search), L = window.LEVELS || { levels: [], beat_s: .8126984 }, BEAT = L.beat_s, MANUAL = Q.has('manual'), LOOK = Q.get('look') || 'film';
+// how hard it is, found by playtest (tools/games/play.cjs --dry): reach of the breath in metres, how fast it takes a flame's heat, how fast a flame comes back,
+// how fast the lung empties and fills. ?tune=reach,drain,back,out,fill overrides, for more playtests.
+const TUNE = (t => ({ reach: t[0], drain: t[1], back: t[2], out: t[3], fill: t[4] }))((Q.get('tune') || '0.040,1.9,0.62,0.46,0.33').split(',').map(Number));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t;
+let seed = +(Q.get('seed') || 7); const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+/* ------------------------------------------------------------------ the room */
+const gl = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
+const R = new THREE.WebGLRenderer({ canvas: gl, antialias: true, preserveDrawingBuffer: true }); R.setPixelRatio(Math.min(2, devicePixelRatio)); R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.05; R.shadowMap.enabled = true;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x040505); scene.fog = new THREE.FogExp2(0x040505, .55);
+const cam = new THREE.PerspectiveCamera(38, 1, .05, 20), TABLE_Y = .74;
+const amb = new THREE.HemisphereLight(0x8a94a0, 0x2a1c10, .55); scene.add(amb);
+const fill = new THREE.PointLight(0xffd9b0, .6, 3, 1); scene.add(fill);   // the plates light the cake's face from the front, by the candles and the room: seen missing on the first side-by-side pairs
+const key = new THREE.SpotLight(0xffe2b8, 1.1, 6, .5, .7, 1.2); key.position.set(.3, 2.6, .9); key.target.position.set(0, TABLE_Y, 0); key.castShadow = true; key.shadow.mapSize.set(1024, 1024); scene.add(key, key.target);
+const glow = new THREE.PointLight(0xffb060, 0, 2.2, 1.6); scene.add(glow);
+const wood = (() => { const c = document.createElement('canvas'); c.width = c.height = 512; const x = c.getContext('2d'); x.fillStyle = '#8a5a2c'; x.fillRect(0, 0, 512, 512); for (let i = 0; i < 140; i++) { x.strokeStyle = `rgba(${40 + rnd() * 60},${24 + rnd() * 30},${8 + rnd() * 16},${.08 + rnd() * .18})`; x.lineWidth = 1 + rnd() * 3; x.beginPath(); const y = rnd() * 512; x.moveTo(0, y); x.bezierCurveTo(170, y + rnd() * 12 - 6, 340, y + rnd() * 12 - 6, 512, y + rnd() * 8 - 4); x.stroke(); } const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; })();
+const table = new THREE.Mesh(new THREE.CylinderGeometry(.74, .72, .04, 6), new THREE.MeshStandardMaterial({ map: wood, roughness: .62 })); table.position.y = TABLE_Y - .02; table.receiveShadow = true; scene.add(table);
+const plate = new THREE.Mesh(new THREE.CylinderGeometry(.17, .16, .008, 48), new THREE.MeshStandardMaterial({ color: 0xf2f0ea, roughness: .35 })); plate.position.y = TABLE_Y + .004; plate.receiveShadow = true; scene.add(plate);
+const CAKE = new THREE.Group(); CAKE.position.y = TABLE_Y + .008; scene.add(CAKE);
+const flameTex = (() => { const c = document.createElement('canvas'); c.width = 64; c.height = 128; const x = c.getContext('2d'), g = x.createRadialGradient(32, 86, 2, 32, 76, 46); g.addColorStop(0, 'rgba(255,252,230,1)'); g.addColorStop(.22, 'rgba(255,205,95,.95)'); g.addColorStop(.6, 'rgba(255,120,30,.35)'); g.addColorStop(1, 'rgba(255,90,20,0)'); x.fillStyle = g; x.beginPath(); x.ellipse(32, 76, 18, 46, 0, 0, 7); x.fill(); return new THREE.CanvasTexture(c); })();
+const puffTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'), g = x.createRadialGradient(32, 32, 1, 32, 32, 30); g.addColorStop(0, 'rgba(255,255,255,.9)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); })();
+const stripe = (() => { const c = document.createElement('canvas'); c.width = 16; c.height = 64; const x = c.getContext('2d'); x.fillStyle = '#f4ecdc'; x.fillRect(0, 0, 16, 64); x.fillStyle = '#d4483e'; for (let y = -16; y < 80; y += 12) { x.beginPath(); x.moveTo(0, y); x.lineTo(16, y + 8); x.lineTo(16, y + 13); x.lineTo(0, y + 5); x.fill(); } const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; })();
+const M_CANDLE = new THREE.MeshStandardMaterial({ map: stripe, roughness: .5, emissive: 0xffffff, emissiveMap: stripe, emissiveIntensity: .22 }), G_CANDLE = new THREE.CylinderGeometry(.0036, .0036, .055, 10);
+// breath you can see: a few hundred soft motes that leave the mouth, meet the cake and go round it
+const NP = 260, pGeo = new THREE.BufferGeometry(), pPos = new Float32Array(NP * 3), pVel = new Float32Array(NP * 3), pLife = new Float32Array(NP); pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+const motes = new THREE.Points(pGeo, new THREE.PointsMaterial({ map: puffTex, size: .022, transparent: true, opacity: .2, depthWrite: false, blending: THREE.AdditiveBlending, color: 0xcfe8ff })); motes.frustumCulled = false; scene.add(motes); for (let i = 0; i < NP; i++) pPos[i * 3 + 1] = -9;
+const SMOKE = [];
+
+/* ------------------------------------------------------------------ sound: short filtered noise only. A beat, a breath in grains, a flame going */
+let AC = null;
+function grain(f, dur, vol, q) { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); const n = AC.createBufferSource(), Ln = Math.floor(AC.sampleRate * dur), b = AC.createBuffer(1, Ln, AC.sampleRate), d = b.getChannelData(0); for (let i = 0; i < Ln; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / Ln * 4); n.buffer = b; const bp = AC.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = q || 1.2; const g = AC.createGain(); g.gain.value = vol; n.connect(bp); bp.connect(g); g.connect(AC.destination); n.start(); } catch (e) {} }
+
+/* ------------------------------------------------------------------ a level: one clip's cake, people and candles */
+const G = { phase: 'title', li: 0, t: 0, bar: 0, beat: 0, lung: 1, blowing: false, winded: false, power: 1, aim: new THREE.Vector2(0, 0), candles: [], lit: 0, breaths: 0, cakes: 0, lost: 0, phaseT: 0, R: .12, crown: .1, dist: .6, cast: null, level: null, bars: 8, grainT: 0, lastBeat: -1, mouse: false, keys: {} };
+const loader = new GLTFLoader(); let castTex = null, castMesh = null, cakeObj = null;
+function setLevel(i) { G.li = ((i % L.levels.length) + L.levels.length) % L.levels.length; const lv = G.level = L.levels[G.li]; G.phase = 'loading';
+  if (cakeObj) { CAKE.remove(cakeObj); cakeObj.traverse(o => { if (o.geometry) o.geometry.dispose(); }); cakeObj = null; } G.candles.forEach(c => CAKE.remove(c.g)); G.candles = []; if (castMesh) { scene.remove(castMesh); castMesh = null; }
+  const s = lv.scale || [1, 1, 1], r = lv.tilt || [0, 0, 0]; CAKE.scale.set(s[0] * s[2], s[0] * s[1], s[0] * s[2]); CAKE.rotation.set(r[0] * Math.PI / 180, r[1] * Math.PI / 180, r[2] * Math.PI / 180, 'YXZ');
+  G.R = (lv.box[1][0] - lv.box[0][0]) / 2 * s[0] * s[2]; G.crown = lv.box[1][1] * s[0] * s[1];
+  loader.load('levels/' + lv.id + '/' + (lv.model || 'cake.glb'), g => { cakeObj = g.scene; cakeObj.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    if (lv.model) { const bb = new THREE.Box3().setFromObject(cakeObj), k = (lv.box[1][0] - lv.box[0][0]) / Math.max(1e-6, bb.max.x - bb.min.x), c = bb.getCenter(new THREE.Vector3()); cakeObj.scale.setScalar(k); cakeObj.position.set(-c.x * k, -bb.min.y * k, -c.z * k); }   // a generated model (tools/games/fal_assets.py) is brought to the size and place of the orb's
+    CAKE.add(cakeObj);
+    const pts = lv.candles.length ? lv.candles : [[0, lv.box[1][1], 0]], tricks = Math.min(Math.floor(pts.length / 3), Math.floor(G.cakes / 2));
+    pts.forEach((p, k) => { const g2 = new THREE.Group(); g2.position.set(p[0], p[1], p[2]); const body = new THREE.Mesh(G_CANDLE, M_CANDLE); body.position.y = .0275; body.castShadow = true; const fl = new THREE.Sprite(new THREE.SpriteMaterial({ map: flameTex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true })); fl.position.y = .072; fl.scale.set(.016, .034, 1); g2.add(body, fl); g2.scale.set(1 / CAKE.scale.x, 1 / CAKE.scale.y, 1 / CAKE.scale.z); CAKE.add(g2); G.candles.push({ g: g2, fl, heat: 1, out: false, trick: false, relit: 0, lean: 0, ph: rnd() * 7 }); });
+    for (let k = 0; k < tricks; k++) G.candles[Math.floor(rnd() * G.candles.length)].trick = true;
+    G.bars = Math.max(5, 8 - Math.floor(G.cakes / 2)); G.bar = 0; /* later candles burn down sooner */ G.t = 0; G.lung = 1; G.winded = false; G.lastBeat = -1; frameCam(); placeCast(); G.phase = G.started ? 'play' : 'title'; G.phaseT = 0; });
+  if (lv.cast) { castTex = new THREE.TextureLoader().load(lv.cast.file, t => { t.repeat.set(1 / lv.cast.frames, 1); }); castTex.colorSpace = THREE.SRGBColorSpace; castMesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: castTex, transparent: true, alphaTest: .04, fog: false })); scene.add(castMesh); } }
+// the camera stands where the archive's grid camera stands: the cake 480/1280 of the width, its crown on the line; narrower screens come closer
+function frameCam() { const w = innerWidth, h = innerHeight; R.setSize(w, h, false); hud.width = w; hud.height = h; cam.aspect = w / h; cam.updateProjectionMatrix(); const th = Math.tan(cam.fov * Math.PI / 360), frac = cam.aspect > 1.5 ? .375 : cam.aspect > 1 ? .46 : .7;
+  G.dist = G.R / (frac * th * cam.aspect); G.tgtY = TABLE_Y + .008 + G.crown - .106 * G.dist * th; }
+function placeCast() { if (!castMesh || !G.level.cast) return; const c = G.level.cast, mpp = 2 * G.R / 480, r = .44, k = (G.dist + r) / G.dist, yaw = .18, behind = Math.PI / 2 - yaw + Math.PI, lat = ((c.box[0] + c.box[2]) / 2 - 640) * mpp * k, hgt = (c.box[3] - c.box[1]) * mpp * k, wid = (c.box[2] - c.box[0]) * mpp * k, a = behind + Math.atan2(lat, r), rr = Math.hypot(r, lat);
+  castMesh.scale.set(wid, hgt, 1); castMesh.position.set(Math.cos(a) * rr, TABLE_Y + .008 + G.crown - (c.box[3] - 250) * mpp * k + hgt / 2, Math.sin(a) * rr); }
+addEventListener('resize', () => { frameCam(); placeCast(); });
+
+/* ------------------------------------------------------------------ input: mouse or arrows aim, space or press blows */
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), planeHit = new THREE.Vector3();
+function aimFrom(e) { ndc.set(e.clientX / innerWidth * 2 - 1, -e.clientY / innerHeight * 2 + 1); ray.setFromCamera(ndc, cam); const pl = new THREE.Plane(new THREE.Vector3(0, 1, 0), -(TABLE_Y + .008 + G.crown + .05)); if (ray.ray.intersectPlane(pl, planeHit)) G.aim.set(clamp(planeHit.x, -.3, .3), clamp(planeHit.z, -.3, .3)); }
+addEventListener('pointermove', aimFrom); addEventListener('pointerdown', e => { aimFrom(e); G.mouse = true; begin(); }); addEventListener('pointerup', () => { G.mouse = false; });
+addEventListener('keydown', e => { if (e.repeat) return; G.keys[e.code] = true; if (e.code === 'Space' || e.code === 'Enter') { begin(); e.preventDefault(); } if (e.code === 'KeyR') { G.started = true; setLevel(G.li); } });
+addEventListener('keyup', e => { G.keys[e.code] = false; });
+function begin() { if (G.phase === 'title') { G.started = true; G.phase = 'play'; G.t = 0; G.lastBeat = -1; } else if (G.phase === 'end') { G.cakes = 0; G.breaths = 0; G.lost = 0; setLevel(G.li + 1); } }
+
+/* ------------------------------------------------------------------ the game */
+const tmp = new THREE.Vector3(), camDir = new THREE.Vector3();
+function update(dt) { G.phaseT += dt; const lv = G.level; if (!lv || G.phase === 'loading') return;
+  // the camera: on the grid, leaning a little toward where you aim
+  const yaw = .18 + G.aim.x * .35, pit = -.2; cam.position.set(Math.sin(yaw) * Math.cos(pit) * G.dist, G.tgtY - Math.sin(pit) * G.dist, Math.cos(yaw) * Math.cos(pit) * G.dist); cam.lookAt(G.aim.x * .12, G.tgtY, 0);
+  if (G.phase === 'play' || G.phase === 'won' || G.phase === 'lost') G.t += dt; const beats = G.t / BEAT; G.bar = Math.floor(beats / 4); G.beat = beats % 4; const wb = Math.floor(beats);
+  if (G.phase === 'play' && wb !== G.lastBeat) { G.lastBeat = wb; grain(wb % 4 === 2 ? 2400 : 1500, .012, wb % 4 === 2 ? .2 : .09, 6); }
+  // aim with the keys
+  const ax = (G.keys.ArrowRight || G.keys.KeyD ? 1 : 0) - (G.keys.ArrowLeft || G.keys.KeyA ? 1 : 0), az = (G.keys.ArrowDown || G.keys.KeyS ? 1 : 0) - (G.keys.ArrowUp || G.keys.KeyW ? 1 : 0); if (ax || az) { G.aim.x = clamp(G.aim.x + ax * dt * .32, -.3, .3); G.aim.y = clamp(G.aim.y + az * dt * .32, -.3, .3); }
+  // the breath: a lung that empties and fills, and carries further if it starts on the third beat
+  const want = (G.keys.Space || G.mouse) && G.phase === 'play' && !G.winded && G.lung > .02; if (want && !G.blowing) { G.breaths++; const off = Math.abs(((G.beat - 2 + 2) % 4) - 2); G.power = off < .22 ? 1.9 : 1; G.onBeat = off < .22; } G.blowing = want;
+  if (G.blowing) { G.lung = Math.max(0, G.lung - dt * (TUNE.out + G.cakes * .04)); if (G.lung <= .02) G.winded = true; G.grainT -= dt; if (G.grainT <= 0) { G.grainT = .055; grain(700 + Math.random() * 500, .05, .07, .6); } } else { G.lung = Math.min(1, G.lung + dt * TUNE.fill); if (G.lung > .32) G.winded = false; }
+  // the people follow the bar: their own eight poses, the breath on beat 3; their light is the candles' light
+  const litN = G.candles.filter(c => !c.out).length, litF = G.candles.length ? litN / G.candles.length : 0; G.lit = litN;
+  if (castMesh && castTex) { castTex.offset.x = clamp(Math.floor(G.beat / 4 * lv.cast.frames), 0, lv.cast.frames - 1) / lv.cast.frames; castMesh.lookAt(cam.position.x, castMesh.position.y, cam.position.z); const b = .16 + .84 * Math.pow(litF, .6); castMesh.material.color.setRGB(b, b * .97, b * .93); }
+  fill.position.copy(cam.position).add(tmp.set(0, .12, 0)); fill.intensity = .35 + litF * .75; glow.position.set(0, TABLE_Y + G.crown + .14, 0); glow.intensity = lerp(glow.intensity, .25 + litN * .32, Math.min(1, dt * 6)) * (.95 + Math.sin(G.phaseT * 21) * .04); key.intensity = lerp(key.intensity, .35 + litF * .8, Math.min(1, dt * 3));
+  // each flame: heat falls under the breath, returns when left alone; out at zero. Some relight once.
+  CAKE.updateMatrixWorld(); cam.getWorldDirection(camDir); const wind = G.blowing ? G.power : 0;
+  G.candles.forEach((c, k) => { c.g.getWorldPosition(tmp); const d = Math.hypot(tmp.x - G.aim.x, tmp.z - G.aim.y), e = wind * Math.exp(-((d / (TUNE.reach * (G.onBeat && G.blowing ? 1.5 : 1))) ** 2));      // a narrow breath: it has to be carried from flame to flame
+    if (!c.out) { c.heat = clamp(c.heat - e * dt * TUNE.drain + (e < .05 ? dt * TUNE.back : 0), 0, 1); /* a flame left half blown comes back */ if (c.heat <= 0) { c.out = true; c.outT = G.t; grain(900, .09, .16, .8); for (let q = 0; q < 5; q++) SMOKE.push({ p: tmp.clone().add(new THREE.Vector3(0, .07, 0)), v: new THREE.Vector3((Math.random() - .5) * .02 + camDir.x * e * .1, .05 + Math.random() * .04, (Math.random() - .5) * .02 + camDir.z * e * .1), life: 1.6, s: null }); } }
+    else if (c.trick && !c.relit && G.t - c.outT > 1.5 && G.phase === 'play') { c.out = false; c.heat = .7; c.relit = 1; grain(2000, .03, .1, 3); }
+    c.lean = lerp(c.lean, e, Math.min(1, dt * 10)); const fk = 1 + Math.sin(G.phaseT * 13 + c.ph) * .06 + Math.sin(G.phaseT * 31 + k) * .04; c.fl.visible = !c.out; c.fl.scale.set(.016 * fk * (.5 + .5 * c.heat), .034 * (2 - fk) * (.35 + .65 * c.heat), 1); c.fl.position.set(camDir.x * c.lean * .012, .072 - c.lean * .006, camDir.z * c.lean * .012); c.fl.material.rotation = -c.lean * .9 * Math.sign(camDir.x || 1); });
+  // motes of breath: from the mouth toward the aim; the cake is a cylinder they cannot enter
+  const cy = TABLE_Y + .008, top = cy + G.crown; for (let i = 0; i < NP; i++) { const j = i * 3; if (pLife[i] <= 0) { if (G.blowing && Math.random() < .5) { tmp.set(G.aim.x, top + .06, G.aim.y).sub(cam.position).normalize(); pPos[j] = cam.position.x + tmp.x * .12 + (Math.random() - .5) * .03; pPos[j + 1] = cam.position.y + tmp.y * .12 - .04 + (Math.random() - .5) * .02; pPos[j + 2] = cam.position.z + tmp.z * .12 + (Math.random() - .5) * .03; const sp = .9 + Math.random() * .5; pVel[j] = tmp.x * sp + (Math.random() - .5) * .12; pVel[j + 1] = tmp.y * sp + (Math.random() - .5) * .08; pVel[j + 2] = tmp.z * sp + (Math.random() - .5) * .12; pLife[i] = .9; } else { pPos[j + 1] = -9; continue; } }
+    pLife[i] -= dt; pPos[j] += pVel[j] * dt; pPos[j + 1] += pVel[j + 1] * dt; pPos[j + 2] += pVel[j + 2] * dt; const rr = Math.hypot(pPos[j], pPos[j + 2]);
+    if (rr < G.R && pPos[j + 1] < top && pPos[j + 1] > cy) { const nx = pPos[j] / (rr || 1), nz = pPos[j + 2] / (rr || 1), vn = pVel[j] * nx + pVel[j + 2] * nz; if (top - pPos[j + 1] < G.R - rr) { pPos[j + 1] = top; pVel[j + 1] = Math.abs(pVel[j + 1]) * .25; } else { pPos[j] = nx * G.R; pPos[j + 2] = nz * G.R; pVel[j] -= 1.6 * vn * nx; pVel[j + 2] -= 1.6 * vn * nz; } pVel[j] *= .7; pVel[j + 2] *= .7; }
+    pVel[j] *= 1 - dt * 1.5; pVel[j + 1] *= 1 - dt * 1.5; pVel[j + 2] *= 1 - dt * 1.5; if (pPos[j + 1] < TABLE_Y) { pPos[j + 1] = TABLE_Y; pVel[j + 1] = 0; } } pGeo.attributes.position.needsUpdate = true;
+  for (let i = SMOKE.length - 1; i >= 0; i--) { const s = SMOKE[i]; if (!s.s) { s.s = new THREE.Sprite(new THREE.SpriteMaterial({ map: puffTex, transparent: true, depthWrite: false, color: 0xbfc4c8 })); scene.add(s.s); } s.life -= dt; s.p.addScaledVector(s.v, dt); s.v.multiplyScalar(1 - dt * .6); s.s.position.copy(s.p); const u = 1 - s.life / 1.6; s.s.scale.setScalar(.012 + u * .05); s.s.material.opacity = .34 * (1 - u); if (s.life <= 0) { scene.remove(s.s); s.s.material.dispose(); SMOKE.splice(i, 1); } }
+  // winning, losing, going on
+  if (G.phase === 'play') { if (litN === 0 && !G.candles.some(c => c.trick && !c.relit)) { G.phase = 'won'; G.phaseT = 0; G.cakes++; grain(520, .5, .18, .5); } else if (G.bar >= G.bars) { G.phase = 'lost'; G.phaseT = 0; G.lost++; } }
+  else if (G.phase === 'won' && G.phaseT > 4 * BEAT) { if (G.cakes >= 5 && !Q.has('endless')) { G.phase = 'end'; G.phaseT = 0; } else { let n = G.li + 1; while (L.levels[n % L.levels.length].candles.length < 3) n++; setLevel(n); } }      // a cake with fewer than three candles is no game; it is passed over
+  else if (G.phase === 'lost' && G.phaseT > 3 * BEAT) setLevel(G.li); }
+
+/* ------------------------------------------------------------------ what is drawn over the room: the crescent (lung, bar, burn), the look, and almost no words */
+const grainC = document.createElement('canvas'); grainC.width = grainC.height = 128; (() => { const x = grainC.getContext('2d'), d = x.createImageData(128, 128); for (let i = 0; i < d.data.length; i += 4) { const v = Math.random() * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; } x.putImageData(d, 0, 0); })();
+function drawHud() { const w = hud.width, h = hud.height, x = hx; x.clearRect(0, 0, w, h);
+  if (G.level && G.phase !== 'loading') { // the `)` crescent stands right of the cake, its open side toward it: the long arc is the lung, the pip the beat, the lower arc the candles' time
+    tmp.set(G.R * 1.05, TABLE_Y + .008 + G.crown * .55, 0).project(cam); const cx0 = (tmp.x + 1) / 2 * w, cy0 = (1 - tmp.y) / 2 * h, r0 = Math.min(h * .2, Math.max(44, w * .055)), cx = Math.min(w - r0 * 1.2, cx0 + r0 * .5), cy = cy0, r1 = r0 * .79, D = a => a * Math.PI / 180;
+    const sect = (a0, a1, col) => { x.beginPath(); x.arc(cx, cy, r0, D(a0), D(a1)); x.arc(cx, cy, r1, D(a1), D(a0), true); x.closePath(); x.fillStyle = col; x.fill(); };
+    [[-102, -88, .1], [-87, -71, .22], [-69, -46, .3], [-45, -12, .26], [-11, 3, .18], [7, 16, .4], [19, 44, .26], [45, 58, .16], [59, 68, .08]].forEach(s => sect(s[0], s[1], `rgba(226,236,234,${s[2]})`));
+    sect(-12 - 90 * G.lung, -12, G.winded ? 'rgba(255,120,90,.55)' : G.blowing && G.onBeat ? 'rgba(160,255,240,.7)' : 'rgba(248,252,251,.5)');           // the lung
+    const left = clamp(1 - (G.bar * 4 + G.beat) / (G.bars * 4), 0, 1); sect(7, 7 + 61 * left, 'rgba(255,196,110,.5)');                                   // the candles' time
+    const pa = -102 + (G.beat / 4) * 170; sect(pa - 3, pa + 3, Math.abs(G.beat - 2) < .22 ? 'rgba(160,255,240,.95)' : 'rgba(248,252,251,.8)');            // the beat; it brightens on the third
+    x.strokeStyle = 'rgba(236,245,243,.6)'; x.lineWidth = 1.2; x.beginPath(); x.arc(cx, cy, r0 * .965, D(-92), D(60)); x.stroke(); }
+  // cakes done and lost, as small marks, never words
+  for (let i = 0; i < G.cakes; i++) { x.fillStyle = 'rgba(255,196,110,.8)'; x.fillRect(22 + i * 12, h - 26, 7, 7); } for (let i = 0; i < G.lost; i++) { x.strokeStyle = 'rgba(255,255,255,.4)'; x.strokeRect(22 + (G.cakes + i) * 12 + .5, h - 25.5, 6, 6); }
+  const g = x.createRadialGradient(w / 2, h / 2, h * .42, w / 2, h / 2, Math.max(w, h) * .72); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.55)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+  if (LOOK !== 'clean') { x.globalAlpha = LOOK === 'camcorder90' ? .09 : .05; x.globalCompositeOperation = 'overlay'; const ox = Math.random() * 128, oy = Math.random() * 128; for (let yy = -oy; yy < h; yy += 128) for (let xx = -ox; xx < w; xx += 128) x.drawImage(grainC, xx, yy); x.globalAlpha = 1; x.globalCompositeOperation = 'source-over'; }
+  if (LOOK === 'camcorder90') { x.fillStyle = 'rgba(0,0,0,.14)'; for (let yy = 0; yy < h; yy += 3) x.fillRect(0, yy, w, 1); }
+  if (G.phase === 'won' || G.phase === 'lost' || G.phase === 'end') { x.fillStyle = `rgba(0,0,0,${clamp(G.phaseT / (G.phase === 'end' ? 1.5 : 3), 0, G.phase === 'end' ? .86 : .6)})`; x.fillRect(0, 0, w, h); }
+  if (G.phase === 'title' || G.phase === 'end') { x.textAlign = 'center'; x.fillStyle = 'rgba(240,244,242,.94)'; x.font = `600 ${Math.round(Math.min(w * .07, 64))}px "Inter Display", "Helvetica Neue", Arial, sans-serif`; x.fillText(G.phase === 'title' ? 'THE BREATH' : G.cakes + ' CAKES · ' + G.breaths + ' BREATHS', w / 2, h * .24);
+    x.font = `500 ${Math.round(Math.min(w * .02, 15))}px ui-monospace, Menlo, monospace`; x.fillStyle = 'rgba(255,204,102,.9)'; x.fillText(G.phase === 'title' ? 'MOUSE OR ARROWS AIM · HOLD SPACE TO BLOW · ON THE THIRD BEAT IT CARRIES FURTHER' : 'SPACE FOR THE NEXT FIVE', w / 2, h * .24 + 30); } }
+if (LOOK === 'camcorder90') gl.style.filter = 'saturate(1.3) contrast(1.08) blur(.4px)';
+
+/* ------------------------------------------------------------------ the loop, and what a playtest may read */
+function frame(dt) { update(dt); R.render(scene, cam); drawHud(); }
+let last = performance.now(); function loop(now) { const dt = Math.min(.05, (now - last) / 1000); last = now; frame(dt); if (!MANUAL) requestAnimationFrame(loop); }
+window.__game = { get state() { CAKE.updateMatrixWorld(); return { phase: G.phase, clip: G.level && G.level.id, level: G.li, lit: G.lit, total: G.candles.length, lung: +G.lung.toFixed(3), winded: G.winded, blowing: G.blowing, onBeat: !!G.onBeat, beat: +G.beat.toFixed(3), bar: G.bar, bars: G.bars, aim: [+G.aim.x.toFixed(4), +G.aim.y.toFixed(4)], cakes: G.cakes, lost: G.lost, breaths: G.breaths,
+    targets: G.candles.map(c => { const p = c.g.getWorldPosition(new THREE.Vector3()); return { x: +p.x.toFixed(4), z: +p.z.toFixed(4), lit: !c.out, heat: +c.heat.toFixed(2), trick: c.trick && !c.relit }; }) }; }, advance(dt, unseen) { if (!MANUAL) return; if (unseen) update(dt); else frame(dt); } };      // unseen: the game steps without drawing, for tuning runs
+const startId = Q.get('clip'), si = Math.max(0, L.levels.findIndex(l => l.id === startId)); if (Q.has('autostart')) G.started = true; frameCam(); setLevel(startId ? si : 0); if (!MANUAL) requestAnimationFrame(loop);
+</script>
+</body>
+</html>

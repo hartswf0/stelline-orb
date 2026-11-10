@@ -1,0 +1,5 @@
+// static server with byte ranges (python's http.server has none, so video cannot seek there)
+const http = require('http'), fs = require('fs'), path = require('path'); const ROOT = require('path').resolve(__dirname, '../..');
+const T = { html: 'text/html', js: 'text/javascript', json: 'application/json', mp4: 'video/mp4', png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp', css: 'text/css', mp3: 'audio/mpeg' };
+http.createServer((q, r) => { const f = path.join(ROOT, decodeURIComponent(q.url.split('?')[0])); fs.stat(f, (e, st) => { if (e || !st.isFile()) { r.writeHead(404); return r.end(); } const h = { 'Content-Type': T[f.split('.').pop()] || 'application/octet-stream', 'Accept-Ranges': 'bytes' }, m = /bytes=(\d*)-(\d*)/.exec(q.headers.range || '');
+  if (m) { const a = m[1] ? +m[1] : 0, b = m[2] ? +m[2] : st.size - 1; r.writeHead(206, Object.assign(h, { 'Content-Range': `bytes ${a}-${b}/${st.size}`, 'Content-Length': b - a + 1 })); fs.createReadStream(f, { start: a, end: b }).pipe(r); } else { r.writeHead(200, Object.assign(h, { 'Content-Length': st.size })); fs.createReadStream(f).pipe(r); } }); }).listen(8095);
