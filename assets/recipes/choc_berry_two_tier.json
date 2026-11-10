@@ -1,0 +1,60 @@
+{
+ "id": "choc_berry_two_tier",
+ "title": "CHOC BERRY TWO TIER",
+ "fps": 24,
+ "frames": 91,
+ "duration_s": 3.792,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE TIERS"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 #2E170D"
+  },
+  {
+   "i": 3,
+   "t": 1.333,
+   "step": "LET THE GANACHE RUN OVER THE SHOULDER"
+  },
+  {
+   "i": 4,
+   "t": 1.792,
+   "step": "PIPE A BEADED BORDER"
+  },
+  {
+   "i": 5,
+   "t": 2.208,
+   "step": "BERRIES ROUND THE FOOT"
+  },
+  {
+   "i": 6,
+   "t": 2.583,
+   "step": "7 CANDLES"
+  },
+  {
+   "i": 7,
+   "t": 2.833,
+   "step": "SET THE LENS \u00b7 HERO 3/4 \u00b7 24\u00b0 \u00b7 50MM"
+  },
+  {
+   "i": 8,
+   "t": 3.25,
+   "step": "HELD"
+  },
+  {
+   "i": 9,
+   "t": 3.417
+  }
+ ]
+}

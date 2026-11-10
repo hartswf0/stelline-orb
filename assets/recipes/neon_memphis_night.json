@@ -1,0 +1,70 @@
+{
+ "id": "neon_memphis_night",
+ "title": "NEON MEMPHIS NIGHT",
+ "fps": 24,
+ "frames": 103,
+ "duration_s": 4.292,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.167,
+   "step": "PUT DOWN THE DRUM"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 #1C2030"
+  },
+  {
+   "i": 3,
+   "t": 1.125,
+   "step": "TRACE A CIRCUIT OF LIGHT"
+  },
+  {
+   "i": 4,
+   "t": 1.417,
+   "step": "A NEON RING AT THE FOOT AND THE CROWN"
+  },
+  {
+   "i": 5,
+   "t": 1.792,
+   "step": "SCATTER MEMPHIS"
+  },
+  {
+   "i": 6,
+   "t": 2.167,
+   "step": "9 CANDLES"
+  },
+  {
+   "i": 7,
+   "t": 2.458,
+   "step": "THE CHILDREN COME IN FROM THE DARK"
+  },
+  {
+   "i": 8,
+   "t": 2.875,
+   "step": "SET THE LENS \u00b7 CANDLE FACE CU \u00b7 4\u00b0 \u00b7 85MM f/1.6"
+  },
+  {
+   "i": 9,
+   "t": 3.333,
+   "step": "MAKE A WISH"
+  },
+  {
+   "i": 10,
+   "t": 3.75,
+   "step": "HELD"
+  },
+  {
+   "i": 11,
+   "t": 3.917
+  }
+ ]
+}

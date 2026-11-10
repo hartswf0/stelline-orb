@@ -1,0 +1,60 @@
+{
+ "id": "three_tier_orb_grand",
+ "title": "THREE TIER ORB GRAND",
+ "fps": 24,
+ "frames": 107,
+ "duration_s": 4.458,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE 3 TIERS"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 THE FIRST COAT #3D2214"
+  },
+  {
+   "i": 3,
+   "t": 1.25,
+   "step": "THE COLOUR TURNS \u00b7 #F5F0E6"
+  },
+  {
+   "i": 4,
+   "t": 2.083,
+   "step": "RUFFLE THE SIDE, BAND BY BAND"
+  },
+  {
+   "i": 5,
+   "t": 2.667,
+   "step": "SHELLS ROUND THE CROWN"
+  },
+  {
+   "i": 6,
+   "t": 3.25,
+   "step": "7 CANDLES"
+  },
+  {
+   "i": 7,
+   "t": 3.5,
+   "step": "SET THE LENS \u00b7 HERO 3/4 \u00b7 24\u00b0 \u00b7 50MM"
+  },
+  {
+   "i": 8,
+   "t": 3.958,
+   "step": "HELD"
+  },
+  {
+   "i": 9,
+   "t": 4.083
+  }
+ ]
+}

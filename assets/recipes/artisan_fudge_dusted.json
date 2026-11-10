@@ -1,0 +1,55 @@
+{
+ "id": "artisan_fudge_dusted",
+ "title": "ARTISAN FUDGE DUSTED",
+ "fps": 24,
+ "frames": 80,
+ "duration_s": 3.333,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE DRUM"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 #3D1E10"
+  },
+  {
+   "i": 3,
+   "t": 1.167,
+   "step": "RUFFLE THE SIDE, BAND BY BAND"
+  },
+  {
+   "i": 4,
+   "t": 1.667,
+   "step": "SCATTER SUGAR DUST"
+  },
+  {
+   "i": 5,
+   "t": 2.083,
+   "step": "9 CANDLES"
+  },
+  {
+   "i": 6,
+   "t": 2.375,
+   "step": "SET THE LENS \u00b7 BENCH CRAFT \u00b7 28\u00b0 \u00b7 45MM"
+  },
+  {
+   "i": 7,
+   "t": 2.833,
+   "step": "HELD"
+  },
+  {
+   "i": 8,
+   "t": 2.958
+  }
+ ]
+}

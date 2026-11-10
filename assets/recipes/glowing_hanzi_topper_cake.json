@@ -1,0 +1,66 @@
+{
+ "id": "glowing_hanzi_topper_cake",
+ "title": "GLOWING HANZI TOPPER CAKE",
+ "fps": 24,
+ "frames": 115,
+ "duration_s": 4.792,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE DRUM"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 THE FIRST COAT #D8CFB8"
+  },
+  {
+   "i": 3,
+   "t": 1.125,
+   "step": "THE COLOUR TURNS \u00b7 #7C8A92"
+  },
+  {
+   "i": 4,
+   "t": 1.792,
+   "step": "RUFFLE THE SIDE, BAND BY BAND"
+  },
+  {
+   "i": 5,
+   "t": 2.25,
+   "step": "SHELLS ROUND THE CROWN"
+  },
+  {
+   "i": 6,
+   "t": 2.792,
+   "step": "WRITE \u201c\u751f\u65e5\u201d"
+  },
+  {
+   "i": 7,
+   "t": 3.125,
+   "step": "9 CANDLES"
+  },
+  {
+   "i": 8,
+   "t": 3.375,
+   "step": "SET THE LENS \u00b7 CANDLE FACE CU \u00b7 4\u00b0 \u00b7 85MM f/1.6"
+  },
+  {
+   "i": 9,
+   "t": 3.833,
+   "step": "MAKE A WISH"
+  },
+  {
+   "i": 10,
+   "t": 4.292,
+   "step": "HELD"
+  }
+ ]
+}

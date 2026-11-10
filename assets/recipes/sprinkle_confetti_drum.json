@@ -1,0 +1,65 @@
+{
+ "id": "sprinkle_confetti_drum",
+ "title": "SPRINKLE CONFETTI DRUM",
+ "fps": 24,
+ "frames": 94,
+ "duration_s": 3.917,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE DRUM"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 #E8E0D2"
+  },
+  {
+   "i": 3,
+   "t": 1.167,
+   "step": "SHELLS ROUND THE CROWN"
+  },
+  {
+   "i": 4,
+   "t": 1.708,
+   "step": "SCATTER SPRINKLES"
+  },
+  {
+   "i": 5,
+   "t": 2.042,
+   "step": "7 CANDLES"
+  },
+  {
+   "i": 6,
+   "t": 2.333,
+   "step": "SET THE LENS \u00b7 CANDLE FACE CU \u00b7 4\u00b0 \u00b7 85MM f/1.6"
+  },
+  {
+   "i": 7,
+   "t": 2.792,
+   "step": "MAKE A WISH"
+  },
+  {
+   "i": 8,
+   "t": 3.167,
+   "step": "TURN THE TIME BACK \u00b7 THE FLAMES RETURN"
+  },
+  {
+   "i": 9,
+   "t": 3.375,
+   "step": "HELD"
+  },
+  {
+   "i": 10,
+   "t": 3.542
+  }
+ ]
+}

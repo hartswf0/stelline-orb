@@ -1,0 +1,41 @@
+{
+ "id": "film_dome",
+ "title": "ORB FILM \u00b7 LEMON DOME",
+ "fps": 24,
+ "frames": 60,
+ "duration_s": 2.5,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE DOME"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 THE FIRST COAT #F3DC84"
+  },
+  {
+   "i": 3,
+   "t": 1.125,
+   "step": "THE COLOUR TURNS \u00b7 #F6F0E2"
+  },
+  {
+   "i": 4,
+   "t": 1.583,
+   "step": "SET THE LENS \u00b7 HERO 3/4"
+  },
+  {
+   "i": 5,
+   "t": 2,
+   "step": "HELD"
+  }
+ ]
+}

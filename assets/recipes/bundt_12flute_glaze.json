@@ -1,0 +1,60 @@
+{
+ "id": "bundt_12flute_glaze",
+ "title": "BUNDT 12FLUTE GLAZE",
+ "fps": 24,
+ "frames": 96,
+ "duration_s": 4,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE BUNDT"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "CUT 12 FLUTES ROUND THE RING"
+  },
+  {
+   "i": 3,
+   "t": 0.917,
+   "step": "PRESS A WELL INTO THE CROWN"
+  },
+  {
+   "i": 4,
+   "t": 1.125,
+   "step": "FROST \u00b7 THE FIRST COAT #D8AA52"
+  },
+  {
+   "i": 5,
+   "t": 1.917,
+   "step": "THE COLOUR TURNS \u00b7 #E6C274"
+  },
+  {
+   "i": 6,
+   "t": 2.75,
+   "step": "4 CANDLES"
+  },
+  {
+   "i": 7,
+   "t": 3.042,
+   "step": "SET THE LENS \u00b7 HERO 3/4 \u00b7 24\u00b0 \u00b7 50MM"
+  },
+  {
+   "i": 8,
+   "t": 3.458,
+   "step": "HELD"
+  },
+  {
+   "i": 9,
+   "t": 3.625
+  }
+ ]
+}

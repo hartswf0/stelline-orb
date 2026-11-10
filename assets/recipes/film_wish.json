@@ -1,0 +1,76 @@
+{
+ "id": "film_wish",
+ "title": "YOUR WORDS, THREE CHILDREN, ONE WISH",
+ "fps": 24,
+ "frames": 138,
+ "duration_s": 5.75,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.167,
+   "step": "PUT DOWN THE TIERS"
+  },
+  {
+   "i": 2,
+   "t": 0.417,
+   "step": "FROST \u00b7 THE FIRST COAT #F0A8B4"
+  },
+  {
+   "i": 3,
+   "t": 1.208,
+   "step": "THE COLOUR TURNS \u00b7 #FBF8F2"
+  },
+  {
+   "i": 4,
+   "t": 2.042,
+   "step": "RUFFLE THE SIDE, BAND BY BAND"
+  },
+  {
+   "i": 5,
+   "t": 2.5,
+   "step": "SHELLS ROUND THE CROWN"
+  },
+  {
+   "i": 6,
+   "t": 3.083,
+   "step": "WRITE \u201cHappy Birthday\u201d"
+  },
+  {
+   "i": 7,
+   "t": 3.375,
+   "step": "9 CANDLES"
+  },
+  {
+   "i": 8,
+   "t": 3.667,
+   "step": "THE CHILDREN COME IN FROM THE DARK"
+  },
+  {
+   "i": 9,
+   "t": 4.042,
+   "step": "SET THE LENS \u00b7 HERO 3/4"
+  },
+  {
+   "i": 10,
+   "t": 4.583,
+   "step": "MAKE A WISH"
+  },
+  {
+   "i": 11,
+   "t": 5,
+   "step": "TURN THE TIME BACK \u00b7 THE FLAMES RETURN"
+  },
+  {
+   "i": 12,
+   "t": 5.25,
+   "step": "HELD"
+  }
+ ]
+}

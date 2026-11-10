@@ -1,0 +1,60 @@
+{
+ "id": "memphis_mint_geo",
+ "title": "MEMPHIS MINT GEO",
+ "fps": 24,
+ "frames": 102,
+ "duration_s": 4.25,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE TIERS"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 THE FIRST COAT #F53899"
+  },
+  {
+   "i": 3,
+   "t": 1.25,
+   "step": "THE COLOUR TURNS \u00b7 #9DE8D8"
+  },
+  {
+   "i": 4,
+   "t": 2.083,
+   "step": "SHELLS ROUND THE CROWN"
+  },
+  {
+   "i": 5,
+   "t": 2.625,
+   "step": "SCATTER MEMPHIS"
+  },
+  {
+   "i": 6,
+   "t": 2.958,
+   "step": "8 CANDLES"
+  },
+  {
+   "i": 7,
+   "t": 3.25,
+   "step": "SET THE LENS \u00b7 CROWN WRITING \u00b7 46\u00b0 \u00b7 50MM"
+  },
+  {
+   "i": 8,
+   "t": 3.75,
+   "step": "HELD"
+  },
+  {
+   "i": 9,
+   "t": 3.875
+  }
+ ]
+}

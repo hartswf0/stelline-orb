@@ -1,0 +1,70 @@
+{
+ "id": "rustic_petit_candle",
+ "title": "RUSTIC PETIT CANDLE",
+ "fps": 24,
+ "frames": 97,
+ "duration_s": 4.042,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE DRUM"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 #EADBC0"
+  },
+  {
+   "i": 3,
+   "t": 1.167,
+   "step": "RUFFLE THE SIDE, BAND BY BAND"
+  },
+  {
+   "i": 4,
+   "t": 1.625,
+   "step": "5 CANDLES"
+  },
+  {
+   "i": 5,
+   "t": 1.958,
+   "step": "PRESS IT LOW, A TART"
+  },
+  {
+   "i": 6,
+   "t": 2.125,
+   "step": "THE CHILDREN COME IN FROM THE DARK"
+  },
+  {
+   "i": 7,
+   "t": 2.542,
+   "step": "SET THE LENS \u00b7 CANDLE FACE CU \u00b7 4\u00b0 \u00b7 85MM f/1.6"
+  },
+  {
+   "i": 8,
+   "t": 3,
+   "step": "MAKE A WISH"
+  },
+  {
+   "i": 9,
+   "t": 3.333,
+   "step": "TURN THE TIME BACK \u00b7 THE FLAMES RETURN"
+  },
+  {
+   "i": 10,
+   "t": 3.5,
+   "step": "HELD"
+  },
+  {
+   "i": 11,
+   "t": 3.667
+  }
+ ]
+}

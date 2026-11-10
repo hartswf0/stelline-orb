@@ -1,0 +1,51 @@
+{
+ "id": "film_bundt",
+ "title": "THE BUNDT SHE REJECTED",
+ "fps": 24,
+ "frames": 80,
+ "duration_s": 3.333,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE BUNDT"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "CUT 12 FLUTES ROUND THE RING"
+  },
+  {
+   "i": 3,
+   "t": 0.917,
+   "step": "FROST \u00b7 #F6EFE0"
+  },
+  {
+   "i": 4,
+   "t": 1.708,
+   "step": "LET THE GANACHE RUN OVER THE SHOULDER"
+  },
+  {
+   "i": 5,
+   "t": 2.25,
+   "step": "2 CANDLES"
+  },
+  {
+   "i": 6,
+   "t": 2.417,
+   "step": "SET THE LENS \u00b7 HERO 3/4"
+  },
+  {
+   "i": 7,
+   "t": 2.833,
+   "step": "HELD"
+  }
+ ]
+}

@@ -1,0 +1,65 @@
+{
+ "id": "obsidian_amethyst_hex",
+ "title": "OBSIDIAN AMETHYST HEX",
+ "fps": 24,
+ "frames": 94,
+ "duration_s": 3.917,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE DRUM"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 #14161D"
+  },
+  {
+   "i": 3,
+   "t": 1.167,
+   "step": "TRACE A CIRCUIT OF LIGHT"
+  },
+  {
+   "i": 4,
+   "t": 1.458,
+   "step": "A NEON RING AT THE FOOT AND THE CROWN"
+  },
+  {
+   "i": 5,
+   "t": 1.833,
+   "step": "SCATTER CRYSTALS"
+  },
+  {
+   "i": 6,
+   "t": 2.167,
+   "step": "9 CANDLES"
+  },
+  {
+   "i": 7,
+   "t": 2.5,
+   "step": "THE CHILDREN COME IN FROM THE DARK"
+  },
+  {
+   "i": 8,
+   "t": 2.875,
+   "step": "SET THE LENS \u00b7 PARTY TABLEAU \u00b7 9\u00b0 \u00b7 40MM"
+  },
+  {
+   "i": 9,
+   "t": 3.375,
+   "step": "HELD"
+  },
+  {
+   "i": 10,
+   "t": 3.542
+  }
+ ]
+}

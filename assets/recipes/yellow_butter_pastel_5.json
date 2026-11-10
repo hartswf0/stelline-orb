@@ -1,0 +1,55 @@
+{
+ "id": "yellow_butter_pastel_5",
+ "title": "YELLOW BUTTER PASTEL 5",
+ "fps": 24,
+ "frames": 85,
+ "duration_s": 3.542,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE DRUM \u00b7 LEMON SPONGE"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 THE FIRST COAT #E6C45C"
+  },
+  {
+   "i": 3,
+   "t": 1.125,
+   "step": "THE COLOUR TURNS \u00b7 #F5EEDC"
+  },
+  {
+   "i": 4,
+   "t": 1.792,
+   "step": "RUFFLE THE SIDE, BAND BY BAND"
+  },
+  {
+   "i": 5,
+   "t": 2.25,
+   "step": "5 CANDLES"
+  },
+  {
+   "i": 6,
+   "t": 2.583,
+   "step": "SET THE LENS \u00b7 BENCH CRAFT \u00b7 28\u00b0 \u00b7 45MM"
+  },
+  {
+   "i": 7,
+   "t": 3,
+   "step": "HELD"
+  },
+  {
+   "i": 8,
+   "t": 3.167
+  }
+ ]
+}

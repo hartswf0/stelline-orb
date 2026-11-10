@@ -1,0 +1,60 @@
+{
+ "id": "holo_cyan_matrix_tiers",
+ "title": "HOLO CYAN MATRIX TIERS",
+ "fps": 24,
+ "frames": 92,
+ "duration_s": 3.833,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE DRUM"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 THE FIRST COAT #0C2233"
+  },
+  {
+   "i": 3,
+   "t": 1.125,
+   "step": "THE COLOUR TURNS \u00b7 #38F0FF"
+  },
+  {
+   "i": 4,
+   "t": 1.792,
+   "step": "TRACE A CIRCUIT OF LIGHT"
+  },
+  {
+   "i": 5,
+   "t": 2.083,
+   "step": "A NEON RING AT THE FOOT AND THE CROWN"
+  },
+  {
+   "i": 6,
+   "t": 2.458,
+   "step": "THE CHILDREN COME IN FROM THE DARK"
+  },
+  {
+   "i": 7,
+   "t": 2.875,
+   "step": "SET THE LENS \u00b7 PARTY TABLEAU \u00b7 9\u00b0 \u00b7 40MM"
+  },
+  {
+   "i": 8,
+   "t": 3.333,
+   "step": "HELD"
+  },
+  {
+   "i": 9,
+   "t": 3.458
+  }
+ ]
+}

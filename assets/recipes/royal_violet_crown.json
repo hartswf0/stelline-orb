@@ -1,0 +1,65 @@
+{
+ "id": "royal_violet_crown",
+ "title": "ROYAL VIOLET CROWN",
+ "fps": 24,
+ "frames": 100,
+ "duration_s": 4.167,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE DRUM"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 THE FIRST COAT #6E3896"
+  },
+  {
+   "i": 3,
+   "t": 1.125,
+   "step": "THE COLOUR TURNS \u00b7 #F2EFE9"
+  },
+  {
+   "i": 4,
+   "t": 1.792,
+   "step": "RUFFLE THE SIDE, BAND BY BAND"
+  },
+  {
+   "i": 5,
+   "t": 2.25,
+   "step": "SHELLS ROUND THE CROWN"
+  },
+  {
+   "i": 6,
+   "t": 2.792,
+   "step": "9 CANDLES"
+  },
+  {
+   "i": 7,
+   "t": 3.083,
+   "step": "DRAW IT TALLER"
+  },
+  {
+   "i": 8,
+   "t": 3.25,
+   "step": "SET THE LENS \u00b7 HERO 3/4 \u00b7 24\u00b0 \u00b7 50MM"
+  },
+  {
+   "i": 9,
+   "t": 3.667,
+   "step": "HELD"
+  },
+  {
+   "i": 10,
+   "t": 3.792
+  }
+ ]
+}

@@ -1,0 +1,61 @@
+{
+ "id": "blackberry_neon_tart",
+ "title": "BLACKBERRY NEON TART",
+ "fps": 24,
+ "frames": 90,
+ "duration_s": 3.75,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE DRUM"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 THE FIRST COAT #F2F0EC"
+  },
+  {
+   "i": 3,
+   "t": 1.125,
+   "step": "THE COLOUR TURNS \u00b7 #1E162B"
+  },
+  {
+   "i": 4,
+   "t": 1.75,
+   "step": "A NEON RING AT THE FOOT AND THE CROWN"
+  },
+  {
+   "i": 5,
+   "t": 2.25,
+   "step": "BERRIES ROUND THE FOOT"
+  },
+  {
+   "i": 6,
+   "t": 2.5,
+   "step": "2 CANDLES"
+  },
+  {
+   "i": 7,
+   "t": 2.708,
+   "step": "PRESS IT LOW, A TART"
+  },
+  {
+   "i": 8,
+   "t": 2.875,
+   "step": "SET THE LENS \u00b7 HERO 3/4 \u00b7 24\u00b0 \u00b7 50MM"
+  },
+  {
+   "i": 9,
+   "t": 3.25,
+   "step": "HELD"
+  }
+ ]
+}

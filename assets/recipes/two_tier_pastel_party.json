@@ -1,0 +1,65 @@
+{
+ "id": "two_tier_pastel_party",
+ "title": "TWO TIER PASTEL PARTY",
+ "fps": 24,
+ "frames": 108,
+ "duration_s": 4.5,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE TIERS"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 #F2E6D0"
+  },
+  {
+   "i": 3,
+   "t": 1.333,
+   "step": "RUFFLE THE SIDE, BAND BY BAND"
+  },
+  {
+   "i": 4,
+   "t": 1.792,
+   "step": "SHELLS ROUND THE CROWN"
+  },
+  {
+   "i": 5,
+   "t": 2.333,
+   "step": "9 CANDLES"
+  },
+  {
+   "i": 6,
+   "t": 2.625,
+   "step": "THE CHILDREN COME IN FROM THE DARK"
+  },
+  {
+   "i": 7,
+   "t": 3.042,
+   "step": "SET THE LENS \u00b7 PARTY TABLEAU \u00b7 9\u00b0 \u00b7 40MM"
+  },
+  {
+   "i": 8,
+   "t": 3.542,
+   "step": "MAKE A WISH"
+  },
+  {
+   "i": 9,
+   "t": 4,
+   "step": "HELD"
+  },
+  {
+   "i": 10,
+   "t": 4.125
+  }
+ ]
+}

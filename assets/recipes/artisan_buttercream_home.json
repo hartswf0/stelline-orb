@@ -1,0 +1,55 @@
+{
+ "id": "artisan_buttercream_home",
+ "title": "ARTISAN BUTTERCREAM HOME",
+ "fps": 24,
+ "frames": 84,
+ "duration_s": 3.5,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.167,
+   "step": "PUT DOWN THE DRUM"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 THE FIRST COAT #C98A3C"
+  },
+  {
+   "i": 3,
+   "t": 1.083,
+   "step": "THE COLOUR TURNS \u00b7 #F3EAD6"
+  },
+  {
+   "i": 4,
+   "t": 1.75,
+   "step": "RUFFLE THE SIDE, BAND BY BAND"
+  },
+  {
+   "i": 5,
+   "t": 2.25,
+   "step": "6 CANDLES"
+  },
+  {
+   "i": 6,
+   "t": 2.542,
+   "step": "SET THE LENS \u00b7 BENCH CRAFT \u00b7 28\u00b0 \u00b7 45MM"
+  },
+  {
+   "i": 7,
+   "t": 3,
+   "step": "HELD"
+  },
+  {
+   "i": 8,
+   "t": 3.125
+  }
+ ]
+}

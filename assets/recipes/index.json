@@ -1,0 +1,2084 @@
+{
+ "films": [
+  {
+   "id": "film_bundt",
+   "title": "THE BUNDT SHE REJECTED",
+   "duration_s": 3.333,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE BUNDT",
+    "CUT 12 FLUTES ROUND THE RING",
+    "FROST · #F6EFE0",
+    "LET THE GANACHE RUN OVER THE SHOULDER",
+    "2 CANDLES",
+    "SET THE LENS · HERO 3/4",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    0.917,
+    1.708,
+    2.25,
+    2.417,
+    2.833
+   ],
+   "shelf": "FILM",
+   "ref": "assets/orbfilm/cakes/cake1_stage_clean.jpg"
+  },
+  {
+   "id": "film_canon",
+   "title": "THE CAKE SHE KEPT · 生日快樂",
+   "duration_s": 4.333,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · THE FIRST COAT #F2E6C9",
+    "THE COLOUR TURNS · #FBF8F2",
+    "PIPE A BEADED BORDER",
+    "WRITE “生日快樂”",
+    "7 CANDLES",
+    "THE CHILDREN COME IN FROM THE DARK",
+    "SET THE LENS · HERO 3/4",
+    "MAKE A WISH",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.167,
+    0.458,
+    1.083,
+    1.75,
+    2,
+    2.292,
+    2.542,
+    2.958,
+    3.458,
+    3.833
+   ],
+   "shelf": "FILM",
+   "ref": "assets/orbfilm/cakes/cake2_stage_clean.jpg"
+  },
+  {
+   "id": "film_dome",
+   "title": "ORB FILM · LEMON DOME",
+   "duration_s": 2.5,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DOME",
+    "FROST · THE FIRST COAT #F3DC84",
+    "THE COLOUR TURNS · #F6F0E2",
+    "SET THE LENS · HERO 3/4",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.125,
+    1.583,
+    2
+   ],
+   "shelf": "FILM",
+   "ref": "assets/orbfilm/cakes/cake3_stage_clean.jpg"
+  },
+  {
+   "id": "film_drum",
+   "title": "ORB FILM · WHITE DRUM",
+   "duration_s": 2.708,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · THE FIRST COAT #F2E6C9",
+    "THE COLOUR TURNS · #FBF8F2",
+    "SET THE LENS · HERO 3/4",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.125,
+    1.792,
+    2.167
+   ],
+   "shelf": "FILM",
+   "ref": "assets/orbfilm/cakes/cake2_stage_clean.jpg"
+  },
+  {
+   "id": "film_tiers",
+   "title": "ORB FILM · ROSE TIERS, SEVEN FLAMES",
+   "duration_s": 4.042,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE TIERS",
+    "FROST · THE FIRST COAT #FBF8F2",
+    "THE COLOUR TURNS · #F0A8B4",
+    "PIPE A BEADED BORDER",
+    "BERRIES ROUND THE FOOT",
+    "7 CANDLES",
+    "SET THE LENS · HERO 3/4",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.167,
+    0.417,
+    1.208,
+    2.042,
+    2.458,
+    2.833,
+    3.083,
+    3.5
+   ],
+   "shelf": "FILM",
+   "ref": "assets/orbfilm/cakes/cake4_stage_clean.jpg"
+  },
+  {
+   "id": "film_wish",
+   "title": "YOUR WORDS, THREE CHILDREN, ONE WISH",
+   "duration_s": 5.75,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE TIERS",
+    "FROST · THE FIRST COAT #F0A8B4",
+    "THE COLOUR TURNS · #FBF8F2",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "SHELLS ROUND THE CROWN",
+    "WRITE “Happy Birthday”",
+    "9 CANDLES",
+    "THE CHILDREN COME IN FROM THE DARK",
+    "SET THE LENS · HERO 3/4",
+    "MAKE A WISH",
+    "TURN THE TIME BACK · THE FLAMES RETURN",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.167,
+    0.417,
+    1.208,
+    2.042,
+    2.5,
+    3.083,
+    3.375,
+    3.667,
+    4.042,
+    4.583,
+    5,
+    5.25
+   ],
+   "shelf": "FILM",
+   "ref": "assets/orbfilm/cakes/cake4_stage_clean.jpg"
+  },
+  {
+   "id": "canonical_chamber_7",
+   "title": "CANONICAL CHAMBER 7",
+   "duration_s": 3.708,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · THE FIRST COAT #9C5E2C",
+    "THE COLOUR TURNS · #F4EAD2",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "PIPE A BEADED BORDER",
+    "7 CANDLES",
+    "SET THE LENS · HERO 3/4 · 24° · 50MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.125,
+    1.792,
+    2.25,
+    2.5,
+    2.792,
+    3.208
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_10.webp",
+   "clip": "Building_retro_memory_orb_cake_528cf831.mp4",
+   "clip_id": "bday_10",
+   "count": 11,
+   "era": "2049_chamber"
+  },
+  {
+   "id": "two_tier_pastel_party",
+   "title": "TWO TIER PASTEL PARTY",
+   "duration_s": 4.5,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE TIERS",
+    "FROST · #F2E6D0",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "SHELLS ROUND THE CROWN",
+    "9 CANDLES",
+    "THE CHILDREN COME IN FROM THE DARK",
+    "SET THE LENS · PARTY TABLEAU · 9° · 40MM",
+    "MAKE A WISH",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.333,
+    1.792,
+    2.333,
+    2.625,
+    3.042,
+    3.542,
+    4
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_18.webp",
+   "clip": "Child_blowing_out_birthday_candles_b79c2123.mp4",
+   "clip_id": "bday_18",
+   "count": 7,
+   "era": "1950s_midcentury"
+  },
+  {
+   "id": "ganache_drip_curls",
+   "title": "GANACHE DRIP CURLS",
+   "duration_s": 4.125,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · THE FIRST COAT #F2E5C6",
+    "THE COLOUR TURNS · #3B2114",
+    "LET THE GANACHE RUN OVER THE SHOULDER",
+    "SHELLS ROUND THE CROWN",
+    "COCOA CURLS",
+    "SET THE LENS · HERO 3/4 · 24° · 50MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.125,
+    1.792,
+    2.25,
+    2.75,
+    3.208,
+    3.625
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_08.webp",
+   "clip": "Birthday_cake_frosting_changing_…_56e3804b.mp4",
+   "clip_id": "bday_08",
+   "count": 4,
+   "era": "2049_chamber"
+  },
+  {
+   "id": "tilted_chamber_canon",
+   "title": "TILTED CHAMBER CANON",
+   "duration_s": 4,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · THE FIRST COAT #EFE2C4",
+    "THE COLOUR TURNS · #3D2314",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "PIPE A BEADED BORDER",
+    "7 CANDLES",
+    "LIFT IT OFF THE TABLE AND TIP IT 24°",
+    "SET THE LENS · CHAMBER TILT · 10° · 35MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.125,
+    1.792,
+    2.25,
+    2.5,
+    2.792,
+    3,
+    3.5
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_12.webp",
+   "clip": "Cake_changing_color_and_tilting_8a2b551c.mp4",
+   "clip_id": "bday_12",
+   "count": 4,
+   "era": "2049_chamber"
+  },
+  {
+   "id": "obsidian_amethyst_hex",
+   "title": "OBSIDIAN AMETHYST HEX",
+   "duration_s": 3.917,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · #14161D",
+    "TRACE A CIRCUIT OF LIGHT",
+    "A NEON RING AT THE FOOT AND THE CROWN",
+    "SCATTER CRYSTALS",
+    "9 CANDLES",
+    "THE CHILDREN COME IN FROM THE DARK",
+    "SET THE LENS · PARTY TABLEAU · 9° · 40MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.167,
+    1.458,
+    1.833,
+    2.167,
+    2.5,
+    2.875,
+    3.375
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_46.webp",
+   "clip": "Cyberpunk_characters_celebrating…_b9782fa4.mp4",
+   "clip_id": "bday_46",
+   "count": 3,
+   "era": "2049_cyberpunk"
+  },
+  {
+   "id": "ruffled_ivory_crown",
+   "title": "RUFFLED IVORY CROWN",
+   "duration_s": 4.125,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · THE FIRST COAT #D97A8C",
+    "THE COLOUR TURNS · #F3EFE6",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "SHELLS ROUND THE CROWN",
+    "7 CANDLES",
+    "DRAW IT TALLER",
+    "SET THE LENS · HERO 3/4 · 24° · 50MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.083,
+    1.75,
+    2.25,
+    2.792,
+    3.042,
+    3.208,
+    3.583
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_01.webp",
+   "clip": "Birthday_cake_changes_color_83569c26.mp4",
+   "clip_id": "bday_01",
+   "count": 3,
+   "era": "2049_chamber"
+  },
+  {
+   "id": "synthwave_neon_tiers",
+   "title": "SYNTHWAVE NEON TIERS",
+   "duration_s": 4.375,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE TIERS",
+    "FROST · THE FIRST COAT #FF3CA8",
+    "THE COLOUR TURNS · #38E8FF",
+    "TRACE A CIRCUIT OF LIGHT",
+    "A NEON RING AT THE FOOT AND THE CROWN",
+    "7 CANDLES",
+    "THE CHILDREN COME IN FROM THE DARK",
+    "SET THE LENS · CANDLE FACE CU · 4° · 85MM f/1.6",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.25,
+    2.083,
+    2.375,
+    2.75,
+    3,
+    3.417,
+    3.875
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_24.webp",
+   "clip": "Children_and_cake_materialize_999a0bfe.mp4",
+   "clip_id": "bday_24",
+   "count": 3,
+   "era": "1980s_synthwave"
+  },
+  {
+   "id": "artisan_buttercream_home",
+   "title": "ARTISAN BUTTERCREAM HOME",
+   "duration_s": 3.5,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · THE FIRST COAT #C98A3C",
+    "THE COLOUR TURNS · #F3EAD6",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "6 CANDLES",
+    "SET THE LENS · BENCH CRAFT · 28° · 45MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.167,
+    0.458,
+    1.083,
+    1.75,
+    2.25,
+    2.542,
+    3
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_54.webp",
+   "clip": "Hands_frosting_homemade_pound_cake_12f48977.mp4",
+   "clip_id": "bday_54",
+   "count": 2,
+   "era": "studio_craft"
+  },
+  {
+   "id": "bundt_12flute_glaze",
+   "title": "BUNDT 12FLUTE GLAZE",
+   "duration_s": 4,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE BUNDT",
+    "CUT 12 FLUTES ROUND THE RING",
+    "PRESS A WELL INTO THE CROWN",
+    "FROST · THE FIRST COAT #D8AA52",
+    "THE COLOUR TURNS · #E6C274",
+    "4 CANDLES",
+    "SET THE LENS · HERO 3/4 · 24° · 50MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    0.917,
+    1.125,
+    1.917,
+    2.75,
+    3.042,
+    3.458
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_39.webp",
+   "clip": "Controller_operating_1950s_memor…_bf9f96c2.mp4",
+   "clip_id": "bday_39",
+   "count": 2,
+   "era": "1950s_midcentury"
+  },
+  {
+   "id": "cyber_circuit_drum",
+   "title": "CYBER CIRCUIT DRUM",
+   "duration_s": 4.167,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · #121824",
+    "TRACE A CIRCUIT OF LIGHT",
+    "A NEON RING AT THE FOOT AND THE CROWN",
+    "9 CANDLES",
+    "THE CHILDREN COME IN FROM THE DARK",
+    "SET THE LENS · CANDLE FACE CU · 4° · 85MM f/1.6",
+    "MAKE A WISH",
+    "TURN THE TIME BACK · THE FLAMES RETURN",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.167,
+    0.458,
+    1.125,
+    1.417,
+    1.792,
+    2.083,
+    2.5,
+    2.958,
+    3.375,
+    3.625
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_47.webp",
+   "clip": "Cyberpunk_child_rewinding_time_1c1b4229.mp4",
+   "clip_id": "bday_47",
+   "count": 2,
+   "era": "2049_cyberpunk"
+  },
+  {
+   "id": "glowing_hanzi_topper_cake",
+   "title": "GLOWING HANZI TOPPER CAKE",
+   "duration_s": 4.792,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · THE FIRST COAT #D8CFB8",
+    "THE COLOUR TURNS · #7C8A92",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "SHELLS ROUND THE CROWN",
+    "WRITE “生日”",
+    "9 CANDLES",
+    "SET THE LENS · CANDLE FACE CU · 4° · 85MM f/1.6",
+    "MAKE A WISH",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.125,
+    1.792,
+    2.25,
+    2.792,
+    3.125,
+    3.375,
+    3.833,
+    4.292
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_31.webp",
+   "clip": "Children_blowing_out_birthday_ca…_96e0c404.mp4",
+   "clip_id": "bday_31",
+   "count": 2,
+   "era": "2049_chamber"
+  },
+  {
+   "id": "holo_cyan_matrix_tiers",
+   "title": "HOLO CYAN MATRIX TIERS",
+   "duration_s": 3.833,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · THE FIRST COAT #0C2233",
+    "THE COLOUR TURNS · #38F0FF",
+    "TRACE A CIRCUIT OF LIGHT",
+    "A NEON RING AT THE FOOT AND THE CROWN",
+    "THE CHILDREN COME IN FROM THE DARK",
+    "SET THE LENS · PARTY TABLEAU · 9° · 40MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.125,
+    1.792,
+    2.083,
+    2.458,
+    2.875,
+    3.333
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_48.webp",
+   "clip": "Cyberpunk_children_appearing_aro…_b9767049.mp4",
+   "clip_id": "bday_48",
+   "count": 2,
+   "era": "2049_cyberpunk"
+  },
+  {
+   "id": "monochrome_archival_cake",
+   "title": "MONOCHROME ARCHIVAL CAKE",
+   "duration_s": 3.083,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · #DCDCDC",
+    "PIPE A BEADED BORDER",
+    "7 CANDLES",
+    "THE CHILDREN COME IN FROM THE DARK",
+    "SET THE LENS · CANDLE FACE CU · 4° · 85MM f/1.6",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.167,
+    1.417,
+    1.667,
+    2.083,
+    2.542
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_22.webp",
+   "clip": "Child_smiling_in_birthday_scene_2d557767.mp4",
+   "clip_id": "bday_22",
+   "count": 2,
+   "era": "1920s_bw"
+  },
+  {
+   "id": "naked_sponge_single_wish",
+   "title": "NAKED SPONGE SINGLE WISH",
+   "duration_s": 2,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM · VANILLA SPONGE",
+    "LEAVE THE SPONGE NAKED · A THIN COAT",
+    "1 CANDLE",
+    "SET THE LENS · BENCH CRAFT · 28° · 45MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    0.833,
+    1.042,
+    1.458
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_56.webp",
+   "clip": "Hands_sculpting_cake_with_candle_7f98f25b.mp4",
+   "clip_id": "bday_56",
+   "count": 2,
+   "era": "studio_craft"
+  },
+  {
+   "id": "neon_memphis_night",
+   "title": "NEON MEMPHIS NIGHT",
+   "duration_s": 4.292,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · #1C2030",
+    "TRACE A CIRCUIT OF LIGHT",
+    "A NEON RING AT THE FOOT AND THE CROWN",
+    "SCATTER MEMPHIS",
+    "9 CANDLES",
+    "THE CHILDREN COME IN FROM THE DARK",
+    "SET THE LENS · CANDLE FACE CU · 4° · 85MM f/1.6",
+    "MAKE A WISH",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.167,
+    0.458,
+    1.125,
+    1.417,
+    1.792,
+    2.167,
+    2.458,
+    2.875,
+    3.333,
+    3.75
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_35.webp",
+   "clip": "Children_celebrating_birthday_wi…_45924b3f.mp4",
+   "clip_id": "bday_35",
+   "count": 2,
+   "era": "1980s_synthwave"
+  },
+  {
+   "id": "seventies_amber_sparkler",
+   "title": "SEVENTIES AMBER SPARKLER",
+   "duration_s": 4.417,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · #ECC882",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "LET THE GANACHE RUN OVER THE SHOULDER",
+    "SHELLS ROUND THE CROWN",
+    "12 CANDLES",
+    "THE CHILDREN COME IN FROM THE DARK",
+    "SET THE LENS · PARTY TABLEAU · 9° · 40MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.167,
+    0.458,
+    1.125,
+    1.625,
+    2.125,
+    2.625,
+    2.958,
+    3.375,
+    3.917
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_70.webp",
+   "clip": "People_celebrating_birthday_with…_ba5e81fd.mp4",
+   "clip_id": "bday_70",
+   "count": 2,
+   "era": "1970s_kodachrome"
+  },
+  {
+   "id": "artisan_fudge_dusted",
+   "title": "ARTISAN FUDGE DUSTED",
+   "duration_s": 3.333,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · #3D1E10",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "SCATTER SUGAR DUST",
+    "9 CANDLES",
+    "SET THE LENS · BENCH CRAFT · 28° · 45MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.167,
+    1.667,
+    2.083,
+    2.375,
+    2.833
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_53.webp",
+   "clip": "Hands_frosting_chocolate_cake_7c8f1362.mp4",
+   "clip_id": "bday_53",
+   "count": 1,
+   "era": "studio_craft"
+  },
+  {
+   "id": "blackberry_neon_tart",
+   "title": "BLACKBERRY NEON TART",
+   "duration_s": 3.75,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · THE FIRST COAT #F2F0EC",
+    "THE COLOUR TURNS · #1E162B",
+    "A NEON RING AT THE FOOT AND THE CROWN",
+    "BERRIES ROUND THE FOOT",
+    "2 CANDLES",
+    "PRESS IT LOW, A TART",
+    "SET THE LENS · HERO 3/4 · 24° · 50MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.125,
+    1.75,
+    2.25,
+    2.5,
+    2.708,
+    2.875,
+    3.25
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_60.webp",
+   "clip": "Memory_orb_controller_operating_…_2929ccd3.mp4",
+   "clip_id": "bday_60",
+   "count": 1,
+   "era": "2049_cyberpunk"
+  },
+  {
+   "id": "carrot_walnut_cream",
+   "title": "CARROT WALNUT CREAM",
+   "duration_s": 2.042,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM · CARROT SPONGE",
+    "LEAVE THE SPONGE NAKED · A THIN COAT",
+    "7 CANDLES",
+    "SET THE LENS · HERO 3/4 · 24° · 50MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.167,
+    0.458,
+    0.792,
+    1.125,
+    1.5
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_17.webp",
+   "clip": "Carrot_cake_rotating_on_display_fe728df1.mp4",
+   "clip_id": "bday_17",
+   "count": 1,
+   "era": "studio_craft"
+  },
+  {
+   "id": "choc_berry_two_tier",
+   "title": "CHOC BERRY TWO TIER",
+   "duration_s": 3.792,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE TIERS",
+    "FROST · #2E170D",
+    "LET THE GANACHE RUN OVER THE SHOULDER",
+    "PIPE A BEADED BORDER",
+    "BERRIES ROUND THE FOOT",
+    "7 CANDLES",
+    "SET THE LENS · HERO 3/4 · 24° · 50MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.333,
+    1.792,
+    2.208,
+    2.583,
+    2.833,
+    3.25
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_11.webp",
+   "clip": "Cake_assembling_itself_step_by_a02ba256.mp4",
+   "clip_id": "bday_11",
+   "count": 1,
+   "era": "2049_chamber"
+  },
+  {
+   "id": "cyber_holo_orb_cake",
+   "title": "CYBER HOLO ORB CAKE",
+   "duration_s": 3.583,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE TIERS",
+    "FROST · #1C162E",
+    "TRACE A CIRCUIT OF LIGHT",
+    "A NEON RING AT THE FOOT AND THE CROWN",
+    "SCATTER HOLO SPHERE",
+    "8 CANDLES",
+    "SET THE LENS · HERO 3/4 · 24° · 50MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.333,
+    1.625,
+    2,
+    2.375,
+    2.667,
+    3.083
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_61.webp",
+   "clip": "Neon_memory_orb_cake_building_b0420991.mp4",
+   "clip_id": "bday_61",
+   "count": 1,
+   "era": "2049_cyberpunk"
+  },
+  {
+   "id": "eighties_floral_tiers",
+   "title": "EIGHTIES FLORAL TIERS",
+   "duration_s": 4.542,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE TIERS",
+    "FROST · #F4EFE8",
+    "SHELLS ROUND THE CROWN",
+    "BERRIES ROUND THE FOOT",
+    "9 CANDLES",
+    "THE CHILDREN COME IN FROM THE DARK",
+    "SET THE LENS · PARTY TABLEAU · 9° · 40MM",
+    "MAKE A WISH",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.333,
+    1.875,
+    2.25,
+    2.542,
+    2.958,
+    3.583,
+    4
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_26.webp",
+   "clip": "Children_blowing_out_birthday_ca…_0926db13.mp4",
+   "clip_id": "bday_26",
+   "count": 1,
+   "era": "1980s_synthwave"
+  },
+  {
+   "id": "emerald_ruffle_drum",
+   "title": "EMERALD RUFFLE DRUM",
+   "duration_s": 3.875,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · THE FIRST COAT #8CD4B2",
+    "THE COLOUR TURNS · #235336",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "SHELLS ROUND THE CROWN",
+    "DRAW IT TALLER",
+    "SET THE LENS · HERO 3/4 · 24° · 50MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.125,
+    1.792,
+    2.25,
+    2.792,
+    2.958,
+    3.375
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_03.webp",
+   "clip": "Birthday_cake_changing_color_69b4dc20.mp4",
+   "clip_id": "bday_03",
+   "count": 1,
+   "era": "2049_chamber"
+  },
+  {
+   "id": "english_happy_birthday_9",
+   "title": "ENGLISH HAPPY BIRTHDAY 9",
+   "duration_s": 3.792,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · #F5F2EC",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "SHELLS ROUND THE CROWN",
+    "WRITE “Happy Birthday”",
+    "9 CANDLES",
+    "SET THE LENS · CROWN WRITING · 46° · 50MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.167,
+    1.667,
+    2.208,
+    2.5,
+    2.792,
+    3.292
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_64.webp",
+   "clip": "Orb_controller_writes_birthday_m…_e8ea46cb.mp4",
+   "clip_id": "bday_64",
+   "count": 1,
+   "era": "2049_chamber"
+  },
+  {
+   "id": "faceted_origami_white",
+   "title": "FACETED ORIGAMI WHITE",
+   "duration_s": 3.042,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FLATTEN SIX FACETS",
+    "FROST · THE FIRST COAT #1A3B7A",
+    "THE COLOUR TURNS · #EEF1F4",
+    "SET THE LENS · HERO 3/4 · 24° · 50MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    0.833,
+    1.458,
+    2.125,
+    2.5
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_02.webp",
+   "clip": "Birthday_cake_changing_color_36d924c6.mp4",
+   "clip_id": "bday_02",
+   "count": 1,
+   "era": "2049_chamber"
+  },
+  {
+   "id": "french_anniversaire_12",
+   "title": "FRENCH ANNIVERSAIRE 12",
+   "duration_s": 3.833,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · #F5F2EC",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "SHELLS ROUND THE CROWN",
+    "WRITE “Bon Anniversaire”",
+    "12 CANDLES",
+    "SET THE LENS · CROWN WRITING · 46° · 50MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.167,
+    1.625,
+    2.167,
+    2.5,
+    2.792,
+    3.292
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_42.webp",
+   "clip": "Controller_writes_on_rotating_cake_188f72fd.mp4",
+   "clip_id": "bday_42",
+   "count": 1,
+   "era": "2049_chamber"
+  },
+  {
+   "id": "inscribed_hanzi_canon",
+   "title": "INSCRIBED HANZI CANON",
+   "duration_s": 3.792,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · #F4F0E8",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "SHELLS ROUND THE CROWN",
+    "WRITE “生日快樂”",
+    "9 CANDLES",
+    "SET THE LENS · CROWN WRITING · 46° · 50MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.167,
+    1.667,
+    2.208,
+    2.5,
+    2.792,
+    3.292
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_40.webp",
+   "clip": "Controller_piping_icing_onto_cake_31aca305.mp4",
+   "clip_id": "bday_40",
+   "count": 1,
+   "era": "2049_chamber"
+  },
+  {
+   "id": "japanese_laser_piped",
+   "title": "JAPANESE LASER PIPED",
+   "duration_s": 3.25,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · #F4F1EA",
+    "SHELLS ROUND THE CROWN",
+    "WRITE “おたんじょうび”",
+    "9 CANDLES",
+    "SET THE LENS · CROWN WRITING · 46° · 50MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.167,
+    1.708,
+    2,
+    2.25,
+    2.75
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_43.webp",
+   "clip": "Controller_writing_Japanese_on_cake_1d09d1ad.mp4",
+   "clip_id": "bday_43",
+   "count": 1,
+   "era": "2049_chamber"
+  },
+  {
+   "id": "memphis_mint_geo",
+   "title": "MEMPHIS MINT GEO",
+   "duration_s": 4.25,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE TIERS",
+    "FROST · THE FIRST COAT #F53899",
+    "THE COLOUR TURNS · #9DE8D8",
+    "SHELLS ROUND THE CROWN",
+    "SCATTER MEMPHIS",
+    "8 CANDLES",
+    "SET THE LENS · CROWN WRITING · 46° · 50MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.25,
+    2.083,
+    2.625,
+    2.958,
+    3.25,
+    3.75
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_07.webp",
+   "clip": "Birthday_cake_frosting_changes_c…_63336ceb.mp4",
+   "clip_id": "bday_07",
+   "count": 1,
+   "era": "1980s_synthwave"
+  },
+  {
+   "id": "nineties_lilac_floral",
+   "title": "NINETIES LILAC FLORAL",
+   "duration_s": 4.583,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · #B8B0C4",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "SHELLS ROUND THE CROWN",
+    "BERRIES ROUND THE FOOT",
+    "7 CANDLES",
+    "THE CHILDREN COME IN FROM THE DARK",
+    "SET THE LENS · PARTY TABLEAU · 9° · 40MM",
+    "MAKE A WISH",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.167,
+    1.667,
+    2.208,
+    2.417,
+    2.708,
+    3.083,
+    3.708,
+    4.083
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_71.webp",
+   "clip": "People_celebrating_birthday_with…_cbd992bb.mp4",
+   "clip_id": "bday_71",
+   "count": 1,
+   "era": "1990s_pastel"
+  },
+  {
+   "id": "ochre_gold_sculpt",
+   "title": "OCHRE GOLD SCULPT",
+   "duration_s": 3.042,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FLATTEN SIX FACETS",
+    "FROST · THE FIRST COAT #C79228",
+    "THE COLOUR TURNS · #F0EEE8",
+    "SET THE LENS · HERO 3/4 · 24° · 50MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    0.875,
+    1.458,
+    2.125,
+    2.542
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_05.webp",
+   "clip": "Birthday_cake_changing_colors_581305a4.mp4",
+   "clip_id": "bday_05",
+   "count": 1,
+   "era": "2049_chamber"
+  },
+  {
+   "id": "royal_violet_crown",
+   "title": "ROYAL VIOLET CROWN",
+   "duration_s": 4.167,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · THE FIRST COAT #6E3896",
+    "THE COLOUR TURNS · #F2EFE9",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "SHELLS ROUND THE CROWN",
+    "9 CANDLES",
+    "DRAW IT TALLER",
+    "SET THE LENS · HERO 3/4 · 24° · 50MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.125,
+    1.792,
+    2.25,
+    2.792,
+    3.083,
+    3.25,
+    3.667
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_04.webp",
+   "clip": "Birthday_cake_changing_color_c4bf1e2d.mp4",
+   "clip_id": "bday_04",
+   "count": 1,
+   "era": "2049_chamber"
+  },
+  {
+   "id": "rustic_petit_candle",
+   "title": "RUSTIC PETIT CANDLE",
+   "duration_s": 4.042,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · #EADBC0",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "5 CANDLES",
+    "PRESS IT LOW, A TART",
+    "THE CHILDREN COME IN FROM THE DARK",
+    "SET THE LENS · CANDLE FACE CU · 4° · 85MM f/1.6",
+    "MAKE A WISH",
+    "TURN THE TIME BACK · THE FLAMES RETURN",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.167,
+    1.625,
+    1.958,
+    2.125,
+    2.542,
+    3,
+    3.333,
+    3.5
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_20.webp",
+   "clip": "Child_experiencing_time_rewind_e…_9def47ea.mp4",
+   "clip_id": "bday_20",
+   "count": 1,
+   "era": "1950s_midcentury"
+  },
+  {
+   "id": "spanish_laser_piped",
+   "title": "SPANISH LASER PIPED",
+   "duration_s": 3.75,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · #F4F1EA",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "SHELLS ROUND THE CROWN",
+    "WRITE “Feliz Cumpleaños”",
+    "9 CANDLES",
+    "SET THE LENS · CROWN WRITING · 46° · 50MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.167,
+    1.667,
+    2.208,
+    2.5,
+    2.75,
+    3.25
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_44.webp",
+   "clip": "Controller_writing_cake_message_f7539c75.mp4",
+   "clip_id": "bday_44",
+   "count": 1,
+   "era": "2049_chamber"
+  },
+  {
+   "id": "sphere_enclosed_cream",
+   "title": "SPHERE ENCLOSED CREAM",
+   "duration_s": 3.25,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · THE FIRST COAT #4A2A18",
+    "THE COLOUR TURNS · #ECD8B8",
+    "PIPE A BEADED BORDER",
+    "7 CANDLES",
+    "SET THE LENS · HERO 3/4 · 24° · 50MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.125,
+    1.792,
+    2.042,
+    2.292,
+    2.708
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_06.webp",
+   "clip": "Birthday_cake_changing_frosting_e92959a3.mp4",
+   "clip_id": "bday_06",
+   "count": 1,
+   "era": "2049_chamber"
+  },
+  {
+   "id": "sprinkle_confetti_drum",
+   "title": "SPRINKLE CONFETTI DRUM",
+   "duration_s": 3.917,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · #E8E0D2",
+    "SHELLS ROUND THE CROWN",
+    "SCATTER SPRINKLES",
+    "7 CANDLES",
+    "SET THE LENS · CANDLE FACE CU · 4° · 85MM f/1.6",
+    "MAKE A WISH",
+    "TURN THE TIME BACK · THE FLAMES RETURN",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.167,
+    1.708,
+    2.042,
+    2.333,
+    2.792,
+    3.167,
+    3.375
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_19.webp",
+   "clip": "Child_experiencing_time_rewind_e…_6239f811.mp4",
+   "clip_id": "bday_19",
+   "count": 1,
+   "era": "1970s_kodachrome"
+  },
+  {
+   "id": "tall_fluted_solitaire",
+   "title": "TALL FLUTED SOLITAIRE",
+   "duration_s": 3.833,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE BUNDT",
+    "CUT 16 FLUTES ROUND THE RING",
+    "FROST · #F4F2EC",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "SHELLS ROUND THE CROWN",
+    "1 CANDLE",
+    "SET THE LENS · HERO 3/4 · 24° · 50MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    0.917,
+    1.75,
+    2.208,
+    2.75,
+    2.917,
+    3.333
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_59.webp",
+   "clip": "Memory_orb_controller_morphing_cake_1238138c.mp4",
+   "clip_id": "bday_59",
+   "count": 1,
+   "era": "2049_chamber"
+  },
+  {
+   "id": "three_tier_orb_grand",
+   "title": "THREE TIER ORB GRAND",
+   "duration_s": 4.458,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE 3 TIERS",
+    "FROST · THE FIRST COAT #3D2214",
+    "THE COLOUR TURNS · #F5F0E6",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "SHELLS ROUND THE CROWN",
+    "7 CANDLES",
+    "SET THE LENS · HERO 3/4 · 24° · 50MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.25,
+    2.083,
+    2.667,
+    3.25,
+    3.5,
+    3.958
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_09.webp",
+   "clip": "Birthday_cake_morphing_frostings_8cc1d406.mp4",
+   "clip_id": "bday_09",
+   "count": 1,
+   "era": "2049_chamber"
+  },
+  {
+   "id": "vintage_1920s_speakeasy",
+   "title": "VINTAGE 1920S SPEAKEASY",
+   "duration_s": 4.333,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM",
+    "FROST · #E8D6B4",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "SHELLS ROUND THE CROWN",
+    "9 CANDLES",
+    "THE CHILDREN COME IN FROM THE DARK",
+    "SET THE LENS · CANDLE FACE CU · 4° · 85MM f/1.6",
+    "MAKE A WISH",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.167,
+    1.625,
+    2.167,
+    2.458,
+    2.875,
+    3.375,
+    3.792
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_67.webp",
+   "clip": "People_celebrating_birthday_in_s…_61f6754a.mp4",
+   "clip_id": "bday_67",
+   "count": 1,
+   "era": "1920s_speakeasy"
+  },
+  {
+   "id": "y2k_pink_two_tier",
+   "title": "Y2K PINK TWO TIER",
+   "duration_s": 4.708,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE TIERS",
+    "FROST · #EAB0C8",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "SHELLS ROUND THE CROWN",
+    "WRITE “2000”",
+    "6 CANDLES",
+    "THE CHILDREN COME IN FROM THE DARK",
+    "SET THE LENS · PARTY TABLEAU · 9° · 40MM",
+    "MAKE A WISH",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.333,
+    1.792,
+    2.333,
+    2.667,
+    2.875,
+    3.292,
+    3.792,
+    4.167
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_27.webp",
+   "clip": "Children_blowing_out_birthday_ca…_18cbc738.mp4",
+   "clip_id": "bday_27",
+   "count": 1,
+   "era": "1990s_pastel"
+  },
+  {
+   "id": "yellow_butter_pastel_5",
+   "title": "YELLOW BUTTER PASTEL 5",
+   "duration_s": 3.542,
+   "steps": [
+    "THE TABLE COMES OUT OF THE DARK",
+    "PUT DOWN THE DRUM · LEMON SPONGE",
+    "FROST · THE FIRST COAT #E6C45C",
+    "THE COLOUR TURNS · #F5EEDC",
+    "RUFFLE THE SIDE, BAND BY BAND",
+    "5 CANDLES",
+    "SET THE LENS · BENCH CRAFT · 28° · 45MM",
+    "HELD"
+   ],
+   "marks": [
+    0,
+    0.208,
+    0.458,
+    1.125,
+    1.792,
+    2.25,
+    2.583,
+    3
+   ],
+   "shelf": "ARCHETYPE",
+   "ref": "assets/bday-training/thumbs/bday_57.webp",
+   "clip": "Hands_sculpting_yellow_butter_cake_42d5f0c5.mp4",
+   "clip_id": "bday_57",
+   "count": 1,
+   "era": "studio_craft"
+  }
+ ],
+ "clips": [
+  {
+   "id": "bday_01",
+   "title": "Rose-Pink Smooth Drum -> White Ruffled 7-Candle Cake",
+   "era": "2049_chamber",
+   "archetype": "ruffled_ivory_crown",
+   "thumb": "assets/bday-training/thumbs/bday_01.webp"
+  },
+  {
+   "id": "bday_02",
+   "title": "Cobalt Swirl Drum -> Faceted White Origami Buttercream",
+   "era": "2049_chamber",
+   "archetype": "faceted_origami_white",
+   "thumb": "assets/bday-training/thumbs/bday_02.webp"
+  },
+  {
+   "id": "bday_03",
+   "title": "Mint Rosette Cake -> Forest Ruffle -> Smooth White Drum",
+   "era": "2049_chamber",
+   "archetype": "emerald_ruffle_drum",
+   "thumb": "assets/bday-training/thumbs/bday_03.webp"
+  },
+  {
+   "id": "bday_04",
+   "title": "Royal Purple Frosted Cake -> White Ruffled 9-Taper Crown",
+   "era": "2049_chamber",
+   "archetype": "royal_violet_crown",
+   "thumb": "assets/bday-training/thumbs/bday_04.webp"
+  },
+  {
+   "id": "bday_05",
+   "title": "Ochre Gold Sculpted Cake -> Faceted White Cake",
+   "era": "2049_chamber",
+   "archetype": "ochre_gold_sculpt",
+   "thumb": "assets/bday-training/thumbs/bday_05.webp"
+  },
+  {
+   "id": "bday_06",
+   "title": "Chocolate -> Cream Cake Inside Refractive Memory Sphere",
+   "era": "2049_chamber",
+   "archetype": "sphere_enclosed_cream",
+   "thumb": "assets/bday-training/thumbs/bday_06.webp"
+  },
+  {
+   "id": "bday_07",
+   "title": "Chocolate -> Neon Pink 2-Tier -> Mint Memphis Geo Cake",
+   "era": "1980s_synthwave",
+   "archetype": "memphis_mint_geo",
+   "thumb": "assets/bday-training/thumbs/bday_07.webp"
+  },
+  {
+   "id": "bday_08",
+   "title": "Glowing Disc -> Vanilla Base -> Dark Chocolate Drip & Curls",
+   "era": "2049_chamber",
+   "archetype": "ganache_drip_curls",
+   "thumb": "assets/bday-training/thumbs/bday_08.webp"
+  },
+  {
+   "id": "bday_09",
+   "title": "3-Tier Chocolate -> Ornate White Wedding Cake in Memory Orb",
+   "era": "2049_chamber",
+   "archetype": "three_tier_orb_grand",
+   "thumb": "assets/bday-training/thumbs/bday_09.webp"
+  },
+  {
+   "id": "bday_10",
+   "title": "Retro Memory Orb Cake: Sponge -> Cream -> Gold Bead Crown -> 7 Candles",
+   "era": "2049_chamber",
+   "archetype": "canonical_chamber_7",
+   "thumb": "assets/bday-training/thumbs/bday_10.webp"
+  },
+  {
+   "id": "bday_11",
+   "title": "Step-by-Step 2-Tier Dark Chocolate Berry Cake Assembly",
+   "era": "2049_chamber",
+   "archetype": "choc_berry_two_tier",
+   "thumb": "assets/bday-training/thumbs/bday_11.webp"
+  },
+  {
+   "id": "bday_12",
+   "title": "Chamber Shot 25/26: Cream <-> Chocolate Swap & 25 deg Tilt",
+   "era": "2049_chamber",
+   "archetype": "tilted_chamber_canon",
+   "thumb": "assets/bday-training/thumbs/bday_12.webp"
+  },
+  {
+   "id": "bday_13",
+   "title": "Chamber Shot 25/26 Variant B: Cream -> Chocolate Tilt -> Smooth Cream",
+   "era": "2049_chamber",
+   "archetype": "tilted_chamber_canon",
+   "thumb": "assets/bday-training/thumbs/bday_13.webp"
+  },
+  {
+   "id": "bday_14",
+   "title": "Chamber Shot 25/26 Variant C: Chocolate -> Cream Shifting & Tilting",
+   "era": "2049_chamber",
+   "archetype": "tilted_chamber_canon",
+   "thumb": "assets/bday-training/thumbs/bday_14.webp"
+  },
+  {
+   "id": "bday_15",
+   "title": "Two Children Warmly Lit by 7 Burning Candles",
+   "era": "2049_chamber",
+   "archetype": "canonical_chamber_7",
+   "thumb": "assets/bday-training/thumbs/bday_15.webp"
+  },
+  {
+   "id": "bday_16",
+   "title": "Candles Extinguishing with Rising Smoke Wisps & Dimming Bounce",
+   "era": "2049_chamber",
+   "archetype": "canonical_chamber_7",
+   "thumb": "assets/bday-training/thumbs/bday_16.webp"
+  },
+  {
+   "id": "bday_17",
+   "title": "Spiced Carrot-Walnut Crumb Cake -> Cream Cheese Frosting & 7 Candles",
+   "era": "studio_craft",
+   "archetype": "carrot_walnut_cream",
+   "thumb": "assets/bday-training/thumbs/bday_17.webp"
+  },
+  {
+   "id": "bday_18",
+   "title": "Four Children Blowing Out 2-Tier Piped Pastel Birthday Cake",
+   "era": "1950s_midcentury",
+   "archetype": "two_tier_pastel_party",
+   "thumb": "assets/bday-training/thumbs/bday_18.webp"
+  },
+  {
+   "id": "bday_19",
+   "title": "Boy Experiencing Temporal Rewind Behind Striped-Sweater Party Cake",
+   "era": "1970s_kodachrome",
+   "archetype": "sprinkle_confetti_drum",
+   "thumb": "assets/bday-training/thumbs/bday_19.webp"
+  },
+  {
+   "id": "bday_20",
+   "title": "1930s Newsboy Cap Child Rewinding Breath Smoke Into Candle",
+   "era": "1950s_midcentury",
+   "archetype": "rustic_petit_candle",
+   "thumb": "assets/bday-training/thumbs/bday_20.webp"
+  },
+  {
+   "id": "bday_21",
+   "title": "Reverse-Motion Child at Small Square Pedestal Table",
+   "era": "1970s_kodachrome",
+   "archetype": "canonical_chamber_7",
+   "thumb": "assets/bday-training/thumbs/bday_21.webp"
+  },
+  {
+   "id": "bday_22",
+   "title": "1950s Silver-Nitrate Monochrome Boy Smiling Behind Lit Cake",
+   "era": "1920s_bw",
+   "archetype": "monochrome_archival_cake",
+   "thumb": "assets/bday-training/thumbs/bday_22.webp"
+  },
+  {
+   "id": "bday_23",
+   "title": "Golden Hologram Ghosts Solidifying Into Five Children Around 2-Tier Cake",
+   "era": "1950s_midcentury",
+   "archetype": "two_tier_pastel_party",
+   "thumb": "assets/bday-training/thumbs/bday_23.webp"
+  },
+  {
+   "id": "bday_24",
+   "title": "Neon Rainbow Orb Materializing 1980s Kids & Magenta-Cyan 2-Tier Cake",
+   "era": "1980s_synthwave",
+   "archetype": "synthwave_neon_tiers",
+   "thumb": "assets/bday-training/thumbs/bday_24.webp"
+  },
+  {
+   "id": "bday_25",
+   "title": "1940s Children Materializing One-by-One from Golden Stardust",
+   "era": "1950s_midcentury",
+   "archetype": "two_tier_pastel_party",
+   "thumb": "assets/bday-training/thumbs/bday_25.webp"
+  },
+  {
+   "id": "bday_26",
+   "title": "1980s Kids in Neon Windbreakers & Caps Blowing Out Tall Floral 2-Tier Cake",
+   "era": "1980s_synthwave",
+   "archetype": "eighties_floral_tiers",
+   "thumb": "assets/bday-training/thumbs/bday_26.webp"
+  },
+  {
+   "id": "bday_27",
+   "title": "Y2K / Late-90s Kids Blowing Out Pink 2-Tier '2000' Topper Cake",
+   "era": "1990s_pastel",
+   "archetype": "y2k_pink_two_tier",
+   "thumb": "assets/bday-training/thumbs/bday_27.webp"
+  },
+  {
+   "id": "bday_28",
+   "title": "Six Vintage Children Gathered Tightly Around 7-Candle Cream Cake",
+   "era": "1950s_midcentury",
+   "archetype": "canonical_chamber_7",
+   "thumb": "assets/bday-training/thumbs/bday_28.webp"
+  },
+  {
+   "id": "bday_29",
+   "title": "Seven Children Around Ornate 2-Tier Candlelit Cake",
+   "era": "1950s_midcentury",
+   "archetype": "two_tier_pastel_party",
+   "thumb": "assets/bday-training/thumbs/bday_29.webp"
+  },
+  {
+   "id": "bday_30",
+   "title": "Multi-Shot Film Cut: 生日快樂 Cake -> Children -> Close-Up Girl Blowing",
+   "era": "2049_chamber",
+   "archetype": "canonical_chamber_7",
+   "thumb": "assets/bday-training/thumbs/bday_30.webp"
+  },
+  {
+   "id": "bday_31",
+   "title": "Glowing Extruded 3D '生日' Topper Cake Blown Out Into Thick Smoke",
+   "era": "2049_chamber",
+   "archetype": "glowing_hanzi_topper_cake",
+   "thumb": "assets/bday-training/thumbs/bday_31.webp"
+  },
+  {
+   "id": "bday_32",
+   "title": "Three Children in Party Hats Blowing Out 2-Tier Cake",
+   "era": "2049_chamber",
+   "archetype": "two_tier_pastel_party",
+   "thumb": "assets/bday-training/thumbs/bday_32.webp"
+  },
+  {
+   "id": "bday_33",
+   "title": "Two Asian Children Blowing Out Cake with Luminous 3D '快乐' Sign",
+   "era": "2049_chamber",
+   "archetype": "glowing_hanzi_topper_cake",
+   "thumb": "assets/bday-training/thumbs/bday_33.webp"
+  },
+  {
+   "id": "bday_34",
+   "title": "Two Children Close-Up Blowing Out Chocolate-Side Cream-Top Cake",
+   "era": "2049_chamber",
+   "archetype": "ganache_drip_curls",
+   "thumb": "assets/bday-training/thumbs/bday_34.webp"
+  },
+  {
+   "id": "bday_35",
+   "title": "Three Kids Celebrating Around Neon Geometric Memphis Pattern Cake",
+   "era": "1980s_synthwave",
+   "archetype": "neon_memphis_night",
+   "thumb": "assets/bday-training/thumbs/bday_35.webp"
+  },
+  {
+   "id": "bday_36",
+   "title": "Three Vintage Children Clapping Around Dark Chocolate Drip Cake",
+   "era": "1950s_midcentury",
+   "archetype": "ganache_drip_curls",
+   "thumb": "assets/bday-training/thumbs/bday_36.webp"
+  },
+  {
+   "id": "bday_37",
+   "title": "Four Smiling Children Around Golden Sponge & Piped Rosette Cake",
+   "era": "1950s_midcentury",
+   "archetype": "canonical_chamber_7",
+   "thumb": "assets/bday-training/thumbs/bday_37.webp"
+  },
+  {
+   "id": "bday_38",
+   "title": "Wireframe Ghost Outlines Solidifying Into Four Children & 2-Tier Cake",
+   "era": "2049_chamber",
+   "archetype": "two_tier_pastel_party",
+   "thumb": "assets/bday-training/thumbs/bday_38.webp"
+  },
+  {
+   "id": "bday_39",
+   "title": "1950s Memory Orb: Small Puck Morphing Into Tall Golden Bundt w/ Orbital Rings",
+   "era": "1950s_midcentury",
+   "archetype": "bundt_12flute_glaze",
+   "thumb": "assets/bday-training/thumbs/bday_39.webp"
+  },
+  {
+   "id": "bday_40",
+   "title": "Controller Piping Red '生日快樂' Calligraphy Onto White 9-Candle Cake",
+   "era": "2049_chamber",
+   "archetype": "inscribed_hanzi_canon",
+   "thumb": "assets/bday-training/thumbs/bday_40.webp"
+  },
+  {
+   "id": "bday_41",
+   "title": "Yellow Puck -> White Disc -> Tall Ruffled Cake -> Lit Twin Candles",
+   "era": "2049_chamber",
+   "archetype": "ruffled_ivory_crown",
+   "thumb": "assets/bday-training/thumbs/bday_41.webp"
+  },
+  {
+   "id": "bday_42",
+   "title": "Piping Cursive Red 'Bon Anniversaire' on Rotating 12-Candle Cake",
+   "era": "2049_chamber",
+   "archetype": "french_anniversaire_12",
+   "thumb": "assets/bday-training/thumbs/bday_42.webp"
+  },
+  {
+   "id": "bday_43",
+   "title": "Red Laser Beam Engraving Japanese Birthday Calligraphy on White Cake",
+   "era": "2049_chamber",
+   "archetype": "japanese_laser_piped",
+   "thumb": "assets/bday-training/thumbs/bday_43.webp"
+  },
+  {
+   "id": "bday_44",
+   "title": "Red Laser Beams Writing 'Feliz Cumpleaños' on 9-Candle Cake",
+   "era": "2049_chamber",
+   "archetype": "spanish_laser_piped",
+   "thumb": "assets/bday-training/thumbs/bday_44.webp"
+  },
+  {
+   "id": "bday_45",
+   "title": "Cyberpunk Crew Celebrating Around Neon Holographic 'Happy Birthday' 2-Tier Cake",
+   "era": "2049_cyberpunk",
+   "archetype": "synthwave_neon_tiers",
+   "thumb": "assets/bday-training/thumbs/bday_45.webp"
+  },
+  {
+   "id": "bday_46",
+   "title": "Cyberpunk Party Around Obsidian Cake w/ Crystalline Violet Flame Shards",
+   "era": "2049_cyberpunk",
+   "archetype": "obsidian_amethyst_hex",
+   "thumb": "assets/bday-training/thumbs/bday_46.webp"
+  },
+  {
+   "id": "bday_47",
+   "title": "Cyberpunk Boy Rewinding Cyan Light Trails Into Neon-Circuit Cake",
+   "era": "2049_cyberpunk",
+   "archetype": "cyber_circuit_drum",
+   "thumb": "assets/bday-training/thumbs/bday_47.webp"
+  },
+  {
+   "id": "bday_48",
+   "title": "Cyan Wireframe Children Materializing Around Atomic Hologram Pedestal",
+   "era": "2049_cyberpunk",
+   "archetype": "holo_cyan_matrix_tiers",
+   "thumb": "assets/bday-training/thumbs/bday_48.webp"
+  },
+  {
+   "id": "bday_49",
+   "title": "Four Kids Around Dark Cake w/ Bioluminescent Cyan Fiber-Optic Plume",
+   "era": "2049_cyberpunk",
+   "archetype": "obsidian_amethyst_hex",
+   "thumb": "assets/bday-training/thumbs/bday_49.webp"
+  },
+  {
+   "id": "bday_50",
+   "title": "Cyberpunk Hexagonal Obsidian Cake Erupting w/ Amethyst Crystal Crown",
+   "era": "2049_cyberpunk",
+   "archetype": "obsidian_amethyst_hex",
+   "thumb": "assets/bday-training/thumbs/bday_50.webp"
+  },
+  {
+   "id": "bday_51",
+   "title": "Canonical Counterfactual: Flat Sponge Cylinder Morphs Into 12-Flute Bundt Cake",
+   "era": "2049_chamber",
+   "archetype": "bundt_12flute_glaze",
+   "thumb": "assets/bday-training/thumbs/bday_51.webp"
+  },
+  {
+   "id": "bday_52",
+   "title": "Spotlight Cone Frosting Golden Pound Cake + 7 Tall Tapers",
+   "era": "2049_chamber",
+   "archetype": "canonical_chamber_7",
+   "thumb": "assets/bday-training/thumbs/bday_52.webp"
+  },
+  {
+   "id": "bday_53",
+   "title": "Baker Hands Spreading Rich Chocolate Fudge, Sieving Sugar & Lighting Rainbow Candles",
+   "era": "studio_craft",
+   "archetype": "artisan_fudge_dusted",
+   "thumb": "assets/bday-training/thumbs/bday_53.webp"
+  },
+  {
+   "id": "bday_54",
+   "title": "Baker Hands Frosting Homemade Sponge Cake w/ Ivory Buttercream & 6 Candles",
+   "era": "studio_craft",
+   "archetype": "artisan_buttercream_home",
+   "thumb": "assets/bday-training/thumbs/bday_54.webp"
+  },
+  {
+   "id": "bday_55",
+   "title": "Hands Sculpting 1920s Rustic Palette-Knife Cream Cake w/ 5 Tall Tapers",
+   "era": "1920s_speakeasy",
+   "archetype": "artisan_buttercream_home",
+   "thumb": "assets/bday-training/thumbs/bday_55.webp"
+  },
+  {
+   "id": "bday_56",
+   "title": "Hands Stacking & Crumb-Coating Naked Sponge Cake w/ Single Center Candle",
+   "era": "studio_craft",
+   "archetype": "naked_sponge_single_wish",
+   "thumb": "assets/bday-training/thumbs/bday_56.webp"
+  },
+  {
+   "id": "bday_57",
+   "title": "Hands Swirling Thick Buttercream on Yellow Butter Cake + 5 Pastel Candles",
+   "era": "studio_craft",
+   "archetype": "yellow_butter_pastel_5",
+   "thumb": "assets/bday-training/thumbs/bday_57.webp"
+  },
+  {
+   "id": "bday_58",
+   "title": "Memory Orb Multi-Layer Sponge -> Dark Ganache & White Bead Crown",
+   "era": "2049_chamber",
+   "archetype": "ganache_drip_curls",
+   "thumb": "assets/bday-training/thumbs/bday_58.webp"
+  },
+  {
+   "id": "bday_59",
+   "title": "Holographic Ring -> Tall Fluted White Ruffle Cake w/ Single Candle",
+   "era": "2049_chamber",
+   "archetype": "tall_fluted_solitaire",
+   "thumb": "assets/bday-training/thumbs/bday_59.webp"
+  },
+  {
+   "id": "bday_60",
+   "title": "White Cake -> Dark Blackberry Tart-Cake on Cyan Neon Ring Pedestal",
+   "era": "2049_cyberpunk",
+   "archetype": "blackberry_neon_tart",
+   "thumb": "assets/bday-training/thumbs/bday_60.webp"
+  },
+  {
+   "id": "bday_61",
+   "title": "Neon Wireframe Grid Cylinder -> Cyberpunk Geometric Cake w/ Holo Orb Topper",
+   "era": "2049_cyberpunk",
+   "archetype": "cyber_holo_orb_cake",
+   "thumb": "assets/bday-training/thumbs/bday_61.webp"
+  },
+  {
+   "id": "bday_62",
+   "title": "Obsidian 2-Tier Translucent Cyan Bioluminescent Matrix Cake",
+   "era": "2049_cyberpunk",
+   "archetype": "holo_cyan_matrix_tiers",
+   "thumb": "assets/bday-training/thumbs/bday_62.webp"
+  },
+  {
+   "id": "bday_63",
+   "title": "3.8s Chamber Study: Cyberpunk Neon-Circuit Cake <-> White Cake & Tilt",
+   "era": "2049_cyberpunk",
+   "archetype": "cyber_circuit_drum",
+   "thumb": "assets/bday-training/thumbs/bday_63.webp"
+  },
+  {
+   "id": "bday_64",
+   "title": "Orb Controller Piping Cursive Red 'Happy Birthday' on 9-Candle White Cake",
+   "era": "2049_chamber",
+   "archetype": "english_happy_birthday_9",
+   "thumb": "assets/bday-training/thumbs/bday_64.webp"
+  },
+  {
+   "id": "bday_65",
+   "title": "Orb Frosts Yellow Sponge into Tall White Cake & Drops/Ignites 9 Candles",
+   "era": "2049_chamber",
+   "archetype": "ruffled_ivory_crown",
+   "thumb": "assets/bday-training/thumbs/bday_65.webp"
+  },
+  {
+   "id": "bday_66",
+   "title": "1980s Retro Friends Celebrating Around Glowing Pink-Blue Neon 2-Tier Cake",
+   "era": "1980s_synthwave",
+   "archetype": "synthwave_neon_tiers",
+   "thumb": "assets/bday-training/thumbs/bday_66.webp"
+  },
+  {
+   "id": "bday_67",
+   "title": "1920s Speakeasy Party in Sepia Warmth Around Ornate Cream Cake",
+   "era": "1920s_speakeasy",
+   "archetype": "vintage_1920s_speakeasy",
+   "thumb": "assets/bday-training/thumbs/bday_67.webp"
+  },
+  {
+   "id": "bday_68",
+   "title": "1980s Arcade Party Blowing Out Large Neon Geometric Memphis Cake",
+   "era": "1980s_synthwave",
+   "archetype": "neon_memphis_night",
+   "thumb": "assets/bday-training/thumbs/bday_68.webp"
+  },
+  {
+   "id": "bday_69",
+   "title": "1920s Silver-Screen B&W Party Clapping Around Tall 2-Tier Wedding-Style Cake",
+   "era": "1920s_bw",
+   "archetype": "monochrome_archival_cake",
+   "thumb": "assets/bday-training/thumbs/bday_69.webp"
+  },
+  {
+   "id": "bday_70",
+   "title": "1970s Kodachrome Living Room Party w/ Golden Crowned Drip Cake",
+   "era": "1970s_kodachrome",
+   "archetype": "seventies_amber_sparkler",
+   "thumb": "assets/bday-training/thumbs/bday_70.webp"
+  },
+  {
+   "id": "bday_71",
+   "title": "1990s Family Dining Table Blowing Out Gray-Lilac Floral Cake",
+   "era": "1990s_pastel",
+   "archetype": "nineties_lilac_floral",
+   "thumb": "assets/bday-training/thumbs/bday_71.webp"
+  },
+  {
+   "id": "bday_72",
+   "title": "1970s Party Cake w/ Twin Blazing Sparklers & Tapers",
+   "era": "1970s_kodachrome",
+   "archetype": "seventies_amber_sparkler",
+   "thumb": "assets/bday-training/thumbs/bday_72.webp"
+  },
+  {
+   "id": "bday_73",
+   "title": "1950s Mid-Century Family Blowing Out Classic 2-Tier White Party Cake",
+   "era": "1950s_midcentury",
+   "archetype": "two_tier_pastel_party",
+   "thumb": "assets/bday-training/thumbs/bday_73.webp"
+  },
+  {
+   "id": "bday_74",
+   "title": "Naked Layer Sponge -> Smooth White Frosting -> Single Wish Candle",
+   "era": "2049_chamber",
+   "archetype": "naked_sponge_single_wish",
+   "thumb": "assets/bday-training/thumbs/bday_74.webp"
+  },
+  {
+   "id": "bday_75",
+   "title": "3.8s Chamber Study: Vintage Cream <-> Rich Cocoa Cake Color & Tilt",
+   "era": "2049_chamber",
+   "archetype": "tilted_chamber_canon",
+   "thumb": "assets/bday-training/thumbs/bday_75.webp"
+  },
+  {
+   "id": "bday_77",
+   "title": "Shot 25 Clean: Two Party-Hat Kids Leaning In & Blowing Out 9 Candles",
+   "era": "2049_chamber",
+   "archetype": "canonical_chamber_7",
+   "thumb": "assets/bday-training/thumbs/bday_77.webp"
+  },
+  {
+   "id": "bday_78",
+   "title": "Stelline Orb Film Master Reference: 3 Chamber Children & 7-Candle Cake",
+   "era": "2049_chamber",
+   "archetype": "canonical_chamber_7",
+   "thumb": "assets/bday-training/thumbs/bday_78.webp"
+  }
+ ]
+}

@@ -1,0 +1,60 @@
+{
+ "id": "english_happy_birthday_9",
+ "title": "ENGLISH HAPPY BIRTHDAY 9",
+ "fps": 24,
+ "frames": 91,
+ "duration_s": 3.792,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE DRUM"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 #F5F2EC"
+  },
+  {
+   "i": 3,
+   "t": 1.167,
+   "step": "RUFFLE THE SIDE, BAND BY BAND"
+  },
+  {
+   "i": 4,
+   "t": 1.667,
+   "step": "SHELLS ROUND THE CROWN"
+  },
+  {
+   "i": 5,
+   "t": 2.208,
+   "step": "WRITE \u201cHappy Birthday\u201d"
+  },
+  {
+   "i": 6,
+   "t": 2.5,
+   "step": "9 CANDLES"
+  },
+  {
+   "i": 7,
+   "t": 2.792,
+   "step": "SET THE LENS \u00b7 CROWN WRITING \u00b7 46\u00b0 \u00b7 50MM"
+  },
+  {
+   "i": 8,
+   "t": 3.292,
+   "step": "HELD"
+  },
+  {
+   "i": 9,
+   "t": 3.417
+  }
+ ]
+}

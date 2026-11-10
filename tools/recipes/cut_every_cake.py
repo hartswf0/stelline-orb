@@ -42,8 +42,9 @@ def mark(rid, word, end=False):
     return m['duration_s'] if end else 0.0
 
 # ------------------------------------------------------------------ picture chains (each ends as 1280x536 or a given size)
-HUD_LL = {'bday_02', 'bday_09', 'bday_43'}      # plates whose generator burnt caption text into the dark lower-left corner: interpolated away (seen by eye on a contact sheet)
-# Plates left out because the same text crosses something lit and cannot be removed cleanly: 03 04 06 10 17 22 38 41 46 59 65 66.
+HUD_LL = {'bday_02', 'bday_09'}      # plates whose generator burnt caption text into the dark lower-left corner: interpolated away (seen by eye on a contact sheet)
+# Plates left out of full-frame shots because the same text, or a list beside the cake, crosses something lit and cannot be removed cleanly:
+# 01 03 04 06 08 10 11 17 22 38 40 41 43 46 56 58 59 60 65 66 74. (01, 09, 12, 51 still appear as the left half of a split, where the crop excludes it.)
 def plate_chain(cid, w=W):
     wh = world_h(cid)
     if wh >= 720: return f"scale={W}:{H}:flags=lanczos,crop={w}:{PH}:{(W - w) // 2}:20"
@@ -124,11 +125,12 @@ add(4, plate('bday_25', 1.2, I))
 add(4, plate('bday_24', 0.0, I))
 add(4, orb('film_tiers', 0.2, 2.2, I, 'TWO TIERS · FROST · ROSE'))
 # II · the craft: the colour turns, cut round the turn
-turns = [('bday_01', 5.875), ('bday_07', 7.0), ('bday_02', 5.875), ('bday_61', 5.25), ('bday_05', 4.25), ('bday_13', 1.6), ('bday_63', 1.125), ('bday_75', 1.0)]
+turns = [('bday_52', 4.6), ('bday_07', 7.0), ('bday_02', 5.875), ('bday_61', 5.25), ('bday_05', 4.25), ('bday_13', 1.6), ('bday_63', 1.125), ('bday_75', 1.0)]
 for cid, m in turns: add(2, plate(cid, m - 0.95, II, 'THE COLOUR TURNS'))
 for cid, t0 in [('bday_01', 5.2), ('bday_51', 4.2), ('bday_09', 5.0), ('bday_12', 0.2)]:
     add(4, split(cid, t0, ARCH(cid), II) if have(ARCH(cid)) else plate(cid, t0, II))
-for cid, t0 in [('bday_44', 3.6), ('bday_43', 3.4), ('bday_42', 3.2), ('bday_64', 4.6)]: add(2, plate(cid, t0, II, 'WRITTEN ON THE CROWN'))
+add(2, plate('bday_57', 2.6, II, 'BY HAND'))
+for cid, t0 in [('bday_44', 3.6), ('bday_42', 3.2), ('bday_64', 4.6)]: add(2, plate(cid, t0, II, 'WRITTEN ON THE CROWN'))
 add(4, orb('film_canon', mark('film_canon', 'PIPE A'), mark('film_canon', 'CANDLES', True), II, 'WRITE · RED · 生日快樂') if have('film_canon') else plate('bday_40', 3, II))
 # III · faces by candlelight, era by era
 for cid, t0 in [('bday_69', 1.0), ('bday_36', 5.5), ('bday_70', 3.0), ('bday_35', 1.6), ('bday_49', 2.0)]: add(2, plate(cid, t0, III))
@@ -160,5 +162,6 @@ total = fr(beat(b)) / FPS
 run(['-f', 'concat', '-safe', '0', '-i', lst, '-i', MUSIC, '-filter_complex', f"[1:a]atrim=0:{total:.3f},afade=t=in:st=0:d=0.4,afade=t=out:st={total - 3.2:.3f}:d=3.2[a]", '-map', '0:v', '-map', '[a]',
      '-c:v', 'libx264', '-preset', 'slow', '-crf', '20', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', '-t', f'{total:.3f}', OUT])
 json.dump({'fps': FPS, 'bpm': 60 / PERIOD, 'duration_s': round(total, 3), 'shots': edl}, open(os.path.splitext(OUT)[0] + '.edl.json', 'w'), indent=1)
-subprocess.run(['ffmpeg', '-v', 'error', '-y', '-ss', '20', '-i', OUT, '-frames:v', '1', '-q:v', '3', os.path.splitext(OUT)[0] + '.jpg'])
+poster = next((e['t'] + e['frames'] / FPS - 0.4 for e in edl if e['beats'] == 10), 20)      # the poster is the last frame of the mosaic: every build, finished
+subprocess.run(['ffmpeg', '-v', 'error', '-y', '-ss', f'{poster:.3f}', '-i', OUT, '-frames:v', '1', '-q:v', '3', os.path.splitext(OUT)[0] + '.jpg'])
 shutil.rmtree(TMP, ignore_errors=True); print('wrote', OUT, f'{total:.1f}s', len(SHOTS), 'shots')

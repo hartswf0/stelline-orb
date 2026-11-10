@@ -1,0 +1,60 @@
+{
+ "id": "tall_fluted_solitaire",
+ "title": "TALL FLUTED SOLITAIRE",
+ "fps": 24,
+ "frames": 92,
+ "duration_s": 3.833,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE BUNDT"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "CUT 16 FLUTES ROUND THE RING"
+  },
+  {
+   "i": 3,
+   "t": 0.917,
+   "step": "FROST \u00b7 #F4F2EC"
+  },
+  {
+   "i": 4,
+   "t": 1.75,
+   "step": "RUFFLE THE SIDE, BAND BY BAND"
+  },
+  {
+   "i": 5,
+   "t": 2.208,
+   "step": "SHELLS ROUND THE CROWN"
+  },
+  {
+   "i": 6,
+   "t": 2.75,
+   "step": "1 CANDLE"
+  },
+  {
+   "i": 7,
+   "t": 2.917,
+   "step": "SET THE LENS \u00b7 HERO 3/4 \u00b7 24\u00b0 \u00b7 50MM"
+  },
+  {
+   "i": 8,
+   "t": 3.333,
+   "step": "HELD"
+  },
+  {
+   "i": 9,
+   "t": 3.458
+  }
+ ]
+}

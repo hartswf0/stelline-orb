@@ -1,0 +1,66 @@
+{
+ "id": "film_canon",
+ "title": "THE CAKE SHE KEPT \u00b7 \u751f\u65e5\u5feb\u6a02",
+ "fps": 24,
+ "frames": 104,
+ "duration_s": 4.333,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.167,
+   "step": "PUT DOWN THE DRUM"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 THE FIRST COAT #F2E6C9"
+  },
+  {
+   "i": 3,
+   "t": 1.083,
+   "step": "THE COLOUR TURNS \u00b7 #FBF8F2"
+  },
+  {
+   "i": 4,
+   "t": 1.75,
+   "step": "PIPE A BEADED BORDER"
+  },
+  {
+   "i": 5,
+   "t": 2,
+   "step": "WRITE \u201c\u751f\u65e5\u5feb\u6a02\u201d"
+  },
+  {
+   "i": 6,
+   "t": 2.292,
+   "step": "7 CANDLES"
+  },
+  {
+   "i": 7,
+   "t": 2.542,
+   "step": "THE CHILDREN COME IN FROM THE DARK"
+  },
+  {
+   "i": 8,
+   "t": 2.958,
+   "step": "SET THE LENS \u00b7 HERO 3/4"
+  },
+  {
+   "i": 9,
+   "t": 3.458,
+   "step": "MAKE A WISH"
+  },
+  {
+   "i": 10,
+   "t": 3.833,
+   "step": "HELD"
+  }
+ ]
+}

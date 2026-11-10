@@ -1,0 +1,45 @@
+{
+ "id": "carrot_walnut_cream",
+ "title": "CARROT WALNUT CREAM",
+ "fps": 24,
+ "frames": 49,
+ "duration_s": 2.042,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.167,
+   "step": "PUT DOWN THE DRUM \u00b7 CARROT SPONGE"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "LEAVE THE SPONGE NAKED \u00b7 A THIN COAT"
+  },
+  {
+   "i": 3,
+   "t": 0.792,
+   "step": "7 CANDLES"
+  },
+  {
+   "i": 4,
+   "t": 1.125,
+   "step": "SET THE LENS \u00b7 HERO 3/4 \u00b7 24\u00b0 \u00b7 50MM"
+  },
+  {
+   "i": 5,
+   "t": 1.5,
+   "step": "HELD"
+  },
+  {
+   "i": 6,
+   "t": 1.667
+  }
+ ]
+}

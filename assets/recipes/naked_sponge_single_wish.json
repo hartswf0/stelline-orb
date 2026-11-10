@@ -1,0 +1,45 @@
+{
+ "id": "naked_sponge_single_wish",
+ "title": "NAKED SPONGE SINGLE WISH",
+ "fps": 24,
+ "frames": 48,
+ "duration_s": 2,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE DRUM \u00b7 VANILLA SPONGE"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "LEAVE THE SPONGE NAKED \u00b7 A THIN COAT"
+  },
+  {
+   "i": 3,
+   "t": 0.833,
+   "step": "1 CANDLE"
+  },
+  {
+   "i": 4,
+   "t": 1.042,
+   "step": "SET THE LENS \u00b7 BENCH CRAFT \u00b7 28\u00b0 \u00b7 45MM"
+  },
+  {
+   "i": 5,
+   "t": 1.458,
+   "step": "HELD"
+  },
+  {
+   "i": 6,
+   "t": 1.625
+  }
+ ]
+}

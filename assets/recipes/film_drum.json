@@ -1,0 +1,45 @@
+{
+ "id": "film_drum",
+ "title": "ORB FILM \u00b7 WHITE DRUM",
+ "fps": 24,
+ "frames": 65,
+ "duration_s": 2.708,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE DRUM"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 THE FIRST COAT #F2E6C9"
+  },
+  {
+   "i": 3,
+   "t": 1.125,
+   "step": "THE COLOUR TURNS \u00b7 #FBF8F2"
+  },
+  {
+   "i": 4,
+   "t": 1.792,
+   "step": "SET THE LENS \u00b7 HERO 3/4"
+  },
+  {
+   "i": 5,
+   "t": 2.167,
+   "step": "HELD"
+  },
+  {
+   "i": 6,
+   "t": 2.333
+  }
+ ]
+}

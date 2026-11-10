@@ -1,0 +1,66 @@
+{
+ "id": "nineties_lilac_floral",
+ "title": "NINETIES LILAC FLORAL",
+ "fps": 24,
+ "frames": 110,
+ "duration_s": 4.583,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE DRUM"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 #B8B0C4"
+  },
+  {
+   "i": 3,
+   "t": 1.167,
+   "step": "RUFFLE THE SIDE, BAND BY BAND"
+  },
+  {
+   "i": 4,
+   "t": 1.667,
+   "step": "SHELLS ROUND THE CROWN"
+  },
+  {
+   "i": 5,
+   "t": 2.208,
+   "step": "BERRIES ROUND THE FOOT"
+  },
+  {
+   "i": 6,
+   "t": 2.417,
+   "step": "7 CANDLES"
+  },
+  {
+   "i": 7,
+   "t": 2.708,
+   "step": "THE CHILDREN COME IN FROM THE DARK"
+  },
+  {
+   "i": 8,
+   "t": 3.083,
+   "step": "SET THE LENS \u00b7 PARTY TABLEAU \u00b7 9\u00b0 \u00b7 40MM"
+  },
+  {
+   "i": 9,
+   "t": 3.708,
+   "step": "MAKE A WISH"
+  },
+  {
+   "i": 10,
+   "t": 4.083,
+   "step": "HELD"
+  }
+ ]
+}

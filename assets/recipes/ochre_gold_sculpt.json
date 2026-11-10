@@ -1,0 +1,50 @@
+{
+ "id": "ochre_gold_sculpt",
+ "title": "OCHRE GOLD SCULPT",
+ "fps": 24,
+ "frames": 73,
+ "duration_s": 3.042,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE DRUM"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FLATTEN SIX FACETS"
+  },
+  {
+   "i": 3,
+   "t": 0.875,
+   "step": "FROST \u00b7 THE FIRST COAT #C79228"
+  },
+  {
+   "i": 4,
+   "t": 1.458,
+   "step": "THE COLOUR TURNS \u00b7 #F0EEE8"
+  },
+  {
+   "i": 5,
+   "t": 2.125,
+   "step": "SET THE LENS \u00b7 HERO 3/4 \u00b7 24\u00b0 \u00b7 50MM"
+  },
+  {
+   "i": 6,
+   "t": 2.542,
+   "step": "HELD"
+  },
+  {
+   "i": 7,
+   "t": 2.667
+  }
+ ]
+}

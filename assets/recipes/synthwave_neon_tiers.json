@@ -1,0 +1,65 @@
+{
+ "id": "synthwave_neon_tiers",
+ "title": "SYNTHWAVE NEON TIERS",
+ "fps": 24,
+ "frames": 105,
+ "duration_s": 4.375,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.208,
+   "step": "PUT DOWN THE TIERS"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 THE FIRST COAT #FF3CA8"
+  },
+  {
+   "i": 3,
+   "t": 1.25,
+   "step": "THE COLOUR TURNS \u00b7 #38E8FF"
+  },
+  {
+   "i": 4,
+   "t": 2.083,
+   "step": "TRACE A CIRCUIT OF LIGHT"
+  },
+  {
+   "i": 5,
+   "t": 2.375,
+   "step": "A NEON RING AT THE FOOT AND THE CROWN"
+  },
+  {
+   "i": 6,
+   "t": 2.75,
+   "step": "7 CANDLES"
+  },
+  {
+   "i": 7,
+   "t": 3,
+   "step": "THE CHILDREN COME IN FROM THE DARK"
+  },
+  {
+   "i": 8,
+   "t": 3.417,
+   "step": "SET THE LENS \u00b7 CANDLE FACE CU \u00b7 4\u00b0 \u00b7 85MM f/1.6"
+  },
+  {
+   "i": 9,
+   "t": 3.875,
+   "step": "HELD"
+  },
+  {
+   "i": 10,
+   "t": 4
+  }
+ ]
+}

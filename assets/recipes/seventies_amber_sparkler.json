@@ -1,0 +1,65 @@
+{
+ "id": "seventies_amber_sparkler",
+ "title": "SEVENTIES AMBER SPARKLER",
+ "fps": 24,
+ "frames": 106,
+ "duration_s": 4.417,
+ "pace": 10,
+ "layout": "inset",
+ "steps": [
+  {
+   "i": 0,
+   "t": 0,
+   "step": "THE TABLE COMES OUT OF THE DARK"
+  },
+  {
+   "i": 1,
+   "t": 0.167,
+   "step": "PUT DOWN THE DRUM"
+  },
+  {
+   "i": 2,
+   "t": 0.458,
+   "step": "FROST \u00b7 #ECC882"
+  },
+  {
+   "i": 3,
+   "t": 1.125,
+   "step": "RUFFLE THE SIDE, BAND BY BAND"
+  },
+  {
+   "i": 4,
+   "t": 1.625,
+   "step": "LET THE GANACHE RUN OVER THE SHOULDER"
+  },
+  {
+   "i": 5,
+   "t": 2.125,
+   "step": "SHELLS ROUND THE CROWN"
+  },
+  {
+   "i": 6,
+   "t": 2.625,
+   "step": "12 CANDLES"
+  },
+  {
+   "i": 7,
+   "t": 2.958,
+   "step": "THE CHILDREN COME IN FROM THE DARK"
+  },
+  {
+   "i": 8,
+   "t": 3.375,
+   "step": "SET THE LENS \u00b7 PARTY TABLEAU \u00b7 9\u00b0 \u00b7 40MM"
+  },
+  {
+   "i": 9,
+   "t": 3.917,
+   "step": "HELD"
+  },
+  {
+   "i": 10,
+   "t": 4.042
+  }
+ ]
+}
