@@ -64,6 +64,20 @@ Prompt C asked for a compiler from craft video to *"the shortest human-legible s
 
 **Honest limits (epistemic ledger).** `OBSERVED`: the plates and their measured colours, candle counts and cut times. `INFERRED`: the mapping from a plate's description to ring gestures (the table above). The builds match each plate's *description*, not its pixels: a ruffle is five pulled bands, not that clip's exact ruffle; lettering is laid in piped rows, not traced from the frame; candle styles (`neon`, `crystal`, `sparkler`) and era casts are not yet distinguished (the three chamber children stand in for every era). The next step for Future II is closing that gap from `segmentation.profile_m` (the measured silhouette is already in the labels).
 
+## 2c. One Grid, One Bar: Normalizing The Corpus Toward Orb 05 (`assets/normalized/`, `tools/normalize/`)
+
+The question was how to bring every clip, and every model made from a clip, onto the same footing. The answer built here has three parts, each a file you can run.
+
+1. **One grid** (`tools/normalize/register.py`). The Mask R-CNN / GrabCut masks survive only as the tinted middle panel of `assets/bday-training/seg/<id>_seg.webp`. They are read back (panel 2 minus 0.45 × panel 1 leaves the tint), the cake's box is taken, and a zoom and shift are solved that put the cake at centre x = 640, crown at y = 250, 480 px wide in the 1280 × 576 picture. Plates are zoomed, never shrunk, and shifted only as far as the zoom allows, so no frame edge is ever bared.
+2. **One bar.** Each clip has one event: the breath (the half second in which it loses most light), the turn (`morph_jumps_s`), or its arrival. A bar is 4 beats at 73.83 bpm (78 frames) and the event sits on the first frame of beat 3. Clips are offset, not time-warped, except where a clip is too short on one side of its event: those are slowed just enough, never below half speed.
+3. **One instrument.** `record_recipes.cjs --twin` has the Memory Weaver build the same clip's recipe, then films it for the same bar with the camera solved (by projecting the cake's rim) to put the 3D cake on the plates' grid, and blows it out with ring 5 from the first frame of beat 3. The orb gained a verb for this, `THE PARTY`: the cast of the plate's own era, cut from the plates by segmentation, stood behind the table as one cut-out (`ERAS` in `field-orb-05.html`; a second click walks on to the next era). So a twin is a 3D cake, a segmented cast and a locked lens, all in Orb 05.
+
+**The cull is stated, not implied.** `assets/normalized/index.json` holds, for all 77 clips, the cake box, the fit (zoom, shift, how far off the grid it still is), the event, and `keep` with `reasons`. 33 are kept. 24 are dropped for generator caption text in the picture, the other 20 because the cake cannot be brought to the grid (too large to fit without shrinking, or too far off centre). The caption detector (thin bright glyphs on dark, in the two zones the generator writes in) was calibrated against 71 clips judged by eye and is overridden by that judgement where they disagree; both lists are in the file.
+
+**What it buys the edit** (`tools/normalize/cut_one_grid.py`): any frame of any bar can follow any frame of any other and the cake does not move; anything shown side by side is already in time. Four cuts use only that: `one-grid.mp4`, `nine-rooms.mp4` (one cake of two halves, plate left of a moving seam and coded twin right), `the-breath.mp4`, `the-turn.mp4`. `vision/<id>.png` is what the segmentation saw, carried through the same transform.
+
+**What it does not do yet.** The registration is one box from one frame per clip, so a clip whose camera moves drifts off the grid within its bar. The twin matches the plate's position, size and beat, not its lens: every twin is filmed at one pitch. The masks are Mask R-CNN and GrabCut, not Segment Anything; rerunning segmentation per frame with SAM 2 would give a moving box, a per-frame cast cut-out for the orb instead of one still sheet per era, and a silhouette to fit the lathe profile to.
+
 ---
 
 ## 3. Copyable Prompts for Future AI SCION Work Futures

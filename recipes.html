@@ -87,6 +87,14 @@
   </div>
 </section>
 
+<h2>One grid, one bar: the corpus normalized</h2>
+<p class="lede">Every plate is zoomed and shifted until its cake stands where the orb puts its own (centre, crown line, width), and timed so its event falls on beat 3 of one four-beat bar. The orb then builds each plate's recipe and is filmed on that same grid for that same bar, with the party of its own era cut from the plates standing behind. Any frame can follow any other and the cake does not move.</p>
+<div class="g" id="gCUTS" style="grid-template-columns:repeat(auto-fill,minmax(min(420px,100%),1fr))"></div>
+<h2 id="hKept">Kept, plate beside coded twin</h2>
+<p class="lede">Hover a pair to play both. They share a clock, so they stay in step.</p>
+<div class="g" id="gNORM" style="grid-template-columns:repeat(auto-fill,minmax(min(420px,100%),1fr))"></div>
+<details style="margin-top:14px"><summary id="sDrop">Dropped, with the reason</summary><ol id="gDROP" style="columns:2;column-gap:28px"></ol></details>
+
 <h2>Six cakes, circled</h2>
 <p class="lede">The finished cake with its candles lit, the camera circling, the flames blown out by ring 5 in the last third. No controller in frame.</p>
 <div class="g" id="gHERO"></div>
@@ -104,6 +112,7 @@
 <div class="clips" id="gCLIP"></div>
 </main>
 <script src="assets/recipes/index.js"></script>
+<script src="assets/normalized/index.js"></script>
 <script>
 var D = window.RECIPE_FILMS || { films: [], clips: [] }, esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
 D.films.forEach(function (f) { var g = document.getElementById('g' + f.shelf); if (!g) return; var el = document.createElement('figure');
@@ -113,7 +122,16 @@ D.films.forEach(function (f) { var g = document.getElementById('g' + f.shelf); i
     '<div class="row" style="margin-top:auto"><a class="b gold" href="field-orb-05.html?build=' + f.id + '">Build it live</a>' + (f.clip ? '<a class="b" href="BDAY%20TRAINING/' + encodeURIComponent(f.clip) + '">Clip</a>' : '') + '<a class="b" href="assets/recipes/' + f.id + '.mp4" download>MP4</a></div></figcaption>';
   g.appendChild(el); });
 (D.heroes || []).forEach(function (h) { var el = document.createElement('figure'); el.innerHTML = '<div class="vid"><video src="assets/recipes/hero/' + h.id + '_hero.mp4" poster="assets/recipes/hero/' + h.id + '_hero.jpg" loop muted playsinline preload="none"></video></div><figcaption><b>' + esc(h.title) + '</b><small>4.0 s orbit · blown out at 2.6 s</small><div class="row" style="margin-top:auto"><a class="b gold" href="field-orb-05.html?build=' + h.id + '">Build it live</a><a class="b" href="assets/recipes/hero/' + h.id + '_hero.mp4" download>MP4</a></div></figcaption>'; document.getElementById('gHERO').appendChild(el); });
+var NZ = window.NORMALIZED || { clips: [] }, kept = NZ.clips.filter(function (c) { return c.keep; });
+[['one-grid', 'One grid, one bar', 'The whole culled corpus in era order: what the machine sees, arrivals and turns, plate into twin, every breath, a flicker of all bars on one frame, then all at once.'], ['nine-rooms', 'Nine rooms, one cake', 'One bar for each of the nine eras and rooms in the corpus. Left of the moving seam is the synthetic plate, right of it the coded twin: one cake made of two halves.'], ['the-breath', 'The breath', 'Every blow-out as plate, then as twin at double pace, then all together on beat 3.'], ['the-turn', 'The turn', 'Every change of colour or form, the segmentation shown on the beat before it.']].forEach(function (c) { var el = document.createElement('figure');
+  el.innerHTML = '<div class="vid"><video src="assets/normalized/' + c[0] + '.mp4" poster="assets/normalized/' + c[0] + '.jpg" controls playsinline preload="none"></video></div><figcaption><b>' + c[1] + '</b><small style="text-transform:none;letter-spacing:.01em;font-size:13px">' + c[2] + '</small><div class="row" style="margin-top:auto"><a class="b" href="assets/normalized/' + c[0] + '.mp4" download>MP4</a></div></figcaption>'; document.getElementById('gCUTS').appendChild(el); });
+document.getElementById('hKept').textContent = kept.length + ' of ' + NZ.clips.length + ' kept, plate beside coded twin';
+kept.forEach(function (c) { var el = document.createElement('figure'), v = function (s) { return '<video src="assets/normalized/bars/' + c.id + s + '.mp4" loop muted playsinline preload="none" style="width:50%;aspect-ratio:1280/576;display:inline-block"></video>'; };
+  el.innerHTML = '<div class="vid pair" style="font-size:0;background:#000">' + v('') + v('_twin') + '</div><figcaption><b>' + c.id.replace('_', ' ') + ' · ' + esc(c.era.replace(/_/g, ' ')) + '</b><small>' + c.event.kind + ' on beat 3 · zoom ×' + c.fit.zoom.toFixed(2) + ' · ' + Math.round(Math.abs(c.fit.dx)) + ' px off centre</small><div class="row" style="margin-top:auto"><a class="b gold" href="field-orb-05.html?build=' + c.id + '">Build it live</a></div></figcaption>'; document.getElementById('gNORM').appendChild(el); });
+document.getElementById('sDrop').textContent = (NZ.clips.length - kept.length) + ' dropped, with the reason';
+document.getElementById('gDROP').innerHTML = NZ.clips.filter(function (c) { return !c.keep; }).map(function (c) { return '<li><b style="color:#f0f4f2">' + c.id.replace('_', ' ') + '</b> · ' + esc(c.reasons.join('; ')) + '</li>'; }).join('');
+[].forEach.call(document.querySelectorAll('.pair'), function (p) { var vs = p.querySelectorAll('video'); p.addEventListener('mouseenter', function () { [].forEach.call(vs, function (v) { v.currentTime = 0; v.play().catch(function () {}); }); }); p.addEventListener('mouseleave', function () { [].forEach.call(vs, function (v) { v.pause(); }); }); });
 document.getElementById('gCLIP').innerHTML = D.clips.map(function (c) { return '<a href="field-orb-05.html?build=' + c.id + '"><img src="' + esc(c.thumb) + '" alt="" loading="lazy"><span><i>' + c.id.toUpperCase() + ' · ' + esc(c.era.replace(/_/g, ' ').toUpperCase()) + '</i>' + esc(c.title) + '</span></a>'; }).join('');
-[].forEach.call(document.querySelectorAll('.vid video'), function (v) { v.addEventListener('mouseenter', function () { v.play().catch(function () {}); }); v.addEventListener('mouseleave', function () { v.pause(); }); v.addEventListener('click', function () { v.paused ? v.play().catch(function () {}) : v.pause(); }); });
+[].forEach.call(document.querySelectorAll('.vid:not(.pair) video:not([controls])'), function (v) { v.addEventListener('mouseenter', function () { v.play().catch(function () {}); }); v.addEventListener('mouseleave', function () { v.pause(); }); v.addEventListener('click', function () { v.paused ? v.play().catch(function () {}) : v.pause(); }); });
 </script>
 </body></html>

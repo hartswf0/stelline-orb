@@ -429,7 +429,7 @@ const VERBS = [['BASE · DRUM', 'SPAWN', 0], ['BASE · DOME', 'SPAWN', 1], ['BAS
   ['FROST · CREAM', 'PAINT', 0], ['FROST · ROSE', 'PAINT', 1], ['FROST · CHOCOLATE', 'PAINT', 5], ['FROST · LEMON', 'PAINT', 4], ['FROST · MINT', 'PAINT', 2], ['FROST · WHITE', 'PAINT', 7], ['FROST · PLATE A', 'PAINT', 10], ['FROST · PLATE B', 'PAINT', 11],
   ['PIPE · WHITE', 'PIPE', 7], ['PIPE · ROSE', 'PIPE', 1], ['PIPE · CHOCOLATE', 'PIPE', 5], ['PIPE · GOLD', 'PIPE', 8], ['PIPE · RED', 'PIPE', 6], ['PIPE · NEON', 'PIPE', 9], ['WRITE · RED', 'WRITE', 6], ['WRITE · GOLD', 'WRITE', 8], ['WRITE · NEON', 'WRITE', 9],
   ['CANDLES', 'PLACE', 0], ['BERRIES', 'PLACE', 1], ['CHERRIES', 'PLACE', 4], ['ROSETTES', 'PLACE', 3], ['SPRINKLES', 'PLACE', 2],
-  ['THE TABLE', 'TABLE', 0], ['A CHILD', 'CHILD', 0], ['LIGHT · WARM', 'LIGHT', 0], ['BLOW OUT', 'SNUFF', 0]];
+  ['THE TABLE', 'TABLE', 0], ['A CHILD', 'CHILD', 0], ['THE PARTY', 'PARTY', 0], ['LIGHT · WARM', 'LIGHT', 0], ['BLOW OUT', 'SNUFF', 0]];
 const vIdx = name => VERBS.findIndex(v => v[0] === name);
 const CHAPTERS = [['1 · SPONGE', vIdx('BASE · DRUM')], ['2 · SCULPT', vIdx('PULL OUT')], ['3 · FROST', vIdx('FROST · CREAM')], ['4 · PIPE', vIdx('PIPE · WHITE')], ['5 · TOPPINGS', vIdx('CANDLES')], ['6 · SCENE', vIdx('THE TABLE')]];
 function curChapter() { for (let i = CHAPTERS.length - 1; i >= 0; i--) if (S.verb >= CHAPTERS[i][1]) return i; return 0; }
@@ -507,7 +507,7 @@ function rings() {
   else if (S.mode === 'MAKE' || S.mode === 'PLACE' || S.mode === 'ADD') { const t = verbTool();
     R3 = [{ n: S.mode === 'PLACE' ? 'ITEM / CUTOUT' : S.mode === 'ADD' ? 'ELEMENT' : 'VERB', v: () => S.verb, set: v => setVerb(Math.round(v)), st: 1, f: v => VERBS[v][0], lo: 0, hi: VERBS.length - 1 },
       { n: 'HEIGHT', v: () => S.aimH, set: v => { S.aimH = clamp(v, 0, 1); S.dialPipe = null; }, st: .04, f: v => v > .97 ? 'TOP' : v < .03 ? 'FOOT' : Math.round(v * 100) + '%', lo: 0, hi: 1 },
-      { n: S.mode === 'PLACE' ? 'PLACE NOW' : S.mode === 'ADD' ? 'ADD NOW' : (t === 'SPAWN' || t === 'TABLE' ? 'PUT DOWN' : t === 'PLACE' || t === 'CHILD' ? 'HOW MANY' : t === 'SNUFF' ? 'FLAMES' : t === 'LIGHT' ? 'INTENSITY' : t === 'PIPE' ? 'LENGTH' : t === 'WRITE' ? 'LETTERS' : 'AMOUNT'), v: () => S.amt, act: n => dialApply(n), st: 1, f: v => (v > 0 ? '+' : '') + v, lo: -12, hi: 12 }]; }
+      { n: S.mode === 'PLACE' ? 'PLACE NOW' : S.mode === 'ADD' ? 'ADD NOW' : (t === 'SPAWN' || t === 'TABLE' ? 'PUT DOWN' : t === 'PARTY' ? 'BRING IN' : t === 'PLACE' || t === 'CHILD' ? 'HOW MANY' : t === 'SNUFF' ? 'FLAMES' : t === 'LIGHT' ? 'INTENSITY' : t === 'PIPE' ? 'LENGTH' : t === 'WRITE' ? 'LETTERS' : 'AMOUNT'), v: () => S.amt, act: n => dialApply(n), st: 1, f: v => (v > 0 ? '+' : '') + v, lo: -12, hi: 12 }]; }
   else if (isXf()) R3 = [0, 1, 2].map(xfRing);
   else if (S.mode === 'TIME') { const F = DOC.frames, nd = curNode(), isKid = nd.k === 'child' || nd.k === 'kids';
     const curPose = () => { const c = nd.k === 'child' ? DOC.cast.find(x => x.id === nd.id || x.i === nd.slot) : DOC.cast[0]; return c && c.pose != null ? c.pose : 1; };
@@ -611,6 +611,10 @@ function dialApply(steps) { const t = verbTool(); S.amt += steps; gestureT = NOW
   if (t === 'SPAWN') { if (steps > 0) { const F = curF(); S.opt.SPAWN = VERBS[S.verb][2]; spawn(!!F.clay); S.pickKey = 'cake'; } else if (curF().clay) { snapshot(); curF().clay = null; curF().strokes = []; curF().items = []; showFrame(); say('THE CHAMBER IS EMPTY AGAIN'); } return; }
   if (t === 'TABLE') { snapshot(); DOC.hasTable = steps > 0; showFrame(); shimmer(); say(DOC.hasTable ? 'THE TABLE MATERIALIZES BENEATH THE CAKE' : 'THE TABLE RECEDES INTO THE DARK'); return; }
   if (t === 'LIGHT') { S.lightBoost = clamp((S.lightBoost || 1.25) + steps * .22, .15, 2.8); over.intensity = clamp(.78 + steps * .08, .2, 1.8); warm.intensity = clamp(.55 + steps * .08, .1, 1.4); showFrame(); say('CHAMBER & CANDLE LIGHT · ' + Math.round(S.lightBoost * 100) + '%'); return; }
+  if (t === 'PARTY') { DOC.hasTable = true; const have = DOC.cast.find(c => KIDS[c.i].party);   // the era's whole cast, as one cut-out behind the table; a second click walks on to the next era
+    if (steps < 0) { if (!have) { tick('dead'); return; } snapshot(); DOC.cast.splice(DOC.cast.indexOf(have), 1); syncFrameCast(); S.pickKey = 'cake'; say('THE PARTY GOES BACK INTO THE DARK'); showFrame(); return; }
+    const era = have ? (have.i - 6 + 1) % ERAS.length : clamp(S.plateEra || 0, 0, ERAS.length - 1); snapshot(); if (have) DOC.cast.splice(DOC.cast.indexOf(have), 1);
+    DOC.cast.push({ id: CASTID++, i: 6 + era, a: Math.PI / 2 - S.orbit.yaw + Math.PI, r: .5, yaw: 0, tilt: 0, lift: 0, op: 1, vis: 0, pose: 1 }); syncFrameCast(); shimmer(); say('THE ' + ERAS[era][1] + ' PARTY STANDS BEHIND THE TABLE'); showFrame(); return; }
   if (t === 'CHILD') { DOC.hasTable = true; for (let k = 0; k < Math.abs(steps); k++) steps > 0 ? addChild() : removeChild(); showFrame(); return; }
   if (t === 'SNUFF') { const F = curF(), C = F.items.filter(i => i.t === 'CANDLE'); if (!C.length) { say('NO CANDLES TO BLOW OUT'); tick('dead'); return; } snapshot(); for (let k = 0; k < Math.abs(steps); k++) { const c = steps > 0 ? C.find(i => !i.out) : C.slice().reverse().find(i => i.out); if (c) { c.out = !c.out; objOf.delete(c); } } showFrame(); const lit = C.filter(i => !i.out).length; say(lit ? lit + ' FLAMES LEFT' : 'ALL OUT · MAKE A WISH'); if (!lit) shimmer(); return; }
   if (!clayMesh) { say('NOTHING TO WORK · PUT DOWN A BASE FIRST'); tick('dead'); return; }
@@ -737,6 +741,8 @@ function updReticle() {
 
 
 /* =============================================================== THE CAST: the children, cut from the film's own frame, added one by one around the table and lit by the 3D scene */
+// the eight casts Segment-Anything-style masks lifted out of the reference plates, one sheet per era (tools/bday-training/process_bday_training.py)
+const ERAS = [['chamber_kids', '2049 CHAMBER'], ['era_1920s_bw', '1920s'], ['era_1920s_speakeasy', 'SPEAKEASY'], ['era_1950s_kids', '1950s'], ['era_1970s_family', '1970s'], ['era_1980s_neon', '1980s'], ['era_1990s_party', '1990s'], ['era_2049_cyberpunk', 'CYBERPUNK']];
 const KIDS = [
   { file: 'stelline_child1.webp', label: 'CHILD 1 · WEST', frames: 16, fps: 10, h: .56, base: TABLE_Y - .1, da: -.66, pts: [] },
   { file: 'stelline_child2.webp', label: 'CHILD 2 · CENTER', frames: 16, fps: 10, h: .38, base: TABLE_Y + .02, da: -.04, pts: [] },
@@ -744,8 +750,8 @@ const KIDS = [
   { file: 'stelline_walk.webp',   label: 'ANA · WALK TO WORK', frames: 8, fps: 6, h: .76, base: TABLE_Y - .16, da: -1.25, pts: [] },
   { file: 'stelline_talk.webp',   label: 'ANA · UNTIDY DETAILS', frames: 8, fps: 6, h: .68, base: TABLE_Y - .12, da: 1.25, pts: [] },
   { file: 'stelline_candle_face.webp', label: 'WISH · CANDLE FACE', frames: 8, fps: 8, h: .48, base: TABLE_Y + .01, da: .28, pts: [] }
-];
-const kidTex = KIDS.map(k => { const t = new T.TextureLoader().load('assets/cutouts/' + k.file, tt => {
+].concat(ERAS.map(e => ({ path: 'assets/bday-training/cutouts/' + e[0] + '.webp', label: 'PARTY · ' + e[1], frames: 1, fps: 1, h: .6, base: TABLE_Y - .13, da: 0, party: true, pts: [] })));   // 6..13: a whole party cut from one era's plates, stood behind the table
+const kidTex = KIDS.map(k => { const t = new T.TextureLoader().load(k.path || 'assets/cutouts/' + k.file, tt => {
   const fw = tt.image.width / (k.frames || 1), fh = tt.image.height;
   k.aspect = fw / fh;
   tt.repeat.set(1 / (k.frames || 1), 1);
@@ -1122,7 +1128,7 @@ const BOOK = (() => {
     list() { return shelves[this.shelf][1]; }, cur() { return this.list()[this.idx] || this.list()[0]; },
     find(id) { for (let s = 0; s < shelves.length; s++) { const k = shelves[s][1].findIndex(r => r.id === id); if (k >= 0) return [s, k]; } return null; },
     img() { const r = this.run ? this.run.rc : this.cur(); if (!r || !r.thumb) return null; let im = imgs[r.thumb]; if (!im) { im = imgs[r.thumb] = new Image(); im.onload = () => { oledDirty = true; }; im.src = r.thumb; } return im.complete && im.naturalWidth ? im : null; },
-    load(rc) { rc = rc || this.cur(); const sp = rc.spec; COLORS[10][1] = sp.icing_start || '#f2e6c9'; COLORS[11][1] = sp.icing_end || sp.icing_start || '#fbf8f2'; S.inscribe = QS.get('say') || sp.inscribe || S.inscribe0 || ''; S.writing = null; oledDirty = true; return rc; },
+    load(rc) { rc = rc || this.cur(); const sp = rc.spec; COLORS[10][1] = sp.icing_start || '#f2e6c9'; COLORS[11][1] = sp.icing_end || sp.icing_start || '#fbf8f2'; S.inscribe = QS.get('say') || sp.inscribe || S.inscribe0 || ''; S.plateEra = Math.max(0, ERAS.findIndex(e => e[0] === sp.stage_cast)); S.writing = null; oledDirty = true; return rc; },
     rings() { const L = this.list();
       return [{ n: 'SHELF', v: () => this.shelf, set: v => { this.shelf = clamp(Math.round(v), 0, shelves.length - 1); this.idx = 0; this.load(); }, st: 1, f: v => shelves[clamp(Math.round(v), 0, shelves.length - 1)][0] + ' · ' + shelves[clamp(Math.round(v), 0, shelves.length - 1)][1].length, lo: 0, hi: Math.max(1, shelves.length - 1) },
         { n: 'PLATE', v: () => this.idx, set: v => { this.idx = ((Math.round(v) % L.length) + L.length) % L.length; this.load(); say((this.idx + 1) + '/' + L.length + ' · ' + this.cur().title); }, st: 1, f: v => ((L[clamp(Math.round(v), 0, L.length - 1)] || {}).title || '').replace(/[^ -~]/g, '').trim().slice(0, 16), lo: 0, hi: Math.max(1, L.length - 1) },
@@ -1174,7 +1180,8 @@ const BOOK = (() => {
     const hm = HM && HM.models && rc.arch && HM.models[rc.arch] ? Math.max(...HM.models[rc.arch].model.P.map(p => p[1])) / ({ DRUM: .097, TIERS: .145, TIERS3: .2, BUNDT: .11 }[kind] || Hh) : 1;
     if (Math.abs(hm - 1) > .1) add(hm > 1 ? 'DRAW IT TALLER' : 'PRESS IT LOW, A TART', [['ring', 0, M('SIZE')], ['ring', 1, 0], ['ring', 3, +hm.toFixed(2)], ['wait', .3]]);
     if (sp.tilt_deg) add('LIFT IT OFF THE TABLE AND TIP IT ' + sp.tilt_deg + '°', [['ring', 0, M('MOVE')], ['ring', 1, 0], ['turn', 3, 4, .1], ['ring', 0, M('TURN')], ['ring', 2, Math.round(sp.tilt_deg / 5) * 5], ['wait', .3]]);
-    if (sp.stage_cast) add('THE CHILDREN COME IN FROM THE DARK', [['ring', 0, M('MAKE')], ['ring', 2, V('A CHILD')], ['turn', 4, 3, .8], ['wait', .5]]);
+    if (sp.stage_cast && /^era_/.test(sp.stage_cast)) add('THE PARTY OF ITS OWN ERA, CUT FROM THE PLATES', [['ring', 0, M('MAKE')], ['ring', 2, V('THE PARTY')], ['turn', 4, 1], ['wait', .9]]);
+    else if (sp.stage_cast) add('THE CHILDREN COME IN FROM THE DARK', [['ring', 0, M('MAKE')], ['ring', 2, V('A CHILD')], ['turn', 4, 3, .8], ['wait', .5]]);
     const cm = rc.cam || hero, cd = clamp(Math.hypot(cm.p[0], cm.p[1] - .8, cm.p[2]) * (sp.stage_cast ? 1.5 : 1.05), sp.stage_cast ? 1.15 : .5, 1.7);
     add('SET THE LENS · ' + (cm.label || 'HERO 3/4'), [['ring', 0, M('LOOK')], ['ring', 1, 0], ['wait', 1.5], ['ring', 2, cm.yaw || 0], ['ring', 3, clamp(-(cm.pitch || -.3), .08, 1.1)], ['ring', 4, cd], ['wait', .5]]);
     if (n > 0 && (sp.flame === 'blowing_out' || sp.flame === 'rewinding')) add('MAKE A WISH', [['ring', 0, M('MAKE')], ['ring', 2, V('BLOW OUT')], ['wait', .5], ['turn', 4, n, .2], ['wait', .7]]);
@@ -1867,7 +1874,7 @@ addEventListener('drop', e => { e.preventDefault(); if (e.dataTransfer && e.data
 addEventListener('keydown', e => { if ((e.key === 'i' || e.key === 'I') && !e.metaKey && !e.ctrlKey) wFileImp.click(); });
 
 /* =============================================================== a handle for scripts: tests, and the film */
-window.FORGE = { S, BOOK, COLORS, letterRuns, get DOC() { return DOC; }, turn, press, rings, scrub, nodes, curNode, pickTo, setMode, setVerb, GUIDE, GSTEPS, PAIR, CINE, setCine, CAM_SHOTS, KID_POSES, applyCamShot, applyKidPose, now: () => NOW, gizmoHit, gizmoDrag, setStretch, setPull, VERBS, MODES, spawn, place, hitAt, strokeStart, strokeMove, strokeEnd, snapshot, showFrame, cam, CAKE, ORB, RINGS, BTN, OC, perf: () => perf,
+window.FORGE = { S, BOOK, COLORS, KIDS, ERAS, letterRuns, get DOC() { return DOC; }, turn, press, rings, scrub, nodes, curNode, pickTo, setMode, setVerb, GUIDE, GSTEPS, PAIR, CINE, setCine, CAM_SHOTS, KID_POSES, applyCamShot, applyKidPose, now: () => NOW, gizmoHit, gizmoDrag, setStretch, setPull, VERBS, MODES, spawn, place, hitAt, strokeStart, strokeMove, strokeEnd, snapshot, showFrame, cam, CAKE, ORB, RINGS, BTN, OC, perf: () => perf,
   manual() { auto = false; }, setAim(x, y) { hover = x == null ? null : { x, y }; }, aim: () => AIM, advance(dt) { update(dt); render(); }, step(dt) { update(dt); placeCam(); cam.updateMatrixWorld(); }, worldToRoom(v) { const p = v.clone().project(cam); return [(p.x + 1) / 2 * roomEl.clientWidth, (1 - p.y) / 2 * roomEl.clientHeight]; }, local(v) { return CAKE.localToWorld(v.clone()); } };
 </script>
 </body>

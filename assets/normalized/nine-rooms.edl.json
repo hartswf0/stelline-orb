@@ -1,0 +1,88 @@
+{
+ "fps": 24,
+ "beat_s": 0.8126984,
+ "music_from_s": 49.18,
+ "duration_s": 31.708,
+ "shots": [
+  {
+   "shot": 0,
+   "t": 0.0,
+   "frames": 78,
+   "beats": 4,
+   "what": "LEFT OF THE SEAM: PLATE BDAY 69   RIGHT: ITS CODED TWIN",
+   "how": "ONE CAKE, TWO HALVES"
+  },
+  {
+   "shot": 1,
+   "t": 3.25,
+   "frames": 78,
+   "beats": 4,
+   "what": "LEFT OF THE SEAM: PLATE BDAY 67   RIGHT: ITS CODED TWIN",
+   "how": "ONE CAKE, TWO HALVES"
+  },
+  {
+   "shot": 2,
+   "t": 6.5,
+   "frames": 78,
+   "beats": 4,
+   "what": "LEFT OF THE SEAM: PLATE BDAY 28   RIGHT: ITS CODED TWIN",
+   "how": "ONE CAKE, TWO HALVES"
+  },
+  {
+   "shot": 3,
+   "t": 9.75,
+   "frames": 78,
+   "beats": 4,
+   "what": "LEFT OF THE SEAM: PLATE BDAY 21   RIGHT: ITS CODED TWIN",
+   "how": "ONE CAKE, TWO HALVES"
+  },
+  {
+   "shot": 4,
+   "t": 13.0,
+   "frames": 78,
+   "beats": 4,
+   "what": "LEFT OF THE SEAM: PLATE BDAY 26   RIGHT: ITS CODED TWIN",
+   "how": "ONE CAKE, TWO HALVES"
+  },
+  {
+   "shot": 5,
+   "t": 16.25,
+   "frames": 78,
+   "beats": 4,
+   "what": "LEFT OF THE SEAM: PLATE BDAY 27   RIGHT: ITS CODED TWIN",
+   "how": "ONE CAKE, TWO HALVES"
+  },
+  {
+   "shot": 6,
+   "t": 19.5,
+   "frames": 78,
+   "beats": 4,
+   "what": "LEFT OF THE SEAM: PLATE BDAY 54   RIGHT: ITS CODED TWIN",
+   "how": "ONE CAKE, TWO HALVES"
+  },
+  {
+   "shot": 7,
+   "t": 22.75,
+   "frames": 78,
+   "beats": 4,
+   "what": "LEFT OF THE SEAM: PLATE BDAY 34   RIGHT: ITS CODED TWIN",
+   "how": "ONE CAKE, TWO HALVES"
+  },
+  {
+   "shot": 8,
+   "t": 26.0,
+   "frames": 78,
+   "beats": 4,
+   "what": "LEFT OF THE SEAM: PLATE BDAY 45   RIGHT: ITS CODED TWIN",
+   "how": "ONE CAKE, TWO HALVES"
+  },
+  {
+   "shot": 9,
+   "t": 29.25,
+   "frames": 59,
+   "beats": 3,
+   "what": "",
+   "how": ""
+  }
+ ]
+}
