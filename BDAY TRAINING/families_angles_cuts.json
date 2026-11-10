@@ -1,0 +1,3438 @@
+{
+  "summary": {
+    "angle_families": {
+      "HERO_PEDESTAL_3Q_25DEG": 23,
+      "HIGH_CROWN_WRITING_45DEG": 6,
+      "CHAMBER_FLOATING_TILT_10DEG": 6,
+      "INTIMATE_CANDLE_FACE_CU": 25,
+      "TABLE_TABLEAU_EYE_10DEG": 13,
+      "ARTISAN_BENCH_HANDS_30DEG": 5
+    },
+    "cut_families": {
+      "STAGE_MORPH_DETENT_SWAP": 24,
+      "SINGLE_CONTINUOUS_TAKE": 37,
+      "TEMPORAL_REWIND_REVERSE": 4,
+      "HOLOGRAM_GHOST_MATERIALIZE": 7,
+      "MULTI_SHOT_MONTAGE": 5,
+      "BENCHMARK_TRIPTYCH_PLATE": 1
+    },
+    "motion_families": {
+      "LOCKED_STATIC": 39,
+      "TURNTABLE_ORBIT": 3,
+      "HANDHELD_DRIFT_RACK": 23,
+      "DOLLY_PUSH_IN": 7,
+      "MULTI_ANGLE_CUTS": 6
+    },
+    "scale_families": {
+      "MEDIUM_CLOSE_HERO": 25,
+      "TIGHT_CLOSE_UP_MACRO": 27,
+      "MEDIUM_FULL_TABLEAU": 13,
+      "WIDE_TO_CLOSE_PUSH": 7,
+      "MULTI_SCALE_COVERAGE": 6
+    },
+    "layout_families": {
+      "WEAVER_5RING_BARREL_HUD": 69,
+      "CHAMBER_MINIMAL_DOTBAR": 7,
+      "REFERENCE_GRID_9X3": 1,
+      "CHAMBER_DOME_RIM_CLEAN": 1
+    }
+  },
+  "camera_rig_presets": {
+    "HIGH_CROWN_WRITING_45DEG": {
+      "label": "CROWN WRITING · 46° · 50MM",
+      "p": [
+        0.02,
+        1.18,
+        0.42
+      ],
+      "yaw": 0.04,
+      "pitch": -0.78,
+      "f": 50,
+      "N": 4.0,
+      "fd": 0.56,
+      "desc": "Elevated 46° crown angle exposing top calligraphy & candle ring"
+    },
+    "HERO_PEDESTAL_3Q_25DEG": {
+      "label": "HERO 3/4 · 24° · 50MM",
+      "p": [
+        0.34,
+        0.99,
+        0.58
+      ],
+      "yaw": 0.53,
+      "pitch": -0.34,
+      "f": 50,
+      "N": 2.8,
+      "fd": 0.68,
+      "desc": "Studio 3/4 pedestal framing balancing side relief, drips & crown"
+    },
+    "CHAMBER_FLOATING_TILT_10DEG": {
+      "label": "CHAMBER TILT · 10° · 35MM",
+      "p": [
+        -0.14,
+        0.84,
+        0.56
+      ],
+      "yaw": -0.24,
+      "pitch": -0.1,
+      "f": 35,
+      "N": 2.0,
+      "fd": 0.58,
+      "desc": "Low kneeling Shot 25/26 chamber framing for tilted floating cakes"
+    },
+    "TABLE_TABLEAU_EYE_10DEG": {
+      "label": "PARTY TABLEAU · 9° · 40MM",
+      "p": [
+        0.0,
+        0.92,
+        0.88
+      ],
+      "yaw": 0.0,
+      "pitch": -0.13,
+      "f": 40,
+      "N": 2.4,
+      "fd": 0.88,
+      "desc": "Seated across-the-table ensemble framing with party guests in half-ring"
+    },
+    "INTIMATE_CANDLE_FACE_CU": {
+      "label": "CANDLE FACE CU · 4° · 85MM f/1.6",
+      "p": [
+        0.04,
+        0.85,
+        0.54
+      ],
+      "yaw": 0.07,
+      "pitch": -0.05,
+      "f": 85,
+      "N": 1.6,
+      "fd": 0.54,
+      "desc": "Shallow-DOF 85mm portrait angle across burning wicks onto lit faces"
+    },
+    "ARTISAN_BENCH_HANDS_30DEG": {
+      "label": "BENCH CRAFT · 28° · 45MM",
+      "p": [
+        0.18,
+        1.04,
+        0.52
+      ],
+      "yaw": 0.33,
+      "pitch": -0.44,
+      "f": 45,
+      "N": 3.2,
+      "fd": 0.58,
+      "desc": "Close benchtop craft perspective matching hand-sculpted buttercream clips"
+    },
+    "WIDE_ARCHITECTURAL_DOME": {
+      "label": "WIDE DOME · 6° · 24MM",
+      "p": [
+        0.0,
+        1.08,
+        1.85
+      ],
+      "yaw": 0.0,
+      "pitch": -0.09,
+      "f": 24,
+      "N": 4.0,
+      "fd": 1.85,
+      "desc": "Wide architectural chamber view with horizon light ring & silhouette scale"
+    },
+    "MACRO_SPECIMEN_ECU": {
+      "label": "MACRO ECU · 22° · 100MM f/2.0",
+      "p": [
+        0.08,
+        0.91,
+        0.34
+      ],
+      "yaw": 0.22,
+      "pitch": -0.32,
+      "f": 100,
+      "N": 2.0,
+      "fd": 0.35,
+      "desc": "Extreme macro specimen / crown detail lens with razor-thin focal plane"
+    }
+  },
+  "groups": {
+    "angle_families": {
+      "HERO_PEDESTAL_3Q_25DEG": [
+        {
+          "id": "bday_01",
+          "filename": "Birthday_cake_changes_color_83569c26.mp4",
+          "title": "Rose-Pink Smooth Drum -> White Ruffled 7-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.876
+        },
+        {
+          "id": "bday_02",
+          "filename": "Birthday_cake_changing_color_36d924c6.mp4",
+          "title": "Cobalt Swirl Drum -> Faceted White Origami Buttercream",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_03",
+          "filename": "Birthday_cake_changing_color_69b4dc20.mp4",
+          "title": "Mint Rosette Cake -> Forest Ruffle -> Smooth White Drum",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_04",
+          "filename": "Birthday_cake_changing_color_c4bf1e2d.mp4",
+          "title": "Royal Purple Frosted Cake -> White Ruffled 9-Taper Crown",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.89
+        },
+        {
+          "id": "bday_05",
+          "filename": "Birthday_cake_changing_colors_581305a4.mp4",
+          "title": "Ochre Gold Sculpted Cake -> Faceted White Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_06",
+          "filename": "Birthday_cake_changing_frosting_e92959a3.mp4",
+          "title": "Chocolate -> Cream Cake Inside Refractive Memory Sphere",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.003
+        },
+        {
+          "id": "bday_08",
+          "filename": "Birthday_cake_frosting_changing_…_56e3804b.mp4",
+          "title": "Glowing Disc -> Vanilla Base -> Dark Chocolate Drip & Curls",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.985
+        },
+        {
+          "id": "bday_09",
+          "filename": "Birthday_cake_morphing_frostings_8cc1d406.mp4",
+          "title": "3-Tier Chocolate -> Ornate White Wedding Cake in Memory Orb",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.575
+        },
+        {
+          "id": "bday_10",
+          "filename": "Building_retro_memory_orb_cake_528cf831.mp4",
+          "title": "Retro Memory Orb Cake: Sponge -> Cream -> Gold Bead Crown -> 7 Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_11",
+          "filename": "Cake_assembling_itself_step_by_a02ba256.mp4",
+          "title": "Step-by-Step 2-Tier Dark Chocolate Berry Cake Assembly",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.991
+        },
+        {
+          "id": "bday_17",
+          "filename": "Carrot_cake_rotating_on_display_fe728df1.mp4",
+          "title": "Spiced Carrot-Walnut Crumb Cake -> Cream Cheese Frosting & 7 Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.989
+        },
+        {
+          "id": "bday_39",
+          "filename": "Controller_operating_1950s_memor…_bf9f96c2.mp4",
+          "title": "1950s Memory Orb: Small Puck Morphing Into Tall Golden Bundt w/ Orbital Rings",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_41",
+          "filename": "Controller_transforming_object_i…_f9496d29.mp4",
+          "title": "Yellow Puck -> White Disc -> Tall Ruffled Cake -> Lit Twin Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.978
+        },
+        {
+          "id": "bday_50",
+          "filename": "Cyberpunk_memory_orb_cake_assembly_777969c8.mp4",
+          "title": "Cyberpunk Hexagonal Obsidian Cake Erupting w/ Amethyst Crystal Crown",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.043
+        },
+        {
+          "id": "bday_51",
+          "filename": "Cylinder_morphs_into_bundt_cake_6a88d7f1.mp4",
+          "title": "Canonical Counterfactual: Flat Sponge Cylinder Morphs Into 12-Flute Bundt Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.979
+        },
+        {
+          "id": "bday_52",
+          "filename": "Frosting_pound_cake_with_candles_4c860f90.mp4",
+          "title": "Spotlight Cone Frosting Golden Pound Cake + 7 Tall Tapers",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.013
+        },
+        {
+          "id": "bday_58",
+          "filename": "Memory_orb_cake_building_sequence_af6b2281.mp4",
+          "title": "Memory Orb Multi-Layer Sponge -> Dark Ganache & White Bead Crown",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.978
+        },
+        {
+          "id": "bday_59",
+          "filename": "Memory_orb_controller_morphing_cake_1238138c.mp4",
+          "title": "Holographic Ring -> Tall Fluted White Ruffle Cake w/ Single Candle",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.95
+        },
+        {
+          "id": "bday_60",
+          "filename": "Memory_orb_controller_operating_…_2929ccd3.mp4",
+          "title": "White Cake -> Dark Blackberry Tart-Cake on Cyan Neon Ring Pedestal",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.987
+        },
+        {
+          "id": "bday_61",
+          "filename": "Neon_memory_orb_cake_building_b0420991.mp4",
+          "title": "Neon Wireframe Grid Cylinder -> Cyberpunk Geometric Cake w/ Holo Orb Topper",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_62",
+          "filename": "Obsidian_birthday_cake_materializes_fb251263.mp4",
+          "title": "Obsidian 2-Tier Translucent Cyan Bioluminescent Matrix Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.643
+        },
+        {
+          "id": "bday_65",
+          "filename": "Orb_frosts_and_ignites_cake_3d135d40.mp4",
+          "title": "Orb Frosts Yellow Sponge into Tall White Cake & Drops/Ignites 9 Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.932
+        },
+        {
+          "id": "bday_74",
+          "filename": "Sculpting_cream_on_sponge_cake_3e5d7321.mp4",
+          "title": "Naked Layer Sponge -> Smooth White Frosting -> Single Wish Candle",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.99
+        }
+      ],
+      "HIGH_CROWN_WRITING_45DEG": [
+        {
+          "id": "bday_07",
+          "filename": "Birthday_cake_frosting_changes_c…_63336ceb.mp4",
+          "title": "Chocolate -> Neon Pink 2-Tier -> Mint Memphis Geo Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.723
+        },
+        {
+          "id": "bday_40",
+          "filename": "Controller_piping_icing_onto_cake_31aca305.mp4",
+          "title": "Controller Piping Red '生日快樂' Calligraphy Onto White 9-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.902
+        },
+        {
+          "id": "bday_42",
+          "filename": "Controller_writes_on_rotating_cake_188f72fd.mp4",
+          "title": "Piping Cursive Red 'Bon Anniversaire' on Rotating 12-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.439
+        },
+        {
+          "id": "bday_43",
+          "filename": "Controller_writing_Japanese_on_cake_1d09d1ad.mp4",
+          "title": "Red Laser Beam Engraving Japanese Birthday Calligraphy on White Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.099
+        },
+        {
+          "id": "bday_44",
+          "filename": "Controller_writing_cake_message_f7539c75.mp4",
+          "title": "Red Laser Beams Writing 'Feliz Cumpleaños' on 9-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.325
+        },
+        {
+          "id": "bday_64",
+          "filename": "Orb_controller_writes_birthday_m…_e8ea46cb.mp4",
+          "title": "Orb Controller Piping Cursive Red 'Happy Birthday' on 9-Candle White Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.858
+        }
+      ],
+      "CHAMBER_FLOATING_TILT_10DEG": [
+        {
+          "id": "bday_12",
+          "filename": "Cake_changing_color_and_tilting_8a2b551c.mp4",
+          "title": "Chamber Shot 25/26: Cream <-> Chocolate Swap & 25 deg Tilt",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.023
+        },
+        {
+          "id": "bday_13",
+          "filename": "Cake_frosting_changes_color_c7a46a66.mp4",
+          "title": "Chamber Shot 25/26 Variant B: Cream -> Chocolate Tilt -> Smooth Cream",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.14
+        },
+        {
+          "id": "bday_14",
+          "filename": "Cake_frosting_shifting_and_tilting_53201fa9.mp4",
+          "title": "Chamber Shot 25/26 Variant C: Chocolate -> Cream Shifting & Tilting",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_63",
+          "filename": "Obsidian_cyberpunk_cake_changing…_a59d8383.mp4",
+          "title": "3.8s Chamber Study: Cyberpunk Neon-Circuit Cake <-> White Cake & Tilt",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.257
+        },
+        {
+          "id": "bday_75",
+          "filename": "Vintage_cake_color_change_sequence_9dce0ae7.mp4",
+          "title": "3.8s Chamber Study: Vintage Cream <-> Rich Cocoa Cake Color & Tilt",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.09
+        },
+        {
+          "id": "bday_76",
+          "filename": "image.png_58dbf17e.jpg",
+          "title": "Ground-Truth 9-Shot Segmentation Atlas (Close-Up | Full Chamber | Isolated Subject)",
+          "n_shots": 9,
+          "cuts_s": [
+            1.0,
+            2.0,
+            3.0,
+            4.0,
+            5.0,
+            6.0,
+            7.0,
+            8.0
+          ],
+          "scale_growth": 1.0
+        }
+      ],
+      "INTIMATE_CANDLE_FACE_CU": [
+        {
+          "id": "bday_15",
+          "filename": "Candles_burning_on_cake_fdd03dd0.mp4",
+          "title": "Two Children Warmly Lit by 7 Burning Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.003
+        },
+        {
+          "id": "bday_16",
+          "filename": "Candles_extinguishing_during_bir…_2d004333.mp4",
+          "title": "Candles Extinguishing with Rising Smoke Wisps & Dimming Bounce",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_19",
+          "filename": "Child_experiencing_time_rewind_e…_6239f811.mp4",
+          "title": "Boy Experiencing Temporal Rewind Behind Striped-Sweater Party Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_20",
+          "filename": "Child_experiencing_time_rewind_e…_9def47ea.mp4",
+          "title": "1930s Newsboy Cap Child Rewinding Breath Smoke Into Candle",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.78
+        },
+        {
+          "id": "bday_21",
+          "filename": "Child_moving_in_reverse_motion_75e96385.mp4",
+          "title": "Reverse-Motion Child at Small Square Pedestal Table",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.983
+        },
+        {
+          "id": "bday_22",
+          "filename": "Child_smiling_in_birthday_scene_2d557767.mp4",
+          "title": "1950s Silver-Nitrate Monochrome Boy Smiling Behind Lit Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.111
+        },
+        {
+          "id": "bday_23",
+          "filename": "Children_and_cake_appearing_80b402ce.mp4",
+          "title": "Golden Hologram Ghosts Solidifying Into Five Children Around 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.366
+        },
+        {
+          "id": "bday_24",
+          "filename": "Children_and_cake_materialize_999a0bfe.mp4",
+          "title": "Neon Rainbow Orb Materializing 1980s Kids & Magenta-Cyan 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.009
+        },
+        {
+          "id": "bday_28",
+          "filename": "Children_blowing_out_birthday_ca…_49ad6eab.mp4",
+          "title": "Six Vintage Children Gathered Tightly Around 7-Candle Cream Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_29",
+          "filename": "Children_blowing_out_birthday_ca…_51edf25c.mp4",
+          "title": "Seven Children Around Ornate 2-Tier Candlelit Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_30",
+          "filename": "Children_blowing_out_birthday_ca…_924d85eb.mp4",
+          "title": "Multi-Shot Film Cut: 生日快樂 Cake -> Children -> Close-Up Girl Blowing",
+          "n_shots": 2,
+          "cuts_s": [
+            4.25
+          ],
+          "scale_growth": 1.216
+        },
+        {
+          "id": "bday_31",
+          "filename": "Children_blowing_out_birthday_ca…_96e0c404.mp4",
+          "title": "Glowing Extruded 3D '生日' Topper Cake Blown Out Into Thick Smoke",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_32",
+          "filename": "Children_blowing_out_birthday_ca…_bf71cef6.mp4",
+          "title": "Three Children in Party Hats Blowing Out 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.025
+        },
+        {
+          "id": "bday_33",
+          "filename": "Children_blowing_out_candles_e8c215f4.mp4",
+          "title": "Two Asian Children Blowing Out Cake with Luminous 3D '快乐' Sign",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.945
+        },
+        {
+          "id": "bday_34",
+          "filename": "Children_celebrating_birthday_wi…_0ddc6322.mp4",
+          "title": "Two Children Close-Up Blowing Out Chocolate-Side Cream-Top Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_35",
+          "filename": "Children_celebrating_birthday_wi…_45924b3f.mp4",
+          "title": "Three Kids Celebrating Around Neon Geometric Memphis Pattern Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.023
+        },
+        {
+          "id": "bday_36",
+          "filename": "Children_celebrating_birthday_wi…_8d1aa255.mp4",
+          "title": "Three Vintage Children Clapping Around Dark Chocolate Drip Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.038
+        },
+        {
+          "id": "bday_38",
+          "filename": "Children_solidifying_around_birt…_e38d0959.mp4",
+          "title": "Wireframe Ghost Outlines Solidifying Into Four Children & 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_47",
+          "filename": "Cyberpunk_child_rewinding_time_1c1b4229.mp4",
+          "title": "Cyberpunk Boy Rewinding Cyan Light Trails Into Neon-Circuit Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.032
+        },
+        {
+          "id": "bday_49",
+          "filename": "Cyberpunk_children_celebrating_b…_b209ccbc.mp4",
+          "title": "Four Kids Around Dark Cake w/ Bioluminescent Cyan Fiber-Optic Plume",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.994
+        },
+        {
+          "id": "bday_66",
+          "filename": "People_celebrating_1980s_birthda…_56e94451.mp4",
+          "title": "1980s Retro Friends Celebrating Around Glowing Pink-Blue Neon 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_67",
+          "filename": "People_celebrating_birthday_in_s…_61f6754a.mp4",
+          "title": "1920s Speakeasy Party in Sepia Warmth Around Ornate Cream Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_69",
+          "filename": "People_celebrating_birthday_with…_99015fc9.mp4",
+          "title": "1920s Silver-Screen B&W Party Clapping Around Tall 2-Tier Wedding-Style Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_77",
+          "filename": "shot25_cake-appears_abec7897.mp4",
+          "title": "Shot 25 Clean: Two Party-Hat Kids Leaning In & Blowing Out 9 Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.045
+        },
+        {
+          "id": "bday_78",
+          "filename": "stelline-orb-film_c40d3233.mp4",
+          "title": "Stelline Orb Film Master Reference: 3 Chamber Children & 7-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.996
+        }
+      ],
+      "TABLE_TABLEAU_EYE_10DEG": [
+        {
+          "id": "bday_18",
+          "filename": "Child_blowing_out_birthday_candles_b79c2123.mp4",
+          "title": "Four Children Blowing Out 2-Tier Piped Pastel Birthday Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_25",
+          "filename": "Children_appearing_at_table_dc3fe5cc.mp4",
+          "title": "1940s Children Materializing One-by-One from Golden Stardust",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_26",
+          "filename": "Children_blowing_out_birthday_ca…_0926db13.mp4",
+          "title": "1980s Kids in Neon Windbreakers & Caps Blowing Out Tall Floral 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.997
+        },
+        {
+          "id": "bday_27",
+          "filename": "Children_blowing_out_birthday_ca…_18cbc738.mp4",
+          "title": "Y2K / Late-90s Kids Blowing Out Pink 2-Tier '2000' Topper Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.996
+        },
+        {
+          "id": "bday_37",
+          "filename": "Children_celebrating_birthday_wi…_ff71138a.mp4",
+          "title": "Four Smiling Children Around Golden Sponge & Piped Rosette Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_45",
+          "filename": "Cyberpunk_characters_celebrating…_10a6a560.mp4",
+          "title": "Cyberpunk Crew Celebrating Around Neon Holographic 'Happy Birthday' 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_46",
+          "filename": "Cyberpunk_characters_celebrating…_b9782fa4.mp4",
+          "title": "Cyberpunk Party Around Obsidian Cake w/ Crystalline Violet Flame Shards",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_48",
+          "filename": "Cyberpunk_children_appearing_aro…_b9767049.mp4",
+          "title": "Cyan Wireframe Children Materializing Around Atomic Hologram Pedestal",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.124
+        },
+        {
+          "id": "bday_68",
+          "filename": "People_celebrating_birthday_with…_46070b72.mp4",
+          "title": "1980s Arcade Party Blowing Out Large Neon Geometric Memphis Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_70",
+          "filename": "People_celebrating_birthday_with…_ba5e81fd.mp4",
+          "title": "1970s Kodachrome Living Room Party w/ Golden Crowned Drip Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_71",
+          "filename": "People_celebrating_birthday_with…_cbd992bb.mp4",
+          "title": "1990s Family Dining Table Blowing Out Gray-Lilac Floral Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_72",
+          "filename": "People_celebrating_birthday_with…_ccb9588c.mp4",
+          "title": "1970s Party Cake w/ Twin Blazing Sparklers & Tapers",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_73",
+          "filename": "People_gathered_around_birthday_…_b2882228.mp4",
+          "title": "1950s Mid-Century Family Blowing Out Classic 2-Tier White Party Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        }
+      ],
+      "ARTISAN_BENCH_HANDS_30DEG": [
+        {
+          "id": "bday_53",
+          "filename": "Hands_frosting_chocolate_cake_7c8f1362.mp4",
+          "title": "Baker Hands Spreading Rich Chocolate Fudge, Sieving Sugar & Lighting Rainbow Candles",
+          "n_shots": 2,
+          "cuts_s": [
+            5.0
+          ],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_54",
+          "filename": "Hands_frosting_homemade_pound_cake_12f48977.mp4",
+          "title": "Baker Hands Frosting Homemade Sponge Cake w/ Ivory Buttercream & 6 Candles",
+          "n_shots": 2,
+          "cuts_s": [
+            6.0
+          ],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_55",
+          "filename": "Hands_sculpting_1920s_cake_70ea715e.mp4",
+          "title": "Hands Sculpting 1920s Rustic Palette-Knife Cream Cake w/ 5 Tall Tapers",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.992
+        },
+        {
+          "id": "bday_56",
+          "filename": "Hands_sculpting_cake_with_candle_7f98f25b.mp4",
+          "title": "Hands Stacking & Crumb-Coating Naked Sponge Cake w/ Single Center Candle",
+          "n_shots": 2,
+          "cuts_s": [
+            7.25
+          ],
+          "scale_growth": 0.99
+        },
+        {
+          "id": "bday_57",
+          "filename": "Hands_sculpting_yellow_butter_cake_42d5f0c5.mp4",
+          "title": "Hands Swirling Thick Buttercream on Yellow Butter Cake + 5 Pastel Candles",
+          "n_shots": 3,
+          "cuts_s": [
+            3.75,
+            6.125
+          ],
+          "scale_growth": 0.924
+        }
+      ]
+    },
+    "cut_families": {
+      "STAGE_MORPH_DETENT_SWAP": [
+        {
+          "id": "bday_01",
+          "filename": "Birthday_cake_changes_color_83569c26.mp4",
+          "title": "Rose-Pink Smooth Drum -> White Ruffled 7-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.876
+        },
+        {
+          "id": "bday_02",
+          "filename": "Birthday_cake_changing_color_36d924c6.mp4",
+          "title": "Cobalt Swirl Drum -> Faceted White Origami Buttercream",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_03",
+          "filename": "Birthday_cake_changing_color_69b4dc20.mp4",
+          "title": "Mint Rosette Cake -> Forest Ruffle -> Smooth White Drum",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_04",
+          "filename": "Birthday_cake_changing_color_c4bf1e2d.mp4",
+          "title": "Royal Purple Frosted Cake -> White Ruffled 9-Taper Crown",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.89
+        },
+        {
+          "id": "bday_05",
+          "filename": "Birthday_cake_changing_colors_581305a4.mp4",
+          "title": "Ochre Gold Sculpted Cake -> Faceted White Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_06",
+          "filename": "Birthday_cake_changing_frosting_e92959a3.mp4",
+          "title": "Chocolate -> Cream Cake Inside Refractive Memory Sphere",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.003
+        },
+        {
+          "id": "bday_07",
+          "filename": "Birthday_cake_frosting_changes_c…_63336ceb.mp4",
+          "title": "Chocolate -> Neon Pink 2-Tier -> Mint Memphis Geo Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.723
+        },
+        {
+          "id": "bday_08",
+          "filename": "Birthday_cake_frosting_changing_…_56e3804b.mp4",
+          "title": "Glowing Disc -> Vanilla Base -> Dark Chocolate Drip & Curls",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.985
+        },
+        {
+          "id": "bday_09",
+          "filename": "Birthday_cake_morphing_frostings_8cc1d406.mp4",
+          "title": "3-Tier Chocolate -> Ornate White Wedding Cake in Memory Orb",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.575
+        },
+        {
+          "id": "bday_10",
+          "filename": "Building_retro_memory_orb_cake_528cf831.mp4",
+          "title": "Retro Memory Orb Cake: Sponge -> Cream -> Gold Bead Crown -> 7 Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_11",
+          "filename": "Cake_assembling_itself_step_by_a02ba256.mp4",
+          "title": "Step-by-Step 2-Tier Dark Chocolate Berry Cake Assembly",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.991
+        },
+        {
+          "id": "bday_12",
+          "filename": "Cake_changing_color_and_tilting_8a2b551c.mp4",
+          "title": "Chamber Shot 25/26: Cream <-> Chocolate Swap & 25 deg Tilt",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.023
+        },
+        {
+          "id": "bday_13",
+          "filename": "Cake_frosting_changes_color_c7a46a66.mp4",
+          "title": "Chamber Shot 25/26 Variant B: Cream -> Chocolate Tilt -> Smooth Cream",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.14
+        },
+        {
+          "id": "bday_17",
+          "filename": "Carrot_cake_rotating_on_display_fe728df1.mp4",
+          "title": "Spiced Carrot-Walnut Crumb Cake -> Cream Cheese Frosting & 7 Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.989
+        },
+        {
+          "id": "bday_39",
+          "filename": "Controller_operating_1950s_memor…_bf9f96c2.mp4",
+          "title": "1950s Memory Orb: Small Puck Morphing Into Tall Golden Bundt w/ Orbital Rings",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_41",
+          "filename": "Controller_transforming_object_i…_f9496d29.mp4",
+          "title": "Yellow Puck -> White Disc -> Tall Ruffled Cake -> Lit Twin Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.978
+        },
+        {
+          "id": "bday_50",
+          "filename": "Cyberpunk_memory_orb_cake_assembly_777969c8.mp4",
+          "title": "Cyberpunk Hexagonal Obsidian Cake Erupting w/ Amethyst Crystal Crown",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.043
+        },
+        {
+          "id": "bday_51",
+          "filename": "Cylinder_morphs_into_bundt_cake_6a88d7f1.mp4",
+          "title": "Canonical Counterfactual: Flat Sponge Cylinder Morphs Into 12-Flute Bundt Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.979
+        },
+        {
+          "id": "bday_58",
+          "filename": "Memory_orb_cake_building_sequence_af6b2281.mp4",
+          "title": "Memory Orb Multi-Layer Sponge -> Dark Ganache & White Bead Crown",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.978
+        },
+        {
+          "id": "bday_59",
+          "filename": "Memory_orb_controller_morphing_cake_1238138c.mp4",
+          "title": "Holographic Ring -> Tall Fluted White Ruffle Cake w/ Single Candle",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.95
+        },
+        {
+          "id": "bday_60",
+          "filename": "Memory_orb_controller_operating_…_2929ccd3.mp4",
+          "title": "White Cake -> Dark Blackberry Tart-Cake on Cyan Neon Ring Pedestal",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.987
+        },
+        {
+          "id": "bday_63",
+          "filename": "Obsidian_cyberpunk_cake_changing…_a59d8383.mp4",
+          "title": "3.8s Chamber Study: Cyberpunk Neon-Circuit Cake <-> White Cake & Tilt",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.257
+        },
+        {
+          "id": "bday_65",
+          "filename": "Orb_frosts_and_ignites_cake_3d135d40.mp4",
+          "title": "Orb Frosts Yellow Sponge into Tall White Cake & Drops/Ignites 9 Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.932
+        },
+        {
+          "id": "bday_75",
+          "filename": "Vintage_cake_color_change_sequence_9dce0ae7.mp4",
+          "title": "3.8s Chamber Study: Vintage Cream <-> Rich Cocoa Cake Color & Tilt",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.09
+        }
+      ],
+      "SINGLE_CONTINUOUS_TAKE": [
+        {
+          "id": "bday_14",
+          "filename": "Cake_frosting_shifting_and_tilting_53201fa9.mp4",
+          "title": "Chamber Shot 25/26 Variant C: Chocolate -> Cream Shifting & Tilting",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_15",
+          "filename": "Candles_burning_on_cake_fdd03dd0.mp4",
+          "title": "Two Children Warmly Lit by 7 Burning Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.003
+        },
+        {
+          "id": "bday_16",
+          "filename": "Candles_extinguishing_during_bir…_2d004333.mp4",
+          "title": "Candles Extinguishing with Rising Smoke Wisps & Dimming Bounce",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_18",
+          "filename": "Child_blowing_out_birthday_candles_b79c2123.mp4",
+          "title": "Four Children Blowing Out 2-Tier Piped Pastel Birthday Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_22",
+          "filename": "Child_smiling_in_birthday_scene_2d557767.mp4",
+          "title": "1950s Silver-Nitrate Monochrome Boy Smiling Behind Lit Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.111
+        },
+        {
+          "id": "bday_26",
+          "filename": "Children_blowing_out_birthday_ca…_0926db13.mp4",
+          "title": "1980s Kids in Neon Windbreakers & Caps Blowing Out Tall Floral 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.997
+        },
+        {
+          "id": "bday_27",
+          "filename": "Children_blowing_out_birthday_ca…_18cbc738.mp4",
+          "title": "Y2K / Late-90s Kids Blowing Out Pink 2-Tier '2000' Topper Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.996
+        },
+        {
+          "id": "bday_28",
+          "filename": "Children_blowing_out_birthday_ca…_49ad6eab.mp4",
+          "title": "Six Vintage Children Gathered Tightly Around 7-Candle Cream Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_29",
+          "filename": "Children_blowing_out_birthday_ca…_51edf25c.mp4",
+          "title": "Seven Children Around Ornate 2-Tier Candlelit Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_31",
+          "filename": "Children_blowing_out_birthday_ca…_96e0c404.mp4",
+          "title": "Glowing Extruded 3D '生日' Topper Cake Blown Out Into Thick Smoke",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_32",
+          "filename": "Children_blowing_out_birthday_ca…_bf71cef6.mp4",
+          "title": "Three Children in Party Hats Blowing Out 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.025
+        },
+        {
+          "id": "bday_33",
+          "filename": "Children_blowing_out_candles_e8c215f4.mp4",
+          "title": "Two Asian Children Blowing Out Cake with Luminous 3D '快乐' Sign",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.945
+        },
+        {
+          "id": "bday_34",
+          "filename": "Children_celebrating_birthday_wi…_0ddc6322.mp4",
+          "title": "Two Children Close-Up Blowing Out Chocolate-Side Cream-Top Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_35",
+          "filename": "Children_celebrating_birthday_wi…_45924b3f.mp4",
+          "title": "Three Kids Celebrating Around Neon Geometric Memphis Pattern Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.023
+        },
+        {
+          "id": "bday_36",
+          "filename": "Children_celebrating_birthday_wi…_8d1aa255.mp4",
+          "title": "Three Vintage Children Clapping Around Dark Chocolate Drip Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.038
+        },
+        {
+          "id": "bday_37",
+          "filename": "Children_celebrating_birthday_wi…_ff71138a.mp4",
+          "title": "Four Smiling Children Around Golden Sponge & Piped Rosette Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_40",
+          "filename": "Controller_piping_icing_onto_cake_31aca305.mp4",
+          "title": "Controller Piping Red '生日快樂' Calligraphy Onto White 9-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.902
+        },
+        {
+          "id": "bday_42",
+          "filename": "Controller_writes_on_rotating_cake_188f72fd.mp4",
+          "title": "Piping Cursive Red 'Bon Anniversaire' on Rotating 12-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.439
+        },
+        {
+          "id": "bday_43",
+          "filename": "Controller_writing_Japanese_on_cake_1d09d1ad.mp4",
+          "title": "Red Laser Beam Engraving Japanese Birthday Calligraphy on White Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.099
+        },
+        {
+          "id": "bday_44",
+          "filename": "Controller_writing_cake_message_f7539c75.mp4",
+          "title": "Red Laser Beams Writing 'Feliz Cumpleaños' on 9-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.325
+        },
+        {
+          "id": "bday_45",
+          "filename": "Cyberpunk_characters_celebrating…_10a6a560.mp4",
+          "title": "Cyberpunk Crew Celebrating Around Neon Holographic 'Happy Birthday' 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_46",
+          "filename": "Cyberpunk_characters_celebrating…_b9782fa4.mp4",
+          "title": "Cyberpunk Party Around Obsidian Cake w/ Crystalline Violet Flame Shards",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_49",
+          "filename": "Cyberpunk_children_celebrating_b…_b209ccbc.mp4",
+          "title": "Four Kids Around Dark Cake w/ Bioluminescent Cyan Fiber-Optic Plume",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.994
+        },
+        {
+          "id": "bday_52",
+          "filename": "Frosting_pound_cake_with_candles_4c860f90.mp4",
+          "title": "Spotlight Cone Frosting Golden Pound Cake + 7 Tall Tapers",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.013
+        },
+        {
+          "id": "bday_55",
+          "filename": "Hands_sculpting_1920s_cake_70ea715e.mp4",
+          "title": "Hands Sculpting 1920s Rustic Palette-Knife Cream Cake w/ 5 Tall Tapers",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.992
+        },
+        {
+          "id": "bday_64",
+          "filename": "Orb_controller_writes_birthday_m…_e8ea46cb.mp4",
+          "title": "Orb Controller Piping Cursive Red 'Happy Birthday' on 9-Candle White Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.858
+        },
+        {
+          "id": "bday_66",
+          "filename": "People_celebrating_1980s_birthda…_56e94451.mp4",
+          "title": "1980s Retro Friends Celebrating Around Glowing Pink-Blue Neon 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_67",
+          "filename": "People_celebrating_birthday_in_s…_61f6754a.mp4",
+          "title": "1920s Speakeasy Party in Sepia Warmth Around Ornate Cream Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_68",
+          "filename": "People_celebrating_birthday_with…_46070b72.mp4",
+          "title": "1980s Arcade Party Blowing Out Large Neon Geometric Memphis Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_69",
+          "filename": "People_celebrating_birthday_with…_99015fc9.mp4",
+          "title": "1920s Silver-Screen B&W Party Clapping Around Tall 2-Tier Wedding-Style Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_70",
+          "filename": "People_celebrating_birthday_with…_ba5e81fd.mp4",
+          "title": "1970s Kodachrome Living Room Party w/ Golden Crowned Drip Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_71",
+          "filename": "People_celebrating_birthday_with…_cbd992bb.mp4",
+          "title": "1990s Family Dining Table Blowing Out Gray-Lilac Floral Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_72",
+          "filename": "People_celebrating_birthday_with…_ccb9588c.mp4",
+          "title": "1970s Party Cake w/ Twin Blazing Sparklers & Tapers",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_73",
+          "filename": "People_gathered_around_birthday_…_b2882228.mp4",
+          "title": "1950s Mid-Century Family Blowing Out Classic 2-Tier White Party Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_74",
+          "filename": "Sculpting_cream_on_sponge_cake_3e5d7321.mp4",
+          "title": "Naked Layer Sponge -> Smooth White Frosting -> Single Wish Candle",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.99
+        },
+        {
+          "id": "bday_77",
+          "filename": "shot25_cake-appears_abec7897.mp4",
+          "title": "Shot 25 Clean: Two Party-Hat Kids Leaning In & Blowing Out 9 Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.045
+        },
+        {
+          "id": "bday_78",
+          "filename": "stelline-orb-film_c40d3233.mp4",
+          "title": "Stelline Orb Film Master Reference: 3 Chamber Children & 7-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.996
+        }
+      ],
+      "TEMPORAL_REWIND_REVERSE": [
+        {
+          "id": "bday_19",
+          "filename": "Child_experiencing_time_rewind_e…_6239f811.mp4",
+          "title": "Boy Experiencing Temporal Rewind Behind Striped-Sweater Party Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_20",
+          "filename": "Child_experiencing_time_rewind_e…_9def47ea.mp4",
+          "title": "1930s Newsboy Cap Child Rewinding Breath Smoke Into Candle",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.78
+        },
+        {
+          "id": "bday_21",
+          "filename": "Child_moving_in_reverse_motion_75e96385.mp4",
+          "title": "Reverse-Motion Child at Small Square Pedestal Table",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.983
+        },
+        {
+          "id": "bday_47",
+          "filename": "Cyberpunk_child_rewinding_time_1c1b4229.mp4",
+          "title": "Cyberpunk Boy Rewinding Cyan Light Trails Into Neon-Circuit Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.032
+        }
+      ],
+      "HOLOGRAM_GHOST_MATERIALIZE": [
+        {
+          "id": "bday_23",
+          "filename": "Children_and_cake_appearing_80b402ce.mp4",
+          "title": "Golden Hologram Ghosts Solidifying Into Five Children Around 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.366
+        },
+        {
+          "id": "bday_24",
+          "filename": "Children_and_cake_materialize_999a0bfe.mp4",
+          "title": "Neon Rainbow Orb Materializing 1980s Kids & Magenta-Cyan 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.009
+        },
+        {
+          "id": "bday_25",
+          "filename": "Children_appearing_at_table_dc3fe5cc.mp4",
+          "title": "1940s Children Materializing One-by-One from Golden Stardust",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_38",
+          "filename": "Children_solidifying_around_birt…_e38d0959.mp4",
+          "title": "Wireframe Ghost Outlines Solidifying Into Four Children & 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_48",
+          "filename": "Cyberpunk_children_appearing_aro…_b9767049.mp4",
+          "title": "Cyan Wireframe Children Materializing Around Atomic Hologram Pedestal",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.124
+        },
+        {
+          "id": "bday_61",
+          "filename": "Neon_memory_orb_cake_building_b0420991.mp4",
+          "title": "Neon Wireframe Grid Cylinder -> Cyberpunk Geometric Cake w/ Holo Orb Topper",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_62",
+          "filename": "Obsidian_birthday_cake_materializes_fb251263.mp4",
+          "title": "Obsidian 2-Tier Translucent Cyan Bioluminescent Matrix Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.643
+        }
+      ],
+      "MULTI_SHOT_MONTAGE": [
+        {
+          "id": "bday_30",
+          "filename": "Children_blowing_out_birthday_ca…_924d85eb.mp4",
+          "title": "Multi-Shot Film Cut: 生日快樂 Cake -> Children -> Close-Up Girl Blowing",
+          "n_shots": 2,
+          "cuts_s": [
+            4.25
+          ],
+          "scale_growth": 1.216
+        },
+        {
+          "id": "bday_53",
+          "filename": "Hands_frosting_chocolate_cake_7c8f1362.mp4",
+          "title": "Baker Hands Spreading Rich Chocolate Fudge, Sieving Sugar & Lighting Rainbow Candles",
+          "n_shots": 2,
+          "cuts_s": [
+            5.0
+          ],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_54",
+          "filename": "Hands_frosting_homemade_pound_cake_12f48977.mp4",
+          "title": "Baker Hands Frosting Homemade Sponge Cake w/ Ivory Buttercream & 6 Candles",
+          "n_shots": 2,
+          "cuts_s": [
+            6.0
+          ],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_56",
+          "filename": "Hands_sculpting_cake_with_candle_7f98f25b.mp4",
+          "title": "Hands Stacking & Crumb-Coating Naked Sponge Cake w/ Single Center Candle",
+          "n_shots": 2,
+          "cuts_s": [
+            7.25
+          ],
+          "scale_growth": 0.99
+        },
+        {
+          "id": "bday_57",
+          "filename": "Hands_sculpting_yellow_butter_cake_42d5f0c5.mp4",
+          "title": "Hands Swirling Thick Buttercream on Yellow Butter Cake + 5 Pastel Candles",
+          "n_shots": 3,
+          "cuts_s": [
+            3.75,
+            6.125
+          ],
+          "scale_growth": 0.924
+        }
+      ],
+      "BENCHMARK_TRIPTYCH_PLATE": [
+        {
+          "id": "bday_76",
+          "filename": "image.png_58dbf17e.jpg",
+          "title": "Ground-Truth 9-Shot Segmentation Atlas (Close-Up | Full Chamber | Isolated Subject)",
+          "n_shots": 9,
+          "cuts_s": [
+            1.0,
+            2.0,
+            3.0,
+            4.0,
+            5.0,
+            6.0,
+            7.0,
+            8.0
+          ],
+          "scale_growth": 1.0
+        }
+      ]
+    },
+    "motion_families": {
+      "LOCKED_STATIC": [
+        {
+          "id": "bday_01",
+          "filename": "Birthday_cake_changes_color_83569c26.mp4",
+          "title": "Rose-Pink Smooth Drum -> White Ruffled 7-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.876
+        },
+        {
+          "id": "bday_02",
+          "filename": "Birthday_cake_changing_color_36d924c6.mp4",
+          "title": "Cobalt Swirl Drum -> Faceted White Origami Buttercream",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_03",
+          "filename": "Birthday_cake_changing_color_69b4dc20.mp4",
+          "title": "Mint Rosette Cake -> Forest Ruffle -> Smooth White Drum",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_04",
+          "filename": "Birthday_cake_changing_color_c4bf1e2d.mp4",
+          "title": "Royal Purple Frosted Cake -> White Ruffled 9-Taper Crown",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.89
+        },
+        {
+          "id": "bday_05",
+          "filename": "Birthday_cake_changing_colors_581305a4.mp4",
+          "title": "Ochre Gold Sculpted Cake -> Faceted White Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_06",
+          "filename": "Birthday_cake_changing_frosting_e92959a3.mp4",
+          "title": "Chocolate -> Cream Cake Inside Refractive Memory Sphere",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.003
+        },
+        {
+          "id": "bday_07",
+          "filename": "Birthday_cake_frosting_changes_c…_63336ceb.mp4",
+          "title": "Chocolate -> Neon Pink 2-Tier -> Mint Memphis Geo Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.723
+        },
+        {
+          "id": "bday_08",
+          "filename": "Birthday_cake_frosting_changing_…_56e3804b.mp4",
+          "title": "Glowing Disc -> Vanilla Base -> Dark Chocolate Drip & Curls",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.985
+        },
+        {
+          "id": "bday_10",
+          "filename": "Building_retro_memory_orb_cake_528cf831.mp4",
+          "title": "Retro Memory Orb Cake: Sponge -> Cream -> Gold Bead Crown -> 7 Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_11",
+          "filename": "Cake_assembling_itself_step_by_a02ba256.mp4",
+          "title": "Step-by-Step 2-Tier Dark Chocolate Berry Cake Assembly",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.991
+        },
+        {
+          "id": "bday_12",
+          "filename": "Cake_changing_color_and_tilting_8a2b551c.mp4",
+          "title": "Chamber Shot 25/26: Cream <-> Chocolate Swap & 25 deg Tilt",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.023
+        },
+        {
+          "id": "bday_13",
+          "filename": "Cake_frosting_changes_color_c7a46a66.mp4",
+          "title": "Chamber Shot 25/26 Variant B: Cream -> Chocolate Tilt -> Smooth Cream",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.14
+        },
+        {
+          "id": "bday_14",
+          "filename": "Cake_frosting_shifting_and_tilting_53201fa9.mp4",
+          "title": "Chamber Shot 25/26 Variant C: Chocolate -> Cream Shifting & Tilting",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_16",
+          "filename": "Candles_extinguishing_during_bir…_2d004333.mp4",
+          "title": "Candles Extinguishing with Rising Smoke Wisps & Dimming Bounce",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_19",
+          "filename": "Child_experiencing_time_rewind_e…_6239f811.mp4",
+          "title": "Boy Experiencing Temporal Rewind Behind Striped-Sweater Party Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_20",
+          "filename": "Child_experiencing_time_rewind_e…_9def47ea.mp4",
+          "title": "1930s Newsboy Cap Child Rewinding Breath Smoke Into Candle",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.78
+        },
+        {
+          "id": "bday_21",
+          "filename": "Child_moving_in_reverse_motion_75e96385.mp4",
+          "title": "Reverse-Motion Child at Small Square Pedestal Table",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.983
+        },
+        {
+          "id": "bday_22",
+          "filename": "Child_smiling_in_birthday_scene_2d557767.mp4",
+          "title": "1950s Silver-Nitrate Monochrome Boy Smiling Behind Lit Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.111
+        },
+        {
+          "id": "bday_25",
+          "filename": "Children_appearing_at_table_dc3fe5cc.mp4",
+          "title": "1940s Children Materializing One-by-One from Golden Stardust",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_32",
+          "filename": "Children_blowing_out_birthday_ca…_bf71cef6.mp4",
+          "title": "Three Children in Party Hats Blowing Out 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.025
+        },
+        {
+          "id": "bday_33",
+          "filename": "Children_blowing_out_candles_e8c215f4.mp4",
+          "title": "Two Asian Children Blowing Out Cake with Luminous 3D '快乐' Sign",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.945
+        },
+        {
+          "id": "bday_36",
+          "filename": "Children_celebrating_birthday_wi…_8d1aa255.mp4",
+          "title": "Three Vintage Children Clapping Around Dark Chocolate Drip Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.038
+        },
+        {
+          "id": "bday_39",
+          "filename": "Controller_operating_1950s_memor…_bf9f96c2.mp4",
+          "title": "1950s Memory Orb: Small Puck Morphing Into Tall Golden Bundt w/ Orbital Rings",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_40",
+          "filename": "Controller_piping_icing_onto_cake_31aca305.mp4",
+          "title": "Controller Piping Red '生日快樂' Calligraphy Onto White 9-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.902
+        },
+        {
+          "id": "bday_41",
+          "filename": "Controller_transforming_object_i…_f9496d29.mp4",
+          "title": "Yellow Puck -> White Disc -> Tall Ruffled Cake -> Lit Twin Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.978
+        },
+        {
+          "id": "bday_43",
+          "filename": "Controller_writing_Japanese_on_cake_1d09d1ad.mp4",
+          "title": "Red Laser Beam Engraving Japanese Birthday Calligraphy on White Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.099
+        },
+        {
+          "id": "bday_47",
+          "filename": "Cyberpunk_child_rewinding_time_1c1b4229.mp4",
+          "title": "Cyberpunk Boy Rewinding Cyan Light Trails Into Neon-Circuit Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.032
+        },
+        {
+          "id": "bday_48",
+          "filename": "Cyberpunk_children_appearing_aro…_b9767049.mp4",
+          "title": "Cyan Wireframe Children Materializing Around Atomic Hologram Pedestal",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.124
+        },
+        {
+          "id": "bday_50",
+          "filename": "Cyberpunk_memory_orb_cake_assembly_777969c8.mp4",
+          "title": "Cyberpunk Hexagonal Obsidian Cake Erupting w/ Amethyst Crystal Crown",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.043
+        },
+        {
+          "id": "bday_51",
+          "filename": "Cylinder_morphs_into_bundt_cake_6a88d7f1.mp4",
+          "title": "Canonical Counterfactual: Flat Sponge Cylinder Morphs Into 12-Flute Bundt Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.979
+        },
+        {
+          "id": "bday_52",
+          "filename": "Frosting_pound_cake_with_candles_4c860f90.mp4",
+          "title": "Spotlight Cone Frosting Golden Pound Cake + 7 Tall Tapers",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.013
+        },
+        {
+          "id": "bday_55",
+          "filename": "Hands_sculpting_1920s_cake_70ea715e.mp4",
+          "title": "Hands Sculpting 1920s Rustic Palette-Knife Cream Cake w/ 5 Tall Tapers",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.992
+        },
+        {
+          "id": "bday_59",
+          "filename": "Memory_orb_controller_morphing_cake_1238138c.mp4",
+          "title": "Holographic Ring -> Tall Fluted White Ruffle Cake w/ Single Candle",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.95
+        },
+        {
+          "id": "bday_60",
+          "filename": "Memory_orb_controller_operating_…_2929ccd3.mp4",
+          "title": "White Cake -> Dark Blackberry Tart-Cake on Cyan Neon Ring Pedestal",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.987
+        },
+        {
+          "id": "bday_64",
+          "filename": "Orb_controller_writes_birthday_m…_e8ea46cb.mp4",
+          "title": "Orb Controller Piping Cursive Red 'Happy Birthday' on 9-Candle White Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.858
+        },
+        {
+          "id": "bday_65",
+          "filename": "Orb_frosts_and_ignites_cake_3d135d40.mp4",
+          "title": "Orb Frosts Yellow Sponge into Tall White Cake & Drops/Ignites 9 Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.932
+        },
+        {
+          "id": "bday_74",
+          "filename": "Sculpting_cream_on_sponge_cake_3e5d7321.mp4",
+          "title": "Naked Layer Sponge -> Smooth White Frosting -> Single Wish Candle",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.99
+        },
+        {
+          "id": "bday_75",
+          "filename": "Vintage_cake_color_change_sequence_9dce0ae7.mp4",
+          "title": "3.8s Chamber Study: Vintage Cream <-> Rich Cocoa Cake Color & Tilt",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.09
+        },
+        {
+          "id": "bday_77",
+          "filename": "shot25_cake-appears_abec7897.mp4",
+          "title": "Shot 25 Clean: Two Party-Hat Kids Leaning In & Blowing Out 9 Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.045
+        }
+      ],
+      "TURNTABLE_ORBIT": [
+        {
+          "id": "bday_09",
+          "filename": "Birthday_cake_morphing_frostings_8cc1d406.mp4",
+          "title": "3-Tier Chocolate -> Ornate White Wedding Cake in Memory Orb",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.575
+        },
+        {
+          "id": "bday_17",
+          "filename": "Carrot_cake_rotating_on_display_fe728df1.mp4",
+          "title": "Spiced Carrot-Walnut Crumb Cake -> Cream Cheese Frosting & 7 Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.989
+        },
+        {
+          "id": "bday_42",
+          "filename": "Controller_writes_on_rotating_cake_188f72fd.mp4",
+          "title": "Piping Cursive Red 'Bon Anniversaire' on Rotating 12-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.439
+        }
+      ],
+      "HANDHELD_DRIFT_RACK": [
+        {
+          "id": "bday_15",
+          "filename": "Candles_burning_on_cake_fdd03dd0.mp4",
+          "title": "Two Children Warmly Lit by 7 Burning Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.003
+        },
+        {
+          "id": "bday_18",
+          "filename": "Child_blowing_out_birthday_candles_b79c2123.mp4",
+          "title": "Four Children Blowing Out 2-Tier Piped Pastel Birthday Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_24",
+          "filename": "Children_and_cake_materialize_999a0bfe.mp4",
+          "title": "Neon Rainbow Orb Materializing 1980s Kids & Magenta-Cyan 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.009
+        },
+        {
+          "id": "bday_26",
+          "filename": "Children_blowing_out_birthday_ca…_0926db13.mp4",
+          "title": "1980s Kids in Neon Windbreakers & Caps Blowing Out Tall Floral 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.997
+        },
+        {
+          "id": "bday_27",
+          "filename": "Children_blowing_out_birthday_ca…_18cbc738.mp4",
+          "title": "Y2K / Late-90s Kids Blowing Out Pink 2-Tier '2000' Topper Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.996
+        },
+        {
+          "id": "bday_28",
+          "filename": "Children_blowing_out_birthday_ca…_49ad6eab.mp4",
+          "title": "Six Vintage Children Gathered Tightly Around 7-Candle Cream Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_29",
+          "filename": "Children_blowing_out_birthday_ca…_51edf25c.mp4",
+          "title": "Seven Children Around Ornate 2-Tier Candlelit Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_31",
+          "filename": "Children_blowing_out_birthday_ca…_96e0c404.mp4",
+          "title": "Glowing Extruded 3D '生日' Topper Cake Blown Out Into Thick Smoke",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_34",
+          "filename": "Children_celebrating_birthday_wi…_0ddc6322.mp4",
+          "title": "Two Children Close-Up Blowing Out Chocolate-Side Cream-Top Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_35",
+          "filename": "Children_celebrating_birthday_wi…_45924b3f.mp4",
+          "title": "Three Kids Celebrating Around Neon Geometric Memphis Pattern Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.023
+        },
+        {
+          "id": "bday_37",
+          "filename": "Children_celebrating_birthday_wi…_ff71138a.mp4",
+          "title": "Four Smiling Children Around Golden Sponge & Piped Rosette Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_38",
+          "filename": "Children_solidifying_around_birt…_e38d0959.mp4",
+          "title": "Wireframe Ghost Outlines Solidifying Into Four Children & 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_45",
+          "filename": "Cyberpunk_characters_celebrating…_10a6a560.mp4",
+          "title": "Cyberpunk Crew Celebrating Around Neon Holographic 'Happy Birthday' 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_46",
+          "filename": "Cyberpunk_characters_celebrating…_b9782fa4.mp4",
+          "title": "Cyberpunk Party Around Obsidian Cake w/ Crystalline Violet Flame Shards",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_49",
+          "filename": "Cyberpunk_children_celebrating_b…_b209ccbc.mp4",
+          "title": "Four Kids Around Dark Cake w/ Bioluminescent Cyan Fiber-Optic Plume",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.994
+        },
+        {
+          "id": "bday_66",
+          "filename": "People_celebrating_1980s_birthda…_56e94451.mp4",
+          "title": "1980s Retro Friends Celebrating Around Glowing Pink-Blue Neon 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_67",
+          "filename": "People_celebrating_birthday_in_s…_61f6754a.mp4",
+          "title": "1920s Speakeasy Party in Sepia Warmth Around Ornate Cream Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_68",
+          "filename": "People_celebrating_birthday_with…_46070b72.mp4",
+          "title": "1980s Arcade Party Blowing Out Large Neon Geometric Memphis Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_69",
+          "filename": "People_celebrating_birthday_with…_99015fc9.mp4",
+          "title": "1920s Silver-Screen B&W Party Clapping Around Tall 2-Tier Wedding-Style Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_70",
+          "filename": "People_celebrating_birthday_with…_ba5e81fd.mp4",
+          "title": "1970s Kodachrome Living Room Party w/ Golden Crowned Drip Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_71",
+          "filename": "People_celebrating_birthday_with…_cbd992bb.mp4",
+          "title": "1990s Family Dining Table Blowing Out Gray-Lilac Floral Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_72",
+          "filename": "People_celebrating_birthday_with…_ccb9588c.mp4",
+          "title": "1970s Party Cake w/ Twin Blazing Sparklers & Tapers",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_73",
+          "filename": "People_gathered_around_birthday_…_b2882228.mp4",
+          "title": "1950s Mid-Century Family Blowing Out Classic 2-Tier White Party Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        }
+      ],
+      "DOLLY_PUSH_IN": [
+        {
+          "id": "bday_23",
+          "filename": "Children_and_cake_appearing_80b402ce.mp4",
+          "title": "Golden Hologram Ghosts Solidifying Into Five Children Around 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.366
+        },
+        {
+          "id": "bday_44",
+          "filename": "Controller_writing_cake_message_f7539c75.mp4",
+          "title": "Red Laser Beams Writing 'Feliz Cumpleaños' on 9-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.325
+        },
+        {
+          "id": "bday_58",
+          "filename": "Memory_orb_cake_building_sequence_af6b2281.mp4",
+          "title": "Memory Orb Multi-Layer Sponge -> Dark Ganache & White Bead Crown",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.978
+        },
+        {
+          "id": "bday_61",
+          "filename": "Neon_memory_orb_cake_building_b0420991.mp4",
+          "title": "Neon Wireframe Grid Cylinder -> Cyberpunk Geometric Cake w/ Holo Orb Topper",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_62",
+          "filename": "Obsidian_birthday_cake_materializes_fb251263.mp4",
+          "title": "Obsidian 2-Tier Translucent Cyan Bioluminescent Matrix Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.643
+        },
+        {
+          "id": "bday_63",
+          "filename": "Obsidian_cyberpunk_cake_changing…_a59d8383.mp4",
+          "title": "3.8s Chamber Study: Cyberpunk Neon-Circuit Cake <-> White Cake & Tilt",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.257
+        },
+        {
+          "id": "bday_78",
+          "filename": "stelline-orb-film_c40d3233.mp4",
+          "title": "Stelline Orb Film Master Reference: 3 Chamber Children & 7-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.996
+        }
+      ],
+      "MULTI_ANGLE_CUTS": [
+        {
+          "id": "bday_30",
+          "filename": "Children_blowing_out_birthday_ca…_924d85eb.mp4",
+          "title": "Multi-Shot Film Cut: 生日快樂 Cake -> Children -> Close-Up Girl Blowing",
+          "n_shots": 2,
+          "cuts_s": [
+            4.25
+          ],
+          "scale_growth": 1.216
+        },
+        {
+          "id": "bday_53",
+          "filename": "Hands_frosting_chocolate_cake_7c8f1362.mp4",
+          "title": "Baker Hands Spreading Rich Chocolate Fudge, Sieving Sugar & Lighting Rainbow Candles",
+          "n_shots": 2,
+          "cuts_s": [
+            5.0
+          ],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_54",
+          "filename": "Hands_frosting_homemade_pound_cake_12f48977.mp4",
+          "title": "Baker Hands Frosting Homemade Sponge Cake w/ Ivory Buttercream & 6 Candles",
+          "n_shots": 2,
+          "cuts_s": [
+            6.0
+          ],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_56",
+          "filename": "Hands_sculpting_cake_with_candle_7f98f25b.mp4",
+          "title": "Hands Stacking & Crumb-Coating Naked Sponge Cake w/ Single Center Candle",
+          "n_shots": 2,
+          "cuts_s": [
+            7.25
+          ],
+          "scale_growth": 0.99
+        },
+        {
+          "id": "bday_57",
+          "filename": "Hands_sculpting_yellow_butter_cake_42d5f0c5.mp4",
+          "title": "Hands Swirling Thick Buttercream on Yellow Butter Cake + 5 Pastel Candles",
+          "n_shots": 3,
+          "cuts_s": [
+            3.75,
+            6.125
+          ],
+          "scale_growth": 0.924
+        },
+        {
+          "id": "bday_76",
+          "filename": "image.png_58dbf17e.jpg",
+          "title": "Ground-Truth 9-Shot Segmentation Atlas (Close-Up | Full Chamber | Isolated Subject)",
+          "n_shots": 9,
+          "cuts_s": [
+            1.0,
+            2.0,
+            3.0,
+            4.0,
+            5.0,
+            6.0,
+            7.0,
+            8.0
+          ],
+          "scale_growth": 1.0
+        }
+      ]
+    },
+    "scale_families": {
+      "MEDIUM_CLOSE_HERO": [
+        {
+          "id": "bday_01",
+          "filename": "Birthday_cake_changes_color_83569c26.mp4",
+          "title": "Rose-Pink Smooth Drum -> White Ruffled 7-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.876
+        },
+        {
+          "id": "bday_02",
+          "filename": "Birthday_cake_changing_color_36d924c6.mp4",
+          "title": "Cobalt Swirl Drum -> Faceted White Origami Buttercream",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_03",
+          "filename": "Birthday_cake_changing_color_69b4dc20.mp4",
+          "title": "Mint Rosette Cake -> Forest Ruffle -> Smooth White Drum",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_04",
+          "filename": "Birthday_cake_changing_color_c4bf1e2d.mp4",
+          "title": "Royal Purple Frosted Cake -> White Ruffled 9-Taper Crown",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.89
+        },
+        {
+          "id": "bday_05",
+          "filename": "Birthday_cake_changing_colors_581305a4.mp4",
+          "title": "Ochre Gold Sculpted Cake -> Faceted White Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_06",
+          "filename": "Birthday_cake_changing_frosting_e92959a3.mp4",
+          "title": "Chocolate -> Cream Cake Inside Refractive Memory Sphere",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.003
+        },
+        {
+          "id": "bday_08",
+          "filename": "Birthday_cake_frosting_changing_…_56e3804b.mp4",
+          "title": "Glowing Disc -> Vanilla Base -> Dark Chocolate Drip & Curls",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.985
+        },
+        {
+          "id": "bday_09",
+          "filename": "Birthday_cake_morphing_frostings_8cc1d406.mp4",
+          "title": "3-Tier Chocolate -> Ornate White Wedding Cake in Memory Orb",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.575
+        },
+        {
+          "id": "bday_10",
+          "filename": "Building_retro_memory_orb_cake_528cf831.mp4",
+          "title": "Retro Memory Orb Cake: Sponge -> Cream -> Gold Bead Crown -> 7 Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_11",
+          "filename": "Cake_assembling_itself_step_by_a02ba256.mp4",
+          "title": "Step-by-Step 2-Tier Dark Chocolate Berry Cake Assembly",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.991
+        },
+        {
+          "id": "bday_12",
+          "filename": "Cake_changing_color_and_tilting_8a2b551c.mp4",
+          "title": "Chamber Shot 25/26: Cream <-> Chocolate Swap & 25 deg Tilt",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.023
+        },
+        {
+          "id": "bday_13",
+          "filename": "Cake_frosting_changes_color_c7a46a66.mp4",
+          "title": "Chamber Shot 25/26 Variant B: Cream -> Chocolate Tilt -> Smooth Cream",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.14
+        },
+        {
+          "id": "bday_14",
+          "filename": "Cake_frosting_shifting_and_tilting_53201fa9.mp4",
+          "title": "Chamber Shot 25/26 Variant C: Chocolate -> Cream Shifting & Tilting",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_17",
+          "filename": "Carrot_cake_rotating_on_display_fe728df1.mp4",
+          "title": "Spiced Carrot-Walnut Crumb Cake -> Cream Cheese Frosting & 7 Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.989
+        },
+        {
+          "id": "bday_39",
+          "filename": "Controller_operating_1950s_memor…_bf9f96c2.mp4",
+          "title": "1950s Memory Orb: Small Puck Morphing Into Tall Golden Bundt w/ Orbital Rings",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_41",
+          "filename": "Controller_transforming_object_i…_f9496d29.mp4",
+          "title": "Yellow Puck -> White Disc -> Tall Ruffled Cake -> Lit Twin Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.978
+        },
+        {
+          "id": "bday_50",
+          "filename": "Cyberpunk_memory_orb_cake_assembly_777969c8.mp4",
+          "title": "Cyberpunk Hexagonal Obsidian Cake Erupting w/ Amethyst Crystal Crown",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.043
+        },
+        {
+          "id": "bday_51",
+          "filename": "Cylinder_morphs_into_bundt_cake_6a88d7f1.mp4",
+          "title": "Canonical Counterfactual: Flat Sponge Cylinder Morphs Into 12-Flute Bundt Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.979
+        },
+        {
+          "id": "bday_52",
+          "filename": "Frosting_pound_cake_with_candles_4c860f90.mp4",
+          "title": "Spotlight Cone Frosting Golden Pound Cake + 7 Tall Tapers",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.013
+        },
+        {
+          "id": "bday_55",
+          "filename": "Hands_sculpting_1920s_cake_70ea715e.mp4",
+          "title": "Hands Sculpting 1920s Rustic Palette-Knife Cream Cake w/ 5 Tall Tapers",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.992
+        },
+        {
+          "id": "bday_59",
+          "filename": "Memory_orb_controller_morphing_cake_1238138c.mp4",
+          "title": "Holographic Ring -> Tall Fluted White Ruffle Cake w/ Single Candle",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.95
+        },
+        {
+          "id": "bday_60",
+          "filename": "Memory_orb_controller_operating_…_2929ccd3.mp4",
+          "title": "White Cake -> Dark Blackberry Tart-Cake on Cyan Neon Ring Pedestal",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.987
+        },
+        {
+          "id": "bday_65",
+          "filename": "Orb_frosts_and_ignites_cake_3d135d40.mp4",
+          "title": "Orb Frosts Yellow Sponge into Tall White Cake & Drops/Ignites 9 Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.932
+        },
+        {
+          "id": "bday_74",
+          "filename": "Sculpting_cream_on_sponge_cake_3e5d7321.mp4",
+          "title": "Naked Layer Sponge -> Smooth White Frosting -> Single Wish Candle",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.99
+        },
+        {
+          "id": "bday_75",
+          "filename": "Vintage_cake_color_change_sequence_9dce0ae7.mp4",
+          "title": "3.8s Chamber Study: Vintage Cream <-> Rich Cocoa Cake Color & Tilt",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.09
+        }
+      ],
+      "TIGHT_CLOSE_UP_MACRO": [
+        {
+          "id": "bday_07",
+          "filename": "Birthday_cake_frosting_changes_c…_63336ceb.mp4",
+          "title": "Chocolate -> Neon Pink 2-Tier -> Mint Memphis Geo Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.723
+        },
+        {
+          "id": "bday_15",
+          "filename": "Candles_burning_on_cake_fdd03dd0.mp4",
+          "title": "Two Children Warmly Lit by 7 Burning Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.003
+        },
+        {
+          "id": "bday_16",
+          "filename": "Candles_extinguishing_during_bir…_2d004333.mp4",
+          "title": "Candles Extinguishing with Rising Smoke Wisps & Dimming Bounce",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_19",
+          "filename": "Child_experiencing_time_rewind_e…_6239f811.mp4",
+          "title": "Boy Experiencing Temporal Rewind Behind Striped-Sweater Party Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_20",
+          "filename": "Child_experiencing_time_rewind_e…_9def47ea.mp4",
+          "title": "1930s Newsboy Cap Child Rewinding Breath Smoke Into Candle",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.78
+        },
+        {
+          "id": "bday_21",
+          "filename": "Child_moving_in_reverse_motion_75e96385.mp4",
+          "title": "Reverse-Motion Child at Small Square Pedestal Table",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.983
+        },
+        {
+          "id": "bday_22",
+          "filename": "Child_smiling_in_birthday_scene_2d557767.mp4",
+          "title": "1950s Silver-Nitrate Monochrome Boy Smiling Behind Lit Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.111
+        },
+        {
+          "id": "bday_24",
+          "filename": "Children_and_cake_materialize_999a0bfe.mp4",
+          "title": "Neon Rainbow Orb Materializing 1980s Kids & Magenta-Cyan 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.009
+        },
+        {
+          "id": "bday_28",
+          "filename": "Children_blowing_out_birthday_ca…_49ad6eab.mp4",
+          "title": "Six Vintage Children Gathered Tightly Around 7-Candle Cream Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_29",
+          "filename": "Children_blowing_out_birthday_ca…_51edf25c.mp4",
+          "title": "Seven Children Around Ornate 2-Tier Candlelit Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_31",
+          "filename": "Children_blowing_out_birthday_ca…_96e0c404.mp4",
+          "title": "Glowing Extruded 3D '生日' Topper Cake Blown Out Into Thick Smoke",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_32",
+          "filename": "Children_blowing_out_birthday_ca…_bf71cef6.mp4",
+          "title": "Three Children in Party Hats Blowing Out 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.025
+        },
+        {
+          "id": "bday_33",
+          "filename": "Children_blowing_out_candles_e8c215f4.mp4",
+          "title": "Two Asian Children Blowing Out Cake with Luminous 3D '快乐' Sign",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.945
+        },
+        {
+          "id": "bday_34",
+          "filename": "Children_celebrating_birthday_wi…_0ddc6322.mp4",
+          "title": "Two Children Close-Up Blowing Out Chocolate-Side Cream-Top Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_35",
+          "filename": "Children_celebrating_birthday_wi…_45924b3f.mp4",
+          "title": "Three Kids Celebrating Around Neon Geometric Memphis Pattern Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.023
+        },
+        {
+          "id": "bday_36",
+          "filename": "Children_celebrating_birthday_wi…_8d1aa255.mp4",
+          "title": "Three Vintage Children Clapping Around Dark Chocolate Drip Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.038
+        },
+        {
+          "id": "bday_38",
+          "filename": "Children_solidifying_around_birt…_e38d0959.mp4",
+          "title": "Wireframe Ghost Outlines Solidifying Into Four Children & 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_40",
+          "filename": "Controller_piping_icing_onto_cake_31aca305.mp4",
+          "title": "Controller Piping Red '生日快樂' Calligraphy Onto White 9-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.902
+        },
+        {
+          "id": "bday_42",
+          "filename": "Controller_writes_on_rotating_cake_188f72fd.mp4",
+          "title": "Piping Cursive Red 'Bon Anniversaire' on Rotating 12-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.439
+        },
+        {
+          "id": "bday_43",
+          "filename": "Controller_writing_Japanese_on_cake_1d09d1ad.mp4",
+          "title": "Red Laser Beam Engraving Japanese Birthday Calligraphy on White Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.099
+        },
+        {
+          "id": "bday_47",
+          "filename": "Cyberpunk_child_rewinding_time_1c1b4229.mp4",
+          "title": "Cyberpunk Boy Rewinding Cyan Light Trails Into Neon-Circuit Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.032
+        },
+        {
+          "id": "bday_49",
+          "filename": "Cyberpunk_children_celebrating_b…_b209ccbc.mp4",
+          "title": "Four Kids Around Dark Cake w/ Bioluminescent Cyan Fiber-Optic Plume",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.994
+        },
+        {
+          "id": "bday_64",
+          "filename": "Orb_controller_writes_birthday_m…_e8ea46cb.mp4",
+          "title": "Orb Controller Piping Cursive Red 'Happy Birthday' on 9-Candle White Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.858
+        },
+        {
+          "id": "bday_66",
+          "filename": "People_celebrating_1980s_birthda…_56e94451.mp4",
+          "title": "1980s Retro Friends Celebrating Around Glowing Pink-Blue Neon 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_67",
+          "filename": "People_celebrating_birthday_in_s…_61f6754a.mp4",
+          "title": "1920s Speakeasy Party in Sepia Warmth Around Ornate Cream Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_69",
+          "filename": "People_celebrating_birthday_with…_99015fc9.mp4",
+          "title": "1920s Silver-Screen B&W Party Clapping Around Tall 2-Tier Wedding-Style Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_77",
+          "filename": "shot25_cake-appears_abec7897.mp4",
+          "title": "Shot 25 Clean: Two Party-Hat Kids Leaning In & Blowing Out 9 Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.045
+        }
+      ],
+      "MEDIUM_FULL_TABLEAU": [
+        {
+          "id": "bday_18",
+          "filename": "Child_blowing_out_birthday_candles_b79c2123.mp4",
+          "title": "Four Children Blowing Out 2-Tier Piped Pastel Birthday Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_25",
+          "filename": "Children_appearing_at_table_dc3fe5cc.mp4",
+          "title": "1940s Children Materializing One-by-One from Golden Stardust",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_26",
+          "filename": "Children_blowing_out_birthday_ca…_0926db13.mp4",
+          "title": "1980s Kids in Neon Windbreakers & Caps Blowing Out Tall Floral 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.997
+        },
+        {
+          "id": "bday_27",
+          "filename": "Children_blowing_out_birthday_ca…_18cbc738.mp4",
+          "title": "Y2K / Late-90s Kids Blowing Out Pink 2-Tier '2000' Topper Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.996
+        },
+        {
+          "id": "bday_37",
+          "filename": "Children_celebrating_birthday_wi…_ff71138a.mp4",
+          "title": "Four Smiling Children Around Golden Sponge & Piped Rosette Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_45",
+          "filename": "Cyberpunk_characters_celebrating…_10a6a560.mp4",
+          "title": "Cyberpunk Crew Celebrating Around Neon Holographic 'Happy Birthday' 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_46",
+          "filename": "Cyberpunk_characters_celebrating…_b9782fa4.mp4",
+          "title": "Cyberpunk Party Around Obsidian Cake w/ Crystalline Violet Flame Shards",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_48",
+          "filename": "Cyberpunk_children_appearing_aro…_b9767049.mp4",
+          "title": "Cyan Wireframe Children Materializing Around Atomic Hologram Pedestal",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.124
+        },
+        {
+          "id": "bday_68",
+          "filename": "People_celebrating_birthday_with…_46070b72.mp4",
+          "title": "1980s Arcade Party Blowing Out Large Neon Geometric Memphis Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_70",
+          "filename": "People_celebrating_birthday_with…_ba5e81fd.mp4",
+          "title": "1970s Kodachrome Living Room Party w/ Golden Crowned Drip Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_71",
+          "filename": "People_celebrating_birthday_with…_cbd992bb.mp4",
+          "title": "1990s Family Dining Table Blowing Out Gray-Lilac Floral Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_72",
+          "filename": "People_celebrating_birthday_with…_ccb9588c.mp4",
+          "title": "1970s Party Cake w/ Twin Blazing Sparklers & Tapers",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_73",
+          "filename": "People_gathered_around_birthday_…_b2882228.mp4",
+          "title": "1950s Mid-Century Family Blowing Out Classic 2-Tier White Party Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        }
+      ],
+      "WIDE_TO_CLOSE_PUSH": [
+        {
+          "id": "bday_23",
+          "filename": "Children_and_cake_appearing_80b402ce.mp4",
+          "title": "Golden Hologram Ghosts Solidifying Into Five Children Around 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.366
+        },
+        {
+          "id": "bday_44",
+          "filename": "Controller_writing_cake_message_f7539c75.mp4",
+          "title": "Red Laser Beams Writing 'Feliz Cumpleaños' on 9-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.325
+        },
+        {
+          "id": "bday_58",
+          "filename": "Memory_orb_cake_building_sequence_af6b2281.mp4",
+          "title": "Memory Orb Multi-Layer Sponge -> Dark Ganache & White Bead Crown",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.978
+        },
+        {
+          "id": "bday_61",
+          "filename": "Neon_memory_orb_cake_building_b0420991.mp4",
+          "title": "Neon Wireframe Grid Cylinder -> Cyberpunk Geometric Cake w/ Holo Orb Topper",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_62",
+          "filename": "Obsidian_birthday_cake_materializes_fb251263.mp4",
+          "title": "Obsidian 2-Tier Translucent Cyan Bioluminescent Matrix Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.643
+        },
+        {
+          "id": "bday_63",
+          "filename": "Obsidian_cyberpunk_cake_changing…_a59d8383.mp4",
+          "title": "3.8s Chamber Study: Cyberpunk Neon-Circuit Cake <-> White Cake & Tilt",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.257
+        },
+        {
+          "id": "bday_78",
+          "filename": "stelline-orb-film_c40d3233.mp4",
+          "title": "Stelline Orb Film Master Reference: 3 Chamber Children & 7-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.996
+        }
+      ],
+      "MULTI_SCALE_COVERAGE": [
+        {
+          "id": "bday_30",
+          "filename": "Children_blowing_out_birthday_ca…_924d85eb.mp4",
+          "title": "Multi-Shot Film Cut: 生日快樂 Cake -> Children -> Close-Up Girl Blowing",
+          "n_shots": 2,
+          "cuts_s": [
+            4.25
+          ],
+          "scale_growth": 1.216
+        },
+        {
+          "id": "bday_53",
+          "filename": "Hands_frosting_chocolate_cake_7c8f1362.mp4",
+          "title": "Baker Hands Spreading Rich Chocolate Fudge, Sieving Sugar & Lighting Rainbow Candles",
+          "n_shots": 2,
+          "cuts_s": [
+            5.0
+          ],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_54",
+          "filename": "Hands_frosting_homemade_pound_cake_12f48977.mp4",
+          "title": "Baker Hands Frosting Homemade Sponge Cake w/ Ivory Buttercream & 6 Candles",
+          "n_shots": 2,
+          "cuts_s": [
+            6.0
+          ],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_56",
+          "filename": "Hands_sculpting_cake_with_candle_7f98f25b.mp4",
+          "title": "Hands Stacking & Crumb-Coating Naked Sponge Cake w/ Single Center Candle",
+          "n_shots": 2,
+          "cuts_s": [
+            7.25
+          ],
+          "scale_growth": 0.99
+        },
+        {
+          "id": "bday_57",
+          "filename": "Hands_sculpting_yellow_butter_cake_42d5f0c5.mp4",
+          "title": "Hands Swirling Thick Buttercream on Yellow Butter Cake + 5 Pastel Candles",
+          "n_shots": 3,
+          "cuts_s": [
+            3.75,
+            6.125
+          ],
+          "scale_growth": 0.924
+        },
+        {
+          "id": "bday_76",
+          "filename": "image.png_58dbf17e.jpg",
+          "title": "Ground-Truth 9-Shot Segmentation Atlas (Close-Up | Full Chamber | Isolated Subject)",
+          "n_shots": 9,
+          "cuts_s": [
+            1.0,
+            2.0,
+            3.0,
+            4.0,
+            5.0,
+            6.0,
+            7.0,
+            8.0
+          ],
+          "scale_growth": 1.0
+        }
+      ]
+    },
+    "layout_families": {
+      "WEAVER_5RING_BARREL_HUD": [
+        {
+          "id": "bday_01",
+          "filename": "Birthday_cake_changes_color_83569c26.mp4",
+          "title": "Rose-Pink Smooth Drum -> White Ruffled 7-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.876
+        },
+        {
+          "id": "bday_02",
+          "filename": "Birthday_cake_changing_color_36d924c6.mp4",
+          "title": "Cobalt Swirl Drum -> Faceted White Origami Buttercream",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_03",
+          "filename": "Birthday_cake_changing_color_69b4dc20.mp4",
+          "title": "Mint Rosette Cake -> Forest Ruffle -> Smooth White Drum",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_04",
+          "filename": "Birthday_cake_changing_color_c4bf1e2d.mp4",
+          "title": "Royal Purple Frosted Cake -> White Ruffled 9-Taper Crown",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.89
+        },
+        {
+          "id": "bday_05",
+          "filename": "Birthday_cake_changing_colors_581305a4.mp4",
+          "title": "Ochre Gold Sculpted Cake -> Faceted White Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_06",
+          "filename": "Birthday_cake_changing_frosting_e92959a3.mp4",
+          "title": "Chocolate -> Cream Cake Inside Refractive Memory Sphere",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.003
+        },
+        {
+          "id": "bday_07",
+          "filename": "Birthday_cake_frosting_changes_c…_63336ceb.mp4",
+          "title": "Chocolate -> Neon Pink 2-Tier -> Mint Memphis Geo Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.723
+        },
+        {
+          "id": "bday_08",
+          "filename": "Birthday_cake_frosting_changing_…_56e3804b.mp4",
+          "title": "Glowing Disc -> Vanilla Base -> Dark Chocolate Drip & Curls",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.985
+        },
+        {
+          "id": "bday_09",
+          "filename": "Birthday_cake_morphing_frostings_8cc1d406.mp4",
+          "title": "3-Tier Chocolate -> Ornate White Wedding Cake in Memory Orb",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.575
+        },
+        {
+          "id": "bday_10",
+          "filename": "Building_retro_memory_orb_cake_528cf831.mp4",
+          "title": "Retro Memory Orb Cake: Sponge -> Cream -> Gold Bead Crown -> 7 Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_11",
+          "filename": "Cake_assembling_itself_step_by_a02ba256.mp4",
+          "title": "Step-by-Step 2-Tier Dark Chocolate Berry Cake Assembly",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.991
+        },
+        {
+          "id": "bday_15",
+          "filename": "Candles_burning_on_cake_fdd03dd0.mp4",
+          "title": "Two Children Warmly Lit by 7 Burning Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.003
+        },
+        {
+          "id": "bday_16",
+          "filename": "Candles_extinguishing_during_bir…_2d004333.mp4",
+          "title": "Candles Extinguishing with Rising Smoke Wisps & Dimming Bounce",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_17",
+          "filename": "Carrot_cake_rotating_on_display_fe728df1.mp4",
+          "title": "Spiced Carrot-Walnut Crumb Cake -> Cream Cheese Frosting & 7 Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.989
+        },
+        {
+          "id": "bday_18",
+          "filename": "Child_blowing_out_birthday_candles_b79c2123.mp4",
+          "title": "Four Children Blowing Out 2-Tier Piped Pastel Birthday Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_19",
+          "filename": "Child_experiencing_time_rewind_e…_6239f811.mp4",
+          "title": "Boy Experiencing Temporal Rewind Behind Striped-Sweater Party Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_20",
+          "filename": "Child_experiencing_time_rewind_e…_9def47ea.mp4",
+          "title": "1930s Newsboy Cap Child Rewinding Breath Smoke Into Candle",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.78
+        },
+        {
+          "id": "bday_21",
+          "filename": "Child_moving_in_reverse_motion_75e96385.mp4",
+          "title": "Reverse-Motion Child at Small Square Pedestal Table",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.983
+        },
+        {
+          "id": "bday_22",
+          "filename": "Child_smiling_in_birthday_scene_2d557767.mp4",
+          "title": "1950s Silver-Nitrate Monochrome Boy Smiling Behind Lit Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.111
+        },
+        {
+          "id": "bday_23",
+          "filename": "Children_and_cake_appearing_80b402ce.mp4",
+          "title": "Golden Hologram Ghosts Solidifying Into Five Children Around 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.366
+        },
+        {
+          "id": "bday_24",
+          "filename": "Children_and_cake_materialize_999a0bfe.mp4",
+          "title": "Neon Rainbow Orb Materializing 1980s Kids & Magenta-Cyan 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.009
+        },
+        {
+          "id": "bday_25",
+          "filename": "Children_appearing_at_table_dc3fe5cc.mp4",
+          "title": "1940s Children Materializing One-by-One from Golden Stardust",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_26",
+          "filename": "Children_blowing_out_birthday_ca…_0926db13.mp4",
+          "title": "1980s Kids in Neon Windbreakers & Caps Blowing Out Tall Floral 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.997
+        },
+        {
+          "id": "bday_27",
+          "filename": "Children_blowing_out_birthday_ca…_18cbc738.mp4",
+          "title": "Y2K / Late-90s Kids Blowing Out Pink 2-Tier '2000' Topper Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.996
+        },
+        {
+          "id": "bday_28",
+          "filename": "Children_blowing_out_birthday_ca…_49ad6eab.mp4",
+          "title": "Six Vintage Children Gathered Tightly Around 7-Candle Cream Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_29",
+          "filename": "Children_blowing_out_birthday_ca…_51edf25c.mp4",
+          "title": "Seven Children Around Ornate 2-Tier Candlelit Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_31",
+          "filename": "Children_blowing_out_birthday_ca…_96e0c404.mp4",
+          "title": "Glowing Extruded 3D '生日' Topper Cake Blown Out Into Thick Smoke",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_32",
+          "filename": "Children_blowing_out_birthday_ca…_bf71cef6.mp4",
+          "title": "Three Children in Party Hats Blowing Out 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.025
+        },
+        {
+          "id": "bday_33",
+          "filename": "Children_blowing_out_candles_e8c215f4.mp4",
+          "title": "Two Asian Children Blowing Out Cake with Luminous 3D '快乐' Sign",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.945
+        },
+        {
+          "id": "bday_34",
+          "filename": "Children_celebrating_birthday_wi…_0ddc6322.mp4",
+          "title": "Two Children Close-Up Blowing Out Chocolate-Side Cream-Top Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_35",
+          "filename": "Children_celebrating_birthday_wi…_45924b3f.mp4",
+          "title": "Three Kids Celebrating Around Neon Geometric Memphis Pattern Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.023
+        },
+        {
+          "id": "bday_36",
+          "filename": "Children_celebrating_birthday_wi…_8d1aa255.mp4",
+          "title": "Three Vintage Children Clapping Around Dark Chocolate Drip Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.038
+        },
+        {
+          "id": "bday_37",
+          "filename": "Children_celebrating_birthday_wi…_ff71138a.mp4",
+          "title": "Four Smiling Children Around Golden Sponge & Piped Rosette Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_38",
+          "filename": "Children_solidifying_around_birt…_e38d0959.mp4",
+          "title": "Wireframe Ghost Outlines Solidifying Into Four Children & 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_39",
+          "filename": "Controller_operating_1950s_memor…_bf9f96c2.mp4",
+          "title": "1950s Memory Orb: Small Puck Morphing Into Tall Golden Bundt w/ Orbital Rings",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.973
+        },
+        {
+          "id": "bday_40",
+          "filename": "Controller_piping_icing_onto_cake_31aca305.mp4",
+          "title": "Controller Piping Red '生日快樂' Calligraphy Onto White 9-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.902
+        },
+        {
+          "id": "bday_41",
+          "filename": "Controller_transforming_object_i…_f9496d29.mp4",
+          "title": "Yellow Puck -> White Disc -> Tall Ruffled Cake -> Lit Twin Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.978
+        },
+        {
+          "id": "bday_42",
+          "filename": "Controller_writes_on_rotating_cake_188f72fd.mp4",
+          "title": "Piping Cursive Red 'Bon Anniversaire' on Rotating 12-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.439
+        },
+        {
+          "id": "bday_43",
+          "filename": "Controller_writing_Japanese_on_cake_1d09d1ad.mp4",
+          "title": "Red Laser Beam Engraving Japanese Birthday Calligraphy on White Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.099
+        },
+        {
+          "id": "bday_44",
+          "filename": "Controller_writing_cake_message_f7539c75.mp4",
+          "title": "Red Laser Beams Writing 'Feliz Cumpleaños' on 9-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.325
+        },
+        {
+          "id": "bday_45",
+          "filename": "Cyberpunk_characters_celebrating…_10a6a560.mp4",
+          "title": "Cyberpunk Crew Celebrating Around Neon Holographic 'Happy Birthday' 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_46",
+          "filename": "Cyberpunk_characters_celebrating…_b9782fa4.mp4",
+          "title": "Cyberpunk Party Around Obsidian Cake w/ Crystalline Violet Flame Shards",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_47",
+          "filename": "Cyberpunk_child_rewinding_time_1c1b4229.mp4",
+          "title": "Cyberpunk Boy Rewinding Cyan Light Trails Into Neon-Circuit Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.032
+        },
+        {
+          "id": "bday_48",
+          "filename": "Cyberpunk_children_appearing_aro…_b9767049.mp4",
+          "title": "Cyan Wireframe Children Materializing Around Atomic Hologram Pedestal",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.124
+        },
+        {
+          "id": "bday_49",
+          "filename": "Cyberpunk_children_celebrating_b…_b209ccbc.mp4",
+          "title": "Four Kids Around Dark Cake w/ Bioluminescent Cyan Fiber-Optic Plume",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.994
+        },
+        {
+          "id": "bday_50",
+          "filename": "Cyberpunk_memory_orb_cake_assembly_777969c8.mp4",
+          "title": "Cyberpunk Hexagonal Obsidian Cake Erupting w/ Amethyst Crystal Crown",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.043
+        },
+        {
+          "id": "bday_51",
+          "filename": "Cylinder_morphs_into_bundt_cake_6a88d7f1.mp4",
+          "title": "Canonical Counterfactual: Flat Sponge Cylinder Morphs Into 12-Flute Bundt Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.979
+        },
+        {
+          "id": "bday_52",
+          "filename": "Frosting_pound_cake_with_candles_4c860f90.mp4",
+          "title": "Spotlight Cone Frosting Golden Pound Cake + 7 Tall Tapers",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.013
+        },
+        {
+          "id": "bday_53",
+          "filename": "Hands_frosting_chocolate_cake_7c8f1362.mp4",
+          "title": "Baker Hands Spreading Rich Chocolate Fudge, Sieving Sugar & Lighting Rainbow Candles",
+          "n_shots": 2,
+          "cuts_s": [
+            5.0
+          ],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_54",
+          "filename": "Hands_frosting_homemade_pound_cake_12f48977.mp4",
+          "title": "Baker Hands Frosting Homemade Sponge Cake w/ Ivory Buttercream & 6 Candles",
+          "n_shots": 2,
+          "cuts_s": [
+            6.0
+          ],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_55",
+          "filename": "Hands_sculpting_1920s_cake_70ea715e.mp4",
+          "title": "Hands Sculpting 1920s Rustic Palette-Knife Cream Cake w/ 5 Tall Tapers",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.992
+        },
+        {
+          "id": "bday_56",
+          "filename": "Hands_sculpting_cake_with_candle_7f98f25b.mp4",
+          "title": "Hands Stacking & Crumb-Coating Naked Sponge Cake w/ Single Center Candle",
+          "n_shots": 2,
+          "cuts_s": [
+            7.25
+          ],
+          "scale_growth": 0.99
+        },
+        {
+          "id": "bday_57",
+          "filename": "Hands_sculpting_yellow_butter_cake_42d5f0c5.mp4",
+          "title": "Hands Swirling Thick Buttercream on Yellow Butter Cake + 5 Pastel Candles",
+          "n_shots": 3,
+          "cuts_s": [
+            3.75,
+            6.125
+          ],
+          "scale_growth": 0.924
+        },
+        {
+          "id": "bday_58",
+          "filename": "Memory_orb_cake_building_sequence_af6b2281.mp4",
+          "title": "Memory Orb Multi-Layer Sponge -> Dark Ganache & White Bead Crown",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.978
+        },
+        {
+          "id": "bday_59",
+          "filename": "Memory_orb_controller_morphing_cake_1238138c.mp4",
+          "title": "Holographic Ring -> Tall Fluted White Ruffle Cake w/ Single Candle",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.95
+        },
+        {
+          "id": "bday_60",
+          "filename": "Memory_orb_controller_operating_…_2929ccd3.mp4",
+          "title": "White Cake -> Dark Blackberry Tart-Cake on Cyan Neon Ring Pedestal",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.987
+        },
+        {
+          "id": "bday_61",
+          "filename": "Neon_memory_orb_cake_building_b0420991.mp4",
+          "title": "Neon Wireframe Grid Cylinder -> Cyberpunk Geometric Cake w/ Holo Orb Topper",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_62",
+          "filename": "Obsidian_birthday_cake_materializes_fb251263.mp4",
+          "title": "Obsidian 2-Tier Translucent Cyan Bioluminescent Matrix Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.643
+        },
+        {
+          "id": "bday_64",
+          "filename": "Orb_controller_writes_birthday_m…_e8ea46cb.mp4",
+          "title": "Orb Controller Piping Cursive Red 'Happy Birthday' on 9-Candle White Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.858
+        },
+        {
+          "id": "bday_65",
+          "filename": "Orb_frosts_and_ignites_cake_3d135d40.mp4",
+          "title": "Orb Frosts Yellow Sponge into Tall White Cake & Drops/Ignites 9 Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.932
+        },
+        {
+          "id": "bday_66",
+          "filename": "People_celebrating_1980s_birthda…_56e94451.mp4",
+          "title": "1980s Retro Friends Celebrating Around Glowing Pink-Blue Neon 2-Tier Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_67",
+          "filename": "People_celebrating_birthday_in_s…_61f6754a.mp4",
+          "title": "1920s Speakeasy Party in Sepia Warmth Around Ornate Cream Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_68",
+          "filename": "People_celebrating_birthday_with…_46070b72.mp4",
+          "title": "1980s Arcade Party Blowing Out Large Neon Geometric Memphis Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_69",
+          "filename": "People_celebrating_birthday_with…_99015fc9.mp4",
+          "title": "1920s Silver-Screen B&W Party Clapping Around Tall 2-Tier Wedding-Style Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_70",
+          "filename": "People_celebrating_birthday_with…_ba5e81fd.mp4",
+          "title": "1970s Kodachrome Living Room Party w/ Golden Crowned Drip Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_72",
+          "filename": "People_celebrating_birthday_with…_ccb9588c.mp4",
+          "title": "1970s Party Cake w/ Twin Blazing Sparklers & Tapers",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_73",
+          "filename": "People_gathered_around_birthday_…_b2882228.mp4",
+          "title": "1950s Mid-Century Family Blowing Out Classic 2-Tier White Party Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_74",
+          "filename": "Sculpting_cream_on_sponge_cake_3e5d7321.mp4",
+          "title": "Naked Layer Sponge -> Smooth White Frosting -> Single Wish Candle",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.99
+        },
+        {
+          "id": "bday_78",
+          "filename": "stelline-orb-film_c40d3233.mp4",
+          "title": "Stelline Orb Film Master Reference: 3 Chamber Children & 7-Candle Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 0.996
+        }
+      ],
+      "CHAMBER_MINIMAL_DOTBAR": [
+        {
+          "id": "bday_12",
+          "filename": "Cake_changing_color_and_tilting_8a2b551c.mp4",
+          "title": "Chamber Shot 25/26: Cream <-> Chocolate Swap & 25 deg Tilt",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.023
+        },
+        {
+          "id": "bday_13",
+          "filename": "Cake_frosting_changes_color_c7a46a66.mp4",
+          "title": "Chamber Shot 25/26 Variant B: Cream -> Chocolate Tilt -> Smooth Cream",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.14
+        },
+        {
+          "id": "bday_14",
+          "filename": "Cake_frosting_shifting_and_tilting_53201fa9.mp4",
+          "title": "Chamber Shot 25/26 Variant C: Chocolate -> Cream Shifting & Tilting",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_30",
+          "filename": "Children_blowing_out_birthday_ca…_924d85eb.mp4",
+          "title": "Multi-Shot Film Cut: 生日快樂 Cake -> Children -> Close-Up Girl Blowing",
+          "n_shots": 2,
+          "cuts_s": [
+            4.25
+          ],
+          "scale_growth": 1.216
+        },
+        {
+          "id": "bday_63",
+          "filename": "Obsidian_cyberpunk_cake_changing…_a59d8383.mp4",
+          "title": "3.8s Chamber Study: Cyberpunk Neon-Circuit Cake <-> White Cake & Tilt",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.257
+        },
+        {
+          "id": "bday_71",
+          "filename": "People_celebrating_birthday_with…_cbd992bb.mp4",
+          "title": "1990s Family Dining Table Blowing Out Gray-Lilac Floral Cake",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.0
+        },
+        {
+          "id": "bday_75",
+          "filename": "Vintage_cake_color_change_sequence_9dce0ae7.mp4",
+          "title": "3.8s Chamber Study: Vintage Cream <-> Rich Cocoa Cake Color & Tilt",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.09
+        }
+      ],
+      "REFERENCE_GRID_9X3": [
+        {
+          "id": "bday_76",
+          "filename": "image.png_58dbf17e.jpg",
+          "title": "Ground-Truth 9-Shot Segmentation Atlas (Close-Up | Full Chamber | Isolated Subject)",
+          "n_shots": 9,
+          "cuts_s": [
+            1.0,
+            2.0,
+            3.0,
+            4.0,
+            5.0,
+            6.0,
+            7.0,
+            8.0
+          ],
+          "scale_growth": 1.0
+        }
+      ],
+      "CHAMBER_DOME_RIM_CLEAN": [
+        {
+          "id": "bday_77",
+          "filename": "shot25_cake-appears_abec7897.mp4",
+          "title": "Shot 25 Clean: Two Party-Hat Kids Leaning In & Blowing Out 9 Candles",
+          "n_shots": 1,
+          "cuts_s": [],
+          "scale_growth": 1.045
+        }
+      ]
+    }
+  }
+}

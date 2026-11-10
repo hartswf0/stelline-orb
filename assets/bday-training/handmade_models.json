@@ -1,0 +1,5305 @@
+{
+  "total_models": 41,
+  "models": {
+    "canonical_chamber_7": {
+      "id": "canonical_chamber_7",
+      "title": "CANONICAL CHAMBER 7",
+      "summary": "1-tier · 7 candles · HERO PEDESTAL 3Q 25DEG",
+      "count": 11,
+      "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+      "ref_id": "bday_10",
+      "render": "assets/bday-training/thumbs/bday_10.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 7,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#f4ead2",
+        "cam": {
+          "p": [
+            0.34,
+            0.99,
+            0.58
+          ],
+          "yaw": 0.53,
+          "pitch": -0.34,
+          "f": 50,
+          "N": 2.8,
+          "fd": 0.68
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 7 CANDLES (LIT)",
+        "SHOT CAMERA -> HERO 3/4 · 24° · 50MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 7
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 50,
+            "aux": 2.8
+          }
+        }
+      ]
+    },
+    "two_tier_pastel_party": {
+      "id": "two_tier_pastel_party",
+      "title": "TWO TIER PASTEL PARTY",
+      "summary": "2-tier · 9 candles · TABLE TABLEAU EYE 10DEG",
+      "count": 7,
+      "angle_family": "TABLE_TABLEAU_EYE_10DEG",
+      "ref_id": "bday_18",
+      "render": "assets/bday-training/thumbs/bday_18.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.132,
+            0.0
+          ],
+          [
+            0.132,
+            0.085
+          ],
+          [
+            0.09504,
+            0.085
+          ],
+          [
+            0.09504,
+            0.136
+          ],
+          [
+            0.09404,
+            0.141
+          ],
+          [
+            0.09104,
+            0.144
+          ],
+          [
+            0.08604,
+            0.145
+          ],
+          [
+            0.0,
+            0.145
+          ]
+        ],
+        "cn": 9,
+        "lit": [
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#f2e6d0",
+        "cam": {
+          "p": [
+            0.0,
+            0.92,
+            0.88
+          ],
+          "yaw": 0.0,
+          "pitch": -0.13,
+          "f": 40,
+          "N": 2.4,
+          "fd": 0.88
+        }
+      },
+      "history": [
+        "BASE TIER -> INFLATE: OUT 12 MM",
+        "UPPER TIER -> EXTRUDE: INSET 28% · RAISED 60 MM",
+        "CROWN RIM -> BEVEL 9 MM",
+        "CANDLE RING -> 9 CANDLES (HALF)",
+        "SHOT CAMERA -> PARTY TABLEAU · 9° · 40MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "side",
+            "e": 1
+          },
+          "op": "INFLATE",
+          "v": {
+            "main": 0.012
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.06,
+            "aux": 28,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 6
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 9
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 40,
+            "aux": 2.4
+          }
+        }
+      ]
+    },
+    "ganache_drip_curls": {
+      "id": "ganache_drip_curls",
+      "title": "GANACHE DRIP CURLS",
+      "summary": "1-tier · 0 candles · HERO PEDESTAL 3Q 25DEG",
+      "count": 4,
+      "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+      "ref_id": "bday_08",
+      "render": "assets/bday-training/thumbs/bday_08.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 0,
+        "lit": [],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#3b2114",
+        "cam": {
+          "p": [
+            0.34,
+            0.99,
+            0.58
+          ],
+          "yaw": 0.53,
+          "pitch": -0.34,
+          "f": 50,
+          "N": 2.8,
+          "fd": 0.68
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 0 CANDLES (OUT)",
+        "SHOT CAMERA -> HERO 3/4 · 24° · 50MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 0
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 50,
+            "aux": 2.8
+          }
+        }
+      ]
+    },
+    "tilted_chamber_canon": {
+      "id": "tilted_chamber_canon",
+      "title": "TILTED CHAMBER CANON",
+      "summary": "1-tier · 7 candles · CHAMBER FLOATING TILT 10DEG",
+      "count": 4,
+      "angle_family": "CHAMBER_FLOATING_TILT_10DEG",
+      "ref_id": "bday_12",
+      "render": "assets/bday-training/thumbs/bday_12.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 7,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.045,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          24.0
+        ],
+        "s": 1.0,
+        "icing": "#3d2314",
+        "cam": {
+          "p": [
+            -0.14,
+            0.84,
+            0.56
+          ],
+          "yaw": -0.24,
+          "pitch": -0.1,
+          "f": 35,
+          "N": 2.0,
+          "fd": 0.58
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CHAMBER FLOAT -> LIFT +45 MM Y · TILT 24° Z",
+        "CANDLE RING -> 7 CANDLES (LIT)",
+        "SHOT CAMERA -> CHAMBER TILT · 10° · 35MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "object"
+          },
+          "op": "MOVE",
+          "v": {
+            "main": 0.045,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "object"
+          },
+          "op": "ROTATE",
+          "v": {
+            "main": 24.0,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 7
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 35,
+            "aux": 2.0
+          }
+        }
+      ]
+    },
+    "obsidian_amethyst_hex": {
+      "id": "obsidian_amethyst_hex",
+      "title": "OBSIDIAN AMETHYST HEX",
+      "summary": "1-tier · 9 candles · TABLE TABLEAU EYE 10DEG",
+      "count": 3,
+      "angle_family": "TABLE_TABLEAU_EYE_10DEG",
+      "ref_id": "bday_46",
+      "render": "assets/bday-training/thumbs/bday_46.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.083
+          ],
+          [
+            0.106,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 9,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#14161d",
+        "cam": {
+          "p": [
+            0.0,
+            0.92,
+            0.88
+          ],
+          "yaw": 0.0,
+          "pitch": -0.13,
+          "f": 40,
+          "N": 2.4,
+          "fd": 0.88
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 14 MM",
+        "CANDLE RING -> 9 CANDLES (LIT)",
+        "SHOT CAMERA -> PARTY TABLEAU · 9° · 40MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.014,
+            "con": 0
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 9
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 40,
+            "aux": 2.4
+          }
+        }
+      ]
+    },
+    "ruffled_ivory_crown": {
+      "id": "ruffled_ivory_crown",
+      "title": "RUFFLED IVORY CROWN",
+      "summary": "1-tier · 7 candles · HERO PEDESTAL 3Q 25DEG",
+      "count": 3,
+      "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+      "ref_id": "bday_01",
+      "render": "assets/bday-training/thumbs/bday_01.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.106
+          ],
+          [
+            0.119,
+            0.111
+          ],
+          [
+            0.116,
+            0.114
+          ],
+          [
+            0.111,
+            0.115
+          ],
+          [
+            0.0,
+            0.115
+          ]
+        ],
+        "cn": 7,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#f3efe6",
+        "cam": {
+          "p": [
+            0.34,
+            0.99,
+            0.58
+          ],
+          "yaw": 0.53,
+          "pitch": -0.34,
+          "f": 50,
+          "N": 2.8,
+          "fd": 0.68
+        }
+      },
+      "history": [
+        "DRUM HEIGHT -> EXTRUDE: RAISED 30 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 7 CANDLES (LIT)",
+        "SHOT CAMERA -> HERO 3/4 · 24° · 50MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.03,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 7
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 50,
+            "aux": 2.8
+          }
+        }
+      ]
+    },
+    "synthwave_neon_tiers": {
+      "id": "synthwave_neon_tiers",
+      "title": "SYNTHWAVE NEON TIERS",
+      "summary": "2-tier · 7 candles · INTIMATE CANDLE FACE CU",
+      "count": 3,
+      "angle_family": "INTIMATE_CANDLE_FACE_CU",
+      "ref_id": "bday_24",
+      "render": "assets/bday-training/thumbs/bday_24.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.132,
+            0.0
+          ],
+          [
+            0.132,
+            0.085
+          ],
+          [
+            0.09504,
+            0.085
+          ],
+          [
+            0.09504,
+            0.136
+          ],
+          [
+            0.09404,
+            0.141
+          ],
+          [
+            0.09104,
+            0.144
+          ],
+          [
+            0.08604,
+            0.145
+          ],
+          [
+            0.0,
+            0.145
+          ]
+        ],
+        "cn": 7,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#38e8ff",
+        "cam": {
+          "p": [
+            0.04,
+            0.85,
+            0.54
+          ],
+          "yaw": 0.07,
+          "pitch": -0.05,
+          "f": 85,
+          "N": 1.6,
+          "fd": 0.54
+        }
+      },
+      "history": [
+        "BASE TIER -> INFLATE: OUT 12 MM",
+        "UPPER TIER -> EXTRUDE: INSET 28% · RAISED 60 MM",
+        "CROWN RIM -> BEVEL 9 MM",
+        "CANDLE RING -> 7 CANDLES (LIT)",
+        "SHOT CAMERA -> CANDLE FACE CU · 4° · 85MM f/1.6"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "side",
+            "e": 1
+          },
+          "op": "INFLATE",
+          "v": {
+            "main": 0.012
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.06,
+            "aux": 28,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 6
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 7
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 85,
+            "aux": 1.6
+          }
+        }
+      ]
+    },
+    "artisan_buttercream_home": {
+      "id": "artisan_buttercream_home",
+      "title": "ARTISAN BUTTERCREAM HOME",
+      "summary": "1-tier · 6 candles · ARTISAN BENCH HANDS 30DEG",
+      "count": 2,
+      "angle_family": "ARTISAN_BENCH_HANDS_30DEG",
+      "ref_id": "bday_54",
+      "render": "assets/bday-training/thumbs/bday_54.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 6,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#f3ead6",
+        "cam": {
+          "p": [
+            0.18,
+            1.04,
+            0.52
+          ],
+          "yaw": 0.33,
+          "pitch": -0.44,
+          "f": 45,
+          "N": 3.2,
+          "fd": 0.58
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 6 CANDLES (LIT)",
+        "SHOT CAMERA -> BENCH CRAFT · 28° · 45MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 6
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 45,
+            "aux": 3.2
+          }
+        }
+      ]
+    },
+    "bundt_12flute_glaze": {
+      "id": "bundt_12flute_glaze",
+      "title": "BUNDT 12FLUTE GLAZE",
+      "summary": "1-tier · 4 candles · HERO PEDESTAL 3Q 25DEG",
+      "count": 2,
+      "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+      "ref_id": "bday_39",
+      "render": "assets/bday-training/thumbs/bday_39.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.134,
+            0.0
+          ],
+          [
+            0.134,
+            0.092
+          ],
+          [
+            0.13287,
+            0.09988
+          ],
+          [
+            0.1295,
+            0.1055
+          ],
+          [
+            0.12388,
+            0.10887
+          ],
+          [
+            0.116,
+            0.11
+          ],
+          [
+            0.0638,
+            0.11
+          ],
+          [
+            0.0638,
+            0.055
+          ],
+          [
+            0.0,
+            0.055
+          ]
+        ],
+        "cn": 4,
+        "lit": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#e6c274",
+        "cam": {
+          "p": [
+            0.34,
+            0.99,
+            0.58
+          ],
+          "yaw": 0.53,
+          "pitch": -0.34,
+          "f": 50,
+          "N": 2.8,
+          "fd": 0.68
+        }
+      },
+      "history": [
+        "TOP -> EXTRUDE: RAISED 25 MM",
+        "SIDE 1 -> INFLATE: OUT 14 MM",
+        "CROWN EDGE -> BEVEL 18 MM",
+        "BUNDT WELL -> EXTRUDE: INSET 45% · SUNK 55 MM",
+        "CANDLE RING -> 4 CANDLES (LIT)",
+        "SHOT CAMERA -> HERO 3/4 · 24° · 50MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.025,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "side",
+            "e": 1
+          },
+          "op": "INFLATE",
+          "v": {
+            "main": 0.014
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.018,
+            "con": 3
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": -0.055,
+            "aux": 45,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 4
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 50,
+            "aux": 2.8
+          }
+        }
+      ]
+    },
+    "cyber_circuit_drum": {
+      "id": "cyber_circuit_drum",
+      "title": "CYBER CIRCUIT DRUM",
+      "summary": "1-tier · 9 candles · INTIMATE CANDLE FACE CU",
+      "count": 2,
+      "angle_family": "INTIMATE_CANDLE_FACE_CU",
+      "ref_id": "bday_47",
+      "render": "assets/bday-training/thumbs/bday_47.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 9,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#121824",
+        "cam": {
+          "p": [
+            0.04,
+            0.85,
+            0.54
+          ],
+          "yaw": 0.07,
+          "pitch": -0.05,
+          "f": 85,
+          "N": 1.6,
+          "fd": 0.54
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 9 CANDLES (LIT)",
+        "SHOT CAMERA -> CANDLE FACE CU · 4° · 85MM f/1.6"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 9
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 85,
+            "aux": 1.6
+          }
+        }
+      ]
+    },
+    "glowing_hanzi_topper_cake": {
+      "id": "glowing_hanzi_topper_cake",
+      "title": "GLOWING HANZI TOPPER CAKE",
+      "summary": "1-tier · 9 candles · INTIMATE CANDLE FACE CU",
+      "count": 2,
+      "angle_family": "INTIMATE_CANDLE_FACE_CU",
+      "ref_id": "bday_31",
+      "render": "assets/bday-training/thumbs/bday_31.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 9,
+        "lit": [
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#7c8a92",
+        "cam": {
+          "p": [
+            0.04,
+            0.85,
+            0.54
+          ],
+          "yaw": 0.07,
+          "pitch": -0.05,
+          "f": 85,
+          "N": 1.6,
+          "fd": 0.54
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 9 CANDLES (HALF)",
+        "SHOT CAMERA -> CANDLE FACE CU · 4° · 85MM f/1.6"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 9
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 85,
+            "aux": 1.6
+          }
+        }
+      ]
+    },
+    "holo_cyan_matrix_tiers": {
+      "id": "holo_cyan_matrix_tiers",
+      "title": "HOLO CYAN MATRIX TIERS",
+      "summary": "1-tier · 0 candles · TABLE TABLEAU EYE 10DEG",
+      "count": 2,
+      "angle_family": "TABLE_TABLEAU_EYE_10DEG",
+      "ref_id": "bday_48",
+      "render": "assets/bday-training/thumbs/bday_48.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 0,
+        "lit": [],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#38f0ff",
+        "cam": {
+          "p": [
+            0.0,
+            0.92,
+            0.88
+          ],
+          "yaw": 0.0,
+          "pitch": -0.13,
+          "f": 40,
+          "N": 2.4,
+          "fd": 0.88
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 0 CANDLES (OUT)",
+        "SHOT CAMERA -> PARTY TABLEAU · 9° · 40MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 0
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 40,
+            "aux": 2.4
+          }
+        }
+      ]
+    },
+    "monochrome_archival_cake": {
+      "id": "monochrome_archival_cake",
+      "title": "MONOCHROME ARCHIVAL CAKE",
+      "summary": "1-tier · 7 candles · INTIMATE CANDLE FACE CU",
+      "count": 2,
+      "angle_family": "INTIMATE_CANDLE_FACE_CU",
+      "ref_id": "bday_22",
+      "render": "assets/bday-training/thumbs/bday_22.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 7,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#dcdcdc",
+        "cam": {
+          "p": [
+            0.04,
+            0.85,
+            0.54
+          ],
+          "yaw": 0.07,
+          "pitch": -0.05,
+          "f": 85,
+          "N": 1.6,
+          "fd": 0.54
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 7 CANDLES (LIT)",
+        "SHOT CAMERA -> CANDLE FACE CU · 4° · 85MM f/1.6"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 7
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 85,
+            "aux": 1.6
+          }
+        }
+      ]
+    },
+    "naked_sponge_single_wish": {
+      "id": "naked_sponge_single_wish",
+      "title": "NAKED SPONGE SINGLE WISH",
+      "summary": "1-tier · 1 candles · ARTISAN BENCH HANDS 30DEG",
+      "count": 2,
+      "angle_family": "ARTISAN_BENCH_HANDS_30DEG",
+      "ref_id": "bday_56",
+      "render": "assets/bday-training/thumbs/bday_56.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 1,
+        "lit": [
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#f5efe2",
+        "cam": {
+          "p": [
+            0.18,
+            1.04,
+            0.52
+          ],
+          "yaw": 0.33,
+          "pitch": -0.44,
+          "f": 45,
+          "N": 3.2,
+          "fd": 0.58
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 1 CANDLES (LIT)",
+        "SHOT CAMERA -> BENCH CRAFT · 28° · 45MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 45,
+            "aux": 3.2
+          }
+        }
+      ]
+    },
+    "neon_memphis_night": {
+      "id": "neon_memphis_night",
+      "title": "NEON MEMPHIS NIGHT",
+      "summary": "1-tier · 9 candles · INTIMATE CANDLE FACE CU",
+      "count": 2,
+      "angle_family": "INTIMATE_CANDLE_FACE_CU",
+      "ref_id": "bday_35",
+      "render": "assets/bday-training/thumbs/bday_35.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 9,
+        "lit": [
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#1c2030",
+        "cam": {
+          "p": [
+            0.04,
+            0.85,
+            0.54
+          ],
+          "yaw": 0.07,
+          "pitch": -0.05,
+          "f": 85,
+          "N": 1.6,
+          "fd": 0.54
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 9 CANDLES (HALF)",
+        "SHOT CAMERA -> CANDLE FACE CU · 4° · 85MM f/1.6"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 9
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 85,
+            "aux": 1.6
+          }
+        }
+      ]
+    },
+    "seventies_amber_sparkler": {
+      "id": "seventies_amber_sparkler",
+      "title": "SEVENTIES AMBER SPARKLER",
+      "summary": "1-tier · 12 candles · TABLE TABLEAU EYE 10DEG",
+      "count": 2,
+      "angle_family": "TABLE_TABLEAU_EYE_10DEG",
+      "ref_id": "bday_70",
+      "render": "assets/bday-training/thumbs/bday_70.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 12,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#ecc882",
+        "cam": {
+          "p": [
+            0.0,
+            0.92,
+            0.88
+          ],
+          "yaw": 0.0,
+          "pitch": -0.13,
+          "f": 40,
+          "N": 2.4,
+          "fd": 0.88
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 12 CANDLES (LIT)",
+        "SHOT CAMERA -> PARTY TABLEAU · 9° · 40MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 12
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 40,
+            "aux": 2.4
+          }
+        }
+      ]
+    },
+    "artisan_fudge_dusted": {
+      "id": "artisan_fudge_dusted",
+      "title": "ARTISAN FUDGE DUSTED",
+      "summary": "1-tier · 9 candles · ARTISAN BENCH HANDS 30DEG",
+      "count": 1,
+      "angle_family": "ARTISAN_BENCH_HANDS_30DEG",
+      "ref_id": "bday_53",
+      "render": "assets/bday-training/thumbs/bday_53.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 9,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#3d1e10",
+        "cam": {
+          "p": [
+            0.18,
+            1.04,
+            0.52
+          ],
+          "yaw": 0.33,
+          "pitch": -0.44,
+          "f": 45,
+          "N": 3.2,
+          "fd": 0.58
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 9 CANDLES (LIT)",
+        "SHOT CAMERA -> BENCH CRAFT · 28° · 45MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 9
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 45,
+            "aux": 3.2
+          }
+        }
+      ]
+    },
+    "blackberry_neon_tart": {
+      "id": "blackberry_neon_tart",
+      "title": "BLACKBERRY NEON TART",
+      "summary": "1-tier · 2 candles · HERO PEDESTAL 3Q 25DEG",
+      "count": 1,
+      "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+      "ref_id": "bday_60",
+      "render": "assets/bday-training/thumbs/bday_60.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.056
+          ],
+          [
+            0.119,
+            0.061
+          ],
+          [
+            0.116,
+            0.064
+          ],
+          [
+            0.111,
+            0.065
+          ],
+          [
+            0.0,
+            0.065
+          ]
+        ],
+        "cn": 2,
+        "lit": [
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#1e162b",
+        "cam": {
+          "p": [
+            0.34,
+            0.99,
+            0.58
+          ],
+          "yaw": 0.53,
+          "pitch": -0.34,
+          "f": 50,
+          "N": 2.8,
+          "fd": 0.68
+        }
+      },
+      "history": [
+        "LOW TART -> EXTRUDE: SUNK 20 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 2 CANDLES (LIT)",
+        "SHOT CAMERA -> HERO 3/4 · 24° · 50MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": -0.02,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 50,
+            "aux": 2.8
+          }
+        }
+      ]
+    },
+    "carrot_walnut_cream": {
+      "id": "carrot_walnut_cream",
+      "title": "CARROT WALNUT CREAM",
+      "summary": "1-tier · 7 candles · HERO PEDESTAL 3Q 25DEG",
+      "count": 1,
+      "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+      "ref_id": "bday_17",
+      "render": "assets/bday-training/thumbs/bday_17.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 7,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#f5efe2",
+        "cam": {
+          "p": [
+            0.34,
+            0.99,
+            0.58
+          ],
+          "yaw": 0.53,
+          "pitch": -0.34,
+          "f": 50,
+          "N": 2.8,
+          "fd": 0.68
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 7 CANDLES (LIT)",
+        "SHOT CAMERA -> HERO 3/4 · 24° · 50MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 7
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 50,
+            "aux": 2.8
+          }
+        }
+      ]
+    },
+    "choc_berry_two_tier": {
+      "id": "choc_berry_two_tier",
+      "title": "CHOC BERRY TWO TIER",
+      "summary": "2-tier · 7 candles · HERO PEDESTAL 3Q 25DEG",
+      "count": 1,
+      "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+      "ref_id": "bday_11",
+      "render": "assets/bday-training/thumbs/bday_11.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.132,
+            0.0
+          ],
+          [
+            0.132,
+            0.085
+          ],
+          [
+            0.09504,
+            0.085
+          ],
+          [
+            0.09504,
+            0.136
+          ],
+          [
+            0.09404,
+            0.141
+          ],
+          [
+            0.09104,
+            0.144
+          ],
+          [
+            0.08604,
+            0.145
+          ],
+          [
+            0.0,
+            0.145
+          ]
+        ],
+        "cn": 7,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#2e170d",
+        "cam": {
+          "p": [
+            0.34,
+            0.99,
+            0.58
+          ],
+          "yaw": 0.53,
+          "pitch": -0.34,
+          "f": 50,
+          "N": 2.8,
+          "fd": 0.68
+        }
+      },
+      "history": [
+        "BASE TIER -> INFLATE: OUT 12 MM",
+        "UPPER TIER -> EXTRUDE: INSET 28% · RAISED 60 MM",
+        "CROWN RIM -> BEVEL 9 MM",
+        "CANDLE RING -> 7 CANDLES (LIT)",
+        "SHOT CAMERA -> HERO 3/4 · 24° · 50MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "side",
+            "e": 1
+          },
+          "op": "INFLATE",
+          "v": {
+            "main": 0.012
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.06,
+            "aux": 28,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 6
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 7
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 50,
+            "aux": 2.8
+          }
+        }
+      ]
+    },
+    "cyber_holo_orb_cake": {
+      "id": "cyber_holo_orb_cake",
+      "title": "CYBER HOLO ORB CAKE",
+      "summary": "2-tier · 8 candles · HERO PEDESTAL 3Q 25DEG",
+      "count": 1,
+      "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+      "ref_id": "bday_61",
+      "render": "assets/bday-training/thumbs/bday_61.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.132,
+            0.0
+          ],
+          [
+            0.132,
+            0.085
+          ],
+          [
+            0.09504,
+            0.085
+          ],
+          [
+            0.09504,
+            0.136
+          ],
+          [
+            0.09404,
+            0.141
+          ],
+          [
+            0.09104,
+            0.144
+          ],
+          [
+            0.08604,
+            0.145
+          ],
+          [
+            0.0,
+            0.145
+          ]
+        ],
+        "cn": 8,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#1c162e",
+        "cam": {
+          "p": [
+            0.34,
+            0.99,
+            0.58
+          ],
+          "yaw": 0.53,
+          "pitch": -0.34,
+          "f": 50,
+          "N": 2.8,
+          "fd": 0.68
+        }
+      },
+      "history": [
+        "BASE TIER -> INFLATE: OUT 12 MM",
+        "UPPER TIER -> EXTRUDE: INSET 28% · RAISED 60 MM",
+        "CROWN RIM -> BEVEL 9 MM",
+        "CANDLE RING -> 8 CANDLES (LIT)",
+        "SHOT CAMERA -> HERO 3/4 · 24° · 50MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "side",
+            "e": 1
+          },
+          "op": "INFLATE",
+          "v": {
+            "main": 0.012
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.06,
+            "aux": 28,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 6
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 8
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 50,
+            "aux": 2.8
+          }
+        }
+      ]
+    },
+    "eighties_floral_tiers": {
+      "id": "eighties_floral_tiers",
+      "title": "EIGHTIES FLORAL TIERS",
+      "summary": "2-tier · 9 candles · TABLE TABLEAU EYE 10DEG",
+      "count": 1,
+      "angle_family": "TABLE_TABLEAU_EYE_10DEG",
+      "ref_id": "bday_26",
+      "render": "assets/bday-training/thumbs/bday_26.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.132,
+            0.0
+          ],
+          [
+            0.132,
+            0.085
+          ],
+          [
+            0.09504,
+            0.085
+          ],
+          [
+            0.09504,
+            0.136
+          ],
+          [
+            0.09404,
+            0.141
+          ],
+          [
+            0.09104,
+            0.144
+          ],
+          [
+            0.08604,
+            0.145
+          ],
+          [
+            0.0,
+            0.145
+          ]
+        ],
+        "cn": 9,
+        "lit": [
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#f4efe8",
+        "cam": {
+          "p": [
+            0.0,
+            0.92,
+            0.88
+          ],
+          "yaw": 0.0,
+          "pitch": -0.13,
+          "f": 40,
+          "N": 2.4,
+          "fd": 0.88
+        }
+      },
+      "history": [
+        "BASE TIER -> INFLATE: OUT 12 MM",
+        "UPPER TIER -> EXTRUDE: INSET 28% · RAISED 60 MM",
+        "CROWN RIM -> BEVEL 9 MM",
+        "CANDLE RING -> 9 CANDLES (HALF)",
+        "SHOT CAMERA -> PARTY TABLEAU · 9° · 40MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "side",
+            "e": 1
+          },
+          "op": "INFLATE",
+          "v": {
+            "main": 0.012
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.06,
+            "aux": 28,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 6
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 9
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 40,
+            "aux": 2.4
+          }
+        }
+      ]
+    },
+    "emerald_ruffle_drum": {
+      "id": "emerald_ruffle_drum",
+      "title": "EMERALD RUFFLE DRUM",
+      "summary": "1-tier · 0 candles · HERO PEDESTAL 3Q 25DEG",
+      "count": 1,
+      "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+      "ref_id": "bday_03",
+      "render": "assets/bday-training/thumbs/bday_03.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.106
+          ],
+          [
+            0.119,
+            0.111
+          ],
+          [
+            0.116,
+            0.114
+          ],
+          [
+            0.111,
+            0.115
+          ],
+          [
+            0.0,
+            0.115
+          ]
+        ],
+        "cn": 0,
+        "lit": [],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#235336",
+        "cam": {
+          "p": [
+            0.34,
+            0.99,
+            0.58
+          ],
+          "yaw": 0.53,
+          "pitch": -0.34,
+          "f": 50,
+          "N": 2.8,
+          "fd": 0.68
+        }
+      },
+      "history": [
+        "DRUM HEIGHT -> EXTRUDE: RAISED 30 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 0 CANDLES (OUT)",
+        "SHOT CAMERA -> HERO 3/4 · 24° · 50MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.03,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 0
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 50,
+            "aux": 2.8
+          }
+        }
+      ]
+    },
+    "english_happy_birthday_9": {
+      "id": "english_happy_birthday_9",
+      "title": "ENGLISH HAPPY BIRTHDAY 9",
+      "summary": "1-tier · 9 candles · HIGH CROWN WRITING 45DEG",
+      "count": 1,
+      "angle_family": "HIGH_CROWN_WRITING_45DEG",
+      "ref_id": "bday_64",
+      "render": "assets/bday-training/thumbs/bday_64.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 9,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#f5f2ec",
+        "cam": {
+          "p": [
+            0.02,
+            1.18,
+            0.42
+          ],
+          "yaw": 0.04,
+          "pitch": -0.78,
+          "f": 50,
+          "N": 4.0,
+          "fd": 0.56
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 9 CANDLES (LIT)",
+        "SHOT CAMERA -> CROWN WRITING · 46° · 50MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 9
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 50,
+            "aux": 4.0
+          }
+        }
+      ]
+    },
+    "faceted_origami_white": {
+      "id": "faceted_origami_white",
+      "title": "FACETED ORIGAMI WHITE",
+      "summary": "1-tier · 0 candles · HERO PEDESTAL 3Q 25DEG",
+      "count": 1,
+      "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+      "ref_id": "bday_02",
+      "render": "assets/bday-training/thumbs/bday_02.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.083
+          ],
+          [
+            0.106,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 0,
+        "lit": [],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#eef1f4",
+        "cam": {
+          "p": [
+            0.34,
+            0.99,
+            0.58
+          ],
+          "yaw": 0.53,
+          "pitch": -0.34,
+          "f": 50,
+          "N": 2.8,
+          "fd": 0.68
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 14 MM",
+        "CANDLE RING -> 0 CANDLES (OUT)",
+        "SHOT CAMERA -> HERO 3/4 · 24° · 50MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.014,
+            "con": 0
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 0
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 50,
+            "aux": 2.8
+          }
+        }
+      ]
+    },
+    "french_anniversaire_12": {
+      "id": "french_anniversaire_12",
+      "title": "FRENCH ANNIVERSAIRE 12",
+      "summary": "1-tier · 12 candles · HIGH CROWN WRITING 45DEG",
+      "count": 1,
+      "angle_family": "HIGH_CROWN_WRITING_45DEG",
+      "ref_id": "bday_42",
+      "render": "assets/bday-training/thumbs/bday_42.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 12,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#f5f2ec",
+        "cam": {
+          "p": [
+            0.02,
+            1.18,
+            0.42
+          ],
+          "yaw": 0.04,
+          "pitch": -0.78,
+          "f": 50,
+          "N": 4.0,
+          "fd": 0.56
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 12 CANDLES (LIT)",
+        "SHOT CAMERA -> CROWN WRITING · 46° · 50MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 12
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 50,
+            "aux": 4.0
+          }
+        }
+      ]
+    },
+    "inscribed_hanzi_canon": {
+      "id": "inscribed_hanzi_canon",
+      "title": "INSCRIBED HANZI CANON",
+      "summary": "1-tier · 9 candles · HIGH CROWN WRITING 45DEG",
+      "count": 1,
+      "angle_family": "HIGH_CROWN_WRITING_45DEG",
+      "ref_id": "bday_40",
+      "render": "assets/bday-training/thumbs/bday_40.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 9,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#f4f0e8",
+        "cam": {
+          "p": [
+            0.02,
+            1.18,
+            0.42
+          ],
+          "yaw": 0.04,
+          "pitch": -0.78,
+          "f": 50,
+          "N": 4.0,
+          "fd": 0.56
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 9 CANDLES (LIT)",
+        "SHOT CAMERA -> CROWN WRITING · 46° · 50MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 9
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 50,
+            "aux": 4.0
+          }
+        }
+      ]
+    },
+    "japanese_laser_piped": {
+      "id": "japanese_laser_piped",
+      "title": "JAPANESE LASER PIPED",
+      "summary": "1-tier · 9 candles · HIGH CROWN WRITING 45DEG",
+      "count": 1,
+      "angle_family": "HIGH_CROWN_WRITING_45DEG",
+      "ref_id": "bday_43",
+      "render": "assets/bday-training/thumbs/bday_43.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 9,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#f4f1ea",
+        "cam": {
+          "p": [
+            0.02,
+            1.18,
+            0.42
+          ],
+          "yaw": 0.04,
+          "pitch": -0.78,
+          "f": 50,
+          "N": 4.0,
+          "fd": 0.56
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 9 CANDLES (LIT)",
+        "SHOT CAMERA -> CROWN WRITING · 46° · 50MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 9
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 50,
+            "aux": 4.0
+          }
+        }
+      ]
+    },
+    "memphis_mint_geo": {
+      "id": "memphis_mint_geo",
+      "title": "MEMPHIS MINT GEO",
+      "summary": "2-tier · 8 candles · HIGH CROWN WRITING 45DEG",
+      "count": 1,
+      "angle_family": "HIGH_CROWN_WRITING_45DEG",
+      "ref_id": "bday_07",
+      "render": "assets/bday-training/thumbs/bday_07.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.132,
+            0.0
+          ],
+          [
+            0.132,
+            0.085
+          ],
+          [
+            0.09504,
+            0.085
+          ],
+          [
+            0.09504,
+            0.136
+          ],
+          [
+            0.09404,
+            0.141
+          ],
+          [
+            0.09104,
+            0.144
+          ],
+          [
+            0.08604,
+            0.145
+          ],
+          [
+            0.0,
+            0.145
+          ]
+        ],
+        "cn": 8,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#9de8d8",
+        "cam": {
+          "p": [
+            0.02,
+            1.18,
+            0.42
+          ],
+          "yaw": 0.04,
+          "pitch": -0.78,
+          "f": 50,
+          "N": 4.0,
+          "fd": 0.56
+        }
+      },
+      "history": [
+        "BASE TIER -> INFLATE: OUT 12 MM",
+        "UPPER TIER -> EXTRUDE: INSET 28% · RAISED 60 MM",
+        "CROWN RIM -> BEVEL 9 MM",
+        "CANDLE RING -> 8 CANDLES (LIT)",
+        "SHOT CAMERA -> CROWN WRITING · 46° · 50MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "side",
+            "e": 1
+          },
+          "op": "INFLATE",
+          "v": {
+            "main": 0.012
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.06,
+            "aux": 28,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 6
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 8
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 50,
+            "aux": 4.0
+          }
+        }
+      ]
+    },
+    "nineties_lilac_floral": {
+      "id": "nineties_lilac_floral",
+      "title": "NINETIES LILAC FLORAL",
+      "summary": "1-tier · 7 candles · TABLE TABLEAU EYE 10DEG",
+      "count": 1,
+      "angle_family": "TABLE_TABLEAU_EYE_10DEG",
+      "ref_id": "bday_71",
+      "render": "assets/bday-training/thumbs/bday_71.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 7,
+        "lit": [
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#b8b0c4",
+        "cam": {
+          "p": [
+            0.0,
+            0.92,
+            0.88
+          ],
+          "yaw": 0.0,
+          "pitch": -0.13,
+          "f": 40,
+          "N": 2.4,
+          "fd": 0.88
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 7 CANDLES (HALF)",
+        "SHOT CAMERA -> PARTY TABLEAU · 9° · 40MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 7
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 40,
+            "aux": 2.4
+          }
+        }
+      ]
+    },
+    "ochre_gold_sculpt": {
+      "id": "ochre_gold_sculpt",
+      "title": "OCHRE GOLD SCULPT",
+      "summary": "1-tier · 0 candles · HERO PEDESTAL 3Q 25DEG",
+      "count": 1,
+      "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+      "ref_id": "bday_05",
+      "render": "assets/bday-training/thumbs/bday_05.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 0,
+        "lit": [],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#f0eee8",
+        "cam": {
+          "p": [
+            0.34,
+            0.99,
+            0.58
+          ],
+          "yaw": 0.53,
+          "pitch": -0.34,
+          "f": 50,
+          "N": 2.8,
+          "fd": 0.68
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 0 CANDLES (OUT)",
+        "SHOT CAMERA -> HERO 3/4 · 24° · 50MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 0
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 50,
+            "aux": 2.8
+          }
+        }
+      ]
+    },
+    "royal_violet_crown": {
+      "id": "royal_violet_crown",
+      "title": "ROYAL VIOLET CROWN",
+      "summary": "1-tier · 9 candles · HERO PEDESTAL 3Q 25DEG",
+      "count": 1,
+      "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+      "ref_id": "bday_04",
+      "render": "assets/bday-training/thumbs/bday_04.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.106
+          ],
+          [
+            0.119,
+            0.111
+          ],
+          [
+            0.116,
+            0.114
+          ],
+          [
+            0.111,
+            0.115
+          ],
+          [
+            0.0,
+            0.115
+          ]
+        ],
+        "cn": 9,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#f2efe9",
+        "cam": {
+          "p": [
+            0.34,
+            0.99,
+            0.58
+          ],
+          "yaw": 0.53,
+          "pitch": -0.34,
+          "f": 50,
+          "N": 2.8,
+          "fd": 0.68
+        }
+      },
+      "history": [
+        "DRUM HEIGHT -> EXTRUDE: RAISED 30 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 9 CANDLES (LIT)",
+        "SHOT CAMERA -> HERO 3/4 · 24° · 50MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.03,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 9
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 50,
+            "aux": 2.8
+          }
+        }
+      ]
+    },
+    "rustic_petit_candle": {
+      "id": "rustic_petit_candle",
+      "title": "RUSTIC PETIT CANDLE",
+      "summary": "1-tier · 5 candles · INTIMATE CANDLE FACE CU",
+      "count": 1,
+      "angle_family": "INTIMATE_CANDLE_FACE_CU",
+      "ref_id": "bday_20",
+      "render": "assets/bday-training/thumbs/bday_20.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.056
+          ],
+          [
+            0.119,
+            0.061
+          ],
+          [
+            0.116,
+            0.064
+          ],
+          [
+            0.111,
+            0.065
+          ],
+          [
+            0.0,
+            0.065
+          ]
+        ],
+        "cn": 5,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#eadbc0",
+        "cam": {
+          "p": [
+            0.04,
+            0.85,
+            0.54
+          ],
+          "yaw": 0.07,
+          "pitch": -0.05,
+          "f": 85,
+          "N": 1.6,
+          "fd": 0.54
+        }
+      },
+      "history": [
+        "LOW TART -> EXTRUDE: SUNK 20 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 5 CANDLES (LIT)",
+        "SHOT CAMERA -> CANDLE FACE CU · 4° · 85MM f/1.6"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": -0.02,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 5
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 85,
+            "aux": 1.6
+          }
+        }
+      ]
+    },
+    "spanish_laser_piped": {
+      "id": "spanish_laser_piped",
+      "title": "SPANISH LASER PIPED",
+      "summary": "1-tier · 9 candles · HIGH CROWN WRITING 45DEG",
+      "count": 1,
+      "angle_family": "HIGH_CROWN_WRITING_45DEG",
+      "ref_id": "bday_44",
+      "render": "assets/bday-training/thumbs/bday_44.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 9,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#f4f1ea",
+        "cam": {
+          "p": [
+            0.02,
+            1.18,
+            0.42
+          ],
+          "yaw": 0.04,
+          "pitch": -0.78,
+          "f": 50,
+          "N": 4.0,
+          "fd": 0.56
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 9 CANDLES (LIT)",
+        "SHOT CAMERA -> CROWN WRITING · 46° · 50MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 9
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 50,
+            "aux": 4.0
+          }
+        }
+      ]
+    },
+    "sphere_enclosed_cream": {
+      "id": "sphere_enclosed_cream",
+      "title": "SPHERE ENCLOSED CREAM",
+      "summary": "1-tier · 7 candles · HERO PEDESTAL 3Q 25DEG",
+      "count": 1,
+      "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+      "ref_id": "bday_06",
+      "render": "assets/bday-training/thumbs/bday_06.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 7,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#ecd8b8",
+        "cam": {
+          "p": [
+            0.34,
+            0.99,
+            0.58
+          ],
+          "yaw": 0.53,
+          "pitch": -0.34,
+          "f": 50,
+          "N": 2.8,
+          "fd": 0.68
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 7 CANDLES (LIT)",
+        "SHOT CAMERA -> HERO 3/4 · 24° · 50MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 7
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 50,
+            "aux": 2.8
+          }
+        }
+      ]
+    },
+    "sprinkle_confetti_drum": {
+      "id": "sprinkle_confetti_drum",
+      "title": "SPRINKLE CONFETTI DRUM",
+      "summary": "1-tier · 7 candles · INTIMATE CANDLE FACE CU",
+      "count": 1,
+      "angle_family": "INTIMATE_CANDLE_FACE_CU",
+      "ref_id": "bday_19",
+      "render": "assets/bday-training/thumbs/bday_19.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 7,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#e8e0d2",
+        "cam": {
+          "p": [
+            0.04,
+            0.85,
+            0.54
+          ],
+          "yaw": 0.07,
+          "pitch": -0.05,
+          "f": 85,
+          "N": 1.6,
+          "fd": 0.54
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 7 CANDLES (LIT)",
+        "SHOT CAMERA -> CANDLE FACE CU · 4° · 85MM f/1.6"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 7
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 85,
+            "aux": 1.6
+          }
+        }
+      ]
+    },
+    "tall_fluted_solitaire": {
+      "id": "tall_fluted_solitaire",
+      "title": "TALL FLUTED SOLITAIRE",
+      "summary": "1-tier · 1 candles · HERO PEDESTAL 3Q 25DEG",
+      "count": 1,
+      "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+      "ref_id": "bday_59",
+      "render": "assets/bday-training/thumbs/bday_59.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.134,
+            0.0
+          ],
+          [
+            0.134,
+            0.092
+          ],
+          [
+            0.13287,
+            0.09988
+          ],
+          [
+            0.1295,
+            0.1055
+          ],
+          [
+            0.12388,
+            0.10887
+          ],
+          [
+            0.116,
+            0.11
+          ],
+          [
+            0.0638,
+            0.11
+          ],
+          [
+            0.0638,
+            0.055
+          ],
+          [
+            0.0,
+            0.055
+          ]
+        ],
+        "cn": 1,
+        "lit": [
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#f4f2ec",
+        "cam": {
+          "p": [
+            0.34,
+            0.99,
+            0.58
+          ],
+          "yaw": 0.53,
+          "pitch": -0.34,
+          "f": 50,
+          "N": 2.8,
+          "fd": 0.68
+        }
+      },
+      "history": [
+        "TOP -> EXTRUDE: RAISED 25 MM",
+        "SIDE 1 -> INFLATE: OUT 14 MM",
+        "CROWN EDGE -> BEVEL 18 MM",
+        "BUNDT WELL -> EXTRUDE: INSET 45% · SUNK 55 MM",
+        "CANDLE RING -> 1 CANDLES (LIT)",
+        "SHOT CAMERA -> HERO 3/4 · 24° · 50MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.025,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "side",
+            "e": 1
+          },
+          "op": "INFLATE",
+          "v": {
+            "main": 0.014
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.018,
+            "con": 3
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": -0.055,
+            "aux": 45,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 50,
+            "aux": 2.8
+          }
+        }
+      ]
+    },
+    "three_tier_orb_grand": {
+      "id": "three_tier_orb_grand",
+      "title": "THREE TIER ORB GRAND",
+      "summary": "3-tier · 7 candles · HERO PEDESTAL 3Q 25DEG",
+      "count": 1,
+      "angle_family": "HERO_PEDESTAL_3Q_25DEG",
+      "ref_id": "bday_09",
+      "render": "assets/bday-training/thumbs/bday_09.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.1
+          ],
+          [
+            0.0864,
+            0.1
+          ],
+          [
+            0.0864,
+            0.155
+          ],
+          [
+            0.06048,
+            0.155
+          ],
+          [
+            0.06048,
+            0.192
+          ],
+          [
+            0.05848,
+            0.198
+          ],
+          [
+            0.05248,
+            0.2
+          ],
+          [
+            0.0,
+            0.2
+          ]
+        ],
+        "cn": 7,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#f5f0e6",
+        "cam": {
+          "p": [
+            0.34,
+            0.99,
+            0.58
+          ],
+          "yaw": 0.53,
+          "pitch": -0.34,
+          "f": 50,
+          "N": 2.8,
+          "fd": 0.68
+        }
+      },
+      "history": [
+        "TIER 1 -> EXTRUDE: RAISED 15 MM",
+        "TIER 2 -> EXTRUDE: INSET 28% · RAISED 55 MM",
+        "TIER 3 -> EXTRUDE: INSET 30% · RAISED 45 MM",
+        "CROWN -> BEVEL 8 MM",
+        "CANDLE RING -> 7 CANDLES (LIT)",
+        "SHOT CAMERA -> HERO 3/4 · 24° · 50MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.015,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.055,
+            "aux": 28,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.045,
+            "aux": 30,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 7
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.008,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 7
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 50,
+            "aux": 2.8
+          }
+        }
+      ]
+    },
+    "vintage_1920s_speakeasy": {
+      "id": "vintage_1920s_speakeasy",
+      "title": "VINTAGE 1920S SPEAKEASY",
+      "summary": "1-tier · 9 candles · INTIMATE CANDLE FACE CU",
+      "count": 1,
+      "angle_family": "INTIMATE_CANDLE_FACE_CU",
+      "ref_id": "bday_67",
+      "render": "assets/bday-training/thumbs/bday_67.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 9,
+        "lit": [
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#e8d6b4",
+        "cam": {
+          "p": [
+            0.04,
+            0.85,
+            0.54
+          ],
+          "yaw": 0.07,
+          "pitch": -0.05,
+          "f": 85,
+          "N": 1.6,
+          "fd": 0.54
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 9 CANDLES (HALF)",
+        "SHOT CAMERA -> CANDLE FACE CU · 4° · 85MM f/1.6"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 9
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 85,
+            "aux": 1.6
+          }
+        }
+      ]
+    },
+    "y2k_pink_two_tier": {
+      "id": "y2k_pink_two_tier",
+      "title": "Y2K PINK TWO TIER",
+      "summary": "2-tier · 6 candles · TABLE TABLEAU EYE 10DEG",
+      "count": 1,
+      "angle_family": "TABLE_TABLEAU_EYE_10DEG",
+      "ref_id": "bday_27",
+      "render": "assets/bday-training/thumbs/bday_27.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.132,
+            0.0
+          ],
+          [
+            0.132,
+            0.085
+          ],
+          [
+            0.09504,
+            0.085
+          ],
+          [
+            0.09504,
+            0.136
+          ],
+          [
+            0.09404,
+            0.141
+          ],
+          [
+            0.09104,
+            0.144
+          ],
+          [
+            0.08604,
+            0.145
+          ],
+          [
+            0.0,
+            0.145
+          ]
+        ],
+        "cn": 6,
+        "lit": [
+          1,
+          0,
+          1,
+          0,
+          1,
+          0
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#eab0c8",
+        "cam": {
+          "p": [
+            0.0,
+            0.92,
+            0.88
+          ],
+          "yaw": 0.0,
+          "pitch": -0.13,
+          "f": 40,
+          "N": 2.4,
+          "fd": 0.88
+        }
+      },
+      "history": [
+        "BASE TIER -> INFLATE: OUT 12 MM",
+        "UPPER TIER -> EXTRUDE: INSET 28% · RAISED 60 MM",
+        "CROWN RIM -> BEVEL 9 MM",
+        "CANDLE RING -> 6 CANDLES (HALF)",
+        "SHOT CAMERA -> PARTY TABLEAU · 9° · 40MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "side",
+            "e": 1
+          },
+          "op": "INFLATE",
+          "v": {
+            "main": 0.012
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.06,
+            "aux": 28,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 6
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 6
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 40,
+            "aux": 2.4
+          }
+        }
+      ]
+    },
+    "yellow_butter_pastel_5": {
+      "id": "yellow_butter_pastel_5",
+      "title": "YELLOW BUTTER PASTEL 5",
+      "summary": "1-tier · 5 candles · ARTISAN BENCH HANDS 30DEG",
+      "count": 1,
+      "angle_family": "ARTISAN_BENCH_HANDS_30DEG",
+      "ref_id": "bday_57",
+      "render": "assets/bday-training/thumbs/bday_57.webp",
+      "model": {
+        "P": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.12,
+            0.088
+          ],
+          [
+            0.119,
+            0.093
+          ],
+          [
+            0.116,
+            0.096
+          ],
+          [
+            0.111,
+            0.097
+          ],
+          [
+            0.0,
+            0.097
+          ]
+        ],
+        "cn": 5,
+        "lit": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "s": 1.0,
+        "icing": "#f5eedc",
+        "cam": {
+          "p": [
+            0.18,
+            1.04,
+            0.52
+          ],
+          "yaw": 0.33,
+          "pitch": -0.44,
+          "f": 45,
+          "N": 3.2,
+          "fd": 0.58
+        }
+      },
+      "history": [
+        "CHAMBER DRUM -> EXTRUDE: RAISED 12 MM",
+        "SHOULDER -> BEVEL 9 MM",
+        "CANDLE RING -> 5 CANDLES (LIT)",
+        "SHOT CAMERA -> BENCH CRAFT · 28° · 45MM"
+      ],
+      "steps": [
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "EXTRUDE",
+          "v": {
+            "main": 0.012,
+            "aux": 0,
+            "con": 1
+          }
+        },
+        {
+          "target": {
+            "kind": "edge",
+            "c": 2
+          },
+          "op": "BEVEL",
+          "v": {
+            "main": 0.009,
+            "con": 2
+          }
+        },
+        {
+          "target": {
+            "kind": "top"
+          },
+          "op": "CANDLES",
+          "v": {
+            "main": 5
+          }
+        },
+        {
+          "target": {
+            "kind": "camera"
+          },
+          "op": "LENS",
+          "v": {
+            "main": 45,
+            "aux": 3.2
+          }
+        }
+      ]
+    }
+  }
+}

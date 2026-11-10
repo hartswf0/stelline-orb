@@ -537,5 +537,50 @@ function frameRest(now) {
 requestAnimationFrame(frame);
 window.RIG = { S, get M() { return M; }, HIST, act, turn, keyPress, clutch, undo, pickAt: (x, y) => pick({ clientX: x, clientY: y }), tapTarget: t => { S.pre = t; bump(); }, stateName, assignments, wings, OPS, eye, shot, cakeG, project: v => { const p = v.clone().project(eye); return [(p.x + 1) / 2 * room.clientWidth, (1 - p.y) / 2 * room.clientHeight]; } };
 </script>
+<script src="assets/bday-training/handmade_models.js"></script>
+<script>
+(function () {
+  const ANGLE_PRESETS = {
+    INTIMATE_CANDLE_FACE_CU: { label: 'CANDLE FACE CU · 4° · 85MM f/1.6', p: [0.04, 0.85, 0.54], yaw: 0.07, pitch: -0.05, f: 85, N: 1.6, fd: 0.54 },
+    HERO_PEDESTAL_3Q_25DEG: { label: 'HERO 3/4 · 24° · 50MM', p: [0.34, 0.99, 0.58], yaw: 0.53, pitch: -0.34, f: 50, N: 2.8, fd: 0.68 },
+    TABLE_TABLEAU_EYE_10DEG: { label: 'PARTY TABLEAU · 9° · 40MM', p: [0.0, 0.92, 0.88], yaw: 0.0, pitch: -0.13, f: 40, N: 2.4, fd: 0.88 },
+    CHAMBER_FLOATING_TILT_10DEG: { label: 'CHAMBER TILT · 10° · 35MM', p: [-0.14, 0.84, 0.56], yaw: -0.24, pitch: -0.10, f: 35, N: 2.0, fd: 0.58 },
+    HIGH_CROWN_WRITING_45DEG: { label: 'CROWN WRITING · 46° · 50MM', p: [0.02, 1.18, 0.42], yaw: 0.04, pitch: -0.78, f: 50, N: 4.0, fd: 0.56 },
+    ARTISAN_BENCH_HANDS_30DEG: { label: 'BENCH CRAFT · 28° · 45MM', p: [0.18, 1.04, 0.52], yaw: 0.33, pitch: -0.44, f: 45, N: 3.2, fd: 0.58 },
+    WIDE_ARCHITECTURAL_DOME: { label: 'WIDE DOME · 6° · 24MM', p: [0.0, 1.08, 1.85], yaw: 0.0, pitch: -0.09, f: 24, N: 4.0, fd: 1.85 },
+    MACRO_SPECIMEN_ECU: { label: 'MACRO ECU · 22° · 100MM f/2.0', p: [0.08, 0.91, 0.34], yaw: 0.22, pitch: -0.32, f: 100, N: 2.0, fd: 0.35 }
+  };
+  const q = new URLSearchParams(location.search);
+  const hmAll = (window.BDAY_HANDMADE && window.BDAY_HANDMADE.models) || {};
+  const modelId = q.get('model'), replayId = q.get('replay'), angleKey = q.get('angle');
+  if (modelId && hmAll[modelId]) {
+    const src = hmAll[modelId];
+    Object.assign(M, deep(src.model));
+    if (src.model.icing) cream.color.set(src.model.icing);
+    shownKey = ''; say('LOADED 3D ARCHETYPE · ' + src.title); bump();
+  }
+  if (angleKey && ANGLE_PRESETS[angleKey]) {
+    const ap = ANGLE_PRESETS[angleKey];
+    M.cam = { p: ap.p.slice(), yaw: ap.yaw, pitch: ap.pitch, f: ap.f, N: ap.N, fd: ap.fd };
+    S.orbit.yaw = ap.yaw; S.orbit.pitch = clamp(ap.pitch - 0.08, -1.35, 0.25);
+    shownKey = ''; enterLook(); say('ANGLE FAMILY · ' + ap.label); bump();
+  }
+  if (replayId && hmAll[replayId]) {
+    const src = hmAll[replayId], steps = src.steps || [];
+    if (src.model && src.model.icing) cream.color.set(src.model.icing);
+    let idx = 0;
+    const stepNext = () => {
+      if (idx >= steps.length) { S.sel = null; S.pre = null; say('HANDMADE COMPLETE · ' + src.title); bump(); return; }
+      const st = steps[idx++];
+      S.pre = deep(st.target); act('select');
+      setTimeout(() => {
+        startOp(st.op); Object.assign(S.opV, deep(st.v)); bump();
+        setTimeout(() => { if (!S.fault && changed()) act('accept'); else { S.op = null; S.opV = null; bump(); } setTimeout(stepNext, 420); }, 520);
+      }, 320);
+    };
+    setTimeout(stepNext, 450);
+  }
+})();
+</script>
 </body>
 </html>

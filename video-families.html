@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VIDEO FAMILIES · Cinematographic Angles, Cuts, Motion, Scale & Lineage Atlas</title>
+<meta name="description" content="All 150 Stelline Memory Orb videos and plates grouped into families of camera angles, cuts, motion, shot scale, composite layout, and production lineage.">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050605; --panel: #0b0e0d; --card: #101413; --line: #222926;
+    --ink: #eae6dc; --dim: #8a887e; --cy: #5ff0dc; --amb: #f0b040; --red: #ff5a3c; --mag: #e668b8; --grn: #86e69c;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font: 12px/1.45 "IBM Plex Mono", ui-monospace, monospace; scroll-behavior: smooth; }
+  a { color: var(--cy); text-decoration: none; }
+  header {
+    position: sticky; top: 0; z-index: 50; background: rgba(5, 7, 6, .95); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line); padding: 11px 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .pill { background: rgba(95, 240, 220, .12); border: 1px solid var(--cy); color: var(--cy); padding: 3px 8px; font-weight: 700; font-size: 11px; letter-spacing: .06em; }
+  h1 { margin: 0; font-size: 14.5px; letter-spacing: .04em; }
+  .navBtns { display: flex; gap: 7px; flex-wrap: wrap; }
+  .btn {
+    font: 600 11px "IBM Plex Mono", monospace; padding: 6px 10px; border: 1px solid var(--line);
+    background: #131816; color: var(--ink); cursor: pointer; letter-spacing: .04em; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn:hover, .btn.on { border-color: var(--cy); color: var(--cy); background: rgba(95, 240, 220, .1); }
+  .btn.amber { border-color: var(--amb); color: var(--amb); background: rgba(240, 176, 64, .1); }
+  .btn.amber:hover { background: rgba(240, 176, 64, .2); }
+  main { max-width: 1680px; margin: 0 auto; padding: 18px 20px 80px; }
+
+  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 9px; margin-bottom: 16px; }
+  .stat { background: var(--panel); border: 1px solid var(--line); padding: 9px 12px; }
+  .stat b { display: block; font-size: 18px; color: var(--cy); }
+  .stat span { color: var(--dim); font-size: 10.5px; }
+
+  .axisBar {
+    background: var(--panel); border: 1px solid var(--line); padding: 10px 12px; margin-bottom: 10px;
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;
+  }
+  .axisTabs { display: flex; flex-wrap: wrap; gap: 6px; }
+  .axisTab {
+    font: 600 11px "IBM Plex Mono", monospace; padding: 7px 12px; border: 1px solid var(--line);
+    background: #0d1110; color: var(--dim); cursor: pointer; letter-spacing: .05em;
+  }
+  .axisTab:hover { color: var(--ink); border-color: #3a4540; }
+  .axisTab.on { border-color: var(--amb); color: var(--amb); background: rgba(240, 176, 64, .12); }
+
+  .jumpDeck {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); gap: 8px; margin-bottom: 14px;
+  }
+  .jumpCard {
+    background: var(--card); border: 1px solid var(--line); padding: 9px 11px; display: flex; flex-direction: column; gap: 4px;
+    cursor: pointer; transition: border-color .12s;
+  }
+  .jumpCard:hover { border-color: var(--cy); }
+  .jumpTop { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+  .jumpCode { color: var(--amb); font-weight: 700; font-size: 10.5px; }
+  .jumpCnt { background: rgba(95, 240, 220, .12); color: var(--cy); padding: 1px 6px; font-weight: 700; font-size: 10.5px; border: 1px solid rgba(95, 240, 220, .35); }
+  .jumpTitle { font-weight: 600; color: var(--ink); font-size: 12px; }
+  .jumpSpec { color: var(--cy); font-size: 10px; }
+  .jumpDesc { color: var(--dim); font-size: 10px; line-height: 1.35; }
+
+  .filters {
+    background: var(--panel); border: 1px solid var(--line); padding: 10px 12px; margin-bottom: 18px;
+    display: flex; flex-wrap: wrap; gap: 7px; align-items: center;
+  }
+  .filters input[type="search"], .filters select {
+    background: #060807; color: var(--ink); border: 1px solid var(--line); padding: 5px 8px;
+    font: 11px "IBM Plex Mono", monospace;
+  }
+  .filters label { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--dim); cursor: pointer; padding: 0 4px; }
+
+  .famSection { margin-bottom: 32px; border: 1px solid var(--line); background: #080a09; }
+  .famHeader {
+    padding: 12px 15px; background: #0c100f; border-bottom: 1px solid var(--line);
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+  }
+  .famMeta { display: flex; flex-direction: column; gap: 3px; max-width: 980px; }
+  .famTitleRow { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+  .famCode { color: var(--bg); background: var(--amb); padding: 2px 6px; font-weight: 700; font-size: 10.5px; }
+  .famName { font-size: 14px; font-weight: 700; color: var(--ink); letter-spacing: .03em; }
+  .famSpec { color: var(--cy); font-size: 11px; font-weight: 600; }
+  .famDesc { color: var(--dim); font-size: 11px; }
+  .famRight { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .angleSvg { width: 92px; height: 48px; border: 1px solid #1e2623; background: #050706; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(390px, 1fr)); gap: 12px; padding: 12px; }
+  .card { background: var(--card); border: 1px solid var(--line); display: flex; flex-direction: column; }
+  .cardHead {
+    padding: 7px 10px; background: #0a0d0c; border-bottom: 1px solid var(--line);
+    display: flex; justify-content: space-between; gap: 6px; align-items: center;
+  }
+  .cardId { color: var(--cy); font-weight: 700; font-size: 11px; }
+  .chips { display: flex; gap: 4px; flex-wrap: wrap; }
+  .chip { font-size: 9.5px; padding: 1px 5px; border: 1px solid var(--line); color: var(--dim); background: #090c0b; }
+  .chip.ang { color: var(--cy); border-color: rgba(95,240,220,.35); }
+  .chip.cut { color: var(--amb); border-color: rgba(240,176,64,.4); }
+  .chip.mot { color: var(--grn); border-color: rgba(134,230,156,.35); }
+  .chip.src { color: var(--mag); border-color: rgba(230,104,184,.35); }
+
+  .stage { position: relative; background: #030403; border-bottom: 1px solid var(--line); cursor: pointer; }
+  .stage img.heroThumb { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; }
+  .stage img.subStrip { width: 100%; display: none; border-top: 1px solid var(--line); }
+  .stage video { width: 100%; aspect-ratio: 16/9; display: none; background: #000; }
+  .card.playing .stage video { display: block; }
+  .card.playing .stage img.heroThumb { display: none; }
+  .card.showShots .stage img.subStrip { display: block; }
+  .playBadge {
+    position: absolute; right: 8px; bottom: 8px; background: rgba(0,0,0,.82); border: 1px solid rgba(95,240,220,.5);
+    color: var(--cy); padding: 2px 7px; font-size: 10px; font-weight: 600; pointer-events: none;
+  }
+  .card.playing .playBadge { display: none; }
+
+  .shotBar {
+    display: flex; height: 14px; background: #070908; border-bottom: 1px solid var(--line); position: relative; overflow: hidden;
+  }
+  .shotSeg {
+    height: 100%; border-right: 1px solid var(--amb); display: flex; align-items: center; justify-content: center;
+    font-size: 8.5px; color: var(--dim); cursor: pointer; transition: background .12s;
+  }
+  .shotSeg:last-child { border-right: 0; }
+  .shotSeg:hover { background: rgba(95, 240, 220, .16); color: var(--cy); }
+  .morphTick { position: absolute; top: 0; bottom: 0; width: 1.5px; background: var(--mag); opacity: .75; pointer-events: none; }
+
+  .cardBody { padding: 9px 11px; display: flex; flex-direction: column; gap: 5px; flex: 1; }
+  .cardTitle { font-weight: 600; font-size: 12px; color: var(--ink); }
+  .cardNotes { color: var(--dim); font-size: 10.5px; line-height: 1.4; }
+  .telem { font-size: 10px; color: #9ab0a8; display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 4px; }
+  .telem code { color: var(--cy); }
+  .cardFoot {
+    padding: 7px 10px; border-top: 1px solid var(--line); background: #0a0d0c;
+    display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+  }
+  @media (max-width: 720px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <span class="pill">MASTER VIDEO TAXONOMY v2.0</span>
+    <h1>150 REPOSITORY VIDEOS & PLATES · FAMILIES OF ANGLES, CUTS, MOTION, SCALE & LAYOUT</h1>
+  </div>
+  <div class="navBtns">
+    <a class="btn amber" href="bday-training.html">BDAY TRAINING (78 SEGMENTED) ↗</a>
+    <a class="btn" href="cake-rig.html">CAKE RIG 3D STUDIO ↗</a>
+    <a class="btn" href="moments.html">BR2049 MOMENTS ↗</a>
+    <a class="btn" href="versions-film.html">FILM VERSIONS ↗</a>
+    <a class="btn" href="assets/video-families/catalog.json" download>⬇ CATALOG.JSON</a>
+    <a class="btn" href="index.html">← ORBITAL INDEX</a>
+  </div>
+</header>
+
+<main>
+  <section class="summary" id="summary"></section>
+
+  <div class="axisBar">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <b style="color:var(--amb);letter-spacing:.06em">GROUP ALL VIDEOS BY FAMILY AXIS:</b>
+      <div class="axisTabs" id="axisTabs">
+        <button class="axisTab on" data-axis="angle_families" data-field="angle_family">1 · CAMERA ANGLES (8)</button>
+        <button class="axisTab" data-axis="cut_families" data-field="cut_family">2 · CUTS & EDITS (8)</button>
+        <button class="axisTab" data-axis="source_families" data-field="source_family">3 · VIDEO LINEAGE (7)</button>
+        <button class="axisTab" data-axis="motion_families" data-field="motion_family">4 · CAMERA MOTION (5)</button>
+        <button class="axisTab" data-axis="scale_families" data-field="scale_family">5 · SHOT SCALE (6)</button>
+        <button class="axisTab" data-axis="layout_families" data-field="layout_family">6 · FRAME / UI LAYOUT (6)</button>
+      </div>
+    </div>
+    <span id="showingStat" style="color:var(--cy);font-weight:600"></span>
+  </div>
+
+  <section class="jumpDeck" id="jumpDeck"></section>
+
+  <div class="filters">
+    <input id="qSearch" type="search" placeholder="Search title, filename, shot #, calligraphy, model..." style="min-width:250px">
+    <select id="fSource"><option value="">ALL VIDEO TYPES (7)</option></select>
+    <select id="fAngle"><option value="">ALL CAMERA ANGLES (8)</option></select>
+    <select id="fCut"><option value="">ALL CUT STRUCTURES (8)</option></select>
+    <select id="fMotion"><option value="">ALL CAMERA MOTIONS (5)</option></select>
+    <select id="fScale"><option value="">ALL SHOT SCALES (6)</option></select>
+    <select id="fLayout"><option value="">ALL UI LAYOUTS (6)</option></select>
+    <label><input type="checkbox" id="fMultiShot"> MULTI-SHOTS ONLY (&ge;2 shots)</label>
+    <button class="btn" id="bReset">RESET FILTERS</button>
+  </div>
+
+  <div id="shelves"></div>
+</main>
+
+<script src="assets/video-families/catalog.js"></script>
+<script>
+(function () {
+  const C = window.VIDEO_FAMILIES_CATALOG || { items: [], taxonomy: {}, counts: {} };
+  const $ = s => document.querySelector(s);
+  let activeAxis = 'angle_families';
+  let activeField = 'angle_family';
+
+  const mins = (C.total_duration_s / 60).toFixed(1);
+  $('#summary').innerHTML = [
+    [C.total_items, `TOTAL CORPUS ITEMS (${C.total_videos} MP4 VIDEOS + ${C.total_reference_plates} PLATE)`],
+    ['8 ANGLE × 8 CUT', 'ORTHOGONAL CINEMATOGRAPHIC FAMILY GRAMMARS'],
+    [C.total_detected_shots + ' SHOTS', `FRAME-ACCURATE SUB-SHOTS (${C.multi_shot_items} MULTI-SHOT VIDEOS)`],
+    [mins + ' MIN', `TOTAL INDEXED RUNTIME (${C.total_duration_s}s ACROSS 7 LINEAGES)`],
+    ['6 AXES', 'ANGLES · CUTS · LINEAGE · MOTION · SCALE · UI LAYOUT']
+  ].map(([v, k]) => `<div class="stat"><b>${v}</b><span>${k}</span></div>`).join('');
+
+  const fillFilter = (sel, axisKey) => {
+    const tax = C.taxonomy[axisKey] || {};
+    const cnt = C.counts[axisKey] || {};
+    Object.keys(tax).forEach(k => {
+      const o = document.createElement('option');
+      o.value = k;
+      o.textContent = `${tax[k].code} · ${tax[k].title} (${cnt[k] || 0})`;
+      sel.append(o);
+    });
+  };
+  fillFilter($('#fSource'), 'source_families');
+  fillFilter($('#fAngle'), 'angle_families');
+  fillFilter($('#fCut'), 'cut_families');
+  fillFilter($('#fMotion'), 'motion_families');
+  fillFilter($('#fScale'), 'scale_families');
+  fillFilter($('#fLayout'), 'layout_families');
+
+  const DEG_MAP = {
+    INTIMATE_CANDLE_FACE_CU: 4,
+    WIDE_ARCHITECTURAL_DOME: 6,
+    TABLE_TABLEAU_EYE_10DEG: 9,
+    CHAMBER_FLOATING_TILT_10DEG: 10,
+    MACRO_SPECIMEN_ECU: 22,
+    HERO_PEDESTAL_3Q_25DEG: 24,
+    ARTISAN_BENCH_HANDS_30DEG: 28,
+    HIGH_CROWN_WRITING_45DEG: 46
+  };
+
+  function angleDiagramSvg(famKey) {
+    const deg = DEG_MAP[famKey];
+    if (deg == null) return '';
+    const rad = deg * Math.PI / 180;
+    const cx = 68, cy = 38, len = 46;
+    const lx = (cx - Math.cos(rad) * len).toFixed(1);
+    const ly = (cy - Math.sin(rad) * len).toFixed(1);
+    const tilt = famKey === 'CHAMBER_FLOATING_TILT_10DEG' ? 'transform="rotate(22 68 35)"' : '';
+    return `<svg class="angleSvg" viewBox="0 0 92 48" aria-label="${deg} degree camera elevation">
+      <line x1="8" y1="40" x2="86" y2="40" stroke="#26312d" stroke-width="1"/>
+      <g ${tilt}><rect x="61" y="31" width="14" height="9" fill="none" stroke="#f0b040" stroke-width="1.3"/><line x1="68" y1="27" x2="68" y2="31" stroke="#5ff0dc" stroke-width="1.2"/></g>
+      <line x1="${lx}" y1="${ly}" x2="${cx}" y2="35" stroke="#5ff0dc" stroke-width="1.3" stroke-dasharray="3 2"/>
+      <circle cx="${lx}" cy="${ly}" r="3.2" fill="#5ff0dc"/>
+      <text x="6" y="12" fill="#8fe9dc" font-size="8.5" font-family="IBM Plex Mono">${deg}° ELEV</text>
+    </svg>`;
+  }
+
+  function filteredItems() {
+    const q = $('#qSearch').value.trim().toLowerCase();
+    const fs = $('#fSource').value, fa = $('#fAngle').value, fc = $('#fCut').value;
+    const fm = $('#fMotion').value, fsc = $('#fScale').value, fl = $('#fLayout').value;
+    const multiOnly = $('#fMultiShot').checked;
+    return C.items.filter(it => {
+      if (fs && it.source_family !== fs) return false;
+      if (fa && it.angle_family !== fa) return false;
+      if (fc && it.cut_family !== fc) return false;
+      if (fm && it.motion_family !== fm) return false;
+      if (fsc && it.scale_family !== fsc) return false;
+      if (fl && it.layout_family !== fl) return false;
+      if (multiOnly && (it.n_shots || 1) < 2) return false;
+      if (q) {
+        const hay = [it.id, it.path, it.title, it.notes, it.era, it.angle_family, it.cut_family, it.motion_family, it.scale_family, it.layout_family, it.source_family].join(' ').toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }
+
+  function shortFam(axis, key) {
+    const t = (C.taxonomy[axis] || {})[key];
+    return t ? t.code + ' ' + t.title : key;
+  }
+
+  function render() {
+    const list = filteredItems();
+    const tax = C.taxonomy[activeAxis] || {};
+    const byFam = {};
+    Object.keys(tax).forEach(k => { byFam[k] = []; });
+    list.forEach(it => {
+      const k = it[activeField];
+      if (!byFam[k]) byFam[k] = [];
+      byFam[k].push(it);
+    });
+
+    const nonEmptyFams = Object.keys(tax).filter(k => (byFam[k] || []).length > 0);
+    $('#showingStat').textContent = `SHOWING ${list.length} / ${C.total_items} ITEMS ACROSS ${nonEmptyFams.length} FAMILIES`;
+
+    // Render jump deck for active axis
+    $('#jumpDeck').innerHTML = Object.keys(tax).map(k => {
+      const info = tax[k];
+      const cnt = (byFam[k] || []).length;
+      return `<div class="jumpCard" data-jump="sec_${k}" style="${cnt === 0 ? 'opacity:.42' : ''}">
+        <div class="jumpTop"><span class="jumpCode">${info.code}</span><span class="jumpCnt">${cnt} ${cnt === 1 ? 'ITEM' : 'VIDEOS'}</span></div>
+        <div class="jumpTitle">${info.title}</div>
+        <div class="jumpSpec">${info.spec}</div>
+        <div class="jumpDesc">${info.desc}</div>
+      </div>`;
+    }).join('');
+
+    document.querySelectorAll('.jumpCard').forEach(el => {
+      el.onclick = () => {
+        const t = document.getElementById(el.dataset.jump);
+        if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+    });
+
+    // Render family shelves
+    $('#shelves').innerHTML = nonEmptyFams.map(famKey => {
+      const info = tax[famKey];
+      const items = byFam[famKey];
+      const rigBtn = activeAxis === 'angle_families'
+        ? `<a class="btn amber" href="cake-rig.html?angle=${famKey}">🎥 OPEN ${info.code} LENS IN CAKE RIG ↗</a>`
+        : '';
+      return `<section class="famSection" id="sec_${famKey}">
+        <div class="famHeader">
+          <div class="famMeta">
+            <div class="famTitleRow">
+              <span class="famCode">${info.code}</span>
+              <span class="famName">${info.title}</span>
+              <span class="famSpec">· ${info.spec}</span>
+              <span class="pill">${items.length} ${items.length === 1 ? 'ITEM' : 'ITEMS'}</span>
+            </div>
+            <div class="famDesc">${info.desc}</div>
+          </div>
+          <div class="famRight">
+            ${activeAxis === 'angle_families' ? angleDiagramSvg(famKey) : ''}
+            ${rigBtn}
+          </div>
+        </div>
+        <div class="grid">
+          ${items.map(renderCard).join('')}
+        </div>
+      </section>`;
+    }).join('') || '<div class="stat">No videos match the active filter combination. Click RESET FILTERS.</div>';
+
+    bindCardEvents();
+  }
+
+  function renderCard(it) {
+    const dur = Math.max(0.1, it.duration_s || 1);
+    const vidUrl = encodeURI(it.path);
+    const shots = it.shots && it.shots.length ? it.shots : [{ shot_index: 1, start_s: 0, end_s: dur, duration_s: dur }];
+    const shotSegs = shots.map(s => {
+      const pct = Math.max(4, ((s.duration_s || 0.5) / dur) * 100).toFixed(2);
+      const lbl = shots.length > 1 ? `S${s.shot_index} (${s.start_s}s)` : `CONTINUOUS TAKE · ${dur}s`;
+      return `<div class="shotSeg" style="width:${pct}%" data-seek="${s.start_s}" title="Jump to Shot ${s.shot_index}: ${s.start_s}s–${s.end_s}s">${lbl}</div>`;
+    }).join('');
+    const morphTicks = (it.morph_jumps_s || []).map(t => {
+      const left = Math.min(98, Math.max(2, (t / dur) * 100)).toFixed(1);
+      return `<i class="morphTick" style="left:${left}%" title="Stage / Morph Detent @ ${t}s"></i>`;
+    }).join('');
+
+    return `<article class="card ${it.subshots_strip ? 'showShots' : ''}" data-id="${it.id}">
+      <div class="cardHead">
+        <div><span class="cardId">${it.id.toUpperCase()}</span> · <span style="color:var(--dim)">${it.width}×${it.height} · ${it.duration_s ? it.duration_s + 's' : '9×3 PLATE'}</span></div>
+        <div class="chips">
+          <span class="chip ang" title="Camera Angle Family">${shortFam('angle_families', it.angle_family)}</span>
+          <span class="chip cut" title="Cut / Edit Structure Family">${shortFam('cut_families', it.cut_family)}</span>
+        </div>
+      </div>
+      <div class="stage" title="Click to toggle inline video playback">
+        <img class="heroThumb" src="${it.thumb}" alt="${it.title}" loading="lazy">
+        ${it.kind === 'video' ? `<video loop muted playsinline controls preload="none" data-src="${vidUrl}"></video><span class="playBadge">▶ PLAY (${it.n_shots} ${it.n_shots === 1 ? 'SHOT' : 'SHOTS'})</span>` : '<span class="playBadge">9×3 PLATE</span>'}
+        ${it.subshots_strip ? `<img class="subStrip" src="${it.subshots_strip}" alt="Detected sub-shots" loading="lazy">` : ''}
+      </div>
+      <div class="shotBar" title="Cyan/Amber segments = Hard Camera Cuts · Magenta ticks = Ring/Morph Detent Swaps">
+        ${shotSegs}${morphTicks}
+      </div>
+      <div class="cardBody">
+        <div class="cardTitle">${it.title}</div>
+        <div class="cardNotes">${it.notes}</div>
+        <div class="chips" style="margin-top:2px">
+          <span class="chip src">${shortFam('source_families', it.source_family)}</span>
+          <span class="chip mot">${shortFam('motion_families', it.motion_family)}</span>
+          <span class="chip">${shortFam('scale_families', it.scale_family)}</span>
+          <span class="chip">${shortFam('layout_families', it.layout_family)}</span>
+        </div>
+        <div class="telem">
+          <span>Path: <code>${it.path}</code></span>
+          <span>Cuts: <code>${it.cuts_s && it.cuts_s.length ? it.cuts_s.map(t => t + 's').join(', ') : '0'}</code></span>
+          <span>Morphs: <code>${(it.morph_jumps_s || []).length}</code></span>
+          <span>Push: <code>${it.scale_growth}×</code></span>
+        </div>
+      </div>
+      <div class="cardFoot">
+        ${it.kind === 'video' ? `<button class="btn togglePlay">▶ PLAY MP4</button>` : ''}
+        <a class="btn amber" href="cake-rig.html?angle=${it.angle_family}${it.corpus === 'bday_training' ? '&model=' + it.archetype + '&ref=' + it.id : ''}">🎥 RIG CAMERA</a>
+        ${it.corpus === 'bday_training' ? `<a class="btn" href="bday-training.html#${it.id}">SEGMENTATION ↗</a>` : ''}
+        <a class="btn" href="${vidUrl}" download>⬇ FILE</a>
+      </div>
+    </article>`;
+  }
+
+  function bindCardEvents() {
+    document.querySelectorAll('.card').forEach(card => {
+      const v = card.querySelector('video');
+      const playBtn = card.querySelector('.togglePlay');
+      const hero = card.querySelector('.heroThumb');
+      if (!v) return;
+      const toggle = (seekTo) => {
+        const wantOn = seekTo != null ? true : !card.classList.contains('playing');
+        card.classList.toggle('playing', wantOn);
+        if (wantOn) {
+          if (!v.src) v.src = v.dataset.src;
+          if (seekTo != null) {
+            const applySeek = () => { try { v.currentTime = seekTo; } catch (e) {} };
+            if (v.readyState >= 1) applySeek(); else v.addEventListener('loadedmetadata', applySeek, { once: true });
+          }
+          v.play().catch(() => {});
+          if (playBtn) playBtn.textContent = '◼ THUMBNAIL';
+        } else {
+          v.pause();
+          if (playBtn) playBtn.textContent = '▶ PLAY MP4';
+        }
+      };
+      if (playBtn) playBtn.onclick = () => toggle(null);
+      if (hero) hero.onclick = () => toggle(null);
+      card.querySelectorAll('.shotSeg').forEach(seg => {
+        seg.onclick = (e) => {
+          e.stopPropagation();
+          toggle(parseFloat(seg.dataset.seek || '0'));
+        };
+      });
+    });
+  }
+
+  document.querySelectorAll('.axisTab').forEach(tab => {
+    tab.onclick = () => {
+      document.querySelectorAll('.axisTab').forEach(t => t.classList.remove('on'));
+      tab.classList.add('on');
+      activeAxis = tab.dataset.axis;
+      activeField = tab.dataset.field;
+      render();
+    };
+  });
+
+  ['qSearch', 'fSource', 'fAngle', 'fCut', 'fMotion', 'fScale', 'fLayout', 'fMultiShot'].forEach(id => {
+    $('#' + id).addEventListener('input', render);
+    $('#' + id).addEventListener('change', render);
+  });
+
+  $('#bReset').onclick = () => {
+    ['qSearch', 'fSource', 'fAngle', 'fCut', 'fMotion', 'fScale', 'fLayout'].forEach(id => { $('#' + id).value = ''; });
+    $('#fMultiShot').checked = false;
+    render();
+  };
+
+  render();
+})();
+</script>
+</body>
+</html>
