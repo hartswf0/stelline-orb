@@ -1,0 +1,41 @@
+{
+ "id": "bday_35",
+ "method": "visual hull (space carving) from 72 masks and exact cameras; CPU only; not Video2Game",
+ "voxels": 160,
+ "voxel_mm": 1.95,
+ "vertices": 86627,
+ "faces": 173498,
+ "true_surface_to_carved_mm": {
+  "median": 9.36,
+  "p95": 26.86
+ },
+ "carved_to_true_surface_mm": {
+  "median": 7.7,
+  "p95": 22.49
+ },
+ "carved_box_m": [
+  [
+   -0.1287,
+   0.7137,
+   -0.1287
+  ],
+  [
+   0.1287,
+   0.8935,
+   0.1287
+  ]
+ ],
+ "true_box_m": [
+  [
+   -0.11999999731779099,
+   0.748,
+   -0.11999999731779099
+  ],
+  [
+   0.11999999731779099,
+   0.8380000035762787,
+   0.11999999731779099
+  ]
+ ],
+ "note": "carved-to-true distances include the candles and plate rim, which are in the masks but not in the truth cloud (clay only)"
+}
