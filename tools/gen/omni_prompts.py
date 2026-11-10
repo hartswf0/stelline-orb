@@ -14,19 +14,21 @@ COMPOSITE = [
  ('image', 'i1_room-before-cake.jpg', 'ROOM (orb-free film shot): the empty dark room with one pale line of light along the horizon. Keep this architecture, darkness and camera height in the top 62% of the frame.'),
  ('image', 'i3_writing-reticle.jpg', 'FRAMING of the writing beat (orb-free film shot): low, cake on the left, a pale white crescent arc beside it.'),
  ('image', 'i4_children-lit-table.jpg', 'SEATING (orb-free film shot): children in a half ring round a table lit only by the cake.')]
+# frames: IMAGES ONLY (Flow / Omni reject video references). Each filmstrip packs one beat of the film as 3-5 frames read left to right.
+FRAMES = [
+ ('image', 'ui2_walk-around.jpg', 'SCREEN LAYOUT AND CONTROLLER (lock): the top 62% is the world with a thin caption bottom left and one small pale crescent arc beside the cake; the bottom 38% is the fixed controller, a chrome five-ring barrel with a panel above it. COPY THE BOTTOM 38% EXACTLY in every frame: same barrel, rings, panel, position, size and text layout. Only the small readouts and one thin teal ring highlight may change.'),
+ ('image', 'ui3_children-come.jpg', 'SAME SCREEN LAYOUT AND CONTROLLER, later in the film (children present). The controller strip must look identical to the first screen reference.'),
+ ('image', 'f1_strip_cake-appears.jpg', 'FILMSTRIP, read left to right as time (orb-free film shot): the empty dark room with one pale line of light, then a cake appears from nothing low and left, flickers through different icings (brown, pale blue, caramel) and tilts toward the camera. Copy this room, this camera height, this placement and this motion, not the cake itself.'),
+ ('image', 'f2_strip_writing-upright.jpg', 'FILMSTRIP, left to right (orb-free film shot): the cake turns like a bundt, then red icing is piped stroke by stroke across the top as the cake swings upright, a pale white crescent arc hangs beside it. Copy the framing, the arc and the pacing.'),
+ ('image', 'f3_strip_children-fade.jpg', 'FILMSTRIP, left to right (orb-free film shot): children are not there, then ghost-transparent, then solid round a table lit only by the cake. Copy the fade-in and the seating.'),
+ ('image', 'f4_strip_candle-then-out.jpg', 'FILMSTRIP, left to right (orb-free film shot): one candle lights a boy\'s face from below, then a face is lit warm as the candles go out and the light leaves it. Copy this light and its fall.')]
+assert len(FRAMES) <= 6 and all(r[0] == 'image' for r in FRAMES)
 # scene: world only, no controller anywhere; the real controller strip is stacked under it afterwards (tools/flow/stack.sh).
-SCENE = [
- ('video', 'v1_cake-appears.mp4', 'MOTION of the cake: it appears out of nothing in a dark room, flickers through different icings, then tilts toward the camera. Copy this motion, timing and the lit-from-the-cake light. Do not copy the cake itself.'),
- ('video', 'v2_writing-upright.mp4', 'MOTION of the writing: seen over a dark shoulder, red icing is piped stroke by stroke on the cake top, the cake swings upright, a pale white crescent arc hangs beside it. Copy the camera, the arc and the pacing.'),
- ('video', 'v3_children-fade.mp4', 'MOTION of the children: they are not there, then ghost-transparent, then solid, gathered round a lit table. Copy the fade-in and the seating.'),
- ('image', 'i1_room-before-cake.jpg', 'ROOM: the empty dark room with one pale line of light along the horizon. Keep this architecture, darkness and camera height. A guide for the room, not the opening frame.'),
- ('image', 'i2_cake-floating.jpg', 'POSITION of the cake: floating just above the floor, left of frame, a few candles lit. Keep this placement.'),
- ('image', 'i3_writing-reticle.jpg', 'FRAMING of the writing shot: low, over a shoulder, cake on the left, white crescent arc between the cake and the shoulder.'),
- ('image', 'i4_children-lit-table.jpg', 'SEATING: children in a half ring round a table lit only by the cake, the table top a bright flat plane in the dark.'),
- ('image', 'i5_boy-face-candle.jpg', 'FACE LIGHT: a child\'s face lit by one candle, soft, warm, shadow behind. Keep the intimacy and the shallow depth of field.'),
- ('image', 'i6_face-lit.jpg', 'CLOSE FACE: a face lit warm from below at the moment before the candles go out.')]
+SCENE = [r for r in FRAMES[2:]] + [
+ ('image', 'i1_room-before-cake.jpg', 'ROOM: the empty dark room with one pale line of light along the horizon. Keep this architecture, darkness and camera height.'),
+ ('image', 'i5_boy-face-candle.jpg', 'FACE LIGHT: a child\'s face lit by one candle, soft, warm, shadow behind. Keep the intimacy and the shallow depth of field.')]
 assert len([r for r in COMPOSITE if r[0]=='image'])<=6 and len([r for r in COMPOSITE if r[0]=='video'])<=3
-assert len([r for r in SCENE if r[0]=='image'])<=6 and len([r for r in SCENE if r[0]=='video'])<=3
+assert len(SCENE) <= 6 and all(r[0] == 'image' for r in SCENE)
 COMPOSITE_RULES = ('Layout: 16:9. The top 62% of the frame is the world, the bottom 38% is the controller strip copied from the UI references, locked: it never moves, never changes shape, never gets redrawn, never gets a new design. The thin caption (English, as in the UI references) stays bottom left and the one small pale crescent arc stays beside the cake; no other overlay, no arcs or lists around the cake. In the world: no other device, orb, lens or camera, and nothing in anyone\'s hands except a cake knife or a plate. ')
 COMMON_RULES = ('Hard rules. Do not show any device, orb, lens, controller, camera or glowing gadget anywhere, and nothing in anyone\'s hands except a cake knife or a plate. '
  'No adult is in focus; if an adult appears it is a dark silhouette at the frame edge. One continuous locked-off wide-to-medium cinema shot, no scene cuts, slow, handheld-still. '
@@ -62,9 +64,9 @@ def beats(v, comp):
 out = []
 for v in V:
     body = lambda R, comp: ('Gemini Omni Flash 1.2 / reference-to-video. 15 seconds, 16:9, 720p draft then 1080p keeper, native audio.\n\n' + refs_block(R) + '\n\nWORLD: %s. Cake: %s. Children: %s. Palette: %s. Language of the cake writing: %s.\n\n' % (v['where'], v['cake'], v['kids'], v['pal'], v['lang']) + beats(v, comp) + '\n\n' + (COMPOSITE_RULES if comp else '') + COMMON_RULES)
-    pc, ps = body(COMPOSITE, True), body(SCENE, False)
-    d = dict(v, prompt=pc, prompt_scene=ps, refs=[f for _, f, _ in COMPOSITE], refs_scene=[f for _, f, _ in SCENE]); out.append(d)
-    open('%s/prompts/%s_%s.txt' % (root, v['id'], v['name']), 'w').write(pc + '\n'); open('%s/prompts/%s_%s_scene-only.txt' % (root, v['id'], v['name']), 'w').write(ps + '\n')
+    pf, pc, ps = body(FRAMES, True), body(COMPOSITE, True), body(SCENE, False)
+    d = dict(v, prompt=pf, prompt_video_refs=pc, prompt_scene=ps, refs=[f for _, f, _ in FRAMES], refs_video=[f for _, f, _ in COMPOSITE], refs_scene=[f for _, f, _ in SCENE]); out.append(d)
+    open('%s/prompts/%s_%s.txt' % (root, v['id'], v['name']), 'w').write(pf + '\n'); open('%s/prompts/%s_%s_with-video-refs.txt' % (root, v['id'], v['name']), 'w').write(pc + '\n'); open('%s/prompts/%s_%s_scene-only.txt' % (root, v['id'], v['name']), 'w').write(ps + '\n')
 J = lambda R: [dict(kind=k, file='refs/' + f, job=j) for k, f, j in R]
-json.dump({'model': 'google/gemini-omni-flash/v1.2/reference-to-video', 'refs': J(COMPOSITE), 'refs_scene': J(SCENE), 'variants': out}, open(root + '/prompts.json', 'w'), indent=1, ensure_ascii=False)
+json.dump({'model': 'google/gemini-omni-flash/v1.2/reference-to-video', 'refs': J(FRAMES), 'refs_video': J(COMPOSITE), 'refs_scene': J(SCENE), 'variants': out}, open(root + '/prompts.json', 'w'), indent=1, ensure_ascii=False)
 print(len(out), 'variants x 2 modes')

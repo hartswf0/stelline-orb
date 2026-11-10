@@ -1,15 +1,12 @@
 Gemini Omni Flash 1.2 / reference-to-video. 15 seconds, 16:9, 720p draft then 1080p keeper, native audio.
 
 REFERENCES (all attached; each has one job, use only that job):
-- video 1 (v1_cake-appears.mp4): MOTION of the cake: it appears out of nothing in a dark room, flickers through different icings, then tilts toward the camera. Copy this motion, timing and the lit-from-the-cake light. Do not copy the cake itself.
-- video 2 (v2_writing-upright.mp4): MOTION of the writing: seen over a dark shoulder, red icing is piped stroke by stroke on the cake top, the cake swings upright, a pale white crescent arc hangs beside it. Copy the camera, the arc and the pacing.
-- video 3 (v3_children-fade.mp4): MOTION of the children: they are not there, then ghost-transparent, then solid, gathered round a lit table. Copy the fade-in and the seating.
-- image 1 (i1_room-before-cake.jpg): ROOM: the empty dark room with one pale line of light along the horizon. Keep this architecture, darkness and camera height. A guide for the room, not the opening frame.
-- image 2 (i2_cake-floating.jpg): POSITION of the cake: floating just above the floor, left of frame, a few candles lit. Keep this placement.
-- image 3 (i3_writing-reticle.jpg): FRAMING of the writing shot: low, over a shoulder, cake on the left, white crescent arc between the cake and the shoulder.
-- image 4 (i4_children-lit-table.jpg): SEATING: children in a half ring round a table lit only by the cake, the table top a bright flat plane in the dark.
-- image 5 (i5_boy-face-candle.jpg): FACE LIGHT: a child's face lit by one candle, soft, warm, shadow behind. Keep the intimacy and the shallow depth of field.
-- image 6 (i6_face-lit.jpg): CLOSE FACE: a face lit warm from below at the moment before the candles go out.
+- image 1 (f1_strip_cake-appears.jpg): FILMSTRIP, read left to right as time (orb-free film shot): the empty dark room with one pale line of light, then a cake appears from nothing low and left, flickers through different icings (brown, pale blue, caramel) and tilts toward the camera. Copy this room, this camera height, this placement and this motion, not the cake itself.
+- image 2 (f2_strip_writing-upright.jpg): FILMSTRIP, left to right (orb-free film shot): the cake turns like a bundt, then red icing is piped stroke by stroke across the top as the cake swings upright, a pale white crescent arc hangs beside it. Copy the framing, the arc and the pacing.
+- image 3 (f3_strip_children-fade.jpg): FILMSTRIP, left to right (orb-free film shot): children are not there, then ghost-transparent, then solid round a table lit only by the cake. Copy the fade-in and the seating.
+- image 4 (f4_strip_candle-then-out.jpg): FILMSTRIP, left to right (orb-free film shot): one candle lights a boy's face from below, then a face is lit warm as the candles go out and the light leaves it. Copy this light and its fall.
+- image 5 (i1_room-before-cake.jpg): ROOM: the empty dark room with one pale line of light along the horizon. Keep this architecture, darkness and camera height.
+- image 6 (i5_boy-face-candle.jpg): FACE LIGHT: a child's face lit by one candle, soft, warm, shadow behind. Keep the intimacy and the shallow depth of field.
 Everything else in the references (people, clothes, cake, room contents, language, colours) is NOT copied: it is replaced by the brief below.
 
 WORLD: a haveli courtyard room with carved stone arches and brass lamps on the floor. Cake: a saffron rasmalai cake with pistachio, rose petals and edible silver leaf, red icing writing. Children: six children in silk kurtas, lehengas and bangles, a marigold garland round one neck. Palette: saffron, rose and brass gold. Language of the cake writing: Hindi.

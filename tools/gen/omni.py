@@ -11,14 +11,15 @@ FIELDS = {'prompt': 'prompt', 'images': 'image_urls', 'videos': 'video_urls', 'd
 P = json.load(open(R + 'prompts.json')); args = sys.argv[1:]
 if not args or args[0] == 'list':
     for v in P['variants']: print(v['id'], v['name'], '|', v['lang'], v['text']); sys.exit()
-which = args[1]; draft = '--draft' in args; dry = '--dry' in args; scene = '--scene' in args  # default = composite (world + locked controller strip in one frame); --scene = world only, stack the strip afterwards with tools/flow/stack.sh
+which = args[1]; draft = '--draft' in args; dry = '--dry' in args; scene = '--scene' in args  # default = main set (6 images: 2 controller/layout frames + 4 filmstrips; video refs are refused); --scene = world only, stack the strip afterwards with tools/flow/stack.sh
 def uri(f):
     mime = 'video/mp4' if f.endswith('.mp4') else 'image/jpeg'
     return 'data:%s;base64,%s' % (mime, base64.b64encode(open(R + 'refs/' + f, 'rb').read()).decode())
 def run(v):
     out = R + 'out/%s_%s%s/' % (v['id'], v['name'], '_scene' if scene else ''); os.makedirs(out, exist_ok=True)
-    body = {FIELDS['prompt']: v['prompt_scene' if scene else 'prompt'], FIELDS['images']: [uri(f) for f in v['refs_scene' if scene else 'refs'] if f.endswith('.jpg')], FIELDS['videos']: [uri(f) for f in v['refs_scene' if scene else 'refs'] if f.endswith('.mp4')],
+    body = {FIELDS['prompt']: v['prompt_scene' if scene else 'prompt'], FIELDS['images']: [uri(f) for f in v['refs_scene' if scene else 'refs'] if f.endswith('.jpg')], FIELDS['videos']: [],
             FIELDS['duration']: 5 if draft else 15, FIELDS['resolution']: '360p' if draft else '720p', FIELDS['aspect']: '16:9', FIELDS['audio']: True}
+    if not body[FIELDS['videos']]: del body[FIELDS['videos']]  # video references are refused by Flow/Omni: images only
     json.dump({k: (x if k == FIELDS['prompt'] or not isinstance(x, list) else [s[:40] + '...' for s in x]) for k, x in body.items()}, open(out + 'request.json', 'w'), indent=1, ensure_ascii=False)
     if dry: print(v['id'], 'dry: request written'); return
     r = subprocess.run(['curl', '-sS', '-m', '300', '-X', 'POST', 'https://queue.fal.run/' + EP, '-H', 'Content-Type: application/json', '--data-binary', '@-'], input=json.dumps(body), capture_output=True, text=True).stdout

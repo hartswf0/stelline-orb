@@ -23,3 +23,6 @@ In Flow: attach the three UI frames as the first ingredients, then the room and 
 
 ## Orb film without the wrapping reticle
 `assets/orbfilm/orb-film-no-reticle.mp4` (nothing on the cake) and `orb-film-reticle-aside.mp4` (one pale crescent beside the cake, like the original film), 34 s, 1280x720, re-recorded by `tools/record_orb_film.mjs` from the weaver of commit 2f09823 and the same director script. The Omni UI references (`ui1-3`, `u_ui-strip-hud.mp4`) now come from the aside version; the no-reticle frames are in `assets/omni/refs/alt-no-reticle/`. The rotation gizmo ring still shows while a child is being turned (it is a control, not the reticle).
+
+## Video references are refused (Flow / Omni): images only
+Flow said video clips cannot be reference assets (only image, audio, character, avatar). So the main prompts now use six IMAGES: `ui2_walk-around.jpg` and `ui3_children-come.jpg` (screen layout + controller, from the aside-reticle orb film) and four filmstrips, `f1..f4_strip_*.jpg`, each 3-5 film frames side by side read left to right as time (cake appears, writing and upright, children fade in, candle then flames out). A filmstrip carries a whole beat in one image slot. The earlier video-ref prompts are kept as `*_with-video-refs.txt` for models that accept video.
