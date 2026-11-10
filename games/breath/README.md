@@ -20,7 +20,7 @@ A game made from the birthday archive. You are the breath: carry it from flame t
 | The agent plays it and films it | Yes | `tools/games/play.cjs`: keyboard only, reads only `window.__game.state` |
 | Side-by-side with the video | Yes | `pairs/` |
 
-**Loop 2, Video2Game (video to NeRF to mesh with collision to a browser game):** its project page could not be opened from this session (the host is outside the allowed network), so this follows the published method as I know it. It needs a moving camera for many views and a GPU to train the field; these clips are ten seconds from a locked camera, and there is no GPU here. What stands in:
+**Loop 2, [Video2Game](https://github.com/video2game/video2game) (video to NeRF to mesh with collision to a browser game):** its repository was cloned and read. It needs many views with solved camera poses and a CUDA GPU. Only 3 of the 77 clips orbit at all, generated clips do not hold one object still from frame to frame, and there is no GPU here, so it was not trained. What was done for it: a dataset in exactly its format, from the orb's scene of clip 35 with exact poses, verified with its own reader (`datasets/v2g/`), and its commands pointed at that dataset (`tools/games/v2g/run_on_gpu.sh`). In the game itself, what stands in:
 
 | Stage of that loop | Stand-in |
 | :--- | :--- |

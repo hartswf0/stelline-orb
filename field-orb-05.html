@@ -1875,7 +1875,7 @@ function renderRoom() { placeCam(); const pr = R.getPixelRatio(), w = Math.round
   if (rtR.width !== w || rtR.height !== h) { rtR.setSize(w, h); rtR.depthTexture.image.width = w; rtR.depthTexture.image.height = h; rtR.depthTexture.needsUpdate = true; }
   const want = S.focus.d == null ? focusAuto() : S.focus.d; FOCUS_NOW += (want - FOCUS_NOW) * .12;
   R.setRenderTarget(rtR); R.render(scene, cam); R.setRenderTarget(null);
-  const f = .033, N = CINE.on ? (CINE.N || 1.6) : S.mode === 'MAKE' ? 4 : 1.8; dofR.uniforms.tC.value = rtR.texture; dofR.uniforms.tD.value = rtR.depthTexture; dofR.uniforms.near.value = cam.near; dofR.uniforms.far.value = cam.far; dofR.uniforms.fd.value = FOCUS_NOW; dofR.uniforms.px.value.set(1 / w, 1 / h);
+  const f = .033, N = S.noDof ? 400 : CINE.on ? (CINE.N || 1.6) : S.mode === 'MAKE' ? 4 : 1.8;   /* S.noDof: everything sharp, for captures that a reconstruction will read */ dofR.uniforms.tC.value = rtR.texture; dofR.uniforms.tD.value = rtR.depthTexture; dofR.uniforms.near.value = cam.near; dofR.uniforms.far.value = cam.far; dofR.uniforms.fd.value = FOCUS_NOW; dofR.uniforms.px.value.set(1 / w, 1 / h);
   dofR.uniforms.cine.value = CINE.on ? 1 : 0; dofR.uniforms.gt.value = (NOW * 37.3) % 100;
   dofR.uniforms.k.value = (f / N) * f / Math.max(.05, FOCUS_NOW - f) / .024 * h * .5; R.render(dQ, dC);
   R.autoClear = false; R.clearDepth(); R.render(retScene, cam); R.autoClear = true; }
@@ -1974,7 +1974,7 @@ addEventListener('drop', e => { e.preventDefault(); if (e.dataTransfer && e.data
 addEventListener('keydown', e => { if ((e.key === 'i' || e.key === 'I') && !e.metaKey && !e.ctrlKey) wFileImp.click(); });
 
 /* =============================================================== a handle for scripts: tests, and the film */
-window.FORGE = { S, BOOK, COLORS, KIDS, ERAS, letterRuns, get DOC() { return DOC; }, turn, press, rings, scrub, nodes, curNode, pickTo, setMode, setVerb, GUIDE, GSTEPS, PAIR, CINE, setCine, CAM_SHOTS, KID_POSES, applyCamShot, applyKidPose, now: () => NOW, gizmoHit, gizmoDrag, setStretch, setPull, VERBS, MODES, spawn, place, hitAt, strokeStart, strokeMove, strokeEnd, snapshot, showFrame, cam, CAKE, ORB, RINGS, BTN, OC, perf: () => perf,
+window.FORGE = { S, BOOK, COLORS, KIDS, ERAS, scene, R, letterRuns, get DOC() { return DOC; }, turn, press, rings, scrub, nodes, curNode, pickTo, setMode, setVerb, GUIDE, GSTEPS, PAIR, CINE, setCine, CAM_SHOTS, KID_POSES, applyCamShot, applyKidPose, now: () => NOW, gizmoHit, gizmoDrag, setStretch, setPull, VERBS, MODES, spawn, place, hitAt, strokeStart, strokeMove, strokeEnd, snapshot, showFrame, cam, CAKE, ORB, RINGS, BTN, OC, perf: () => perf,
   manual() { auto = false; }, setAim(x, y) { hover = x == null ? null : { x, y }; }, aim: () => AIM, advance(dt) { update(dt); render(); }, step(dt) { update(dt); placeCam(); cam.updateMatrixWorld(); }, worldToRoom(v) { const p = v.clone().project(cam); return [(p.x + 1) / 2 * roomEl.clientWidth, (1 - p.y) / 2 * roomEl.clientHeight]; }, local(v) { return CAKE.localToWorld(v.clone()); } };
 </script>
 </body>
