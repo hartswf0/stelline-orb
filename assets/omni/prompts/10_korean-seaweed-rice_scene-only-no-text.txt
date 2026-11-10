@@ -1,0 +1,22 @@
+Gemini Omni Flash 1.2 / Google Flow reference-to-video. 15 seconds, 16:9, 1080p, 24fps, native audio.
+
+REFERENCES (all attached; each has one job, use only that job):
+- image 1 (f1_strip_cake-appears.jpg): FILMSTRIP, read left to right as time (orb-free film shot): the empty dark room with one pale line of light, then a cake appears, flickers through different icings, and tilts toward the camera.
+- image 2 (f2_strip_writing-upright.jpg): FILMSTRIP, left to right (orb-free film shot): the cake turns like a bundt, then red icing is piped stroke by stroke across the top as the cake swings upright, a pale crescent ")" beside it on the right.
+- image 3 (f3_strip_children-fade.jpg): FILMSTRIP, left to right (orb-free film shot): children are not there, then ghost-transparent, then solid round a table lit only by the cake.
+- image 4 (f4_strip_candle-then-out.jpg): FILMSTRIP, left to right (orb-free film shot): one candle lights a boy face from below, then a face is lit warm as the candles go out and the light leaves it.
+- image 5 (i1_room-before-cake.jpg): ROOM: the empty dark room with one pale line of light along the horizon. Keep this architecture, darkness and camera height.
+- image 6 (i5_boy-face-candle.jpg): FACE LIGHT: a child face lit by one candle, soft, warm, shadow behind. Keep the intimacy and shallow depth of field.
+Everything else in the references (people, clothes, cake, room contents, colours) is replaced by the brief below.
+
+WORLD: a warm dark ondol room with paper window horizon glow and grounded low walnut table. Cake (zero text): a sculpted pastel-layered Korean Mujigae-tteok rice cake topped with glazed persimmon slices, piped bean-paste blossoms, and seven lit candles on an ivory ceramic stand (zero text). People: six children in colour-block hanbok and one in a 1990s tracksuit, sleeves tied back. Palette: persimmon orange, ivory and sea green.
+
+STRUCTURE (one continuous 15 second take, ZERO TEXT ANYWHERE):
+[0-2.5s] a warm dark ondol room with paper window horizon glow and grounded low walnut table with a grounded beveled wooden table and ivory porcelain cake stand clearly lit by warm grazing bounce fill.
+[2.5-6s] Heroic-scale a sculpted pastel-layered Korean Mujigae-tteok rice cake topped with glazed persimmon slices, piped bean-paste blossoms, and seven lit candles on an ivory ceramic stand (zero text) materializes cleanly on the porcelain stand (clear under-cake contact shadow), shimmering through three glazes and tilting gently.
+[6-9s] The cake settles upright as piped cream rosettes, pearl borders, and fruit garnishes form radially around the crown — NO words or letters. A single pale smoked-glass crescent curves ")" off to the right of the cake (concave side facing the cake).
+[9-12s] Six children in colour-block hanbok and one in a 1990s tracksuit, sleeves tied back fade in from luminous ghosts to solid joyful figures around the grounded wooden table.
+[12-14s] Intimate close-up of warm 2200K candle flames flickering in the children eyes.
+[14-15s] They lean in and blow out all seven candles together as smoke curls up and warm light drops to shadow.
+
+HARD ZERO-TEXT RULES: Do NOT render any text, words, letters, numbers, captions, titles, button labels, or cake writing anywhere in the frame. In the stage world: no handheld device, orb, lens, or camera in anyone hands. One continuous locked-off cinema take, 35mm anamorphic, warm 2200K candlelight + clear under-cake bounce fill. Audio: quiet room tone, warm mechanical ring clicks, soft rising hum as the cake materializes, gentle breath as the candles go out.

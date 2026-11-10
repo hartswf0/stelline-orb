@@ -1,22 +1,22 @@
-Gemini Omni Flash 1.2 / reference-to-video. 15 seconds, 16:9, 720p draft then 1080p keeper, native audio.
+Gemini Omni Flash 1.2 / Google Flow reference-to-video. 15 seconds, 16:9, 1080p, 24fps, native audio.
 
 REFERENCES (all attached; each has one job, use only that job):
-- image 1 (f1_strip_cake-appears.jpg): FILMSTRIP, read left to right as time (orb-free film shot): the empty dark room with one pale line of light, then a cake appears from nothing low and left, flickers through different icings (brown, pale blue, caramel) and tilts toward the camera. Copy this room, this camera height, this placement and this motion, not the cake itself.
-- image 2 (f2_strip_writing-upright.jpg): FILMSTRIP, left to right (orb-free film shot): the cake turns like a bundt, then red icing is piped stroke by stroke across the top as the cake swings upright, a pale white crescent arc hangs beside it. Copy the framing, the arc and the pacing.
-- image 3 (f3_strip_children-fade.jpg): FILMSTRIP, left to right (orb-free film shot): children are not there, then ghost-transparent, then solid round a table lit only by the cake. Copy the fade-in and the seating.
-- image 4 (f4_strip_candle-then-out.jpg): FILMSTRIP, left to right (orb-free film shot): one candle lights a boy's face from below, then a face is lit warm as the candles go out and the light leaves it. Copy this light and its fall.
+- image 1 (f1_strip_cake-appears.jpg): FILMSTRIP, read left to right as time (orb-free film shot): the empty dark room with one pale line of light, then a cake appears, flickers through different icings, and tilts toward the camera.
+- image 2 (f2_strip_writing-upright.jpg): FILMSTRIP, left to right (orb-free film shot): the cake turns like a bundt, then red icing is piped stroke by stroke across the top as the cake swings upright, a pale crescent ")" beside it on the right.
+- image 3 (f3_strip_children-fade.jpg): FILMSTRIP, left to right (orb-free film shot): children are not there, then ghost-transparent, then solid round a table lit only by the cake.
+- image 4 (f4_strip_candle-then-out.jpg): FILMSTRIP, left to right (orb-free film shot): one candle lights a boy face from below, then a face is lit warm as the candles go out and the light leaves it.
 - image 5 (i1_room-before-cake.jpg): ROOM: the empty dark room with one pale line of light along the horizon. Keep this architecture, darkness and camera height.
-- image 6 (i5_boy-face-candle.jpg): FACE LIGHT: a child's face lit by one candle, soft, warm, shadow behind. Keep the intimacy and the shallow depth of field.
-Everything else in the references (people, clothes, cake, room contents, language, colours) is NOT copied: it is replaced by the brief below.
+- image 6 (i5_boy-face-candle.jpg): FACE LIGHT: a child face lit by one candle, soft, warm, shadow behind. Keep the intimacy and shallow depth of field.
+Everything else in the references (people, clothes, cake, room contents, colours) is replaced by the brief below.
 
-WORLD: a tatami room with sliding paper doors lit from behind. Cake: a tall strawberry shortcake, white cream, one perfect strawberry per slice, red icing writing. Children: five children in 1970s school uniforms: navy sailor collars, caps, white knee socks, a paper party hat. Palette: milk white, strawberry red and soft grey-green. Language of the cake writing: Japanese.
+WORLD: a darkened tatami room with shoji paper doors and a grounded low walnut table. Cake: a tall strawberry shortcake, snow-white cream, one perfect strawberry per slice, red icing writing. People: five children in 1970s school uniforms: navy sailor collars, caps, white knee socks, a paper party hat. Palette: milk white, strawberry red and soft grey-green. Language: Japanese.
 
 STRUCTURE (one continuous 15 second take):
-[0-2.5s] The empty dark room: a tatami room with sliding paper doors lit from behind. Only the pale line of light on the horizon. Stillness.
-[2.5-6s] From nothing, a tall strawberry shortcake, white cream, one perfect strawberry per slice, red icing writing appears low and left. It flickers through three different icings (white, caramel, then a pale blue) and tilts toward the camera.
-[6-9s] The cake swings upright. Red icing writes itself across the top, stroke by stroke, reading exactly "お誕生日おめでとう" (Otanjōbi omedetō). A pale white crescent arc hangs beside it.
-[9-12s] Five children in 1970s school uniforms: navy sailor collars, caps, white knee socks, a paper party hat fade in around the table: first faint ghosts, then solid. Their faces catch the cake light.
-[12-14s] One candle burns on one child's face: warm light from below, the rest dark.
-[14-15s] The candles go out together, the warm light leaves the faces, the room returns to dark.
+[0-2.5s] The dark room: a darkened tatami room with shoji paper doors and a grounded low walnut table, with a grounded wooden table and ivory porcelain stand clearly visible. Pale line of light on the horizon.
+[2.5-6s] On the grounded porcelain stand, a tall strawberry shortcake, snow-white cream, one perfect strawberry per slice, red icing writing materializes at heroic scale with clear under-cake shadow, flickering through three icings and tilting toward the camera.
+[6-9s] The cake swings upright. Red icing pipes stroke by stroke across the crown, reading "お誕生日おめでとう" (Otanjōbi omedetō). A pale crescent ")" hangs off to its right (concave side cupping toward the cake).
+[9-12s] Five children in 1970s school uniforms: navy sailor collars, caps, white knee socks, a paper party hat fade in around the grounded table: first translucent ghosts, then solid, warmly lit by the seven candles.
+[12-14s] Warm 2200K candlelight flickers across one child face in shallow DOF.
+[14-15s] All seven candles blow out together, thin smoke rises, and warm light falls to twilight.
 
-Hard rules. Do not show any device, orb, lens, controller, camera or glowing gadget anywhere, and nothing in anyone's hands except a cake knife or a plate. No adult is in focus; if an adult appears it is a dark silhouette at the frame edge. One continuous locked-off wide-to-medium cinema shot, no scene cuts, slow, handheld-still. Dark, film-grained, anamorphic, low key; the only light is the cake and its candles plus one pale line of light on the horizon. No music, no captions except the cake writing. Audio: room tone, a soft rising hum when the cake appears, a small sigh of breath at the end when the flames go out.
+Hard rules. Do not show any handheld device, orb, lens, camera, or glowing gadget in the stage world, and nothing in anyone hands except a cake knife or plate. One continuous locked-off cinema shot, 35mm anamorphic, warm 2200K candlelight + clear grounded wooden table and porcelain stand beneath the cake. No music, no captions except the piped cake writing. Audio: room tone, soft rising hum when the cake appears, gentle sigh of breath when the flames go out.

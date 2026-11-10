@@ -1,44 +1,163 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ten Birthdays</title>
-<meta name="description" content="One birthday, ten worlds: the same film references and the same beats, restyled by Gemini Omni Flash 1.2. All references, all prompts.">
+<title>TEN BIRTHDAYS, ONE FILM · Museum No-Screen, No-Text &amp; 4 Cakes × 10 Worlds</title>
+<meta name="description" content="One birthday, ten worlds: grounded references, Museum-Grade screenless 5-ring Orb, Zero-Text batch, and 10 prompts beneath each cake.">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --bg: #070807; --ink: #e9ece6; --dim: #9aa39a; --line: #2a2f2a; --acc: #f0b040; }
-  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --bg: #f4f3ee; --ink: #161816; --dim: #5b625b; --line: #d6d6cf; --acc: #9a6200; } }
-  html, body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 system-ui, sans-serif; }
-  main { max-width: 1120px; margin: 0 auto; padding: 28px 16px 80px; }
-  h1, h2 { font-family: ui-monospace, Menlo, monospace; letter-spacing: .02em; } h1 { font-size: 22px; margin: 0 0 6px; } h2 { font-size: 15px; margin: 30px 0 8px; }
-  p, .dim { color: var(--dim); max-width: 74ch; } a { color: var(--acc); }
-  .refs { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
-  .refs figure { margin: 0; } .refs video, .refs img { width: 100%; display: block; border: 1px solid var(--line); background: #000; }
-  figcaption { font: 12px/1.45 ui-monospace, Menlo, monospace; color: var(--dim); margin-top: 3px; }
-  .v { border-top: 1px solid var(--line); padding: 16px 0; } .v h3 { font: 600 14px ui-monospace, Menlo, monospace; margin: 0 0 4px; }
-  textarea { width: 100%; height: 150px; background: transparent; color: var(--ink); border: 1px solid var(--line); font: 12px/1.45 ui-monospace, Menlo, monospace; padding: 8px; box-sizing: border-box; }
-  button { font: 13px ui-monospace, Menlo, monospace; background: transparent; color: var(--ink); border: 1px solid var(--ink); padding: 5px 12px; cursor: pointer; margin: 6px 8px 0 0; }
+  :root { --bg: #050707; --panel: #0b100f; --ink: #eef4f1; --dim: #98a8a2; --line: #24332e; --acc: #ffcc66; --cy: #66f0d8; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 "IBM Plex Sans", system-ui, sans-serif; }
+  main { max-width: 1360px; margin: 0 auto; padding: 24px 20px 84px; }
+  header { border: 1px solid var(--line); background: var(--panel); padding: 20px 22px; margin-bottom: 24px; border-radius: 6px; }
+  .top-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; }
+  h1, h2, h3 { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; letter-spacing: .02em; margin: 0; }
+  h1 { font-size: 22px; color: #fff; }
+  h2 { font-size: 16px; margin: 28px 0 12px; color: var(--acc); }
+  p { color: var(--dim); max-width: 86ch; margin: 0 0 12px; }
+  a { color: var(--acc); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .nav-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btn {
+    font: 700 11.5px "IBM Plex Mono", monospace;
+    padding: 8px 13px;
+    border: 1.5px solid var(--line);
+    background: #101816;
+    color: var(--ink);
+    cursor: pointer;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn:hover { border-color: var(--cy); color: #fff; text-decoration: none; }
+  .btn.active { background: var(--cy); color: #05110e; border-color: var(--cy); }
+  .btn.gold { background: var(--acc); color: #120c02; border-color: var(--acc); }
+
+  .refs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
+  @media (max-width: 900px) { .refs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .refs { grid-template-columns: 1fr; } }
+  .refs figure { margin: 0; border: 1px solid var(--line); background: var(--panel); border-radius: 5px; overflow: hidden; }
+  .refs img, .refs video { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; background: #000; }
+  figcaption { font: 500 12px/1.45 "IBM Plex Mono", monospace; color: var(--dim); padding: 8px 10px; }
+  figcaption b { color: var(--cy); }
+
+  .world-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  @media (max-width: 980px) { .world-grid { grid-template-columns: 1fr; } }
+  .v { border: 1px solid var(--line); background: var(--panel); padding: 14px 16px; border-radius: 6px; display: flex; flex-direction: column; gap: 8px; }
+  .v h3 { font-size: 15px; color: var(--acc); }
+  .v .sub { font-size: 13px; color: var(--ink); font-weight: 600; }
+  textarea { width: 100%; min-height: 150px; background: #060908; color: #eff6f3; border: 1px solid #243530; border-radius: 4px; font: 500 12.5px/1.5 "IBM Plex Mono", monospace; padding: 10px; resize: vertical; }
+  .v-acts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 </style>
 </head>
 <body>
 <main>
-  <h1>TEN BIRTHDAYS, ONE FILM</h1>
-  <p>Every main prompt carries the same six images (each filmstrip packs one beat as 3-5 frames, read left to right) and the same six beats; the controller strip is copied from the #film frames, so it is the same one every time, so the cake appears, is written on, the children fade in, one candle lights a face and the flames go out at the same seconds each time. Only the world changes: language, cake, who the children are, what they wear, the room, the colours. The Memory Maker is in none of the references or the results.</p>
-  <p><a href="assets/omni/omni-pack.zip" download>download the pack (references + all ten prompts + prompts.json)</a> · model <code>google/gemini-omni-flash/v1.2/reference-to-video</code> · runner <code>tools/gen/omni.py</code></p>
-  <h2>Main set: six images only (video references are refused): two screen-and-controller frames from the #film orb film, and four filmstrips cut from the original film</h2><div class="refs" id="refs"></div>
-  <h2>Fallback set: world only (stack the real controller under it afterwards)</h2><div class="refs" id="refs2"></div>
-  <h2>The ten prompts</h2><div id="list"></div>
+  <header>
+    <div class="top-row">
+      <h1>TEN BIRTHDAYS, ONE FILM — MUSEUM NO-SCREEN, NO-TEXT &amp; 4 CAKES × 10 WORLDS</h1>
+      <div class="nav-pills">
+        <a class="btn gold" href="assets/omni/omni-pack.zip" download>DOWNLOAD FULL PACK (.ZIP)</a>
+        <a class="btn" href="film.html">8 ORB FILM BATCHES</a>
+        <a class="btn" href="moments.html">MOMENTS HUB (59 CLIPS)</a>
+        <a class="btn" href="versions-film.html">FILM VERSIONS</a>
+        <a class="btn" href="index.html">INDEX</a>
+      </div>
+    </div>
+    <p>Every prompt attaches six high-legibility reference images (two locked UI/hardware frames + four orb-free filmstrips carrying the motion left-to-right). Choose between <b>Batch 1: Museum-Grade Screenless Orb + Zero Text</b> (no black monitor screen above the Memory Orb, zero text anywhere so AI models never generate garbled letters), <b>Batch 2: Zero-Text Scene-Only</b>, or <b>Batches 3–4: With Cultural Cake Writing</b>.</p>
+    <div class="nav-pills" id="batchBar">
+      <button class="btn active" data-mode="prompt_museum_notext">BATCH 1 · MUSEUM NO-SCREEN + NO TEXT (RECOMMENDED)</button>
+      <button class="btn" data-mode="prompt_scene_notext">BATCH 2 · NO TEXT · SCENE-ONLY (ZERO ORB)</button>
+      <button class="btn" data-mode="prompt">BATCH 3 · CONTROLLER + CULTURAL CAKE WRITING</button>
+      <button class="btn" data-mode="prompt_scene">BATCH 4 · SCENE-ONLY + CULTURAL CAKE WRITING</button>
+    </div>
+  </header>
+
+  <h2>1 · Museum-Grade Reference Set (No Screen Above Memory Orb · Grounded Table · ")" Side Crescent · 6 Images)</h2>
+  <div class="refs" id="refsMuseum"></div>
+
+  <h2>2 · World-Only Fallback Reference Set (Zero Hardware · Stack Real Cylinder Below via <code>tools/flow/stack.sh</code>)</h2>
+  <div class="refs" id="refsScene"></div>
+
+  <h2>3 · The Ten Global Birthday Prompts (Active Batch Shown Below)</h2>
+  <div class="world-grid" id="list"></div>
+
+  <h2>4 · Beneath Each of the 4 Orb Film Cakes: 10 Prompts (Different People × Times × Cakes)</h2>
+  <div id="omni-cake-bundt"></div>
+  <div id="omni-cake-drum"></div>
+  <div id="omni-cake-dome"></div>
+  <div id="omni-cake-tiers"></div>
 </main>
+
+<script src="assets/cake-prompts-10x.js"></script>
 <script>
-fetch('assets/omni/prompts.json').then(r => r.json()).then(P => {
-  const show = (list, R) => { let nv = 0, ni = 0; list.forEach(r => { const f = document.createElement('figure'), v = r.kind === 'video', n = v ? ++nv : ++ni;
-    f.innerHTML = (v ? `<video src="assets/omni/${r.file}" controls loop muted playsinline preload="metadata"></video>` : `<img src="assets/omni/${r.file}" alt="">`) + `<figcaption><b>${r.kind} ${n}</b> · ${r.job.split(':')[0]} · <a href="assets/omni/${r.file}" download>download</a></figcaption>`; R.append(f); }); };
-  show(P.refs, document.getElementById('refs')); show(P.refs_scene, document.getElementById('refs2'));
+let PDATA = null;
+let curMode = 'prompt_museum_notext';
+
+function renderVariants() {
+  if (!PDATA) return;
   const L = document.getElementById('list');
-  P.variants.forEach(v => { const d = document.createElement('div'); d.className = 'v';
-    d.innerHTML = `<h3>${v.id} · ${v.lang} · ${v.text}</h3><div class="dim">${v.kids}. ${v.where}.</div><textarea readonly></textarea><button data-k="prompt">copy main prompt</button><button data-k="prompt_scene">copy world-only prompt</button><a href="assets/omni/prompts/${v.id}_${v.name}.txt" download>.txt</a> · <a href="assets/omni/prompts/${v.id}_${v.name}_scene-only.txt" download>world-only .txt</a>`;
-    d.querySelector('textarea').value = v.prompt; d.querySelectorAll('button').forEach(b => b.onclick = e => { navigator.clipboard.writeText(v[b.dataset.k]); const t = b.textContent; b.textContent = 'copied'; setTimeout(() => b.textContent = t, 1200); }); L.append(d); });
+  L.innerHTML = '';
+  PDATA.variants.forEach(v => {
+    const d = document.createElement('div');
+    d.className = 'v';
+    const isNoText = curMode.includes('notext');
+    d.innerHTML = `
+      <h3>#${v.id} · ${v.lang.toUpperCase()} ${isNoText ? '· ZERO TEXT PATISSERIE' : '· ' + v.text}</h3>
+      <div class="sub">${v.kids}. ${v.where}.</div>
+      <textarea readonly></textarea>
+      <div class="v-acts">
+        <button class="btn active" data-copy="active">COPY THIS PROMPT</button>
+        <a class="btn" href="assets/omni/prompts/${v.id}_${v.name}_museum-no-screen-no-text.txt" download>MUSEUM NO-TEXT .TXT</a>
+        <a class="btn" href="assets/omni/prompts/${v.id}_${v.name}_scene-only-no-text.txt" download>SCENE NO-TEXT .TXT</a>
+        <a class="btn" href="assets/omni/prompts/${v.id}_${v.name}.txt" download>SCRIPT .TXT</a>
+      </div>
+    `;
+    const ta = d.querySelector('textarea');
+    ta.value = v[curMode] || v.prompt;
+    d.querySelector('[data-copy]').onclick = e => {
+      navigator.clipboard.writeText(ta.value);
+      const b = e.target; const orig = b.textContent;
+      b.textContent = 'COPIED!';
+      setTimeout(() => b.textContent = orig, 1200);
+    };
+    L.append(d);
+  });
+}
+
+fetch('assets/omni/prompts.json').then(r => r.json()).then(P => {
+  PDATA = P;
+  const show = (list, R) => {
+    let ni = 0;
+    (list || []).forEach(r => {
+      const f = document.createElement('figure'), v = r.kind === 'video', n = ++ni;
+      f.innerHTML = (v
+        ? `<video src="assets/omni/${r.file}" controls loop muted playsinline preload="metadata"></video>`
+        : `<img src="assets/omni/${r.file}" alt="">`) +
+        `<figcaption><b>REF ${n} (${r.file.split('/').pop()})</b> · ${r.job.split(':')[0]} · <a href="assets/omni/${r.file}" download>DOWNLOAD</a></figcaption>`;
+      R.append(f);
+    });
+  };
+  show(P.refs_museum || P.refs, document.getElementById('refsMuseum'));
+  show(P.refs_scene, document.getElementById('refsScene'));
+  renderVariants();
 });
+
+document.querySelectorAll('#batchBar button').forEach(btn => {
+  btn.onclick = () => {
+    curMode = btn.dataset.mode;
+    document.querySelectorAll('#batchBar button').forEach(b => b.classList.toggle('active', b === btn));
+    renderVariants();
+  };
+});
+
+if (window.CAKE_PROMPTS_10X) {
+  CAKE_PROMPTS_10X.mount('omni-cake-bundt', { deck: 'bundt' });
+  CAKE_PROMPTS_10X.mount('omni-cake-drum',  { deck: 'drum' });
+  CAKE_PROMPTS_10X.mount('omni-cake-dome',  { deck: 'dome' });
+  CAKE_PROMPTS_10X.mount('omni-cake-tiers', { deck: 'tiers' });
+}
 </script>
 </body>
 </html>

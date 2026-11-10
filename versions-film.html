@@ -3,40 +3,80 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Film versions</title>
+<title>Film Versions · Grounded, Museum No-Screen, No-Text &amp; Reference ")" Reticle</title>
 <style>
-  html,body{margin:0;background:#000;color:#fff;font:400 12px/1.4 "Barlow Semi Condensed","Arial Narrow",Arial,sans-serif;letter-spacing:.07em;text-transform:uppercase}
-  main{max-width:1280px;margin:0 auto;padding:18px}
-  h1{font:600 14px/1 inherit;margin:0 0 14px;letter-spacing:.14em}h2{font:600 11px/1.2 inherit;margin:22px 0 10px;opacity:.7;letter-spacing:.12em}
-  .g{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px}
-  figure{margin:0;border:1px solid rgba(255,255,255,.25)}
-  video{width:100%;display:block;background:#000}
-  figcaption{padding:8px 10px;opacity:.85}
-  figcaption b{display:block;font-weight:600;margin-bottom:2px}
-  figcaption span{opacity:.65;text-transform:none;letter-spacing:.02em}
+  html,body{margin:0;background:#040506;color:#f0f4f2;font:400 13px/1.45 "Barlow Semi Condensed","IBM Plex Sans","Arial Narrow",Arial,sans-serif;letter-spacing:.05em}
+  main{max-width:1380px;margin:0 auto;padding:22px 24px 72px}
+  header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.22);padding-bottom:14px;margin-bottom:20px;text-transform:uppercase}
+  h1{font:600 17px/1.2 inherit;margin:0;letter-spacing:.12em}
+  nav{display:flex;flex-wrap:wrap;gap:10px}
+  nav a{color:#66f0d8;text-decoration:none;border:1px solid rgba(102,240,216,.4);padding:6px 11px;font-size:12px;font-weight:600}
+  nav a.gold{color:#ffcc66;border-color:rgba(255,204,102,.5)}
+  h2{font:600 13px/1.3 inherit;margin:28px 0 12px;color:#ffcc66;letter-spacing:.11em;text-transform:uppercase}
+  .g{display:grid;grid-template-columns:repeat(auto-fill,minmax(560px,1fr));gap:16px}
+  @media(max-width:680px){.g{grid-template-columns:1fr}}
+  figure{margin:0;border:1px solid rgba(255,255,255,.24);background:#090c0e;display:flex;flex-direction:column}
+  video{width:100%;aspect-ratio:16/9;display:block;background:#000;object-fit:cover}
+  figcaption{padding:11px 14px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  figcaption div{flex:1}
+  figcaption b{display:block;font-weight:600;font-size:14px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;color:#fff}
+  figcaption span{color:rgba(240,244,242,.74);letter-spacing:.01em;font-size:13px}
+  figcaption a.dl{flex:0 0 auto;color:#080a08;background:#ffcc66;padding:6px 10px;text-decoration:none;font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.08em}
 </style>
 </head>
 <body><main>
-<h1>The cake, made</h1>
-<h2>The orb film, re-recorded: the reticle off, and the reticle beside the cake</h2>
+<header>
+  <h1>THE CAKE, MADE · ALL FILM BATCHES &amp; MUSEUM EDITIONS</h1>
+  <nav>
+    <a class="gold" href="film.html">DIRECTOR FILM + 10x PROMPTS PER CAKE</a>
+    <a href="moments.html">MOMENTS HUB (59 CLIPS + 10x PROMPTS)</a>
+    <a href="omni.html">TEN BIRTHDAYS (OMNI / FLOW)</a>
+    <a href="index.html">INDEX</a>
+  </nav>
+</header>
+
+<h2>Batch A · Museum-Grade (No Screen Above Memory Orb · Zero Text · Better Scale &amp; Grounding)</h2>
+<div class="g" id="gMuseum"></div>
+
+<h2>Batch B · Zero-Text Editions (Graphical Wave Panel · Zero Text Anywhere · Grounded)</h2>
+<div class="g" id="gNoText"></div>
+
+<h2>Batch C · Grounded Orb Film: No Reticle vs Film-Accurate ")" Side Crescent + Stage-Only</h2>
 <div class="g" id="g0"></div>
-<h2>The original film, more ways</h2>
+
+<h2>The Original Film, More Ways</h2>
 <div class="g" id="g1"></div>
-<h2>Versions as a game: the controller always shown, the assets being made</h2>
+
+<h2>Versions As A Game: The Controller Always Shown, The Assets Being Made</h2>
 <div class="g" id="g2"></div>
-<h2>Generated with the controller in frame (fal: H3 Max and Kling 2.1)</h2>
+
+<h2>Generated With The Controller In Frame (fal: H3 Max and Kling 2.1)</h2>
 <div class="g" id="g4"></div>
-<h2>Generated versions of the birthday frame</h2>
+
+<h2>Generated Versions Of The Birthday Frame</h2>
 <div class="g" id="g3"></div>
-<p style="opacity:.6;margin-top:16px;text-transform:none;letter-spacing:.02em">The controls in "with controls" are inferred from the footage, not read from it. Generated versions use Kling 2.1 image to video. The model redraws the controller panel as it goes, so the panel is not stable from frame to frame.</p>
+
 </main>
 <script>
 var S=[
- ['g0',[['orbfilm/orb-film-no-reticle','No reticle','The #film orb film re-recorded from the same engine and the same director script with the reticle removed: no wrapping arcs, no numbered list, no circles on the cake. The guide caption and the controller stay.'],['orbfilm/orb-film-reticle-aside','Reticle beside the cake','Same film with one pale crescent standing beside the cake, as in the original: ticks and a needle that follows the ring last turned. Nothing wraps the cake.']]],
+ ['gMuseum',[
+   ['orbfilm/orb-film-museum-side-reticle','Museum-Grade · No Screen Above Orb · Side ")" Reticle','Top rectangular OLED screen and struts removed; refined 5-ring brushed metal barrel below, heroic-scale grounded cake on beveled walnut table, zero text, and film-accurate ")" crescent cupping toward the cake on the right.'],
+   ['orbfilm/orb-film-museum-no-screen','Museum-Grade · No Screen Above Orb · No Reticle','Pure gallery-grade screenless 5-ring Memory Orb barrel below + heroic grounded 4-cake build, 3 warmly lit children, blow-out, and mist weave above — zero reticle, zero screen above Orb, zero text.']
+ ]],
+ ['gNoText',[
+   ['orbfilm/orb-film-no-text-side-reticle','Batch: No Text · Side ")" Reticle','Zero text characters anywhere in the stage or on the rings/buttons/panel (pure harmonic wave telemetry) + grounded walnut table + film-accurate ")" side crescent.'],
+   ['orbfilm/orb-film-no-text','Batch: No Text · No Reticle','Zero text anywhere and zero reticle — grounded 4-cake evolution, piping, berries, 7 candles, and 3 children with non-verbal waveform panel below.']
+ ]],
+ ['g0',[
+   ['orbfilm/orb-film-reticle-aside','Grounded · Reticle Off To The Side ")" (Reference Curve)','Same director film with improved cake/table scale, porcelain stand shadow, and one translucent smoked-glass crescent curving ")" concave-toward-cake on the right with inward needles.'],
+   ['orbfilm/orb-film-no-reticle','Grounded · No Reticle','Same grounded director film with all wrapping arcs, numbered lists, and circles completely removed from the cake.'],
+   ['orbfilm/orb-film-stage-grounded','Stage-Only · Grounded · No Reticle (Zero Hardware)','100% full-frame grounded 3D stage with zero controller hardware and zero text — ready for style transfer or controller stacking.'],
+   ['orbfilm/orb-film-stage-side-reticle','Stage-Only · Grounded · Side ")" Reticle (Zero Hardware)','100% full-frame grounded 3D stage with the reference ")" side crescent and zero controller hardware.']
+ ]],
  ['g1',[['flow/original-flow','The whole flow','The original footage, 2:17 to 2:50: the cake summoned, its looks, the tip, the lettering, the girls, her hands on the orb.'],['flow/original-flow-controls','With controls','The same flow with the orb below it: which ring and key the footage implies at each moment (inferred).']]],
  ['g2',[['flow/game-arcs-film-plate','Arcs on the film plate','The film\'s own shot with the cake arc, lettering, tilt, a retimed child and the flame-out.'],['flow/game-stage-pad','Stage and pad','The cake built from nothing with the pad in view: scene graph, pen, focus pull, tilt.'],['flow/game-tall-cake','Tall cake','A two-step build with nine candles, lettering, and the camera turning round.'],['flow/game-forest-focus','Forest and focus','The forest plate, the reveal and the focus pull, pad in view.']]],
- ['g4',[['generated/h3max-weaver-ux','H3 Max · the UX being used','MiniMax H3 Max text to video, 10 s, 1080p. A cake builds from nothing while the controller\'s rings and the readout panel stay in frame. Prompt in the repo.'],['generated/gen-C-from-nothing','From nothing','A table appears and a cake builds itself layer by layer, with the controller panel below. Start frame: our stage and pad.'],['generated/gen-D-candles','Candles light','Candles ignite one by one, warm light spreads, the panel below keeps turning. Start frame: our stage and pad.'],['generated/gen-A-summon','Summon, original','Start frame: the original with the orb panel. The cake rises and red letters form.'],['generated/gen-B-lettering','Lettering and tilt, original','Start frame: the original at the lettering, with the panel. The cake tips as the candles burn.']]],
+ ['g4',[['generated/h3max-weaver-ux','H3 Max · the UX being used','MiniMax H3 Max text to video, 10 s, 1080p. A cake builds from nothing while the controller\'s rings and the readout panel stay in frame.'],['generated/gen-C-from-nothing','From nothing','A table appears and a cake builds itself layer by layer, with the controller panel below.'],['generated/gen-D-candles','Candles light','Candles ignite one by one, warm light spreads, the panel below keeps turning.'],['generated/gen-A-summon','Summon, original','Start frame: the original with the orb panel. The cake rises and red letters form.'],['generated/gen-B-lettering','Lettering and tilt, original','Start frame: the original at the lettering, with the panel. The cake tips as the candles burn.']]],
  ['g3',[['versions/v0_original','V0 · Original','The film, 4 s.'],['versions/v1_blowout','V1 · Blow-out','Breath, flames bend and go out, smoke, the light falls.'],['versions/v2_pushin','V2 · Push-in','Slow push toward the cake and the birthday girl.'],['versions/v3_hologram','V3 · Hologram','Edges like mist, the faces turn toward the cake.']]]];
-S.forEach(function(s){var g=document.getElementById(s[0]);s[1].forEach(function(v){var f=document.createElement('figure');f.innerHTML='<video src="assets/'+v[0]+'.mp4" poster="assets/'+v[0]+'.jpg" controls loop muted playsinline preload="metadata"></video><figcaption><b>'+v[1]+'</b><span>'+v[2]+'</span></figcaption>';g.appendChild(f)})});
+S.forEach(function(s){var g=document.getElementById(s[0]);if(!g)return;s[1].forEach(function(v){var f=document.createElement('figure');f.innerHTML='<video src="assets/'+v[0]+'.mp4" poster="assets/'+v[0]+'.jpg" controls loop muted playsinline preload="metadata"></video><figcaption><div><b>'+v[1]+'</b><span>'+v[2]+'</span></div><a class="dl" href="assets/'+v[0]+'.mp4" download>MP4</a></figcaption>';g.appendChild(f)})});
 [].forEach.call(document.querySelectorAll('video'),function(v){v.addEventListener('mouseenter',function(){v.play().catch(function(){})});v.addEventListener('mouseleave',function(){v.pause()})});
 </script></body></html>

@@ -395,10 +395,12 @@
       <button class="btn" onclick="setGlobalSpeed(0.25, this)">0.25x</button>
       <button class="btn" onclick="setGlobalSpeed(0.5, this)">0.5x</button>
       <button class="btn active" onclick="setGlobalSpeed(1.0, this)">1.0x</button>
-      <button class="btn primary" onclick="downloadAllMasterVideos()">DOWNLOAD ALL 6 MASTER REELS (.MP4)</button>
-      <button class="btn teal" onclick="copyCurlScript()">COPY BATCH DOWNLOAD SCRIPT (ALL 59 .MP4s)</button>
-      <a class="btn" href="weaver.html?stage=1">OPEN 3D STAGE-ONLY ENGINE (NO ORB UI)</a>
-      <a class="btn" href="cineosis-orb.html?stage=1">OPEN CINEOSIS STAGE-ONLY (NO ORB UI)</a>
+      <button class="btn primary" onclick="downloadAllMasterVideos()">DOWNLOAD ALL MASTER REELS (.MP4)</button>
+      <button class="btn teal" onclick="copyCurlScript()">COPY BATCH DOWNLOAD SCRIPT</button>
+      <a class="btn primary" href="film.html">8 ORB FILM BATCHES (MUSEUM · NO-TEXT · ")" RETICLE)</a>
+      <a class="btn teal" href="omni.html">TEN BIRTHDAYS (OMNI / FLOW)</a>
+      <a class="btn" href="assets/moments/moments-clips.zip" download>RAW FILM CUTS (.ZIP)</a>
+      <a class="btn" href="orb-film-studio.html?stage=1&notext=1&reticle=off">OPEN GROUNDED 3D STAGE</a>
     </div>
   </header>
 
@@ -424,6 +426,7 @@
 
 <div id="toastMsg">COPIED TO CLIPBOARD</div>
 
+<script src="assets/cake-prompts-10x.js"></script>
 <script>
 const MASTER_VIDEOS = [
   {
@@ -435,44 +438,68 @@ const MASTER_VIDEOS = [
     file: "stelline_master_01_actual_film_closeup_no_orb.mp4"
   },
   {
-    tag: "MASTER 02 · BEST 3D MULTI-TIER & STANDEES (STAGE ONLY)",
+    tag: "MASTER 02 · GROUNDED STAGE-ONLY (NO RETICLE · NO TEXT)",
     tagClass: "",
-    title: "Best 3D Multi-Tier Cake Sculpt & Die-Cut Children (100% Stage-Only)",
-    desc: "Full 6-Act 3D engine recording (Bundt -> Drum -> Dome -> 2-Tier Cake, Spin-12 Flutes, Rose/White/Gold Piping, Cherries, 7 Candles, 3 Die-Cut Children, Optical DOF Pull, Blow-Out & Mist) with ZERO Memory Maker UI.",
-    src: "assets/moments_videos/master_00_stelline_3d_stage_only.mp4",
-    file: "stelline_master_02_best3d_multitier_stage_only.mp4"
+    title: "Grounded 3D Cake Sculpt & Children (No Reticle · No Orb · Clear Table)",
+    desc: "Heroic-scale 6-Act 3D engine build on the grounded beveled walnut table & ivory porcelain stand with clear under-cake shadow, ZERO reticle, ZERO text, and ZERO Memory Maker hardware.",
+    src: "assets/orbfilm/orb-film-stage-grounded.mp4",
+    file: "stelline_master_02_grounded_stage_no_reticle.mp4"
   },
   {
-    tag: "MASTER 03 · SEGMENTED ISOLATED SUBJECTS ON BLACK",
+    tag: "MASTER 03 · GROUNDED STAGE-ONLY + SIDE \")\" RETICLE",
+    tagClass: "",
+    title: "Grounded 3D Cake Sculpt + Film-Accurate \")\" Side Crescent (Zero Orb)",
+    desc: "Same grounded 3D stage with the translucent smoked-glass crescent curving \")\" concave-toward-cake on the right (matching the film reference) and ZERO controller hardware.",
+    src: "assets/orbfilm/orb-film-stage-side-reticle.mp4",
+    file: "stelline_master_03_grounded_stage_side_reticle.mp4"
+  },
+  {
+    tag: "MASTER 04 · MUSEUM-GRADE · NO SCREEN ABOVE ORB + \")\" RETICLE",
+    tagClass: "gold",
+    title: "Museum-Grade Screenless 5-Ring Orb + Grounded Cake & \")\" Reticle",
+    desc: "No rectangular screen above the Memory Orb and zero text anywhere: refined brushed-titanium 5-ring barrel below + heroic grounded cake, children, and reference \")\" side crescent above.",
+    src: "assets/orbfilm/orb-film-museum-side-reticle.mp4",
+    file: "stelline_master_04_museum_no_screen_side_reticle.mp4"
+  },
+  {
+    tag: "MASTER 05 · MUSEUM-GRADE · NO SCREEN ABOVE ORB · NO RETICLE",
+    tagClass: "gold",
+    title: "Museum-Grade Screenless 5-Ring Orb · Zero Reticle · Zero Text",
+    desc: "Pure gallery-grade screenless 5-ring cylindrical Memory Orb below + clean grounded birthday cake evolutions and children above — zero reticle, zero screen above Orb, zero text.",
+    src: "assets/orbfilm/orb-film-museum-no-screen.mp4",
+    file: "stelline_master_05_museum_no_screen_clean.mp4"
+  },
+  {
+    tag: "MASTER 06 · BATCH: NO TEXT (GRAPHICAL PANEL + ORB)",
+    tagClass: "",
+    title: "Zero-Text Orb Film Batch (Pure Graphical Wave Panel + Grounded Stage)",
+    desc: "Full 6-Act Orb Film with zero text characters in the stage or on the hardware (pure harmonic waveform telemetry + physical knurled rings).",
+    src: "assets/orbfilm/orb-film-no-text.mp4",
+    file: "stelline_master_06_batch_no_text.mp4"
+  },
+  {
+    tag: "MASTER 07 · SEGMENTED ISOLATED SUBJECTS ON BLACK",
     tagClass: "grn",
     title: "Isolated Segmented Cake & Children Matte (#000000 Pure Black)",
     desc: "Continuous pixel-accurate foreground segmentation matte across all birthday moments: strictly the isolated cake being sculpted and the isolated table & children on pure black.",
     src: "assets/moments_videos/master_03_segmented_isolated_supercut.mp4",
-    file: "stelline_master_03_segmented_isolated_on_black.mp4"
+    file: "stelline_master_07_segmented_isolated_on_black.mp4"
   },
   {
-    tag: "MASTER 04 · BEST 3D CHAMBER FILM (WEAVER STAGE ONLY)",
-    tagClass: "",
-    title: "Weaver 3D Chamber Film — Cake From Nothing to Party (Zero Orb)",
-    desc: "Full 68-second 3D chamber film ('A Birthday Cake, From Nothing') with the bottom-right mini-orb and reticle completely removed — pure dark chamber cake sculpting and party table.",
-    src: "assets/moments_videos/master_04_best3d_weaver_stage_only.mp4",
-    file: "stelline_master_04_weaver_3d_chamber_no_orb.mp4"
-  },
-  {
-    tag: "MASTER 05 · ACTUAL FILM WIDE CHAMBER (ANA ERASED)",
+    tag: "MASTER 08 · ACTUAL FILM WIDE CHAMBER (ANA ERASED)",
     tagClass: "gold",
     title: "Actual Film Wide Chamber Supercut (Ana & Memory Maker Erased)",
     desc: "Full 16:9 dark dome chamber across all birthday moments with Ana Stelline, K, and the Memory Maker completely erased into the clean chamber background plate.",
     src: "assets/moments_videos/master_02_film_chamber_supercut.mp4",
-    file: "stelline_master_05_actual_film_wide_chamber_clean.mp4"
+    file: "stelline_master_08_actual_film_wide_chamber_clean.mp4"
   },
   {
-    tag: "MASTER 06 · DEPTH + CANNY EDGE CONDITIONING",
+    tag: "MASTER 09 · DEPTH + CANNY EDGE CONDITIONING",
     tagClass: "grn",
     title: "Full-Sequence Depth Anything V2 + Canny Edge Conditioning",
     desc: "Frame-locked Depth Anything V2 + Canny structural edge + subject silhouette conditioning supercut for structure-preserving video-to-video style transfer.",
     src: "assets/moments_videos/master_06_depth_edge_supercut.mp4",
-    file: "stelline_master_06_depth_edge_conditioning.mp4"
+    file: "stelline_master_09_depth_edge_conditioning.mp4"
   }
 ];
 
@@ -670,6 +697,7 @@ function showToast(msg) {
 }
 
 function posterFor(src) {
+  if (src.includes('assets/orbfilm/')) return src.replace(/\.mp4$/i, '.jpg');
   const base = src.split('/').pop().replace(/\.mp4$/i, '');
   if (src.includes('assets/mist/')) return `assets/moments_videos/posters/mist_${base}.jpg`;
   return `assets/moments_videos/posters/${base}.jpg`;
@@ -764,11 +792,12 @@ fetch('assets/v6/moments.json').then(r => r.json()).catch(() => ({})).then(MJSON
     html += `
       <div class="prompt-box">
         <div>
-          <b>STYLE-TRANSFER PROMPT (M${m.n} · ZERO HARDWARE):</b> ${m.prompt}
+          <b>CANONICAL MOMENT PROMPT (M${m.n} · ZERO HARDWARE):</b> ${m.prompt}
           <span class="neg"><b>NEGATIVE PROMPT:</b> ${m.neg}</span>
         </div>
-        <button class="btn teal" onclick="copyMomentPrompt(${m.n})">COPY PROMPT</button>
+        <button class="btn teal" onclick="copyMomentPrompt(${m.n})">COPY BASE PROMPT</button>
       </div>
+      ${m.n !== 7 ? `<div id="cp10-m${m.n}"></div>` : ''}
     `;
 
     if (curves || notes.length) {
@@ -784,6 +813,14 @@ fetch('assets/v6/moments.json').then(r => r.json()).catch(() => ({})).then(MJSON
     html += `</section>`;
   }
   container.innerHTML = html;
+  if (window.CAKE_PROMPTS_10X) {
+    const deckMap = { 25: 'drum', 26: 'bundt', 27: 'dome', 29: 'tiers', 36: 'tiers', 39: 'tiers', 44: 'tiers', 46: 'tiers' };
+    for (const m of MOMENTS_DATA) {
+      if (m.n !== 7) {
+        CAKE_PROMPTS_10X.mount(`cp10-m${m.n}`, { deck: deckMap[m.n] || 'tiers', moment: m.n });
+      }
+    }
+  }
   initVideoObserver();
 });
 

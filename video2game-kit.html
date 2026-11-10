@@ -77,6 +77,8 @@
   <div class="hControls">
     <label style="font-weight:900;font-size:14px;">TARGET STYLE:</label>
     <select id="globalStyleSel"></select>
+    <a class="btn" href="film.html">8 ORB FILM BATCHES + 10x PROMPTS</a>
+    <a class="btn dark" href="moments.html">MOMENTS HUB</a>
     <a class="btn orange" href="cineosis-orb.html">← BACK TO 3D CINEOSIS-ORB</a>
   </div>
 </header>
@@ -101,6 +103,7 @@
   <div class="grid" id="charsGrid"></div>
 </div>
 
+<script src="assets/cake-prompts-10x.js"></script>
 <script>
 const V2G_STYLES = [
   {
@@ -215,15 +218,18 @@ function renderAll() {
 
   const cakesGrid = document.getElementById('cakesGrid');
   cakesGrid.innerHTML = '';
+  const v2gDeckMap = { cake_00: 'drum', cake_01: 'bundt', cake_02: 'drum', cake_03: 'tiers', cake_04: 'dome', cake_05: 'tiers' };
   V2G_CAKES.forEach(c => {
     const fullPrompt = `[TARGET: ${st.name}]\n[HERO ASSET: ${c.code} — ${c.title}]\nPROMPT: ${c.prompt}\nRECIPE SPEC: ${c.recipe}\nSTYLE SPEC: ${st.suffix}`;
+    const isCake = c.id.startsWith('cake_');
     const card = document.createElement('div');
     card.className = 'card';
+    if (isCake) card.style.gridColumn = '1 / -1';
     card.innerHTML = `
       <div class="cardHead"><span class="cardCode">${c.code}</span><span class="cardTitle">${c.title}</span></div>
       <div class="plates2">
-        <div class="plate"><img src="${c.img}" style="height:160px;object-fit:contain;" loading="lazy"><span>1·CANONICAL CAKE <a href="${c.img}" download>DL</a></span></div>
-        <div class="plate"><img src="${c.pose}" style="height:160px;object-fit:cover;" loading="lazy"><span>2·GEOMETRY WIREFRAME <a href="${c.pose}" download>DL</a></span></div>
+        <div class="plate"><img src="${c.img}" style="height:220px;object-fit:contain;background:#0d100f;" loading="lazy"><span>1·CANONICAL CAKE <a href="${c.img}" download>DL</a></span></div>
+        <div class="plate"><img src="${c.pose}" style="height:220px;object-fit:cover;" loading="lazy"><span>2·GEOMETRY WIREFRAME <a href="${c.pose}" download>DL</a></span></div>
       </div>
       <div class="cardBody">
         <div class="metaLine"><strong>RECIPE:</strong> ${c.recipe}</div>
@@ -232,9 +238,16 @@ function renderAll() {
           <button class="btn orange" onclick="navigator.clipboard.writeText(this.parentElement.previousElementSibling.value);this.textContent='COPIED!';setTimeout(()=>this.textContent='COPY PROMPT',1400)">COPY PROMPT</button>
           <a class="btn" href="${c.img}" download>DOWNLOAD CAKE REF</a>
         </div>
+        ${isCake ? `<div id="v2g-cp10-${c.id}"></div>` : ''}
       </div>
     `;
     cakesGrid.appendChild(card);
+    if (isCake && window.CAKE_PROMPTS_10X) {
+      CAKE_PROMPTS_10X.mount(`v2g-cp10-${c.id}`, {
+        deck: v2gDeckMap[c.id] || 'tiers',
+        title: `10 PROMPTS BENEATH ${c.code} · DIFFERENT PEOPLE × TIMES × CAKES`
+      });
+    }
   });
 
   const charsGrid = document.getElementById('charsGrid');

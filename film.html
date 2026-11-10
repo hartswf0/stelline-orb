@@ -3,92 +3,138 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VESPER // STELLINE ORB DIRECTOR FILM (FLM-0021)</title>
+<title>STELLINE ORB FILM · GROUNDED, SIDE RETICLE ), NO-TEXT & MUSEUM NO-SCREEN SUITE</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #030508;
-    --panel: #090d13;
-    --border: rgba(95, 240, 220, 0.22);
-    --cyan: #5ff0dc;
+    --bg: #040608;
+    --panel: #090e12;
+    --card: #0d1419;
+    --border: rgba(102, 240, 216, 0.24);
+    --cyan: #66f0d8;
     --gold: #ffcc66;
-    --orange: #ff9f43;
-    --red: #ff5a3c;
-    --green: #98f5b0;
-    --ink: #ecf3f8;
-    --muted: #8fa3b5;
-    --mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
-    --sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    --ink: #f0f6f8;
+    --muted: #98acb8;
+    --mono: "IBM Plex Mono", "SF Mono", Menlo, monospace;
+    --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background: radial-gradient(circle at 50% 0%, #0d1620 0%, #030508 65%);
+    background: radial-gradient(circle at 50% 0%, #0e1820 0%, #040608 65%);
     color: var(--ink);
     font-family: var(--sans);
     min-height: 100vh;
-    padding: 20px 24px 48px;
+    padding: 20px 24px 72px;
+    line-height: 1.5;
   }
+  .wrap { max-width: 1400px; margin: 0 auto; }
   header {
-    max-width: 1320px;
-    margin: 0 auto 18px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
     border-bottom: 1px solid var(--border);
-    padding-bottom: 14px;
+    padding-bottom: 16px;
+    margin-bottom: 18px;
   }
   .brand {
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 0.14em;
+    font: 700 13px/1.4 var(--mono);
+    letter-spacing: 0.08em;
     color: var(--cyan);
-    font-weight: 700;
   }
   .brand span { color: var(--gold); }
-  .nav-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
+  .nav-links { display: flex; flex-wrap: wrap; gap: 8px; }
   .nav-links a {
-    font-family: var(--mono);
-    font-size: 11px;
+    font: 600 11.5px var(--mono);
     color: var(--ink);
     text-decoration: none;
-    padding: 6px 11px;
+    padding: 7px 12px;
     border-radius: 4px;
-    border: 1px solid rgba(140, 170, 195, 0.3);
-    background: rgba(12, 18, 26, 0.85);
-    transition: all 0.15s ease;
+    border: 1px solid rgba(140, 175, 195, 0.32);
+    background: rgba(12, 20, 28, 0.9);
   }
   .nav-links a:hover, .nav-links a.primary {
     border-color: var(--cyan);
     color: var(--cyan);
-    background: rgba(20, 44, 54, 0.9);
   }
   .nav-links a.gold {
     border-color: var(--gold);
     color: var(--gold);
-    background: rgba(48, 36, 14, 0.88);
+    background: rgba(48, 36, 12, 0.88);
   }
-  main {
-    max-width: 1320px;
-    margin: 0 auto;
+
+  /* Batch Edition Switcher */
+  .edition-box {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin-bottom: 18px;
+  }
+  .edition-top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .edition-top h1 {
+    font: 700 18px var(--mono);
+    color: #fff;
+  }
+  .edition-tabs {
     display: grid;
-    grid-template-columns: 1fr 340px;
+    grid-template-columns: repeat(auto-fit, minmax(265px, 1fr));
+    gap: 8px;
+  }
+  .ed-tab {
+    text-align: left;
+    padding: 10px 12px;
+    border-radius: 5px;
+    border: 1.5px solid rgba(120, 160, 180, 0.26);
+    background: #0c1318;
+    color: var(--ink);
+    cursor: pointer;
+    font-family: var(--mono);
+    transition: all 0.14s ease;
+  }
+  .ed-tab:hover { border-color: var(--cyan); }
+  .ed-tab.active {
+    border-color: var(--gold);
+    background: rgba(58, 42, 12, 0.88);
+  }
+  .ed-tab b {
+    display: block;
+    font-size: 12px;
+    color: var(--cyan);
+    margin-bottom: 3px;
+  }
+  .ed-tab.active b { color: var(--gold); }
+  .ed-tab span {
+    display: block;
+    font: 400 11.5px/1.35 var(--sans);
+    color: var(--muted);
+  }
+
+  /* Main Player + Chapters */
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 350px;
     gap: 18px;
     align-items: start;
+    margin-bottom: 28px;
   }
-  @media (max-width: 1024px) {
-    main { grid-template-columns: 1fr; }
+  @media (max-width: 1060px) {
+    .hero-grid { grid-template-columns: 1fr; }
   }
   .player-card {
     background: var(--panel);
     border: 1px solid var(--border);
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.72);
   }
   .video-wrap {
     position: relative;
@@ -96,49 +142,43 @@
     aspect-ratio: 16 / 9;
     background: #020304;
   }
-  video {
+  .video-wrap video {
     width: 100%;
     height: 100%;
     display: block;
     object-fit: contain;
-    background: #020304;
   }
   .player-bar {
     padding: 12px 16px;
-    border-top: 1px solid rgba(95, 240, 220, 0.16);
+    border-top: 1px solid rgba(102, 240, 216, 0.18);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    font-family: var(--mono);
-    font-size: 11px;
+    font: 600 11.5px var(--mono);
   }
-  .btn-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  button {
-    font-family: var(--mono);
-    font-size: 11px;
-    font-weight: 700;
+  .btn-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  button.ctrl, a.ctrl {
+    font: 700 11.5px var(--mono);
     color: var(--ink);
-    background: #121c26;
-    border: 1px solid rgba(95, 240, 220, 0.35);
-    padding: 6px 12px;
+    background: #121d26;
+    border: 1px solid rgba(102, 240, 216, 0.36);
+    padding: 7px 12px;
     border-radius: 4px;
     cursor: pointer;
+    text-decoration: none;
   }
-  button:hover {
+  button.ctrl:hover, a.ctrl:hover {
     border-color: var(--cyan);
     color: var(--cyan);
   }
-  button.active-act {
+  a.ctrl.gold-dl {
+    background: var(--gold);
+    color: #110c02;
     border-color: var(--gold);
-    color: var(--gold);
-    background: rgba(52, 38, 14, 0.92);
   }
+
   .chapters-card {
     background: var(--panel);
     border: 1px solid var(--border);
@@ -149,57 +189,159 @@
     gap: 8px;
   }
   .chapters-title {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
+    font: 700 11.5px var(--mono);
+    letter-spacing: 0.08em;
     color: var(--gold);
-    font-weight: 700;
     padding-bottom: 8px;
-    border-bottom: 1px solid rgba(255, 204, 102, 0.22);
+    border-bottom: 1px solid rgba(255, 204, 102, 0.24);
   }
   .act-btn {
     text-align: left;
     padding: 8px 10px;
-    background: rgba(14, 20, 28, 0.9);
-    border: 1px solid rgba(130, 155, 175, 0.22);
+    background: #0d151c;
+    border: 1px solid rgba(130, 160, 180, 0.24);
     border-radius: 5px;
+    color: var(--ink);
+    cursor: pointer;
     display: flex;
     flex-direction: column;
     gap: 3px;
-    transition: all 0.14s ease;
   }
-  .act-btn .t-range {
-    font-size: 10px;
-    color: var(--cyan);
+  .act-btn:hover { border-color: var(--cyan); }
+  .act-btn.active-act {
+    border-color: var(--gold);
+    background: rgba(52, 38, 12, 0.85);
   }
-  .act-btn .act-name {
-    font-size: 11px;
-    color: var(--ink);
-    font-weight: 700;
+  .act-btn .t-range { font: 700 10.5px var(--mono); color: var(--cyan); }
+  .act-btn .act-name { font: 700 11.5px var(--mono); color: #fff; }
+  .act-btn .act-desc { font: 400 11.5px/1.35 var(--sans); color: var(--muted); }
+
+  /* Side-by-Side All Batches Download Strip */
+  .batch-strip {
+    margin-bottom: 34px;
   }
-  .act-btn .act-desc {
-    font-family: var(--sans);
-    font-size: 11px;
+  .sec-banner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: #0b1317;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 16px;
+  }
+  .sec-banner h2 {
+    font: 700 17px var(--mono);
+    color: var(--gold);
+  }
+  .sec-banner p {
+    font-size: 13.5px;
     color: var(--muted);
-    font-weight: 400;
-    line-height: 1.35;
+    margin-top: 3px;
   }
+  .mini-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+  @media (max-width: 1120px) { .mini-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 640px) { .mini-grid { grid-template-columns: 1fr; } }
+  .mini-card {
+    background: var(--card);
+    border: 1px solid rgba(120, 165, 180, 0.25);
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .mini-card video {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    display: block;
+    object-fit: cover;
+  }
+  .mini-body {
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+  .mini-tag { font: 700 11px var(--mono); color: var(--cyan); }
+  .mini-desc { font-size: 12px; color: var(--muted); flex: 1; }
+  .mini-actions { display: flex; gap: 6px; margin-top: 4px; }
+
+  /* Individual Cake Showcase + 10 Prompts Beneath Each Cake */
+  .cake-showcase {
+    border: 2px solid rgba(255, 204, 102, 0.34);
+    background: var(--panel);
+    border-radius: 8px;
+    padding: 20px 22px 24px;
+    margin-bottom: 28px;
+  }
+  .cake-top {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 20px;
+    align-items: center;
+  }
+  @media (max-width: 960px) { .cake-top { grid-template-columns: 1fr; } }
+  .cake-media {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .cake-media figure {
+    margin: 0;
+    border: 1px solid rgba(102, 240, 216, 0.28);
+    border-radius: 4px;
+    overflow: hidden;
+    background: #000;
+  }
+  .cake-media img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    display: block;
+  }
+  .cake-media figcaption {
+    font: 600 10.5px var(--mono);
+    color: var(--cyan);
+    padding: 5px 8px;
+    background: #080d10;
+  }
+  .cake-info h3 {
+    font: 700 19px var(--mono);
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .cake-info p {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    max-width: 72ch;
+  }
+
+  /* Live Studio */
   .live-section {
-    max-width: 1320px;
-    margin: 22px auto 0;
     background: var(--panel);
     border: 1px solid var(--border);
     border-radius: 8px;
     overflow: hidden;
+    margin-top: 32px;
   }
   .live-header {
-    padding: 10px 16px;
+    padding: 12px 16px;
     display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid rgba(95, 240, 220, 0.18);
-    font-family: var(--mono);
-    font-size: 11px;
+    border-bottom: 1px solid rgba(102, 240, 216, 0.2);
+    font: 700 11.5px var(--mono);
     color: var(--cyan);
   }
   iframe {
@@ -212,115 +354,347 @@
 </style>
 </head>
 <body>
+<div class="wrap">
   <header>
-    <div class="brand">VESPER // <span>FLM-0021</span> · STELLINE MEMORY WEAVER DIRECTOR FILM (3D HORIZONTAL 5-RING SCROLL ENGINE · 1280x720 H.264 + FOLEY AUDIO)</div>
+    <div class="brand">STELLINE // <span>FLM-0021 SUITE</span> · GROUNDED ORB FILM, REFERENCE ")" SIDE RETICLE, NO-TEXT &amp; MUSEUM NO-SCREEN EDITIONS</div>
     <nav class="nav-links">
-      <a href="weaver.html" class="gold">OPEN LIVE 3D MEMORY WEAVER</a>
-      <a href="field-orb-05.html" class="primary">FIELD ORB 05 (3D SCROLL ENGINE)</a>
-      <a href="stage.html">STAGE-0019</a>
-      <a href="mist.html">MIST-0020</a>
+      <a href="moments.html" class="gold">MOMENTS HUB (59 CLIPS + 10x PROMPTS)</a>
+      <a href="omni.html" class="primary">TEN BIRTHDAYS (OMNI / FLOW)</a>
+      <a href="versions-film.html">ALL FILM VERSIONS</a>
+      <a href="video2game-kit.html">VIDEO2GAME POSE + CAKE KIT</a>
+      <a href="orb-film-studio.html?museum=1&reticle=aside">OPEN MUSEUM 3D STUDIO</a>
       <a href="index.html">INDEX</a>
-      <a href="versions.html">VERSIONS</a>
     </nav>
   </header>
 
-  <main>
+  <section class="edition-box">
+    <div class="edition-top">
+      <h1>SELECT ORB FILM BATCH (SYNCHRONIZED 34.1s · 1280x720 · FOLEY AUDIO)</h1>
+      <button class="ctrl" onclick="downloadAllBatches()" style="border-color:var(--gold);color:var(--gold);">DOWNLOAD ALL 8 ORB FILM BATCHES (.MP4)</button>
+    </div>
+    <div class="edition-tabs" id="editionTabs"></div>
+  </section>
+
+  <div class="hero-grid">
     <section class="player-card">
       <div class="video-wrap">
-        <video id="orbFilm" src="assets/stelline-orb-film.mp4" controls autoplay loop playsinline preload="auto"></video>
+        <video id="orbFilm" src="assets/orbfilm/orb-film-museum-side-reticle.mp4" poster="assets/orbfilm/orb-film-museum-side-reticle.jpg" controls autoplay loop muted playsinline preload="auto"></video>
       </div>
       <div class="player-bar">
         <div class="btn-group">
-          <button id="playPauseBtn">PAUSE / PLAY</button>
-          <button id="restartBtn">RESTART 00:00</button>
-          <button id="unmuteBtn">UNMUTE MECHANICAL FOLEY + PAD</button>
+          <button class="ctrl" id="playPauseBtn">PAUSE / PLAY</button>
+          <button class="ctrl" id="restartBtn">RESTART 00:00</button>
+          <button class="ctrl" id="unmuteBtn">UNMUTE MECHANICAL FOLEY + PAD</button>
         </div>
         <div id="timecodeReadout" style="color:var(--gold)">TIMECODE // 00:00.00 / 00:34.13</div>
-        <a href="assets/stelline-orb-film.mp4" download="stelline_orb_film.mp4" style="color:var(--cyan);text-decoration:none;font-weight:700;">DOWNLOAD .MP4 (H.264 + AAC)</a>
+        <a class="ctrl gold-dl" id="activeDownloadBtn" href="assets/orbfilm/orb-film-museum-side-reticle.mp4" download="orb_film_museum_side_reticle.mp4">DOWNLOAD THIS .MP4</a>
       </div>
     </section>
 
     <aside class="chapters-card">
-      <div class="chapters-title">6-ACT 3D HORIZONTAL 5-RING SCROLL ENGINE SEQUENCE</div>
-
+      <div class="chapters-title">6-ACT SEQUENCE · CLICK TO JUMP</div>
       <button class="act-btn" data-seek="0.0">
-        <span class="t-range">[00:00.0 - 00:04.5] ACT I · THE 4 CAKE EVOLUTIONS</span>
-        <span class="act-name">Ring 3 (VERB: BUNDT -> DRUM -> DOME -> TIERS) + Ring 5 (PUT DOWN)</span>
-        <span class="act-desc">Dials Ring 3 VERB and Ring 5 PUT DOWN / AMOUNT to materialize and frost the fluted chocolate Bundt, white Drum, golden lemon Dome, and hero 2-tier cake.</span>
+        <span class="t-range">[00:00.0 – 00:04.5] ACT I · THE 4 GROUNDED CAKES</span>
+        <span class="act-name">12-Flute Bundt -> White Drum -> Golden Dome -> 2-Tier Cake</span>
+        <span class="act-desc">Each cake materializes on the gold-rimmed ivory porcelain stand over the grounded honey-walnut table with clear under-cake shadow.</span>
       </button>
-
       <button class="act-btn" data-seek="4.5">
-        <span class="t-range">[00:04.5 - 00:09.5] ACT II · LOOK ORBIT + MAKE (PULL OUT, SPIN-12 & FROST)</span>
-        <span class="act-name">Ring 1 (LOOK / MAKE) + Ring 3 (PULL OUT / FROST) + Ring 4 (HEIGHT)</span>
-        <span class="act-desc">Circles the cake in LOOK mode, swells both tiers with PULL OUT and 12-fold radial symmetry footprints (SPIN 12), and glazes rose, chocolate, and white buttercream.</span>
+        <span class="t-range">[00:04.5 – 00:09.5] ACT II · ORBIT, SCULPT &amp; GLAZE</span>
+        <span class="act-name">Camera Orbit + Radial Sculpt + Rose / Chocolate / White Frosting</span>
+        <span class="act-desc">Circles the grounded table, swells both tiers, and glazes rose buttercream, dark chocolate foot, and white crown.</span>
       </button>
-
       <button class="act-btn" data-seek="9.5">
-        <span class="t-range">[00:09.5 - 00:18.5] ACT III · 360° PIPING, ROSETTES, CHERRIES, BERRIES & 7 CANDLES</span>
-        <span class="act-name">Ring 3 (PIPE / ROSETTES / CHERRIES / BERRIES / CANDLES) + Ring 5</span>
-        <span class="act-desc">Pipes closed 360° white, rose, and gold beaded borders via Ring 5 LENGTH, then places 10 rosettes, 8 cherries, 12 berries, rainbow sprinkles, and 7 lit striped candles.</span>
+        <span class="t-range">[00:09.5 – 00:18.5] ACT III · PIPING, BERRIES &amp; 7 CANDLES</span>
+        <span class="act-name">360° White/Rose/Gold Borders + Rosettes, Cherries, Berries &amp; 7 Flames</span>
+        <span class="act-desc">Pipes closed beaded borders, places 10 rosettes, 8 cherries, 12 foot berries clearly visible beneath the tier, and lights 7 striped candles.</span>
       </button>
-
       <button class="act-btn" data-seek="18.5">
-        <span class="t-range">[00:18.5 - 00:24.5] ACT IV · SCENE-GRAPH PICK, 3D RGB GIZMO, 3 CHILDREN & DOF</span>
-        <span class="act-name">Ring 1 (MOVE / TURN / SIZE / LOOK) + Ring 2 (PICK) + 3D RGB Gizmo</span>
-        <span class="act-desc">Walks the scene graph with Ring 2 PICK (CANDLE 4, CAKE, CHILD 1..3), lifts Candle 4 with the 3D RGB Gizmo, stages all 3 film children, and racks 28-tap optical DOF focus.</span>
+        <span class="t-range">[00:18.5 – 00:24.5] ACT IV · 3 CHILDREN &amp; OPTICAL DOF</span>
+        <span class="act-name">Three Warmly Lit Children Arrive Around the Table + 28-Tap Focus Rack</span>
+        <span class="act-desc">Stages all three children around the grounded walnut table and racks optical Circle-of-Confusion focus.</span>
       </button>
-
       <button class="act-btn" data-seek="24.5">
-        <span class="t-range">[00:24.5 - 00:29.5] ACT V · TIME STOP-MOTION, ONION SKIN & BLOW OUT CANDLES</span>
-        <span class="act-name">Ring 1 (TIME) + DO (Add Frame) + BLOW OUT 7 Candles + TWEEN 24</span>
-        <span class="act-desc">Adds stop-motion Frame 2 with cyan wireframe onion-skin ghosting, blows out all 7 candles ("ALL OUT · MAKE A WISH"), and plays smooth 24fps tweened rotation.</span>
+        <span class="t-range">[00:24.5 – 00:29.5] ACT V · MAKE A WISH &amp; BLOW OUT</span>
+        <span class="act-name">Seven Candles Extinguish + 24fps Stop-Motion Tween</span>
+        <span class="act-desc">Blows out all seven candles together and plays smooth 24fps tweened rotation.</span>
       </button>
-
       <button class="act-btn" data-seek="29.5">
-        <span class="t-range">[00:29.5 - 00:34.1] ACT VI · WEAVE: 6,000-PARTICLE MIST TRAILS & KEEP GLB</span>
-        <span class="act-name">Ring 1 (WEAVE) + Ring 4 (MATERIALIZE) + Ring 5 (MIST 75%) + KEEP</span>
-        <span class="act-desc">Dissolves the memory into 6,000 additive particles and 7 temporal trail echoes hanging behind the turning cake, records a live ring take, and opens GLB · SCENE export.</span>
+        <span class="t-range">[00:29.5 – 00:34.1] ACT VI · 6,000-PARTICLE MIST WEAVE</span>
+        <span class="act-name">Spacetime Point-Cloud Mist &amp; Temporal Echoes</span>
+        <span class="act-desc">Dissolves the birthday memory into 6,000 luminous particles and trailing echoes.</span>
       </button>
     </aside>
-  </main>
+  </div>
+
+  <!-- SIDE-BY-SIDE ALL 8 BATCHES -->
+  <section class="batch-strip">
+    <div class="sec-banner">
+      <div>
+        <h2>ALL 8 RE-RECORDED ORB FILM BATCHES — SIDE-BY-SIDE PREVIEW &amp; DIRECT .MP4 DOWNLOAD</h2>
+        <p>Includes Museum-Grade No-Screen-Above-Orb, Zero-Text Batch, Reference ")" Side-Reticle (curving concave-toward-cake), Clean No-Reticle, and 100% Hardware-Free Stage-Only.</p>
+      </div>
+    </div>
+    <div class="mini-grid" id="miniBatchGrid"></div>
+  </section>
+
+  <!-- BENEATH EACH CAKE: 10 PROMPTS FOR DIFFERENT PEOPLE x TIMES x CAKES -->
+  <section id="cakes-10x">
+    <div class="sec-banner">
+      <div>
+        <h2>THE 4 CAKES OF THE ORB FILM — EACH WITH 10 PROMPTS (DIFFERENT PEOPLE × TIMES × CAKES)</h2>
+        <p>Beneath every cake below are 10 high-contrast, ready-to-paste prompts spanning different historical eras, people, and culturally authentic cakes — switchable between <b>Museum No-Screen + No-Text</b>, <b>No-Text Scene-Only</b>, and <b>Cultural Calligraphy</b>.</p>
+      </div>
+    </div>
+
+    <div class="cake-showcase" id="cake-bundt">
+      <div class="cake-top">
+        <div class="cake-media">
+          <figure><img src="assets/orbfilm/cakes/cake1_museum_side.jpg" alt="12-Flute Bundt Museum"><figcaption>MUSEUM NO-SCREEN · BUNDT</figcaption></figure>
+          <figure><img src="assets/orbfilm/cakes/cake1_stage_clean.jpg" alt="12-Flute Bundt Stage"><figcaption>STAGE-ONLY GROUNDED · BUNDT</figcaption></figure>
+        </div>
+        <div class="cake-info">
+          <h3>CAKE 01 · 12-FLUTE BUNDT RING CAKE (00:00.8)</h3>
+          <p>Grounded on the gold-rimmed ivory porcelain stand over rich honey-walnut woodgrain so all 12 flutes, dark chocolate glaze, and under-cake contact shadow read effortlessly. Use the 10 prompts directly beneath this cake to generate 10 different eras, people, and fluted ring cakes.</p>
+          <div class="btn-group">
+            <button class="ctrl" onclick="seekHero(1.1)">WATCH IN HERO PLAYER (00:01.1)</button>
+            <a class="ctrl" href="assets/orbfilm/cakes/cake1_stage_clean.jpg" download>DOWNLOAD CLEAN CAKE STILL</a>
+          </div>
+        </div>
+      </div>
+      <div id="prompts-bundt"></div>
+    </div>
+
+    <div class="cake-showcase" id="cake-drum">
+      <div class="cake-top">
+        <div class="cake-media">
+          <figure><img src="assets/orbfilm/cakes/cake2_museum_side.jpg" alt="Frosted Drum Museum"><figcaption>MUSEUM NO-SCREEN · DRUM</figcaption></figure>
+          <figure><img src="assets/orbfilm/cakes/cake2_stage_clean.jpg" alt="Frosted Drum Stage"><figcaption>STAGE-ONLY GROUNDED · DRUM</figcaption></figure>
+        </div>
+        <div class="cake-info">
+          <h3>CAKE 02 · SINGLE-TIER FROSTED DRUM SPONGE (00:02.6)</h3>
+          <p>Classic cylindrical birthday sponge with crisp vertical walls, warm porcelain pedestal rim, and pale optical ")" reticle off to the right side of the cake. Below are 10 prompts across different people, times, and single-tier drum cakes.</p>
+          <div class="btn-group">
+            <button class="ctrl" onclick="seekHero(2.6)">WATCH IN HERO PLAYER (00:02.6)</button>
+            <a class="ctrl" href="assets/orbfilm/cakes/cake2_stage_clean.jpg" download>DOWNLOAD CLEAN CAKE STILL</a>
+          </div>
+        </div>
+      </div>
+      <div id="prompts-drum"></div>
+    </div>
+
+    <div class="cake-showcase" id="cake-dome">
+      <div class="cake-top">
+        <div class="cake-media">
+          <figure><img src="assets/orbfilm/cakes/cake3_museum_side.jpg" alt="Patisserie Dome Museum"><figcaption>MUSEUM NO-SCREEN · DOME</figcaption></figure>
+          <figure><img src="assets/orbfilm/cakes/cake3_stage_clean.jpg" alt="Patisserie Dome Stage"><figcaption>STAGE-ONLY GROUNDED · DOME</figcaption></figure>
+        </div>
+        <div class="cake-info">
+          <h3>CAKE 03 · GOLDEN GLAZED PATISSERIE DOME (00:04.1)</h3>
+          <p>Hemispherical domed sponge glazed warm lemon-gold on the grounded porcelain stand with unmistakable tabletop woodgrain and contact shadow beneath. Below are 10 prompts across different people, times, and domed celebration cakes.</p>
+          <div class="btn-group">
+            <button class="ctrl" onclick="seekHero(4.1)">WATCH IN HERO PLAYER (00:04.1)</button>
+            <a class="ctrl" href="assets/orbfilm/cakes/cake3_stage_clean.jpg" download>DOWNLOAD CLEAN CAKE STILL</a>
+          </div>
+        </div>
+      </div>
+      <div id="prompts-dome"></div>
+    </div>
+
+    <div class="cake-showcase" id="cake-tiers">
+      <div class="cake-top">
+        <div class="cake-media">
+          <figure><img src="assets/orbfilm/cakes/cake4_museum_side.jpg" alt="Two-Tier Party Cake Museum"><figcaption>MUSEUM NO-SCREEN · 2-TIER</figcaption></figure>
+          <figure><img src="assets/orbfilm/cakes/cake4_stage_clean.jpg" alt="Two-Tier Party Cake Stage"><figcaption>STAGE-ONLY GROUNDED · 2-TIER</figcaption></figure>
+        </div>
+        <div class="cake-info">
+          <h3>CAKE 04 · HERO TWO-TIER PARTY CAKE, BERRIES, 7 CANDLES &amp; CHILDREN (00:18.0)</h3>
+          <p>Full two-tier rose, chocolate-foot, and white-crown birthday cake with 360° gold/rose/white piping, 10 rosettes, 8 cherries, 12 foot berries clearly visible beneath the lower tier, 7 burning candles, and the 3 warmly illuminated children.</p>
+          <div class="btn-group">
+            <button class="ctrl" onclick="seekHero(18.0)">WATCH CAKE + 7 CANDLES (00:18.0)</button>
+            <button class="ctrl" onclick="seekHero(22.4)">WATCH WITH 3 CHILDREN (00:22.4)</button>
+            <a class="ctrl" href="assets/orbfilm/cakes/cake4_stage_clean.jpg" download>DOWNLOAD CLEAN CAKE STILL</a>
+          </div>
+        </div>
+      </div>
+      <div id="prompts-tiers"></div>
+    </div>
+  </section>
 
   <section class="live-section">
     <div class="live-header">
-      <span>LIVE INTERACTIVE 3D HORIZONTAL 5-RING SCROLL ENGINE // MEMORY WEAVER (DRAG RINGS 1..5 UP/DOWN OR SIDEWAYS; PRESS MODE / UNDO / DO / PLAY / KEEP)</span>
-      <a href="weaver.html" style="color:var(--gold);text-decoration:none;">OPEN FULLSCREEN -></a>
+      <span>LIVE INTERACTIVE 3D STUDIO // SWITCH HARDWARE, RETICLE &amp; GROUNDING LIVE</span>
+      <div class="btn-group">
+        <button class="ctrl" onclick="setStudioUrl('orb-film-studio.html?museum=1&reticle=aside')">MUSEUM NO-SCREEN + ")" RETICLE</button>
+        <button class="ctrl" onclick="setStudioUrl('orb-film-studio.html?museum=1&reticle=off')">MUSEUM NO-SCREEN + NO RETICLE</button>
+        <button class="ctrl" onclick="setStudioUrl('orb-film-studio.html?notext=1&reticle=aside')">NO TEXT + GRAPHICAL SCREEN</button>
+        <button class="ctrl" onclick="setStudioUrl('orb-film-studio.html?stage=1&notext=1&reticle=off')">STAGE-ONLY (ZERO HARDWARE)</button>
+      </div>
     </div>
-    <iframe src="weaver.html" title="Live Interactive Memory Weaver 3D Scroll Engine"></iframe>
+    <iframe id="studioFrame" src="orb-film-studio.html?museum=1&reticle=aside" title="Live Museum-Grade Memory Weaver 3D Studio"></iframe>
   </section>
+</div>
 
-  <script>
-    const vid = document.getElementById('orbFilm');
-    const tc = document.getElementById('timecodeReadout');
-    const actBtns = Array.from(document.querySelectorAll('.act-btn'));
-    const ranges = [0, 4.5, 9.5, 18.5, 24.5, 29.5, 35.0];
+<script src="assets/cake-prompts-10x.js"></script>
+<script>
+  const EDITIONS = [
+    {
+      id: 'museum-side',
+      title: '1 · MUSEUM NO-SCREEN + SIDE ")" RETICLE',
+      desc: 'No screen above Orb · zero text · grounded walnut table · film-accurate ")" crescent beside cake.',
+      src: 'assets/orbfilm/orb-film-museum-side-reticle.mp4',
+      poster: 'assets/orbfilm/orb-film-museum-side-reticle.jpg',
+      dl: 'orb_film_01_museum_no_screen_side_reticle.mp4'
+    },
+    {
+      id: 'museum-off',
+      title: '2 · MUSEUM NO-SCREEN + NO RETICLE',
+      desc: 'No screen above Orb · zero text anywhere · pure brushed 5-ring barrel + grounded cake & children.',
+      src: 'assets/orbfilm/orb-film-museum-no-screen.mp4',
+      poster: 'assets/orbfilm/orb-film-museum-no-screen.jpg',
+      dl: 'orb_film_02_museum_no_screen_no_reticle.mp4'
+    },
+    {
+      id: 'notext-side',
+      title: '3 · BATCH: NO TEXT · SIDE ")" RETICLE',
+      desc: 'Zero text in stage or on hardware · graphical wave screen · grounded table + ")" side crescent.',
+      src: 'assets/orbfilm/orb-film-no-text-side-reticle.mp4',
+      poster: 'assets/orbfilm/orb-film-no-text-side-reticle.jpg',
+      dl: 'orb_film_03_no_text_side_reticle.mp4'
+    },
+    {
+      id: 'notext-off',
+      title: '4 · BATCH: NO TEXT · NO RETICLE',
+      desc: 'Zero text anywhere · zero reticle · graphical wave screen + 5-ring Orb + grounded stage.',
+      src: 'assets/orbfilm/orb-film-no-text.mp4',
+      poster: 'assets/orbfilm/orb-film-no-text.jpg',
+      dl: 'orb_film_04_no_text_no_reticle.mp4'
+    },
+    {
+      id: 'grounded-side',
+      title: '5 · GROUNDED · SIDE ")" RETICLE + HUD',
+      desc: 'Reference ")" crescent curving concave-toward-cake + grounded walnut table + guide caption & panel.',
+      src: 'assets/orbfilm/orb-film-reticle-aside.mp4',
+      poster: 'assets/orbfilm/orb-film-reticle-aside.jpg',
+      dl: 'orb_film_05_grounded_side_reticle.mp4'
+    },
+    {
+      id: 'grounded-off',
+      title: '6 · GROUNDED · NO RETICLE + HUD',
+      desc: 'Wrapping reticle completely removed + grounded walnut table & stand + guide caption & panel.',
+      src: 'assets/orbfilm/orb-film-no-reticle.mp4',
+      poster: 'assets/orbfilm/orb-film-no-reticle.jpg',
+      dl: 'orb_film_06_grounded_no_reticle.mp4'
+    },
+    {
+      id: 'stage-off',
+      title: '7 · STAGE-ONLY · GROUNDED · NO RETICLE',
+      desc: '100% full-frame grounded 3D world with ZERO controller hardware, ZERO reticle, ZERO text.',
+      src: 'assets/orbfilm/orb-film-stage-grounded.mp4',
+      poster: 'assets/orbfilm/orb-film-stage-grounded.jpg',
+      dl: 'orb_film_07_stage_only_grounded_clean.mp4'
+    },
+    {
+      id: 'stage-side',
+      title: '8 · STAGE-ONLY · GROUNDED · SIDE ")" RETICLE',
+      desc: '100% full-frame grounded 3D world with the film-accurate ")" side crescent & ZERO hardware.',
+      src: 'assets/orbfilm/orb-film-stage-side-reticle.mp4',
+      poster: 'assets/orbfilm/orb-film-stage-side-reticle.jpg',
+      dl: 'orb_film_08_stage_only_side_reticle.mp4'
+    }
+  ];
 
-    document.getElementById('playPauseBtn').addEventListener('click', () => {
-      if (vid.paused) vid.play();
-      else vid.pause();
+  const vid = document.getElementById('orbFilm');
+  const tc = document.getElementById('timecodeReadout');
+  const dlBtn = document.getElementById('activeDownloadBtn');
+  const tabsEl = document.getElementById('editionTabs');
+  const miniGrid = document.getElementById('miniBatchGrid');
+  let activeIdx = 0;
+
+  function selectEdition(idx) {
+    activeIdx = idx;
+    const ed = EDITIONS[idx];
+    const tNow = vid.currentTime || 0;
+    const wasPaused = vid.paused;
+    vid.src = ed.src;
+    vid.poster = ed.poster;
+    dlBtn.href = ed.src;
+    dlBtn.setAttribute('download', ed.dl);
+    vid.addEventListener('loadedmetadata', function restore() {
+      vid.removeEventListener('loadedmetadata', restore);
+      vid.currentTime = Math.min(tNow, (vid.duration || 34) - 0.1);
+      if (!wasPaused) vid.play().catch(() => {});
     });
-    document.getElementById('restartBtn').addEventListener('click', () => {
-      vid.currentTime = 0;
-      vid.play();
+    Array.from(tabsEl.children).forEach((b, j) => b.classList.toggle('active', j === idx));
+  }
+
+  EDITIONS.forEach((ed, idx) => {
+    const b = document.createElement('button');
+    b.className = 'ed-tab' + (idx === 0 ? ' active' : '');
+    b.innerHTML = `<b>${ed.title}</b><span>${ed.desc}</span>`;
+    b.onclick = () => selectEdition(idx);
+    tabsEl.appendChild(b);
+
+    const card = document.createElement('div');
+    card.className = 'mini-card';
+    card.innerHTML = `
+      <video src="${ed.src}" poster="${ed.poster}" muted loop playsinline preload="metadata" controls></video>
+      <div class="mini-body">
+        <div class="mini-tag">${ed.title}</div>
+        <div class="mini-desc">${ed.desc}</div>
+        <div class="mini-actions">
+          <button class="ctrl" onclick="selectEdition(${idx});window.scrollTo({top:0,behavior:'smooth'})">LOAD ABOVE</button>
+          <a class="ctrl gold-dl" href="${ed.src}" download="${ed.dl}">.MP4</a>
+        </div>
+      </div>
+    `;
+    const mv = card.querySelector('video');
+    card.addEventListener('mouseenter', () => mv.play().catch(() => {}));
+    card.addEventListener('mouseleave', () => mv.pause());
+    miniGrid.appendChild(card);
+  });
+
+  function seekHero(s) {
+    vid.currentTime = s;
+    vid.play().catch(() => {});
+    window.scrollTo({ top: 140, behavior: 'smooth' });
+  }
+  window.seekHero = seekHero;
+  window.selectEdition = selectEdition;
+
+  window.downloadAllBatches = function () {
+    EDITIONS.forEach((ed, i) => {
+      setTimeout(() => {
+        const a = document.createElement('a');
+        a.href = ed.src;
+        a.download = ed.dl;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }, i * 350);
     });
-    document.getElementById('unmuteBtn').addEventListener('click', () => {
-      vid.muted = false;
-      vid.volume = 0.9;
-      vid.play();
-    });
-    actBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        vid.currentTime = Number(btn.dataset.seek);
-        vid.play();
-      });
-    });
-    vid.addEventListener('timeupdate', () => {
-      const t = vid.currentTime || 0;
-      tc.textContent = `TIMECODE // 00:${t.toFixed(2).padStart(5, '0')} / 00:34.13`;
-      actBtns.forEach((b, i) => {
-        b.classList.toggle('active-act', t >= ranges[i] && t < ranges[i + 1]);
-      });
-    });
-  </script>
+  };
+
+  window.setStudioUrl = function (u) {
+    document.getElementById('studioFrame').src = u;
+  };
+
+  const actBtns = Array.from(document.querySelectorAll('.act-btn'));
+  const ranges = [0, 4.5, 9.5, 18.5, 24.5, 29.5, 35.0];
+  document.getElementById('playPauseBtn').onclick = () => vid.paused ? vid.play() : vid.pause();
+  document.getElementById('restartBtn').onclick = () => { vid.currentTime = 0; vid.play(); };
+  document.getElementById('unmuteBtn').onclick = () => { vid.muted = false; vid.volume = 0.9; vid.play(); };
+  actBtns.forEach(btn => btn.onclick = () => { vid.currentTime = Number(btn.dataset.seek); vid.play(); });
+  vid.addEventListener('timeupdate', () => {
+    const t = vid.currentTime || 0;
+    tc.textContent = `TIMECODE // 00:${t.toFixed(2).padStart(5, '0')} / 00:34.13`;
+    actBtns.forEach((b, i) => b.classList.toggle('active-act', t >= ranges[i] && t < ranges[i + 1]));
+  });
+
+  // Mount the 10-Prompts-Per-Cake decks beneath all 4 cakes!
+  CAKE_PROMPTS_10X.mount('prompts-bundt', { deck: 'bundt' });
+  CAKE_PROMPTS_10X.mount('prompts-drum',  { deck: 'drum' });
+  CAKE_PROMPTS_10X.mount('prompts-dome',  { deck: 'dome' });
+  CAKE_PROMPTS_10X.mount('prompts-tiers', { deck: 'tiers' });
+</script>
 </body>
 </html>
