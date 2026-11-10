@@ -2080,5 +2080,31 @@
    "archetype": "canonical_chamber_7",
    "thumb": "assets/bday-training/thumbs/bday_78.webp"
   }
+ ],
+ "heroes": [
+  {
+   "id": "bundt_12flute_glaze",
+   "title": "BUNDT 12FLUTE GLAZE"
+  },
+  {
+   "id": "film_canon",
+   "title": "THE CAKE SHE KEPT · 生日快樂"
+  },
+  {
+   "id": "obsidian_amethyst_hex",
+   "title": "OBSIDIAN AMETHYST HEX"
+  },
+  {
+   "id": "ruffled_ivory_crown",
+   "title": "RUFFLED IVORY CROWN"
+  },
+  {
+   "id": "synthwave_neon_tiers",
+   "title": "SYNTHWAVE NEON TIERS"
+  },
+  {
+   "id": "three_tier_orb_grand",
+   "title": "THREE TIER ORB GRAND"
+  }
  ]
 }

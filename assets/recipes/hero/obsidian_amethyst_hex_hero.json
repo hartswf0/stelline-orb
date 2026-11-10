@@ -1,0 +1,15 @@
+{
+ "id": "obsidian_amethyst_hex",
+ "title": "OBSIDIAN AMETHYST HEX",
+ "fps": 24,
+ "frames": 96,
+ "duration_s": 4,
+ "pace": 4,
+ "layout": "room",
+ "steps": [
+  {
+   "i": -1,
+   "t": 0
+  }
+ ]
+}

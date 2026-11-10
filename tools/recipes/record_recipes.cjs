@@ -5,10 +5,12 @@
      python3 -m http.server 8095 &                       (from the repository root)
      node tools/recipes/record_recipes.cjs --out assets/recipes film_canon canonical_chamber_7 bday_18
      node tools/recipes/record_recipes.cjs --out assets/recipes --shelf ARCHETYPE --part 0/3      (a third of a shelf, for running three at once)
+     node tools/recipes/record_recipes.cjs --out assets/recipes/hero --layout room --hero 4 film_canon      (no build filmed: the finished cake, candles lit,
+       the camera circling for 4 s, the flames blown out by ring 5 in the last third; files are <id>_hero.mp4)
    Options: --pace 4 (the hand's speed, x) · --fps 24 (frames stepped per second of the room's time) · --play 24 (frame rate of the file; --fps 12 --play 24 films at double speed) · --size 1280x720 · --layout inset|room|full · --tail 1.6 (seconds held on the finished cake) */
 const { chromium } = require('playwright'); const fs = require('fs'), path = require('path'), { spawn } = require('child_process');
 const A = process.argv.slice(2), opt = (k, d) => { const i = A.indexOf('--' + k); if (i < 0) return d; const v = A[i + 1]; A.splice(i, 2); return v; };
-const OUT = opt('out', 'assets/recipes'), PACE = +opt('pace', 4), FPS = +opt('fps', 24), [W, H] = opt('size', '1280x720').split('x').map(Number), LAYOUT = opt('layout', 'inset'), TAIL = +opt('tail', 1.6), PLAY = +opt('play', 0) || FPS, SHELF = opt('shelf', null), PART = opt('part', null), URL0 = opt('url', 'http://localhost:8095/field-orb-05.html');
+const OUT = opt('out', 'assets/recipes'), PACE = +opt('pace', 4), FPS = +opt('fps', 24), [W, H] = opt('size', '1280x720').split('x').map(Number), LAYOUT = opt('layout', 'inset'), TAIL = +opt('tail', 1.6), HERO = +opt('hero', 0), PLAY = +opt('play', 0) || FPS, SHELF = opt('shelf', null), PART = opt('part', null), URL0 = opt('url', 'http://localhost:8095/field-orb-05.html');
 const CSS = { inset: '.app{grid-template-rows:1fr !important} #orb{position:fixed !important;left:50%;bottom:1.2vw;width:46vw;height:19.5vw;margin-left:-23vw;background:none !important;border:0 !important}', room: '.app{grid-template-rows:1fr 0px !important} #orb{height:0 !important;border:0 !important;overflow:hidden}', full: '' }[LAYOUT];
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
@@ -22,21 +24,28 @@ const CSS = { inset: '.app{grid-template-rows:1fr !important} #orb{position:fixe
   if (SHELF) ids = ids.concat(await p.evaluate(s => (window.FORGE.BOOK.shelves.find(q => q[0] === s) || [0, []])[1].map(r => r.id), SHELF));
   if (PART) { const [k, n] = PART.split('/').map(Number); ids = ids.filter((_, i) => i % n === k); }   // --part k/n: every n-th id, for running n recorders side by side
   for (const id of ids) {
-    const mp4 = path.join(OUT, id + '.mp4'); if (fs.existsSync(mp4) && !process.env.FORCE) { console.log('have', id); continue; }
+    const mp4 = path.join(OUT, id + (HERO ? '_hero' : '') + '.mp4'); if (fs.existsSync(mp4) && !process.env.FORCE) { console.log('have', id); continue; }
     const ok = await p.evaluate(([id, pace]) => { const F = window.FORGE, B = F.BOOK, hit = B.find(id); if (!hit) return null; B.shelf = hit[0]; B.idx = hit[1]; B.pace = pace; F.S.mode = 'RECIPE'; B.load(); for (let i = 0; i < 8; i++) F.step(1 / 24); B.start(); return { title: B.cur().title, steps: B.run.steps.map(s => s.t) }; }, [id, PACE]);
     if (!ok) { console.log('no recipe', id); continue; }
+    if (HERO) await p.evaluate(() => { const F = window.FORGE, B = F.BOOK; B.pace = 12; let t = 0; while (B.run && t < 600) { F.step(1 / 24); t += 1 / 24; }
+      F.setMode('MAKE'); F.setVerb(F.VERBS.findIndex(v => v[0] === 'BLOW OUT')); F.turn(4, -12); const kids = F.DOC.cast.length > 0;       // relight every candle
+      F.setMode('LOOK'); F.pickTo('cake'); F.S.ease = null; F.S.shotIdx = 0; Object.assign(F.S.orbit, { dist: kids ? 1.02 : .58, pitch: kids ? -.2 : -.3 }); F.S.orbit.yaw -= .9; F.S.orbit.tgt.set(0, kids ? .88 : .84, 0);
+      for (let i = 0; i < 20; i++) F.step(1 / 24); F.S.ease = null; window.__hero = { n: 0, lit: F.DOC.frames[0].items.filter(i => i.t === 'CANDLE').length }; });
     const ff = spawn('ffmpeg', ['-v', 'error', '-y', '-f', 'image2pipe', '-framerate', String(PLAY), '-c:v', 'mjpeg', '-i', '-', '-c:v', 'libx264', '-preset', 'medium', '-crf', '17', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', mp4], { stdio: ['pipe', 'inherit', 'inherit'] });
     let n = 0, tail = Math.round(TAIL * FPS), t0 = Date.now(); const marks = [];
     for (;;) {
-      const r = await p.evaluate(([dt, W, H]) => { const F = window.FORGE; F.advance(dt); const c = window.__cv; c.width = W; c.height = H; const x = c.getContext('2d'); x.fillStyle = '#030403'; x.fillRect(0, 0, W, H);
+      const r = await p.evaluate(([dt, W, H, hero]) => { const F = window.FORGE;
+        if (hero) { const h = window.__hero, N = Math.round(hero / dt); F.S.orbit.yaw += dt * .42; F.S.ease = null; h.n++;       // the camera circles; at two thirds, ring 5 blows the candles out one by one
+          if (h.n === Math.round(N * .64)) { F.S.mode = 'MAKE'; F.setVerb(F.VERBS.findIndex(v => v[0] === 'BLOW OUT')); F.S.mode = 'MAKE'; } if (h.n > Math.round(N * .64) && h.lit > 0 && h.n % 2 === 0) { F.turn(4, 1); h.lit--; } }
+        F.advance(dt); const c = window.__cv; c.width = W; c.height = H; const x = c.getContext('2d'); x.fillStyle = '#030403'; x.fillRect(0, 0, W, H);
         document.querySelectorAll('#room canvas, #orb canvas').forEach(cv => { const q = cv.getBoundingClientRect(); if (q.width > 2 && q.height > 2 && cv.width > 2) x.drawImage(cv, q.left, q.top, q.width, q.height); });
-        return { jpg: c.toDataURL('image/jpeg', .93).slice(23), run: !!F.BOOK.run, i: F.BOOK.run ? F.BOOK.run.i : -1 }; }, [1 / FPS, W, H]);
+        return { jpg: c.toDataURL('image/jpeg', .93).slice(23), run: hero ? window.__hero.n < Math.round(hero / dt) : !!F.BOOK.run, i: F.BOOK.run ? F.BOOK.run.i : -1 }; }, [1 / FPS, W, H, HERO]);
       if (!ff.stdin.write(Buffer.from(r.jpg, 'base64'))) await new Promise(res => ff.stdin.once('drain', res));
       if (r.run && (!marks.length || marks[marks.length - 1].i !== r.i)) marks.push({ i: r.i, t: +(n / PLAY).toFixed(3), step: ok.steps[r.i] });
-      n++; if (!r.run && --tail <= 0) break; if (n > FPS * 240) break;
+      n++; if (!r.run && (HERO || --tail <= 0)) break; if (n > FPS * 240) break;
     }
     ff.stdin.end(); await new Promise(res => ff.on('close', res));
-    fs.writeFileSync(path.join(OUT, id + '.json'), JSON.stringify({ id, title: ok.title, fps: PLAY, frames: n, duration_s: +(n / PLAY).toFixed(3), pace: +(PACE * PLAY / FPS).toFixed(2), layout: LAYOUT, steps: marks }, null, 1));
+    fs.writeFileSync(path.join(OUT, id + (HERO ? '_hero' : '') + '.json'), JSON.stringify({ id, title: ok.title, fps: PLAY, frames: n, duration_s: +(n / PLAY).toFixed(3), pace: +(PACE * PLAY / FPS).toFixed(2), layout: LAYOUT, steps: marks }, null, 1));
     console.log('filmed', id, n, 'frames', ((Date.now() - t0) / 1000).toFixed(0) + 's', ((Date.now() - t0) / n).toFixed(0) + 'ms/frame');
   }
   await b.close();

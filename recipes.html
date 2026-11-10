@@ -68,6 +68,29 @@
   </div>
 </section>
 
+<h2>The second edit: every cake, multiplied</h2>
+<p class="lede">The first edit cuts between pictures. This one puts pictures inside each other: the film, its segmentation, its depth, the coded stage and the synthetic plates in one frame. Eight techniques, each a small function you can reuse.</p>
+<section class="hero">
+  <video src="assets/recipes/every-cake-multiplied.mp4" poster="assets/recipes/every-cake-multiplied.jpg" controls playsinline preload="metadata"></video>
+  <div>
+    <ol style="margin-top:0">
+      <li><b>Slits</b>: one film moment four ways in sliding bands (plate, segment, depth and edge, coded 3D).</li>
+      <li><b>Cut-out</b>: film cut-outs standing in the coded room while its camera circles.</li>
+      <li><b>Swap</b>: a cast held still, the cake under them changed every half beat.</li>
+      <li><b>Parade</b>: all 77 cakes cut from their plates, three rows moving against each other.</li>
+      <li><b>Blend</b>: a synthetic plate and the coded build of the same cake, by slats, wipe, strobe and lighten.</li>
+      <li><b>Grid</b>: the same breath 1, 4, 9, then 20 times, the light going on one beat.</li>
+      <li><b>Rewind</b>: those 20 backwards, the flames returning together.</li>
+      <li><b>Stack</b>: three breaths lightened into one frame; 42 builds under the film's mist.</li>
+    </ol>
+    <div class="row"><a class="b solid" href="assets/recipes/every-cake-multiplied.mp4" download>Download the second edit</a></div>
+  </div>
+</section>
+
+<h2>Six cakes, circled</h2>
+<p class="lede">The finished cake with its candles lit, the camera circling, the flames blown out by ring 5 in the last third. No controller in frame.</p>
+<div class="g" id="gHERO"></div>
+
 <h2>The film's six</h2>
 <p class="lede">The cake she kept, the Bundt she rejected, and the four cakes of the orb film.</p>
 <div class="g" id="gFILM"></div>
@@ -89,6 +112,7 @@ D.films.forEach(function (f) { var g = document.getElementById('g' + f.shelf); i
     '<details><summary>What the rings do</summary><ol>' + f.steps.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ol></details>' +
     '<div class="row" style="margin-top:auto"><a class="b gold" href="field-orb-05.html?build=' + f.id + '">Build it live</a>' + (f.clip ? '<a class="b" href="BDAY%20TRAINING/' + encodeURIComponent(f.clip) + '">Clip</a>' : '') + '<a class="b" href="assets/recipes/' + f.id + '.mp4" download>MP4</a></div></figcaption>';
   g.appendChild(el); });
+(D.heroes || []).forEach(function (h) { var el = document.createElement('figure'); el.innerHTML = '<div class="vid"><video src="assets/recipes/hero/' + h.id + '_hero.mp4" poster="assets/recipes/hero/' + h.id + '_hero.jpg" loop muted playsinline preload="none"></video></div><figcaption><b>' + esc(h.title) + '</b><small>4.0 s orbit · blown out at 2.6 s</small><div class="row" style="margin-top:auto"><a class="b gold" href="field-orb-05.html?build=' + h.id + '">Build it live</a><a class="b" href="assets/recipes/hero/' + h.id + '_hero.mp4" download>MP4</a></div></figcaption>'; document.getElementById('gHERO').appendChild(el); });
 document.getElementById('gCLIP').innerHTML = D.clips.map(function (c) { return '<a href="field-orb-05.html?build=' + c.id + '"><img src="' + esc(c.thumb) + '" alt="" loading="lazy"><span><i>' + c.id.toUpperCase() + ' · ' + esc(c.era.replace(/_/g, ' ').toUpperCase()) + '</i>' + esc(c.title) + '</span></a>'; }).join('');
 [].forEach.call(document.querySelectorAll('.vid video'), function (v) { v.addEventListener('mouseenter', function () { v.play().catch(function () {}); }); v.addEventListener('mouseleave', function () { v.pause(); }); v.addEventListener('click', function () { v.paused ? v.play().catch(function () {}) : v.pause(); }); });
 </script>

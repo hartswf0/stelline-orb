@@ -34,7 +34,17 @@ for jf in sorted(glob.glob(os.path.join(SRC, '*.json'))):
 order = {'FILM': 0, 'ARCHETYPE': 1, 'CLIP': 2}
 out.sort(key=lambda e: (order[e['shelf']], -(e.get('count') or 0), e['id']))
 clips = [{'id': i['id'], 'title': i['title'], 'era': i['era'], 'archetype': i['archetype'], 'thumb': i['assets']['thumb']} for i in labels['items'] if i['kind'] == 'video']
-idx = {'films': out, 'clips': clips}
+heroes = []
+HSRC = os.path.join(SRC, 'hero') if os.path.isdir(os.path.join(SRC, 'hero')) else os.path.join(os.path.dirname(SRC.rstrip('/')), 'hero')
+HDST = os.path.join(DST, 'hero'); os.makedirs(HDST, exist_ok=True)
+for jf in sorted(glob.glob(os.path.join(HSRC, '*_hero.json')) or glob.glob(os.path.join(HDST, '*_hero.json'))):
+    d = json.load(open(jf)); rid = d['id']; src = os.path.join(os.path.dirname(jf), rid + '_hero.mp4'); dst = os.path.join(HDST, rid + '_hero.mp4')
+    if os.path.abspath(src) != os.path.abspath(dst):
+        subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', src, '-c:v', 'libx264', '-preset', 'slow', '-crf', '21', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', '-an', dst], check=True)
+        json.dump(d, open(os.path.join(HDST, rid + '_hero.json'), 'w'), indent=1)
+    subprocess.run(['ffmpeg', '-v', 'error', '-y', '-ss', '1.2', '-i', dst, '-frames:v', '1', '-q:v', '4', os.path.join(HDST, rid + '_hero.jpg')], check=True)
+    heroes.append({'id': rid, 'title': d['title']})
+idx = {'films': out, 'clips': clips, 'heroes': heroes}
 json.dump(idx, open(os.path.join(DST, 'index.json'), 'w'), ensure_ascii=False, indent=1)
 open(os.path.join(DST, 'index.js'), 'w', encoding='utf-8').write('window.RECIPE_FILMS = ' + json.dumps(idx, ensure_ascii=False) + ';\n')
 print(len(out), 'films indexed,', len(clips), 'clip recipes linked')

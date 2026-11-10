@@ -1,0 +1,15 @@
+{
+ "id": "bundt_12flute_glaze",
+ "title": "BUNDT 12FLUTE GLAZE",
+ "fps": 24,
+ "frames": 96,
+ "duration_s": 4,
+ "pace": 4,
+ "layout": "room",
+ "steps": [
+  {
+   "i": -1,
+   "t": 0
+  }
+ ]
+}

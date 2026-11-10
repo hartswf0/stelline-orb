@@ -1,0 +1,168 @@
+{
+ "fps": 24,
+ "beat_s": 0.8227,
+ "music_from_s": 131.61,
+ "duration_s": 74.042,
+ "shots": [
+  {
+   "shot": 0,
+   "t": 0.0,
+   "frames": 59,
+   "beats": 3,
+   "technique": "CARD",
+   "what": ""
+  },
+  {
+   "shot": 1,
+   "t": 2.458,
+   "frames": 79,
+   "beats": 4,
+   "technique": "SLITS \u00b7 PLATE / SEGMENT / DEPTH + EDGE / CODED 3D",
+   "what": "FILM \u00b7 THE CHILDREN FADE IN"
+  },
+  {
+   "shot": 2,
+   "t": 5.75,
+   "frames": 79,
+   "beats": 4,
+   "technique": "SLITS \u00b7 PLATE / SEGMENT / DEPTH + EDGE / CODED 3D",
+   "what": "FILM \u00b7 THE TABLE, LIT"
+  },
+  {
+   "shot": 3,
+   "t": 9.042,
+   "frames": 79,
+   "beats": 4,
+   "technique": "SLITS \u00b7 PLATE / SEGMENT / DEPTH + EDGE / CODED 3D",
+   "what": "FILM \u00b7 A BOY BY CANDLELIGHT"
+  },
+  {
+   "shot": 4,
+   "t": 12.333,
+   "frames": 79,
+   "beats": 4,
+   "technique": "SLITS \u00b7 PLATE / SEGMENT / DEPTH + EDGE / CODED 3D",
+   "what": "FILM \u00b7 THE CANDLES GO OUT"
+  },
+  {
+   "shot": 5,
+   "t": 15.625,
+   "frames": 138,
+   "beats": 7,
+   "technique": "CUT-OUT \u00b7 2 SPRITES OVER A CIRCLING STAGE",
+   "what": "FILM CUT-OUTS IN THE CODED ROOM"
+  },
+  {
+   "shot": 6,
+   "t": 21.375,
+   "frames": 158,
+   "beats": 8,
+   "technique": "SWAP \u00b7 16 OF 77 CAKES",
+   "what": "8 CASTS HELD \u00b7 THE CAKE CHANGED EVERY HALF BEAT"
+  },
+  {
+   "shot": 7,
+   "t": 27.958,
+   "frames": 158,
+   "beats": 8,
+   "technique": "PARADE \u00b7 77 \u00b7 THREE ROWS",
+   "what": "EVERY CAKE CUT FROM ITS PLATE"
+  },
+  {
+   "shot": 8,
+   "t": 34.542,
+   "frames": 79,
+   "beats": 4,
+   "technique": "BLEND \u00b7 SLATS",
+   "what": "SYNTHETIC BDAY 51  \u00d7  CODED BUNDT 12FLUTE GLAZE"
+  },
+  {
+   "shot": 9,
+   "t": 37.833,
+   "frames": 79,
+   "beats": 4,
+   "technique": "BLEND \u00b7 DIAGONAL WIPE",
+   "what": "SYNTHETIC BDAY 07  \u00d7  CODED SYNTHWAVE NEON TIERS"
+  },
+  {
+   "shot": 10,
+   "t": 41.125,
+   "frames": 59,
+   "beats": 3,
+   "technique": "BLEND \u00b7 STROBE, THEN DISSOLVE",
+   "what": "SYNTHETIC BDAY 09  \u00d7  CODED THREE TIER ORB GRAND"
+  },
+  {
+   "shot": 11,
+   "t": 43.583,
+   "frames": 60,
+   "beats": 3,
+   "technique": "BLEND \u00b7 LIGHTEN \u00b7 TWO BREATHS, ONE FRAME",
+   "what": "SYNTHETIC BDAY 33  \u00d7  CODED THE CAKE SHE KEPT"
+  },
+  {
+   "shot": 12,
+   "t": 46.083,
+   "frames": 79,
+   "beats": 4,
+   "technique": "MULTIPLY \u00b7 1 \u00d7 1",
+   "what": "1 BREATH \u00b7 THE LIGHT GOES ON THE THIRD BEAT"
+  },
+  {
+   "shot": 13,
+   "t": 49.375,
+   "frames": 79,
+   "beats": 4,
+   "technique": "MULTIPLY \u00b7 2 \u00d7 2",
+   "what": "4 BREATHS \u00b7 THE LIGHT GOES ON THE THIRD BEAT"
+  },
+  {
+   "shot": 14,
+   "t": 52.667,
+   "frames": 79,
+   "beats": 4,
+   "technique": "MULTIPLY \u00b7 3 \u00d7 3",
+   "what": "9 BREATHS \u00b7 THE LIGHT GOES ON THE THIRD BEAT"
+  },
+  {
+   "shot": 15,
+   "t": 55.958,
+   "frames": 79,
+   "beats": 4,
+   "technique": "MULTIPLY \u00b7 5 \u00d7 4",
+   "what": "20 BREATHS \u00b7 THE LIGHT GOES ON THE THIRD BEAT"
+  },
+  {
+   "shot": 16,
+   "t": 59.25,
+   "frames": 79,
+   "beats": 4,
+   "technique": "MULTIPLY \u00b7 5 \u00d7 4 \u00b7 REVERSED",
+   "what": "20 BREATHS TURNED BACK \u00b7 THE FLAMES RETURN TOGETHER"
+  },
+  {
+   "shot": 17,
+   "t": 62.542,
+   "frames": 79,
+   "beats": 4,
+   "technique": "STACK \u00b7 LIGHTEN \u00b7 3",
+   "what": "3 BREATHS IN ONE FRAME"
+  },
+  {
+   "shot": 18,
+   "t": 65.833,
+   "frames": 79,
+   "beats": 4,
+   "technique": "STACK \u00b7 SCREEN",
+   "what": "42 CODED BUILDS UNDER THE MIST OF THE FILM"
+  },
+  {
+   "shot": 19,
+   "t": 69.125,
+   "frames": 118,
+   "beats": 6,
+   "technique": "CARD",
+   "what": ""
+  }
+ ]
+}
