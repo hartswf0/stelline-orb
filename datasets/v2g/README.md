@@ -6,7 +6,7 @@
 
 | It needs | Our 77 birthday clips | The Memory Weaver's own scenes |
 | :--- | :--- | :--- |
-| The camera to move round the subject, so poses can be solved | 3 of 77 orbit at all; 63 are locked or drift. The clips are generated, so a cake is not the same object from frame to frame | Any orbit we ask for, poses known exactly |
+| The camera to move round the subject, so poses can be solved | By the archive's own labels: 3 of 77 orbit, 39 are locked, 23 drift handheld, 7 push in, 5 are cut from several angles. The clips are generated, so a cake is not the same object from frame to frame | Any orbit we ask for, poses known exactly |
 | A CUDA GPU to train on | None on the machine this was made on | Same |
 
 So the clips cannot feed it, but the coded scene made *from* each clip can. `bday_35/` is that: 72 views on two rings round the 3D cake the orb built from clip 35, with exact cameras, the cake's own vertices as the point cloud, and a mask of the cake in every view.
