@@ -24,6 +24,8 @@
 <script src="assets/GLTFExporter.js"></script>
 <script src="assets/OBJExporter.js"></script>
 <script src="assets/v6/qrcode.js"></script>
+<script src="assets/bday-training/handmade_models.js"></script>
+<script src="assets/bday-training/dataset.js"></script>
 <script>
 /* MEMORY WEAVER. Two layers that never mix: the physical lab (glass, floor, ring light, the observer outside) and the memory (table, cake, icing, candles,
    children), which is solid while you build it and becomes light when you weave it. Every control is on the orb: five rings, five buttons, one display.
@@ -33,6 +35,7 @@
    MAKE verb (base, pull, push, smooth, frost, pipe, candles, berries, a child, blow out) · height on the cake · amount (each click works once; back takes it away)
    MOVE across X · up Y · near Z   TURN pitch X · spin Y · roll Z   SIZE all · height · width/spread. The gizmo in the room drives the same rings.
    TIME frame · hold · playback (DO keeps a frame)   WEAVE time · materialize · mist.
+   RECIPE shelf · plate · pace · build: the book of every reference cake, each compiled to these same ring clicks and performed (see THE RECIPE BOOK below).
    Drag a ring up or down for its clicks, sideways to scrub between them; pinch or ctrl-wheel the orb to stretch it. Tap the end of the grip to pair a phone.
    Buttons: MODE (hold: LOOK and back) · UNDO (hold: redo) · DO · PLAY (hold, or outside TIME/WEAVE: SHOW ME the guide's step) · KEEP (export). */
 const T = THREE, clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t, TAU = Math.PI * 2;
@@ -213,10 +216,11 @@ const ONION = new T.Group(); CAKE.add(ONION);
 
 /* =============================================================== clay: a lathe grid that brushes can push anywhere */
 const NP = 52, COLS = 112;
-const BASES = {
+const BASES = {   // key order is the SPAWN option order
   DRUM: { loop: false, P: [[0, 0], [.112, 0], [.12, .008], [.12, .082], [.112, .09], [0, .09]] },
   DOME: { loop: false, P: (() => { const p = [[0, 0], [.12, 0], [.12, .02]]; for (let k = 1; k <= 12; k++) { const a = k / 12 * Math.PI / 2; p.push([.12 * Math.cos(a), .02 + .1 * Math.sin(a)]); } return p; })() },
   TIERS: { loop: false, P: [[0, 0], [.13, 0], [.13, .07], [.09, .07], [.09, .135], [0, .135]] },
+  TIERS3: { loop: false, P: [[0, 0], [.13, 0], [.13, .066], [.098, .066], [.098, .132], [.066, .132], [.066, .2], [0, .2]] },
   BUNDT: { loop: true, P: (() => { const p = []; for (let k = 0; k < 40; k++) { const t = -Math.PI / 2 + k / 40 * TAU; p.push([.075 + .05 * Math.cos(t), .05 + .05 * Math.sin(t) * (Math.sin(t) < 0 ? .85 : 1)]); } return p; })() }
 };
 function resample(P, n, loop) { const pts = loop ? P.concat([P[0]]) : P, L = [0]; for (let i = 1; i < pts.length; i++) L.push(L[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
@@ -242,7 +246,7 @@ function clayGeo(kind) { const tp = topology(kind), g = new T.BufferGeometry(); 
 function ensureClay(kind) { if (clayKind === kind && clayMesh) return; if (clayMesh) { CAKE.remove(clayMesh); clayMesh.geometry.dispose(); clayMesh = null; } clayKind = kind; if (!kind) return; clayMesh = new T.Mesh(clayGeo(kind), clayMat); clayMesh.castShadow = clayMesh.receiveShadow = true; clayMesh.userData.clay = true; CAKE.add(clayMesh); }
 
 /* =============================================================== the document: frames of a stop-motion; each frame is a whole state */
-const COLORS = [['CREAM', '#f2e6c9'], ['ROSE', '#f0a8b4'], ['MINT', '#b9e3cf'], ['SKY', '#b8d4ef'], ['LEMON', '#f3dc84'], ['CHOCOLATE', '#4a2b1b'], ['RED', '#c9302c'], ['WHITE', '#fbf8f2'], ['GOLD', '#d9a640']];
+const COLORS = [['CREAM', '#f2e6c9'], ['ROSE', '#f0a8b4'], ['MINT', '#b9e3cf'], ['SKY', '#b8d4ef'], ['LEMON', '#f3dc84'], ['CHOCOLATE', '#4a2b1b'], ['RED', '#c9302c'], ['WHITE', '#fbf8f2'], ['GOLD', '#d9a640'], ['NEON', '#38e8ff'], ['PLATE A', '#f2e6c9'], ['PLATE B', '#fbf8f2']];   // PLATE A/B: the two icing colours read off the reference plate of the loaded recipe
 const ITEMS = ['CANDLE', 'BERRY', 'SPRINKLES', 'ROSETTE', 'CHERRY'];
 const TOOLS = ['SPAWN', 'GRAB', 'PULL', 'PUSH', 'SMOOTH', 'FLATTEN', 'PAINT', 'PIPE', 'PLACE'];
 const SPINS = ['FREE', 'SPIN 6', 'SPIN 12', 'TURNED'];   // symmetry: none, 6 copies, 12 copies, the whole turn (lathe)
@@ -404,7 +408,7 @@ function applyKidPose(nd, idx) {
 
 /* =============================================================== what each ring does now */
 const EXPORTS = ['GLB · SCENE', 'OBJ · MESH', 'STILL · PNG', 'LOOP · WEBM', 'DOCUMENT · JSON'];
-const MODES = ['MAKE', 'PLACE', 'ADD', 'MOVE', 'TURN', 'SIZE', 'LOOK', 'TIME', 'WEAVE'];
+const MODES = ['MAKE', 'PLACE', 'ADD', 'MOVE', 'TURN', 'SIZE', 'LOOK', 'TIME', 'WEAVE', 'RECIPE'];
 const MODE_SAYS = {
   MAKE: 'MAKE · SCULPT CAKE, FROST, PIPE & STAGE SCENE',
   PLACE: 'PLACE · POSITION TOPPINGS, TABLE & CUTOUTS AROUND THE SCENE',
@@ -414,20 +418,22 @@ const MODE_SAYS = {
   SIZE: 'SIZE · SCALE HEIGHT & SPREAD',
   LOOK: 'LOOK · FIRST-PERSON VIEW & CAMERA SHOTS',
   TIME: 'TIME · KEYFRAME CHARACTER POSES & CAMERA SHOTS',
-  WEAVE: 'WEAVE · PULL BARREL ENDS OR DIAL MIST TO DISSOLVE'
+  WEAVE: 'WEAVE · PULL BARREL ENDS OR DIAL MIST TO DISSOLVE',
+  RECIPE: 'RECIPE · RING 2 SHELF · RING 3 PLATE · RING 5 BUILDS IT · TOUCH TO TAKE OVER'
 };
 const isXf = () => S.mode === 'MOVE' || S.mode === 'TURN' || S.mode === 'SIZE';
 const AXC = ['#ff5b4d', '#5fe36e', '#4f8dff'], AXH = [0xff5b4d, 0x5fe36e, 0x4f8dff];
 // MAKE's verbs: grouped into 6 logical craft chapters so Ring 2 (CHAPTER) jumps chapters and Ring 3 (VERB) steps within/across them
-const VERBS = [['BASE · DRUM', 'SPAWN', 0], ['BASE · DOME', 'SPAWN', 1], ['BASE · TIERS', 'SPAWN', 2], ['BASE · BUNDT', 'SPAWN', 3],
-  ['PULL OUT', 'PULL', 3], ['PUSH IN', 'PUSH', 3], ['SMOOTH', 'SMOOTH', 3], ['FLATTEN', 'FLATTEN', 3],
-  ['FROST · CREAM', 'PAINT', 0], ['FROST · ROSE', 'PAINT', 1], ['FROST · CHOCOLATE', 'PAINT', 5], ['FROST · LEMON', 'PAINT', 4], ['FROST · MINT', 'PAINT', 2], ['FROST · WHITE', 'PAINT', 7],
-  ['PIPE · WHITE', 'PIPE', 7], ['PIPE · ROSE', 'PIPE', 1], ['PIPE · CHOCOLATE', 'PIPE', 5], ['PIPE · GOLD', 'PIPE', 8],
+const VERBS = [['BASE · DRUM', 'SPAWN', 0], ['BASE · DOME', 'SPAWN', 1], ['BASE · TIERS', 'SPAWN', 2], ['BASE · 3 TIERS', 'SPAWN', 3], ['BASE · BUNDT', 'SPAWN', 4],
+  ['PULL OUT', 'PULL', 3], ['PUSH IN', 'PUSH', 3], ['SMOOTH', 'SMOOTH', 3], ['FLATTEN', 'FLATTEN', 3], ['RUFFLE', 'PULL', 3, { r: .013, k: 1.7 }], ['FLUTE · 12', 'PUSH', 2, { r: .027, k: 1.5 }], ['FACET · 6', 'FLATTEN', 0, { r: .08, k: 1, cols: 6 }],
+  ['FROST · CREAM', 'PAINT', 0], ['FROST · ROSE', 'PAINT', 1], ['FROST · CHOCOLATE', 'PAINT', 5], ['FROST · LEMON', 'PAINT', 4], ['FROST · MINT', 'PAINT', 2], ['FROST · WHITE', 'PAINT', 7], ['FROST · PLATE A', 'PAINT', 10], ['FROST · PLATE B', 'PAINT', 11],
+  ['PIPE · WHITE', 'PIPE', 7], ['PIPE · ROSE', 'PIPE', 1], ['PIPE · CHOCOLATE', 'PIPE', 5], ['PIPE · GOLD', 'PIPE', 8], ['PIPE · RED', 'PIPE', 6], ['PIPE · NEON', 'PIPE', 9], ['WRITE · RED', 'WRITE', 6], ['WRITE · GOLD', 'WRITE', 8], ['WRITE · NEON', 'WRITE', 9],
   ['CANDLES', 'PLACE', 0], ['BERRIES', 'PLACE', 1], ['CHERRIES', 'PLACE', 4], ['ROSETTES', 'PLACE', 3], ['SPRINKLES', 'PLACE', 2],
   ['THE TABLE', 'TABLE', 0], ['A CHILD', 'CHILD', 0], ['LIGHT · WARM', 'LIGHT', 0], ['BLOW OUT', 'SNUFF', 0]];
-const CHAPTERS = [['1 · SPONGE', 0], ['2 · SCULPT', 4], ['3 · FROST', 8], ['4 · PIPE', 14], ['5 · TOPPINGS', 18], ['6 · SCENE', 23]];
+const vIdx = name => VERBS.findIndex(v => v[0] === name);
+const CHAPTERS = [['1 · SPONGE', vIdx('BASE · DRUM')], ['2 · SCULPT', vIdx('PULL OUT')], ['3 · FROST', vIdx('FROST · CREAM')], ['4 · PIPE', vIdx('PIPE · WHITE')], ['5 · TOPPINGS', vIdx('CANDLES')], ['6 · SCENE', vIdx('THE TABLE')]];
 function curChapter() { for (let i = CHAPTERS.length - 1; i >= 0; i--) if (S.verb >= CHAPTERS[i][1]) return i; return 0; }
-function setVerb(k) { if (k !== S.verb) S.amt = 0; S.verb = clamp(k, 0, VERBS.length - 1); const [, t, o] = VERBS[S.verb]; if (TOOLS.indexOf(t) >= 0) { S.tool = TOOLS.indexOf(t); S.opt[t] = o; if (t === 'PIPE') S.opt.PIPE = o; } S.dialPipe = null; }
+function setVerb(k) { if (k !== S.verb) S.amt = 0; S.verb = clamp(k, 0, VERBS.length - 1); const [, t, o] = VERBS[S.verb]; if (TOOLS.indexOf(t) >= 0) { S.tool = TOOLS.indexOf(t); S.opt[t] = o; if (t === 'PIPE') S.opt.PIPE = o; } if (t === 'WRITE') S.opt.PIPE = o; S.dialPipe = null; }
 const verbTool = () => VERBS[S.verb][1];
 /* the scene graph: never a 1-option list; includes CAKE, CAMERA SHOT, TABLE, ALL 3 KIDS, individual children, and placed toppings */
 const PLURAL = { CANDLE: 'CANDLES', BERRY: 'BERRIES', CHERRY: 'CHERRIES', ROSETTE: 'ROSETTES', SPRINKLE: 'SPRINKLES' };
@@ -501,7 +507,7 @@ function rings() {
   else if (S.mode === 'MAKE' || S.mode === 'PLACE' || S.mode === 'ADD') { const t = verbTool();
     R3 = [{ n: S.mode === 'PLACE' ? 'ITEM / CUTOUT' : S.mode === 'ADD' ? 'ELEMENT' : 'VERB', v: () => S.verb, set: v => setVerb(Math.round(v)), st: 1, f: v => VERBS[v][0], lo: 0, hi: VERBS.length - 1 },
       { n: 'HEIGHT', v: () => S.aimH, set: v => { S.aimH = clamp(v, 0, 1); S.dialPipe = null; }, st: .04, f: v => v > .97 ? 'TOP' : v < .03 ? 'FOOT' : Math.round(v * 100) + '%', lo: 0, hi: 1 },
-      { n: S.mode === 'PLACE' ? 'PLACE NOW' : S.mode === 'ADD' ? 'ADD NOW' : (t === 'SPAWN' || t === 'TABLE' ? 'PUT DOWN' : t === 'PLACE' || t === 'CHILD' ? 'HOW MANY' : t === 'SNUFF' ? 'FLAMES' : t === 'LIGHT' ? 'INTENSITY' : t === 'PIPE' ? 'LENGTH' : 'AMOUNT'), v: () => S.amt, act: n => dialApply(n), st: 1, f: v => (v > 0 ? '+' : '') + v, lo: -12, hi: 12 }]; }
+      { n: S.mode === 'PLACE' ? 'PLACE NOW' : S.mode === 'ADD' ? 'ADD NOW' : (t === 'SPAWN' || t === 'TABLE' ? 'PUT DOWN' : t === 'PLACE' || t === 'CHILD' ? 'HOW MANY' : t === 'SNUFF' ? 'FLAMES' : t === 'LIGHT' ? 'INTENSITY' : t === 'PIPE' ? 'LENGTH' : t === 'WRITE' ? 'LETTERS' : 'AMOUNT'), v: () => S.amt, act: n => dialApply(n), st: 1, f: v => (v > 0 ? '+' : '') + v, lo: -12, hi: 12 }]; }
   else if (isXf()) R3 = [0, 1, 2].map(xfRing);
   else if (S.mode === 'TIME') { const F = DOC.frames, nd = curNode(), isKid = nd.k === 'child' || nd.k === 'kids';
     const curPose = () => { const c = nd.k === 'child' ? DOC.cast.find(x => x.id === nd.id || x.i === nd.slot) : DOC.cast[0]; return c && c.pose != null ? c.pose : 1; };
@@ -510,24 +516,25 @@ function rings() {
         ? { n: 'ACT POSE', v: curPose, set: v => applyKidPose(nd, v), st: 1, undoable: true, f: v => KID_POSES[clamp(Math.round(v), 0, KID_POSES.length - 1)].n, lo: 0, hi: KID_POSES.length - 1 }
         : { n: 'CAM SHOT', v: () => S.shotIdx || 0, set: v => applyCamShot(v), st: 1, undoable: true, f: v => CAM_SHOTS[clamp(Math.round(v), 0, CAM_SHOTS.length - 1)].n, lo: 0, hi: CAM_SHOTS.length - 1 },
       { n: 'PLAYBACK', v: () => S.plays, set: v => S.plays = clamp(Math.round(v), 0, PLAYS.length - 1), st: 1, f: v => PLAYS[v][0], lo: 0, hi: PLAYS.length - 1 }]; }
+  else if (S.mode === 'RECIPE') return [R1, ...BOOK.rings()];
   else { const W = S.weave;
     R3 = [{ n: 'TIME', v: () => W.t, set: v => { W.t = ((v % 1) + 1) % 1; S.play = false; }, st: .02, f: v => Math.round(v * 100) + '%', lo: 0, hi: 1 },
       { n: 'MATERIALIZE', v: () => W.mat, set: v => W.mat = clamp(v, 0, 1), st: .05, f: v => Math.round(v * 100) + '%', lo: 0, hi: 1 },
       { n: 'MIST', v: () => W.mist || 0, set: v => { W.mist = clamp(v, 0, 1); S.pull = W.mist; }, st: .05, f: v => Math.round(v * 100) + '%', lo: 0, hi: 1 }]; }
   return [R1, R2, ...R3];
 }
-function setMode(m) { if (typeof m === 'number') m = MODES[clamp(Math.round(m), 0, MODES.length - 1)]; if (!m || m === S.mode) return; S.mode = m; S.play = false; ONIONN = m === 'TIME' ? S.onion : 0; if (m === 'PLACE' && S.verb < 18) setVerb(curF().clay ? 18 : 23); if (m === 'ADD' && curF().clay && S.verb < 18) setVerb(24); showFrame(); say(MODE_SAYS[m]); if (m === 'LOOK' && S.pickKey !== 'cam') lookAtNode(); oledDirty = true; lockChime(); }
+function setMode(m) { if (typeof m === 'number') m = MODES[clamp(Math.round(m), 0, MODES.length - 1)]; if (!m || m === S.mode) return; S.mode = m; S.play = false; ONIONN = m === 'TIME' ? S.onion : 0; if (m === 'PLACE' && S.verb < vIdx('CANDLES')) setVerb(curF().clay ? vIdx('CANDLES') : vIdx('THE TABLE')); if (m === 'ADD' && curF().clay && S.verb < vIdx('CANDLES')) setVerb(vIdx('A CHILD')); showFrame(); say(MODE_SAYS[m]); if (m === 'LOOK' && S.pickKey !== 'cam') lookAtNode(); oledDirty = true; lockChime(); }
 // the value of a ring as 0..1, for the dials and the reticle
 function v01(r) { if (r && r.u != null) return r.u; if (!r || r.lo == null) return .5; let v = r.v(); if (r.wrap) { const span = r.hi - r.lo; v = ((v - r.lo) % span + span) % span + r.lo; } return clamp((v - r.lo) / Math.max(1e-6, r.hi - r.lo), 0, 1); }
 let gestureT = 0, scrubAcc = [0, 0, 0, 0, 0];
 // scrubbing: a sideways drag moves a ring smoothly between its detents; it still ticks at each one it passes
-function scrub(i, frac, fromRemote) { const r = rings()[i]; if (!r) return; if (r.act) { scrubAcc[i] += frac; while (Math.abs(scrubAcc[i]) >= 1) { turn(i, Math.sign(scrubAcc[i]), fromRemote); scrubAcc[i] -= Math.sign(scrubAcc[i]); } return; }
+function scrub(i, frac, fromRemote) { BOOK.yield(); const r = rings()[i]; if (!r) return; if (r.act) { scrubAcc[i] += frac; while (Math.abs(scrubAcc[i]) >= 1) { turn(i, Math.sign(scrubAcc[i]), fromRemote); scrubAcc[i] -= Math.sign(scrubAcc[i]); } return; }
   if (r.undoable && NOW - gestureT > 1.2) snapshot(); gestureT = NOW; S.inScrub = true; const before = Math.floor(r.v() / r.st); r.set(r.v() + r.st * frac); S.inScrub = false; const after = Math.floor(r.v() / r.st); if (after !== before) tick('ring', i);
   S.lastRing = i; S.spinAcc = (S.spinAcc || 0) + frac * .17; ORB.spin(i, frac); oledDirty = true; if (window.REMOTE && !fromRemote) window.REMOTE({ k: 'scrub', i, frac }); }
-function turn(i, steps, fromRemote) { const r = rings()[i]; if (!r) { tick('dead'); return; } tick('ring', i); if (r.undoable && NOW - gestureT > 1.2) snapshot(); gestureT = NOW; if (r.act) r.act(steps); else r.set(r.v() + r.st * steps); motionNote(v01(r), (i - 2) * .38, steps * .25); S.spinAcc = (S.spinAcc || 0) + steps * .17; S.lastRing = i; ORB.spin(i, steps); oledDirty = true; cursorDirty = true; if (window.REMOTE && !fromRemote) window.REMOTE({ k: 'turn', i, steps }); }
+function turn(i, steps, fromRemote) { BOOK.yield(); const r = rings()[i]; if (!r) { tick('dead'); return; } tick('ring', i); if (r.undoable && NOW - gestureT > 1.2) snapshot(); gestureT = NOW; if (r.act) r.act(steps); else r.set(r.v() + r.st * steps); motionNote(v01(r), (i - 2) * .38, steps * .25); S.spinAcc = (S.spinAcc || 0) + steps * .17; S.lastRing = i; ORB.spin(i, steps); oledDirty = true; cursorDirty = true; if (window.REMOTE && !fromRemote) window.REMOTE({ k: 'turn', i, steps }); }
 
 /* =============================================================== buttons */
-function press(b, long, fromRemote) { tick('press'); ORB.push(b); if (window.REMOTE && !fromRemote) window.REMOTE({ k: 'press', b, long });
+function press(b, long, fromRemote) { BOOK.yield(); tick('press'); ORB.push(b); if (window.REMOTE && !fromRemote) window.REMOTE({ k: 'press', b, long });
   if (S.exporting) { if (b === 'KEEP' || b === 'CAPTURE') doExport(); else { S.exporting = false; say('EXPORT CLOSED'); } oledDirty = true; return; }
   if (b === 'MODE') { if (long) setMode(S.mode === 'LOOK' ? (S.prevMode || 'MAKE') : (S.prevMode = S.mode, 'LOOK')); else if (PHONE) setMode(MODES[(MODES.indexOf(S.mode) + 1) % MODES.length]); else PAIR.open(); }
   else if (b === 'UNDO') undo(long);
@@ -608,17 +615,24 @@ function dialApply(steps) { const t = verbTool(); S.amt += steps; gestureT = NOW
   if (t === 'SNUFF') { const F = curF(), C = F.items.filter(i => i.t === 'CANDLE'); if (!C.length) { say('NO CANDLES TO BLOW OUT'); tick('dead'); return; } snapshot(); for (let k = 0; k < Math.abs(steps); k++) { const c = steps > 0 ? C.find(i => !i.out) : C.slice().reverse().find(i => i.out); if (c) { c.out = !c.out; objOf.delete(c); } } showFrame(); const lit = C.filter(i => !i.out).length; say(lit ? lit + ' FLAMES LEFT' : 'ALL OUT · MAKE A WISH'); if (!lit) shimmer(); return; }
   if (!clayMesh) { say('NOTHING TO WORK · PUT DOWN A BASE FIRST'); tick('dead'); return; }
   const h = aimHit(); if (!h) return; if (NOW - (S.amtT || -9) > 1.2) snapshot(); S.amtT = NOW;
-  if (t === 'PIPE') { const F = curF(); let D = S.dialPipe; if (!D || D.row !== h.row || F.strokes.indexOf(D.s) < 0) { D = S.dialPipe = { row: h.row, j: h.col, s: { pts: [], w: Math.max(.0025, S.radius * .16), c: S.opt.PIPE, style: 'bead' } }; F.strokes.push(D.s); }
+  if (t === 'WRITE') { const F = curF(), txt = S.inscribe || '生日快樂'; let Wr = S.writing; if (steps > 0) snapshot();
+    if (!Wr || Wr.txt !== txt || Wr.F !== F) { const old = F.strokes.filter(x => x.wr === txt); Wr = S.writing = { txt, F, runs: letterRuns(txt), strokes: old, n: old.length }; }
+    const per = Math.max(1, Math.ceil(Wr.runs.length / 22));
+    for (let k = 0; k < Math.abs(steps) * per; k++) { if (steps > 0) { if (Wr.n >= Wr.runs.length) break; const st = { pts: Wr.runs[Wr.n++], w: .0015, c: S.opt.PIPE, style: 'bead', wr: txt }; F.strokes.push(st); Wr.strokes.push(st); } else { const st = Wr.strokes.pop(); if (!st) break; F.strokes.splice(F.strokes.indexOf(st), 1); disposeStroke(st); Wr.n--; } }
+    S.lastPipe = S.opt.PIPE; showFrame(); S.state = 'CHANGED'; say(!Wr.runs.length ? 'NO FLAT CROWN TO WRITE ON' : Wr.n >= Wr.runs.length ? '“' + txt + '” IS WRITTEN' : 'WRITING “' + txt + '” · ' + Math.round(Wr.n / Wr.runs.length * 100) + '%'); return; }
+  if (t === 'PIPE') { S.lastPipe = S.opt.PIPE; const F = curF(); let D = S.dialPipe; if (!D || D.row !== h.row || F.strokes.indexOf(D.s) < 0) { D = S.dialPipe = { row: h.row, j: h.col, s: { pts: [], w: Math.max(.0025, S.radius * .16), c: S.opt.PIPE, style: 'bead' } }; F.strokes.push(D.s); }
     const per = 4; for (let k = 0; k < Math.abs(steps); k++) { if (steps > 0) { for (let q = 0; q < per; q++) { if (D.j - D.j0 >= COLS) break; const r = rowPoint(D.row, D.j); D.s.pts.push(r.p.x, r.p.y, r.p.z, r.n.x, r.n.y, r.n.z); D.j += 1; } } else { D.s.pts.splice(Math.max(0, D.s.pts.length - per * 6)); D.j -= per; } }
     if (D.j0 == null) D.j0 = h.col; disposeStroke(D.s); if (D.s.pts.length < 6) { F.strokes.splice(F.strokes.indexOf(D.s), 1); S.dialPipe = null; } showFrame(); S.state = 'CHANGED'; say(D.j - D.j0 >= COLS ? 'THE BORDER IS CLOSED' : 'PIPING · ' + Math.round((D.j - D.j0) / COLS * 100) + '% ROUND'); return; }
   if (t === 'PLACE') { const F = curF(), it = ITEMS[S.opt.PLACE], n = it === 'CANDLE' ? 7 : it === 'BERRY' ? 12 : it === 'CHERRY' ? 8 : it === 'ROSETTE' ? 10 : 1;
     for (let k = 0; k < Math.abs(steps); k++) { if (steps < 0) { const j = F.items.map(x => x.t).lastIndexOf(it === 'SPRINKLES' ? 'SPRINKLE' : it); if (j >= 0) F.items.splice(j, 1); continue; } if (it === 'SPRINKLES') { place(h); continue; }
-      const already = F.items.filter(x => x.t === it && x.row === h.row).length, j = h.col + Math.round(already / n * COLS); const r = rowPoint(h.row, j);
-      const inset = it === 'CANDLE' ? r.p.clone().multiply(new T.Vector3(.72, 1, .72)) : r.p; F.items.push({ t: it, p: inset.toArray(), n: it === 'CANDLE' ? [0, 1, 0] : r.n.toArray(), c: S.opt.PIPE, row: h.row }); }
+      const mates = F.items.filter(x => x.t === it && x.row === h.row), col0 = mates.length && mates[0].col0 != null ? mates[0].col0 : h.col, at = (k, m) => { const r = rowPoint(h.row, col0 + Math.round(k / m * COLS)); return { p: (it === 'CANDLE' ? r.p.clone().multiply(new T.Vector3(.72, 1, .72)) : r.p).toArray(), n: it === 'CANDLE' ? [0, 1, 0] : r.n.toArray() }; };
+      const nu = Object.assign({ t: it, c: it === 'ROSETTE' ? (S.lastPipe != null ? S.lastPipe : 7) : S.opt.PIPE, row: h.row, col0 }, at(mates.length, Math.max(n, mates.length + 1))); F.items.push(nu);
+      if (mates.length + 1 > n) mates.concat([nu]).forEach((x, k, L) => { Object.assign(x, at(k, L.length)); objOf.delete(x); }); }   // past the usual count the whole ring closes up evenly
     showFrame(); S.state = 'CHANGED'; const cnt = F.items.filter(x => x.t === (it === 'SPRINKLES' ? 'SPRINKLE' : it)).length; say(cnt + ' ' + (PLURAL[it] || it)); return; }
   // brushes: each click works one band of the cake, all the way round
   const keepTool = S.tool, inv = steps < 0 && (t === 'PULL' || t === 'PUSH'); if (inv) S.tool = TOOLS.indexOf(t === 'PULL' ? 'PUSH' : 'PULL'); const kr = S.radius, ks = S.strength; S.radius = t === 'PAINT' ? .04 : .055; S.strength = t === 'PAINT' ? .9 : .75;
-  const cols = t === 'PAINT' ? 16 : 1; for (let k = 0; k < Math.abs(steps); k++) for (let q = 0; q < cols; q++) { const r = q ? rowPoint(h.row, h.col + Math.round(q / cols * COLS)) : h; const hh = q ? { p: r.p, n: r.n, world: CAKE.localToWorld(r.p.clone()), obj: clayMesh } : h; strokeStart(hh); strokeMove(hh); strokeEnd(); }
+  const vo = VERBS[S.verb][3]; if (vo) { S.radius = vo.r; S.strength = vo.k; }
+  const cols = t === 'PAINT' ? 16 : vo && vo.cols || 1; for (let k = 0; k < Math.abs(steps); k++) for (let q = 0; q < cols; q++) { const r = q ? rowPoint(h.row, h.col + Math.round(q / cols * COLS)) : h; const hh = q ? { p: r.p, n: r.n, world: CAKE.localToWorld(r.p.clone()), obj: clayMesh } : h; strokeStart(hh); strokeMove(hh); strokeEnd(); }
   S.tool = keepTool; S.radius = kr; S.strength = ks; perfDirty = true; S.state = 'CHANGED'; }
 let CASTID0 = 1;
 function addChild(prefIdx) { const used = new Set(DOC.cast.map(c => c.i)); const i = prefIdx != null && !used.has(prefIdx) ? prefIdx : [0, 1, 2, 3, 4, 5].find(n => !used.has(n)); if (i == null) { say('ALL 6 SEGMENTED PERFORMERS ARE AROUND THE TABLE'); tick('dead'); return; }
@@ -1070,12 +1084,111 @@ function updDataReticle() {
   dataSVG.innerHTML = out;
 }
 
+/* =============================================================== WRITING: a name or a greeting piped across the crown. The text is drawn small, cut into rows,
+   and every run of every row is laid on the cake where a ray from above meets the clay, so it follows whatever shape has been sculpted. It reads from where the camera stands. */
+function letterRuns(txt) { if (!clayMesh || !txt) return []; const g = clayMesh.geometry; g.computeBoundingBox(); const bb = g.boundingBox, H = bb.max.y - bb.min.y, P = g.attributes.position; let Rt = 0;
+  for (let v = 0; v < P.count; v++) if (P.getY(v) > bb.max.y - H * .25) Rt = Math.max(Rt, Math.hypot(P.getX(v), P.getZ(v)));
+  const words = txt.split(' '), lines = txt.length > 9 && words.length > 1 ? [words.slice(0, Math.ceil(words.length / 2)).join(' '), words.slice(Math.ceil(words.length / 2)).join(' ')] : [txt];
+  const c = document.createElement('canvas'), x = c.getContext('2d'), fs = 44, font = '700 ' + fs + 'px "Noto Sans CJK SC","PingFang SC","Hiragino Sans","Microsoft YaHei","WenQuanYi Zen Hei",sans-serif'; x.font = font;
+  const w = Math.ceil(Math.max(...lines.map(l => x.measureText(l).width))) + 8, lh = fs * 1.14, hh = Math.ceil(lh * lines.length) + 8; c.width = w; c.height = hh; x.font = font; x.fillStyle = '#fff'; x.textBaseline = 'middle'; x.textAlign = 'center'; lines.forEach((l, i) => x.fillText(l, w / 2, 4 + lh * (i + .5)));
+  const d = x.getImageData(0, 0, w, hh).data, sc = Math.min(1.34 * Rt / w, .62 * Rt / hh * (lines.length > 1 ? 1.6 : 1)), step = Math.max(2, Math.round(.0027 / sc)), cp = CAKE.worldToLocal(cam.position.clone()), a = Math.atan2(cp.z, cp.x), fx = Math.cos(a), fz = Math.sin(a);
+  CAKE.updateMatrixWorld(true); const down = new T.Vector3(0, -1, 0).transformDirection(CAKE.matrixWorld), runs = [];
+  const drop = (px, py) => { const u = (px - w / 2) * sc, v = (py - hh / 2) * sc, o = new T.Vector3(fz * u + fx * v, bb.max.y + .06, -fx * u + fz * v); ray.set(CAKE.localToWorld(o), down); const q = ray.intersectObject(clayMesh, false)[0]; if (!q) return null; const lp = CAKE.worldToLocal(q.point.clone()); if (lp.y < bb.max.y - H * .45) return null; const n = q.face.normal; return [lp.x, lp.y, lp.z, n.x, n.y, n.z]; };
+  for (let py = Math.floor(step / 2); py < hh; py += step) { let x0 = -1; for (let px = 0; px <= w; px++) { const on = px < w && d[(py * w + px) * 4 + 3] > 110; if (on && x0 < 0) x0 = px; else if (!on && x0 >= 0) { const pts = [], n = Math.max(1, Math.round((px - x0) / step)); for (let k = 0; k <= n; k++) { const q = drop(x0 + (px - 1 - x0) * k / n, py); if (q) pts.push(...q); } if (pts.length >= 6) runs.push({ pts, key: Math.floor((x0 + px) / 2 / fs) * 1e4 + py }); x0 = -1; } } }
+  return runs.sort((p, q) => p.key - q.key).map(r => r.pts); }
+
+/* =============================================================== THE RECIPE BOOK: every cake in the reference corpus, made by the rings.
+   A recipe is not a stored model. It is the reference plate's description (tiers, flutes, finish, two icing colours, border, inscription, candles, flame, cast, lens)
+   compiled into the orb's own gestures, the same ring clicks a hand would make, and performed where you can watch them: nothing appears that a ring did not do.
+   RECIPE mode: ring 2 chooses a shelf (the film's six, the 41 archetypes, the 77 clips), ring 3 a plate, ring 4 the pace, ring 5 builds it. Touch any ring or key while it builds and the book lets go: the cake stays as it is, yours to finish.
+   ?build=<id> opens on a recipe (a film id, an archetype id, or bday_NN) · &pace=1..12 · &say=TEXT writes your own words in place of the plate's. */
+const QS = new URLSearchParams(location.search);
+const BASE_DIM = { DRUM: [.12, .09, .112], DOME: [.12, .12, .05], TIERS: [.13, .135, .09], TIERS3: [.13, .2, .066], BUNDT: [.125, .1, .075] };   // widest radius, height, crown radius
+function aimAt(kind, r, y) { const tp = topology(kind), vis = tp.rows.map((q, k) => k).filter(k => { const v = r0v(tp, k); return !(v[1] < .003 && v[0] < .104); }); let best = 0, bd = 1e9; vis.forEach((k, i) => { const v = r0v(tp, k), dd = Math.hypot(v[0] - r, v[1] - y); if (dd < bd) { bd = dd; best = i; } }); return best / Math.max(1, vis.length - 1); }
+const hexDist = (a, b) => { const A = new T.Color(a), B = new T.Color(b); return Math.hypot(A.r - B.r, A.g - B.g, A.b - B.b); };
+const BOOK = (() => {
+  const DS = window.BDAY_DATASET, HM = window.BDAY_HANDMADE, hero = { yaw: .53, pitch: -.34, p: [.34, .99, .58] }, table = { yaw: 0, pitch: -.13, p: [0, .92, .88] };
+  const film = [
+    { id: 'film_canon', title: 'THE CAKE SHE KEPT · 生日快樂', thumb: 'assets/orbfilm/cakes/cake2_stage_clean.jpg', cam: table, spec: { tiers: 1, finish: 'smooth', icing_start: '#f2e6c9', icing_end: '#fbf8f2', border: 'beads', inscribe: '生日快樂', inscribe_style: 'red_pipe', candles: 7, flame: 'blowing_out', stage_cast: 'chamber_kids' } },
+    { id: 'film_bundt', title: 'THE BUNDT SHE REJECTED', thumb: 'assets/orbfilm/cakes/cake1_stage_clean.jpg', cam: hero, spec: { tiers: 1, flutes: 12, finish: 'ganache', icing_start: '#f2e6c9', icing_end: '#f6efe0', border: 'none', drips: .6, candles: 2, flame: 'lit' } },
+    { id: 'film_drum', title: 'ORB FILM · WHITE DRUM', thumb: 'assets/orbfilm/cakes/cake2_stage_clean.jpg', cam: hero, spec: { tiers: 1, finish: 'smooth', icing_start: '#f2e6c9', icing_end: '#fbf8f2', border: 'none', candles: 0, flame: 'lit' } },
+    { id: 'film_dome', title: 'ORB FILM · LEMON DOME', thumb: 'assets/orbfilm/cakes/cake3_stage_clean.jpg', cam: hero, spec: { base: 'DOME', tiers: 1, finish: 'smooth', icing_start: '#f3dc84', icing_end: '#f6f0e2', keepCrown: true, border: 'none', candles: 0, flame: 'lit' } },
+    { id: 'film_tiers', title: 'ORB FILM · ROSE TIERS, SEVEN FLAMES', thumb: 'assets/orbfilm/cakes/cake4_stage_clean.jpg', cam: hero, spec: { tiers: 2, finish: 'smooth', icing_start: '#fbf8f2', icing_end: '#f0a8b4', border: 'beads', topping: 'berries', candles: 7, flame: 'lit' } },
+    { id: 'film_wish', title: 'YOUR WORDS, THREE CHILDREN, ONE WISH', thumb: 'assets/orbfilm/cakes/cake4_stage_clean.jpg', cam: table, spec: { tiers: 2, finish: 'ruffle', icing_start: '#f0a8b4', icing_end: '#fbf8f2', border: 'shells', inscribe: 'Happy Birthday', inscribe_style: 'gold', candles: 9, flame: 'rewinding', stage_cast: 'chamber_kids' } }];
+  const clips = DS && DS.items ? DS.items.filter(i => i.kind === 'video' && i.cake_spec).map(i => ({ id: i.id, title: i.title, thumb: i.assets && i.assets.thumb, spec: i.cake_spec, cam: i.cinematography && i.cinematography.camera_rig_preset, arch: i.archetype, era: i.era, file: i.filename })) : [];
+  const arch = HM && HM.models ? Object.values(HM.models).map(m => { const it = clips.find(c => c.id === m.ref_id) || clips.find(c => c.arch === m.id); return it ? Object.assign({}, it, { id: m.id, title: m.title, clip: it.id }) : null; }).filter(Boolean) : [];
+  const shelves = [['FILM', film], ['ARCHETYPE', arch], ['CLIP', clips]].filter(q => q[1].length), PACES = [1, 2, 4, 12], imgs = {};
+  const B = { shelves, shelf: 0, idx: 0, pace: +QS.get('pace') || 1, run: null, done: 0, built: null,
+    list() { return shelves[this.shelf][1]; }, cur() { return this.list()[this.idx] || this.list()[0]; },
+    find(id) { for (let s = 0; s < shelves.length; s++) { const k = shelves[s][1].findIndex(r => r.id === id); if (k >= 0) return [s, k]; } return null; },
+    img() { const r = this.run ? this.run.rc : this.cur(); if (!r || !r.thumb) return null; let im = imgs[r.thumb]; if (!im) { im = imgs[r.thumb] = new Image(); im.onload = () => { oledDirty = true; }; im.src = r.thumb; } return im.complete && im.naturalWidth ? im : null; },
+    load(rc) { rc = rc || this.cur(); const sp = rc.spec; COLORS[10][1] = sp.icing_start || '#f2e6c9'; COLORS[11][1] = sp.icing_end || sp.icing_start || '#fbf8f2'; S.inscribe = QS.get('say') || sp.inscribe || S.inscribe0 || ''; S.writing = null; oledDirty = true; return rc; },
+    rings() { const L = this.list();
+      return [{ n: 'SHELF', v: () => this.shelf, set: v => { this.shelf = clamp(Math.round(v), 0, shelves.length - 1); this.idx = 0; this.load(); }, st: 1, f: v => shelves[clamp(Math.round(v), 0, shelves.length - 1)][0] + ' · ' + shelves[clamp(Math.round(v), 0, shelves.length - 1)][1].length, lo: 0, hi: Math.max(1, shelves.length - 1) },
+        { n: 'PLATE', v: () => this.idx, set: v => { this.idx = ((Math.round(v) % L.length) + L.length) % L.length; this.load(); say((this.idx + 1) + '/' + L.length + ' · ' + this.cur().title); }, st: 1, f: v => ((L[clamp(Math.round(v), 0, L.length - 1)] || {}).title || '').replace(/[^ -~]/g, '').trim().slice(0, 16), lo: 0, hi: Math.max(1, L.length - 1) },
+        { n: 'PACE', v: () => Math.max(0, PACES.indexOf(this.pace)), set: v => { this.pace = PACES[clamp(Math.round(v), 0, PACES.length - 1)]; }, st: 1, f: v => '×' + PACES[clamp(Math.round(v), 0, PACES.length - 1)], lo: 0, hi: PACES.length - 1 },
+        { n: this.run ? 'BUILDING' : 'BUILD', v: () => this.run ? this.run.i + 1 : 0, act: n => { if (n > 0) this.start(); }, st: 1, f: v => this.run ? v + '/' + this.run.steps.length : 'TURN UP', lo: 0, hi: this.run ? this.run.steps.length : 1 }]; },
+    start(rc) { rc = this.load(rc); snapshot(); DOC = { frames: [frameNew()], cur: 0, cast: [], hasTable: false }; S.counts = {}; S.pull = 0; S.weave.mist = 0; S.shotIdx = 0; S.play = false; S.turntable = false; S.dialPipe = null; S.lastPipe = null; S.aimH = .5; S.amt = 0; S.pickKey = 'cake'; S.lastShownCur = -1;
+      Object.assign(S.orbit, { yaw: .45, pitch: -.22, dist: .86 }); S.orbit.tgt.set(0, .82, 0); S.ease = null; GUIDE.on = false; GUIDE.q = []; showFrame();
+      this.run = { rc, steps: compile(rc), i: 0, q: null, qT: .5 }; this.done = 0; this.built = null; say('RECIPE · ' + rc.title); shimmer(); },
+    stop(msg) { if (!this.run) return; this.run = null; if (msg) say(msg); oledDirty = true; },
+    yield() { if (this.run && !this.own) this.stop('YOUR HAND TAKES OVER · THE CAKE STAYS AS IT IS'); },   // any ring or key touched while the book is building: the book lets go
+    tick(dt) { if (!this.run) return; this.run.qT -= dt * this.pace; let guard = 0; this.own = true; try { while (this.run && this.run.qT <= 0 && guard++ < 24) this.run.qT += this.act(); } finally { this.own = false; } },
+    act() { const R = this.run;   // one gesture; returns how long the hand takes over it
+      if (!R.q) { const st = R.steps[R.i]; if (!st) { this.built = R.rc.id; this.done = NOW; this.run = null; lockChime(); say('BUILT · ' + R.rc.title); return 0; } R.q = st.q.map(a => a.slice()); say(st.t); oledDirty = true; }
+      const a = R.q[0]; if (!a) { R.q = null; R.i++; return .32; }
+      if (a[0] === 'wait') { R.q.shift(); return a[1]; }
+      if (a[0] === 'press') { press(a[1], a[2]); R.q.shift(); return .5; }
+      if (a[0] === 'turn') { const n = a[2]; if (n === 0) { R.q.shift(); return .16; } turn(a[1], Math.sign(n)); a[2] -= Math.sign(n); return a[3] || .075; }
+      if (a[0] === 'until') { a.n = (a.n || 0) + 1; if (a[2]() || a.n > (a[3] || 40)) { R.q.shift(); return .2; } turn(a[1], 1); return .085; }
+      const r = rings()[a[1]], tgt = typeof a[2] === 'function' ? a[2]() : a[2]; let d = (tgt - r.v()) / r.st; if (r.wrap) { const span = (r.hi - r.lo) / r.st; d = ((d % span) + span * 1.5) % span - span / 2; }
+      if (Math.abs(d) < .5 || a.n > 90) { R.q.shift(); return .14; } turn(a[1], Math.sign(d)); a.n = (a.n || 0) + 1; return Math.abs(d) > 4 ? .035 : .07; } };
+  // the compiler: a plate's description -> the gestures that make it
+  function compile(rc) { const sp = rc.spec, steps = [], M = m => MODES.indexOf(m), V = n => () => vIdx(n), add = (t, q) => steps.push({ t, q });
+    const kind = sp.base || (sp.flutes ? 'BUNDT' : sp.tiers >= 3 ? 'TIERS3' : sp.tiers === 2 ? 'TIERS' : 'DRUM'), [Rw, Hh, Rt] = BASE_DIM[kind], vName = { DRUM: 'BASE · DRUM', DOME: 'BASE · DOME', TIERS: 'BASE · TIERS', TIERS3: 'BASE · 3 TIERS', BUNDT: 'BASE · BUNDT' }[kind];
+    const at = (r, y) => aimAt(kind, r, y), n = sp.candles | 0, bundt = kind === 'BUNDT', edge = bundt ? at(.105, .09) : at(Rt, Hh), foot = at(Rw, .012);
+    // heights up the side(s), and a sweep of the whole skin from foot to crown
+    const sides = kind === 'TIERS' ? [[.13, .018], [.13, .05], [.09, .088], [.09, .118]] : kind === 'TIERS3' ? [[.13, .02], [.13, .05], [.098, .085], [.098, .115], [.066, .15], [.066, .182]] : bundt ? [-55, -25, 5, 35, 65].map(g => [.075 + .05 * Math.cos(g / 57.3), .05 + .05 * Math.sin(g / 57.3)]) : kind === 'DOME' ? [[.12, .012], [.117, .045], [.1, .078], [.07, .105]] : [[.12, .016], [.12, .032], [.12, .048], [.12, .064], [.12, .08]];
+    const sweepN = kind === 'DRUM' ? 8 : kind === 'DOME' ? 9 : 12, sweep = (verb, clicks, from, to) => { const q = [['ring', 2, V(verb)]]; for (let k = 0; k < sweepN; k++) { const u = k / (sweepN - 1); if (u < (from || 0) - .001 || u > (to == null ? 1 : to) + .001) continue; q.push(['ring', 3, u], ['turn', 4, clicks, .06]); } return q; };
+    add('THE TABLE COMES OUT OF THE DARK', [['ring', 0, M('MAKE')], ['ring', 2, V('THE TABLE')], ['turn', 4, 1], ['wait', .5]]);
+    add('PUT DOWN THE ' + vName.split(' · ')[1] + (sp.sponge ? ' · ' + String(sp.sponge).toUpperCase() + ' SPONGE' : ''), [['ring', 2, V(vName)], ['turn', 4, 1], ['wait', .6]]);
+    if (sp.flutes) add('CUT ' + (sp.flutes || 12) + ' FLUTES ROUND THE RING', [['ring', 2, V('FLUTE · 12')]].concat(...sides.map(p => [['ring', 3, at(p[0], p[1])], ['turn', 4, 2, .1]])));
+    if (sp.finish === 'faceted' || sp.form === 'hex') add('FLATTEN SIX FACETS', [['ring', 2, V('FACET · 6')]].concat(...sides.filter((p, k) => k % 2 === 0).map(p => [['ring', 3, at(p[0], p[1])], ['turn', 4, 4, .09]])));
+    if (sp.well) add('PRESS A WELL INTO THE CROWN', [['ring', 2, V('PUSH IN')], ['ring', 3, 1], ['turn', 4, 6, .09]]);
+    const two = sp.icing_start && sp.icing_end && hexDist(sp.icing_start, sp.icing_end) > .16;
+    if (sp.finish === 'naked') add('LEAVE THE SPONGE NAKED · A THIN COAT', sweep('FROST · PLATE B', 1, .45));
+    else { if (two) add('FROST · THE FIRST COAT ' + sp.icing_start.toUpperCase(), sweep('FROST · PLATE A', 1)); add((two ? 'THE COLOUR TURNS · ' : 'FROST · ') + String(sp.icing_end || sp.icing_start || '').toUpperCase(), sweep('FROST · PLATE B', 2, 0, sp.keepCrown ? .62 : 1)); }
+    if (sp.finish === 'ruffle') add('RUFFLE THE SIDE, BAND BY BAND', [['ring', 2, V('RUFFLE')]].concat(...sides.map(p => [['ring', 3, at(p[0], p[1])], ['turn', 4, 2, .09]])));
+    if (sp.drips) add('LET THE GANACHE RUN OVER THE SHOULDER', [['ring', 2, V('FROST · CHOCOLATE')], ['ring', 3, at(Rt * .5, Hh)], ['turn', 4, 2, .08], ['ring', 3, 1], ['turn', 4, 2, .08], ['ring', 2, V('PIPE · CHOCOLATE')], ['ring', 3, at(Rw, Hh * .8)], ['turn', 4, 28, .035]]);
+    if (sp.finish === 'neon_circuit') add('TRACE A CIRCUIT OF LIGHT', [['ring', 2, V('PIPE · NEON')], ['ring', 3, at(sides[1][0], sides[1][1])], ['turn', 4, 28, .035]]);
+    if (sp.border === 'beads') add('PIPE A BEADED BORDER', [['ring', 2, V('PIPE · WHITE')], ['ring', 3, edge], ['turn', 4, 28, .035]].concat(sp.tiers >= 2 ? [['ring', 3, at(Rw, sides[1][1] + .02)], ['turn', 4, 28, .035]] : []));
+    if (sp.border === 'neon_ring') add('A NEON RING AT THE FOOT AND THE CROWN', [['ring', 2, V('PIPE · NEON')], ['ring', 3, foot], ['turn', 4, 28, .035], ['ring', 3, edge], ['turn', 4, 28, .035]]);
+    if (sp.border === 'shells') add('SHELLS ROUND THE CROWN', [['ring', 2, V('PIPE · WHITE')], ['ring', 3, foot], ['turn', 4, 28, .035], ['ring', 2, V('ROSETTES')], ['ring', 3, edge], ['turn', 4, 14, .09]]);
+    const words = QS.get('say') || sp.inscribe;
+    if (words && !bundt) { const wv = sp.inscribe_style === 'laser_beam' ? 'WRITE · NEON' : sp.inscribe_style === 'red_pipe' || /[^ -~]/.test(words) && sp.inscribe_style !== 'topper_3d' ? 'WRITE · RED' : 'WRITE · GOLD'; add('WRITE “' + words + '”', [['ring', 2, V(wv)], ['wait', .3], ['until', 4, () => S.writing && S.writing.n >= S.writing.runs.length, 30]]); }
+    if (sp.topping === 'berries') add('BERRIES ROUND THE FOOT', [['ring', 2, V('BERRIES')], ['ring', 3, foot], ['turn', 4, 12, .07]].concat(sp.tiers >= 2 ? [['ring', 3, at(Rw - .012, sides[1][1] + .02)], ['turn', 4, 12, .07]] : []));
+    else if (sp.topping === 'cocoa_curls') add('COCOA CURLS', [['ring', 2, V('PIPE · CHOCOLATE')], ['ring', 3, foot], ['turn', 4, 6, .04], ['ring', 2, V('ROSETTES')], ['ring', 3, at(Rt * .55, Hh)], ['turn', 4, 10, .08]]);
+    else if (sp.topping) add('SCATTER ' + String(sp.topping).replace(/_/g, ' ').toUpperCase(), [['ring', 2, V('SPRINKLES')]].concat(...[.55, .7, .82, .93].map(u => [['ring', 3, u], ['turn', 4, 2, .09]])));
+    if (n > 0) add(n + (n === 1 ? ' CANDLE' : ' CANDLES'), [['ring', 2, V('CANDLES')], ['ring', 3, bundt ? at(.105, .09) : words ? at(Rw, Hh - .003) : at(Rt * .8, Hh)], ['turn', 4, n, .15], ['wait', .4]]);
+    if (n > 0 && sp.flame === 'out') add('THE FLAMES ARE ALREADY OUT', [['ring', 2, V('BLOW OUT')], ['turn', 4, n, .1]]);
+    const hm = HM && HM.models && rc.arch && HM.models[rc.arch] ? Math.max(...HM.models[rc.arch].model.P.map(p => p[1])) / ({ DRUM: .097, TIERS: .145, TIERS3: .2, BUNDT: .11 }[kind] || Hh) : 1;
+    if (Math.abs(hm - 1) > .1) add(hm > 1 ? 'DRAW IT TALLER' : 'PRESS IT LOW, A TART', [['ring', 0, M('SIZE')], ['ring', 1, 0], ['ring', 3, +hm.toFixed(2)], ['wait', .3]]);
+    if (sp.tilt_deg) add('LIFT IT OFF THE TABLE AND TIP IT ' + sp.tilt_deg + '°', [['ring', 0, M('MOVE')], ['ring', 1, 0], ['turn', 3, 4, .1], ['ring', 0, M('TURN')], ['ring', 2, Math.round(sp.tilt_deg / 5) * 5], ['wait', .3]]);
+    if (sp.stage_cast) add('THE CHILDREN COME IN FROM THE DARK', [['ring', 0, M('MAKE')], ['ring', 2, V('A CHILD')], ['turn', 4, 3, .8], ['wait', .5]]);
+    const cm = rc.cam || hero, cd = clamp(Math.hypot(cm.p[0], cm.p[1] - .8, cm.p[2]) * (sp.stage_cast ? 1.5 : 1.05), sp.stage_cast ? 1.15 : .5, 1.7);
+    add('SET THE LENS · ' + (cm.label || 'HERO 3/4'), [['ring', 0, M('LOOK')], ['ring', 1, 0], ['wait', 1.5], ['ring', 2, cm.yaw || 0], ['ring', 3, clamp(-(cm.pitch || -.3), .08, 1.1)], ['ring', 4, cd], ['wait', .5]]);
+    if (n > 0 && (sp.flame === 'blowing_out' || sp.flame === 'rewinding')) add('MAKE A WISH', [['ring', 0, M('MAKE')], ['ring', 2, V('BLOW OUT')], ['wait', .5], ['turn', 4, n, .2], ['wait', .7]]);
+    if (n > 0 && sp.flame === 'rewinding') add('TURN THE TIME BACK · THE FLAMES RETURN', [['turn', 4, -n, .16], ['wait', .5]]);
+    add('HELD', [['wait', 1.2]]); return steps; }
+  B.compile = compile; return B; })();
+if (QS.get('say')) S.inscribe = S.inscribe0 = QS.get('say');
+if (QS.get('build') && !/[?&]orb\b/.test(location.search)) { const hit = BOOK.find(QS.get('build')); if (hit) { BOOK.shelf = hit[0]; BOOK.idx = hit[1]; setTimeout(() => { S.mode = 'RECIPE'; BOOK.load(); oledDirty = true; setTimeout(() => turn(4, 1), 900); }, 600); } }
+
 /* =============================================================== THE GUIDE: Ana's chamber, making the cake from nothing. Each step says what to do on the orb;
    it moves on when the room shows it done. SHOW ME (hold PLAY) does the step on the orb, ring by ring, so you can watch the hands. */
 const capEl = null;
 const kidKey = n => { const c = DOC.cast.find(c => c.i === n); return c ? 'c:' + c.id : 'cake'; };
 const itemKey = (t, n) => { let k = -1, seen = 0; curF().items.forEach((it, i) => { if (it.t === t && seen++ === n) k = i; }); return k < 0 ? 'cake' : 'i:' + k; };
-const vIdx = name => VERBS.findIndex(v => v[0] === name);
 const GSTEPS = [
   { t: 'PUT DOWN THE SPONGE', h: 'MODE ring to MAKE · VERB to BASE · DRUM · turn Ring 5 up once', done: () => !!curF().clay,
     show: [['ring', 0, () => MODES.indexOf('MAKE')], ['ring', 2, () => vIdx('BASE · DRUM')], ['turn', 4, 1]] },
@@ -1341,7 +1454,11 @@ function drawOLED() {
   const vx = 14, vy = 88, vw = 520, vh = 310;
   x.fillStyle = '#0c100f'; x.fillRect(vx, vy, vw, vh);
   try {
-    if (oledVideo && oledVideo.readyState >= 2) x.drawImage(oledVideo, vx, vy, vw, vh);
+    const plate = (S.mode === 'RECIPE' || BOOK.run || BOOK.built) ? BOOK.img() : null;
+    if (plate) { const k = Math.max(vw / plate.naturalWidth, vh / plate.naturalHeight), sw = vw / k, sh = vh / k; x.drawImage(plate, (plate.naturalWidth - sw) / 2, (plate.naturalHeight - sh) / 2, sw, sh, vx, vy, vw, vh);
+      x.fillStyle = '#111111'; x.fillRect(vx, vy + vh - 34, vw, 34); x.fillStyle = COLORS[10][1]; x.fillRect(vx + 8, vy + vh - 27, 34, 20); x.fillStyle = COLORS[11][1]; x.fillRect(vx + 46, vy + vh - 27, 34, 20);
+      x.font = '700 16px ui-monospace, Menlo, monospace'; x.fillStyle = '#FAF8F2'; x.textAlign = 'left'; x.fillText('REFERENCE PLATE · A · B' + (S.inscribe ? ' · “' + S.inscribe.slice(0, 16) + '”' : ''), vx + 90, vy + vh - 12); }
+    else if (oledVideo && oledVideo.readyState >= 2) x.drawImage(oledVideo, vx, vy, vw, vh);
     else if (kidTex[3] && kidTex[3].image) { const fw = kidTex[3].image.width / 8, fh = kidTex[3].image.height, fi = Math.floor(NOW * 6) % 8; x.drawImage(kidTex[3].image, fi * fw, 0, fw, fh, vx + 40, vy + 4, vw - 80, vh - 8); }
   } catch (e) {}
   x.strokeStyle = '#111111'; x.lineWidth = 3; x.strokeRect(vx, vy, vw, vh);
@@ -1527,7 +1644,12 @@ function drawOLED() {
     x.strokeStyle = '#111111'; x.lineWidth = 2.5; x.strokeRect(1236, 354, 578, 104);
     x.fillStyle = '#e85d04'; x.fillRect(1236, 354, 10, 104);
     x.textAlign = 'left';
-    if (S.msg && NOW - S.msgT < 3.6) {
+    if (BOOK.run || S.mode === 'RECIPE') { const R0 = BOOK.run, rc = R0 ? R0.rc : BOOK.cur(), st = R0 && R0.steps[R0.i];
+      x.font = '700 21px ui-monospace, Menlo, monospace'; x.fillStyle = R0 ? '#e85d04' : '#111111';
+      x.fillText((R0 ? 'STEP ' + Math.min(R0.i + 1, R0.steps.length) + '/' + R0.steps.length + ' · ' + (st ? st.t : 'HELD') : 'PLATE ' + (BOOK.idx + 1) + '/' + BOOK.list().length + ' · RING 5 BUILDS IT').slice(0, 46), 1258, 388);
+      x.font = '600 16px ui-monospace, Menlo, monospace'; x.fillStyle = '#444444';
+      x.fillText(String(rc.title).slice(0, 56), 1258, 420); x.fillText((rc.id + (rc.arch ? ' · ' + rc.arch : '') + (rc.era ? ' · ' + rc.era : '')).toUpperCase().slice(0, 56), 1258, 444);
+    } else if (S.msg && NOW - S.msgT < 3.6) {
       x.font = '700 22px ui-monospace, Menlo, monospace'; x.fillStyle = '#e85d04';
       x.fillText('LIVE · ' + S.msg.slice(0, 44), 1258, 392);
       x.font = '600 17px ui-monospace, Menlo, monospace'; x.fillStyle = '#222222';
@@ -1688,7 +1810,7 @@ function update(dt) { NOW += dt; HU.uTime.value = NOW;
   if (S.turntable) S.orbit.yaw += dt * .25; if (S.ease) { const e = S.ease, k = Math.min(1, dt * 2.2); S.orbit.tgt.y += (e.y - S.orbit.tgt.y) * k; S.orbit.dist += (e.d - S.orbit.dist) * k; S.orbit.pitch += (e.p - S.orbit.pitch) * k; if (e.yaw != null) S.orbit.yaw += (e.yaw - S.orbit.yaw) * k; e.t -= dt; if (e.t <= 0) S.ease = null; }
   if (!PHONE && !S.play && S.mode !== 'TIME' && S.mode !== 'WEAVE' && curNode().k !== 'cam' && !S.shotIdx) { const n = nodeCenter(), k = Math.min(1, dt * 3); S.orbit.tgt.x += (n.c.x - S.orbit.tgt.x) * k; S.orbit.tgt.z += (n.c.z - S.orbit.tgt.z) * k; if (!S.ease) S.orbit.tgt.y += (n.c.y - S.orbit.tgt.y) * k * .5; }
   RINGS.forEach((r, i) => { const want = odrag && odrag.ring === i && odrag.lock === 'x' ? 1 : 0; r.stretch += (want - r.stretch) * Math.min(1, dt * 12); r.g.scale.set(1 + r.stretch * .12, 1 + r.stretch * .05, 1 + r.stretch * .05); r.lp.scale.set(1 + r.stretch * .35, 1 + r.stretch * .35, 1); });
-  drawDialLabels(); GUIDE.tick(dt); if (PHONE) return;
+  drawDialLabels(); GUIDE.tick(dt); BOOK.tick(dt); if (PHONE) return;
   placeCast(dt); updFilmReticles(dt); updReticle(); updGizmo(); updDataReticle(); updMist(dt);
 }
 function cineWorld(dt) { CSET.visible = true; cone.visible = false; if (obsRim) obsRim.visible = false;
@@ -1745,7 +1867,7 @@ addEventListener('drop', e => { e.preventDefault(); if (e.dataTransfer && e.data
 addEventListener('keydown', e => { if ((e.key === 'i' || e.key === 'I') && !e.metaKey && !e.ctrlKey) wFileImp.click(); });
 
 /* =============================================================== a handle for scripts: tests, and the film */
-window.FORGE = { S, get DOC() { return DOC; }, turn, press, rings, scrub, nodes, curNode, pickTo, setMode, setVerb, GUIDE, GSTEPS, PAIR, CINE, setCine, CAM_SHOTS, KID_POSES, applyCamShot, applyKidPose, now: () => NOW, gizmoHit, gizmoDrag, setStretch, setPull, VERBS, MODES, spawn, place, hitAt, strokeStart, strokeMove, strokeEnd, snapshot, showFrame, cam, CAKE, ORB, RINGS, BTN, OC, perf: () => perf,
+window.FORGE = { S, BOOK, COLORS, letterRuns, get DOC() { return DOC; }, turn, press, rings, scrub, nodes, curNode, pickTo, setMode, setVerb, GUIDE, GSTEPS, PAIR, CINE, setCine, CAM_SHOTS, KID_POSES, applyCamShot, applyKidPose, now: () => NOW, gizmoHit, gizmoDrag, setStretch, setPull, VERBS, MODES, spawn, place, hitAt, strokeStart, strokeMove, strokeEnd, snapshot, showFrame, cam, CAKE, ORB, RINGS, BTN, OC, perf: () => perf,
   manual() { auto = false; }, setAim(x, y) { hover = x == null ? null : { x, y }; }, aim: () => AIM, advance(dt) { update(dt); render(); }, step(dt) { update(dt); placeCam(); cam.updateMatrixWorld(); }, worldToRoom(v) { const p = v.clone().project(cam); return [(p.x + 1) / 2 * roomEl.clientWidth, (1 - p.y) / 2 * roomEl.clientHeight]; }, local(v) { return CAKE.localToWorld(v.clone()); } };
 </script>
 </body>

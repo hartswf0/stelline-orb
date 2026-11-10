@@ -13,6 +13,7 @@
 | **217-Item Video Families Atlas** | [`video-families.html`](../video-families.html), [`assets/video-families/catalog.json`](../assets/video-families/catalog.json) | **216 MP4s + 1 9×3 plate** classified across **8 Camera Angles**, **8 Cut Structures**, **5 Motions**, **6 Scales**, **7 Layouts**, and **8 Source Lineages**. |
 | **78-Item Birthday Training Corpus** | [`bday-training.html`](../bday-training.html), [`BDAY TRAINING/labels.json`](../BDAY%20TRAINING/labels.json), [`BDAY TRAINING/families_angles_cuts.json`](../BDAY%20TRAINING/families_angles_cuts.json) | Mask R-CNN + GrabCut segmented above `y_split` (controller bar stripped), 12-level 2D lathe profiles `profile_m`, 8 multi-era RGBA standee sheets, and **41 handmade 3D Cake Rig models**. |
 | **3D Tactile CAD &Weaver Studios** | [`cake-rig.html`](../cake-rig.html), [`orb-film-studio.html`](../orb-film-studio.html), [`field-orb-05.html`](../field-orb-05.html), [`cineosis-orb.html`](../cineosis-orb.html), [`vesper.html`](../vesper.html), [`weaver.html`](../weaver.html), [`maker.html`](../maker.html) | 5-roller/5-ring physical hardware grammar (`EXTRUDE`, `INFLATE`, `BEVEL`, `CANDLES`, `LENS`, `FOCUS`, `LOOK THROUGH`), `?angle=`, `?model=`, `?replay=` deep links, `.USDA`/`.GLB`/`.OBJ` export. |
+| **The Recipe Book (FUTURE II made real)** | [`recipes.html`](../recipes.html), [`field-orb-05.html`](../field-orb-05.html) `RECIPE` mode, `assets/recipes/*.mp4`, [`tools/recipes/`](../tools/recipes) | **83 recipes** (6 film + 41 archetypes + 77 clips, the archetypes sharing their reference clips) compiled from `cake_spec` to ring gestures; **47 filmed builds**; the edit `every-cake-built.mp4` cut on the beat. |
 | **Grounded Orb Film Suites (8 Batches)** | [`film.html`](../film.html), [`versions-film.html`](../versions-film.html), `assets/orbfilm/*.mp4`, [`tools/record_orb_film_suite.mjs`](../tools/record_orb_film_suite.mjs) | Batch A: **Museum Screenless 5-Ring** (no OLED/struts, zero text); Batch B: **Zero-Text Harmonic Wave**; Batch C: **Grounded `)` Side Crescent Reticle**, **No-Reticle**, and **Stage-Only** (`?stage=1`). |
 | **6-Way Moment Decompositions & Counterfactuals** | [`moments.html`](../moments.html), [`designs.html`](../designs.html), `assets/moments_videos/*.mp4`, `assets/moments/*.mp4` | **60 synchronized passes** (`film_closeup`, `film_chamber_clean`, `seg_isolated`, `cond_depth_edge`, `best3d_stage`, `stelline3d` + 7 master supercuts) + **14 blind-critic pixel counterfactuals**. |
 | **Gemini Omni 1.2 Global Pack** | [`omni.html`](../omni.html), [`assets/omni/prompts.json`](../assets/omni/prompts.json), [`tools/gen/omni.py`](../tools/gen/omni.py), [`tools/flow/stack.sh`](../tools/flow/stack.sh) | 10 global birthday worlds (Mandarin, Amharic, Spanish, Hindi, Japanese, Arabic, Russian, Yoruba, French, Korean) across Museum No-Screen, Locked 5-Ring, and World-Only + `stack.sh` modes. |
@@ -31,6 +32,38 @@
 
 ---
 
+## 2b. FUTURE II, Made Real: The Recipe Book On Field Orb 05 (`RECIPE` mode · `recipes.html`)
+
+Prompt C asked for a compiler from craft video to *"the shortest human-legible sequence of physical controller operations"*. It now exists inside the instrument itself, not as a separate replay page.
+
+**What it is.** `field-orb-05.html` has a tenth mode on ring 1, `RECIPE`. Ring 2 chooses a shelf (`FILM · 6`, `ARCHETYPE · 41`, `CLIP · 77`), ring 3 a reference plate, ring 4 the pace, ring 5 builds it. A recipe is **not a stored model**. It is the plate's `cake_spec` (from `BDAY TRAINING/labels.json`) compiled, at the moment you ask, into the orb's own ring clicks, and then performed on the rings where you can watch the hand. Touch any ring or key while it builds and the book lets go; the cake stays, yours to finish with the same rings.
+
+**The bijection, stated as a table** (`BOOK.compile` in `field-orb-05.html`):
+
+| Plate says (`cake_spec`) | The rings do |
+| :--- | :--- |
+| `tiers` 1 / 2 / 3, `flutes` | `MAKE` · VERB `BASE · DRUM / TIERS / 3 TIERS / BUNDT` · ring 5 once |
+| `flutes` 6–16 | VERB `FLUTE · 12` · HEIGHT up the ring in five steps · two clicks each |
+| `finish: faceted`, `form: hex` | VERB `FACET · 6` · four clicks at alternate heights |
+| `icing_start`, `icing_end` | Loaded as `PLATE A` / `PLATE B`. `FROST · PLATE A` swept foot to crown, then `FROST · PLATE B` over it: the colour turns as it does in the clip |
+| `finish: ruffle` | VERB `RUFFLE` · a thin band pulled at each height |
+| `drips`, `finish: neon_circuit` | `PIPE · CHOCOLATE` / `PIPE · NEON` round the shoulder or the side |
+| `border: beads / shells / neon_ring` | `PIPE · WHITE` closed at the crown edge / `ROSETTES` in the last bag's colour / `PIPE · NEON` at foot and crown |
+| `inscribe` (+ `inscribe_style`) | VERB `WRITE · RED / GOLD / NEON` · ring 5 until the words are whole. The text is cut into rows and laid where a ray from above meets the clay, so it follows the sculpted crown. `&say=` writes your own |
+| `topping` | `BERRIES` at the foot (and the ledge), `ROSETTES`, or `SPRINKLES` at four heights |
+| `candles`, `flame` | `CANDLES` · one click each (the ring closes up evenly past seven) · `BLOW OUT` · and for `rewinding`, ring 5 turned back so the flames return |
+| archetype height, `tilt_deg` | `SIZE` · HEIGHT · and `MOVE` up, `TURN` pitch |
+| `stage_cast` | VERB `A CHILD` · three clicks |
+| `camera_rig_preset` | `LOOK` · ORBIT, TILT, DOLLY to the clip's own lens |
+
+**Deep links.** `field-orb-05.html?build=<id>` where `<id>` is a film recipe (`film_canon`, `film_bundt`, `film_drum`, `film_dome`, `film_tiers`, `film_wish`), an archetype id (`canonical_chamber_7` …) or a clip (`bday_01` … `bday_78`). `&pace=1|2|4|12`, `&say=<your words>`.
+
+**What was filmed and cut.** `tools/recipes/record_recipes.cjs` steps the instrument frame by frame and films each build (`assets/recipes/<id>.mp4` + a `.json` of step times). `tools/recipes/cut_every_cake.py` cuts **`assets/recipes/every-cake-built.mp4`** to the beat of `mix1_tizita_stelline_soul.mp3` (73.8 bpm, measured): plates are cropped above `y_split × 0.78` so no generated controller is ever shown (Invariant 1), blow-outs are cut where each clip measurably loses its light, and the last shot is every filmed build at once. `tools/recipes/build_recipe_index.py` indexes the films for `recipes.html`.
+
+**Honest limits (epistemic ledger).** `OBSERVED`: the plates and their measured colours, candle counts and cut times. `INFERRED`: the mapping from a plate's description to ring gestures (the table above). The builds match each plate's *description*, not its pixels: a ruffle is five pulled bands, not that clip's exact ruffle; lettering is laid in piped rows, not traced from the frame; candle styles (`neon`, `crystal`, `sparkler`) and era casts are not yet distinguished (the three chamber children stand in for every era). The next step for Future II is closing that gap from `segmentation.profile_m` (the measured silhouette is already in the labels).
+
+---
+
 ## 3. Copyable Prompts for Future AI SCION Work Futures
 
 ### PROMPT A · `SCION WORK FUTURES v3.0 — Master Autonomous Agent Bootstrap`
@@ -43,6 +76,7 @@ Before proposing or writing code, ground yourself in the repository's canonical 
 1. Master Entry & Manifest: `index.html` (orbital machine + `[MANIFEST]` drawer) and `scion-futures.html`.
 2. 217-Item Video Families Atlas: `video-families.html` + `assets/video-families/catalog.json` (classifying every `.mp4` and reference plate across 8 Camera Angles `ANG-01..08`, 8 Cut Structures `CUT-01..08`, 5 Camera Motions `MOT-01..05`, 6 Shot Scales `SCL-01..06`, 7 Frame Layouts `LAY-01..07`, and 8 Source Lineages `SRC-01..08`).
 3. 78-Item Segmented Birthday Corpus & 41 3D Cake Rig Models: `bday-training.html`, `BDAY TRAINING/labels.json`, `assets/bday-training/handmade_models.json`, and `cake-rig.html` (`window.RIG`, supporting `?angle=`, `?model=`, `?replay=`).
+4a. The Recipe Book (FUTURE II made real): `field-orb-05.html` RECIPE mode (`?build=<film id | archetype id | bday_NN>`, `&say=`, `&pace=`), `recipes.html`, `tools/recipes/` (record, index, cut), and `docs/scion-work-futures.md` section 2b for the plate-to-gesture table. New cakes are added as `cake_spec` data, never as stored models.
 4. Grounded 5-RingWeaver & Museum Film Engine: `orb-film-studio.html` (`?museum=1`, `?notext=1`, `?reticle=aside|off`, `?stage=1`), `film.html`, `versions-film.html`, and `omni.html` (`assets/omni/prompts.json`).
 5. Theory & Dual-Critic Spec: `docs/scion-diegetic.md`, `docs/scion-work-futures.md`, and `process.html`.
 

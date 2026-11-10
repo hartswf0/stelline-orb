@@ -134,6 +134,8 @@
   <div class="navBtns">
     <a class="btn amber" href="video-families.html">🎬 ALL 217 REPO VIDEOS · FAMILIES ATLAS ↗</a>
     <a class="btn amber" href="scion-futures.html">⚡ AI SCION WORK FUTURES ↗</a>
+    <a class="btn amber" href="recipes.html">◎ EVERY CAKE, BUILT · THE EDIT + 47 ORB BUILD FILMS ↗</a>
+    <a class="btn amber" href="field-orb-05.html?build=film_canon">◎ THE ORB BUILDS ALL OF THESE (LIVE) ↗</a>
     <a class="btn" href="cake-rig.html?replay=canonical_chamber_7">▶ WATCH UI HANDMAKE A CAKE</a>
     <a class="btn" href="cake-rig.html">CAKE RIG 3D STUDIO ↗</a>
     <a class="btn" href="BDAY%20TRAINING/families_angles_cuts.json" download>⬇ FAMILIES_ANGLES_CUTS.JSON</a>
@@ -278,6 +280,8 @@
         <div style="display:flex;gap:6px;margin-top:auto;padding-top:4px;flex-wrap:wrap">
           <a class="btn amber" href="cake-rig.html?replay=${m.id}${ref ? '&ref=' + ref.id : ''}">▶ REPLAY HANDMADE</a>
           <a class="btn" href="cake-rig.html?model=${m.id}${ref ? '&ref=' + ref.id : ''}">EDIT IN RIG ↗</a>
+          <a class="btn amber" href="field-orb-05.html?build=${m.id}" title="The Memory Weaver compiles this plate into ring gestures and performs them">◎ ORB BUILDS IT</a>
+          <a class="btn" href="assets/recipes/${m.id}.mp4" title="The filmed build">▶ BUILD FILM</a>
         </div>
       </div>
     </article>`;
@@ -343,6 +347,7 @@
       <div class="cardFoot">
         <a class="btn amber" href="cake-rig.html?replay=${it.archetype}&ref=${it.id}">▶ HANDMAKE IN RIG</a>
         <a class="btn" href="cake-rig.html?angle=${cin.angle_family || 'HERO_PEDESTAL_3Q_25DEG'}&model=${it.archetype}&ref=${it.id}">🎥 RIG CAMERA (${(cin.camera_rig_preset && cin.camera_rig_preset.f) || 50}MM)</a>
+        ${it.kind === 'video' ? `<a class="btn amber" href="field-orb-05.html?build=${it.id}" title="The Memory Weaver compiles this clip's cake into ring gestures and performs them">◎ ORB BUILDS IT</a>` : ''}
         ${it.kind === 'video' ? `<button class="btn toggleVid">▶ PLAY MP4</button>` : ''}
       </div>
     </article>`;
