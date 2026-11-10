@@ -1,0 +1,275 @@
+{
+ "format": "stelline-timeline/1",
+ "title": "THE BEST THREES",
+ "beat_s": 0.8126984,
+ "fps": 24,
+ "music": {
+  "file": "assets/audio/mix1_tizita_stelline_soul.mp3",
+  "phase_s": 0.4179592,
+  "from_beat": 34
+ },
+ "look": "clean",
+ "poster_at": 0.3,
+ "shots": [
+  {
+   "beats": 2,
+   "op": "triptych",
+   "section": "ANGLE · CHAMBER FLOATING TILT 10DEG",
+   "left": "BDAY 14 · BDAY 13 · BDAY 75",
+   "right": "THREE THAT SHARE A PALETTE · SCORE 0.51",
+   "clips": [
+    "bday_14",
+    "bday_13",
+    "bday_75"
+   ],
+   "layer": "plate",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "triptych",
+   "section": "ANGLE · CHAMBER FLOATING TILT 10DEG",
+   "left": "BDAY 14 · BDAY 75 · BDAY 63",
+   "right": "THREE THAT STAND APART · SCORE 0.05",
+   "clips": [
+    "bday_14",
+    "bday_75",
+    "bday_63"
+   ],
+   "layer": "plate",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "triptych",
+   "section": "ANGLE · HERO PEDESTAL 3Q 25DEG",
+   "left": "BDAY 52 · BDAY 39 · BDAY 05",
+   "right": "THREE THAT SHARE A PALETTE · SCORE 0.20",
+   "clips": [
+    "bday_52",
+    "bday_39",
+    "bday_05"
+   ],
+   "layer": "plate",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "triptych",
+   "section": "ANGLE · HERO PEDESTAL 3Q 25DEG",
+   "left": "BDAY 52 · BDAY 05 · BDAY 61",
+   "right": "THREE THAT STAND APART · SCORE 0.02",
+   "clips": [
+    "bday_52",
+    "bday_05",
+    "bday_61"
+   ],
+   "layer": "plate",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "triptych",
+   "section": "ANGLE · HIGH CROWN WRITING 45DEG",
+   "left": "BDAY 44 · BDAY 64 · BDAY 42",
+   "right": "THREE THAT SHARE A PALETTE · SCORE 0.35",
+   "clips": [
+    "bday_44",
+    "bday_64",
+    "bday_42"
+   ],
+   "layer": "plate",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "triptych",
+   "section": "ANGLE · HIGH CROWN WRITING 45DEG",
+   "left": "BDAY 44 · BDAY 64 · BDAY 42",
+   "right": "THREE THAT STAND APART · SCORE 0.01",
+   "clips": [
+    "bday_44",
+    "bday_64",
+    "bday_42"
+   ],
+   "layer": "plate",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "triptych",
+   "section": "ANGLE · INTIMATE CANDLE FACE CU",
+   "left": "BDAY 33 · BDAY 78 · BDAY 67",
+   "right": "THREE THAT SHARE A PALETTE · SCORE 0.67",
+   "clips": [
+    "bday_33",
+    "bday_78",
+    "bday_67"
+   ],
+   "layer": "plate",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "triptych",
+   "section": "ANGLE · INTIMATE CANDLE FACE CU",
+   "left": "BDAY 33 · BDAY 69 · BDAY 49",
+   "right": "THREE THAT STAND APART · SCORE 0.23",
+   "clips": [
+    "bday_33",
+    "bday_69",
+    "bday_49"
+   ],
+   "layer": "plate",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "triptych",
+   "section": "ANGLE · TABLE TABLEAU EYE 10DEG",
+   "left": "BDAY 26 · BDAY 73 · BDAY 18",
+   "right": "THREE THAT SHARE A PALETTE · SCORE 0.58",
+   "clips": [
+    "bday_26",
+    "bday_73",
+    "bday_18"
+   ],
+   "layer": "plate",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "triptych",
+   "section": "ANGLE · TABLE TABLEAU EYE 10DEG",
+   "left": "BDAY 27 · BDAY 25 · BDAY 45",
+   "right": "THREE THAT STAND APART · SCORE 0.03",
+   "clips": [
+    "bday_27",
+    "bday_25",
+    "bday_45"
+   ],
+   "layer": "plate",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "triptych",
+   "section": "EVENT · BREATH",
+   "left": "BDAY 33 · BDAY 78 · BDAY 67",
+   "right": "THREE THAT SHARE A PALETTE · SCORE 0.67",
+   "clips": [
+    "bday_33",
+    "bday_78",
+    "bday_67"
+   ],
+   "layer": "plate",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "triptych",
+   "section": "EVENT · BREATH",
+   "left": "BDAY 26 · BDAY 69 · BDAY 45",
+   "right": "THREE THAT STAND APART · SCORE 0.30",
+   "clips": [
+    "bday_26",
+    "bday_69",
+    "bday_45"
+   ],
+   "layer": "plate",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "triptych",
+   "section": "EVENT · HOLD",
+   "left": "BDAY 36 · BDAY 37 · BDAY 52",
+   "right": "THREE THAT SHARE A PALETTE · SCORE 0.45",
+   "clips": [
+    "bday_36",
+    "bday_37",
+    "bday_52"
+   ],
+   "layer": "plate",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "triptych",
+   "section": "EVENT · HOLD",
+   "left": "BDAY 36 · BDAY 13 · BDAY 49",
+   "right": "THREE THAT STAND APART · SCORE 0.12",
+   "clips": [
+    "bday_36",
+    "bday_13",
+    "bday_49"
+   ],
+   "layer": "plate",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "triptych",
+   "section": "EVENT · TURN",
+   "left": "BDAY 39 · BDAY 05 · BDAY 75",
+   "right": "THREE THAT SHARE A PALETTE · SCORE 0.36",
+   "clips": [
+    "bday_39",
+    "bday_05",
+    "bday_75"
+   ],
+   "layer": "plate",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "triptych",
+   "section": "EVENT · TURN",
+   "left": "BDAY 75 · BDAY 63 · BDAY 61",
+   "right": "THREE THAT STAND APART · SCORE 0.23",
+   "clips": [
+    "bday_75",
+    "bday_63",
+    "bday_61"
+   ],
+   "layer": "plate",
+   "at": 1
+  },
+  {
+   "beats": 3,
+   "op": "card",
+   "section": "",
+   "left": "",
+   "right": "",
+   "lines": [
+    [
+     "THE BEST THREES, BY SHOT TYPE",
+     30,
+     [
+      240,
+      244,
+      242
+     ]
+    ],
+    [
+     "",
+     10,
+     [
+      0,
+      0,
+      0
+     ]
+    ],
+    [
+     "COLOUR × COMPOSITION · TOOLS/NORMALIZE/TRIADS.PY",
+     16,
+     [
+      102,
+      240,
+      216
+     ]
+    ]
+   ]
+  }
+ ]
+}

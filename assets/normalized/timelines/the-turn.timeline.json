@@ -1,0 +1,226 @@
+{
+ "format": "stelline-timeline/1",
+ "title": "THE TURN",
+ "beat_s": 0.8126984,
+ "fps": 24,
+ "music": {
+  "file": "assets/audio/mix1_tizita_stelline_soul.mp3",
+  "phase_s": 0.4179592,
+  "from_beat": 56
+ },
+ "look": "clean",
+ "poster_at": 0.42,
+ "shots": [
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE TURN",
+   "left": "PLATE BDAY 55 · 1920S SPEAKEASY",
+   "right": "SEGMENT · THE CAKE ALONE",
+   "clip": "bday_55",
+   "layer": "plate",
+   "at": 1,
+   "segment": "cake"
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE TURN",
+   "left": "PLATE BDAY 55 · 1920S SPEAKEASY",
+   "right": "TURNS",
+   "clip": "bday_55",
+   "layer": "plate",
+   "at": 2
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE TURN",
+   "left": "PLATE BDAY 39 · 1950S MIDCENTURY",
+   "right": "SEGMENT · THE CAKE ALONE",
+   "clip": "bday_39",
+   "layer": "plate",
+   "at": 1,
+   "segment": "cake"
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE TURN",
+   "left": "PLATE BDAY 39 · 1950S MIDCENTURY",
+   "right": "TURNS",
+   "clip": "bday_39",
+   "layer": "plate",
+   "at": 2
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE TURN",
+   "left": "PLATE BDAY 05 · 2049 CHAMBER",
+   "right": "SEGMENT · THE CAKE ALONE",
+   "clip": "bday_05",
+   "layer": "plate",
+   "at": 1,
+   "segment": "cake"
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE TURN",
+   "left": "PLATE BDAY 05 · 2049 CHAMBER",
+   "right": "TURNS",
+   "clip": "bday_05",
+   "layer": "plate",
+   "at": 2
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE TURN",
+   "left": "PLATE BDAY 42 · 2049 CHAMBER",
+   "right": "SEGMENT · THE CAKE ALONE",
+   "clip": "bday_42",
+   "layer": "plate",
+   "at": 1,
+   "segment": "cake"
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE TURN",
+   "left": "PLATE BDAY 42 · 2049 CHAMBER",
+   "right": "TURNS",
+   "clip": "bday_42",
+   "layer": "plate",
+   "at": 2
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE TURN",
+   "left": "PLATE BDAY 44 · 2049 CHAMBER",
+   "right": "SEGMENT · THE CAKE ALONE",
+   "clip": "bday_44",
+   "layer": "plate",
+   "at": 1,
+   "segment": "cake"
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE TURN",
+   "left": "PLATE BDAY 44 · 2049 CHAMBER",
+   "right": "TURNS",
+   "clip": "bday_44",
+   "layer": "plate",
+   "at": 2
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE TURN",
+   "left": "PLATE BDAY 64 · 2049 CHAMBER",
+   "right": "SEGMENT · THE CAKE ALONE",
+   "clip": "bday_64",
+   "layer": "plate",
+   "at": 1,
+   "segment": "cake"
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE TURN",
+   "left": "PLATE BDAY 64 · 2049 CHAMBER",
+   "right": "TURNS",
+   "clip": "bday_64",
+   "layer": "plate",
+   "at": 2
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE TURN",
+   "left": "PLATE BDAY 75 · 2049 CHAMBER",
+   "right": "SEGMENT · THE CAKE ALONE",
+   "clip": "bday_75",
+   "layer": "plate",
+   "at": 1,
+   "segment": "cake"
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE TURN",
+   "left": "PLATE BDAY 75 · 2049 CHAMBER",
+   "right": "TURNS",
+   "clip": "bday_75",
+   "layer": "plate",
+   "at": 2
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE TURN",
+   "left": "PLATE BDAY 61 · 2049 CYBERPUNK",
+   "right": "SEGMENT · THE CAKE ALONE",
+   "clip": "bday_61",
+   "layer": "plate",
+   "at": 1,
+   "segment": "cake"
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE TURN",
+   "left": "PLATE BDAY 61 · 2049 CYBERPUNK",
+   "right": "TURNS",
+   "clip": "bday_61",
+   "layer": "plate",
+   "at": 2
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE TURN",
+   "left": "PLATE BDAY 63 · 2049 CYBERPUNK",
+   "right": "SEGMENT · THE CAKE ALONE",
+   "clip": "bday_63",
+   "layer": "plate",
+   "at": 1,
+   "segment": "cake"
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE TURN",
+   "left": "PLATE BDAY 63 · 2049 CYBERPUNK",
+   "right": "TURNS",
+   "clip": "bday_63",
+   "layer": "plate",
+   "at": 2
+  },
+  {
+   "beats": 4,
+   "op": "tiles",
+   "section": "THE TURN · TOGETHER",
+   "left": "9 PLATES · ONE BAR",
+   "right": "ALL ON BEAT 3",
+   "clips": [
+    "bday_55",
+    "bday_39",
+    "bday_05",
+    "bday_42",
+    "bday_44",
+    "bday_64",
+    "bday_75",
+    "bday_61",
+    "bday_63"
+   ],
+   "cols": 3,
+   "rows": 3,
+   "layer": "plate",
+   "at": 0
+  }
+ ]
+}

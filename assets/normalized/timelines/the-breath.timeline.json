@@ -1,0 +1,327 @@
+{
+ "format": "stelline-timeline/1",
+ "title": "THE BREATH",
+ "beat_s": 0.8126984,
+ "fps": 24,
+ "music": {
+  "file": "assets/audio/mix1_tizita_stelline_soul.mp3",
+  "phase_s": 0.4179592,
+  "from_beat": 90
+ },
+ "look": "camcorder90",
+ "poster_at": 0.42,
+ "shots": [
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE BREATH · SYNTHETIC",
+   "left": "PLATE BDAY 69 · 1920S BW",
+   "right": "THE LIGHT GOES MID-SHOT",
+   "clip": "bday_69",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE BREATH · SYNTHETIC",
+   "left": "PLATE BDAY 67 · 1920S SPEAKEASY",
+   "right": "THE LIGHT GOES MID-SHOT",
+   "clip": "bday_67",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE BREATH · SYNTHETIC",
+   "left": "PLATE BDAY 18 · 1950S MIDCENTURY",
+   "right": "THE LIGHT GOES MID-SHOT",
+   "clip": "bday_18",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE BREATH · SYNTHETIC",
+   "left": "PLATE BDAY 28 · 1950S MIDCENTURY",
+   "right": "THE LIGHT GOES MID-SHOT",
+   "clip": "bday_28",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE BREATH · SYNTHETIC",
+   "left": "PLATE BDAY 29 · 1950S MIDCENTURY",
+   "right": "THE LIGHT GOES MID-SHOT",
+   "clip": "bday_29",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE BREATH · SYNTHETIC",
+   "left": "PLATE BDAY 26 · 1980S SYNTHWAVE",
+   "right": "THE LIGHT GOES MID-SHOT",
+   "clip": "bday_26",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE BREATH · SYNTHETIC",
+   "left": "PLATE BDAY 35 · 1980S SYNTHWAVE",
+   "right": "THE LIGHT GOES MID-SHOT",
+   "clip": "bday_35",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE BREATH · SYNTHETIC",
+   "left": "PLATE BDAY 27 · 1990S PASTEL",
+   "right": "THE LIGHT GOES MID-SHOT",
+   "clip": "bday_27",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE BREATH · SYNTHETIC",
+   "left": "PLATE BDAY 16 · 2049 CHAMBER",
+   "right": "THE LIGHT GOES MID-SHOT",
+   "clip": "bday_16",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE BREATH · SYNTHETIC",
+   "left": "PLATE BDAY 33 · 2049 CHAMBER",
+   "right": "THE LIGHT GOES MID-SHOT",
+   "clip": "bday_33",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE BREATH · SYNTHETIC",
+   "left": "PLATE BDAY 34 · 2049 CHAMBER",
+   "right": "THE LIGHT GOES MID-SHOT",
+   "clip": "bday_34",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE BREATH · SYNTHETIC",
+   "left": "PLATE BDAY 78 · 2049 CHAMBER",
+   "right": "THE LIGHT GOES MID-SHOT",
+   "clip": "bday_78",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "THE BREATH · SYNTHETIC",
+   "left": "PLATE BDAY 45 · 2049 CYBERPUNK",
+   "right": "THE LIGHT GOES MID-SHOT",
+   "clip": "bday_45",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 0.5,
+   "op": "bar",
+   "section": "THE BREATH · CODED",
+   "left": "TWIN BDAY 69 · 1920S BW",
+   "right": "DOUBLE PACE",
+   "clip": "bday_69",
+   "layer": "twin",
+   "at": 1.75
+  },
+  {
+   "beats": 0.5,
+   "op": "bar",
+   "section": "THE BREATH · CODED",
+   "left": "TWIN BDAY 67 · 1920S SPEAKEASY",
+   "right": "DOUBLE PACE",
+   "clip": "bday_67",
+   "layer": "twin",
+   "at": 1.75
+  },
+  {
+   "beats": 0.5,
+   "op": "bar",
+   "section": "THE BREATH · CODED",
+   "left": "TWIN BDAY 18 · 1950S MIDCENTURY",
+   "right": "DOUBLE PACE",
+   "clip": "bday_18",
+   "layer": "twin",
+   "at": 1.75
+  },
+  {
+   "beats": 0.5,
+   "op": "bar",
+   "section": "THE BREATH · CODED",
+   "left": "TWIN BDAY 28 · 1950S MIDCENTURY",
+   "right": "DOUBLE PACE",
+   "clip": "bday_28",
+   "layer": "twin",
+   "at": 1.75
+  },
+  {
+   "beats": 0.5,
+   "op": "bar",
+   "section": "THE BREATH · CODED",
+   "left": "TWIN BDAY 29 · 1950S MIDCENTURY",
+   "right": "DOUBLE PACE",
+   "clip": "bday_29",
+   "layer": "twin",
+   "at": 1.75
+  },
+  {
+   "beats": 0.5,
+   "op": "bar",
+   "section": "THE BREATH · CODED",
+   "left": "TWIN BDAY 26 · 1980S SYNTHWAVE",
+   "right": "DOUBLE PACE",
+   "clip": "bday_26",
+   "layer": "twin",
+   "at": 1.75
+  },
+  {
+   "beats": 0.5,
+   "op": "bar",
+   "section": "THE BREATH · CODED",
+   "left": "TWIN BDAY 35 · 1980S SYNTHWAVE",
+   "right": "DOUBLE PACE",
+   "clip": "bday_35",
+   "layer": "twin",
+   "at": 1.75
+  },
+  {
+   "beats": 0.5,
+   "op": "bar",
+   "section": "THE BREATH · CODED",
+   "left": "TWIN BDAY 27 · 1990S PASTEL",
+   "right": "DOUBLE PACE",
+   "clip": "bday_27",
+   "layer": "twin",
+   "at": 1.75
+  },
+  {
+   "beats": 0.5,
+   "op": "bar",
+   "section": "THE BREATH · CODED",
+   "left": "TWIN BDAY 16 · 2049 CHAMBER",
+   "right": "DOUBLE PACE",
+   "clip": "bday_16",
+   "layer": "twin",
+   "at": 1.75
+  },
+  {
+   "beats": 0.5,
+   "op": "bar",
+   "section": "THE BREATH · CODED",
+   "left": "TWIN BDAY 33 · 2049 CHAMBER",
+   "right": "DOUBLE PACE",
+   "clip": "bday_33",
+   "layer": "twin",
+   "at": 1.75
+  },
+  {
+   "beats": 0.5,
+   "op": "bar",
+   "section": "THE BREATH · CODED",
+   "left": "TWIN BDAY 34 · 2049 CHAMBER",
+   "right": "DOUBLE PACE",
+   "clip": "bday_34",
+   "layer": "twin",
+   "at": 1.75
+  },
+  {
+   "beats": 0.5,
+   "op": "bar",
+   "section": "THE BREATH · CODED",
+   "left": "TWIN BDAY 78 · 2049 CHAMBER",
+   "right": "DOUBLE PACE",
+   "clip": "bday_78",
+   "layer": "twin",
+   "at": 1.75
+  },
+  {
+   "beats": 0.5,
+   "op": "bar",
+   "section": "THE BREATH · CODED",
+   "left": "TWIN BDAY 45 · 2049 CYBERPUNK",
+   "right": "DOUBLE PACE",
+   "clip": "bday_45",
+   "layer": "twin",
+   "at": 1.75
+  },
+  {
+   "beats": 4,
+   "op": "tiles",
+   "section": "THE BREATH · TOGETHER",
+   "left": "13 PLATES · ONE BAR",
+   "right": "ALL ON BEAT 3",
+   "clips": [
+    "bday_69",
+    "bday_67",
+    "bday_18",
+    "bday_28",
+    "bday_29",
+    "bday_26",
+    "bday_35",
+    "bday_27",
+    "bday_16",
+    "bday_33",
+    "bday_34",
+    "bday_78",
+    "bday_45"
+   ],
+   "cols": 5,
+   "rows": 3,
+   "layer": "plate",
+   "at": 0
+  },
+  {
+   "beats": 4,
+   "op": "tiles",
+   "section": "THE BREATH · TOGETHER",
+   "left": "13 TWINS · ONE BAR",
+   "right": "ALL ON BEAT 3",
+   "clips": [
+    "bday_69",
+    "bday_67",
+    "bday_18",
+    "bday_28",
+    "bday_29",
+    "bday_26",
+    "bday_35",
+    "bday_27",
+    "bday_16",
+    "bday_33",
+    "bday_34",
+    "bday_78",
+    "bday_45"
+   ],
+   "cols": 5,
+   "rows": 3,
+   "layer": "twin",
+   "at": 0
+  }
+ ]
+}

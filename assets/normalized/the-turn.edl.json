@@ -1,7 +1,7 @@
 {
  "fps": 24,
  "beat_s": 0.8126984,
- "music_from_s": 45.929,
+ "look": "clean",
  "duration_s": 17.875,
  "shots": [
   {
@@ -9,152 +9,133 @@
    "t": 0.0,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 55 \u00b7 1920S SPEAKEASY",
-   "how": "SEEN"
+   "op": "bar"
   },
   {
    "shot": 1,
    "t": 0.833,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 55 \u00b7 1920S SPEAKEASY",
-   "how": "TURNS"
+   "op": "bar"
   },
   {
    "shot": 2,
    "t": 1.625,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 39 \u00b7 1950S MIDCENTURY",
-   "how": "SEEN"
+   "op": "bar"
   },
   {
    "shot": 3,
    "t": 2.458,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 39 \u00b7 1950S MIDCENTURY",
-   "how": "TURNS"
+   "op": "bar"
   },
   {
    "shot": 4,
    "t": 3.25,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 05 \u00b7 2049 CHAMBER",
-   "how": "SEEN"
+   "op": "bar"
   },
   {
    "shot": 5,
    "t": 4.083,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 05 \u00b7 2049 CHAMBER",
-   "how": "TURNS"
+   "op": "bar"
   },
   {
    "shot": 6,
    "t": 4.875,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 42 \u00b7 2049 CHAMBER",
-   "how": "SEEN"
+   "op": "bar"
   },
   {
    "shot": 7,
    "t": 5.708,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 42 \u00b7 2049 CHAMBER",
-   "how": "TURNS"
+   "op": "bar"
   },
   {
    "shot": 8,
    "t": 6.5,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 44 \u00b7 2049 CHAMBER",
-   "how": "SEEN"
+   "op": "bar"
   },
   {
    "shot": 9,
    "t": 7.333,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 44 \u00b7 2049 CHAMBER",
-   "how": "TURNS"
+   "op": "bar"
   },
   {
    "shot": 10,
    "t": 8.125,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 64 \u00b7 2049 CHAMBER",
-   "how": "SEEN"
+   "op": "bar"
   },
   {
    "shot": 11,
    "t": 8.958,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 64 \u00b7 2049 CHAMBER",
-   "how": "TURNS"
+   "op": "bar"
   },
   {
    "shot": 12,
    "t": 9.75,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 75 \u00b7 2049 CHAMBER",
-   "how": "SEEN"
+   "op": "bar"
   },
   {
    "shot": 13,
    "t": 10.583,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 75 \u00b7 2049 CHAMBER",
-   "how": "TURNS"
+   "op": "bar"
   },
   {
    "shot": 14,
    "t": 11.375,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 61 \u00b7 2049 CYBERPUNK",
-   "how": "SEEN"
+   "op": "bar"
   },
   {
    "shot": 15,
    "t": 12.208,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 61 \u00b7 2049 CYBERPUNK",
-   "how": "TURNS"
+   "op": "bar"
   },
   {
    "shot": 16,
    "t": 13.0,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 63 \u00b7 2049 CYBERPUNK",
-   "how": "SEEN"
+   "op": "bar"
   },
   {
    "shot": 17,
    "t": 13.833,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 63 \u00b7 2049 CYBERPUNK",
-   "how": "TURNS"
+   "op": "bar"
   },
   {
    "shot": 18,
    "t": 14.625,
    "frames": 78,
    "beats": 4,
-   "what": "9 PLATES \u00b7 ONE BAR",
-   "how": "ALL ON BEAT 3"
+   "op": "tiles"
   }
  ]
 }

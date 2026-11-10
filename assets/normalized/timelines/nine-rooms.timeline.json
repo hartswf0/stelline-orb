@@ -1,0 +1,114 @@
+{
+ "format": "stelline-timeline/1",
+ "title": "NINE ROOMS, ONE CAKE",
+ "beat_s": 0.8126984,
+ "fps": 24,
+ "music": {
+  "file": "assets/audio/mix1_tizita_stelline_soul.mp3",
+  "phase_s": 0.4179592,
+  "from_beat": 60
+ },
+ "look": "panavision70",
+ "poster_at": 0.42,
+ "shots": [
+  {
+   "beats": 4,
+   "op": "seam",
+   "section": "1920S BW",
+   "left": "LEFT OF THE SEAM: PLATE BDAY 69   RIGHT: ITS CODED TWIN",
+   "right": "ONE CAKE, TWO HALVES · GRADED AS ONE FILM",
+   "clip": "bday_69",
+   "at": 0
+  },
+  {
+   "beats": 4,
+   "op": "seam",
+   "section": "1920S SPEAKEASY",
+   "left": "LEFT OF THE SEAM: PLATE BDAY 67   RIGHT: ITS CODED TWIN",
+   "right": "ONE CAKE, TWO HALVES · GRADED AS ONE FILM",
+   "clip": "bday_67",
+   "at": 0
+  },
+  {
+   "beats": 4,
+   "op": "seam",
+   "section": "1950S MIDCENTURY",
+   "left": "LEFT OF THE SEAM: PLATE BDAY 28   RIGHT: ITS CODED TWIN",
+   "right": "ONE CAKE, TWO HALVES · GRADED AS ONE FILM",
+   "clip": "bday_28",
+   "at": 0
+  },
+  {
+   "beats": 4,
+   "op": "seam",
+   "section": "1970S KODACHROME",
+   "left": "LEFT OF THE SEAM: PLATE BDAY 21   RIGHT: ITS CODED TWIN",
+   "right": "ONE CAKE, TWO HALVES · GRADED AS ONE FILM",
+   "clip": "bday_21",
+   "at": 0
+  },
+  {
+   "beats": 4,
+   "op": "seam",
+   "section": "1980S SYNTHWAVE",
+   "left": "LEFT OF THE SEAM: PLATE BDAY 26   RIGHT: ITS CODED TWIN",
+   "right": "ONE CAKE, TWO HALVES · GRADED AS ONE FILM",
+   "clip": "bday_26",
+   "at": 0
+  },
+  {
+   "beats": 4,
+   "op": "seam",
+   "section": "1990S PASTEL",
+   "left": "LEFT OF THE SEAM: PLATE BDAY 27   RIGHT: ITS CODED TWIN",
+   "right": "ONE CAKE, TWO HALVES · GRADED AS ONE FILM",
+   "clip": "bday_27",
+   "at": 0
+  },
+  {
+   "beats": 4,
+   "op": "seam",
+   "section": "STUDIO CRAFT",
+   "left": "LEFT OF THE SEAM: PLATE BDAY 54   RIGHT: ITS CODED TWIN",
+   "right": "ONE CAKE, TWO HALVES · GRADED AS ONE FILM",
+   "clip": "bday_54",
+   "at": 0
+  },
+  {
+   "beats": 4,
+   "op": "seam",
+   "section": "2049 CHAMBER",
+   "left": "LEFT OF THE SEAM: PLATE BDAY 34   RIGHT: ITS CODED TWIN",
+   "right": "ONE CAKE, TWO HALVES · GRADED AS ONE FILM",
+   "clip": "bday_34",
+   "at": 0
+  },
+  {
+   "beats": 4,
+   "op": "seam",
+   "section": "2049 CYBERPUNK",
+   "left": "LEFT OF THE SEAM: PLATE BDAY 45   RIGHT: ITS CODED TWIN",
+   "right": "ONE CAKE, TWO HALVES · GRADED AS ONE FILM",
+   "clip": "bday_45",
+   "at": 0
+  },
+  {
+   "beats": 3,
+   "op": "card",
+   "section": "",
+   "left": "",
+   "right": "",
+   "lines": [
+    [
+     "NINE ROOMS · ONE CAKE",
+     30,
+     [
+      240,
+      244,
+      242
+     ]
+    ]
+   ]
+  }
+ ]
+}

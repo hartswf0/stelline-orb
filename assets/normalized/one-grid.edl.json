@@ -1,7 +1,7 @@
 {
  "fps": 24,
  "beat_s": 0.8126984,
- "music_from_s": 28.05,
+ "look": "clean",
  "duration_s": 56.083,
  "shots": [
   {
@@ -9,368 +9,322 @@
    "t": 0.0,
    "frames": 59,
    "beats": 3,
-   "what": "",
-   "how": ""
+   "op": "card"
   },
   {
    "shot": 1,
    "t": 2.458,
    "frames": 39,
    "beats": 2,
-   "what": "PLATE BDAY 69 \u00b7 1920S BW",
-   "how": "SEGMENTS: CAKE \u00b7 PEOPLE   GRID: CENTRE \u00b7 CROWN \u00b7 WIDTH"
+   "op": "seen"
   },
   {
    "shot": 2,
    "t": 4.083,
    "frames": 39,
    "beats": 2,
-   "what": "PLATE BDAY 67 \u00b7 1920S SPEAKEASY",
-   "how": "SEGMENTS: CAKE \u00b7 PEOPLE   GRID: CENTRE \u00b7 CROWN \u00b7 WIDTH"
+   "op": "seen"
   },
   {
    "shot": 3,
    "t": 5.708,
    "frames": 39,
    "beats": 2,
-   "what": "PLATE BDAY 28 \u00b7 1950S MIDCENTURY",
-   "how": "SEGMENTS: CAKE \u00b7 PEOPLE   GRID: CENTRE \u00b7 CROWN \u00b7 WIDTH"
+   "op": "seen"
   },
   {
    "shot": 4,
    "t": 7.333,
    "frames": 39,
    "beats": 2,
-   "what": "PLATE BDAY 21 \u00b7 1970S KODACHROME",
-   "how": "SEGMENTS: CAKE \u00b7 PEOPLE   GRID: CENTRE \u00b7 CROWN \u00b7 WIDTH"
+   "op": "seen"
   },
   {
    "shot": 5,
    "t": 8.958,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 23 \u00b7 1950S MIDCENTURY",
-   "how": "ARRIVE ON BEAT 3"
+   "op": "bar"
   },
   {
    "shot": 6,
    "t": 9.75,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 25 \u00b7 1950S MIDCENTURY",
-   "how": "ARRIVE ON BEAT 3"
+   "op": "bar"
   },
   {
    "shot": 7,
    "t": 10.583,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 36 \u00b7 1950S MIDCENTURY",
-   "how": "HOLD ON BEAT 3"
+   "op": "bar"
   },
   {
    "shot": 8,
    "t": 11.375,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 37 \u00b7 1950S MIDCENTURY",
-   "how": "HOLD ON BEAT 3"
+   "op": "bar"
   },
   {
    "shot": 9,
    "t": 12.208,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 73 \u00b7 1950S MIDCENTURY",
-   "how": "HOLD ON BEAT 3"
+   "op": "bar"
   },
   {
    "shot": 10,
    "t": 13.0,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 21 \u00b7 1970S KODACHROME",
-   "how": "REWIND ON BEAT 3"
+   "op": "bar"
   },
   {
    "shot": 11,
    "t": 13.833,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 54 \u00b7 STUDIO CRAFT",
-   "how": "HOLD ON BEAT 3"
+   "op": "bar"
   },
   {
    "shot": 12,
    "t": 14.625,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 13 \u00b7 2049 CHAMBER",
-   "how": "HOLD ON BEAT 3"
+   "op": "bar"
   },
   {
    "shot": 13,
    "t": 15.458,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 14 \u00b7 2049 CHAMBER",
-   "how": "HOLD ON BEAT 3"
+   "op": "bar"
   },
   {
    "shot": 14,
    "t": 16.25,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 52 \u00b7 2049 CHAMBER",
-   "how": "HOLD ON BEAT 3"
+   "op": "bar"
   },
   {
    "shot": 15,
    "t": 17.083,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 49 \u00b7 2049 CYBERPUNK",
-   "how": "HOLD ON BEAT 3"
+   "op": "bar"
   },
   {
    "shot": 16,
    "t": 17.875,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 55 \u00b7 1920S SPEAKEASY",
-   "how": "TURN ON BEAT 3"
+   "op": "bar"
   },
   {
    "shot": 17,
    "t": 18.708,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 39 \u00b7 1950S MIDCENTURY",
-   "how": "TURN ON BEAT 3"
+   "op": "bar"
   },
   {
    "shot": 18,
    "t": 19.5,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 05 \u00b7 2049 CHAMBER",
-   "how": "TURN ON BEAT 3"
+   "op": "bar"
   },
   {
    "shot": 19,
    "t": 20.333,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 42 \u00b7 2049 CHAMBER",
-   "how": "TURN ON BEAT 3"
+   "op": "bar"
   },
   {
    "shot": 20,
    "t": 21.125,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 44 \u00b7 2049 CHAMBER",
-   "how": "TURN ON BEAT 3"
+   "op": "bar"
   },
   {
    "shot": 21,
    "t": 21.958,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 69 \u00b7 1920S BW",
-   "how": "SYNTHETIC"
+   "op": "bar"
   },
   {
    "shot": 22,
    "t": 22.75,
    "frames": 20,
    "beats": 1,
-   "what": "TWIN BDAY 69 \u00b7 1920S BW",
-   "how": "CODED \u00b7 SAME GRID \u00b7 SAME BEAT"
+   "op": "bar"
   },
   {
    "shot": 23,
    "t": 23.583,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 67 \u00b7 1920S SPEAKEASY",
-   "how": "SYNTHETIC"
+   "op": "bar"
   },
   {
    "shot": 24,
    "t": 24.375,
    "frames": 20,
    "beats": 1,
-   "what": "TWIN BDAY 67 \u00b7 1920S SPEAKEASY",
-   "how": "CODED \u00b7 SAME GRID \u00b7 SAME BEAT"
+   "op": "bar"
   },
   {
    "shot": 25,
    "t": 25.208,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 28 \u00b7 1950S MIDCENTURY",
-   "how": "SYNTHETIC"
+   "op": "bar"
   },
   {
    "shot": 26,
    "t": 26.0,
    "frames": 20,
    "beats": 1,
-   "what": "TWIN BDAY 28 \u00b7 1950S MIDCENTURY",
-   "how": "CODED \u00b7 SAME GRID \u00b7 SAME BEAT"
+   "op": "bar"
   },
   {
    "shot": 27,
    "t": 26.833,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 26 \u00b7 1980S SYNTHWAVE",
-   "how": "SYNTHETIC"
+   "op": "bar"
   },
   {
    "shot": 28,
    "t": 27.625,
    "frames": 20,
    "beats": 1,
-   "what": "TWIN BDAY 26 \u00b7 1980S SYNTHWAVE",
-   "how": "CODED \u00b7 SAME GRID \u00b7 SAME BEAT"
+   "op": "bar"
   },
   {
    "shot": 29,
    "t": 28.458,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 69 \u00b7 1920S BW",
-   "how": "THE LIGHT GOES THREE QUARTERS THROUGH"
+   "op": "bar"
   },
   {
    "shot": 30,
    "t": 29.25,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 67 \u00b7 1920S SPEAKEASY",
-   "how": "THE LIGHT GOES THREE QUARTERS THROUGH"
+   "op": "bar"
   },
   {
    "shot": 31,
    "t": 30.083,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 18 \u00b7 1950S MIDCENTURY",
-   "how": "THE LIGHT GOES THREE QUARTERS THROUGH"
+   "op": "bar"
   },
   {
    "shot": 32,
    "t": 30.875,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 28 \u00b7 1950S MIDCENTURY",
-   "how": "THE LIGHT GOES THREE QUARTERS THROUGH"
+   "op": "bar"
   },
   {
    "shot": 33,
    "t": 31.708,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 29 \u00b7 1950S MIDCENTURY",
-   "how": "THE LIGHT GOES THREE QUARTERS THROUGH"
+   "op": "bar"
   },
   {
    "shot": 34,
    "t": 32.5,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 26 \u00b7 1980S SYNTHWAVE",
-   "how": "THE LIGHT GOES THREE QUARTERS THROUGH"
+   "op": "bar"
   },
   {
    "shot": 35,
    "t": 33.333,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 35 \u00b7 1980S SYNTHWAVE",
-   "how": "THE LIGHT GOES THREE QUARTERS THROUGH"
+   "op": "bar"
   },
   {
    "shot": 36,
    "t": 34.125,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 27 \u00b7 1990S PASTEL",
-   "how": "THE LIGHT GOES THREE QUARTERS THROUGH"
+   "op": "bar"
   },
   {
    "shot": 37,
    "t": 34.958,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 16 \u00b7 2049 CHAMBER",
-   "how": "THE LIGHT GOES THREE QUARTERS THROUGH"
+   "op": "bar"
   },
   {
    "shot": 38,
    "t": 35.75,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 33 \u00b7 2049 CHAMBER",
-   "how": "THE LIGHT GOES THREE QUARTERS THROUGH"
+   "op": "bar"
   },
   {
    "shot": 39,
    "t": 36.583,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 34 \u00b7 2049 CHAMBER",
-   "how": "THE LIGHT GOES THREE QUARTERS THROUGH"
+   "op": "bar"
   },
   {
    "shot": 40,
    "t": 37.375,
    "frames": 20,
    "beats": 1,
-   "what": "PLATE BDAY 78 \u00b7 2049 CHAMBER",
-   "how": "THE LIGHT GOES THREE QUARTERS THROUGH"
+   "op": "bar"
   },
   {
    "shot": 41,
    "t": 38.208,
    "frames": 19,
    "beats": 1,
-   "what": "PLATE BDAY 45 \u00b7 2049 CYBERPUNK",
-   "how": "THE LIGHT GOES THREE QUARTERS THROUGH"
+   "op": "bar"
   },
   {
    "shot": 42,
    "t": 39.0,
    "frames": 156,
    "beats": 8,
-   "what": "33 PLATES \u00b7 ONE FRAME EACH \u00b7 THE CAKE DOES NOT MOVE",
-   "how": "FLICKER \u00b7 QUARTER BEATS"
+   "op": "flicker"
   },
   {
    "shot": 43,
    "t": 45.5,
    "frames": 78,
    "beats": 4,
-   "what": "33 PLATES AT ONCE \u00b7 NOTHING RETIMED IN THE EDIT",
-   "how": "SYNTHETIC"
+   "op": "tiles"
   },
   {
    "shot": 44,
    "t": 48.75,
    "frames": 78,
    "beats": 4,
-   "what": "33 CODED TWINS AT ONCE \u00b7 THE SAME BAR",
-   "how": "CODED"
+   "op": "tiles"
   },
   {
    "shot": 45,
    "t": 52.0,
    "frames": 98,
    "beats": 5,
-   "what": "",
-   "how": ""
+   "op": "card"
   }
  ]
 }

@@ -118,7 +118,7 @@ def bars_frame(title, sec, left, right):
     return np.asarray(im).copy()
 def name(cid): c = CL[cid]; return cid.upper().replace('_', ' ') + ' · ' + c['era'].replace('_', ' ').upper()
 
-def render(fname, title, shots, music_beat):
+def render_legacy(fname, title, shots, music_beat):       # superseded by tools/timeline/assemble.py; kept for reference
     """shots: (beats, section, left caption, right caption, generator(n)). Cut times are beat times; the music is taken from the same beat grid."""
     out = os.path.join(N, fname); total_b = sum(s[0] for s in shots); total = fb(total_b) / FPS; t0 = MPHASE + music_beat * BEAT
     enc = subprocess.Popen(['ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}', '-r', str(FPS), '-i', '-', '-ss', f'{t0:.3f}', '-t', f'{total:.3f}', '-i', MUSIC,
@@ -138,50 +138,59 @@ def render(fname, title, shots, music_beat):
     subprocess.run(['ffmpeg', '-v', 'error', '-y', '-ss', f'{total * 0.42:.2f}', '-i', out, '-frames:v', '1', '-q:v', '3', os.path.splitext(out)[0] + '.jpg'])
     print('wrote', fname, f'{total:.1f}s', len(shots), 'shots', flush=True)
 
-# ------------------------------------------------------------------ step 2: the cuts
-def cuts():
+# ------------------------------------------------------------------ step 2: the cuts, written as timelines and rendered by the one assembler
+MIX = {'file': 'assets/audio/mix1_tizita_stelline_soul.mp3', 'phase_s': MPHASE}
+def timeline(title, shots, from_beat, look='clean', poster_at=0.42):
+    return {'format': 'stelline-timeline/1', 'title': title, 'beat_s': BEAT, 'fps': FPS, 'music': dict(MIX, from_beat=from_beat), 'look': look, 'poster_at': poster_at, 'shots': shots}
+def sh(beats, op, section='', left='', right='', **kw): return dict(beats=beats, op=op, section=section, left=left, right=right, **kw)
+def timelines():
     ids = [c['id'] for c in KEPT]; kind = lambda k: [c['id'] for c in KEPT if c['event']['kind'] == k]        # KEPT is already in era order
     breath, turn = kind('breath'), kind('turn'); other = [c['id'] for c in KEPT if c['event']['kind'] in ('arrive', 'hold', 'rewind')]; tw = [c for c in ids if has_twin(c)]
-    first_of_era = []
-    for c in KEPT:
-        if c['era'] not in [CL[x]['era'] for x in first_of_era] and has_twin(c['id']): first_of_era.append(c['id'])
-    best = lambda pool: max(pool, key=lambda c: CL[c]['event']['strength'])
-    era_pick = []
+    best = lambda pool: max(pool, key=lambda c: CL[c]['event']['strength']); era_pick = []
     for e in I['era_order']:
         pool = [c for c in tw if CL[c]['era'] == e]
         if pool: era_pick.append(best([c for c in pool if CL[c]['event']['kind'] == 'breath'] or pool))
-    T1 = 'ONE GRID, ONE BAR'; S = []
-    S.append((3, '', '', '', lambda n: card([('ONE GRID, ONE BAR', 54, (240, 244, 242)), (f'{len(ids)} OF 77 PLATES KEPT · EVERY CAKE IN ONE PLACE · EVERY EVENT ON ONE BEAT', 16, (255, 204, 102))], n, 14, 1)))
-    for c in era_pick[:4]: S.append((2, 'I · WHAT THE MACHINE SEES', 'PLATE ' + name(c), 'SEGMENTS: CAKE · PEOPLE   GRID: CENTRE · CROWN · WIDTH', lambda n, c=c: seen(bar(c, 0, n), c, n)))
-    for c in (other + turn)[:16]: S.append((1, 'II · ARRIVALS AND TURNS, ERA BY ERA', 'PLATE ' + name(c), CL[c]['event']['kind'].upper() + ' ON BEAT 3', lambda n, c=c: bar(c, 1.5, n)))
+    white, gold, cyan = [240, 244, 242], [255, 204, 102], [102, 240, 216]; T = {}
+    S = [sh(3, 'card', lines=[['ONE GRID, ONE BAR', 54, white], [f'{len(ids)} OF 77 PLATES KEPT · EVERY CAKE IN ONE PLACE · EVERY EVENT ON ONE BEAT', 16, gold]], fade_in=14, fade_out=1)]
+    S += [sh(2, 'seen', 'I · WHAT THE MACHINE SEES', 'PLATE ' + name(c), 'SEGMENTS: CAKE · PEOPLE   GRID: CENTRE · CROWN · WIDTH', clip=c, at=0) for c in era_pick[:4]]
+    S += [sh(1, 'bar', 'II · ARRIVALS AND TURNS, ERA BY ERA', 'PLATE ' + name(c), CL[c]['event']['kind'].upper() + ' ON BEAT 3', clip=c, layer='plate', at=1.5) for c in (other + turn)[:16]]
     for c in [x for x in era_pick if CL[x]['event']['kind'] == 'breath'][:4]:
-        S.append((1, 'III · PLATE INTO CODED TWIN', 'PLATE ' + name(c), 'SYNTHETIC', lambda n, c=c: bar(c, 1, n))); S.append((1, 'III · PLATE INTO CODED TWIN', 'TWIN ' + name(c), 'CODED · SAME GRID · SAME BEAT', lambda n, c=c: bar(c, 2, n, twin=True)))
-    for c in breath: S.append((1, 'IV · EVERY BREATH', 'PLATE ' + name(c), 'THE LIGHT GOES THREE QUARTERS THROUGH', lambda n, c=c: bar(c, 1.25, n)))
-    S.append((8, 'V · ONE PLACE', f'{len(ids)} PLATES · ONE FRAME EACH · THE CAKE DOES NOT MOVE', 'FLICKER · QUARTER BEATS', lambda n: flicker(ids * 2, n, max(1, fb(0.25)))))
+        S += [sh(1, 'bar', 'III · PLATE INTO CODED TWIN', 'PLATE ' + name(c), 'SYNTHETIC', clip=c, layer='plate', at=1), sh(1, 'bar', 'III · PLATE INTO CODED TWIN', 'TWIN ' + name(c), 'CODED · SAME GRID · SAME BEAT', clip=c, layer='twin', at=2)]
+    S += [sh(1, 'bar', 'IV · EVERY BREATH', 'PLATE ' + name(c), 'THE LIGHT GOES THREE QUARTERS THROUGH', clip=c, layer='plate', at=1.25) for c in breath]
+    S.append(sh(8, 'flicker', 'V · ONE PLACE', f'{len(ids)} PLATES · ONE FRAME EACH · THE CAKE DOES NOT MOVE', 'FLICKER · QUARTER BEATS', clips=ids * 2, each_beats=0.25))
     cols = 7 if len(ids) > 30 else 6; rows = -(-len(ids) // cols)
-    S.append((4, 'VI · ONE TIME', f'{len(ids)} PLATES AT ONCE · NOTHING RETIMED IN THE EDIT', 'SYNTHETIC', lambda n: tiles(ids, cols, rows, 0, n)))
-    S.append((4, 'VI · ONE TIME', f'{len(tw)} CODED TWINS AT ONCE · THE SAME BAR', 'CODED', lambda n: tiles(ids, cols, rows, 0, n, twin=True)))
-    S.append((5, '', '', '', lambda n: card([(f'{len(ids)} PLATES · {len(tw)} TWINS · 1 GRID · 4 BEATS', 30, (240, 244, 242)), ('', 10, (0, 0, 0)), ('ASSETS/NORMALIZED · STELLINE ORB · SCION DIEGETIC', 16, (255, 204, 102))], n)))
-    render('one-grid.mp4', T1, S, 34)
-
+    S.append(sh(4, 'tiles', 'VI · ONE TIME', f'{len(ids)} PLATES AT ONCE · NOTHING RETIMED IN THE EDIT', 'SYNTHETIC', clips=ids, cols=cols, rows=rows, layer='plate', at=0))
+    S.append(sh(4, 'tiles', 'VI · ONE TIME', f'{len(tw)} CODED TWINS AT ONCE · THE SAME BAR', 'CODED', clips=ids, cols=cols, rows=rows, layer='twin', at=0))
+    S.append(sh(5, 'card', lines=[[f'{len(ids)} PLATES · {len(tw)} TWINS · 1 GRID · 4 BEATS', 30, white], ['', 10, [0, 0, 0]], ['ASSETS/NORMALIZED · STELLINE ORB · SCION DIEGETIC', 16, gold]]))
+    T['one-grid'] = timeline('ONE GRID, ONE BAR', S, 34)
+    S = [sh(4, 'seam', CL[c]['era'].replace('_', ' ').upper(), 'LEFT OF THE SEAM: PLATE ' + c.upper().replace('_', ' ') + '   RIGHT: ITS CODED TWIN', 'ONE CAKE, TWO HALVES · GRADED AS ONE FILM', clip=c, at=0) for c in era_pick]
+    S.append(sh(3, 'card', lines=[['NINE ROOMS · ONE CAKE', 30, white]]))
+    T['nine-rooms'] = timeline('NINE ROOMS, ONE CAKE', S, 60, look='panavision70')
+    S = [sh(1, 'bar', 'THE BREATH · SYNTHETIC', 'PLATE ' + name(c), 'THE LIGHT GOES MID-SHOT', clip=c, layer='plate', at=1.5) for c in breath]
+    S += [sh(0.5, 'bar', 'THE BREATH · CODED', 'TWIN ' + name(c), 'DOUBLE PACE', clip=c, layer='twin', at=1.75) for c in breath if has_twin(c)]
+    bc = 5 if len(breath) > 12 else 4
+    S += [sh(4, 'tiles', 'THE BREATH · TOGETHER', f'{len(breath)} PLATES · ONE BAR', 'ALL ON BEAT 3', clips=breath, cols=bc, rows=-(-len(breath) // bc), layer='plate', at=0), sh(4, 'tiles', 'THE BREATH · TOGETHER', f'{len(breath)} TWINS · ONE BAR', 'ALL ON BEAT 3', clips=breath, cols=bc, rows=-(-len(breath) // bc), layer='twin', at=0)]
+    T['the-breath'] = timeline('THE BREATH', S, 90, look='camcorder90')
     S = []
-    for c in era_pick: S.append((4, CL[c]['era'].replace('_', ' ').upper(), 'LEFT OF THE SEAM: PLATE ' + c.upper().replace('_', ' ') + '   RIGHT: ITS CODED TWIN', 'ONE CAKE, TWO HALVES', lambda n, c=c: seam(bar(c, 0, n), bar(c, 0, n, twin=True), n)))
-    S.append((3, '', '', '', lambda n: card([('NINE ROOMS · ONE CAKE', 30, (240, 244, 242))], n)))
-    render('nine-rooms.mp4', 'NINE ROOMS, ONE CAKE', S, 60)
-
-    S = []
-    for c in breath: S.append((1, 'THE BREATH · SYNTHETIC', 'PLATE ' + name(c), 'THE LIGHT GOES MID-SHOT', lambda n, c=c: bar(c, 1.5, n)))
-    for c in [x for x in breath if has_twin(x)]: S.append((0.5, 'THE BREATH · CODED', 'TWIN ' + name(c), 'DOUBLE PACE', lambda n, c=c: bar(c, 1.75, n, twin=True)))
-    bc = 5 if len(breath) > 12 else 4; S.append((4, 'THE BREATH · TOGETHER', f'{len(breath)} PLATES · ONE BAR', 'ALL ON BEAT 3', lambda n: tiles(breath, bc, -(-len(breath) // bc), 0, n)))
-    S.append((4, 'THE BREATH · TOGETHER', f'{len(breath)} TWINS · ONE BAR', 'ALL ON BEAT 3', lambda n: tiles(breath, bc, -(-len(breath) // bc), 0, n, twin=True)))
-    render('the-breath.mp4', 'THE BREATH', S, 90)
-
-    S = []
-    for c in turn:
-        S.append((1, 'THE TURN', 'PLATE ' + name(c), 'SEEN', lambda n, c=c: seen(bar(c, 1, n), c, n, fade=(0.0, 0.0)))); S.append((1, 'THE TURN', 'PLATE ' + name(c), 'TURNS', lambda n, c=c: bar(c, 2, n)))
-    S.append((4, 'THE TURN · TOGETHER', f'{len(turn)} PLATES · ONE BAR', 'ALL ON BEAT 3', lambda n: tiles(turn, 3, -(-len(turn) // 3), 0, n)))
-    render('the-turn.mp4', 'THE TURN', S, 56)
+    for c in turn: S += [sh(1, 'bar', 'THE TURN', 'PLATE ' + name(c), 'SEGMENT · THE CAKE ALONE', clip=c, layer='plate', at=1, segment='cake'), sh(1, 'bar', 'THE TURN', 'PLATE ' + name(c), 'TURNS', clip=c, layer='plate', at=2)]
+    S.append(sh(4, 'tiles', 'THE TURN · TOGETHER', f'{len(turn)} PLATES · ONE BAR', 'ALL ON BEAT 3', clips=turn, cols=3, rows=-(-len(turn) // 3), layer='plate', at=0))
+    T['the-turn'] = timeline('THE TURN', S, 56)
+    tp = os.path.join(N, 'triads.json')
+    if os.path.exists(tp):
+        TR = json.load(open(tp))['types']; S = []
+        for tname, t in TR.items():
+            for mode, word in (('MATCH', 'THREE THAT SHARE A PALETTE'), ('CONTRAST', 'THREE THAT STAND APART')):
+                if mode in t: S.append(sh(2, 'triptych', tname, ' · '.join(x.upper().replace('_', ' ') for x in t[mode]['clips']), word + ' · SCORE ' + ('%.2f' % t[mode]['score']), clips=t[mode]['clips'], layer='plate', at=1))
+        S.append(sh(3, 'card', lines=[['THE BEST THREES, BY SHOT TYPE', 30, white], ['', 10, [0, 0, 0]], ['COLOUR × COMPOSITION · TOOLS/NORMALIZE/TRIADS.PY', 16, cyan]]))
+        T['threes'] = timeline('THE BEST THREES', S, 34, poster_at=0.3)
+    return T
+def cuts(only=None):
+    sys.path.insert(0, os.path.join(ROOT, 'tools/timeline')); import assemble
+    os.makedirs(os.path.join(N, 'timelines'), exist_ok=True)
+    for nm, tl in timelines().items():
+        p = os.path.join(N, 'timelines', nm + '.timeline.json'); json.dump(tl, open(p, 'w'), ensure_ascii=False, indent=1)
+        if not only or nm in only: assemble.render(p)
 
 if __name__ == '__main__':
     render_bars(sys.argv[1] if len(sys.argv) > 1 else None)
-    if '--bars-only' not in sys.argv: cuts()
+    if '--bars-only' not in sys.argv: cuts([a[7:] for a in sys.argv if a.startswith('--only=')] or None)

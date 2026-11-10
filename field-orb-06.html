@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Archive Orb</title>
+<meta name="description" content="Field Orb 06: five rings that operate the whole birthday archive. Every clip on one grid and one bar, beside its coded twin; pick, look, grade, scrub, and assemble a cut that renders as a file.">
+<style>
+  :root { --paper: #FAF8F2; --ink: #111; --cy: #5ff0dc; --amb: #f0b040; --metal: #8f9491; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; background: #030403; color: #e8e6dc; font: 12px/1.35 ui-monospace, Menlo, Consolas, monospace; overflow: hidden; user-select: none; -webkit-user-select: none; }
+  .app { height: 100dvh; display: grid; grid-template-rows: minmax(0, 1fr) auto; }
+  #room { position: relative; display: flex; align-items: center; justify-content: center; min-height: 0; background: #030403; }
+  #room canvas { width: 100%; height: 100%; object-fit: contain; display: block; }
+  #orb { background: linear-gradient(180deg, #1b1c1a 0%, #10110f 100%); border-top: 2px solid #2d2f2b; padding: 10px 14px 14px; display: grid; gap: 10px; touch-action: none; }
+  /* the display: paper, as on Orb 05 */
+  #oled { background: var(--paper); color: var(--ink); border: 3px solid var(--ink); display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 2fr); max-width: 1180px; width: 100%; margin: 0 auto; }
+  #oled > div { padding: 8px 10px; min-width: 0; } #oled > div + div { border-left: 3px solid var(--ink); }
+  #what b { display: block; font-size: 14px; letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #what span { display: block; color: #444; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #what a { color: #1d70b8; }
+  #strip { display: flex; height: 34px; border: 2px solid var(--ink); background: #ece8dd; overflow: hidden; margin-top: 4px; }
+  #strip i { display: block; height: 100%; border-right: 1px solid var(--ink); min-width: 3px; font-style: normal; font-size: 9px; padding: 2px 3px; overflow: hidden; white-space: nowrap; color: #fff; }
+  #strip i.now { outline: 3px solid var(--ink); outline-offset: -3px; }
+  #cutline { display: flex; justify-content: space-between; gap: 8px; color: #444; white-space: nowrap; overflow: hidden; }
+  /* the barrel: five knurled rings, each with a window that says what it is set to */
+  #barrel { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; max-width: 1180px; width: 100%; margin: 0 auto; }
+  .ring { position: relative; height: 92px; border-radius: 10px; cursor: ns-resize; border: 1px solid #000; overflow: hidden;
+    background: linear-gradient(180deg, rgba(0,0,0,.62), rgba(255,255,255,.2) 28%, rgba(255,255,255,.34) 46%, rgba(0,0,0,.1) 62%, rgba(0,0,0,.72)), repeating-linear-gradient(180deg, #6f7471 0 3px, #a9aeab 3px 6px); background-position: 0 0, 0 var(--roll, 0px); }
+  .ring.on { box-shadow: 0 0 0 2px var(--cy); }
+  .ring .win { position: absolute; left: 6px; right: 6px; top: 26px; height: 40px; background: var(--paper); color: var(--ink); border: 2px solid var(--ink); padding: 2px 6px; pointer-events: none; }
+  .ring .win small { display: block; font-size: 9px; letter-spacing: .08em; color: #555; } .ring .win b { display: block; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ring .bar { position: absolute; left: 6px; right: 6px; top: 20px; height: 4px; }
+  #keys { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  #keys button { font: 700 11px ui-monospace, Menlo, monospace; letter-spacing: .06em; background: #1a1c1b; color: #e8e6dc; border: 1px solid #555; border-bottom-width: 3px; padding: 8px 12px; cursor: pointer; min-width: 84px; }
+  #keys button:active { transform: translateY(2px); border-bottom-width: 1px; } #keys button.hot { border-color: var(--amb); color: var(--amb); } #keys button.lit { background: var(--amb); color: #111; border-color: var(--amb); }
+  @media (max-width: 760px) { #oled { grid-template-columns: 1fr; } #oled > div + div { border-left: 0; border-top: 3px solid var(--ink); } .ring { height: 78px; } .ring .win b { font-size: 11px; } #keys button { min-width: 0; padding: 8px 9px; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div id="room"><canvas id="cv" width="1280" height="576"></canvas></div>
+  <div id="orb">
+    <div id="oled"><div id="what"></div><div><div id="cutline"><span id="cutA"></span><span id="cutB"></span></div><div id="strip"></div></div></div>
+    <div id="barrel"></div>
+    <div id="keys"><button data-k="PLAY">PLAY</button><button data-k="LEN">LEN</button><button data-k="ADD" class="hot">ADD</button><button data-k="UNDO">UNDO</button><button data-k="CUT">PLAY CUT</button><button data-k="SAVE">SAVE</button></div>
+  </div>
+</div>
+<script src="assets/normalized/index.js"></script>
+<script src="assets/normalized/triads.js"></script>
+<script>
+/* ARCHIVE ORB (Field Orb 06). Orb 05 makes one cake. This one operates the archive those cakes came from.
+   Every kept clip is one bar: 4 beats, its cake on the shared grid, its event on beat 3, with a coded twin (Orb 05's build of it) on the same grid and bar.
+   Five rings:  1 SHELF   all, each shot type, each era, and the dropped clips with the reason each was dropped
+                2 PLATE   a clip on that shelf
+                3 VIEW    plate · twin · seam (one cake, two halves) · seen (what the segmentation saw) · cake only · people only · three (the shelf's
+                          best matched set) · three apart (its best contrasting set)
+                4 LOOK    clean · Panavision 70 · camcorder 90 (a preview here; the assembler applies the real grade)
+                5 BEAT    where in the bar, by quarter beats
+   Keys: PLAY loops the bar on the beat · LEN sets how long a shot is · ADD puts what you see on the cut · UNDO takes the last shot off · PLAY CUT runs the cut ·
+   SAVE writes a stelline-timeline/1 file that  python3 tools/timeline/assemble.py <file>  renders as a film, graded, with music.
+   Drag a ring up or down, or roll the wheel over it; keys 1-5 pick a ring, arrows turn it, space plays, enter adds, backspace undoes, s saves.
+   ?timeline=<url> opens a cut that is already written (for example assets/normalized/timelines/one-grid.timeline.json). */
+const NZ = window.NORMALIZED || { clips: [], grid: { cx: 640, top: 250, width: 480 }, beat_s: .8126984, fps: 24, bar_frames: 78 }, TR = (window.TRIADS || { types: {}, features: {} });
+const BEAT = NZ.beat_s, BAR = 4 * BEAT, W = 1280, PH = 576, G = NZ.grid, clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const KEPT = NZ.clips.filter(c => c.keep), DROPPED = NZ.clips.filter(c => !c.keep), BY = {}; NZ.clips.forEach(c => BY[c.id] = c);
+const nice = s => String(s).replace(/_/g, ' ').toUpperCase();
+/* shelves */
+const SHELVES = [{ n: 'ALL KEPT', ids: KEPT.map(c => c.id) }];
+Object.keys(TR.types).forEach(t => SHELVES.push({ n: t.replace('ANGLE · ', '').replace('EVENT · ', 'EVENT '), type: t, ids: TR.types[t].pool }));
+(NZ.era_order || []).forEach(e => { const ids = KEPT.filter(c => c.era === e).map(c => c.id); if (ids.length) SHELVES.push({ n: 'ERA ' + nice(e), ids }); });
+SHELVES.push({ n: 'DROPPED', ids: DROPPED.map(c => c.id), dropped: true });
+const VIEWS = [['PLATE', 'bar', 'plate'], ['TWIN', 'bar', 'twin'], ['SEAM', 'seam'], ['SEEN', 'seen'], ['CAKE ONLY', 'bar', 'plate', 'cake'], ['PEOPLE ONLY', 'bar', 'plate', 'people'], ['THREE', 'triptych', 'MATCH'], ['THREE APART', 'triptych', 'CONTRAST']];
+const LOOKS = [['CLEAN', 'clean'], ['PANAVISION 70', 'panavision70'], ['CAMCORDER 90', 'camcorder90']], LENS = [.5, 1, 2, 4];
+const S = { shelf: 0, idx: 0, view: 0, look: 0, at: 8, len: 1, play: false, t0: 0, ring: 1, cut: [], cutPlay: null, title: 'MY CUT' };
+try { const sv = JSON.parse(localStorage.getItem('orb06') || 'null'); if (sv && Array.isArray(sv.cut)) { S.cut = sv.cut; S.title = sv.title || S.title; } } catch (e) {}
+const keep = () => { try { localStorage.setItem('orb06', JSON.stringify({ cut: S.cut, title: S.title })); } catch (e) {} };
+const shelf = () => SHELVES[S.shelf], curId = () => shelf().ids[clamp(S.idx, 0, shelf().ids.length - 1)], cur = () => BY[curId()];
+const triad = mode => { const t = shelf().type && TR.types[shelf().type]; return t && t[mode] ? t[mode] : null; };
+
+/* sound: a 4 ms filtered click on each detent and key, nothing sustained */
+let AC = null;
+function tick(f) { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const n = AC.createBufferSource(), L = Math.floor(AC.sampleRate * .004), b = AC.createBuffer(1, L, AC.sampleRate), d = b.getChannelData(0); for (let i = 0; i < L; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / L * 5); n.buffer = b; const q = AC.createBiquadFilter(); q.type = 'bandpass'; q.frequency.value = f || 2100; const g = AC.createGain(); g.gain.value = .18; n.connect(q); q.connect(g); g.connect(AC.destination); n.start(); } catch (e) {} }
+
+/* media: one pair of videos per clip, made when first needed, a few kept warm */
+const VID = {}, IMG = {};
+function vid(id, twin) { const k = id + (twin ? '_twin' : ''); if (!VID[k]) { const v = document.createElement('video'); v.muted = true; v.playsInline = true; v.preload = 'auto'; v.loop = true; v.src = 'assets/normalized/bars/' + k + '.mp4'; v.addEventListener('seeked', () => { dirty = true; }); v.addEventListener('loadeddata', () => { dirty = true; }); VID[k] = v; const keys = Object.keys(VID); if (keys.length > 16) { const old = keys[0]; VID[old].removeAttribute('src'); VID[old].load(); delete VID[old]; } } return VID[k]; }
+function img(src) { if (!IMG[src]) { const im = new Image(); im.onload = () => { dirty = true; }; im.src = src; IMG[src] = im; } return IMG[src].complete && IMG[src].naturalWidth ? IMG[src] : null; }
+const MASK = {};
+function maskCanvas(id, which) { const k = id + which; if (MASK[k]) return MASK[k]; const im = img('assets/normalized/masks/' + id + '.png'); if (!im) return null; const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight; const x = c.getContext('2d'); x.drawImage(im, 0, 0); const d = x.getImageData(0, 0, c.width, c.height), ch = which === 'people' ? 0 : 1; for (let i = 0; i < d.data.length; i += 4) { const m = d.data[i + ch]; d.data[i] = d.data[i + 1] = d.data[i + 2] = 0; d.data[i + 3] = Math.round((255 - m) * .9); } x.putImageData(d, 0, 0); return MASK[k] = c; }
+
+/* drawing */
+const cv = document.getElementById('cv'), cx = cv.getContext('2d'), half = document.createElement('canvas'); half.width = 640; half.height = 288; const hx = half.getContext('2d');
+const grain = document.createElement('canvas'); grain.width = grain.height = 256; (() => { const x = grain.getContext('2d'), d = x.createImageData(256, 256); for (let i = 0; i < d.data.length; i += 4) { const v = Math.random() * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; } x.putImageData(d, 0, 0); })();
+let dirty = true;
+function seekAll(ids, beats, playing) { const t = ((beats % 4) + 4) % 4 * BEAT; ids.forEach(([id, tw]) => { const v = vid(id, tw); if (v.readyState < 1) return; if (playing) { v._want = null; if (Math.abs(v.currentTime - t) > .12) v.currentTime = t; if (v.paused) v.play().catch(() => {}); } else { if (!v.paused) v.pause(); const want = Math.min(t, (v.duration || BAR) - .02); if (v._want !== want) { v._want = want; v.currentTime = want; } } }); }      // asked once per position: a host that cannot seek must not be asked forever
+function drawShot(sh, beats, playing) {
+  const x = cx; x.setTransform(1, 0, 0, 1, 0, 0); x.filter = 'none'; x.globalAlpha = 1; x.globalCompositeOperation = 'source-over'; x.fillStyle = '#000'; x.fillRect(0, 0, W, PH);
+  const c = BY[sh.clip], frame = (id, tw) => { const v = vid(id, tw); return v.readyState >= 1 && v.videoWidth ? v : null; };      // while it seeks, the last decoded frame is still drawn
+  if (sh.op === 'card' || sh.op === 'tiles' || sh.op === 'flicker') { x.fillStyle = '#e8e6dc'; x.font = '600 30px ui-monospace, Menlo, monospace'; x.textAlign = 'center'; x.fillText(sh.op === 'card' ? String((sh.lines && sh.lines[0] && sh.lines[0][0]) || '') : sh.op.toUpperCase() + ' · ' + (sh.clips || []).length + ' CLIPS · RENDERED BY THE ASSEMBLER', W / 2, PH / 2); return; }
+  if (c && !c.keep) { const im = img('assets/bday-training/thumbs/' + c.id + '.webp'); if (im) { const k = Math.min(W / im.naturalWidth, PH / im.naturalHeight) * .8, w = im.naturalWidth * k, h = im.naturalHeight * k; x.globalAlpha = .55; x.drawImage(im, (W - w) / 2, (PH - h) / 2 - 20, w, h); x.globalAlpha = 1; }
+    x.fillStyle = '#f0b040'; x.font = '600 22px ui-monospace, Menlo, monospace'; x.textAlign = 'center'; x.fillText('NOT ON THE GRID', W / 2, PH - 64); x.fillStyle = '#e8e6dc'; x.font = '15px ui-monospace, Menlo, monospace'; (c.reasons || []).forEach((r, i) => x.fillText(r.toUpperCase(), W / 2, PH - 38 + i * 20)); return; }
+  if (sh.op === 'triptych') { const ids = sh.clips || []; seekAll(ids.map(i => [i, false]), beats, playing); const third = Math.floor(W / 3), x0 = (W - third) / 2; ids.slice(0, 3).forEach((id, i) => { const v = frame(id, false); if (v) x.drawImage(v, x0, 0, third, PH, i * third + 1, 0, third - 2, PH); }); return; }
+  if (!c) return; const needTwin = sh.op === 'seam' || sh.layer === 'twin'; seekAll([[c.id, false]].concat(needTwin ? [[c.id, true]] : []), beats, playing);
+  const p = frame(c.id, false), t = needTwin ? frame(c.id, true) : null;
+  if (sh.op === 'seam') { const s = G.cx + 90 * Math.sin(((beats % 4) / 4) * Math.PI * 2); if (p) x.drawImage(p, 0, 0, s, PH, 0, 0, s, PH); if (t) x.drawImage(t, s, 0, W - s, PH, s, 0, W - s, PH); x.fillStyle = '#ebebeb'; x.fillRect(s - 1, 0, 2, PH); }
+  else if (sh.layer === 'twin') { if (t) x.drawImage(t, 0, 0, W, PH); }
+  else if (p) x.drawImage(p, 0, 0, W, PH);
+  if (sh.op === 'seen') { const im = img('assets/normalized/vision/' + c.id + '.png'); if (im) x.drawImage(im, 0, 0, W, PH); }
+  if (sh.segment) { const m = maskCanvas(c.id, sh.segment); if (m) x.drawImage(m, 0, 0, W, PH); }
+}
+function grade(look) {      // a preview of the look; tools/timeline/looks.py holds the grade the assembler applies
+  if (look === 'clean') return; const x = cx;
+  if (look === 'panavision70') { hx.filter = 'sepia(0.34) saturate(0.92) contrast(0.94) brightness(0.97) blur(0.6px)'; hx.drawImage(cv, 0, 0, 640, 288); hx.filter = 'none'; x.drawImage(half, 0, 0, W, PH);
+    const g = x.createRadialGradient(W / 2, PH / 2, PH * .45, W / 2, PH / 2, W * .62); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.5)'); x.fillStyle = g; x.fillRect(0, 0, W, PH); x.fillStyle = 'rgba(60,30,8,.10)'; x.fillRect(0, 0, W, PH);
+    x.globalAlpha = .07; x.globalCompositeOperation = 'overlay'; const ox = Math.random() * 256, oy = Math.random() * 256; for (let yy = -oy; yy < PH; yy += 256) for (let xx = -ox; xx < W; xx += 256) x.drawImage(grain, xx, yy); x.globalAlpha = 1; x.globalCompositeOperation = 'source-over'; }
+  else { hx.filter = 'saturate(1.35) contrast(1.1) brightness(1.05)'; hx.drawImage(cv, 0, 0, 640, 288); hx.filter = 'none'; x.imageSmoothingEnabled = true; x.drawImage(half, 0, 0, W, PH); x.globalAlpha = .25; x.globalCompositeOperation = 'lighten'; x.drawImage(half, 5, 0, W, PH); x.globalAlpha = 1; x.globalCompositeOperation = 'source-over';
+    x.fillStyle = 'rgba(0,0,0,.16)'; for (let yy = 0; yy < PH; yy += 4) x.fillRect(0, yy, W, 1); }
+}
+/* what the rings are set to, as a shot */
+function shotNow() { const v = VIEWS[S.view], id = curId(), c = BY[id];
+  if (v[1] === 'triptych') { const t = triad(v[2]); return t ? { beats: S.len, op: 'triptych', clips: t.clips, layer: 'plate', at: S.at / 4, score: t.score } : { beats: S.len, op: 'bar', clip: id, layer: 'plate', at: S.at / 4, none: 'NO SET OF THREE ON THIS SHELF' }; }
+  const sh = { beats: S.len, op: v[1], clip: id, at: S.at / 4 }; if (v[1] === 'bar') { sh.layer = v[2]; if (v[3]) sh.segment = v[3]; } return sh; }
+function caption(sh) { const c = BY[sh.clip]; return sh.op === 'triptych' ? (sh.clips || []).map(nice).join(' · ') : c ? (sh.layer === 'twin' ? 'TWIN ' : sh.op === 'seam' ? 'SEAM ' : 'PLATE ') + nice(c.id) + ' · ' + nice(c.era) : ''; }
+
+/* the rings */
+const RINGS = [
+  { n: 'SHELF', col: '#2b9348', len: () => SHELVES.length, v: () => S.shelf, set: v => { S.shelf = v; S.idx = 0; }, f: () => shelf().n + ' · ' + shelf().ids.length },
+  { n: 'PLATE', col: '#2a9d8f', len: () => shelf().ids.length, v: () => S.idx, set: v => { S.idx = v; }, f: () => { const c = cur(); return c ? nice(c.id) + ' · ' + nice(c.era) : '—'; } },
+  { n: 'VIEW', col: '#1d70b8', len: () => VIEWS.length, v: () => S.view, set: v => { S.view = v; }, f: () => VIEWS[S.view][0] },
+  { n: 'LOOK', col: '#7209b7', len: () => LOOKS.length, v: () => S.look, set: v => { S.look = v; }, f: () => LOOKS[S.look][0] },
+  { n: 'BEAT', col: '#e85d04', len: () => 16, v: () => S.at, set: v => { S.at = v; if (S.play) S.t0 = performance.now() - 0; }, f: () => 'BEAT ' + (Math.floor(S.at / 4) + 1) + (S.at % 4 ? ' + ' + (S.at % 4) + '/4' : '') + (S.at === 8 ? ' · EVENT' : '') }];
+const barrel = document.getElementById('barrel'); let roll = [0, 0, 0, 0, 0];
+RINGS.forEach((r, i) => { const el = document.createElement('div'); el.className = 'ring'; el.innerHTML = '<div class="bar" style="background:' + r.col + '"></div><div class="win"><small>' + (i + 1) + ' · ' + r.n + '</small><b></b></div>'; barrel.appendChild(el); r.el = el;
+  let drag = null; el.addEventListener('pointerdown', e => { drag = { y: e.clientY, acc: 0 }; S.ring = i; el.setPointerCapture(e.pointerId); paint(); });
+  el.addEventListener('pointermove', e => { if (!drag) return; const dy = e.clientY - drag.y; drag.y = e.clientY; drag.acc += dy; roll[i] += dy; el.style.setProperty('--roll', roll[i] + 'px'); while (Math.abs(drag.acc) >= 14) { turn(i, drag.acc > 0 ? -1 : 1, true); drag.acc -= Math.sign(drag.acc) * 14; } });
+  el.addEventListener('pointerup', () => { drag = null; }); el.addEventListener('wheel', e => { e.preventDefault(); S.ring = i; turn(i, e.deltaY > 0 ? 1 : -1); }, { passive: false }); });
+function turn(i, d, quiet) { const r = RINGS[i], n = r.len(); if (n < 1) return; const v = ((r.v() + d) % n + n) % n; r.set(v); if (!quiet) { roll[i] -= d * 14; r.el.style.setProperty('--roll', roll[i] + 'px'); } tick(1850 + i * 160); if (S.cutPlay) S.cutPlay = null; if (i === 4 && S.play) S.t0 = performance.now(); dirty = true; paint(); }
+function press(k) { tick(2600);
+  if (k === 'PLAY') { S.cutPlay = null; S.play = !S.play; S.t0 = performance.now(); }
+  else if (k === 'LEN') S.len = LENS[(LENS.indexOf(S.len) + 1) % LENS.length];
+  else if (k === 'ADD') { const sh = shotNow(), c = BY[sh.clip]; if ((c && !c.keep) || sh.none) { tick(600); say(sh.none || 'A DROPPED CLIP IS NOT ON THE GRID · IT CANNOT GO ON THE CUT'); return; } delete sh.score; sh.left = caption(sh); sh.right = VIEWS[S.view][0]; sh.section = shelf().n; S.cut.push(sh); keep(); say('ON THE CUT · SHOT ' + S.cut.length); }
+  else if (k === 'UNDO') { if (S.cut.length) { S.cut.pop(); keep(); say('LAST SHOT TAKEN OFF'); } else tick(600); }
+  else if (k === 'CUT') { if (!S.cut.length) { tick(600); say('THE CUT IS EMPTY · ADD A SHOT FIRST'); return; } S.play = false; S.cutPlay = S.cutPlay ? null : { t0: performance.now() }; }
+  else if (k === 'SAVE') { if (!S.cut.length) { tick(600); say('THE CUT IS EMPTY'); return; } const tl = { format: 'stelline-timeline/1', title: S.title, beat_s: BEAT, fps: NZ.fps, music: { file: 'assets/audio/mix1_tizita_stelline_soul.mp3', phase_s: 0.4179592, from_beat: 34 }, look: LOOKS[S.look][1], shots: S.cut };
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(tl, null, 1)], { type: 'application/json' })); a.download = 'my-cut.timeline.json'; document.body.append(a); a.click(); a.remove(); say('SAVED · RENDER IT: python3 tools/timeline/assemble.py my-cut.timeline.json'); }
+  dirty = true; paint(); }
+document.getElementById('keys').addEventListener('click', e => { const k = e.target.getAttribute && e.target.getAttribute('data-k'); if (k) press(k); });
+addEventListener('keydown', e => { if (e.key >= '1' && e.key <= '5') { S.ring = +e.key - 1; paint(); } else if (e.key === 'ArrowUp' || e.key === 'ArrowRight') { turn(S.ring, 1); e.preventDefault(); } else if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') { turn(S.ring, -1); e.preventDefault(); } else if (e.key === ' ') { press('PLAY'); e.preventDefault(); } else if (e.key === 'Enter') press('ADD'); else if (e.key === 'Backspace') press('UNDO'); else if (e.key === 's' || e.key === 'S') press('SAVE'); else if (e.key === 'c' || e.key === 'C') press('CUT'); else if (e.key === 'l' || e.key === 'L') press('LEN'); });
+let msg = '', msgT = 0; function say(m) { msg = m; msgT = performance.now(); paint(); }
+
+/* the display */
+const OPCOL = { bar: '#2a9d8f', seam: '#e85d04', seen: '#7209b7', triptych: '#1d70b8', tiles: '#555', flicker: '#555', card: '#111' };
+function paint() { RINGS.forEach((r, i) => { r.el.classList.toggle('on', i === S.ring); r.el.querySelector('b').textContent = r.f(); });
+  const c = cur(), sh = shotNow(), f = c && TR.features && TR.features[c.id], what = document.getElementById('what'), t = sh.op === 'triptych' ? sh : null;
+  what.innerHTML = (performance.now() - msgT < 4000 && msg) ? '<b style="color:#e85d04">' + msg + '</b><span>&nbsp;</span><span>&nbsp;</span>' : c ? '<b>' + (t ? 'THREE · ' + t.clips.map(nice).join(' · ') : nice(c.id) + ' · ' + (c.title || '')) + '</b>' +
+    '<span>' + (t ? 'COLOUR × COMPOSITION SCORE ' + t.score.toFixed(2) + ' · ' + shelf().type : !c.keep ? 'DROPPED · ' + (c.reasons || []).join('; ') : nice(c.era) + ' · ' + nice(c.event.kind) + ' ON BEAT 3 · ZOOM ×' + c.fit.zoom.toFixed(2) + ' · ' + Math.round(Math.abs(c.fit.dx)) + ' PX OFF CENTRE') + '</span>' +
+    '<span>' + (f && !t ? '<i style="display:inline-block;width:11px;height:11px;vertical-align:-1px;border:1px solid #111;background:' + f.swatch + '"></i> COMPOSITION ' + f.composition.toFixed(2) + ' · ' : '') + '<a href="field-orb-05.html?build=' + c.id + '">BUILD IT IN ORB 05</a></span>' : '<b>NO ARCHIVE DATA</b><span>assets/normalized/index.js did not load</span>';
+  const beats = S.cut.reduce((a, s) => a + s.beats, 0); document.getElementById('cutA').textContent = S.title + ' · ' + S.cut.length + ' SHOTS · ' + beats + ' BEATS · ' + (beats * BEAT).toFixed(1) + ' S'; document.getElementById('cutB').textContent = 'SHOT LENGTH ' + S.len + (S.len === 1 ? ' BEAT' : ' BEATS') + ' · ' + LOOKS[S.look][0];
+  const strip = document.getElementById('strip'), now = S.cutPlay ? S.cutPlay.k : -1; strip.innerHTML = S.cut.map((s, k) => '<i class="' + (k === now ? 'now' : '') + '" style="flex:' + s.beats + ' 0 0;background:' + (OPCOL[s.op] || '#555') + (s.layer === 'twin' ? ';background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.25) 0 3px,transparent 3px 6px)' : '') + '">' + (s.clip ? s.clip.replace('bday_', '') : s.op) + '</i>').join('');
+  document.querySelector('[data-k="PLAY"]').classList.toggle('lit', S.play); document.querySelector('[data-k="CUT"]').classList.toggle('lit', !!S.cutPlay); document.querySelector('[data-k="LEN"]').textContent = 'LEN ' + (S.len === .5 ? '½' : S.len); }
+
+/* the loop */
+function loop(now) {
+  let sh, beats, playing = false;
+  if (S.cutPlay) { let b = (now - S.cutPlay.t0) / 1000 / BEAT, k = 0; const total = S.cut.reduce((a, s) => a + s.beats, 0); b = b % total; while (k < S.cut.length - 1 && b >= S.cut[k].beats) { b -= S.cut[k].beats; k++; } if (k !== S.cutPlay.k) { S.cutPlay.k = k; paint(); const nx = S.cut[(k + 1) % S.cut.length]; if (nx && nx.clip && BY[nx.clip] && BY[nx.clip].keep) { vid(nx.clip, false); if (nx.layer === 'twin' || nx.op === 'seam') vid(nx.clip, true); } } sh = S.cut[k]; beats = (sh.at || 0) + b; playing = true; }
+  else { sh = shotNow(); beats = S.at / 4 + (S.play ? (now - S.t0) / 1000 / BEAT : 0); playing = S.play; }
+  if (playing || dirty) { dirty = false; drawShot(sh, beats, playing); grade(LOOKS[S.look][1]); }
+  if (msg && performance.now() - msgT > 4000) { msg = ''; paint(); }
+  requestAnimationFrame(loop); }
+const QT = new URLSearchParams(location.search).get('timeline');
+if (QT) fetch(QT).then(r => r.json()).then(tl => { if (tl.format === 'stelline-timeline/1') { S.cut = tl.shots; S.title = tl.title || S.title; const k = LOOKS.findIndex(l => l[1] === tl.look); if (k >= 0) S.look = k; say('OPENED · ' + S.title); } }).catch(() => say('THAT TIMELINE DID NOT OPEN'));
+paint(); requestAnimationFrame(loop);
+window.ORB6 = { S, turn, press, shotNow, SHELVES, VIEWS, LOOKS, RINGS, cur };
+</script>
+</body>
+</html>
