@@ -1,0 +1,310 @@
+{
+ "film": "The Memory Maker, Blade Runner 2049 (open matte), 407 s",
+ "shots": {
+  "5": {
+   "file": "shot05_beetle-on-leaf.mp4",
+   "label": "the beetle on the leaf, before the focus",
+   "tags": [
+    "bug"
+   ],
+   "t0": 23.62,
+   "t1": 28.71,
+   "cropped": false
+  },
+  "7": {
+   "file": "shot07_beetle-eyes-focus.mp4",
+   "label": "the beetle's eyes come into focus",
+   "tags": [
+    "bug",
+    "eyes"
+   ],
+   "t0": 31.0,
+   "t1": 35.04,
+   "cropped": false
+  },
+  "24": {
+   "file": "shot24_room-before-cake.mp4",
+   "label": "the empty dark room, K from behind: the plate before the cake",
+   "tags": [
+    "room"
+   ],
+   "t0": 134.41,
+   "t1": 137.42,
+   "cropped": false
+  },
+  "25": {
+   "file": "shot25_cake-appears.mp4",
+   "label": "the cake appears, tries on frostings, tilts (cropped to the cake)",
+   "tags": [
+    "cake",
+    "sculpt"
+   ],
+   "t0": 137.5,
+   "t1": 141.34,
+   "cropped": true
+  },
+  "26": {
+   "file": "shot26_cake-bundt.mp4",
+   "label": "the cake becomes a bundt, the reticle beside it (cropped to the cake)",
+   "tags": [
+    "cake",
+    "sculpt",
+    "reticle"
+   ],
+   "t0": 141.41,
+   "t1": 144.71,
+   "cropped": true
+  },
+  "27": {
+   "file": "shot27_cake-writing-upright.mp4",
+   "label": "the writing on the cake, then it turns upright (over her shoulder, orb out of frame)",
+   "tags": [
+    "cake",
+    "sculpt",
+    "writing",
+    "reticle"
+   ],
+   "t0": 144.79,
+   "t1": 148.34,
+   "cropped": false
+  },
+  "29": {
+   "file": "shot29_children-fade-in.mp4",
+   "label": "the children are faded in around the lit table",
+   "tags": [
+    "children",
+    "cake"
+   ],
+   "t0": 152.08,
+   "t1": 156.0,
+   "cropped": false
+  },
+  "30": {
+   "file": "shot30_table-wide-children.mp4",
+   "label": "wide: the children at the table in the dark",
+   "tags": [
+    "children",
+    "cake",
+    "room"
+   ],
+   "t0": 156.08,
+   "t1": 159.09,
+   "cropped": false
+  },
+  "33": {
+   "file": "shot33_k-arch-wide.mp4",
+   "label": "K at the arch, wide",
+   "tags": [
+    "room"
+   ],
+   "t0": 165.66,
+   "t1": 168.46,
+   "cropped": false
+  },
+  "34": {
+   "file": "shot34_table-far-k-back.mp4",
+   "label": "the lit table far away, K from behind",
+   "tags": [
+    "cake",
+    "room"
+   ],
+   "t0": 168.54,
+   "t1": 171.54,
+   "cropped": false
+  },
+  "35": {
+   "file": "shot35_children-faces-1.mp4",
+   "label": "children's faces in candlelight",
+   "tags": [
+    "children",
+    "face",
+    "light"
+   ],
+   "t0": 171.62,
+   "t1": 173.04,
+   "cropped": false
+  },
+  "36": {
+   "file": "shot36_boy-candle-light.mp4",
+   "label": "one candle, its light on the boy's face",
+   "tags": [
+    "children",
+    "face",
+    "light",
+    "flames"
+   ],
+   "t0": 173.12,
+   "t1": 175.59,
+   "cropped": false
+  },
+  "37": {
+   "file": "shot37_children-faces-2.mp4",
+   "label": "faces, mouths open, the candle low",
+   "tags": [
+    "children",
+    "face",
+    "light"
+   ],
+   "t0": 175.66,
+   "t1": 177.88,
+   "cropped": false
+  },
+  "39": {
+   "file": "shot39_table-dark-children.mp4",
+   "label": "the table and children, dim",
+   "tags": [
+    "children",
+    "cake",
+    "room"
+   ],
+   "t0": 180.54,
+   "t1": 185.71,
+   "cropped": false
+  },
+  "42": {
+   "file": "shot42_table-far-k-back-2.mp4",
+   "label": "the lit table far away, K from behind",
+   "tags": [
+    "cake",
+    "room"
+   ],
+   "t0": 194.33,
+   "t1": 203.42,
+   "cropped": false
+  },
+  "44": {
+   "file": "shot44_table-lit-children.mp4",
+   "label": "the table lit, children round the cake",
+   "tags": [
+    "children",
+    "cake",
+    "light"
+   ],
+   "t0": 213.29,
+   "t1": 216.92,
+   "cropped": false
+  },
+  "46": {
+   "file": "shot46_candles-go-out-face.mp4",
+   "label": "the candles go out on her face",
+   "tags": [
+    "face",
+    "flames",
+    "light"
+   ],
+   "t0": 226.41,
+   "t1": 228.96,
+   "cropped": false
+  },
+  "47": {
+   "file": "shot47_k-back-dark.mp4",
+   "label": "K from behind, dark",
+   "tags": [
+    "room"
+   ],
+   "t0": 229.04,
+   "t1": 233.13,
+   "cropped": false
+  }
+ },
+ "designs": {
+  "e_both": {
+   "file": "design_e_both.mp4",
+   "shot": 7,
+   "frame": 18,
+   "t0": 31.71,
+   "t1": 33.21
+  },
+  "e_swap": {
+   "file": "design_e_swap.mp4",
+   "shot": 7,
+   "frame": 40,
+   "t0": 33.54,
+   "t1": 35.04
+  },
+  "e_none": {
+   "file": "design_e_none.mp4",
+   "shot": 7,
+   "frame": 28,
+   "t0": 32.54,
+   "t1": 34.04
+  },
+  "c_kl": {
+   "file": "design_c_kl.mp4",
+   "shot": 27,
+   "frame": 34,
+   "t0": 146.83,
+   "t1": 148.33
+  },
+  "c_sr": {
+   "file": "design_c_sr.mp4",
+   "shot": 27,
+   "frame": 28,
+   "t0": 146.33,
+   "t1": 147.83
+  },
+  "c_le": {
+   "file": "design_c_le.mp4",
+   "shot": 27,
+   "frame": 26,
+   "t0": 146.17,
+   "t1": 147.67
+  },
+  "c_ana": {
+   "file": "design_c_ana.mp4",
+   "shot": 27,
+   "frame": 22,
+   "t0": 145.83,
+   "t1": 147.33
+  },
+  "c_joe": {
+   "file": "design_c_joe.mp4",
+   "shot": 27,
+   "frame": 28,
+   "t0": 146.33,
+   "t1": 147.83
+  },
+  "c_out0": {
+   "file": "design_c_out0.mp4",
+   "shot": 27,
+   "frame": 36,
+   "t0": 147.0,
+   "t1": 148.34
+  },
+  "c_out3": {
+   "file": "design_c_out3.mp4",
+   "shot": 27,
+   "frame": 10,
+   "t0": 144.83,
+   "t1": 146.33
+  },
+  "b_out": {
+   "file": "design_b_out.mp4",
+   "shot": 36,
+   "frame": 14,
+   "t0": 173.5,
+   "t1": 175.0
+  },
+  "k_out": {
+   "file": "design_k_out.mp4",
+   "shot": 44,
+   "frame": 18,
+   "t0": 214.0,
+   "t1": 215.5
+  },
+  "k_half": {
+   "file": "design_k_half.mp4",
+   "shot": 44,
+   "frame": 30,
+   "t0": 215.0,
+   "t1": 216.5
+  },
+  "p_out": {
+   "file": "design_p_out.mp4",
+   "shot": 29,
+   "frame": 34,
+   "t0": 154.13,
+   "t1": 155.63
+  }
+ }
+}

@@ -1,0 +1,127 @@
+{
+ "manual": false,
+ "fps": {
+  "medianFrameMs": 33.4,
+  "p90FrameMs": 66.6
+ },
+ "url": "http://127.0.0.1:8731/ana/index.html",
+ "name": "ana",
+ "viewport": [
+  390,
+  844
+ ],
+ "view": {
+  "x": 0,
+  "y": 0,
+  "w": 390,
+  "h": 557.046875,
+  "id": ""
+ },
+ "idle": {
+  "d100": 0,
+  "d1s": 0
+ },
+ "ops": [
+  {
+   "op": "MM.handTurn(ring0, 3 detents)",
+   "err": null,
+   "opMs": 184.4,
+   "toFrameMs": 242.8,
+   "firstShotMs": 617,
+   "d100": 0.0044,
+   "d1s": 0.0044,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "MM.handTurn(ring1, 3 detents)",
+   "err": null,
+   "opMs": 0.3,
+   "toFrameMs": 300.4,
+   "firstShotMs": 1213,
+   "d100": 0.3666,
+   "d1s": 0.3672,
+   "visible100": true,
+   "visible1s": true
+  },
+  {
+   "op": "MM.handTurn(ring2, 3 detents)",
+   "err": null,
+   "opMs": 0.2,
+   "toFrameMs": 61.7,
+   "firstShotMs": 629,
+   "d100": 0.1036,
+   "d1s": 0.121,
+   "visible100": true,
+   "visible1s": true
+  },
+  {
+   "op": "MM.select(next)",
+   "err": null,
+   "opMs": 0.3,
+   "toFrameMs": 83.1,
+   "firstShotMs": 1125,
+   "d100": 0.0003,
+   "d1s": 0.0011,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "after select: MM.handTurn(ring0, 3)",
+   "err": null,
+   "opMs": 0.2,
+   "toFrameMs": 92.5,
+   "firstShotMs": 735,
+   "d100": 0.0795,
+   "d1s": 0.0765,
+   "visible100": true,
+   "visible1s": true
+  },
+  {
+   "op": "after select: MM.handTurn(ring1, 3)",
+   "err": null,
+   "opMs": 0.1,
+   "toFrameMs": 74.2,
+   "firstShotMs": 701,
+   "d100": 0.0041,
+   "d1s": 0.0008,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "after select: MM.handTurn(ring2, 3)",
+   "err": null,
+   "opMs": 0.1,
+   "toFrameMs": 83.5,
+   "firstShotMs": 952,
+   "d100": 0.1097,
+   "d1s": 0.1318,
+   "visible100": true,
+   "visible1s": true
+  },
+  {
+   "op": "MM.toggleHold()",
+   "err": null,
+   "opMs": 0.2,
+   "toFrameMs": 68.9,
+   "firstShotMs": 712,
+   "d100": 0.001,
+   "d1s": 0.0005,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "MM.switchOff()",
+   "err": null,
+   "opMs": 1,
+   "toFrameMs": 67.9,
+   "firstShotMs": 685,
+   "d100": 0.259,
+   "d1s": 0.4354,
+   "visible100": true,
+   "visible1s": true
+  }
+ ],
+ "errors": [],
+ "handle": "MM"
+}

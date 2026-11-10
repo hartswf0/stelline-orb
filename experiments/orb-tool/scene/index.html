@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Scene Bench</title>
+<meta name="description" content="The ORB TOOL scene renderer on its own: the memory state drawn as the film's memory, driven by the core bus and a line of ops.">
+<style>
+  :root { --bg: #000; --ink: #c9d2cd; --dim: #6c7671; --line: #1d2220; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); overflow: hidden; font: 12px/1.35 "Helvetica Neue", Arial, sans-serif; }
+  .app { height: 100dvh; display: grid; grid-template-rows: minmax(0, 1fr) auto; }
+  #view { position: relative; min-height: 0; } #view canvas { display: block; width: 100%; height: 100%; }
+  form { display: flex; gap: 6px; padding: 8px 16px calc(8px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); }
+  input { flex: 1; min-width: 0; background: #0b0d0c; color: var(--ink); border: 1px solid var(--line); padding: 8px; font: inherit; }
+  button { background: #141816; color: var(--ink); border: 1px solid var(--line); padding: 8px 12px; font: inherit; }
+  #msg { position: absolute; left: 16px; bottom: 8px; color: var(--dim); pointer-events: none; }
+</style>
+</head>
+<body>
+<div class="app"><div id="view"><div id="msg"></div></div>
+<form id="f"><input id="cmd" placeholder='{"op":"make"}  or  set candles.count 7' autocomplete="off"><button>Do</button></form></div>
+<script src="../core/state.js"></script>
+<script src="../core/ops.js"></script>
+<script src="../core/bus.js"></script>
+<script src="../core/machine.js"></script>
+<script src="../../../ana/assets/three.min.js"></script>
+<script src="scene.js"></script>
+<script>
+/* Bench: ?manual leaves the frame loop to the caller (tests call BENCH.frame(ms)); ?q=high|mid|low; ?cutout. */
+const Q = new URLSearchParams(location.search);
+const orb = window.ORB = CORE_BUS.createOrb(); const mach = CORE_MACHINE.create(orb);
+const view = document.getElementById('view'), msg = document.getElementById('msg');
+const cv = document.createElement('canvas'); view.prepend(cv);
+const h = SCENE.mount(cv, orb, { quality: Q.get('q') || undefined, preserve: Q.has('preserve'), figures: Q.has('cutout') ? 'cutout' : 'faceless', maxDpr: Q.has('dpr') ? +Q.get('dpr') : undefined });
+let last = 0; const step = now => { mach.tick(last ? Math.min(.1, (now - last) / 1000) : 0); last = now; h.frame(now); };
+window.BENCH = { orb, mach, h, frame: step, ready: h.ready };
+if (!Q.has('manual')) h.ready.then(() => { const loop = now => { step(now); requestAnimationFrame(loop); }; requestAnimationFrame(loop); });
+document.getElementById('f').onsubmit = e => { e.preventDefault(); const s = document.getElementById('cmd').value.trim(); let op;
+  try { op = JSON.parse(s); } catch (_) { const m = s.split(/\s+/); op = m[0] === 'set' ? { op: 'set', args: { path: m[1], value: isNaN(+m[2]) ? m.slice(2).join(' ') : +m[2] } } : { op: m[0], args: {} }; }
+  const r = orb.do(op, { author: 'hand' }); msg.textContent = r.ok ? 'ok' : r.error; };
+</script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Orb Tool</title>
+<meta name="description" content="One tool for making a memory: a person on the orb's device and an agent through written commands act through the same operations on the same state.">
+<meta name="theme-color" content="#050605">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #050605; --ink: #e6ebe9; --dim: #8b9693; --line: #252b29; --hand: #e0a15a; --agent: #38d6e0; --red: #e0332b; --devH: min(clamp(260px, 47dvh, 480px), calc(100vw * 370 / 400 + 6px)); }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); overflow: hidden; overscroll-behavior: none; -webkit-user-select: none; user-select: none; font: 12px/1.4 "IBM Plex Mono", ui-monospace, Menlo, monospace; }
+  .app { position: fixed; inset: 0; display: flex; flex-direction: column; height: 100dvh; }
+  #view { position: relative; flex: 1 1 auto; min-height: 0; background: #000; touch-action: none; overflow: hidden; }
+  #strip { flex: 0 0 44px; height: 44px; min-height: 0; overflow: hidden; position: relative; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #0a0c0b; touch-action: none; cursor: ew-resize; }
+  #strip canvas { width: 100%; height: 100%; display: block; }
+  #dev { flex: 0 0 var(--devH); min-height: 0; display: block; width: 100%; height: var(--devH); touch-action: none; background: radial-gradient(120% 140% at 50% 0%, #1b1e1d 0%, #0b0c0c 55%, #050605 100%); }
+  .tb { position: absolute; top: 8px; z-index: 3; display: flex; gap: 6px; }
+  .tb.r { right: 8px; } .tb.l { left: 8px; }
+  button.x { font: 600 12px "IBM Plex Mono", monospace; letter-spacing: .06em; color: var(--ink); background: rgba(18,21,20,.82); border: 1px solid #2f3633; border-radius: 4px; padding: 6px 12px; cursor: pointer; min-height: 44px; min-width: 44px; }
+  button.x:active { background: #252b29; }
+  #drawer { position: fixed; left: 0; right: 0; bottom: 0; height: min(62dvh, 460px); z-index: 10; background: rgba(8,10,9,.97); border-top: 1px solid #2f3633; transform: translateY(102%); transition: transform .18s ease-out; display: flex; flex-direction: column; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); box-sizing: border-box; gap: 8px; }
+  #drawer.on { transform: none; }
+  #drawer h2 { margin: 0; font: 700 12px "IBM Plex Mono", monospace; letter-spacing: .1em; color: var(--dim); display: flex; justify-content: space-between; align-items: center; }
+  #out { flex: 1; overflow: auto; white-space: pre-wrap; font-size: 12.5px; color: #c9d3d0; border: 1px solid var(--line); border-radius: 4px; padding: 8px; -webkit-user-select: text; user-select: text; }
+  #out .me { color: #fff; } #out .bad { color: #ff9a8a; } #out .ok { color: var(--agent); }
+  #line { font: 600 14px "IBM Plex Mono", monospace; color: #fff; background: #111514; border: 1px solid #3a4440; border-radius: 4px; padding: 10px; outline: none; width: 100%; box-sizing: border-box; }
+  #line:focus { border-color: var(--agent); }
+  .row { display: flex; gap: 6px; flex-wrap: wrap; }
+  #file { display: none; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div id="view">
+    <div class="tb l"><button class="x" id="bAsk" title="the command line an agent or a person can type into">COMMANDS</button></div>
+    <div class="tb r"><button class="x" id="bSound">SOUND ON</button></div>
+  </div>
+  <div id="strip"><canvas id="stripCv"></canvas></div>
+  <canvas id="dev"></canvas>
+</div>
+<div id="drawer" role="dialog" aria-label="command line">
+  <h2><span>COMMAND LINE &middot; ACTS AS AGENT:CONSOLE</span><button class="x" id="bClose">CLOSE</button></h2>
+  <div id="out"></div>
+  <input id="line" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="cake brown-dome · candles 7 · write 生日快乐 · help">
+  <div class="row"><button class="x" data-cmd="describe">DESCRIBE</button><button class="x" data-cmd="help">HELP</button><button class="x" id="bSave">SAVE JSON</button><button class="x" id="bLoad">LOAD JSON</button><button class="x" data-cmd="reset">RESET</button></div>
+</div>
+<input type="file" id="file" accept="application/json,.json">
+<script src="core/state.js"></script>
+<script src="core/ops.js"></script>
+<script src="core/tests.js"></script>
+<script src="core/bus.js"></script>
+<script src="core/governor.js"></script>
+<script src="core/machine.js"></script>
+<script src="core/devmap.js"></script>
+<script src="core/sound.js"></script>
+<script src="core/device.js"></script>
+<script src="core/stub-scene.js"></script>
+<script>
+/* ORB TOOL shell: the view on top, the history strip, the device below. One bus; the device, the command line, window.ORB
+   and postMessage all send the same ops. ?stub uses the core's minimal renderer even when scene/scene.js exists. */
+(function () {
+  'use strict';
+  const Q = new URLSearchParams(location.search), SND = CORE_SOUND, O = CORE_OPS;
+  // AUDIT R1: never start empty. Open where the person left off (the saved session, replayed), else on the film's whole birthday.
+  // ?empty starts from nothing (the first detent of any ring then makes the first thing); ?fresh ignores the saved session.
+  const KEY = 'orb-tool-session'; let sess = null; if (!Q.has('fresh')) { try { sess = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { } }
+  if (sess && (!Array.isArray(sess.log) || !sess.initial || CORE_OPS.check(sess.initial))) sess = null;
+  const base = sess ? sess.initial : Q.has('empty') ? CORE_STATE.empty() : CORE_STATE.birthday();
+  const bus = CORE_BUS.createOrb({ state: base });
+  let restored = 0; if (sess) for (const r of sess.log) { if (bus.do(r.op === 'batch' ? r.args : { op: r.op, args: r.args }, { author: r.author, gesture: r.gesture }).ok) restored++; }
+  const machine = CORE_MACHINE.create(bus);
+  const loadScript = src => new Promise(res => { const s = document.createElement('script'); s.src = src; s.onload = () => res(true); s.onerror = () => res(false); document.head.appendChild(s); });
+  // ---- window.ORB: the agent's hands
+  const API = window.ORB = {
+    state: bus.state, view: bus.view, describe: bus.describe, on: bus.on, history: bus.history, log: bus.log, cursor: bus.cursor, seek: bus.seek, save: bus.save, paths: bus.paths, ops: bus.ops, setDescribe: bus.setDescribe,
+    do: (o, meta) => bus.do(o, Object.assign({ author: 'agent:api' }, typeof meta === 'string' ? { author: meta } : meta || {})),
+    propose: (o, note, meta) => bus.propose(o, note, Object.assign({ author: 'agent:api' }, typeof meta === 'string' ? { author: meta } : meta || {})),
+    undo: () => bus.undo({ author: 'agent:api' }), redo: () => bus.redo({ author: 'agent:api' }),
+    load: (j, meta) => bus.load(j, Object.assign({ author: 'agent:api' }, meta || {})),
+    replay: log => CORE_BUS.replay(log).state(),
+    device: null, machine, bus,
+    command: (line, author) => runLine(line, author || 'agent:console'),
+    tests: bus.tests, ledger: bus.ledger, initial: bus.initial, quality: 0,
+    // deterministic stepping for agents and tests (AUDIT R9): manual(true) stops the clock; advance(seconds) steps the machine and draws
+    manual: on => { manualClock = on !== false; return manualClock; }, advance: dt => { machine.tick(Math.max(0, +dt || 0)); paint(performance.now()); return bus.view(); }
+  };
+  // ---- the view: scene/ if it exists, else the core's stub
+  const viewEl = document.getElementById('view'); let scene = null;
+  (async () => {
+    if (!Q.has('stub')) { if (!window.THREE) await loadScript('../../ana/assets/three.min.js'); if (await loadScript('scene/scene.js') && window.ORB_SCENE) { try { scene = window.ORB_SCENE.create(viewEl, API); } catch (e) { console.error(e); scene = null; } } }
+    API.renderer = scene ? 'scene' : 'stub'; if (!scene) scene = ORB_STUB_SCENE.create(viewEl, API);
+    // if scene/ cannot finish loading its parts, the stub takes over so the view is never empty
+    else if (scene.ready && scene.ready.then) scene.ready.then(null, e => { console.error('scene/ failed, using the stub renderer:', e); try { scene.dispose && scene.dispose(); } catch (er) { } viewEl.querySelectorAll('canvas').forEach(c => c.remove()); scene = ORB_STUB_SCENE.create(viewEl, API); API.renderer = 'stub'; });
+    // the agent side, when its files exist: the command language, the richer describe, the pull-up console
+    if (!Q.has('nocmd')) { await loadScript('agent/commands.js'); await loadScript('agent/describe.js'); await loadScript('agent/console.js');
+      try { if (window.ORB_DESCRIBE && ORB_DESCRIBE.install) ORB_DESCRIBE.install(API); } catch (e) { console.error(e); }
+      // the bridge: JSON-RPC tools for a real agent over postMessage, and over a localhost WebSocket relay with ?bridge=ws://localhost:8787
+      await loadScript('agent/bridge.js'); try { if (window.ORB_BRIDGE && ORB_BRIDGE.attach) API.bridge = ORB_BRIDGE.attach(API, { commands: window.ORB_COMMANDS }); } catch (e) { console.error(e); }
+      try { if (window.ORB_CONSOLE && window.ORB_COMMANDS) window.ORB_CONSOLE_INSTANCE = ORB_CONSOLE.mount(API, { parent: document.body, author: 'hand', focus: false }); } catch (e) { console.error(e); window.ORB_CONSOLE_INSTANCE = null; } }
+    API.ready = true;
+  })();
+  // ---- the device
+  const devCv = document.getElementById('dev');
+  const device = API.device = CORE_DEVICE.create(devCv, bus, { onUi: ui => ui === 'ask' ? openAsk() : ui === 'save' ? saveFile() : ui === 'load' ? document.getElementById('file').click() : ui === 'play' ? playback() : null });
+  // ---- the status line: every op, from either hand, answers in words on the glass strip
+  const WHO = a => a === 'hand' ? 'YOU' : a.replace(/^agent:/, '').toUpperCase();
+  bus.on('log', r => { if (r.same || r.nonedit) return; device.say(r.ok ? WHO(r.author) + ': ' + (r.label || r.op) : WHO(r.author) + ' REFUSED: ' + r.error, !r.ok); });
+  // ---- playback: the history is the film. From the cursor to the end at the pace it was made (gaps over 1.2 s shortened)
+  let playing = null;
+  function playback(opts) { opts = opts || {}; if (playing) { clearTimeout(playing); playing = null; device.say('PLAYBACK STOPPED'); return; }
+    const H = bus.history(); if (opts.fromStart || bus.cursor() >= H.length) bus.seek(0); const speed = opts.speed || 1;
+    const next = () => { const i = bus.cursor(); if (i >= H.length) { playing = null; device.say('PLAYED TO THE END'); return; } bus.redo({ author: 'hand' });
+      const gap = H[i + 1] ? Math.min(1200, Math.max(90, (H[i + 1].t - H[i].t))) / speed : 0; playing = setTimeout(next, gap); };
+    device.say('PLAYING THE HISTORY. LONG REDO AGAIN TO STOP'); playing = setTimeout(next, 300); }
+  API.playback = playback;
+  // ---- the session survives the tab: written 1 s after the last change and when the tab hides; offered back on the next visit
+  let saveT = null;
+  const persist = () => { saveT = null; try { localStorage.setItem(KEY, JSON.stringify({ format: 'orb-session', v: 1, savedAt: Date.now(), initial: bus.initial(), log: bus.log().filter(r => r.ok && !r.same) })); } catch (e) { } };
+  bus.on('log', r => { if (!r.ok || r.same) return; clearTimeout(saveT); saveT = setTimeout(persist, 1000); });
+  addEventListener('visibilitychange', () => { if (document.hidden && saveT) { clearTimeout(saveT); persist(); } });
+  machine.snap(); setTimeout(() => device.say(restored ? 'BACK WHERE YOU LEFT IT: ' + restored + ' STEPS RESTORED. UNDO GOES BACK THROUGH THEM' : Q.has('empty') ? 'AN EMPTY MEMORY: TURN ANY RING TO MAKE THE FIRST THING' : 'THE BIRTHDAY, WHOLE. TURN A RING TO CHANGE IT; SELECT CHANGES WHAT RINGS 3 AND 4 SET'), 50);
+  // ---- a fault says so on the device instead of leaving a dead page
+  addEventListener('error', e => { try { device.say('FAULT: ' + (e.message || 'error') + '. THE MEMORY IS KEPT; SAVE OR UNDO STILL WORK', true); } catch (er) { } });
+  // ---- sounds follow the state, whoever changed it
+  const RING_OF = p => p === 'camera.yaw' ? 0 : p === 'camera.kneel' ? 1 : /tilt|offset|lit|place|height/.test(p) ? 3 : 2;
+  bus.on('step', (path, v, fast) => SND.step(fast, RING_OF(path)));
+  let prev = bus.state();
+  bus.on('change', s => { const p = prev; prev = JSON.parse(JSON.stringify(s));
+    if ((p.cake.stage === 0) !== (s.cake.stage === 0)) SND.wash(.8);
+    if (p.cake.tilt !== s.cake.tilt) SND.sweep();
+    if (s.people.some(q => q.arrived >= 10 && !(p.people.find(r => r.id === q.id) || {}).arrived >= 10)) SND.wash(.9);
+    if (!p.time.blown && s.time.blown) SND.wash(1.1); if (p.time.off !== s.time.off) SND.wash(1.2);
+    if (s.proposals.length > p.proposals.length) SND.tick();
+    stripDirty = true; });
+  // ---- the history strip: one cell per entry, hand warm, agent cyan; drag to scrub
+  const stripEl = document.getElementById('strip'), sc = document.getElementById('stripCv'), sx = sc.getContext('2d'); let stripDirty = true, scrub = null;
+  function stripGeom() { const n = bus.history().length, w = sc.clientWidth, lab = Math.min(200, w * .5), cw = Math.max(3, Math.min(16, (w - lab - 16) / Math.max(1, n + 1))); return { n, w, lab, cw, x0: 8 }; }
+  function drawStrip() { const dpr = Math.min(2, devicePixelRatio || 1), w = sc.clientWidth, h = sc.clientHeight; if (sc.width !== Math.round(w * dpr)) { sc.width = Math.round(w * dpr); sc.height = Math.round(h * dpr); }
+    sx.setTransform(dpr, 0, 0, dpr, 0, 0); sx.clearRect(0, 0, w, h); const H = bus.history(), cur = bus.cursor(), G = stripGeom(), first = Math.max(0, H.length - Math.floor((w - G.lab - 16) / G.cw));
+    for (let i = first; i < H.length; i++) { const x = G.x0 + (i - first) * G.cw, e = H[i], ag = /^agent/.test(e.author); sx.fillStyle = ag ? 'rgba(56,214,224,' + (i < cur ? .9 : .22) + ')' : 'rgba(224,161,90,' + (i < cur ? .9 : .22) + ')';
+      sx.fillRect(x, e.via ? 8 : 12, Math.max(2, G.cw - 2), e.via ? 28 : 20); }
+    for (const m of bus.raw().marks) { const x = G.x0 + (m.at + 1 - first) * G.cw - 2; if (x < G.x0) continue; sx.fillStyle = '#f4f4f2'; sx.beginPath(); sx.moveTo(x - 4, 1); sx.lineTo(x + 4, 1); sx.lineTo(x, 6); sx.fill(); }
+    const cx = G.x0 + (cur - first) * G.cw - 1; sx.fillStyle = '#e0332b'; sx.fillRect(cx, 3, 2, h - 6);
+    const e = H[cur - 1]; sx.font = '600 12px "IBM Plex Mono", monospace'; sx.textAlign = 'right'; sx.fillStyle = '#c9d3d0';
+    let t = cur + '/' + H.length + (e ? '  ' + (e.author === 'hand' ? 'HAND' : e.author.toUpperCase()) + ': ' + e.label : '  THE START: ' + (bus.initial().cake.stage ? 'THE BIRTHDAY, WHOLE' : 'AN EMPTY MEMORY')); while (t.length > 3 && sx.measureText(t).width > G.lab) t = t.slice(0, -2); sx.fillText(t, w - 8, h / 2 + 4);
+    stripDirty = false; API._strip = { first, cw: G.cw, x0: G.x0 }; }
+  function stripAt(e) { const r = sc.getBoundingClientRect(), S2 = API._strip || { first: 0, cw: 8, x0: 8 }; return Math.max(0, Math.min(bus.history().length, S2.first + Math.round((e.clientX - r.left - S2.x0) / S2.cw))); }
+  stripEl.addEventListener('pointerdown', e => { SND.wake(); scrub = true; stripEl.setPointerCapture(e.pointerId); bus.seek(stripAt(e)); });
+  stripEl.addEventListener('pointermove', e => { if (scrub) bus.seek(stripAt(e)); });
+  stripEl.addEventListener('pointerup', () => { scrub = null; }); stripEl.addEventListener('pointercancel', () => { scrub = null; });
+  // ---- the command line (agent/commands.js when present, else JSON ops and a few words)
+  const drawer = document.getElementById('drawer'), out = document.getElementById('out'), line = document.getElementById('line');
+  function openAsk() { const con = window.ORB_CONSOLE_INSTANCE; if (con) { con.toggle ? con.toggle() : con.open(); return; } drawer.classList.add('on'); setTimeout(() => line.focus(), 60); if (!out.childNodes.length) print('Type a command and press Enter. Ops go to the same bus as the device and land in the history with author agent:console. "help" lists commands.', ''); }
+  function print(t, cls) { const d = document.createElement('div'); d.textContent = t; if (cls) d.className = cls; out.appendChild(d); out.scrollTop = out.scrollHeight; }
+  function fallbackParse(l) { l = l.trim(); if (!l) return { error: 'empty' }; if (l[0] === '{' || l[0] === '[') { try { return JSON.parse(l); } catch (e) { return { error: 'bad JSON' }; } }
+    const w = l.split(/\s+/); if (w[0] === 'describe') return { describe: true }; if (w[0] === 'help') return { help: 'Commands (fallback, agent/commands.js not loaded): JSON ops, set <path> <value>, nudge <path> <by>, undo, redo, accept, reject, hold, release, blow, make, reset, describe. Ops: ' + O.NAMES.join(', ') };
+    if (w[0] === 'set' && w.length >= 3) { const v = w.slice(2).join(' '); return { op: 'set', args: { path: w[1], value: isNaN(+v) ? v : +v } }; } if (w[0] === 'nudge') return { op: 'nudge', args: { path: w[1], by: +w[2] || 1 } };
+    if (O.OPS[w[0]] || O.META.includes(w[0])) return { op: w[0], args: {} }; return { error: 'unknown command: ' + w[0] }; }
+  function runLine(l, author) { const P = window.ORB_COMMANDS && window.ORB_COMMANDS.parse ? window.ORB_COMMANDS.parse(l, bus.state()) : fallbackParse(l);
+    if (!P) return { ok: false, error: 'nothing parsed' }; if (P.error) return { ok: false, error: P.error }; if (P.help) return { ok: true, text: P.help }; if (P.describe) return { ok: true, text: bus.describe() }; if (P.wait != null) return { ok: true, wait: P.wait };
+    const r = bus.do(P, { author }); return r.ok ? { ok: true, text: r.same ? '(no change)' : (r.entry ? r.entry.label : 'done') } : r; }
+  line.addEventListener('keydown', e => { if (e.key !== 'Enter') return; const l = line.value; if (!l.trim()) return; print('> ' + l, 'me'); line.value = '';
+    for (const part of [l]) { const r = runLine(part, 'agent:console'); print(r.ok ? (r.text || 'done') : r.error, r.ok ? 'ok' : 'bad'); } });
+  drawer.querySelectorAll('[data-cmd]').forEach(b => b.onclick = () => { const r = runLine(b.dataset.cmd, 'agent:console'); print('> ' + b.dataset.cmd, 'me'); print(r.ok ? (r.text || 'done') : r.error, r.ok ? 'ok' : 'bad'); });
+  document.getElementById('bAsk').onclick = openAsk; document.getElementById('bClose').onclick = () => { drawer.classList.remove('on'); line.blur(); };
+  // ---- save and load a memory as JSON
+  function saveFile() { const m = bus.save(); bus.do({ op: 'snapshot', args: { name: 'saved ' + new Date().toISOString().slice(11, 19) } }, { author: 'hand' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(m, null, 1)], { type: 'application/json' })); a.download = 'memory-' + Date.now() + '.json'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    try { localStorage.setItem('orb-tool-last', JSON.stringify(m)); } catch (e) { } device.say('SAVED AS JSON'); }
+  document.getElementById('bSave').onclick = saveFile; document.getElementById('bLoad').onclick = () => document.getElementById('file').click();
+  document.getElementById('file').onchange = e => { const f = e.target.files[0]; if (!f) return; f.text().then(t => { const r = bus.load(t, { author: 'hand' }); device.say(r.ok ? 'LOADED ' + f.name : r.error, !r.ok); print(r.ok ? 'loaded ' + f.name : r.error, r.ok ? 'ok' : 'bad'); }); e.target.value = ''; };
+  const bSound = document.getElementById('bSound'); bSound.onclick = () => { SND.wake(); SND.mute(!SND.muted); bSound.textContent = SND.muted ? 'SOUND OFF' : 'SOUND ON'; };
+  // ---- postMessage: another window or an external agent drives the same bus
+  addEventListener('message', ev => { const m = ev.data; if (!m || typeof m !== 'object' || !m.orb) return; let result;
+    const author = typeof m.author === 'string' && /^agent:[\w.-]{1,32}$/.test(m.author) ? m.author : 'agent:remote';
+    if (m.orb === 'do') result = bus.do(m.ops, { author }); else if (m.orb === 'propose') result = bus.propose(m.op, m.note, { author });
+    else if (m.orb === 'command') result = runLine(String(m.line || ''), author); else if (m.orb === 'describe') result = bus.describe(); else if (m.orb === 'state') result = bus.state(); else if (m.orb === 'history') result = bus.history(); else return;
+    try { ev.source && ev.source.postMessage({ orb: 'reply', id: m.id, result }, ev.origin === 'null' || !ev.origin ? '*' : ev.origin); } catch (e) { } });
+  // ---- every frame, timed: two slow paints coarsen the drawing and the status line says so (AUDIT R6)
+  let last = performance.now(), manualClock = false; const gov = CORE_GOVERNOR.create();
+  function paint(now) { if (scene) { try { scene.frame(now); } catch (e) { console.error(e); } } device.draw(now); if (stripDirty || scrub) drawStrip(); }
+  function frame(now) { const dt = Math.min(.1, (now - last) / 1000); last = now; if (!manualClock) machine.tick(dt);
+    const t0 = performance.now(); paint(now); const g = gov.sample(performance.now() - t0);
+    if (g.changed) { API.quality = g.level; device.quality = g.level; try { scene && scene.setQuality && scene.setQuality(g.level); } catch (e) { } device.say(g.say, g.level > 0); }
+    requestAnimationFrame(frame); }
+  addEventListener('resize', () => { scene && scene.resize && scene.resize(); stripDirty = true; });
+  document.fonts && document.fonts.load('600 12px "IBM Plex Mono"').then(() => { stripDirty = true; });
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

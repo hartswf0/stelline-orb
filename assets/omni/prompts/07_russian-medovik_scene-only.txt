@@ -1,0 +1,22 @@
+Gemini Omni Flash 1.2 / reference-to-video. 15 seconds, 16:9, 720p draft then 1080p keeper, native audio.
+
+REFERENCES (all attached; each has one job, use only that job):
+- image 1 (f1_strip_cake-appears.jpg): FILMSTRIP, read left to right as time (orb-free film shot): the empty dark room with one pale line of light, then a cake appears from nothing low and left, flickers through different icings (brown, pale blue, caramel) and tilts toward the camera. Copy this room, this camera height, this placement and this motion, not the cake itself.
+- image 2 (f2_strip_writing-upright.jpg): FILMSTRIP, left to right (orb-free film shot): the cake turns like a bundt, then red icing is piped stroke by stroke across the top as the cake swings upright, a pale white crescent arc hangs beside it. Copy the framing, the arc and the pacing.
+- image 3 (f3_strip_children-fade.jpg): FILMSTRIP, left to right (orb-free film shot): children are not there, then ghost-transparent, then solid round a table lit only by the cake. Copy the fade-in and the seating.
+- image 4 (f4_strip_candle-then-out.jpg): FILMSTRIP, left to right (orb-free film shot): one candle lights a boy's face from below, then a face is lit warm as the candles go out and the light leaves it. Copy this light and its fall.
+- image 5 (i1_room-before-cake.jpg): ROOM: the empty dark room with one pale line of light along the horizon. Keep this architecture, darkness and camera height.
+- image 6 (i5_boy-face-candle.jpg): FACE LIGHT: a child's face lit by one candle, soft, warm, shadow behind. Keep the intimacy and the shallow depth of field.
+Everything else in the references (people, clothes, cake, room contents, language, colours) is NOT copied: it is replaced by the brief below.
+
+WORLD: a cold communal flat room with wallpaper peeling at the corner and a steaming glass of tea. Cake: a many-layered honey medovik with cream and crumbs on the sides, red icing writing. Children: six children in 1980s Soviet winter clothes: big white hair bows, knitted hats, a fur collar, felt boots. Palette: honey brown, snow white and cold blue. Language of the cake writing: Russian.
+
+STRUCTURE (one continuous 15 second take):
+[0-2.5s] The empty dark room: a cold communal flat room with wallpaper peeling at the corner and a steaming glass of tea. Only the pale line of light on the horizon. Stillness.
+[2.5-6s] From nothing, a many-layered honey medovik with cream and crumbs on the sides, red icing writing appears low and left. It flickers through three different icings (white, caramel, then a pale blue) and tilts toward the camera.
+[6-9s] The cake swings upright. Red icing writes itself across the top, stroke by stroke, reading exactly "С днём рождения" (S dnyom rozhdeniya). A pale white crescent arc hangs beside it.
+[9-12s] Six children in 1980s Soviet winter clothes: big white hair bows, knitted hats, a fur collar, felt boots fade in around the table: first faint ghosts, then solid. Their faces catch the cake light.
+[12-14s] One candle burns on one child's face: warm light from below, the rest dark.
+[14-15s] The candles go out together, the warm light leaves the faces, the room returns to dark.
+
+Hard rules. Do not show any device, orb, lens, controller, camera or glowing gadget anywhere, and nothing in anyone's hands except a cake knife or a plate. No adult is in focus; if an adult appears it is a dark silhouette at the frame edge. One continuous locked-off wide-to-medium cinema shot, no scene cuts, slow, handheld-still. Dark, film-grained, anamorphic, low key; the only light is the cake and its candles plus one pale line of light on the horizon. No music, no captions except the cake writing. Audio: room tone, a soft rising hum when the cake appears, a small sigh of breath at the end when the flames go out.

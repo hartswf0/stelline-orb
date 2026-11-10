@@ -1,0 +1,43 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000}canvas{display:block}</style></head><body><canvas id="c" width="960" height="260"></canvas>
+<script>
+/* The orb's controls laid against the original footage. Times are seconds from the start of the clip; what is inferred from the picture is marked. */
+var EV = [
+ { t0: .5, t1: 1.4, k: 'thumb', cap: 'SUMMON', sub: 'The cake appears in the dark, left of her. Thumb key.', ch: 'MOVE' },
+ { t0: 1.4, t1: 2.9, k: 'ring', r: 1, d: 110, cap: 'VARIANT', sub: 'Its look changes in place: brown, white, gold. Ring 2 detents.', ch: 'MOVE' },
+ { t0: 2.9, t1: 4.2, k: 'ring', r: 0, d: 150, cap: 'ORIENT', sub: 'It tips over, lit from below. Turn channel.', ch: 'TURN' },
+ { t0: 4.4, t1: 8.0, k: 'ring', r: 0, d: -90, cap: 'MOVE', sub: 'The cake comes down beside her. A crescent hangs between them.', ch: 'MOVE' },
+ { t0: 8.0, t1: 11.4, k: 'ring', r: 1, d: 200, cap: 'SURFACE', sub: 'Upright. Red letters build on the icing, then a flourish. Etch channel.', ch: 'ETCH', also: [0, 160] },
+ { t0: 11.4, t1: 14.8, k: 'none', cap: 'HER FACE', sub: 'Lit by the candles. No control visible.', ch: 'ETCH' },
+ { t0: 15.0, t1: 19.0, k: 'ring', r: 3, d: 90, cap: 'PEOPLE', sub: 'The table, then three girls: ghost, then solid. Thumb places. Ring 4 steps down the graph.', ch: 'MOVE', thumbPulse: true },
+ { t0: 19.0, t1: 22.0, k: 'none', cap: 'OUTSIDE', sub: 'The whole memory, small, in the dark.', ch: 'MOVE' },
+ { t0: 22.0, t1: 25.0, k: 'ring', r: 2, d: 360, cap: 'HER HANDS', sub: 'Fingers on the real orb. The only direct view of the control.', ch: 'TURN', fast: true },
+ { t0: 25.0, t1: 28.5, k: 'none', cap: 'HER REACTION', sub: 'She watches what she made.', ch: 'TURN' },
+ { t0: 28.5, t1: 33.5, k: 'none', cap: '', sub: '', ch: 'TURN' }
+];
+var c = document.getElementById('c'), g = c.getContext('2d'), F = '"Barlow Semi Condensed","Arial Narrow",Arial,sans-serif';
+function ease(x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
+function angles(t) { var a = [0, 0, 0, 0, 0]; EV.forEach(function (e) { if (e.k !== 'ring') return; var u = ease((t - e.t0) / (e.t1 - e.t0)); a[e.r] += e.d * u; if (e.also) a[e.also[0]] += e.also[1] * u; }); return a; }
+function cur(t) { var r = EV[0]; EV.forEach(function (e) { if (t >= e.t0) r = e; }); return r; }
+function rr(x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+window.setT = function (t) {
+  g.fillStyle = '#000'; g.fillRect(0, 0, 960, 260); var e = cur(t), a = angles(t), live = t >= e.t0 && t <= e.t1 + .25;
+  // barrel
+  var gb = g.createLinearGradient(0, 24, 0, 232); gb.addColorStop(0, '#3a3a3a'); gb.addColorStop(.2, '#585858'); gb.addColorStop(.55, '#222'); gb.addColorStop(1, '#2a2a2a'); g.fillStyle = gb; g.strokeStyle = 'rgba(255,255,255,.5)'; g.lineWidth = 1.5; rr(18, 24, 540, 208, 22); g.fill(); g.stroke();
+  g.fillStyle = '#c8301e'; g.fillRect(468, 28, 5, 200);
+  var names = ['1 X', '2 Y', '3 Z', '4 DEPTH', '5 NODE']; if (e.ch === 'TURN') names = ['1 ROLL', '2 PITCH', '3 YAW', '4 DEPTH', '5 NODE']; if (e.ch === 'ETCH') names = ['1 PEN X', '2 PEN Y', '3 ASSIST', '4 DEPTH', '5 NODE'];
+  for (var i = 0; i < 5; i++) { var x = 100 + i * 72, w = 66, act = live && ((e.k === 'ring' && (e.r === i || (e.also && e.also[0] === i))));
+    var gr = g.createLinearGradient(x, 0, x + w, 0); gr.addColorStop(0, '#0a0a0a'); gr.addColorStop(.3, act ? '#4d4d4d' : '#383838'); gr.addColorStop(.5, act ? '#6a6a6a' : '#505050'); gr.addColorStop(.75, '#262626'); gr.addColorStop(1, '#070707');
+    g.fillStyle = gr; g.strokeStyle = act ? '#fff' : 'rgba(255,255,255,.4)'; g.lineWidth = act ? 2 : 1; rr(x, 18, w, 220, 6); g.fill(); g.stroke(); g.save(); rr(x, 18, w, 220, 6); g.clip();
+    for (var k = -36; k <= 36; k++) { var th = (k * 10 + a[i]) * Math.PI / 180, s = Math.sin(th), co = Math.cos(th); if (co < .05) continue; var py = 128 + s * 100, maj = k % 3 === 0; g.strokeStyle = 'rgba(255,255,255,' + (.12 + .55 * co * (maj ? 1 : .45)) + ')'; g.lineWidth = (maj ? 2 : 1) * (.4 + .6 * co); g.beginPath(); g.moveTo(x + w * (maj ? .14 : .26), py); g.lineTo(x + w * (maj ? .86 : .74), py); g.stroke(); }
+    g.restore(); g.fillStyle = 'rgba(0,0,0,.8)'; g.fillRect(x + 3, 112, w - 6, 32); g.fillStyle = '#fff'; g.font = '600 10px ' + F; g.textAlign = 'center'; g.fillText(names[i], x + w / 2, 132); }
+  // thumb key
+  var pulse = e.thumbPulse && live ? (Math.floor(t * 2) % 2) : (e.k === 'thumb' && live ? 1 : 0); g.fillStyle = pulse ? '#fff' : '#161616'; g.strokeStyle = '#fff'; g.lineWidth = 2; g.beginPath(); g.arc(515, 80, 30, 0, 7); g.fill(); g.stroke(); g.fillStyle = pulse ? '#000' : '#fff'; g.font = '600 11px ' + F; g.fillText(e.k === 'thumb' || e.thumbPulse ? 'PLACE' : 'CLUTCH', 515, 84);
+  // channel keys
+  ['MOVE', 'TURN', 'SCALE', 'ETCH'].forEach(function (ch, j) { var on = e.ch === ch; g.fillStyle = on ? '#fff' : '#141414'; g.strokeStyle = 'rgba(255,255,255,' + (on ? 1 : .5) + ')'; rr(32, 40 + j * 46, 54, 36, 8); g.fill(); g.stroke(); g.fillStyle = on ? '#000' : '#fff'; g.font = '600 10px ' + F; g.fillText(ch, 59, 62 + j * 46); });
+  // caption
+  g.textAlign = 'left'; g.fillStyle = '#fff'; g.font = '600 34px ' + F; g.fillText(e.cap, 600, 90); g.font = '400 15px ' + F; g.fillStyle = 'rgba(255,255,255,.85)';
+  var words = (e.sub || '').split(' '), line = '', y = 124; words.forEach(function (w) { var test = line + w + ' '; if (g.measureText(test).width > 340 && line) { g.fillText(line, 600, y); y += 22; line = w + ' '; } else line = test; }); g.fillText(line, 600, y);
+  g.font = '500 11px ' + F; g.fillStyle = 'rgba(255,255,255,.5)'; g.fillText('CONTROLS INFERRED FROM THE FOOTAGE', 600, 244);
+  return c.toDataURL('image/png');
+};
+</script></body></html>

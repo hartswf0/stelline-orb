@@ -1,0 +1,12 @@
+{
+ "endpoint": "fal-ai/veo3.1/reference-to-video",
+ "refs": [
+  "03-orig-cake-summoned-in-dark.jpg",
+  "06-orig-orb-in-hands.jpg",
+  "07-orig-orb-fingers-rings.jpg"
+ ],
+ "prompt": "First-person POV of the Memory Maker. Two hands hold the exact chrome memory orb from the reference images, unchanged. In a dim room a birthday cake appears from nothing on the table ahead, then settles; one finger turns a ring slowly. Film grain, warm low light, steady camera.",
+ "args": {
+  "aspect_ratio": "16:9"
+ }
+}

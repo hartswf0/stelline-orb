@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LOOK test scene</title>
+<style>
+  @font-face { font-family: Oswald; src: url(../../../ana/assets/oswald-latin-400-normal.woff2) format('woff2'); font-weight: 400; }
+  @font-face { font-family: Oswald; src: url(../../../ana/assets/oswald-latin-500-normal.woff2) format('woff2'); font-weight: 500; }
+  :root { --bg: #000; --ink: #d8dfdc; --dim: #7e8784; --warm: #e8b264; --line: #1d2120; --bad: #d4574a; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--ink); font: 400 13px/1.3 Oswald, 'Arial Narrow', sans-serif; letter-spacing: .02em; }
+  #wrap { display: flex; flex-direction: column; height: 100dvh; height: 100vh; }
+  #view { position: relative; flex: 0 0 50%; min-height: 0; background: #000; }
+  #view canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  #cap { position: absolute; left: 12px; bottom: 8px; color: var(--dim); font-size: 11px; pointer-events: none; }
+  #panel { flex: 1 1 50%; min-height: 0; display: grid; grid-template-rows: auto auto 1fr; gap: 8px; padding: 10px 16px 12px; box-sizing: border-box; border-top: 1px solid var(--line); }
+  .row { display: flex; gap: 6px; flex-wrap: wrap; }
+  button { font: 500 12px Oswald, sans-serif; letter-spacing: .06em; color: var(--ink); background: #0d0f0f; border: 1px solid #2b302e; padding: 7px 10px; border-radius: 2px; cursor: pointer; }
+  button.on { border-color: var(--warm); color: var(--warm); }
+  #sliders { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 14px; }
+  label { display: grid; grid-template-columns: 1fr auto; align-items: center; color: var(--dim); font-size: 11px; }
+  label input { grid-column: 1 / 3; width: 100%; margin: 0; accent-color: var(--warm); height: 16px; }
+  label b { font-weight: 500; color: var(--ink); }
+  #stats { min-height: 0; overflow: hidden; font-size: 11px; color: var(--dim); }
+  #stats table { width: 100%; border-collapse: collapse; }
+  #stats td { padding: 1px 4px 1px 0; white-space: nowrap; }
+  #stats td.v { color: var(--ink); text-align: right; }
+  #stats .off { color: var(--bad); }
+  body.measure #panel, body.measure #cap { display: none; }
+  body.measure #view { flex: 0 0 auto; width: 640px; height: 360px; }
+  @media (min-width: 900px) { #wrap { flex-direction: row; } #view { flex: 1 1 64%; } #panel { flex: 0 0 360px; border-top: 0; border-left: 1px solid var(--line); grid-template-rows: auto auto auto 1fr; } #sliders { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="view"><div id="cap">LOOK test scene. Film numbers only; no film pixels on this page.</div></div>
+  <div id="panel">
+    <div class="row">
+      <button id="bA" class="on">SHOT 146 S</button><button id="bB">SHOT 155 S</button>
+      <button id="bOff">SWITCH OFF</button><button id="bFl">FLASH</button><button id="bM">MEASURE</button>
+    </div>
+    <div id="sliders"></div>
+    <div id="stats">Tap MEASURE to compare this frame with the film's numbers.</div>
+  </div>
+</div>
+<script src="../../../ana/assets/three.min.js"></script>
+<script src="look.js"></script>
+<script>
+'use strict';
+const T = THREE, TAU = Math.PI * 2, Q = new URLSearchParams(location.search), MEASURE = Q.has('measure');
+if (MEASURE) document.body.classList.add('measure');
+const viewEl = document.getElementById('view');
+const R = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); R.setPixelRatio(MEASURE ? 1 : Math.min(2, devicePixelRatio)); viewEl.prepend(R.domElement);
+const scene = new T.Scene(), cam = new T.PerspectiveCamera(30, 16 / 9, 0.05, 40);
+const TOP = 0.5;   // table top height (m), as in ana/index.html
+
+/* ---------------------------------------------------------------- geometry helpers (tag every mesh with its region for the ID pass) */
+const tag = (m, r) => { m.userData.region = r; m.castShadow = true; m.receiveShadow = true; return m; };
+function beads(parent, mat, r, y, n, s, region, jitter) { const g = new T.SphereGeometry(s, 10, 8), im = new T.InstancedMesh(g, mat, n), m4 = new T.Matrix4(), q = new T.Quaternion(), sc = new T.Vector3();
+  for (let i = 0; i < n; i++) { const a = i / n * TAU, yy = typeof y === 'function' ? y(i) : y, rr = typeof r === 'function' ? r(i) : r; sc.set(1, 0.8 + (jitter ? ((i * 37) % 7) / 20 : 0), 1); m4.compose(new T.Vector3(Math.cos(a) * rr, yy, Math.sin(a) * rr), q, sc); im.setMatrixAt(i, m4); }
+  parent.add(tag(im, region)); return im; }
+function candles(parent, spots, h) { const flames = [], C = new T.Group(); parent.add(C);
+  const stripes = ['#d5473c', '#3d63c9', '#d5473c', null, '#d5473c', null, '#d9a12b'];
+  spots.forEach(([x, z], i) => { const g = new T.Group(); g.position.set(x, h, z); C.add(g);
+    const w = new T.Mesh(new T.CylinderGeometry(0.0034, 0.0036, 0.052, 12), LOOK.material('wax', { stripe: stripes[i % stripes.length] })); w.position.y = 0.026; g.add(tag(w, 'candle'));
+    const wick = new T.Mesh(new T.CylinderGeometry(0.0005, 0.0005, 0.005, 4), new T.MeshBasicMaterial({ color: 0x120a06 })); wick.position.y = 0.0545; g.add(tag(wick, 'candle'));
+    const f = new T.Sprite(LOOK.material('flame')); f.scale.set(0.011, 0.022, 1); f.position.y = 0.064; f.userData.region = 'flame'; g.add(f);
+    const hl = new T.Sprite(LOOK.material('halo')); hl.scale.set(0.05, 0.05, 1); hl.position.y = 0.064; hl.userData.region = 'flame'; g.add(hl);
+    flames.push(f); });
+  return { C, flames }; }
+
+/* ---------------------------------------------------------------- shot A (146 s): a sponge cake in cream icing, floating, seven candles, the inscription */
+function cakeA() { const g = new T.Group(), r = 0.12, h = 0.1;
+  const icing = LOOK.material('icing', { speckle: 1, seed: 3, repeat: [3, 1] }), icTop = LOOK.material('icing', { seed: 5, repeat: [1.5, 1.5] }), bead = LOOK.material('bead');
+  const side = new T.Mesh(new T.CylinderGeometry(r, r * 1.01, h, 96, 1, true), icing); side.position.y = h / 2; g.add(tag(side, 'side'));
+  const prof = []; for (let k = 0; k <= 12; k++) { const u = k / 12; prof.push(new T.Vector2(r * (1 - u), h + 0.006 * Math.sin(Math.min(1, u * 3) * Math.PI / 2) + 0.004 * u)); }
+  const top = new T.Mesh(new T.LatheGeometry(prof.reverse(), 96), icTop); top.material.side = T.DoubleSide; g.add(tag(top, 'top'));
+  const rim = new T.Mesh(new T.TorusGeometry(r - 0.004, 0.008, 10, 96), icing); rim.rotation.x = Math.PI / 2; rim.position.y = h + 0.002; g.add(tag(rim, 'top'));
+  beads(g, LOOK.material('chocolate', { color: 0x2a1a10, seed: 6 }), r + 0.002, i => 0.015 + (i % 3) * 0.03, 45, 0.0045, 'side', true); beads(g, bead, r - 0.004, h + 0.006, 64, 0.0055, 'top', true);
+  // the inscription in red piping (stroke blocks, no film pixels)
+  const cv = document.createElement('canvas'); cv.width = cv.height = 256; const x = cv.getContext('2d'); x.translate(128, 150); x.rotate(-0.1); x.fillStyle = '#c2271c';
+  x.font = '600 34px "Noto Sans CJK SC","PingFang SC",sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('生日快乐', 0, 0);
+  const it = new T.CanvasTexture(cv); it.encoding = T.sRGBEncoding; const pm = LOOK.material('piping'); pm.map = it; pm.transparent = true; pm.alphaTest = 0.3; pm.color.setRGB(1, 1, 1);
+  const ins = new T.Mesh(new T.CircleGeometry(r * 0.95, 48), pm); ins.rotation.x = -Math.PI / 2; ins.position.y = h + 0.0105; g.add(tag(ins, 'top'));
+  const spots = []; for (let k = 0; k < 6; k++) { const a = k / 6 * TAU + 0.5; spots.push([Math.cos(a) * 0.075, Math.sin(a) * 0.075 - 0.01]); } spots.push([0.01, -0.03]);
+  const cd = candles(g, spots, h + 0.008); return { g, flames: cd.flames }; }
+
+/* ---------------------------------------------------------------- shot B (155 s): chocolate sides, cream top, dark beads, red piping, on the hex table */
+function cakeB() { const g = new T.Group(), r = 0.11, h = 0.1;
+  const choc = LOOK.material('chocolate', { seed: 2, repeat: [3, 1] }), cream = LOOK.material('icing', { seed: 7, repeat: [1.5, 1.5] }), dark = LOOK.material('chocolate', { color: 0x2a1a10, seed: 4 }), red = LOOK.material('piping');
+  const side = new T.Mesh(new T.CylinderGeometry(r, r * 1.02, h, 96, 1, true), choc); side.position.y = h / 2; g.add(tag(side, 'side'));
+  const top = new T.Mesh(new T.CircleGeometry(r, 96), cream); top.rotation.x = -Math.PI / 2; top.position.y = h; g.add(tag(top, 'top'));
+  const rim = new T.Mesh(new T.TorusGeometry(r - 0.003, 0.007, 10, 96), cream); rim.rotation.x = Math.PI / 2; rim.position.y = h; g.add(tag(rim, 'top'));
+  beads(g, dark, r + 0.003, i => 0.018 + (i % 3) * 0.03, 36, 0.0055, 'side', true);
+  for (let k = 0; k < 7; k++) { const a = k / 7 * TAU + 0.3, b = new T.Mesh(new T.SphereGeometry(0.006, 10, 6), red); b.scale.set(1.4, 0.3, 0.7); b.position.set(Math.cos(a) * 0.06, h + 0.002, Math.sin(a) * 0.06); b.rotation.y = -a; g.add(tag(b, 'top')); }
+  const board = new T.Mesh(new T.CylinderGeometry(r + 0.025, r + 0.025, 0.006, 64), LOOK.material('board')); board.position.y = -0.003; g.add(tag(board, 'board'));
+  const spots = [[-0.06, -0.05], [-0.045, -0.02], [-0.03, -0.06], [-0.01, -0.04], [0.005, -0.065], [-0.02, -0.075], [0.05, -0.04]];
+  const cd = candles(g, spots, h); return { g, flames: cd.flames }; }
+
+const MEM = new T.Group(); scene.add(MEM);
+const TABLE = new T.Group(); MEM.add(TABLE);
+{ const hex = new T.Mesh(new T.CylinderGeometry(0.35, 0.35, 0.025, 6), LOOK.material('table')); hex.position.y = TOP - 0.0125; hex.rotation.y = Math.PI / 6; TABLE.add(tag(hex, 'table'));
+  const leg = new T.Mesh(new T.CylinderGeometry(0.06, 0.08, TOP - 0.025, 16), LOOK.material('board')); leg.position.y = (TOP - 0.025) / 2; TABLE.add(tag(leg, 'tableEdge')); }
+const A = cakeA(), B = cakeB(); MEM.add(A.g, B.g);
+A.g.position.set(0, TOP + 0.06, 0); A.g.rotation.set(0.3, 0.4, -0.12);    // the cake in the air, tilted toward Ana
+B.g.position.set(0, TOP + 0.003, 0);
+
+/* ---------------------------------------------------------------- the look */
+const H = LOOK.apply(R, scene, cam, { target: new T.Vector3(0, TOP + 0.08, 0), room: true });
+/* the two framings: chosen so the cake's regions land where they sit in the film frames (checked by look-measure.js --frame) */
+const SHOTS = {
+  A: { cam: [0.0, 0.866, 1.203], look: [0.215, 0.672, 0.0], fov: 30, show: 'A' },
+  B: { cam: [0.0, 0.735, 1.38], look: [-0.015, 0.665, 0.0], fov: 30, show: 'B' }
+};
+let shot = 'A';
+function setShot(s, over) { shot = s; const S = Object.assign({}, SHOTS[s], over || {}); cam.position.fromArray(S.cam); cam.fov = S.fov; cam.updateProjectionMatrix(); cam.lookAt(new T.Vector3().fromArray(S.look));
+  A.g.visible = s === 'A'; B.g.visible = s === 'B'; TABLE.visible = s === 'B';
+  H.setCandles((s === 'A' ? A : B).flames); H.target.set(0, TOP + (s === 'A' ? 0.12 : 0.07), 0); H.focus((s === 'A' ? A : B).g.getWorldPosition(new T.Vector3()).add(new T.Vector3(0, 0.06, 0)));
+  document.getElementById('bA').classList.toggle('on', s === 'A'); document.getElementById('bB').classList.toggle('on', s === 'B'); }
+
+function size() { const w = viewEl.clientWidth, h = viewEl.clientHeight; cam.aspect = w / h; cam.updateProjectionMatrix(); H.setSize(w, h); }
+addEventListener('resize', size); size(); setShot('A');
+
+/* ---------------------------------------------------------------- the ID pass: which pixel belongs to which region */
+const IDC = { top: 1, side: 2, table: 3, candle: 4, flame: 5, band: 6, room: 7, board: 8, tableEdge: 9 };
+const idMats = {}; for (const k in IDC) idMats[k] = new T.MeshBasicMaterial({ color: new T.Color(IDC[k] / 255, 0, 0) });
+const idSprite = new T.SpriteMaterial({ color: new T.Color(IDC.flame / 255, 0, 0) });
+function idPass(W, Hh) { const rt = new T.WebGLRenderTarget(W, Hh, { minFilter: T.NearestFilter, magFilter: T.NearestFilter }); const saved = [];
+  const bg = scene.background, fog = scene.fog; scene.background = new T.Color(0, 0, 0); scene.fog = null;
+  scene.traverse(o => { if (!o.material) return; const reg = o.userData.region; saved.push([o, o.material, o.visible]);
+    if (o.isSprite) { o.material = idSprite; if (reg !== 'flame') o.visible = false; } else o.material = idMats[reg] || idMats.room; });
+  const tm = R.toneMapping, enc = R.outputEncoding; R.toneMapping = T.NoToneMapping; R.outputEncoding = T.LinearEncoding;
+  R.setRenderTarget(rt); R.clear(); R.render(scene, cam); const px = new Uint8Array(W * Hh * 4); R.readRenderTargetPixels(rt, 0, 0, W, Hh, px); R.setRenderTarget(null);
+  R.toneMapping = tm; R.outputEncoding = enc; saved.forEach(([o, m, v]) => { o.material = m; o.visible = v; }); scene.background = bg; scene.fog = fog; rt.dispose();
+  const id = new Uint8Array(W * Hh); for (let y = 0; y < Hh; y++) for (let x = 0; x < W; x++) id[y * W + x] = px[((Hh - 1 - y) * W + x) * 4];   // flip to top-down
+  return id; }
+function erode(m, W, Hh, r) { const o = new Uint8Array(W * Hh); for (let y = r; y < Hh - r; y++) for (let x = r; x < W - r; x++) { let ok = 1; for (let k = -r; k <= r && ok; k++) if (!m[y * W + x + k] || !m[(y + k) * W + x]) ok = 0; o[y * W + x] = ok; } return o; }
+
+/* ---------------------------------------------------------------- measuring a frame (used by the MEASURE button and by look-measure.js) */
+function polyMask(polys, W, Hh) { const c = document.createElement('canvas'); c.width = W; c.height = Hh; const x = c.getContext('2d'); x.fillStyle = '#fff'; const s = W / 1280;
+  polys.forEach(p => { x.beginPath(); p.forEach(([px, py], i) => i ? x.lineTo(px * s, py * s) : x.moveTo(px * s, py * s)); x.closePath(); x.fill(); });
+  const d = x.getImageData(0, 0, W, Hh).data, m = new Uint8Array(W * Hh); for (let i = 0; i < W * Hh; i++) m[i] = d[i * 4] > 127 ? 1 : 0; return m; }
+const and = (a, b) => { const o = new Uint8Array(a.length); for (let i = 0; i < a.length; i++) o[i] = a[i] && b[i] ? 1 : 0; return o; };
+const or = (...ms) => { const o = new Uint8Array(ms[0].length); for (const m of ms) for (let i = 0; i < o.length; i++) if (m[i]) o[i] = 1; return o; };
+function bbox(m, W) { let x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1; for (let i = 0; i < m.length; i++) if (m[i]) { const x = i % W, y = (i / W) | 0; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; } return [x0, y0, x1, y1]; }
+function dilateBox(b, d, W, Hh) { return [Math.max(0, b[0] - d), Math.max(0, b[1] - d), Math.min(W - 1, b[2] + d), Math.min(Hh - 1, b[3] + d)]; }
+function boxMask(b, W, Hh) { const m = new Uint8Array(W * Hh); for (let y = b[1]; y <= b[3]; y++) for (let x = b[0]; x <= b[2]; x++) m[y * W + x] = 1; return m; }
+/* stats for one image given masks */
+function statsOf(img, masks) { const M = LOOK.measure, W = img.width, Hh = img.height, out = { regions: {} };
+  for (const k of ['top', 'side', 'table', 'bg']) if (masks[k]) out.regions[k] = M.regionStats(img, masks[k]);
+  out.hist = M.hist(img, or(...['top', 'side', 'table', 'bg'].filter(k => masks[k]).map(k => masks[k])));
+  out.bloom = M.bloomRadius(img, masks.flameZone, 7); delete out.bloom.peaks;
+  out.tex = M.texture(img, masks.top); return out; }
+/* masks for the current render, from the ID pass, limited by the film's bg rectangles */
+function renderMasks(W, Hh, regionsDef) { const id = idPass(W, Hh), m = {}, e = r => k => erode(Uint8Array.from(id, v => v === IDC[k] ? 1 : 0), W, Hh, r);
+  m.top = e(1)('top'); m.side = e(1)('side'); if (regionsDef.table) m.table = e(2)('table');
+  const bgId = Uint8Array.from(id, v => v === 0 || v === IDC.room ? 1 : 0); m.bg = and(erode(bgId, W, Hh, 3), polyMask(regionsDef.bg, W, Hh));
+  const fl = Uint8Array.from(id, v => v === IDC.flame ? 1 : 0); m.flameZone = boxMask(dilateBox(bbox(fl, W), Math.round(6 * W / 1280), W, Hh), W, Hh);
+  m.boxes = { top: bbox(m.top, W), side: bbox(m.side, W), table: m.table ? bbox(m.table, W) : null, flame: bbox(fl, W) }; return m; }
+function filmMasks(def, W, Hh) { const m = { top: polyMask([def.top], W, Hh), side: polyMask([def.side], W, Hh), bg: polyMask(def.bg, W, Hh) }; if (def.table) m.table = polyMask([def.table], W, Hh);
+  m.flameZone = polyMask([def.flame], W, Hh); return m; }
+function grab() { const c = document.createElement('canvas'); c.width = R.domElement.width; c.height = R.domElement.height; const x = c.getContext('2d'); x.drawImage(R.domElement, 0, 0); return x.getImageData(0, 0, c.width, c.height); }
+
+const MC = {};
+window.LOOKTEST = {
+  setShot, H, SHOTS,
+  frame(s, genome, over) { if (genome) H.set(genome); setShot(s, over); H.render(0, true); return true; },
+  measure(s, regionsDef, fresh) { const W = R.domElement.width, Hh = R.domElement.height; const img = grab(); const ck = s + W + 'x' + Hh; if (fresh || !MC[ck]) MC[ck] = renderMasks(W, Hh, regionsDef); const m = MC[ck]; const st = statsOf(img, m); st.boxes = m.boxes; return st; },
+  measureImage(dataUrl, def) { return new Promise(res => { const im = new Image(); im.onload = () => { const W = R.domElement.width, Hh = R.domElement.height, c = document.createElement('canvas'); c.width = W; c.height = Hh; const x = c.getContext('2d'); x.drawImage(im, 0, 0, W, Hh); const img = x.getImageData(0, 0, W, Hh); res(statsOf(img, filmMasks(def, W, Hh))); }; im.src = dataUrl; }); },
+  png() { return R.domElement.toDataURL('image/png'); }
+};
+
+/* ---------------------------------------------------------------- the page: sliders, switching, measuring */
+const SL = [['exposure', 'EXPOSURE'], ['keyIntensity', 'KEY LIGHT'], ['candleIntensity', 'CANDLE LIGHT'], ['bloomStrength', 'BLOOM'], ['aperture', 'DEPTH OF FIELD'], ['grain', 'GRAIN'], ['wbB', 'BLUE GAIN'], ['blackPoint', 'BLACK POINT']];
+const sl = document.getElementById('sliders');
+function buildSliders() { sl.innerHTML = ''; SL.forEach(([k, lab]) => { const [a, b] = LOOK.RANGES[k], L = document.createElement('label'); L.innerHTML = `<span>${lab}</span><b>${(+LOOK.genome[k]).toFixed(3)}</b><input type="range" min="${a}" max="${b}" step="${(b - a) / 200}" value="${LOOK.genome[k]}">`;
+  L.querySelector('input').oninput = e => { H.set({ [k]: +e.target.value }); L.querySelector('b').textContent = (+e.target.value).toFixed(3); }; sl.append(L); }); }
+let REF = null, onK = 1, onTarget = 1, flK = 0;
+document.getElementById('bA').onclick = () => setShot('A');
+document.getElementById('bB').onclick = () => setShot('B');
+document.getElementById('bOff').onclick = e => { onTarget = onTarget > 0.5 ? 0 : 1; e.target.textContent = onTarget ? 'SWITCH OFF' : 'SWITCH ON'; };
+document.getElementById('bFl').onclick = () => { flK = 1; };
+document.getElementById('bM').onclick = () => {
+  const st = document.getElementById('stats'); if (!REF) { st.textContent = 'look-genome.json not found next to this page; no film numbers to compare.'; return; }
+  const key = shot === 'A' ? 'A' : 'B', def = REF.regions[key], f = REF.film[key], tol = REF.tolerances; H.render(0, true); const r = LOOKTEST.measure(key, def);
+  const rows = []; const add = (name, v, t, tl) => { const off = Math.abs(v - t) > tl; rows.push(`<tr><td>${name}</td><td class="v${off ? ' off' : ''}">${v.toFixed(2)}</td><td>film ${t.toFixed(2)}</td><td>${off ? 'OFF' : 'OK'}</td></tr>`); };
+  for (const k of Object.keys(f.regions)) { const a = r.regions[k], b = f.regions[k]; if (!a) continue; add(`${k.toUpperCase()} L`, a.L, b.L, tol.L); add(`${k.toUpperCase()} a`, a.a, b.a, tol.a); add(`${k.toUpperCase()} b`, a.b, b.b, tol.b); }
+  if (key === 'A') add('RED/BLUE TOP', r.regions.top.rb, f.regions.top.rb, tol.rb);
+  add('HISTOGRAM DIST', LOOK.measure.emd(r.hist, f.hist), 0, tol.hist); add('BLOOM RADIUS', r.bloom.r, f.bloom.r, f.bloom.r * tol.bloomRel);
+  st.innerHTML = `<table>${rows.join('')}</table>`; };
+fetch('look-genome.json').then(r => r.ok ? r.json() : null).then(j => { if (j) { REF = j; if (j.genome) H.set(j.genome); } buildSliders(); }).catch(() => buildSliders());
+
+let last = performance.now();
+function loop(now) { const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  onK += Math.sign(onTarget - onK) * Math.min(Math.abs(onTarget - onK), dt / 0.9); LOOK.reveal(MEM, onK);
+  flK = Math.max(0, flK - dt / 0.45); LOOK.flash(MEM, flK);
+  H.candlesLit(onK); H.render(dt); requestAnimationFrame(loop); }
+if (!MEASURE) requestAnimationFrame(loop);
+</script>
+</body>
+</html>

@@ -21,6 +21,9 @@
   table { border-collapse: collapse; width: 100%; font: 13px/1.45 "IBM Plex Mono", monospace; }
   th, td { border-bottom: 1px solid var(--line); padding: 7px 8px; text-align: left; vertical-align: top; } th { color: var(--dim); font-weight: 500; }
   .wrap { overflow-x: auto; }
+  .clips { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin: 10px 0 6px; }
+  figure.clip { margin: 0; } figure.clip video { width: 100%; display: block; background: #000; border: 1px solid var(--line); }
+  figure.clip figcaption { font: 12px/1.45 "IBM Plex Mono", monospace; color: var(--dim); margin-top: 4px; } figure.clip figcaption b { color: var(--ink); font-weight: 500; }
 </style>
 </head>
 <body>
@@ -36,6 +39,10 @@
     <tr><td>Writing</td><td>The film's writing is taken off by carrying the cake top from before she wrote onto each frame (the top is a plane, so one homography carries it). New writing made of her own characters (生 日 快 乐 and the Z, lifted off frame 30) is re-set on the writing's plane in that frame's light. Typed words (安娜, JOE, ANA, 2049) are piped in a drawn hand instead.</td></tr>
     <tr><td>Flames</td><td>Each flame is tracked; blown out, it is filled from the rows around it with its glow, and a wick is left. The light it gave goes with it, using the ratios measured when the film blows the candles out at 03:46: red to 0.41, green to 0.34, blue to 0.15 where the warm light fell. Cool light (the wall's ring) stays.</td></tr>
   </table></div>
+
+  <h2>The film, cut into each design moment</h2>
+  <p class="dim">The originals these designs start from, cut at the film's own shots and as 1.5 s windows at the exact frame each design was made from. The Memory Maker is never in them: they are inputs for style transfer and for cloning a moment and varying it. <a href="assets/moments/designs-clips.zip" download>download all (zip)</a> · <a href="assets/moments/catalog.json">catalog.json</a></p>
+  <div class="clips" id="srcShots"></div><h2>Each design, at its frame</h2><div class="clips" id="srcDesigns"></div>
 
   <h2>Eyes</h2><div class="pairs" id="eyes"></div>
   <h2>Writing</h2><div class="pairs" id="writing"></div>
@@ -53,7 +60,9 @@
   </table></div>
   <p class="dim">What passes and what does not, honestly: the film's own pixels re-arranged pass most often (both eyes sharp passed in four of five rounds; one sharp eye and one soft passed twice; writing re-set from her own characters passed every time in round 3 and half the time since). Light changes are the hardest: a critic who sees the same scene lit two ways can measure it. Typed words have never passed.</p>
 </main>
+<script src="assets/moments/clips.js"></script>
 <script>
+CLIPS.ready.then(() => { CLIPS.shots([7, 27, 36, 44, 29], document.getElementById('srcShots')); CLIPS.designs(['e_both','e_swap','e_none','c_kl','c_sr','c_le','c_ana','c_joe','c_out0','c_out3','b_out','k_out','k_half','p_out'], document.getElementById('srcDesigns')); });
 const T = { 7: 47, 27: 44, 36: 32, 44: 44, 29: 47 };
 const G = {
   eyes: [['e_both', 7, 18, 'focusR:1,focusL:1', 'BOTH EYES IN FOCUS · never both at once in the film', 'passed rounds 1, 3, 4, 5'],

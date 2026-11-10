@@ -1,0 +1,215 @@
+{
+ "manual": true,
+ "fps": {
+  "medianFrameMs": 533.3,
+  "p90FrameMs": 933.3
+ },
+ "url": "http://127.0.0.1:8731/maker.html",
+ "name": "maker",
+ "viewport": [
+  390,
+  844
+ ],
+ "view": {
+  "x": 0,
+  "y": 0,
+  "w": 390,
+  "h": 455.765625,
+  "id": ""
+ },
+ "idle": {
+  "d100": 0,
+  "d1s": 0
+ },
+ "ops": [
+  {
+   "op": "FORGE.turn(0,+3)",
+   "err": null,
+   "opMs": 22.2,
+   "toFrameMs": 25.9,
+   "firstShotMs": 2631,
+   "d100": 0,
+   "d1s": 0,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "FORGE.turn(1,+3)",
+   "err": null,
+   "opMs": 0.2,
+   "toFrameMs": 25.8,
+   "firstShotMs": 2358,
+   "d100": 0,
+   "d1s": 0,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "FORGE.turn(2,+3)",
+   "err": null,
+   "opMs": 0.2,
+   "toFrameMs": 14.3,
+   "firstShotMs": 1934,
+   "d100": 0,
+   "d1s": 0,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "FORGE.turn(3,+3)",
+   "err": null,
+   "opMs": 0.3,
+   "toFrameMs": 31.8,
+   "firstShotMs": 1829,
+   "d100": 0,
+   "d1s": 0,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "FORGE.turn(4,+3)",
+   "err": null,
+   "opMs": 0.2,
+   "toFrameMs": 19.2,
+   "firstShotMs": 3900,
+   "d100": 0,
+   "d1s": 0,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "FORGE.press(ADD)",
+   "err": null,
+   "opMs": 2.5,
+   "toFrameMs": 23.6,
+   "firstShotMs": 2412,
+   "d100": 0,
+   "d1s": 0,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "FORGE.press(ADD)",
+   "err": null,
+   "opMs": 2,
+   "toFrameMs": 32.7,
+   "firstShotMs": 3667,
+   "d100": 0.0956,
+   "d1s": 0.0956,
+   "visible100": true,
+   "visible1s": true
+  },
+  {
+   "op": "FORGE.press(MODE)",
+   "err": null,
+   "opMs": 0.7,
+   "toFrameMs": 29.1,
+   "firstShotMs": 1887,
+   "d100": 0.0099,
+   "d1s": 0.0101,
+   "visible100": false,
+   "visible1s": true
+  },
+  {
+   "op": "FORGE.press(MODE)",
+   "err": null,
+   "opMs": 0.4,
+   "toFrameMs": 17.5,
+   "firstShotMs": 4040,
+   "d100": 0.0102,
+   "d1s": 0.0101,
+   "visible100": true,
+   "visible1s": true
+  },
+  {
+   "op": "FORGE.press(UNDO)",
+   "err": null,
+   "opMs": 1,
+   "toFrameMs": 26.1,
+   "firstShotMs": 7218,
+   "d100": 0.0994,
+   "d1s": 0.0983,
+   "visible100": true,
+   "visible1s": true
+  },
+  {
+   "op": "FORGE.press(ADD)",
+   "err": null,
+   "opMs": 0.3,
+   "toFrameMs": 23.9,
+   "firstShotMs": 4542,
+   "d100": 0,
+   "d1s": 0,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "FORGE.press(ADD)",
+   "err": null,
+   "opMs": 0.5,
+   "toFrameMs": 9.5,
+   "firstShotMs": 7033,
+   "d100": 0.0991,
+   "d1s": 0.0989,
+   "visible100": true,
+   "visible1s": true
+  },
+  {
+   "op": "after ops: FORGE.turn(0,+3)",
+   "err": null,
+   "opMs": 0.9,
+   "toFrameMs": 58.7,
+   "firstShotMs": 5790,
+   "d100": 0.0134,
+   "d1s": 0.0138,
+   "visible100": true,
+   "visible1s": true
+  },
+  {
+   "op": "after ops: FORGE.turn(1,+3)",
+   "err": null,
+   "opMs": 0.7,
+   "toFrameMs": 17.4,
+   "firstShotMs": 2955,
+   "d100": 0.143,
+   "d1s": 0.1443,
+   "visible100": true,
+   "visible1s": true
+  },
+  {
+   "op": "after ops: FORGE.turn(2,+3)",
+   "err": null,
+   "opMs": 0.5,
+   "toFrameMs": 27,
+   "firstShotMs": 3765,
+   "d100": 0.0077,
+   "d1s": 0.0078,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "after ops: FORGE.turn(3,+3)",
+   "err": null,
+   "opMs": 0.4,
+   "toFrameMs": 18.3,
+   "firstShotMs": 1920,
+   "d100": 0,
+   "d1s": 0,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "after ops: FORGE.turn(4,+3)",
+   "err": null,
+   "opMs": 0.7,
+   "toFrameMs": 17.3,
+   "firstShotMs": 2652,
+   "d100": 0.0014,
+   "d1s": 0.002,
+   "visible100": false,
+   "visible1s": false
+  }
+ ],
+ "errors": [],
+ "handle": "FORGE"
+}

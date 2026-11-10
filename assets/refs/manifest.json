@@ -1,0 +1,75 @@
+{
+ "purpose": "Multi-reference pack for generating the Memory Maker UX video. Controller refs (06,07,08) define the physical orb; operator-surface refs (10-14) define the UI that must be buildable; scene refs (01-05,09) define world, light and the cake being made.",
+ "refs": [
+  {
+   "file": "01-orig-ana-kneels-orb-cake-crescent.jpg",
+   "role": "controller+scene",
+   "note": "Ana kneels holding the orb in both hands; cake tipped beside her; crescent arc between them."
+  },
+  {
+   "file": "02-orig-cake-crescent-overshoulder.jpg",
+   "role": "scene",
+   "note": "Over her shoulder: lettered cake with candles, the crescent arc beside it."
+  },
+  {
+   "file": "03-orig-cake-summoned-in-dark.jpg",
+   "role": "scene",
+   "note": "The cake summoned in the dark, left of her, a table frame behind."
+  },
+  {
+   "file": "04-orig-kneeling-cake-tipped.jpg",
+   "role": "scene",
+   "note": "Kneeling, a brown cake tipped in the air, crescent arc."
+  },
+  {
+   "file": "05-orig-cake-wide-teal-variant.jpg",
+   "role": "scene",
+   "note": "Wide: the cake in a different look (teal-white), Ana standing."
+  },
+  {
+   "file": "06-orig-orb-in-hands.jpg",
+   "role": "controller",
+   "note": "THE ORB: a round chrome lens-like barrel held in both hands; engraved scale rings; two small studs on the left."
+  },
+  {
+   "file": "07-orig-orb-fingers-rings.jpg",
+   "role": "controller",
+   "note": "THE ORB: fingers on the rings; knurled ring edges; studs; barrel opening on the right."
+  },
+  {
+   "file": "08-orig-orb-rings-scale-closeup.png",
+   "role": "controller",
+   "note": "THE ORB, close: engraved numerals on rings (35, 18, 00, 300), red index marks, two round buttons."
+  },
+  {
+   "file": "09-orig-table-children-flames.jpg",
+   "role": "scene",
+   "note": "Table, children, flames: the film lighting."
+  },
+  {
+   "file": "10-ours-weaver-operator-surface.jpg",
+   "role": "operator surface",
+   "note": "Our build: chrome five-ring barrel with a paper-white telemetry panel above it, in a dark chamber."
+  },
+  {
+   "file": "11-ours-weaver-panel-closeup.jpg",
+   "role": "operator surface",
+   "note": "Our build, close: ring labels (MAKE, SPONGE, BASE-DRUM, 50%), two keys, thumb actuators."
+  },
+  {
+   "file": "12-ours-film-page.jpg",
+   "role": "operator surface",
+   "note": "Our film page: the scene on top, the orb below, step captions."
+  },
+  {
+   "file": "13-ours-pad-landscape.jpg",
+   "role": "operator surface",
+   "note": "Our handheld pad: five vertical drums, thumb key, plus pad, channel keys."
+  },
+  {
+   "file": "14-ours-stage-reticle.jpg",
+   "role": "operator surface",
+   "note": "Our stage: the film reticle (segmented crescent, needles, labels) around the selected cake part."
+  }
+ ]
+}

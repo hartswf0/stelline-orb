@@ -1,0 +1,531 @@
+{
+ "when": "2026-11-06T09:07:41.952Z",
+ "fails": 1,
+ "results": [
+  {
+   "name": "weights sum to 1 (all 4 children, every vertex)",
+   "pass": true,
+   "measured": {
+    "maxAbsSumError": 3.73e-8,
+    "negative": 0,
+    "vertices": 19109
+   },
+   "tolerance": "< 1e-6, none negative",
+   "note": ""
+  },
+  {
+   "name": "CPU skinning == three.js SkinnedMesh.boneTransform",
+   "pass": true,
+   "measured": {
+    "max_m": 0
+   },
+   "tolerance": "< 1e-6 m",
+   "note": ""
+  },
+  {
+   "name": "bind pose reproduces the rest mesh",
+   "pass": true,
+   "measured": {
+    "max_m": 1.86e-9
+   },
+   "tolerance": "< 1e-6 m",
+   "note": ""
+  },
+  {
+   "name": "no candy-wrapper at forearm twist 150 (min ring area / rest)",
+   "pass": true,
+   "measured": {
+    "corrected": 0.862,
+    "naive": 0.081
+   },
+   "tolerance": ">= 0.80",
+   "note": ""
+  },
+  {
+   "name": "forearm volume at twist 150",
+   "pass": true,
+   "measured": {
+    "corrected": 0.914,
+    "naive": 0.831
+   },
+   "tolerance": ">= 0.88",
+   "note": ""
+  },
+  {
+   "name": "elbow zone volume, elbow 125/145/150",
+   "pass": true,
+   "measured": {
+    "corrected": [
+     0.986,
+     0.953,
+     0.945
+    ],
+    "naive": [
+     0.898,
+     0.882,
+     0.879
+    ]
+   },
+   "tolerance": "0.92 - 1.08",
+   "note": ""
+  },
+  {
+   "name": "shoulder zone volume, raise/forward/reach/fold",
+   "pass": true,
+   "measured": {
+    "corrected": [
+     0.943,
+     0.991,
+     1.006,
+     0.912,
+     0.965,
+     0.967
+    ],
+    "naive": [
+     0.85,
+     0.891,
+     0.944,
+     0.802,
+     0.914,
+     0.926
+    ]
+   },
+   "tolerance": "0.90 - 1.15",
+   "note": ""
+  },
+  {
+   "name": "sleeve badge area held (all stress poses)",
+   "pass": true,
+   "measured": {
+    "min": 1,
+    "max": 1,
+    "naiveMin": 0.9944,
+    "naiveMax": 1.0321
+   },
+   "tolerance": "|area-1| <= 0.02",
+   "note": ""
+  },
+  {
+   "name": "sleeve badge shape held (Procrustes residual / size)",
+   "pass": true,
+   "measured": {
+    "max": 0,
+    "naiveMax": 0.021
+   },
+   "tolerance": "<= 0.02",
+   "note": ""
+  },
+  {
+   "name": "fabric ring round the badge (feather band) total area",
+   "pass": true,
+   "measured": {
+    "min": 0.907,
+    "max": 1.108,
+    "worstTriangle": [
+     0.07,
+     2.58
+    ]
+   },
+   "tolerance": "0.75 - 1.35 (where the badge's strain goes)",
+   "note": ""
+  },
+  {
+   "name": "UV-seam duplicates stay welded under stress",
+   "pass": true,
+   "measured": {
+    "max_m": 5.1214730461904323e-17,
+    "pairsChecked": 7191
+   },
+   "tolerance": "< 1e-9 m",
+   "note": ""
+  },
+  {
+   "name": "elbow corrective weight is 1 at its key pose",
+   "pass": true,
+   "measured": {
+    "weight": 1
+   },
+   "tolerance": "1 +- 1e-6",
+   "note": ""
+  },
+  {
+   "name": "hands touch what they hold (palm vertex to grip point), proof run",
+   "pass": true,
+   "measured": {
+    "contactsMeasured": 48,
+    "max_m": 0.005,
+    "worst": {
+     "t": 14.933,
+     "child": 3,
+     "hand": "R",
+     "holding": "piping bag",
+     "d": 0.005
+    }
+   },
+   "tolerance": "< 0.010 m",
+   "note": ""
+  },
+  {
+   "name": "dress bow area/shape held through the proof run (child 1)",
+   "pass": true,
+   "measured": {
+    "samples": 55,
+    "areaMin": 1,
+    "areaMax": 1,
+    "shapeMax": 0
+   },
+   "tolerance": "|area-1| <= 0.02, shape <= 0.02",
+   "note": ""
+  },
+  {
+   "name": "sleeve badge area/shape held through the proof run (child 2)",
+   "pass": true,
+   "measured": {
+    "samples": 55,
+    "areaMin": 1,
+    "areaMax": 1,
+    "shapeMax": 0
+   },
+   "tolerance": "|area-1| <= 0.02, shape <= 0.02",
+   "note": ""
+  },
+  {
+   "name": "the whole cake is made, in order, by the children",
+   "pass": true,
+   "measured": [
+    "board",
+    "layer1",
+    "layer2",
+    "iceTop",
+    "iceSide",
+    "beads",
+    "write",
+    "candles",
+    "light",
+    "blow"
+   ],
+   "tolerance": "board..blow, all ten",
+   "note": ""
+  },
+  {
+   "name": "seven candles lit, then all seven out",
+   "pass": true,
+   "measured": {
+    "lit": 7,
+    "out": 7,
+    "beads": 28
+   },
+   "tolerance": "7 and 7",
+   "note": ""
+  },
+  {
+   "name": "page-side contact log (measured live in the page)",
+   "pass": false,
+   "measured": {
+    "CHILD 1 L board": {
+     "frames": 14,
+     "max_m": 0.00135,
+     "mean_m": 0.00091
+    },
+    "CHILD 1 R board": {
+     "frames": 14,
+     "max_m": 0.00135,
+     "mean_m": 0.00091
+    },
+    "CHILD 2 L layer1": {
+     "frames": 20,
+     "max_m": 0.00153,
+     "mean_m": 0.00053
+    },
+    "CHILD 2 R layer1": {
+     "frames": 20,
+     "max_m": 0.00153,
+     "mean_m": 0.00059
+    },
+    "CHILD 2 L layer2": {
+     "frames": 19,
+     "max_m": 0.0102,
+     "mean_m": 0.00228
+    },
+    "CHILD 2 R layer2": {
+     "frames": 19,
+     "max_m": 0.0102,
+     "mean_m": 0.00323
+    },
+    "CHILD 3 R spatula": {
+     "frames": 51,
+     "max_m": 0.00397,
+     "mean_m": 0.00172
+    },
+    "CHILD 3 L turntable rim": {
+     "frames": 87,
+     "max_m": 0.00028,
+     "mean_m": 0.00015
+    },
+    "CHILD 3 R piping bag": {
+     "frames": 54,
+     "max_m": 0.00515,
+     "mean_m": 0.00317
+    },
+    "CHILD 4 R candle": {
+     "frames": 25,
+     "max_m": 0.00389,
+     "mean_m": 0.00118
+    },
+    "CHILD 4 R taper": {
+     "frames": 31,
+     "max_m": 0.00132,
+     "mean_m": 0.00095
+    },
+    "CHILD 1 L table edge": {
+     "frames": 13,
+     "max_m": 0.00096,
+     "mean_m": 0.00094
+    },
+    "CHILD 1 R table edge": {
+     "frames": 13,
+     "max_m": 0.00096,
+     "mean_m": 0.00094
+    }
+   },
+   "tolerance": "< 0.010 m each",
+   "note": ""
+  }
+ ],
+ "stress": [
+  {
+   "pose": "raise 150",
+   "corrected": {
+    "elbow": 1,
+    "shoulder": 0.943,
+    "forearm": 1,
+    "minRing": 1
+   },
+   "naive": {
+    "elbow": 1,
+    "shoulder": 0.85,
+    "forearm": 1,
+    "minRing": 1
+   },
+   "badge": {
+    "area": 1,
+    "shape": 0,
+    "band": 1.066,
+    "bandMin": 0.39,
+    "bandMax": 2.21
+   },
+   "badgeNaive": {
+    "area": 1.021,
+    "shape": 0.0193
+   }
+  },
+  {
+   "pose": "raise 120 + forward",
+   "corrected": {
+    "elbow": 1.005,
+    "shoulder": 0.991,
+    "forearm": 1,
+    "minRing": 1
+   },
+   "naive": {
+    "elbow": 0.995,
+    "shoulder": 0.891,
+    "forearm": 1.001,
+    "minRing": 1
+   },
+   "badge": {
+    "area": 1,
+    "shape": 0,
+    "band": 0.979,
+    "bandMin": 0.08,
+    "bandMax": 1.39
+   },
+   "badgeNaive": {
+    "area": 1.007,
+    "shape": 0.0163
+   }
+  },
+  {
+   "pose": "raise 90",
+   "corrected": {
+    "elbow": 1.001,
+    "shoulder": 1.006,
+    "forearm": 1,
+    "minRing": 1
+   },
+   "naive": {
+    "elbow": 0.999,
+    "shoulder": 0.944,
+    "forearm": 1,
+    "minRing": 1
+   },
+   "badge": {
+    "area": 1,
+    "shape": 0,
+    "band": 0.907,
+    "bandMin": 0.07,
+    "bandMax": 1.17
+   },
+   "badgeNaive": {
+    "area": 0.9944,
+    "shape": 0.0118
+   }
+  },
+  {
+   "pose": "forward 140",
+   "corrected": {
+    "elbow": 1.001,
+    "shoulder": 0.912,
+    "forearm": 1,
+    "minRing": 1
+   },
+   "naive": {
+    "elbow": 0.999,
+    "shoulder": 0.802,
+    "forearm": 1,
+    "minRing": 1
+   },
+   "badge": {
+    "area": 1,
+    "shape": 0,
+    "band": 1.108,
+    "bandMin": 0.29,
+    "bandMax": 2.58
+   },
+   "badgeNaive": {
+    "area": 1.0321,
+    "shape": 0.021
+   }
+  },
+  {
+   "pose": "fold (elbow 150)",
+   "corrected": {
+    "elbow": 0.945,
+    "shoulder": 0.967,
+    "forearm": 1,
+    "minRing": 1
+   },
+   "naive": {
+    "elbow": 0.879,
+    "shoulder": 0.926,
+    "forearm": 1.016,
+    "minRing": 1
+   },
+   "badge": {
+    "area": 1,
+    "shape": 0,
+    "band": 1.006,
+    "bandMin": 0.11,
+    "bandMax": 2.08
+   },
+   "badgeNaive": {
+    "area": 1.0096,
+    "shape": 0.0075
+   }
+  },
+  {
+   "pose": "reach",
+   "corrected": {
+    "elbow": 1.003,
+    "shoulder": 0.965,
+    "forearm": 1,
+    "minRing": 1
+   },
+   "naive": {
+    "elbow": 0.997,
+    "shoulder": 0.914,
+    "forearm": 1,
+    "minRing": 1
+   },
+   "badge": {
+    "area": 1,
+    "shape": 0,
+    "band": 1.039,
+    "bandMin": 0.16,
+    "bandMax": 2.55
+   },
+   "badgeNaive": {
+    "area": 1.0164,
+    "shape": 0.0099
+   }
+  },
+  {
+   "pose": "elbow 125",
+   "corrected": {
+    "elbow": 0.986,
+    "shoulder": 1,
+    "forearm": 1,
+    "minRing": 1
+   },
+   "naive": {
+    "elbow": 0.898,
+    "shoulder": 1,
+    "forearm": 1.014,
+    "minRing": 1
+   },
+   "badge": {
+    "area": 1,
+    "shape": 0,
+    "band": 1,
+    "bandMin": 0.88,
+    "bandMax": 1.12
+   },
+   "badgeNaive": {
+    "area": 1,
+    "shape": 0
+   }
+  },
+  {
+   "pose": "elbow 145",
+   "corrected": {
+    "elbow": 0.953,
+    "shoulder": 1,
+    "forearm": 1,
+    "minRing": 1
+   },
+   "naive": {
+    "elbow": 0.882,
+    "shoulder": 1,
+    "forearm": 1.016,
+    "minRing": 1
+   },
+   "badge": {
+    "area": 1,
+    "shape": 0,
+    "band": 1,
+    "bandMin": 0.89,
+    "bandMax": 1.12
+   },
+   "badgeNaive": {
+    "area": 1,
+    "shape": 0
+   }
+  },
+  {
+   "pose": "forearm twist 150",
+   "corrected": {
+    "elbow": 0.985,
+    "shoulder": 1,
+    "forearm": 0.914,
+    "minRing": 0.862
+   },
+   "naive": {
+    "elbow": 0.997,
+    "shoulder": 1,
+    "forearm": 0.831,
+    "minRing": 0.081
+   },
+   "badge": {
+    "area": 1,
+    "shape": 0,
+    "band": 1,
+    "bandMin": 0.98,
+    "bandMax": 1.02
+   },
+   "badgeNaive": {
+    "area": 1,
+    "shape": 0
+   }
+  }
+ ]
+}

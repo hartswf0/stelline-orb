@@ -1,0 +1,104 @@
+{
+ "manual": false,
+ "fps": {
+  "medianFrameMs": 700,
+  "p90FrameMs": 1116.6
+ },
+ "url": "http://127.0.0.1:8731/stage.html",
+ "name": "stage",
+ "viewport": [
+  390,
+  844
+ ],
+ "view": {
+  "x": 0,
+  "y": 0,
+  "w": 390,
+  "h": 844,
+  "id": "gl"
+ },
+ "idle": {
+  "d100": 0,
+  "d1s": 0
+ },
+ "ops": [
+  {
+   "op": "STAGE.ring(0,+3)",
+   "err": null,
+   "opMs": 0.1,
+   "toFrameMs": 718.6,
+   "firstShotMs": 5204,
+   "d100": 0,
+   "d1s": 0,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "STAGE.ring(1,+3)",
+   "err": null,
+   "opMs": 0,
+   "toFrameMs": 726.9,
+   "firstShotMs": 5055,
+   "d100": 0,
+   "d1s": 0,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "STAGE.ring(2,+3)",
+   "err": null,
+   "opMs": 0.1,
+   "toFrameMs": 1101.3,
+   "firstShotMs": 7594,
+   "d100": 0,
+   "d1s": 0,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "STAGE.ring(3,+3)",
+   "err": null,
+   "opMs": 0,
+   "toFrameMs": 792.3,
+   "firstShotMs": 7019,
+   "d100": 0,
+   "d1s": 0,
+   "visible100": false,
+   "visible1s": false
+  },
+  {
+   "op": "STAGE.ring(4,+3)",
+   "err": null,
+   "opMs": 0.1,
+   "toFrameMs": 577.8,
+   "firstShotMs": 6391,
+   "d100": 0,
+   "d1s": 0,
+   "visible100": false,
+   "visible1s": false
+  }
+ ],
+ "errors": [
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+ ],
+ "handle": "STAGE"
+}

@@ -1,0 +1,70 @@
+/* ORB TOOL core: what the device's rings and buttons do, as ops. Pure (no drawing), so node tests can drive the device.
+   Rings: 0 SCALE (where you kneel around the memory), 1 KNEEL (how low), 2 KNURL (the selection's value), 3 TRIANGLES (its second value).
+   Browser global CORE_DEVMAP; node module.exports. */
+(function (root) {
+  'use strict';
+  const node = typeof module !== 'undefined' && module.exports, S = node ? require('./state.js') : root.CORE_STATE, O = node ? require('./ops.js') : root.CORE_OPS;
+  const RINGS = [{ id: 'scale', title: 'SCALE' }, { id: 'kneel', title: 'KNEEL' }, { id: 'knurl', title: 'KNURL' }, { id: 'tri', title: 'TRIANGLES' }];
+  const BUTTONS = { left: [['undo', 'UNDO'], ['redo', 'REDO'], ['keep', 'KEEP'], ['breed', 'BREED'], ['save', 'SAVE']], right: [['select', 'SELECT'], ['hold', 'HOLD'], ['make', 'MAKE'], ['accept', 'ACCEPT'], ['ask', 'ASK']] };
+  // which path a ring sets for the current selection, and what to call it
+  const TABLE = {
+    cake: [['cake.kind', 'WHICH CAKE'], ['cake.tilt', 'TILT']],
+    make: [['cake.stage', 'MAKING'], ['cake.genome.height', 'HEIGHT']],
+    inscription: [['inscription.written', 'THE INSCRIPTION'], ['cake.tilt', 'TILT']],
+    candles: [['candles.count', 'CANDLES'], ['candles.lit', 'LIT']],
+    room: [['scene.light', 'LIGHT'], ['scene.place', 'PLACE']]
+  };
+  function role(s, ring) {
+    if (ring === 0) return { path: 'camera.yaw', name: 'ANGLE' };
+    if (ring === 1) return { path: 'camera.kneel', name: 'KNEEL' };
+    const sel = s.selection; let row = TABLE[sel];
+    if (!row && /^child-/.test(sel)) row = [['people.' + sel + '.arrived', 'ARRIVING'], ['people.' + sel + '.offset', 'HER TIME']];
+    if (!row) return null; const [path, name] = row[ring - 2]; return S.locate(s, path) ? { path, name } : null; }
+  // the value a ring would reach after `detents` clicks from `cur`
+  function stepValue(s, path, cur, detents) { const sp = S.spec(path);
+    if (sp.kind === 'enum') { const i = sp.a.indexOf(cur), n = sp.a.length; return sp.a[(((i + detents) % n) + n) % n]; }
+    let v = cur + detents * sp.step;
+    if (path === 'camera.yaw') v = ((v + 180) % 360 + 360) % 360 - 180;   // the scale ring goes all the way round
+    return v; }
+  // a hand turning a ring by whole detents: one `set` (merged per gesture), or an amend of the agent's ghost on the same path
+  function turn(orb, ring, detents, meta) {
+    meta = Object.assign({ author: 'hand' }, meta || {}); detents = Math.round(detents); if (!detents) return { ok: true, same: true };
+    const s = orb.raw(), r = role(s, ring); if (!r) return { ok: false, error: 'this ring does nothing for ' + s.selection };
+    const ghost = s.proposals.find(p => O.ghostArg(p, r.path));
+    if (ghost) { const k = O.ghostArg(ghost, r.path); return orb.do({ op: 'amend', args: { id: ghost.id, args: { [k]: clampFor(s, r.path, stepValue(s, r.path, ghost.args[k], detents)) } } }, meta); }
+    // AUDIT R2: a ring always moves something you can see. A change that would not show is re-targeted to what makes it show
+    let path = r.path; const pre = [], why = [];
+    if (s.time.off) { pre.push({ op: 'switchOn', args: {} }); why.push('switched the memory on'); }
+    const cakePart = /^(inscription\.|candles\.|cake\.tilt|cake\.genome\.)/.test(path);
+    if (cakePart && s.cake.stage === 0) { const op = { op: 'set', args: { path: 'cake.kind', value: 0 } }; const res = orb.do(pre.concat([op]), meta); if (res.ok) res.retarget = why.concat('no cake yet: the ring made one').join('; '); return res; }
+    if (path === 'inscription.written' && s.cake.stage < 2 && detents > 0) { pre.push({ op: 'set', args: { path: 'cake.stage', value: 2 } }); why.push('frosted the cake to write on'); }
+    let m; if ((m = /^people\.(.+)\.offset$/.exec(path))) { const p = s.people.find(q => q.id === m[1]); if (p && p.arrived === 0) { path = 'people.' + m[1] + '.arrived'; why.push('she was not there: the ring brings her in'); } }
+    if (path === 'candles.lit' && s.candles.count === 0) { path = 'candles.count'; why.push('no candles: the ring adds them'); }
+    const op = { op: 'set', args: { path, value: stepValue(s, path, S.get(s, path), path === r.path ? detents : Math.abs(detents)) } };
+    const res = orb.do(pre.length ? pre.concat([op]) : op, pre.length ? Object.assign({}, meta, { gesture: null }) : meta); if (res.ok && why.length) res.retarget = why.join('; '); return res; }
+  function clampFor(s, path, v) { const c = S.coerce(s, path, v); return c.error ? v : c.value; }
+  // a button press; long is a press held past 650 ms. Returns the bus result, or { ui } for what the shell does itself
+  function press(orb, id, long, meta) {
+    meta = Object.assign({ author: 'hand' }, meta || {}); const s = orb.raw();
+    switch (id) {
+      case 'select': return orb.do({ op: 'select', args: { by: long ? -1 : 1 } }, meta);
+      case 'hold': if (s.time.off) return orb.do({ op: 'switchOn', args: {} }, meta);
+        if (!long && s.proposals.length) return orb.do({ op: 'accept', args: {} }, meta);   // with a ghost waiting, HOLD accepts it (as the brief had it)
+        if (long) return orb.do({ op: 'switchOff', args: {} }, meta);
+        return orb.do({ op: s.time.hold ? 'release' : 'hold', args: {} }, meta);
+      case 'make': return orb.do(long ? { op: 'make', args: { to: 0 } } : { op: 'make', args: {} }, meta);
+      case 'accept': return s.proposals.length ? orb.do({ op: long ? 'reject' : 'accept', args: {} }, meta) : { ok: false, error: 'no proposal waiting' };
+      case 'undo': return long ? orb.seek(0) : orb.do({ op: 'undo', args: {} }, meta);
+      case 'redo': return long ? { ok: true, ui: 'play' } : orb.do({ op: 'redo', args: {} }, meta);
+      case 'keep': return orb.do({ op: 'keep', args: {} }, meta);
+      case 'breed': { const n = s.library.length, a = s.cake.kind >= 0 ? s.cake.kind : (s.seq % n), b = (a + 1 + (s.seq % (n - 1 || 1))) % n;
+        return orb.do({ op: 'breed', args: { a, b: b === a ? (a + 1) % n : b, seed: s.seq + 1 } }, meta); }
+      case 'save': return { ok: true, ui: long ? 'load' : 'save' };
+      case 'ask': return { ok: true, ui: 'ask' };
+    }
+    return { ok: false, error: 'no button ' + id }; }
+  // a press is long when the button was down 650 ms or more, timed by the events' own timestamps (not by when the handler ran)
+  const LONG_MS = 650; function isLong(downStamp, upStamp) { return upStamp - downStamp >= LONG_MS; }
+  const API = { RINGS, BUTTONS, TABLE, role, turn, press, stepValue, isLong, LONG_MS };
+  if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.CORE_DEVMAP = API;
+})(typeof window !== 'undefined' ? window : globalThis);

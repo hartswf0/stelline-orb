@@ -1,0 +1,867 @@
+{
+ "url": "http://127.0.0.1:8731/hand-orb-v5.html",
+ "name": "v5",
+ "viewport": [
+  390,
+  844
+ ],
+ "loadMs": 1138,
+ "scroll": {
+  "docH": 844,
+  "docW": 390,
+  "vh": 844,
+  "vw": 390,
+  "overflowY": "hidden"
+ },
+ "pageScrolls": false,
+ "hScroll": false,
+ "view": {
+  "tag": "canvas",
+  "id": "orb",
+  "x": 0,
+  "y": 219.375,
+  "w": 390,
+  "h": 624.625,
+  "cls": ""
+ },
+ "legibility": {
+  "textNodes": 0,
+  "under12px": 0,
+  "under10px": 0,
+  "samples": []
+ },
+ "globals": [
+  "ST",
+  "CORE",
+  "ORB",
+  "ANATOMY",
+  "SCENE",
+  "HAND",
+  "LINK",
+  "APP"
+ ],
+ "controlCount": 0,
+ "smallTargets": 0,
+ "offscreen": 0,
+ "idle": [
+  {
+   "d100": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "ms": 6424
+  },
+  {
+   "d100": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 7.69,
+    "changedFrac": 0.2046
+   },
+   "ms": 5474
+  },
+  {
+   "d100": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "ms": 8799
+  }
+ ],
+ "idleMax": {
+  "d100": 0,
+  "d1s": 0.2046
+ },
+ "canvasGrid": [
+  {
+   "canvas": "scene",
+   "gx": 0,
+   "gy": 0,
+   "px": 49,
+   "py": 37,
+   "kind": "tap",
+   "firstShotMs": 3928,
+   "d100": {
+    "mean": 0.4,
+    "changedFrac": 0.008
+   },
+   "d1s": {
+    "mean": 4.45,
+    "changedFrac": 0.1951
+   },
+   "deviceDiff": {
+    "mean": 44.44,
+    "changedFrac": 0.8356
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "scene",
+   "gx": 0,
+   "gy": 0,
+   "px": 49,
+   "py": 37,
+   "kind": "dragUp",
+   "firstShotMs": 10770,
+   "d100": {
+    "mean": 0.6,
+    "changedFrac": 0.0037
+   },
+   "d1s": {
+    "mean": 0.6,
+    "changedFrac": 0.0037
+   },
+   "deviceDiff": {
+    "mean": 39.05,
+    "changedFrac": 0.854
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "scene",
+   "gx": 1,
+   "gy": 0,
+   "px": 146,
+   "py": 37,
+   "kind": "tap",
+   "firstShotMs": 5865,
+   "d100": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 0.99,
+    "changedFrac": 0.0044
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "scene",
+   "gx": 1,
+   "gy": 0,
+   "px": 146,
+   "py": 37,
+   "kind": "dragUp",
+   "firstShotMs": 15068,
+   "d100": {
+    "mean": 2.87,
+    "changedFrac": 0.0833
+   },
+   "d1s": {
+    "mean": 2.78,
+    "changedFrac": 0.0819
+   },
+   "deviceDiff": {
+    "mean": 40.16,
+    "changedFrac": 0.8816
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "REQFAIL http://127.0.0.1:8731/assets/v5/atlas/b06.jpg",
+    "Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": true,
+   "visible1s": false,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "scene",
+   "gx": 2,
+   "gy": 0,
+   "px": 244,
+   "py": 37,
+   "kind": "tap",
+   "firstShotMs": 5834,
+   "d100": {
+    "mean": 3.51,
+    "changedFrac": 0.1314
+   },
+   "d1s": {
+    "mean": 3.49,
+    "changedFrac": 0.1314
+   },
+   "deviceDiff": {
+    "mean": 52.06,
+    "changedFrac": 0.881
+   },
+   "sound": 0,
+   "newErrors": [
+    "REQFAIL http://127.0.0.1:8731/assets/v5/atlas/m07.png",
+    "Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES",
+    "REQFAIL http://127.0.0.1:8731/assets/v5/atlas/d07.png",
+    "Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES",
+    "REQFAIL http://127.0.0.1:8731/assets/v5/atlas/b07.jpg",
+    "Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": true,
+   "visible1s": false,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "scene",
+   "gx": 2,
+   "gy": 0,
+   "px": 244,
+   "py": 37,
+   "kind": "dragUp",
+   "firstShotMs": 19167,
+   "d100": null,
+   "d1s": null,
+   "deviceDiff": {
+    "mean": 17.02,
+    "changedFrac": 0.4828
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "scene",
+   "gx": 3,
+   "gy": 0,
+   "px": 341,
+   "py": 37,
+   "kind": "tap",
+   "firstShotMs": 5647,
+   "d100": {
+    "mean": 1.91,
+    "changedFrac": 0.0339
+   },
+   "d1s": {
+    "mean": 1.79,
+    "changedFrac": 0.03
+   },
+   "deviceDiff": {
+    "mean": 49.6,
+    "changedFrac": 0.9664
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": true,
+   "visible1s": false,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "scene",
+   "gx": 3,
+   "gy": 0,
+   "px": 341,
+   "py": 37,
+   "kind": "dragUp",
+   "firstShotMs": 647,
+   "d100": {
+    "mean": 30.07,
+    "changedFrac": 0.3027
+   },
+   "d1s": {
+    "mean": 30.83,
+    "changedFrac": 0.3034
+   },
+   "deviceDiff": {
+    "mean": 69.8,
+    "changedFrac": 0.9969
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": true,
+   "visible1s": false,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "scene",
+   "gx": 0,
+   "gy": 1,
+   "px": 49,
+   "py": 110,
+   "kind": "tap",
+   "firstShotMs": 8463,
+   "d100": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 44.38,
+    "changedFrac": 0.7936
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "REQFAIL http://127.0.0.1:8731/assets/v5/atlas/m12.png",
+    "Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES",
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "scene",
+   "gx": 0,
+   "gy": 1,
+   "px": 49,
+   "py": 110,
+   "kind": "dragUp",
+   "firstShotMs": 34586,
+   "d100": {
+    "mean": 0.63,
+    "changedFrac": 0.0006
+   },
+   "d1s": {
+    "mean": 0.63,
+    "changedFrac": 0.0006
+   },
+   "deviceDiff": {
+    "mean": 53.49,
+    "changedFrac": 0.8374
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "scene",
+   "gx": 1,
+   "gy": 1,
+   "px": 146,
+   "py": 110,
+   "kind": "tap",
+   "firstShotMs": 7274,
+   "d100": {
+    "mean": 3.31,
+    "changedFrac": 0.128
+   },
+   "d1s": {
+    "mean": 3.27,
+    "changedFrac": 0.1266
+   },
+   "deviceDiff": {
+    "mean": 32.42,
+    "changedFrac": 0.7492
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": true,
+   "visible1s": false,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "scene",
+   "gx": 1,
+   "gy": 1,
+   "px": 146,
+   "py": 110,
+   "kind": "dragUp",
+   "firstShotMs": 21191,
+   "d100": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 0.15,
+    "changedFrac": 0
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": false
+  },
+  {
+   "canvas": "scene",
+   "gx": 2,
+   "gy": 1,
+   "px": 244,
+   "py": 110,
+   "kind": "tap",
+   "firstShotMs": 6675,
+   "d100": {
+    "mean": 0.32,
+    "changedFrac": 0.0057
+   },
+   "d1s": null,
+   "deviceDiff": {
+    "mean": 51.09,
+    "changedFrac": 0.9605
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "scene",
+   "gx": 2,
+   "gy": 1,
+   "px": 244,
+   "py": 110,
+   "kind": "dragUp",
+   "firstShotMs": 17135,
+   "d100": {
+    "mean": 2.35,
+    "changedFrac": 0.0651
+   },
+   "d1s": null,
+   "deviceDiff": {
+    "mean": 50.91,
+    "changedFrac": 0.9529
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": true,
+   "visible1s": false,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "scene",
+   "gx": 3,
+   "gy": 1,
+   "px": 341,
+   "py": 110,
+   "kind": "tap",
+   "firstShotMs": 5176,
+   "d100": {
+    "mean": 0.28,
+    "changedFrac": 0.0068
+   },
+   "d1s": {
+    "mean": 0.24,
+    "changedFrac": 0.0063
+   },
+   "deviceDiff": {
+    "mean": 1.38,
+    "changedFrac": 0.0145
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "scene",
+   "gx": 3,
+   "gy": 1,
+   "px": 341,
+   "py": 110,
+   "kind": "dragUp",
+   "firstShotMs": 18564,
+   "d100": {
+    "mean": 0.91,
+    "changedFrac": 0.0037
+   },
+   "d1s": {
+    "mean": 0.91,
+    "changedFrac": 0.0037
+   },
+   "deviceDiff": {
+    "mean": 38.68,
+    "changedFrac": 0.8428
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "scene",
+   "gx": 0,
+   "gy": 2,
+   "px": 49,
+   "py": 183,
+   "kind": "tap",
+   "firstShotMs": 7463,
+   "d100": {
+    "mean": 0.25,
+    "changedFrac": 0.0055
+   },
+   "d1s": {
+    "mean": 0.22,
+    "changedFrac": 0.0052
+   },
+   "deviceDiff": {
+    "mean": 1.43,
+    "changedFrac": 0.0108
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "scene",
+   "gx": 0,
+   "gy": 2,
+   "px": 49,
+   "py": 183,
+   "kind": "dragUp",
+   "firstShotMs": 9572,
+   "d100": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 1.12,
+    "changedFrac": 0.0067
+   },
+   "deviceDiff": {
+    "mean": 49.54,
+    "changedFrac": 0.8339
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "scene",
+   "gx": 1,
+   "gy": 2,
+   "px": 146,
+   "py": 183,
+   "kind": "tap",
+   "firstShotMs": 5359,
+   "d100": {
+    "mean": 2.21,
+    "changedFrac": 0.0659
+   },
+   "d1s": {
+    "mean": 2.16,
+    "changedFrac": 0.0647
+   },
+   "deviceDiff": {
+    "mean": 47.79,
+    "changedFrac": 0.9458
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": true,
+   "visible1s": false,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "scene",
+   "gx": 1,
+   "gy": 2,
+   "px": 146,
+   "py": 183,
+   "kind": "dragUp",
+   "firstShotMs": 17631,
+   "d100": null,
+   "d1s": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 1.54,
+    "changedFrac": 0.0237
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "scene",
+   "gx": 2,
+   "gy": 2,
+   "px": 244,
+   "py": 183,
+   "kind": "tap",
+   "firstShotMs": 5586,
+   "d100": {
+    "mean": 1.97,
+    "changedFrac": 0.0564
+   },
+   "d1s": {
+    "mean": 1.97,
+    "changedFrac": 0.0565
+   },
+   "deviceDiff": {
+    "mean": 46.71,
+    "changedFrac": 0.9389
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": true,
+   "visible1s": false,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "scene",
+   "gx": 2,
+   "gy": 2,
+   "px": 244,
+   "py": 183,
+   "kind": "dragUp",
+   "firstShotMs": 11787,
+   "d100": {
+    "mean": 0.11,
+    "changedFrac": 0.0024
+   },
+   "d1s": {
+    "mean": 0.11,
+    "changedFrac": 0.0024
+   },
+   "deviceDiff": {
+    "mean": 3.13,
+    "changedFrac": 0.0629
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "scene",
+   "gx": 3,
+   "gy": 2,
+   "px": 341,
+   "py": 183,
+   "kind": "tap",
+   "firstShotMs": 3597,
+   "d100": {
+    "mean": 0.07,
+    "changedFrac": 0.0017
+   },
+   "d1s": {
+    "mean": 0.04,
+    "changedFrac": 0.0008
+   },
+   "deviceDiff": {
+    "mean": 3.02,
+    "changedFrac": 0.059
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": true
+  },
+  {
+   "canvas": "scene",
+   "gx": 3,
+   "gy": 2,
+   "px": 341,
+   "py": 183,
+   "kind": "dragUp",
+   "firstShotMs": 8742,
+   "d100": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "d1s": {
+    "mean": 0,
+    "changedFrac": 0
+   },
+   "deviceDiff": {
+    "mean": 1.55,
+    "changedFrac": 0.0237
+   },
+   "sound": 0,
+   "newErrors": [
+    "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+    "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+   ],
+   "visible100": false,
+   "visible1s": false,
+   "deviceChanged": true
+  }
+ ],
+ "gridSummary": {
+  "probes": 24,
+  "sceneChanged100": 8,
+  "sceneChanged1s": 8,
+  "deviceOnly": 14,
+  "nothing": 2,
+  "sound": 0
+ },
+ "results": [],
+ "tested": 0,
+ "noAuthority": [],
+ "authority100": 0,
+ "authority1s": 0,
+ "errors": [
+  "EXTERNAL (aborted in audit) https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&display=",
+  "REQFAIL s://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&display=swap",
+  "Failed to load resource: net::ERR_FAILED",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "REQFAIL http://127.0.0.1:8731/assets/v5/atlas/b06.jpg",
+  "Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://test.mosquitto.org:8081/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "REQFAIL http://127.0.0.1:8731/assets/v5/atlas/m07.png",
+  "Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES",
+  "REQFAIL http://127.0.0.1:8731/assets/v5/atlas/d07.png",
+  "Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES",
+  "REQFAIL http://127.0.0.1:8731/assets/v5/atlas/b07.jpg",
+  "Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES",
+  "WebSocket connection to 'wss://broker.emqx.io:8084/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET",
+  "WebSocket connection to 'wss://broker.hivemq.com:8884/mqtt' failed: Error in connection establishment: net::ERR_CONNECTION_RESET"
+ ],
+ "errorCount": 126,
+ "finalAudit": {
+  "audioStarts": 0,
+  "mediaPlays": 0,
+  "msgListeners": 0,
+  "keyListeners": 1,
+  "rafs": 0
+ }
+}
