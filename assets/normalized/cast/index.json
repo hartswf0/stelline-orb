@@ -1,0 +1,288 @@
+{
+ "bday_69": {
+  "file": "assets/normalized/cast/bday_69.webp",
+  "frames": 8,
+  "w": 488,
+  "h": 220,
+  "box": [
+   0,
+   0,
+   1280,
+   576
+  ],
+  "era": "1920s_bw"
+ },
+ "bday_55": {
+  "file": "assets/normalized/cast/bday_55.webp",
+  "frames": 8,
+  "w": 446,
+  "h": 220,
+  "box": [
+   0,
+   0,
+   1124,
+   554
+  ],
+  "era": "1920s_speakeasy"
+ },
+ "bday_67": {
+  "file": "assets/normalized/cast/bday_67.webp",
+  "frames": 8,
+  "w": 488,
+  "h": 220,
+  "box": [
+   0,
+   0,
+   1280,
+   576
+  ],
+  "era": "1920s_speakeasy"
+ },
+ "bday_18": {
+  "file": "assets/normalized/cast/bday_18.webp",
+  "frames": 8,
+  "w": 488,
+  "h": 220,
+  "box": [
+   0,
+   0,
+   1280,
+   576
+  ],
+  "era": "1950s_midcentury"
+ },
+ "bday_23": {
+  "file": "assets/normalized/cast/bday_23.webp",
+  "frames": 8,
+  "w": 488,
+  "h": 220,
+  "box": [
+   0,
+   0,
+   1280,
+   576
+  ],
+  "era": "1950s_midcentury"
+ },
+ "bday_25": {
+  "file": "assets/normalized/cast/bday_25.webp",
+  "frames": 8,
+  "w": 489,
+  "h": 212,
+  "box": [
+   0,
+   20,
+   1280,
+   576
+  ],
+  "era": "1950s_midcentury"
+ },
+ "bday_28": {
+  "file": "assets/normalized/cast/bday_28.webp",
+  "frames": 8,
+  "w": 488,
+  "h": 220,
+  "box": [
+   0,
+   0,
+   1280,
+   576
+  ],
+  "era": "1950s_midcentury"
+ },
+ "bday_29": {
+  "file": "assets/normalized/cast/bday_29.webp",
+  "frames": 8,
+  "w": 488,
+  "h": 220,
+  "box": [
+   0,
+   0,
+   1280,
+   576
+  ],
+  "era": "1950s_midcentury"
+ },
+ "bday_36": {
+  "file": "assets/normalized/cast/bday_36.webp",
+  "frames": 8,
+  "w": 488,
+  "h": 220,
+  "box": [
+   0,
+   0,
+   1280,
+   576
+  ],
+  "era": "1950s_midcentury"
+ },
+ "bday_37": {
+  "file": "assets/normalized/cast/bday_37.webp",
+  "frames": 8,
+  "w": 489,
+  "h": 217,
+  "box": [
+   0,
+   6,
+   1280,
+   576
+  ],
+  "era": "1950s_midcentury"
+ },
+ "bday_73": {
+  "file": "assets/normalized/cast/bday_73.webp",
+  "frames": 8,
+  "w": 488,
+  "h": 220,
+  "box": [
+   0,
+   0,
+   1280,
+   576
+  ],
+  "era": "1950s_midcentury"
+ },
+ "bday_21": {
+  "file": "assets/normalized/cast/bday_21.webp",
+  "frames": 8,
+  "w": 488,
+  "h": 220,
+  "box": [
+   0,
+   0,
+   1280,
+   576
+  ],
+  "era": "1970s_kodachrome"
+ },
+ "bday_26": {
+  "file": "assets/normalized/cast/bday_26.webp",
+  "frames": 8,
+  "w": 488,
+  "h": 220,
+  "box": [
+   0,
+   0,
+   1280,
+   576
+  ],
+  "era": "1980s_synthwave"
+ },
+ "bday_35": {
+  "file": "assets/normalized/cast/bday_35.webp",
+  "frames": 8,
+  "w": 488,
+  "h": 220,
+  "box": [
+   0,
+   0,
+   1280,
+   576
+  ],
+  "era": "1980s_synthwave"
+ },
+ "bday_27": {
+  "file": "assets/normalized/cast/bday_27.webp",
+  "frames": 8,
+  "w": 488,
+  "h": 220,
+  "box": [
+   0,
+   0,
+   1280,
+   576
+  ],
+  "era": "1990s_pastel"
+ },
+ "bday_54": {
+  "file": "assets/normalized/cast/bday_54.webp",
+  "frames": 8,
+  "w": 477,
+  "h": 220,
+  "box": [
+   31,
+   0,
+   1280,
+   576
+  ],
+  "era": "studio_craft"
+ },
+ "bday_16": {
+  "file": "assets/normalized/cast/bday_16.webp",
+  "frames": 8,
+  "w": 476,
+  "h": 220,
+  "box": [
+   33,
+   0,
+   1280,
+   576
+  ],
+  "era": "2049_chamber"
+ },
+ "bday_33": {
+  "file": "assets/normalized/cast/bday_33.webp",
+  "frames": 8,
+  "w": 488,
+  "h": 220,
+  "box": [
+   0,
+   0,
+   1280,
+   576
+  ],
+  "era": "2049_chamber"
+ },
+ "bday_34": {
+  "file": "assets/normalized/cast/bday_34.webp",
+  "frames": 8,
+  "w": 488,
+  "h": 220,
+  "box": [
+   0,
+   0,
+   1280,
+   576
+  ],
+  "era": "2049_chamber"
+ },
+ "bday_78": {
+  "file": "assets/normalized/cast/bday_78.webp",
+  "frames": 8,
+  "w": 488,
+  "h": 220,
+  "box": [
+   0,
+   0,
+   1280,
+   576
+  ],
+  "era": "2049_chamber"
+ },
+ "bday_45": {
+  "file": "assets/normalized/cast/bday_45.webp",
+  "frames": 8,
+  "w": 488,
+  "h": 220,
+  "box": [
+   0,
+   0,
+   1280,
+   576
+  ],
+  "era": "2049_cyberpunk"
+ },
+ "bday_49": {
+  "file": "assets/normalized/cast/bday_49.webp",
+  "frames": 8,
+  "w": 489,
+  "h": 218,
+  "box": [
+   0,
+   36,
+   1206,
+   576
+  ],
+  "era": "2049_cyberpunk"
+ }
+}

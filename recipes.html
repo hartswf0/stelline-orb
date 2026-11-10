@@ -88,6 +88,24 @@
   </div>
 </section>
 
+<h2>Every scene, built out</h2>
+<p class="lede">Each kept clip as a whole coded scene, 16 beats long: the Memory Weaver makes that clip's cake from the empty table, the clip's own people (cut from its own frames, eight poses across the bar) take the places they had in the plate, the candles are lit and blown out. Every one shares a camera, a grid and a clock: first candle on the downbeat of bar 3, the breath on beat 15. Each was filmed with the real controller beneath the stage and the reticle standing beside the cake, and each is audited against the standard: <b id="stdLine" style="color:#f0f4f2"></b></p>
+<section class="hero" style="margin-bottom:14px">
+  <video src="assets/normalized/build-outs.mp4" poster="assets/normalized/build-outs.jpg" controls playsinline preload="metadata"></video>
+  <div>
+    <ol style="margin-top:0">
+      <li><b>Beats 1 to 8</b>: the making, ring by ring, from the empty table.</li>
+      <li><b>Beats 9 to 12</b>: candles, then the people.</li>
+      <li><b>Beats 13 to 16</b>: the bar. Lit, then the breath on its third beat.</li>
+    </ol>
+    <div class="row"><a class="b solid" href="field-orb-06.html">Run them from the Archive Orb</a><a class="b" href="assets/normalized/build-outs.mp4" download>Download the cut</a></div>
+  </div>
+</section>
+<h2>Three more versions of the same material</h2>
+<div class="g" id="gVER" style="grid-template-columns:repeat(auto-fill,minmax(min(420px,100%),1fr))"></div>
+<h2>All 33, one by one</h2>
+<div class="g" id="gBO"></div>
+
 <h2>One grid, one bar: the corpus normalized</h2>
 <p class="lede">Every plate is zoomed and shifted until its cake stands where the orb puts its own (centre, crown line, width), and timed so its event falls on beat 3 of one four-beat bar. The orb then builds each plate's recipe and is filmed on that same grid for that same bar, with the party of its own era cut from the plates standing behind. Any frame can follow any other and the cake does not move.</p>
 <div class="g" id="gCUTS" style="grid-template-columns:repeat(auto-fill,minmax(min(420px,100%),1fr))"></div>
@@ -119,6 +137,8 @@
 </main>
 <script src="assets/recipes/index.js"></script>
 <script src="assets/normalized/index.js"></script>
+<script src="assets/normalized/builds/index.js"></script>
+<script src="assets/normalized/standard.js"></script>
 <script>
 var D = window.RECIPE_FILMS || { films: [], clips: [] }, esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
 D.films.forEach(function (f) { var g = document.getElementById('g' + f.shelf); if (!g) return; var el = document.createElement('figure');
@@ -128,6 +148,11 @@ D.films.forEach(function (f) { var g = document.getElementById('g' + f.shelf); i
     '<div class="row" style="margin-top:auto"><a class="b gold" href="field-orb-05.html?build=' + f.id + '">Build it live</a>' + (f.clip ? '<a class="b" href="BDAY%20TRAINING/' + encodeURIComponent(f.clip) + '">Clip</a>' : '') + '<a class="b" href="assets/recipes/' + f.id + '.mp4" download>MP4</a></div></figcaption>';
   g.appendChild(el); });
 (D.heroes || []).forEach(function (h) { var el = document.createElement('figure'); el.innerHTML = '<div class="vid"><video src="assets/recipes/hero/' + h.id + '_hero.mp4" poster="assets/recipes/hero/' + h.id + '_hero.jpg" loop muted playsinline preload="none"></video></div><figcaption><b>' + esc(h.title) + '</b><small>4.0 s orbit · blown out at 2.6 s</small><div class="row" style="margin-top:auto"><a class="b gold" href="field-orb-05.html?build=' + h.id + '">Build it live</a><a class="b" href="assets/recipes/hero/' + h.id + '_hero.mp4" download>MP4</a></div></figcaption>'; document.getElementById('gHERO').appendChild(el); });
+var STDX = window.STANDARD; if (STDX) document.getElementById('stdLine').textContent = STDX.passed + ' of ' + STDX.of + ' meet all ' + STDX.checks.length + ' checks (' + STDX.checks.join(', ').toLowerCase() + ').';
+[['from-the-film', 'From the film to the making', 'Opens on the film itself: the room before the cake, then the cake appearing. Where the making starts, every frame is made by the rings. Graded as 1970s film.'], ['video-to-game', 'Video to game', 'Seven clips, each honed in eight one-beat steps: the video, what is in it, the cake alone, the people alone, the cake made by ring, candles, its people returning, a scene you can play.'], ['reverse-inception', 'Reverse inception', 'The loop inside out. The made scene holds its coded twin, which holds the video it came from; then the video holds what was made from it. One breath at three depths.']].forEach(function (c) { var el = document.createElement('figure');
+  el.innerHTML = '<div class="vid"><video src="assets/normalized/' + c[0] + '.mp4" poster="assets/normalized/' + c[0] + '.jpg" controls playsinline preload="none"></video></div><figcaption><b>' + c[1] + '</b><small style="text-transform:none;letter-spacing:.01em;font-size:13px">' + c[2] + '</small><div class="row" style="margin-top:auto"><a class="b" href="field-orb-06.html?timeline=assets/normalized/timelines/' + c[0] + '.timeline.json">Open in the Archive Orb</a><a class="b" href="assets/normalized/' + c[0] + '.mp4" download>MP4</a></div></figcaption>'; document.getElementById('gVER').appendChild(el); });
+var BOX = window.BUILDOUTS || {};
+Object.keys(BOX).forEach(function (id) { var b = BOX[id], el = document.createElement('figure'); el.innerHTML = '<div class="vid pairv" style="background:#131412"><video src="assets/normalized/builds/' + id + '.mp4" loop muted playsinline preload="none" style="aspect-ratio:1280/576"></video>' + (b.controller ? '<video src="assets/normalized/builds/' + id + '_orb.mp4" loop muted playsinline preload="none" style="aspect-ratio:640/180;width:56%;margin:0 auto"></video>' : '') + '</div><figcaption><b>' + id.replace('_', ' ') + '</b><small>' + b.steps.length + ' steps · 16 beats · ' + (b.own_cast ? 'its own people' : 'no people in this plate') + '</small><details><summary>What the rings do</summary><ol>' + b.steps.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ol></details><div class="row" style="margin-top:auto"><a class="b gold" href="field-orb-05.html?build=' + id + '">Build it live</a><a class="b" href="assets/normalized/builds/' + id + '.mp4" download>MP4</a></div></figcaption>'; document.getElementById('gBO').appendChild(el); });
 var NZ = window.NORMALIZED || { clips: [] }, kept = NZ.clips.filter(function (c) { return c.keep; });
 [['one-grid', 'One grid, one bar', 'The whole culled corpus in era order: what the machine sees, arrivals and turns, plate into twin, every breath, a flicker of all bars on one frame, then all at once.'], ['nine-rooms', 'Nine rooms, one cake', 'One bar for each of the nine eras and rooms in the corpus. Left of the moving seam is the synthetic plate, right of it the coded twin: one cake made of two halves. Graded as 1970s anamorphic film, so the two halves read as one stock.'], ['the-breath', 'The breath', 'Every blow-out as plate, then as twin at double pace, then all together on beat 3. Graded as 1990s camcorder tape.'], ['the-turn', 'The turn', 'Every change of colour or form. On the beat before it the cake is shown alone, cut out by its mask.'], ['threes', 'The best threes', 'For each shot type, the three kept clips that share a palette and the three that stand apart, scored on colour and composition.']].forEach(function (c) { var el = document.createElement('figure');
   el.innerHTML = '<div class="vid"><video src="assets/normalized/' + c[0] + '.mp4" poster="assets/normalized/' + c[0] + '.jpg" controls playsinline preload="none"></video></div><figcaption><b>' + c[1] + '</b><small style="text-transform:none;letter-spacing:.01em;font-size:13px">' + c[2] + '</small><div class="row" style="margin-top:auto"><a class="b" href="assets/normalized/' + c[0] + '.mp4" download>MP4</a></div></figcaption>'; document.getElementById('gCUTS').appendChild(el); });
@@ -136,8 +161,8 @@ kept.forEach(function (c) { var el = document.createElement('figure'), v = funct
   el.innerHTML = '<div class="vid pair" style="font-size:0;background:#000">' + v('') + v('_twin') + '</div><figcaption><b>' + c.id.replace('_', ' ') + ' · ' + esc(c.era.replace(/_/g, ' ')) + '</b><small>' + c.event.kind + ' on beat 3 · zoom ×' + c.fit.zoom.toFixed(2) + ' · ' + Math.round(Math.abs(c.fit.dx)) + ' px off centre</small><div class="row" style="margin-top:auto"><a class="b gold" href="field-orb-05.html?build=' + c.id + '">Build it live</a></div></figcaption>'; document.getElementById('gNORM').appendChild(el); });
 document.getElementById('sDrop').textContent = (NZ.clips.length - kept.length) + ' dropped, with the reason';
 document.getElementById('gDROP').innerHTML = NZ.clips.filter(function (c) { return !c.keep; }).map(function (c) { return '<li><b style="color:#f0f4f2">' + c.id.replace('_', ' ') + '</b> · ' + esc(c.reasons.join('; ')) + '</li>'; }).join('');
-[].forEach.call(document.querySelectorAll('.pair'), function (p) { var vs = p.querySelectorAll('video'); p.addEventListener('mouseenter', function () { [].forEach.call(vs, function (v) { v.currentTime = 0; v.play().catch(function () {}); }); }); p.addEventListener('mouseleave', function () { [].forEach.call(vs, function (v) { v.pause(); }); }); });
+[].forEach.call(document.querySelectorAll('.pair, .pairv'), function (p) { var vs = p.querySelectorAll('video'); p.addEventListener('mouseenter', function () { [].forEach.call(vs, function (v) { v.currentTime = 0; v.play().catch(function () {}); }); }); p.addEventListener('mouseleave', function () { [].forEach.call(vs, function (v) { v.pause(); }); }); });
 document.getElementById('gCLIP').innerHTML = D.clips.map(function (c) { return '<a href="field-orb-05.html?build=' + c.id + '"><img src="' + esc(c.thumb) + '" alt="" loading="lazy"><span><i>' + c.id.toUpperCase() + ' · ' + esc(c.era.replace(/_/g, ' ').toUpperCase()) + '</i>' + esc(c.title) + '</span></a>'; }).join('');
-[].forEach.call(document.querySelectorAll('.vid:not(.pair) video:not([controls])'), function (v) { v.addEventListener('mouseenter', function () { v.play().catch(function () {}); }); v.addEventListener('mouseleave', function () { v.pause(); }); v.addEventListener('click', function () { v.paused ? v.play().catch(function () {}) : v.pause(); }); });
+[].forEach.call(document.querySelectorAll('.vid:not(.pair):not(.pairv) video:not([controls])'), function (v) { v.addEventListener('mouseenter', function () { v.play().catch(function () {}); }); v.addEventListener('mouseleave', function () { v.pause(); }); v.addEventListener('click', function () { v.paused ? v.play().catch(function () {}) : v.pause(); }); });
 </script>
 </body></html>

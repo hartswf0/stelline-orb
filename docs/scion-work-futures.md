@@ -88,6 +88,28 @@ The question was how to bring every clip, and every model made from a clip, onto
 
 **Orb 06, the Archive Orb** (`field-orb-06.html`). Five rings: `SHELF` (all kept, each shot type, each era, and the dropped clips with the reason each was dropped), `PLATE`, `VIEW` (plate, twin, seam, seen, cake only, people only, three, three apart), `LOOK`, `BEAT` (quarter beats through the bar). Keys: `PLAY` loops the bar, `LEN` sets shot length, `ADD` puts what is showing on the cut, `UNDO`, `PLAY CUT`, `SAVE` writes a `stelline-timeline/1` file. `?timeline=<url>` opens a written cut. Limits: the looks in the orb are previews (canvas filters), the assembler applies the real grade; `tiles`, `flicker` and `card` shots in an opened cut are shown as a label, not played; it operates the 33 normalized clips and their twins and browses the 44 dropped ones, not the other 139 videos in the repository.
 
+## 2e. Full Build-Outs: Each Scene With Its Own Cake, Its Own People, On One 16-Beat Clock
+
+**How many real 3D builds are filmed, and how.** Three kinds exist, and only the last is a whole scene:
+
+| Films | Count | What is filmed | On the grid | People |
+| :--- | :--- | :--- | :--- | :--- |
+| Recipe films (`assets/recipes/<id>.mp4`) | 47 | The build, with the orb in frame | No | The three chamber children |
+| Coded twins (`assets/normalized/bars/<id>_twin.mp4`) | 33 | The finished cake for one bar | Yes | One still sheet per era |
+| **Full build-outs** (`assets/normalized/builds/<id>.mp4`) | 33 | The build from the empty table, then the bar | Yes | **That clip's own, moving** (22 clips; 11 plates have no people) |
+
+**Its own people** (`tools/normalize/cast.py`). For each kept clip, eight frames spread over its bar are multiplied by its people mask and cropped: a sprite strip of that clip's faces and hands, with a gap where its cake was. The Memory Weaver loads it with the recipe (`setPlateCast`, `KIDS[14]`); `THE PARTY` then brings that cast, not the era sheet. In a build-out the strip follows the bar's clock, so they breathe out as the candles go out.
+
+**Put back where they stood** (`record_recipes.cjs --buildout`). The recipe is built once unseen to solve the grid camera, then built again from nothing and filmed through that locked camera. The cast sheet is sized and placed from the box it had in the plate, corrected for standing 0.44 m behind the cake.
+
+**One clock** (`tools/normalize/buildouts.py`). The making is retimed in two straight segments so the first candle lands on beat 9 (the downbeat of bar 3); the last four beats are the bar as filmed, breath on beat 15. `assets/normalized/builds/index.json` records each scene's steps and where its people arrive.
+
+**The standard, and its audit** (`tools/normalize/audit.py`, `assets/normalized/standard.json`). An early pass filmed the build-outs as a clean stage with no controller and no reticle. That is no longer accepted. A clip is up to standard only when all eight of these are measured true: `BAR` (78 frames, event on frame 39), `TWIN` (78 frames), `BUILD-OUT` (exactly 312 frames), `CONTROLLER` (the real orb filmed in the same pass, frame for frame as long as the build-out), `RETICLE` (the reference reticle: the programmed `)` crescent carried over from `orb-film-studio.html` into Orb 05, measured from the cake's bounds every frame so it stands to its right, no text; it was present in the SVG layer on the last filmed frame), `GRID` (the 3D cake within 12 px of centre, 16 px of width and 14 px of crown), `CLOCK` (first candle on beat 9), `PEOPLE` (the clip's own cast wherever the plate has people). The frame for anything the orb made is the stack (SCION Invariant 1): the picture above, the controller beneath it, never over it.
+
+**Four versions, one material** (`assets/normalized/timelines/`): `build-outs` (each era as plate, making, people, breath); `from-the-film` (the film's own two shots, the room before the cake and the cake appearing, then *the making starts* and everything after is made by the rings); `video-to-game` (seven clips honed in eight one-beat steps from video to a scene the orb plays); `reverse-inception` (the same bar nested at three depths, made scene ⊃ twin ⊃ video, then turned inside out). Two shot types were added for them: `film` (a stretch of the source film) and `nest`.
+
+**Limits.** The cast is a flat sheet cut with one mask for all eight poses, so anyone who moves outside the mask is clipped, and the sheet does not parallax. Where the plate's own candles fall inside the people mask they remain on the sheet, behind the orb's candles (cutting them out left candle-shaped holes). The cake is the recipe's reading of the plate, not its pixels (candle styles and decoration differ). The table and room are Orb 05's, the same in every scene. The 44 dropped clips have no build-out.
+
 ---
 
 ## 3. Copyable Prompts for Future AI SCION Work Futures

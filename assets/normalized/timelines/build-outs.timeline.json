@@ -1,0 +1,460 @@
+{
+ "format": "stelline-timeline/1",
+ "title": "EVERY SCENE, BUILT OUT",
+ "beat_s": 0.8126984,
+ "fps": 24,
+ "music": {
+  "file": "assets/audio/mix1_tizita_stelline_soul.mp3",
+  "phase_s": 0.4179592,
+  "from_beat": 34
+ },
+ "look": "camcorder90",
+ "poster_at": 0.2,
+ "shots": [
+  {
+   "beats": 3,
+   "op": "card",
+   "section": "",
+   "left": "",
+   "right": "",
+   "lines": [
+    [
+     "EVERY SCENE, BUILT OUT",
+     54,
+     [
+      240,
+      244,
+      242
+     ]
+    ],
+    [
+     "ITS OWN CAKE · ITS OWN PEOPLE · THE SAME 16 BEATS",
+     16,
+     [
+      255,
+      204,
+      102
+     ]
+    ]
+   ],
+   "fade_in": 10,
+   "fade_out": 1
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1920S BW · BDAY 69",
+   "left": "THE PLATE",
+   "right": "SYNTHETIC",
+   "clip": "bday_69",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1920S BW · BDAY 69",
+   "left": "THE MAKING, FROM THE EMPTY TABLE",
+   "right": "CODED · RING BY RING",
+   "clip": "bday_69",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1920S BW · BDAY 69",
+   "left": "CANDLES, THEN ITS OWN PEOPLE",
+   "right": "BAR 3",
+   "clip": "bday_69",
+   "at": 8.5
+  },
+  {
+   "beats": 3,
+   "op": "build",
+   "section": "1920S BW · BDAY 69",
+   "left": "THE BREATH",
+   "right": "BAR 4 · BEAT 3",
+   "clip": "bday_69",
+   "at": 12.75
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1920S SPEAKEASY · BDAY 67",
+   "left": "THE PLATE",
+   "right": "SYNTHETIC",
+   "clip": "bday_67",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1920S SPEAKEASY · BDAY 67",
+   "left": "THE MAKING, FROM THE EMPTY TABLE",
+   "right": "CODED · RING BY RING",
+   "clip": "bday_67",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1920S SPEAKEASY · BDAY 67",
+   "left": "CANDLES, THEN ITS OWN PEOPLE",
+   "right": "BAR 3",
+   "clip": "bday_67",
+   "at": 8.5
+  },
+  {
+   "beats": 3,
+   "op": "build",
+   "section": "1920S SPEAKEASY · BDAY 67",
+   "left": "THE BREATH",
+   "right": "BAR 4 · BEAT 3",
+   "clip": "bday_67",
+   "at": 12.75
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1950S MIDCENTURY · BDAY 28",
+   "left": "THE PLATE",
+   "right": "SYNTHETIC",
+   "clip": "bday_28",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1950S MIDCENTURY · BDAY 28",
+   "left": "THE MAKING, FROM THE EMPTY TABLE",
+   "right": "CODED · RING BY RING",
+   "clip": "bday_28",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1950S MIDCENTURY · BDAY 28",
+   "left": "CANDLES, THEN ITS OWN PEOPLE",
+   "right": "BAR 3",
+   "clip": "bday_28",
+   "at": 8.5
+  },
+  {
+   "beats": 3,
+   "op": "build",
+   "section": "1950S MIDCENTURY · BDAY 28",
+   "left": "THE BREATH",
+   "right": "BAR 4 · BEAT 3",
+   "clip": "bday_28",
+   "at": 12.75
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1970S KODACHROME · BDAY 21",
+   "left": "THE PLATE",
+   "right": "SYNTHETIC",
+   "clip": "bday_21",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1970S KODACHROME · BDAY 21",
+   "left": "THE MAKING, FROM THE EMPTY TABLE",
+   "right": "CODED · RING BY RING",
+   "clip": "bday_21",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1970S KODACHROME · BDAY 21",
+   "left": "CANDLES, THEN ITS OWN PEOPLE",
+   "right": "BAR 3",
+   "clip": "bday_21",
+   "at": 8.5
+  },
+  {
+   "beats": 3,
+   "op": "build",
+   "section": "1970S KODACHROME · BDAY 21",
+   "left": "THE BREATH",
+   "right": "BAR 4 · BEAT 3",
+   "clip": "bday_21",
+   "at": 12.75
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1980S SYNTHWAVE · BDAY 26",
+   "left": "THE PLATE",
+   "right": "SYNTHETIC",
+   "clip": "bday_26",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1980S SYNTHWAVE · BDAY 26",
+   "left": "THE MAKING, FROM THE EMPTY TABLE",
+   "right": "CODED · RING BY RING",
+   "clip": "bday_26",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1980S SYNTHWAVE · BDAY 26",
+   "left": "CANDLES, THEN ITS OWN PEOPLE",
+   "right": "BAR 3",
+   "clip": "bday_26",
+   "at": 8.5
+  },
+  {
+   "beats": 3,
+   "op": "build",
+   "section": "1980S SYNTHWAVE · BDAY 26",
+   "left": "THE BREATH",
+   "right": "BAR 4 · BEAT 3",
+   "clip": "bday_26",
+   "at": 12.75
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1990S PASTEL · BDAY 27",
+   "left": "THE PLATE",
+   "right": "SYNTHETIC",
+   "clip": "bday_27",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1990S PASTEL · BDAY 27",
+   "left": "THE MAKING, FROM THE EMPTY TABLE",
+   "right": "CODED · RING BY RING",
+   "clip": "bday_27",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1990S PASTEL · BDAY 27",
+   "left": "CANDLES, THEN ITS OWN PEOPLE",
+   "right": "BAR 3",
+   "clip": "bday_27",
+   "at": 8.5
+  },
+  {
+   "beats": 3,
+   "op": "build",
+   "section": "1990S PASTEL · BDAY 27",
+   "left": "THE BREATH",
+   "right": "BAR 4 · BEAT 3",
+   "clip": "bday_27",
+   "at": 12.75
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "STUDIO CRAFT · BDAY 54",
+   "left": "THE PLATE",
+   "right": "SYNTHETIC",
+   "clip": "bday_54",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "STUDIO CRAFT · BDAY 54",
+   "left": "THE MAKING, FROM THE EMPTY TABLE",
+   "right": "CODED · RING BY RING",
+   "clip": "bday_54",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "STUDIO CRAFT · BDAY 54",
+   "left": "CANDLES, THEN ITS OWN PEOPLE",
+   "right": "BAR 3",
+   "clip": "bday_54",
+   "at": 8.5
+  },
+  {
+   "beats": 3,
+   "op": "build",
+   "section": "STUDIO CRAFT · BDAY 54",
+   "left": "THE BREATH",
+   "right": "BAR 4 · BEAT 3",
+   "clip": "bday_54",
+   "at": 12.75
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "2049 CHAMBER · BDAY 34",
+   "left": "THE PLATE",
+   "right": "SYNTHETIC",
+   "clip": "bday_34",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "2049 CHAMBER · BDAY 34",
+   "left": "THE MAKING, FROM THE EMPTY TABLE",
+   "right": "CODED · RING BY RING",
+   "clip": "bday_34",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "2049 CHAMBER · BDAY 34",
+   "left": "CANDLES, THEN ITS OWN PEOPLE",
+   "right": "BAR 3",
+   "clip": "bday_34",
+   "at": 8.5
+  },
+  {
+   "beats": 3,
+   "op": "build",
+   "section": "2049 CHAMBER · BDAY 34",
+   "left": "THE BREATH",
+   "right": "BAR 4 · BEAT 3",
+   "clip": "bday_34",
+   "at": 12.75
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "2049 CYBERPUNK · BDAY 45",
+   "left": "THE PLATE",
+   "right": "SYNTHETIC",
+   "clip": "bday_45",
+   "layer": "plate",
+   "at": 1.5
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "2049 CYBERPUNK · BDAY 45",
+   "left": "THE MAKING, FROM THE EMPTY TABLE",
+   "right": "CODED · RING BY RING",
+   "clip": "bday_45",
+   "at": 1
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "2049 CYBERPUNK · BDAY 45",
+   "left": "CANDLES, THEN ITS OWN PEOPLE",
+   "right": "BAR 3",
+   "clip": "bday_45",
+   "at": 8.5
+  },
+  {
+   "beats": 3,
+   "op": "build",
+   "section": "2049 CYBERPUNK · BDAY 45",
+   "left": "THE BREATH",
+   "right": "BAR 4 · BEAT 3",
+   "clip": "bday_45",
+   "at": 12.75
+  },
+  {
+   "beats": 8,
+   "op": "tiles",
+   "section": "33 SCENES AT ONCE",
+   "left": "FIRST CANDLE ON THE DOWNBEAT OF BAR 3 · EVERY BREATH ON THE SAME BEAT",
+   "right": "ONE CLOCK",
+   "clips": [
+    "bday_69",
+    "bday_55",
+    "bday_67",
+    "bday_18",
+    "bday_23",
+    "bday_25",
+    "bday_28",
+    "bday_29",
+    "bday_36",
+    "bday_37",
+    "bday_39",
+    "bday_73",
+    "bday_21",
+    "bday_26",
+    "bday_35",
+    "bday_27",
+    "bday_54",
+    "bday_05",
+    "bday_13",
+    "bday_14",
+    "bday_16",
+    "bday_33",
+    "bday_34",
+    "bday_42",
+    "bday_44",
+    "bday_52",
+    "bday_64",
+    "bday_75",
+    "bday_78",
+    "bday_45",
+    "bday_49",
+    "bday_61",
+    "bday_63"
+   ],
+   "cols": 7,
+   "rows": 5,
+   "layer": "build",
+   "at": 8
+  },
+  {
+   "beats": 4,
+   "op": "card",
+   "section": "",
+   "left": "",
+   "right": "",
+   "lines": [
+    [
+     "33 FULL BUILD-OUTS · 16 BEATS EACH",
+     30,
+     [
+      240,
+      244,
+      242
+     ]
+    ],
+    [
+     "",
+     10,
+     [
+      0,
+      0,
+      0
+     ]
+    ],
+    [
+     "FILMED IN ORB 05 · RUN FROM ORB 06",
+     16,
+     [
+      102,
+      240,
+      216
+     ]
+    ]
+   ]
+  }
+ ],
+ "frame": "stack"
+}

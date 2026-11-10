@@ -1,0 +1,162 @@
+{
+ "fps": 24,
+ "beat_s": 0.8126984,
+ "look": "panavision70",
+ "duration_s": 53.625,
+ "shots": [
+  {
+   "shot": 0,
+   "t": 0.0,
+   "frames": 78,
+   "beats": 4,
+   "op": "film"
+  },
+  {
+   "shot": 1,
+   "t": 3.25,
+   "frames": 78,
+   "beats": 4,
+   "op": "film"
+  },
+  {
+   "shot": 2,
+   "t": 6.5,
+   "frames": 39,
+   "beats": 2,
+   "op": "card"
+  },
+  {
+   "shot": 3,
+   "t": 8.125,
+   "frames": 78,
+   "beats": 4,
+   "op": "build"
+  },
+  {
+   "shot": 4,
+   "t": 11.375,
+   "frames": 39,
+   "beats": 2,
+   "op": "build"
+  },
+  {
+   "shot": 5,
+   "t": 13.0,
+   "frames": 39,
+   "beats": 2,
+   "op": "build"
+  },
+  {
+   "shot": 6,
+   "t": 14.625,
+   "frames": 78,
+   "beats": 4,
+   "op": "build"
+  },
+  {
+   "shot": 7,
+   "t": 17.875,
+   "frames": 39,
+   "beats": 2,
+   "op": "build"
+  },
+  {
+   "shot": 8,
+   "t": 19.5,
+   "frames": 39,
+   "beats": 2,
+   "op": "build"
+  },
+  {
+   "shot": 9,
+   "t": 21.125,
+   "frames": 78,
+   "beats": 4,
+   "op": "build"
+  },
+  {
+   "shot": 10,
+   "t": 24.375,
+   "frames": 39,
+   "beats": 2,
+   "op": "build"
+  },
+  {
+   "shot": 11,
+   "t": 26.0,
+   "frames": 39,
+   "beats": 2,
+   "op": "build"
+  },
+  {
+   "shot": 12,
+   "t": 27.625,
+   "frames": 78,
+   "beats": 4,
+   "op": "build"
+  },
+  {
+   "shot": 13,
+   "t": 30.875,
+   "frames": 39,
+   "beats": 2,
+   "op": "build"
+  },
+  {
+   "shot": 14,
+   "t": 32.5,
+   "frames": 39,
+   "beats": 2,
+   "op": "build"
+  },
+  {
+   "shot": 15,
+   "t": 34.125,
+   "frames": 78,
+   "beats": 4,
+   "op": "build"
+  },
+  {
+   "shot": 16,
+   "t": 37.375,
+   "frames": 39,
+   "beats": 2,
+   "op": "build"
+  },
+  {
+   "shot": 17,
+   "t": 39.0,
+   "frames": 39,
+   "beats": 2,
+   "op": "build"
+  },
+  {
+   "shot": 18,
+   "t": 40.625,
+   "frames": 78,
+   "beats": 4,
+   "op": "build"
+  },
+  {
+   "shot": 19,
+   "t": 43.875,
+   "frames": 39,
+   "beats": 2,
+   "op": "build"
+  },
+  {
+   "shot": 20,
+   "t": 45.5,
+   "frames": 39,
+   "beats": 2,
+   "op": "build"
+  },
+  {
+   "shot": 21,
+   "t": 47.125,
+   "frames": 156,
+   "beats": 8,
+   "op": "tiles"
+  }
+ ]
+}

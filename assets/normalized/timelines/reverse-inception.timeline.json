@@ -1,0 +1,231 @@
+{
+ "format": "stelline-timeline/1",
+ "title": "REVERSE INCEPTION",
+ "beat_s": 0.8126984,
+ "fps": 24,
+ "music": {
+  "file": "assets/audio/mix1_tizita_stelline_soul.mp3",
+  "phase_s": 0.4179592,
+  "from_beat": 90
+ },
+ "look": "camcorder90",
+ "poster_at": 0.2,
+ "shots": [
+  {
+   "beats": 2,
+   "op": "card",
+   "section": "",
+   "left": "",
+   "right": "",
+   "lines": [
+    [
+     "REVERSE INCEPTION",
+     54,
+     [
+      240,
+      244,
+      242
+     ]
+    ],
+    [
+     "THE SAME BREATH AT THREE DEPTHS",
+     16,
+     [
+      255,
+      204,
+      102
+     ]
+    ]
+   ],
+   "fade_in": 6,
+   "fade_out": 1
+  },
+  {
+   "beats": 4,
+   "op": "nest",
+   "section": "1920S BW · BDAY 69",
+   "left": "THE MADE SCENE HOLDS ITS TWIN, WHICH HOLDS THE VIDEO",
+   "right": "OUTSIDE IN",
+   "clip": "bday_69",
+   "layers": [
+    "build",
+    "twin",
+    "plate"
+   ],
+   "at": 0
+  },
+  {
+   "beats": 4,
+   "op": "nest",
+   "section": "1920S BW · BDAY 69",
+   "left": "THE VIDEO HOLDS ITS TWIN, WHICH HOLDS THE MADE SCENE",
+   "right": "INSIDE OUT",
+   "clip": "bday_69",
+   "layers": [
+    "plate",
+    "twin",
+    "build"
+   ],
+   "at": 0
+  },
+  {
+   "beats": 4,
+   "op": "nest",
+   "section": "1920S SPEAKEASY · BDAY 67",
+   "left": "THE MADE SCENE HOLDS ITS TWIN, WHICH HOLDS THE VIDEO",
+   "right": "OUTSIDE IN",
+   "clip": "bday_67",
+   "layers": [
+    "build",
+    "twin",
+    "plate"
+   ],
+   "at": 0
+  },
+  {
+   "beats": 4,
+   "op": "nest",
+   "section": "1920S SPEAKEASY · BDAY 67",
+   "left": "THE VIDEO HOLDS ITS TWIN, WHICH HOLDS THE MADE SCENE",
+   "right": "INSIDE OUT",
+   "clip": "bday_67",
+   "layers": [
+    "plate",
+    "twin",
+    "build"
+   ],
+   "at": 0
+  },
+  {
+   "beats": 4,
+   "op": "nest",
+   "section": "1950S MIDCENTURY · BDAY 28",
+   "left": "THE MADE SCENE HOLDS ITS TWIN, WHICH HOLDS THE VIDEO",
+   "right": "OUTSIDE IN",
+   "clip": "bday_28",
+   "layers": [
+    "build",
+    "twin",
+    "plate"
+   ],
+   "at": 0
+  },
+  {
+   "beats": 4,
+   "op": "nest",
+   "section": "1950S MIDCENTURY · BDAY 28",
+   "left": "THE VIDEO HOLDS ITS TWIN, WHICH HOLDS THE MADE SCENE",
+   "right": "INSIDE OUT",
+   "clip": "bday_28",
+   "layers": [
+    "plate",
+    "twin",
+    "build"
+   ],
+   "at": 0
+  },
+  {
+   "beats": 4,
+   "op": "nest",
+   "section": "1970S KODACHROME · BDAY 21",
+   "left": "THE MADE SCENE HOLDS ITS TWIN, WHICH HOLDS THE VIDEO",
+   "right": "OUTSIDE IN",
+   "clip": "bday_21",
+   "layers": [
+    "build",
+    "twin",
+    "plate"
+   ],
+   "at": 0
+  },
+  {
+   "beats": 4,
+   "op": "nest",
+   "section": "1970S KODACHROME · BDAY 21",
+   "left": "THE VIDEO HOLDS ITS TWIN, WHICH HOLDS THE MADE SCENE",
+   "right": "INSIDE OUT",
+   "clip": "bday_21",
+   "layers": [
+    "plate",
+    "twin",
+    "build"
+   ],
+   "at": 0
+  },
+  {
+   "beats": 4,
+   "op": "nest",
+   "section": "1980S SYNTHWAVE · BDAY 26",
+   "left": "THE MADE SCENE HOLDS ITS TWIN, WHICH HOLDS THE VIDEO",
+   "right": "OUTSIDE IN",
+   "clip": "bday_26",
+   "layers": [
+    "build",
+    "twin",
+    "plate"
+   ],
+   "at": 0
+  },
+  {
+   "beats": 4,
+   "op": "nest",
+   "section": "1980S SYNTHWAVE · BDAY 26",
+   "left": "THE VIDEO HOLDS ITS TWIN, WHICH HOLDS THE MADE SCENE",
+   "right": "INSIDE OUT",
+   "clip": "bday_26",
+   "layers": [
+    "plate",
+    "twin",
+    "build"
+   ],
+   "at": 0
+  },
+  {
+   "beats": 4,
+   "op": "nest",
+   "section": "1990S PASTEL · BDAY 27",
+   "left": "THE MADE SCENE HOLDS ITS TWIN, WHICH HOLDS THE VIDEO",
+   "right": "OUTSIDE IN",
+   "clip": "bday_27",
+   "layers": [
+    "build",
+    "twin",
+    "plate"
+   ],
+   "at": 0
+  },
+  {
+   "beats": 4,
+   "op": "nest",
+   "section": "1990S PASTEL · BDAY 27",
+   "left": "THE VIDEO HOLDS ITS TWIN, WHICH HOLDS THE MADE SCENE",
+   "right": "INSIDE OUT",
+   "clip": "bday_27",
+   "layers": [
+    "plate",
+    "twin",
+    "build"
+   ],
+   "at": 0
+  },
+  {
+   "beats": 3,
+   "op": "card",
+   "section": "",
+   "left": "",
+   "right": "",
+   "lines": [
+    [
+     "WHAT THE ORB MAKES IS WHAT IT IS SHOWN NEXT",
+     30,
+     [
+      240,
+      244,
+      242
+     ]
+    ]
+   ]
+  }
+ ],
+ "frame": "stack"
+}

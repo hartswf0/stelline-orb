@@ -26,6 +26,7 @@
 <script src="assets/v6/qrcode.js"></script>
 <script src="assets/bday-training/handmade_models.js"></script>
 <script src="assets/bday-training/dataset.js"></script>
+<script src="assets/normalized/cast/index.js"></script>
 <script>
 /* MEMORY WEAVER. Two layers that never mix: the physical lab (glass, floor, ring light, the observer outside) and the memory (table, cake, icing, candles,
    children), which is solid while you build it and becomes light when you weave it. Every control is on the orb: five rings, five buttons, one display.
@@ -613,8 +614,8 @@ function dialApply(steps) { const t = verbTool(); S.amt += steps; gestureT = NOW
   if (t === 'LIGHT') { S.lightBoost = clamp((S.lightBoost || 1.25) + steps * .22, .15, 2.8); over.intensity = clamp(.78 + steps * .08, .2, 1.8); warm.intensity = clamp(.55 + steps * .08, .1, 1.4); showFrame(); say('CHAMBER & CANDLE LIGHT · ' + Math.round(S.lightBoost * 100) + '%'); return; }
   if (t === 'PARTY') { DOC.hasTable = true; const have = DOC.cast.find(c => KIDS[c.i].party);   // the era's whole cast, as one cut-out behind the table; a second click walks on to the next era
     if (steps < 0) { if (!have) { tick('dead'); return; } snapshot(); DOC.cast.splice(DOC.cast.indexOf(have), 1); syncFrameCast(); S.pickKey = 'cake'; say('THE PARTY GOES BACK INTO THE DARK'); showFrame(); return; }
-    const era = have ? (have.i - 6 + 1) % ERAS.length : clamp(S.plateEra || 0, 0, ERAS.length - 1); snapshot(); if (have) DOC.cast.splice(DOC.cast.indexOf(have), 1);
-    DOC.cast.push({ id: CASTID++, i: 6 + era, a: Math.PI / 2 - S.orbit.yaw + Math.PI, r: .5, yaw: 0, tilt: 0, lift: 0, op: 1, vis: 0, pose: 1 }); syncFrameCast(); shimmer(); say('THE ' + ERAS[era][1] + ' PARTY STANDS BEHIND THE TABLE'); showFrame(); return; }
+    const own = !have && S.plateCast && KIDS[14], era = have ? (have.i === 14 ? clamp(S.plateEra || 0, 0, ERAS.length - 1) : (have.i - 6 + 1) % ERAS.length) : clamp(S.plateEra || 0, 0, ERAS.length - 1); snapshot(); if (have) DOC.cast.splice(DOC.cast.indexOf(have), 1);
+    DOC.cast.push({ id: CASTID++, i: own ? 14 : 6 + era, a: Math.PI / 2 - S.orbit.yaw + Math.PI, r: .5, yaw: 0, tilt: 0, lift: 0, op: 1, vis: 0, pose: 1 }); syncFrameCast(); shimmer(); say(own ? 'ITS OWN PEOPLE, CUT FROM THE PLATE, STAND BEHIND THE TABLE' : 'THE ' + ERAS[era][1] + ' PARTY STANDS BEHIND THE TABLE'); showFrame(); return; }
   if (t === 'CHILD') { DOC.hasTable = true; for (let k = 0; k < Math.abs(steps); k++) steps > 0 ? addChild() : removeChild(); showFrame(); return; }
   if (t === 'SNUFF') { const F = curF(), C = F.items.filter(i => i.t === 'CANDLE'); if (!C.length) { say('NO CANDLES TO BLOW OUT'); tick('dead'); return; } snapshot(); for (let k = 0; k < Math.abs(steps); k++) { const c = steps > 0 ? C.find(i => !i.out) : C.slice().reverse().find(i => i.out); if (c) { c.out = !c.out; objOf.delete(c); } } showFrame(); const lit = C.filter(i => !i.out).length; say(lit ? lit + ' FLAMES LEFT' : 'ALL OUT · MAKE A WISH'); if (!lit) shimmer(); return; }
   if (!clayMesh) { say('NOTHING TO WORK · PUT DOWN A BASE FIRST'); tick('dead'); return; }
@@ -759,9 +760,15 @@ const kidTex = KIDS.map(k => { const t = new T.TextureLoader().load(k.path || 'a
     for (let y = 0; y < h; y += 2) for (let u = 0; u < w; u += 2) { const idx = (y * w + u) * 4; if (d[idx + 3] > 64) pts.push([u / w - .5, .5 - y / h, d[idx] / 255, d[idx + 1] / 255, d[idx + 2] / 255]); }
     k.pts = pts; mistDirty = true; } catch (e) { }
   castDirty = true; }); t.encoding = T.sRGBEncoding; return t; });
+// 14: the plate's own cast. Where a clip's people were cut out of its own frames (tools/normalize/cast.py), the loaded recipe brings them, not the era sheet:
+// eight poses across the clip's bar, so they move, and they are that clip's people and nobody else's.
+function setPlateCast(id) { const m = window.PLATE_CAST && window.PLATE_CAST[id]; S.plateCast = m ? id : null; if (!m) return;
+  KIDS[14] = { label: 'PARTY · ' + id.toUpperCase().replace('_', ' '), frames: m.frames, fps: m.frames / 3.2508, h: .6, base: TABLE_Y - .13, da: 0, party: true, bar: true, aspect: m.w / m.h, box: m.box, pts: [] };
+  const t = new T.TextureLoader().load(m.file, tt => { tt.repeat.set(1 / m.frames, 1); castDirty = true; }); t.encoding = T.sRGBEncoding; kidTex[14] = t; }
 const CASTG = new T.Group(); MEM.add(CASTG); const castMesh = {}; let castDirty = true;
 const CAST_ONION = new T.Group(); MEM.add(CAST_ONION); const castOnionMesh = {};
 function castObj(c) { if (castMesh[c.id]) return castMesh[c.id]; const k = KIDS[c.i]; const m = new T.Mesh(new T.PlaneGeometry(1, 1), holo(new T.MeshStandardMaterial({ map: kidTex[c.i], emissiveMap: kidTex[c.i], emissive: 0xffd4a6, emissiveIntensity: .16, color: 0xfff2e2, roughness: .64, metalness: .04, transparent: true, alphaTest: .06, side: T.DoubleSide, depthWrite: true })));
+  if (k.bar) m.material.emissiveIntensity = .55;   // a plate's own cast carries the plate's light with it
   m.material.customProgramCacheKey = () => 'holo-kid'; m.userData.cast = c.id; CASTG.add(m); castMesh[c.id] = m; return m; }
 function castOnionObj(c) { if (castOnionMesh[c.id]) return castOnionMesh[c.id]; const m = new T.Mesh(new T.PlaneGeometry(1, 1), new T.MeshBasicMaterial({ map: kidTex[c.i], color: 0x5ff0dc, transparent: true, opacity: .24, alphaTest: .08, side: T.DoubleSide, depthWrite: false, toneMapped: false }));
   CAST_ONION.add(m); castOnionMesh[c.id] = m; return m; }
@@ -770,7 +777,7 @@ function placeCast(dt) { const list = S.tweenCast || DOC.cast;
   const cp = cam.position.clone(); MEM.worldToLocal(cp);
   list.forEach(c => { const m = castObj(c), k = KIDS[c.i], asp = k.aspect || .7; const prevVis = c.vis || 0; c.vis = (c.vis == null ? (c.op || 1) : c.vis) + ((c.op || 0) - (c.vis == null ? (c.op || 1) : c.vis)) * Math.min(1, dt * 6.0);
     if (Math.abs(c.vis - prevVis) > .02) mistDirty = true;
-    if (k.frames > 1 && kidTex[c.i]) { const fi = Math.floor(NOW * (k.fps || 10) + c.i * 5) % k.frames; kidTex[c.i].offset.x = fi / k.frames; }
+    if (k.frames > 1 && kidTex[c.i]) { const fi = k.bar && S.barT != null ? clamp(Math.floor(S.barT / 3.2508 * k.frames), 0, k.frames - 1) : Math.floor(NOW * (k.fps || 10) + c.i * 5) % k.frames; kidTex[c.i].offset.x = fi / k.frames; }      // a plate's cast follows the bar's clock when one is running
     const hh = k.h * (c.s || 1) * (c.sh || 1); m.scale.set(k.h * asp * (c.s || 1) * (c.sw || 1), hh, 1); m.position.set(Math.cos(c.a) * c.r, k.base + hh / 2 + (c.lift || 0), Math.sin(c.a) * c.r);
     m.lookAt(MEM.localToWorld(new T.Vector3(cp.x, m.position.y, cp.z))); m.rotateY((c.yaw || 0) * Math.PI / 180); m.rotateX(-(c.tilt || 0) * Math.PI / 180); m.rotateZ((c.roll || 0) * Math.PI / 180);
     m.material.opacity = c.vis; m.visible = c.vis > .02; });
@@ -826,7 +833,8 @@ function driveReticle(R0, dt, want) { const k = Math.min(1, dt * 7);
   g.traverse(o => { if (o.material && o.material !== R0.bm) o.material.opacity = (o === R0.cur ? 1 : o === R0.txt ? .95 : o.material === R0.inner.material ? .55 : .7) * R0.alpha; }); R0.bm.opacity = .9 * R0.alpha; }
 const RT = { main: makeReticle(false), kids: {}, rot: 0, cur: 0, pop: 0 };
 // what the main reticle reads in each mode: which ring value it shows as the cursor, the spin of its segments, and its three lines
-function reticleWant() { return null; const tw = targetWorld(); if ((!clayMesh && !DOC.cast.length) || S.exporting || S.mode === 'MAKE') return null;
+function reticleWant() { if (!S.reticleAside || S.reticleAside === 'crescent') return null;   // ?reticle=aside (or S.reticleAside): the film's reticle, one segmented arc standing to the right of what the rings act on, no text round the cake
+  const tw0 = targetWorld(), tw = S.mode === 'MAKE' || S.mode === 'RECIPE' ? Object.assign({}, tw0, { c: CAKE.getWorldPosition(new T.Vector3()).add(new T.Vector3(0, .05, 0)), r: .13, kind: 'cake' }) : tw0; if ((!clayMesh && !DOC.cast.length) || S.exporting) return null;
   const RS = rings(), li = S.lastRing >= 0 ? S.lastRing : 2, r = RS[li] || RS[2]; const cv = v01(r);
   RT.cur = cv; RT.rot = (S.spinAcc || 0);
   const camR = new T.Vector3(1, 0, 0).applyQuaternion(cam.quaternion), camU = new T.Vector3(0, 1, 0).applyQuaternion(cam.quaternion);
@@ -836,7 +844,7 @@ function reticleWant() { return null; const tw = targetWorld(); if ((!clayMesh &
   q.multiply(new T.Quaternion().setFromEuler(new T.Euler(tilt * Math.PI / 360, -.42, 0)));   // turned toward the target, and leaning with its tilt: the angle shows
   const fmt = n => (RS[n] ? RS[n].n.toLowerCase().replace(/ /g, '_') + '  ' + RS[n].f(RS[n].v()).toLowerCase() : '');
   const lines = [curNode().name.toLowerCase().replace(/ /g, '_') + '_' + S.mode.toLowerCase(), fmt(2) + '   ' + fmt(3), fmt(4)];
-  return { pos, q, sc: tw.r * (tw.kind === 'child' ? .42 : .55), spin: RT.rot, cur: cv, lines }; }
+  return { pos, q, sc: tw.r * (tw.kind === 'child' ? .42 : .55), spin: RT.rot, cur: cv, lines: S.reticleAside === 'bare' ? [] : lines }; }
 function updFilmReticles(dt) { RT.pop = Math.max(0, (RT.pop || 0) - dt * 3); const w = reticleWant(); driveReticle(RT.main, dt, w);
   const cmr = RT.main.pos; if (cmr) { retLight.position.copy(cmr).add(new T.Vector3(0, .25, .2)); retLight.intensity = .9 * RT.main.alpha; }
   // a small reticle over each child, its leader running down to the head
@@ -1063,7 +1071,98 @@ function clickPick(x, y) { ndc.set(x / roomEl.clientWidth * 2 - 1, -y / roomEl.c
 /* =============================================================== THE TARGET ARC: whisper-thin broken target ring only while actively turning a dial; zero side-text clutter */
 const dataSVG = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); dataSVG.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;font-family:ui-monospace,Menlo,monospace'; roomEl.append(dataSVG);
 const GRN = '#7dff8a';
+/* THE REFERENCE RETICLE, carried over unchanged from orb-film-studio.html: the film's `)` crescent of smoked glass. It is measured from the cake's bounds on
+   screen every frame, so it always stands to the right of the cake with its open side toward it, and its two needles and bright pip are driven by the ring
+   last turned and the HEIGHT ring. ?reticle=aside (S.reticleAside = 'crescent') turns it on; it is the reticle of record for every filmed build-out. */
+const ASIDE_STATE = { x: null, y: null, r: 64, n1: -1.18, n2: 0.46, pip: 0.24, alpha: 0 };
+function drawAsideReferenceReticle(W, H) {
+  if (!clayMesh && !DOC.cast.length) { ASIDE_STATE.alpha *= 0.82; if (ASIDE_STATE.alpha < 0.02) { dataSVG.innerHTML = ''; return; } }
+  else { ASIDE_STATE.alpha += (1 - ASIDE_STATE.alpha) * 0.18; }
+  // Measure cake screen bounds so the crescent ALWAYS stands cleanly to the RIGHT of the cake, curving `)` (concave side facing the cake!)
+  const targetObj = clayMesh || plate;
+  const bb = boxOf(targetObj);
+  if (!bb) { dataSVG.innerHTML = ''; return; }
+  const [x0, y0, x1, y1] = bb;
+  const cakeH = Math.max(54, y1 - y0), cakeCy = (y0 + y1) * 0.5;
+  const wantR = clamp(cakeH * 0.46, 44, Math.min(92, H * 0.21));
+  // Place center of curvature to the right of cake's right edge `x1`, so the arc `[-102deg .. +66deg]` sweeps FURTHER right `)` with its open concave cup facing the cake!
+  const wantX = clamp(x1 + wantR * 0.42, W * 0.44, W - wantR * 1.22);
+  const wantY = clamp(cakeCy + wantR * 0.04, wantR * 1.15, H - wantR * 1.15);
+  if (ASIDE_STATE.x == null) { ASIDE_STATE.x = wantX; ASIDE_STATE.y = wantY; ASIDE_STATE.r = wantR; }
+  ASIDE_STATE.x += (wantX - ASIDE_STATE.x) * 0.18;
+  ASIDE_STATE.y += (wantY - ASIDE_STATE.y) * 0.18;
+  ASIDE_STATE.r += (wantR - ASIDE_STATE.r) * 0.18;
+
+  const RS = rings();
+  const rMain = RS[S.lastRing >= 0 ? S.lastRing : 2] || RS[2];
+  const rHeight = RS[3] || RS[2];
+  const uMain = v01(rMain), uHeight = v01(rHeight);
+  // Needle 1 in upper sector (-84deg .. -32deg), Needle 2 in lower-right sector (+8deg .. +54deg), bright pip (+2deg .. +38deg)
+  const wantN1 = (-84 + uHeight * 52) * Math.PI / 180;
+  const wantN2 = (8 + uMain * 46) * Math.PI / 180;
+  const wantPip = (-18 + uMain * 54) * Math.PI / 180;
+  ASIDE_STATE.n1 += (wantN1 - ASIDE_STATE.n1) * 0.24;
+  ASIDE_STATE.n2 += (wantN2 - ASIDE_STATE.n2) * 0.24;
+  ASIDE_STATE.pip += (wantPip - ASIDE_STATE.pip) * 0.24;
+
+  const cx = ASIDE_STATE.x, cy = ASIDE_STATE.y, R0 = ASIDE_STATE.r, R1 = R0 * 0.79, op = ASIDE_STATE.alpha;
+  const deg2rad = d => d * Math.PI / 180;
+  const annularSector = (d0, d1, rIn, rOut) => {
+    const a0 = deg2rad(d0), a1 = deg2rad(d1), lg = (d1 - d0) > 180 ? 1 : 0;
+    const xA = cx + Math.cos(a0) * rOut, yA = cy + Math.sin(a0) * rOut;
+    const xB = cx + Math.cos(a1) * rOut, yB = cy + Math.sin(a1) * rOut;
+    const xC = cx + Math.cos(a1) * rIn,  yC = cy + Math.sin(a1) * rIn;
+    const xD = cx + Math.cos(a0) * rIn,  yD = cy + Math.sin(a0) * rIn;
+    return `M${xA.toFixed(1)} ${yA.toFixed(1)} A${rOut.toFixed(1)} ${rOut.toFixed(1)} 0 ${lg} 1 ${xB.toFixed(1)} ${yB.toFixed(1)} L${xC.toFixed(1)} ${yC.toFixed(1)} A${rIn.toFixed(1)} ${rIn.toFixed(1)} 0 ${lg} 0 ${xD.toFixed(1)} ${yD.toFixed(1)} Z`;
+  };
+  const arcLine = (d0, d1, rr) => {
+    const a0 = deg2rad(d0), a1 = deg2rad(d1), lg = (d1 - d0) > 180 ? 1 : 0;
+    return `M${(cx + Math.cos(a0) * rr).toFixed(1)} ${(cy + Math.sin(a0) * rr).toFixed(1)} A${rr.toFixed(1)} ${rr.toFixed(1)} 0 ${lg} 1 ${(cx + Math.cos(a1) * rr).toFixed(1)} ${(cy + Math.sin(a1) * rr).toFixed(1)}`;
+  };
+
+  // Build smoked-glass segmented crescent matching the film reference (`media_1794281009378_dc5ce6a3.png`):
+  // Sweeps clockwise from -102deg (11:30) through 0deg (3:00, convex right belly) to +66deg (5:15), opening LEFT toward the cake!
+  const segs = [
+    [-102, -88, 0.10],
+    [-87,  -71, 0.26],
+    [-69,  -46, 0.34],
+    [-45,  -12, 0.28],
+    [-11,    3, 0.19],
+    // dark optical notch at 3..7deg, then bright glass facet, then main lower crescent tapering out
+    [  7,   16, 0.46],
+    [ 19,   44, 0.28],
+    [ 45,   58, 0.18],
+    [ 59,   68, 0.08]
+  ];
+  let s = `<g opacity="${op.toFixed(3)}">`;
+  for (const [d0, d1, a] of segs) {
+    s += `<path d="${annularSector(d0, d1, R1, R0)}" fill="rgba(226, 236, 234, ${a})"/>`;
+  }
+  // Live sliding bright specular indicator block inside the band
+  const pipDeg = ASIDE_STATE.pip * 180 / Math.PI;
+  s += `<path d="${annularSector(pipDeg - 3.2, pipDeg + 3.2, R1 * 1.01, R0 * 0.99)}" fill="rgba(248, 252, 251, 0.82)"/>`;
+
+  // Crisp outer & inner optical bezel hairlines
+  s += `<path d="${arcLine(-92, 60, R0 * 0.965)}" fill="none" stroke="rgba(236, 245, 243, 0.62)" stroke-width="1.25"/>`;
+  s += `<path d="${arcLine(-78, 48, R1)}" fill="none" stroke="rgba(215, 228, 226, 0.24)" stroke-width="0.9"/>`;
+
+  // Two fine inward-pointing radial gauge needles (extending INWARD past inner rim toward center of curvature, just like the film!)
+  const n1c = Math.cos(ASIDE_STATE.n1), n1s = Math.sin(ASIDE_STATE.n1);
+  const n2c = Math.cos(ASIDE_STATE.n2), n2s = Math.sin(ASIDE_STATE.n2);
+  s += `<line x1="${(cx + n1c * R0 * 1.02).toFixed(1)}" y1="${(cy + n1s * R0 * 1.02).toFixed(1)}" x2="${(cx + n1c * R0 * 0.52).toFixed(1)}" y2="${(cy + n1s * R0 * 0.52).toFixed(1)}" stroke="rgba(238, 246, 244, 0.78)" stroke-width="1.2"/>`;
+  s += `<line x1="${(cx + n2c * R0 * 1.03).toFixed(1)}" y1="${(cy + n2s * R0 * 1.03).toFixed(1)}" x2="${(cx + n2c * R0 * 0.58).toFixed(1)}" y2="${(cy + n2s * R0 * 0.58).toFixed(1)}" stroke="rgba(238, 246, 244, 0.72)" stroke-width="1.15"/>`;
+
+  // Whisper-faint optical micro-datum rule toward the cake's lower-right edge (no readable text, pure optical horizon whisper)
+  const dy = cy + R0 * 0.34, dx0 = Math.min(cx - R0 * 0.15, x1 + 10), dx1 = cx + R0 * 0.56;
+  if (dx1 > dx0 + 12) {
+    s += `<line x1="${dx0.toFixed(1)}" y1="${dy.toFixed(1)}" x2="${dx1.toFixed(1)}" y2="${dy.toFixed(1)}" stroke="rgba(218, 230, 228, 0.18)" stroke-width="0.9" stroke-dasharray="14 4 6 4"/>`;
+    s += `<line x1="${(dx0 + 8).toFixed(1)}" y1="${(dy + 4).toFixed(1)}" x2="${(dx1 - 18).toFixed(1)}" y2="${(dy + 4).toFixed(1)}" stroke="rgba(218, 230, 228, 0.11)" stroke-width="0.8" stroke-dasharray="8 3 18 5"/>`;
+  }
+  s += `</g>`;
+  dataSVG.innerHTML = s;
+}
 function updDataReticle() {
+  if (S.reticleAside === 'crescent' && !S.exporting && !PHONE) { drawAsideReferenceReticle(roomEl.clientWidth, roomEl.clientHeight); return; }
   if (S.exporting || PHONE) { dataSVG.innerHTML = ''; return; }
   let out = '';
   const age = NOW - gestureT;
@@ -1108,7 +1207,7 @@ function letterRuns(txt) { if (!clayMesh || !txt) return []; const g = clayMesh.
    compiled into the orb's own gestures, the same ring clicks a hand would make, and performed where you can watch them: nothing appears that a ring did not do.
    RECIPE mode: ring 2 chooses a shelf (the film's six, the 41 archetypes, the 77 clips), ring 3 a plate, ring 4 the pace, ring 5 builds it. Touch any ring or key while it builds and the book lets go: the cake stays as it is, yours to finish.
    ?build=<id> opens on a recipe (a film id, an archetype id, or bday_NN) · &pace=1..12 · &say=TEXT writes your own words in place of the plate's. */
-const QS = new URLSearchParams(location.search);
+const QS = new URLSearchParams(location.search); if (QS.get('reticle') === 'aside') S.reticleAside = 'crescent'; else if (QS.get('reticle') === 'ring') S.reticleAside = 'bare';
 const BASE_DIM = { DRUM: [.12, .09, .112], DOME: [.12, .12, .05], TIERS: [.13, .135, .09], TIERS3: [.13, .2, .066], BUNDT: [.125, .1, .075] };   // widest radius, height, crown radius
 function aimAt(kind, r, y) { const tp = topology(kind), vis = tp.rows.map((q, k) => k).filter(k => { const v = r0v(tp, k); return !(v[1] < .003 && v[0] < .104); }); let best = 0, bd = 1e9; vis.forEach((k, i) => { const v = r0v(tp, k), dd = Math.hypot(v[0] - r, v[1] - y); if (dd < bd) { bd = dd; best = i; } }); return best / Math.max(1, vis.length - 1); }
 const hexDist = (a, b) => { const A = new T.Color(a), B = new T.Color(b); return Math.hypot(A.r - B.r, A.g - B.g, A.b - B.b); };
@@ -1128,7 +1227,7 @@ const BOOK = (() => {
     list() { return shelves[this.shelf][1]; }, cur() { return this.list()[this.idx] || this.list()[0]; },
     find(id) { for (let s = 0; s < shelves.length; s++) { const k = shelves[s][1].findIndex(r => r.id === id); if (k >= 0) return [s, k]; } return null; },
     img() { const r = this.run ? this.run.rc : this.cur(); if (!r || !r.thumb) return null; let im = imgs[r.thumb]; if (!im) { im = imgs[r.thumb] = new Image(); im.onload = () => { oledDirty = true; }; im.src = r.thumb; } return im.complete && im.naturalWidth ? im : null; },
-    load(rc) { rc = rc || this.cur(); const sp = rc.spec; COLORS[10][1] = sp.icing_start || '#f2e6c9'; COLORS[11][1] = sp.icing_end || sp.icing_start || '#fbf8f2'; S.inscribe = QS.get('say') || sp.inscribe || S.inscribe0 || ''; S.plateEra = Math.max(0, ERAS.findIndex(e => e[0] === sp.stage_cast)); S.writing = null; oledDirty = true; return rc; },
+    load(rc) { rc = rc || this.cur(); const sp = rc.spec; COLORS[10][1] = sp.icing_start || '#f2e6c9'; COLORS[11][1] = sp.icing_end || sp.icing_start || '#fbf8f2'; S.inscribe = QS.get('say') || sp.inscribe || S.inscribe0 || ''; S.plateEra = Math.max(0, ERAS.findIndex(e => e[0] === sp.stage_cast)); setPlateCast(rc.clip || rc.id); S.writing = null; oledDirty = true; return rc; },
     rings() { const L = this.list();
       return [{ n: 'SHELF', v: () => this.shelf, set: v => { this.shelf = clamp(Math.round(v), 0, shelves.length - 1); this.idx = 0; this.load(); }, st: 1, f: v => shelves[clamp(Math.round(v), 0, shelves.length - 1)][0] + ' · ' + shelves[clamp(Math.round(v), 0, shelves.length - 1)][1].length, lo: 0, hi: Math.max(1, shelves.length - 1) },
         { n: 'PLATE', v: () => this.idx, set: v => { this.idx = ((Math.round(v) % L.length) + L.length) % L.length; this.load(); say((this.idx + 1) + '/' + L.length + ' · ' + this.cur().title); }, st: 1, f: v => ((L[clamp(Math.round(v), 0, L.length - 1)] || {}).title || '').replace(/[^ -~]/g, '').trim().slice(0, 16), lo: 0, hi: Math.max(1, L.length - 1) },
@@ -1180,7 +1279,8 @@ const BOOK = (() => {
     const hm = HM && HM.models && rc.arch && HM.models[rc.arch] ? Math.max(...HM.models[rc.arch].model.P.map(p => p[1])) / ({ DRUM: .097, TIERS: .145, TIERS3: .2, BUNDT: .11 }[kind] || Hh) : 1;
     if (Math.abs(hm - 1) > .1) add(hm > 1 ? 'DRAW IT TALLER' : 'PRESS IT LOW, A TART', [['ring', 0, M('SIZE')], ['ring', 1, 0], ['ring', 3, +hm.toFixed(2)], ['wait', .3]]);
     if (sp.tilt_deg) add('LIFT IT OFF THE TABLE AND TIP IT ' + sp.tilt_deg + '°', [['ring', 0, M('MOVE')], ['ring', 1, 0], ['turn', 3, 4, .1], ['ring', 0, M('TURN')], ['ring', 2, Math.round(sp.tilt_deg / 5) * 5], ['wait', .3]]);
-    if (sp.stage_cast && /^era_/.test(sp.stage_cast)) add('THE PARTY OF ITS OWN ERA, CUT FROM THE PLATES', [['ring', 0, M('MAKE')], ['ring', 2, V('THE PARTY')], ['turn', 4, 1], ['wait', .9]]);
+    if (window.PLATE_CAST && window.PLATE_CAST[rc.clip || rc.id]) add('ITS OWN PEOPLE, CUT FROM THE PLATE', [['ring', 0, M('MAKE')], ['ring', 2, V('THE PARTY')], ['turn', 4, 1], ['wait', .9]]);
+    else if (sp.stage_cast && /^era_/.test(sp.stage_cast)) add('THE PARTY OF ITS OWN ERA, CUT FROM THE PLATES', [['ring', 0, M('MAKE')], ['ring', 2, V('THE PARTY')], ['turn', 4, 1], ['wait', .9]]);
     else if (sp.stage_cast) add('THE CHILDREN COME IN FROM THE DARK', [['ring', 0, M('MAKE')], ['ring', 2, V('A CHILD')], ['turn', 4, 3, .8], ['wait', .5]]);
     const cm = rc.cam || hero, cd = clamp(Math.hypot(cm.p[0], cm.p[1] - .8, cm.p[2]) * (sp.stage_cast ? 1.5 : 1.05), sp.stage_cast ? 1.15 : .5, 1.7);
     add('SET THE LENS · ' + (cm.label || 'HERO 3/4'), [['ring', 0, M('LOOK')], ['ring', 1, 0], ['wait', 1.5], ['ring', 2, cm.yaw || 0], ['ring', 3, clamp(-(cm.pitch || -.3), .08, 1.1)], ['ring', 4, cd], ['wait', .5]]);

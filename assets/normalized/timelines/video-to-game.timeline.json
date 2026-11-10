@@ -1,0 +1,630 @@
+{
+ "format": "stelline-timeline/1",
+ "title": "VIDEO TO GAME",
+ "beat_s": 0.8126984,
+ "fps": 24,
+ "music": {
+  "file": "assets/audio/mix1_tizita_stelline_soul.mp3",
+  "phase_s": 0.4179592,
+  "from_beat": 56
+ },
+ "look": "clean",
+ "poster_at": 0.25,
+ "shots": [
+  {
+   "beats": 2,
+   "op": "card",
+   "section": "",
+   "left": "",
+   "right": "",
+   "lines": [
+    [
+     "VIDEO TO GAME",
+     54,
+     [
+      240,
+      244,
+      242
+     ]
+    ],
+    [
+     "EIGHT STEPS · ONE BEAT EACH · THE SAME CAKE IN THE SAME PLACE",
+     16,
+     [
+      255,
+      204,
+      102
+     ]
+    ]
+   ],
+   "fade_in": 6,
+   "fade_out": 1
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1920S BW · BDAY 69",
+   "left": "1 · THE VIDEO",
+   "right": "SYNTHETIC PLATE",
+   "clip": "bday_69",
+   "layer": "plate",
+   "at": 0
+  },
+  {
+   "beats": 1,
+   "op": "seen",
+   "section": "1920S BW · BDAY 69",
+   "left": "2 · WHAT IS IN IT",
+   "right": "SEGMENTED · ON THE GRID",
+   "clip": "bday_69",
+   "at": 1,
+   "fade": [
+    1,
+    0
+   ]
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1920S BW · BDAY 69",
+   "left": "3 · THE CAKE ALONE",
+   "right": "SEGMENT",
+   "clip": "bday_69",
+   "layer": "plate",
+   "at": 1,
+   "segment": "cake"
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1920S BW · BDAY 69",
+   "left": "4 · THE PEOPLE ALONE",
+   "right": "SEGMENT · BECOMES THE CAST",
+   "clip": "bday_69",
+   "layer": "plate",
+   "at": 1,
+   "segment": "people"
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1920S BW · BDAY 69",
+   "left": "5 · THE CAKE, MADE BY RING",
+   "right": "CODED",
+   "clip": "bday_69",
+   "at": 3
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1920S BW · BDAY 69",
+   "left": "6 · CANDLES",
+   "right": "CODED",
+   "clip": "bday_69",
+   "at": 8
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1920S BW · BDAY 69",
+   "left": "7 · ITS PEOPLE RETURN",
+   "right": "CUT-OUT IN THE CODED ROOM",
+   "clip": "bday_69",
+   "at": 11
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1920S BW · BDAY 69",
+   "left": "8 · A SCENE YOU CAN PLAY",
+   "right": "THE BREATH, ON THE BEAT",
+   "clip": "bday_69",
+   "at": 13.5
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1920S SPEAKEASY · BDAY 67",
+   "left": "1 · THE VIDEO",
+   "right": "SYNTHETIC PLATE",
+   "clip": "bday_67",
+   "layer": "plate",
+   "at": 0
+  },
+  {
+   "beats": 1,
+   "op": "seen",
+   "section": "1920S SPEAKEASY · BDAY 67",
+   "left": "2 · WHAT IS IN IT",
+   "right": "SEGMENTED · ON THE GRID",
+   "clip": "bday_67",
+   "at": 1,
+   "fade": [
+    1,
+    0
+   ]
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1920S SPEAKEASY · BDAY 67",
+   "left": "3 · THE CAKE ALONE",
+   "right": "SEGMENT",
+   "clip": "bday_67",
+   "layer": "plate",
+   "at": 1,
+   "segment": "cake"
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1920S SPEAKEASY · BDAY 67",
+   "left": "4 · THE PEOPLE ALONE",
+   "right": "SEGMENT · BECOMES THE CAST",
+   "clip": "bday_67",
+   "layer": "plate",
+   "at": 1,
+   "segment": "people"
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1920S SPEAKEASY · BDAY 67",
+   "left": "5 · THE CAKE, MADE BY RING",
+   "right": "CODED",
+   "clip": "bday_67",
+   "at": 3
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1920S SPEAKEASY · BDAY 67",
+   "left": "6 · CANDLES",
+   "right": "CODED",
+   "clip": "bday_67",
+   "at": 8
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1920S SPEAKEASY · BDAY 67",
+   "left": "7 · ITS PEOPLE RETURN",
+   "right": "CUT-OUT IN THE CODED ROOM",
+   "clip": "bday_67",
+   "at": 11
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1920S SPEAKEASY · BDAY 67",
+   "left": "8 · A SCENE YOU CAN PLAY",
+   "right": "THE BREATH, ON THE BEAT",
+   "clip": "bday_67",
+   "at": 13.5
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1950S MIDCENTURY · BDAY 28",
+   "left": "1 · THE VIDEO",
+   "right": "SYNTHETIC PLATE",
+   "clip": "bday_28",
+   "layer": "plate",
+   "at": 0
+  },
+  {
+   "beats": 1,
+   "op": "seen",
+   "section": "1950S MIDCENTURY · BDAY 28",
+   "left": "2 · WHAT IS IN IT",
+   "right": "SEGMENTED · ON THE GRID",
+   "clip": "bday_28",
+   "at": 1,
+   "fade": [
+    1,
+    0
+   ]
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1950S MIDCENTURY · BDAY 28",
+   "left": "3 · THE CAKE ALONE",
+   "right": "SEGMENT",
+   "clip": "bday_28",
+   "layer": "plate",
+   "at": 1,
+   "segment": "cake"
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1950S MIDCENTURY · BDAY 28",
+   "left": "4 · THE PEOPLE ALONE",
+   "right": "SEGMENT · BECOMES THE CAST",
+   "clip": "bday_28",
+   "layer": "plate",
+   "at": 1,
+   "segment": "people"
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1950S MIDCENTURY · BDAY 28",
+   "left": "5 · THE CAKE, MADE BY RING",
+   "right": "CODED",
+   "clip": "bday_28",
+   "at": 3
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1950S MIDCENTURY · BDAY 28",
+   "left": "6 · CANDLES",
+   "right": "CODED",
+   "clip": "bday_28",
+   "at": 8
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1950S MIDCENTURY · BDAY 28",
+   "left": "7 · ITS PEOPLE RETURN",
+   "right": "CUT-OUT IN THE CODED ROOM",
+   "clip": "bday_28",
+   "at": 11
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1950S MIDCENTURY · BDAY 28",
+   "left": "8 · A SCENE YOU CAN PLAY",
+   "right": "THE BREATH, ON THE BEAT",
+   "clip": "bday_28",
+   "at": 13.5
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1970S KODACHROME · BDAY 21",
+   "left": "1 · THE VIDEO",
+   "right": "SYNTHETIC PLATE",
+   "clip": "bday_21",
+   "layer": "plate",
+   "at": 0
+  },
+  {
+   "beats": 1,
+   "op": "seen",
+   "section": "1970S KODACHROME · BDAY 21",
+   "left": "2 · WHAT IS IN IT",
+   "right": "SEGMENTED · ON THE GRID",
+   "clip": "bday_21",
+   "at": 1,
+   "fade": [
+    1,
+    0
+   ]
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1970S KODACHROME · BDAY 21",
+   "left": "3 · THE CAKE ALONE",
+   "right": "SEGMENT",
+   "clip": "bday_21",
+   "layer": "plate",
+   "at": 1,
+   "segment": "cake"
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1970S KODACHROME · BDAY 21",
+   "left": "4 · THE PEOPLE ALONE",
+   "right": "SEGMENT · BECOMES THE CAST",
+   "clip": "bday_21",
+   "layer": "plate",
+   "at": 1,
+   "segment": "people"
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1970S KODACHROME · BDAY 21",
+   "left": "5 · THE CAKE, MADE BY RING",
+   "right": "CODED",
+   "clip": "bday_21",
+   "at": 3
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1970S KODACHROME · BDAY 21",
+   "left": "6 · CANDLES",
+   "right": "CODED",
+   "clip": "bday_21",
+   "at": 8
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1970S KODACHROME · BDAY 21",
+   "left": "7 · ITS PEOPLE RETURN",
+   "right": "CUT-OUT IN THE CODED ROOM",
+   "clip": "bday_21",
+   "at": 11
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1970S KODACHROME · BDAY 21",
+   "left": "8 · A SCENE YOU CAN PLAY",
+   "right": "THE BREATH, ON THE BEAT",
+   "clip": "bday_21",
+   "at": 13.5
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1980S SYNTHWAVE · BDAY 26",
+   "left": "1 · THE VIDEO",
+   "right": "SYNTHETIC PLATE",
+   "clip": "bday_26",
+   "layer": "plate",
+   "at": 0
+  },
+  {
+   "beats": 1,
+   "op": "seen",
+   "section": "1980S SYNTHWAVE · BDAY 26",
+   "left": "2 · WHAT IS IN IT",
+   "right": "SEGMENTED · ON THE GRID",
+   "clip": "bday_26",
+   "at": 1,
+   "fade": [
+    1,
+    0
+   ]
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1980S SYNTHWAVE · BDAY 26",
+   "left": "3 · THE CAKE ALONE",
+   "right": "SEGMENT",
+   "clip": "bday_26",
+   "layer": "plate",
+   "at": 1,
+   "segment": "cake"
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1980S SYNTHWAVE · BDAY 26",
+   "left": "4 · THE PEOPLE ALONE",
+   "right": "SEGMENT · BECOMES THE CAST",
+   "clip": "bday_26",
+   "layer": "plate",
+   "at": 1,
+   "segment": "people"
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1980S SYNTHWAVE · BDAY 26",
+   "left": "5 · THE CAKE, MADE BY RING",
+   "right": "CODED",
+   "clip": "bday_26",
+   "at": 3
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1980S SYNTHWAVE · BDAY 26",
+   "left": "6 · CANDLES",
+   "right": "CODED",
+   "clip": "bday_26",
+   "at": 8
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1980S SYNTHWAVE · BDAY 26",
+   "left": "7 · ITS PEOPLE RETURN",
+   "right": "CUT-OUT IN THE CODED ROOM",
+   "clip": "bday_26",
+   "at": 11
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1980S SYNTHWAVE · BDAY 26",
+   "left": "8 · A SCENE YOU CAN PLAY",
+   "right": "THE BREATH, ON THE BEAT",
+   "clip": "bday_26",
+   "at": 13.5
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1990S PASTEL · BDAY 27",
+   "left": "1 · THE VIDEO",
+   "right": "SYNTHETIC PLATE",
+   "clip": "bday_27",
+   "layer": "plate",
+   "at": 0
+  },
+  {
+   "beats": 1,
+   "op": "seen",
+   "section": "1990S PASTEL · BDAY 27",
+   "left": "2 · WHAT IS IN IT",
+   "right": "SEGMENTED · ON THE GRID",
+   "clip": "bday_27",
+   "at": 1,
+   "fade": [
+    1,
+    0
+   ]
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1990S PASTEL · BDAY 27",
+   "left": "3 · THE CAKE ALONE",
+   "right": "SEGMENT",
+   "clip": "bday_27",
+   "layer": "plate",
+   "at": 1,
+   "segment": "cake"
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "1990S PASTEL · BDAY 27",
+   "left": "4 · THE PEOPLE ALONE",
+   "right": "SEGMENT · BECOMES THE CAST",
+   "clip": "bday_27",
+   "layer": "plate",
+   "at": 1,
+   "segment": "people"
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1990S PASTEL · BDAY 27",
+   "left": "5 · THE CAKE, MADE BY RING",
+   "right": "CODED",
+   "clip": "bday_27",
+   "at": 3
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1990S PASTEL · BDAY 27",
+   "left": "6 · CANDLES",
+   "right": "CODED",
+   "clip": "bday_27",
+   "at": 8
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1990S PASTEL · BDAY 27",
+   "left": "7 · ITS PEOPLE RETURN",
+   "right": "CUT-OUT IN THE CODED ROOM",
+   "clip": "bday_27",
+   "at": 11
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "1990S PASTEL · BDAY 27",
+   "left": "8 · A SCENE YOU CAN PLAY",
+   "right": "THE BREATH, ON THE BEAT",
+   "clip": "bday_27",
+   "at": 13.5
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "STUDIO CRAFT · BDAY 54",
+   "left": "1 · THE VIDEO",
+   "right": "SYNTHETIC PLATE",
+   "clip": "bday_54",
+   "layer": "plate",
+   "at": 0
+  },
+  {
+   "beats": 1,
+   "op": "seen",
+   "section": "STUDIO CRAFT · BDAY 54",
+   "left": "2 · WHAT IS IN IT",
+   "right": "SEGMENTED · ON THE GRID",
+   "clip": "bday_54",
+   "at": 1,
+   "fade": [
+    1,
+    0
+   ]
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "STUDIO CRAFT · BDAY 54",
+   "left": "3 · THE CAKE ALONE",
+   "right": "SEGMENT",
+   "clip": "bday_54",
+   "layer": "plate",
+   "at": 1,
+   "segment": "cake"
+  },
+  {
+   "beats": 1,
+   "op": "bar",
+   "section": "STUDIO CRAFT · BDAY 54",
+   "left": "4 · THE PEOPLE ALONE",
+   "right": "SEGMENT · BECOMES THE CAST",
+   "clip": "bday_54",
+   "layer": "plate",
+   "at": 1,
+   "segment": "people"
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "STUDIO CRAFT · BDAY 54",
+   "left": "5 · THE CAKE, MADE BY RING",
+   "right": "CODED",
+   "clip": "bday_54",
+   "at": 3
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "STUDIO CRAFT · BDAY 54",
+   "left": "6 · CANDLES",
+   "right": "CODED",
+   "clip": "bday_54",
+   "at": 8
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "STUDIO CRAFT · BDAY 54",
+   "left": "7 · ITS PEOPLE RETURN",
+   "right": "CUT-OUT IN THE CODED ROOM",
+   "clip": "bday_54",
+   "at": 11
+  },
+  {
+   "beats": 1,
+   "op": "build",
+   "section": "STUDIO CRAFT · BDAY 54",
+   "left": "8 · A SCENE YOU CAN PLAY",
+   "right": "THE BREATH, ON THE BEAT",
+   "clip": "bday_54",
+   "at": 13.5
+  },
+  {
+   "beats": 3,
+   "op": "card",
+   "section": "",
+   "left": "",
+   "right": "",
+   "lines": [
+    [
+     "EVERY STEP IS A FILE · EVERY SCENE RUNS IN ORB 06",
+     30,
+     [
+      240,
+      244,
+      242
+     ]
+    ]
+   ]
+  }
+ ],
+ "frame": "stack"
+}

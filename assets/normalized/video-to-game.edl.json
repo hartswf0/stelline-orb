@@ -1,0 +1,414 @@
+{
+ "fps": 24,
+ "beat_s": 0.8126984,
+ "look": "clean",
+ "duration_s": 49.583,
+ "shots": [
+  {
+   "shot": 0,
+   "t": 0.0,
+   "frames": 39,
+   "beats": 2,
+   "op": "card"
+  },
+  {
+   "shot": 1,
+   "t": 1.625,
+   "frames": 20,
+   "beats": 1,
+   "op": "bar"
+  },
+  {
+   "shot": 2,
+   "t": 2.458,
+   "frames": 19,
+   "beats": 1,
+   "op": "seen"
+  },
+  {
+   "shot": 3,
+   "t": 3.25,
+   "frames": 20,
+   "beats": 1,
+   "op": "bar"
+  },
+  {
+   "shot": 4,
+   "t": 4.083,
+   "frames": 19,
+   "beats": 1,
+   "op": "bar"
+  },
+  {
+   "shot": 5,
+   "t": 4.875,
+   "frames": 20,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 6,
+   "t": 5.708,
+   "frames": 19,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 7,
+   "t": 6.5,
+   "frames": 20,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 8,
+   "t": 7.333,
+   "frames": 19,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 9,
+   "t": 8.125,
+   "frames": 20,
+   "beats": 1,
+   "op": "bar"
+  },
+  {
+   "shot": 10,
+   "t": 8.958,
+   "frames": 19,
+   "beats": 1,
+   "op": "seen"
+  },
+  {
+   "shot": 11,
+   "t": 9.75,
+   "frames": 20,
+   "beats": 1,
+   "op": "bar"
+  },
+  {
+   "shot": 12,
+   "t": 10.583,
+   "frames": 19,
+   "beats": 1,
+   "op": "bar"
+  },
+  {
+   "shot": 13,
+   "t": 11.375,
+   "frames": 20,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 14,
+   "t": 12.208,
+   "frames": 19,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 15,
+   "t": 13.0,
+   "frames": 20,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 16,
+   "t": 13.833,
+   "frames": 19,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 17,
+   "t": 14.625,
+   "frames": 20,
+   "beats": 1,
+   "op": "bar"
+  },
+  {
+   "shot": 18,
+   "t": 15.458,
+   "frames": 19,
+   "beats": 1,
+   "op": "seen"
+  },
+  {
+   "shot": 19,
+   "t": 16.25,
+   "frames": 20,
+   "beats": 1,
+   "op": "bar"
+  },
+  {
+   "shot": 20,
+   "t": 17.083,
+   "frames": 19,
+   "beats": 1,
+   "op": "bar"
+  },
+  {
+   "shot": 21,
+   "t": 17.875,
+   "frames": 20,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 22,
+   "t": 18.708,
+   "frames": 19,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 23,
+   "t": 19.5,
+   "frames": 20,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 24,
+   "t": 20.333,
+   "frames": 19,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 25,
+   "t": 21.125,
+   "frames": 20,
+   "beats": 1,
+   "op": "bar"
+  },
+  {
+   "shot": 26,
+   "t": 21.958,
+   "frames": 19,
+   "beats": 1,
+   "op": "seen"
+  },
+  {
+   "shot": 27,
+   "t": 22.75,
+   "frames": 20,
+   "beats": 1,
+   "op": "bar"
+  },
+  {
+   "shot": 28,
+   "t": 23.583,
+   "frames": 19,
+   "beats": 1,
+   "op": "bar"
+  },
+  {
+   "shot": 29,
+   "t": 24.375,
+   "frames": 20,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 30,
+   "t": 25.208,
+   "frames": 19,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 31,
+   "t": 26.0,
+   "frames": 20,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 32,
+   "t": 26.833,
+   "frames": 19,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 33,
+   "t": 27.625,
+   "frames": 20,
+   "beats": 1,
+   "op": "bar"
+  },
+  {
+   "shot": 34,
+   "t": 28.458,
+   "frames": 19,
+   "beats": 1,
+   "op": "seen"
+  },
+  {
+   "shot": 35,
+   "t": 29.25,
+   "frames": 20,
+   "beats": 1,
+   "op": "bar"
+  },
+  {
+   "shot": 36,
+   "t": 30.083,
+   "frames": 19,
+   "beats": 1,
+   "op": "bar"
+  },
+  {
+   "shot": 37,
+   "t": 30.875,
+   "frames": 20,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 38,
+   "t": 31.708,
+   "frames": 19,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 39,
+   "t": 32.5,
+   "frames": 20,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 40,
+   "t": 33.333,
+   "frames": 19,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 41,
+   "t": 34.125,
+   "frames": 20,
+   "beats": 1,
+   "op": "bar"
+  },
+  {
+   "shot": 42,
+   "t": 34.958,
+   "frames": 19,
+   "beats": 1,
+   "op": "seen"
+  },
+  {
+   "shot": 43,
+   "t": 35.75,
+   "frames": 20,
+   "beats": 1,
+   "op": "bar"
+  },
+  {
+   "shot": 44,
+   "t": 36.583,
+   "frames": 19,
+   "beats": 1,
+   "op": "bar"
+  },
+  {
+   "shot": 45,
+   "t": 37.375,
+   "frames": 20,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 46,
+   "t": 38.208,
+   "frames": 19,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 47,
+   "t": 39.0,
+   "frames": 20,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 48,
+   "t": 39.833,
+   "frames": 19,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 49,
+   "t": 40.625,
+   "frames": 20,
+   "beats": 1,
+   "op": "bar"
+  },
+  {
+   "shot": 50,
+   "t": 41.458,
+   "frames": 19,
+   "beats": 1,
+   "op": "seen"
+  },
+  {
+   "shot": 51,
+   "t": 42.25,
+   "frames": 20,
+   "beats": 1,
+   "op": "bar"
+  },
+  {
+   "shot": 52,
+   "t": 43.083,
+   "frames": 19,
+   "beats": 1,
+   "op": "bar"
+  },
+  {
+   "shot": 53,
+   "t": 43.875,
+   "frames": 20,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 54,
+   "t": 44.708,
+   "frames": 19,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 55,
+   "t": 45.5,
+   "frames": 20,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 56,
+   "t": 46.333,
+   "frames": 19,
+   "beats": 1,
+   "op": "build"
+  },
+  {
+   "shot": 57,
+   "t": 47.125,
+   "frames": 59,
+   "beats": 3,
+   "op": "card"
+  }
+ ]
+}

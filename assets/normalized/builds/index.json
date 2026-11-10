@@ -1,0 +1,883 @@
+{
+ "bday_05": {
+  "title": "Ochre Gold Sculpted Cake -> Faceted White Cake",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "FLATTEN SIX FACETS",
+   "FROST · THE FIRST COAT #C79228",
+   "THE COLOUR TURNS · #F0EEE8",
+   "SET THE LENS · HERO 3/4 · 24° · 50MM",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": null,
+  "people_beat": null,
+  "breath_beat": 14,
+  "own_cast": false,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_13": {
+  "title": "Chamber Shot 25/26 Variant B: Cream -> Chocolate Tilt -> Smooth Cream",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "FROST · THE FIRST COAT #EFE2C4",
+   "THE COLOUR TURNS · #4A2816",
+   "PIPE A BEADED BORDER",
+   "7 CANDLES",
+   "LIFT IT OFF THE TABLE AND TIP IT 25°",
+   "SET THE LENS · CHAMBER TILT · 10° · 35MM",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": null,
+  "breath_beat": 14,
+  "own_cast": false,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_14": {
+  "title": "Chamber Shot 25/26 Variant C: Chocolate -> Cream Shifting & Tilting",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "FROST · THE FIRST COAT #472715",
+   "THE COLOUR TURNS · #F0E4C8",
+   "RUFFLE THE SIDE, BAND BY BAND",
+   "PIPE A BEADED BORDER",
+   "7 CANDLES",
+   "LIFT IT OFF THE TABLE AND TIP IT 25°",
+   "SET THE LENS · CHAMBER TILT · 10° · 35MM",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": null,
+  "breath_beat": 14,
+  "own_cast": false,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_16": {
+  "title": "Candles Extinguishing with Rising Smoke Wisps & Dimming Bounce",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "FROST · THE FIRST COAT #E8DEC8",
+   "THE COLOUR TURNS · #8C969E",
+   "RUFFLE THE SIDE, BAND BY BAND",
+   "PIPE A BEADED BORDER",
+   "WRITE “生日快樂”",
+   "7 CANDLES",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · CANDLE FACE CU · 4° · 85MM f/1.6",
+   "MAKE A WISH",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 8.8,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_18": {
+  "title": "Four Children Blowing Out 2-Tier Piped Pastel Birthday Cake",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE TIERS",
+   "FROST · #F2E6D0",
+   "RUFFLE THE SIDE, BAND BY BAND",
+   "SHELLS ROUND THE CROWN",
+   "9 CANDLES",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · PARTY TABLEAU · 9° · 40MM",
+   "MAKE A WISH",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 8.78,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_21": {
+  "title": "Reverse-Motion Child at Small Square Pedestal Table",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "FROST · #EDDCC0",
+   "RUFFLE THE SIDE, BAND BY BAND",
+   "PIPE A BEADED BORDER",
+   "7 CANDLES",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · CANDLE FACE CU · 4° · 85MM f/1.6",
+   "MAKE A WISH",
+   "TURN THE TIME BACK · THE FLAMES RETURN",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 8.85,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_23": {
+  "title": "Golden Hologram Ghosts Solidifying Into Five Children Around 2-Tier Cake",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE TIERS",
+   "FROST · #EED8B4",
+   "RUFFLE THE SIDE, BAND BY BAND",
+   "SHELLS ROUND THE CROWN",
+   "7 CANDLES",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · CANDLE FACE CU · 4° · 85MM f/1.6",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 9.19,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_25": {
+  "title": "1940s Children Materializing One-by-One from Golden Stardust",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE TIERS",
+   "FROST · #F0E4CC",
+   "RUFFLE THE SIDE, BAND BY BAND",
+   "SHELLS ROUND THE CROWN",
+   "5 CANDLES",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · PARTY TABLEAU · 9° · 40MM",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 9.04,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_26": {
+  "title": "1980s Kids in Neon Windbreakers & Caps Blowing Out Tall Floral 2-Tier Cake",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE TIERS",
+   "FROST · #F4EFE8",
+   "SHELLS ROUND THE CROWN",
+   "BERRIES ROUND THE FOOT",
+   "9 CANDLES",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · PARTY TABLEAU · 9° · 40MM",
+   "MAKE A WISH",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 8.86,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_27": {
+  "title": "Y2K / Late-90s Kids Blowing Out Pink 2-Tier '2000' Topper Cake",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE TIERS",
+   "FROST · #EAB0C8",
+   "RUFFLE THE SIDE, BAND BY BAND",
+   "SHELLS ROUND THE CROWN",
+   "WRITE “2000”",
+   "6 CANDLES",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · PARTY TABLEAU · 9° · 40MM",
+   "MAKE A WISH",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 8.71,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_28": {
+  "title": "Six Vintage Children Gathered Tightly Around 7-Candle Cream Cake",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "FROST · #EBD8B5",
+   "RUFFLE THE SIDE, BAND BY BAND",
+   "PIPE A BEADED BORDER",
+   "7 CANDLES",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · CANDLE FACE CU · 4° · 85MM f/1.6",
+   "MAKE A WISH",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 8.8,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_29": {
+  "title": "Seven Children Around Ornate 2-Tier Candlelit Cake",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE TIERS",
+   "FROST · #F2E6CE",
+   "RUFFLE THE SIDE, BAND BY BAND",
+   "SHELLS ROUND THE CROWN",
+   "10 CANDLES",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · CANDLE FACE CU · 4° · 85MM f/1.6",
+   "MAKE A WISH",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 8.86,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_33": {
+  "title": "Two Asian Children Blowing Out Cake with Luminous 3D '快乐' Sign",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "FROST · THE FIRST COAT #D8C8B0",
+   "THE COLOUR TURNS · #8C949C",
+   "PIPE A BEADED BORDER",
+   "WRITE “快乐”",
+   "7 CANDLES",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · CANDLE FACE CU · 4° · 85MM f/1.6",
+   "MAKE A WISH",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 8.86,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_34": {
+  "title": "Two Children Close-Up Blowing Out Chocolate-Side Cream-Top Cake",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "FROST · #4A2A18",
+   "PIPE A BEADED BORDER",
+   "8 CANDLES",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · CANDLE FACE CU · 4° · 85MM f/1.6",
+   "MAKE A WISH",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 8.89,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_35": {
+  "title": "Three Kids Celebrating Around Neon Geometric Memphis Pattern Cake",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "FROST · #1C2030",
+   "TRACE A CIRCUIT OF LIGHT",
+   "A NEON RING AT THE FOOT AND THE CROWN",
+   "SCATTER MEMPHIS",
+   "9 CANDLES",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · CANDLE FACE CU · 4° · 85MM f/1.6",
+   "MAKE A WISH",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 8.95,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_36": {
+  "title": "Three Vintage Children Clapping Around Dark Chocolate Drip Cake",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "FROST · #3A2012",
+   "LET THE GANACHE RUN OVER THE SHOULDER",
+   "SHELLS ROUND THE CROWN",
+   "7 CANDLES",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · CANDLE FACE CU · 4° · 85MM f/1.6",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 9.04,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_37": {
+  "title": "Four Smiling Children Around Golden Sponge & Piped Rosette Cake",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "LEAVE THE SPONGE NAKED · A THIN COAT",
+   "SHELLS ROUND THE CROWN",
+   "8 CANDLES",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · PARTY TABLEAU · 9° · 40MM",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 9.0,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_39": {
+  "title": "1950s Memory Orb: Small Puck Morphing Into Tall Golden Bundt w/ Orbital Rings",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE BUNDT",
+   "CUT 12 FLUTES ROUND THE RING",
+   "PRESS A WELL INTO THE CROWN",
+   "FROST · THE FIRST COAT #D8AA52",
+   "THE COLOUR TURNS · #E6C274",
+   "4 CANDLES",
+   "SET THE LENS · HERO 3/4 · 24° · 50MM",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": null,
+  "breath_beat": 14,
+  "own_cast": false,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_42": {
+  "title": "Piping Cursive Red 'Bon Anniversaire' on Rotating 12-Candle Cake",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "FROST · #F5F2EC",
+   "RUFFLE THE SIDE, BAND BY BAND",
+   "SHELLS ROUND THE CROWN",
+   "WRITE “Bon Anniversaire”",
+   "12 CANDLES",
+   "SET THE LENS · CROWN WRITING · 46° · 50MM",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": null,
+  "breath_beat": 14,
+  "own_cast": false,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_44": {
+  "title": "Red Laser Beams Writing 'Feliz Cumpleaños' on 9-Candle Cake",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "FROST · #F4F1EA",
+   "RUFFLE THE SIDE, BAND BY BAND",
+   "SHELLS ROUND THE CROWN",
+   "WRITE “Feliz Cumpleaños”",
+   "9 CANDLES",
+   "SET THE LENS · CROWN WRITING · 46° · 50MM",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": null,
+  "breath_beat": 14,
+  "own_cast": false,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_45": {
+  "title": "Cyberpunk Crew Celebrating Around Neon Holographic 'Happy Birthday' 2-Tier Cake",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE TIERS",
+   "FROST · THE FIRST COAT #2B1854",
+   "THE COLOUR TURNS · #00E5FF",
+   "TRACE A CIRCUIT OF LIGHT",
+   "A NEON RING AT THE FOOT AND THE CROWN",
+   "WRITE “Happy Birthday”",
+   "7 CANDLES",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · PARTY TABLEAU · 9° · 40MM",
+   "MAKE A WISH",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 8.71,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_49": {
+  "title": "Four Kids Around Dark Cake w/ Bioluminescent Cyan Fiber-Optic Plume",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "FROST · #10161C",
+   "TRACE A CIRCUIT OF LIGHT",
+   "A NEON RING AT THE FOOT AND THE CROWN",
+   "SCATTER CRYSTALS",
+   "12 CANDLES",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · CANDLE FACE CU · 4° · 85MM f/1.6",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 9.38,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_52": {
+  "title": "Spotlight Cone Frosting Golden Pound Cake + 7 Tall Tapers",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "FROST · THE FIRST COAT #C88238",
+   "THE COLOUR TURNS · #F2E6CF",
+   "RUFFLE THE SIDE, BAND BY BAND",
+   "SHELLS ROUND THE CROWN",
+   "7 CANDLES",
+   "SET THE LENS · HERO 3/4 · 24° · 50MM",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": null,
+  "breath_beat": 14,
+  "own_cast": false,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_54": {
+  "title": "Baker Hands Frosting Homemade Sponge Cake w/ Ivory Buttercream & 6 Candles",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "FROST · THE FIRST COAT #C98A3C",
+   "THE COLOUR TURNS · #F3EAD6",
+   "RUFFLE THE SIDE, BAND BY BAND",
+   "6 CANDLES",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · BENCH CRAFT · 28° · 45MM",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 9.0,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_55": {
+  "title": "Hands Sculpting 1920s Rustic Palette-Knife Cream Cake w/ 5 Tall Tapers",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "FROST · #EFE3C8",
+   "RUFFLE THE SIDE, BAND BY BAND",
+   "5 CANDLES",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · BENCH CRAFT · 28° · 45MM",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 9.0,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_61": {
+  "title": "Neon Wireframe Grid Cylinder -> Cyberpunk Geometric Cake w/ Holo Orb Topper",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE TIERS",
+   "FROST · #1C162E",
+   "TRACE A CIRCUIT OF LIGHT",
+   "A NEON RING AT THE FOOT AND THE CROWN",
+   "SCATTER HOLO SPHERE",
+   "8 CANDLES",
+   "SET THE LENS · HERO 3/4 · 24° · 50MM",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": null,
+  "breath_beat": 14,
+  "own_cast": false,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_63": {
+  "title": "3.8s Chamber Study: Cyberpunk Neon-Circuit Cake <-> White Cake & Tilt",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "FROST · THE FIRST COAT #161A26",
+   "THE COLOUR TURNS · #F0EAE0",
+   "TRACE A CIRCUIT OF LIGHT",
+   "A NEON RING AT THE FOOT AND THE CROWN",
+   "9 CANDLES",
+   "LIFT IT OFF THE TABLE AND TIP IT 22°",
+   "SET THE LENS · CHAMBER TILT · 10° · 35MM",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": null,
+  "breath_beat": 14,
+  "own_cast": false,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_64": {
+  "title": "Orb Controller Piping Cursive Red 'Happy Birthday' on 9-Candle White Cake",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "FROST · #F5F2EC",
+   "RUFFLE THE SIDE, BAND BY BAND",
+   "SHELLS ROUND THE CROWN",
+   "WRITE “Happy Birthday”",
+   "9 CANDLES",
+   "SET THE LENS · CROWN WRITING · 46° · 50MM",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": null,
+  "breath_beat": 14,
+  "own_cast": false,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_67": {
+  "title": "1920s Speakeasy Party in Sepia Warmth Around Ornate Cream Cake",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "FROST · #E8D6B4",
+   "RUFFLE THE SIDE, BAND BY BAND",
+   "SHELLS ROUND THE CROWN",
+   "9 CANDLES",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · CANDLE FACE CU · 4° · 85MM f/1.6",
+   "MAKE A WISH",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 8.89,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_69": {
+  "title": "1920s Silver-Screen B&W Party Clapping Around Tall 2-Tier Wedding-Style Cake",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE TIERS",
+   "FROST · #E6E6E6",
+   "RUFFLE THE SIDE, BAND BY BAND",
+   "SHELLS ROUND THE CROWN",
+   "8 CANDLES",
+   "PRESS IT LOW, A TART",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · CANDLE FACE CU · 4° · 85MM f/1.6",
+   "MAKE A WISH",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 9.1,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_73": {
+  "title": "1950s Mid-Century Family Blowing Out Classic 2-Tier White Party Cake",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE TIERS",
+   "FROST · #F4EAD4",
+   "RUFFLE THE SIDE, BAND BY BAND",
+   "SHELLS ROUND THE CROWN",
+   "9 CANDLES",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · PARTY TABLEAU · 9° · 40MM",
+   "MAKE A WISH",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 8.78,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_75": {
+  "title": "3.8s Chamber Study: Vintage Cream <-> Rich Cocoa Cake Color & Tilt",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "FROST · THE FIRST COAT #ECE0C6",
+   "THE COLOUR TURNS · #3C2214",
+   "RUFFLE THE SIDE, BAND BY BAND",
+   "SHELLS ROUND THE CROWN",
+   "8 CANDLES",
+   "LIFT IT OFF THE TABLE AND TIP IT 24°",
+   "SET THE LENS · CHAMBER TILT · 10° · 35MM",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": null,
+  "breath_beat": 14,
+  "own_cast": false,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ },
+ "bday_78": {
+  "title": "Stelline Orb Film Master Reference: 3 Chamber Children & 7-Candle Cake",
+  "steps": [
+   "THE TABLE COMES OUT OF THE DARK",
+   "PUT DOWN THE DRUM",
+   "FROST · #EDD8B4",
+   "RUFFLE THE SIDE, BAND BY BAND",
+   "PIPE A BEADED BORDER",
+   "7 CANDLES",
+   "ITS OWN PEOPLE, CUT FROM THE PLATE",
+   "SET THE LENS · CANDLE FACE CU · 4° · 85MM f/1.6",
+   "MAKE A WISH",
+   "HELD"
+  ],
+  "beats": 16,
+  "first_candle_beat": 8,
+  "people_beat": 8.8,
+  "breath_beat": 14,
+  "own_cast": true,
+  "controller": true,
+  "reticle": "crescent",
+  "fit": {
+   "centre_x": 639.8,
+   "width": 480.0,
+   "crown_y": 250.0
+  }
+ }
+}

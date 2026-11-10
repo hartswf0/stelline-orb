@@ -1,0 +1,106 @@
+{
+ "fps": 24,
+ "beat_s": 0.8126984,
+ "look": "camcorder90",
+ "duration_s": 43.083,
+ "shots": [
+  {
+   "shot": 0,
+   "t": 0.0,
+   "frames": 39,
+   "beats": 2,
+   "op": "card"
+  },
+  {
+   "shot": 1,
+   "t": 1.625,
+   "frames": 78,
+   "beats": 4,
+   "op": "nest"
+  },
+  {
+   "shot": 2,
+   "t": 4.875,
+   "frames": 78,
+   "beats": 4,
+   "op": "nest"
+  },
+  {
+   "shot": 3,
+   "t": 8.125,
+   "frames": 78,
+   "beats": 4,
+   "op": "nest"
+  },
+  {
+   "shot": 4,
+   "t": 11.375,
+   "frames": 78,
+   "beats": 4,
+   "op": "nest"
+  },
+  {
+   "shot": 5,
+   "t": 14.625,
+   "frames": 78,
+   "beats": 4,
+   "op": "nest"
+  },
+  {
+   "shot": 6,
+   "t": 17.875,
+   "frames": 78,
+   "beats": 4,
+   "op": "nest"
+  },
+  {
+   "shot": 7,
+   "t": 21.125,
+   "frames": 78,
+   "beats": 4,
+   "op": "nest"
+  },
+  {
+   "shot": 8,
+   "t": 24.375,
+   "frames": 78,
+   "beats": 4,
+   "op": "nest"
+  },
+  {
+   "shot": 9,
+   "t": 27.625,
+   "frames": 78,
+   "beats": 4,
+   "op": "nest"
+  },
+  {
+   "shot": 10,
+   "t": 30.875,
+   "frames": 78,
+   "beats": 4,
+   "op": "nest"
+  },
+  {
+   "shot": 11,
+   "t": 34.125,
+   "frames": 78,
+   "beats": 4,
+   "op": "nest"
+  },
+  {
+   "shot": 12,
+   "t": 37.375,
+   "frames": 78,
+   "beats": 4,
+   "op": "nest"
+  },
+  {
+   "shot": 13,
+   "t": 40.625,
+   "frames": 59,
+   "beats": 3,
+   "op": "card"
+  }
+ ]
+}

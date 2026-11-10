@@ -1,0 +1,273 @@
+{
+ "format": "stelline-timeline/1",
+ "title": "FROM THE FILM TO THE MAKING",
+ "beat_s": 0.8126984,
+ "fps": 24,
+ "music": {
+  "file": "assets/audio/mix1_tizita_stelline_soul.mp3",
+  "phase_s": 0.4179592,
+  "from_beat": 34
+ },
+ "look": "panavision70",
+ "poster_at": 0.3,
+ "shots": [
+  {
+   "beats": 4,
+   "op": "film",
+   "section": "BLADE RUNNER 2049 · THE ROOM BEFORE THE CAKE",
+   "left": "THE FILM",
+   "right": "AS SHOT",
+   "file": "assets/moments/shot24_room-before-cake.mp4",
+   "t": 0,
+   "speed": 0.92
+  },
+  {
+   "beats": 4,
+   "op": "film",
+   "section": "BLADE RUNNER 2049 · THE CAKE APPEARS",
+   "left": "THE FILM",
+   "right": "AS SHOT",
+   "file": "assets/moments/shot25_cake-appears.mp4",
+   "t": 0.2,
+   "speed": 1.0
+  },
+  {
+   "beats": 2,
+   "op": "card",
+   "section": "",
+   "left": "",
+   "right": "",
+   "lines": [
+    [
+     "THE MAKING STARTS",
+     44,
+     [
+      240,
+      244,
+      242
+     ]
+    ],
+    [
+     "FROM HERE EVERY FRAME IS MADE BY THE RINGS",
+     16,
+     [
+      255,
+      204,
+      102
+     ]
+    ]
+   ],
+   "fade_in": 4,
+   "fade_out": 4
+  },
+  {
+   "beats": 4,
+   "op": "build",
+   "section": "1920S BW · BDAY 69",
+   "left": "THE MAKING, FROM THE EMPTY TABLE",
+   "right": "RING BY RING",
+   "clip": "bday_69",
+   "at": 0.5
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1920S BW · BDAY 69",
+   "left": "CANDLES, THEN ITS OWN PEOPLE",
+   "right": "BAR 3",
+   "clip": "bday_69",
+   "at": 8.5
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1920S BW · BDAY 69",
+   "left": "THE BREATH",
+   "right": "BAR 4 · BEAT 3",
+   "clip": "bday_69",
+   "at": 13
+  },
+  {
+   "beats": 4,
+   "op": "build",
+   "section": "1920S SPEAKEASY · BDAY 67",
+   "left": "THE MAKING, FROM THE EMPTY TABLE",
+   "right": "RING BY RING",
+   "clip": "bday_67",
+   "at": 0.5
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1920S SPEAKEASY · BDAY 67",
+   "left": "CANDLES, THEN ITS OWN PEOPLE",
+   "right": "BAR 3",
+   "clip": "bday_67",
+   "at": 8.5
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1920S SPEAKEASY · BDAY 67",
+   "left": "THE BREATH",
+   "right": "BAR 4 · BEAT 3",
+   "clip": "bday_67",
+   "at": 13
+  },
+  {
+   "beats": 4,
+   "op": "build",
+   "section": "1950S MIDCENTURY · BDAY 28",
+   "left": "THE MAKING, FROM THE EMPTY TABLE",
+   "right": "RING BY RING",
+   "clip": "bday_28",
+   "at": 0.5
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1950S MIDCENTURY · BDAY 28",
+   "left": "CANDLES, THEN ITS OWN PEOPLE",
+   "right": "BAR 3",
+   "clip": "bday_28",
+   "at": 8.5
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1950S MIDCENTURY · BDAY 28",
+   "left": "THE BREATH",
+   "right": "BAR 4 · BEAT 3",
+   "clip": "bday_28",
+   "at": 13
+  },
+  {
+   "beats": 4,
+   "op": "build",
+   "section": "1970S KODACHROME · BDAY 21",
+   "left": "THE MAKING, FROM THE EMPTY TABLE",
+   "right": "RING BY RING",
+   "clip": "bday_21",
+   "at": 0.5
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1970S KODACHROME · BDAY 21",
+   "left": "CANDLES, THEN ITS OWN PEOPLE",
+   "right": "BAR 3",
+   "clip": "bday_21",
+   "at": 8.5
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1970S KODACHROME · BDAY 21",
+   "left": "THE BREATH",
+   "right": "BAR 4 · BEAT 3",
+   "clip": "bday_21",
+   "at": 13
+  },
+  {
+   "beats": 4,
+   "op": "build",
+   "section": "1980S SYNTHWAVE · BDAY 26",
+   "left": "THE MAKING, FROM THE EMPTY TABLE",
+   "right": "RING BY RING",
+   "clip": "bday_26",
+   "at": 0.5
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1980S SYNTHWAVE · BDAY 26",
+   "left": "CANDLES, THEN ITS OWN PEOPLE",
+   "right": "BAR 3",
+   "clip": "bday_26",
+   "at": 8.5
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1980S SYNTHWAVE · BDAY 26",
+   "left": "THE BREATH",
+   "right": "BAR 4 · BEAT 3",
+   "clip": "bday_26",
+   "at": 13
+  },
+  {
+   "beats": 4,
+   "op": "build",
+   "section": "1990S PASTEL · BDAY 27",
+   "left": "THE MAKING, FROM THE EMPTY TABLE",
+   "right": "RING BY RING",
+   "clip": "bday_27",
+   "at": 0.5
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1990S PASTEL · BDAY 27",
+   "left": "CANDLES, THEN ITS OWN PEOPLE",
+   "right": "BAR 3",
+   "clip": "bday_27",
+   "at": 8.5
+  },
+  {
+   "beats": 2,
+   "op": "build",
+   "section": "1990S PASTEL · BDAY 27",
+   "left": "THE BREATH",
+   "right": "BAR 4 · BEAT 3",
+   "clip": "bday_27",
+   "at": 13
+  },
+  {
+   "beats": 8,
+   "op": "tiles",
+   "section": "33 SCENES AT ONCE",
+   "left": "THE SAME 16 BEATS",
+   "right": "ONE CLOCK",
+   "clips": [
+    "bday_69",
+    "bday_55",
+    "bday_67",
+    "bday_18",
+    "bday_23",
+    "bday_25",
+    "bday_28",
+    "bday_29",
+    "bday_36",
+    "bday_37",
+    "bday_39",
+    "bday_73",
+    "bday_21",
+    "bday_26",
+    "bday_35",
+    "bday_27",
+    "bday_54",
+    "bday_05",
+    "bday_13",
+    "bday_14",
+    "bday_16",
+    "bday_33",
+    "bday_34",
+    "bday_42",
+    "bday_44",
+    "bday_52",
+    "bday_64",
+    "bday_75",
+    "bday_78",
+    "bday_45",
+    "bday_49",
+    "bday_61",
+    "bday_63"
+   ],
+   "cols": 7,
+   "rows": 5,
+   "layer": "build",
+   "at": 8
+  }
+ ],
+ "frame": "stack"
+}

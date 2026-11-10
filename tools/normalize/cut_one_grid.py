@@ -175,6 +175,38 @@ def timelines():
     for c in turn: S += [sh(1, 'bar', 'THE TURN', 'PLATE ' + name(c), 'SEGMENT · THE CAKE ALONE', clip=c, layer='plate', at=1, segment='cake'), sh(1, 'bar', 'THE TURN', 'PLATE ' + name(c), 'TURNS', clip=c, layer='plate', at=2)]
     S.append(sh(4, 'tiles', 'THE TURN · TOGETHER', f'{len(turn)} PLATES · ONE BAR', 'ALL ON BEAT 3', clips=turn, cols=3, rows=-(-len(turn) // 3), layer='plate', at=0))
     T['the-turn'] = timeline('THE TURN', S, 56)
+    bp = os.path.join(N, 'builds/index.json')
+    if os.path.exists(bp):
+        BO = json.load(open(bp)); S = [sh(3, 'card', lines=[['EVERY SCENE, BUILT OUT', 54, white], ['ITS OWN CAKE · ITS OWN PEOPLE · THE SAME 16 BEATS', 16, gold]], fade_in=10, fade_out=1)]
+        for c in [x for x in era_pick if x in BO]:
+            sec = CL[c]['era'].replace('_', ' ').upper() + ' · ' + c.upper().replace('_', ' ')
+            S += [sh(1, 'bar', sec, 'THE PLATE', 'SYNTHETIC', clip=c, layer='plate', at=1.5), sh(2, 'build', sec, 'THE MAKING, FROM THE EMPTY TABLE', 'CODED · RING BY RING', clip=c, at=1), sh(2, 'build', sec, 'CANDLES, THEN ITS OWN PEOPLE' if BO[c]['own_cast'] else 'CANDLES', 'BAR 3', clip=c, at=8.5), sh(3, 'build', sec, 'THE BREATH', 'BAR 4 · BEAT 3', clip=c, at=12.75)]
+        allb = [c for c in ids if c in BO]; cols = 7 if len(allb) > 30 else 6
+        S.append(sh(8, 'tiles', f'{len(allb)} SCENES AT ONCE', 'FIRST CANDLE ON THE DOWNBEAT OF BAR 3 · EVERY BREATH ON THE SAME BEAT', 'ONE CLOCK', clips=allb, cols=cols, rows=-(-len(allb) // cols), layer='build', at=8))
+        S.append(sh(4, 'card', lines=[[f'{len(allb)} FULL BUILD-OUTS · 16 BEATS EACH', 30, white], ['', 10, [0, 0, 0]], ['FILMED IN ORB 05 · RUN FROM ORB 06', 16, cyan]]))
+        T['build-outs'] = timeline('EVERY SCENE, BUILT OUT', S, 34, look='camcorder90', poster_at=0.2); T['build-outs']['frame'] = 'stack'
+        own = [x for x in era_pick if x in BO and BO[x]['own_cast']]; nm = lambda c: CL[c]['era'].replace('_', ' ').upper() + ' · ' + c.upper().replace('_', ' ')
+        # VERSION: FROM THE FILM. The film's own shots up to the moment the cake is there; then the making starts, and it is ours.
+        S = [sh(4, 'film', 'BLADE RUNNER 2049 · THE ROOM BEFORE THE CAKE', 'THE FILM', 'AS SHOT', file='assets/moments/shot24_room-before-cake.mp4', t=0, speed=0.92),
+             sh(4, 'film', 'BLADE RUNNER 2049 · THE CAKE APPEARS', 'THE FILM', 'AS SHOT', file='assets/moments/shot25_cake-appears.mp4', t=0.2, speed=1.0),
+             sh(2, 'card', lines=[['THE MAKING STARTS', 44, white], ['FROM HERE EVERY FRAME IS MADE BY THE RINGS', 16, gold]], fade_in=4, fade_out=4)]
+        for c in own[:6]: S += [sh(4, 'build', nm(c), 'THE MAKING, FROM THE EMPTY TABLE', 'RING BY RING', clip=c, at=0.5), sh(2, 'build', nm(c), 'CANDLES, THEN ITS OWN PEOPLE', 'BAR 3', clip=c, at=8.5), sh(2, 'build', nm(c), 'THE BREATH', 'BAR 4 · BEAT 3', clip=c, at=13)]
+        S.append(sh(8, 'tiles', f'{len(allb)} SCENES AT ONCE', 'THE SAME 16 BEATS', 'ONE CLOCK', clips=allb, cols=cols, rows=-(-len(allb) // cols), layer='build', at=8))
+        T['from-the-film'] = timeline('FROM THE FILM TO THE MAKING', S, 34, look='panavision70', poster_at=0.3); T['from-the-film']['frame'] = 'stack'
+        # VERSION: VIDEO TO GAME. Each video honed, one beat a step, into a scene the orb can play.
+        S = [sh(2, 'card', lines=[['VIDEO TO GAME', 54, white], ['EIGHT STEPS · ONE BEAT EACH · THE SAME CAKE IN THE SAME PLACE', 16, gold]], fade_in=6, fade_out=1)]
+        for c in own[:7]:
+            S += [sh(1, 'bar', nm(c), '1 · THE VIDEO', 'SYNTHETIC PLATE', clip=c, layer='plate', at=0), sh(1, 'seen', nm(c), '2 · WHAT IS IN IT', 'SEGMENTED · ON THE GRID', clip=c, at=1, fade=[1, 0]),
+                  sh(1, 'bar', nm(c), '3 · THE CAKE ALONE', 'SEGMENT', clip=c, layer='plate', at=1, segment='cake'), sh(1, 'bar', nm(c), '4 · THE PEOPLE ALONE', 'SEGMENT · BECOMES THE CAST', clip=c, layer='plate', at=1, segment='people'),
+                  sh(1, 'build', nm(c), '5 · THE CAKE, MADE BY RING', 'CODED', clip=c, at=3), sh(1, 'build', nm(c), '6 · CANDLES', 'CODED', clip=c, at=8), sh(1, 'build', nm(c), '7 · ITS PEOPLE RETURN', 'CUT-OUT IN THE CODED ROOM', clip=c, at=11), sh(1, 'build', nm(c), '8 · A SCENE YOU CAN PLAY', 'THE BREATH, ON THE BEAT', clip=c, at=13.5)]
+        S.append(sh(3, 'card', lines=[['EVERY STEP IS A FILE · EVERY SCENE RUNS IN ORB 06', 30, white]]))
+        T['video-to-game'] = timeline('VIDEO TO GAME', S, 56, look='clean', poster_at=0.25); T['video-to-game']['frame'] = 'stack'
+        # VERSION: REVERSE INCEPTION. The loop inside out: the made scene holds its twin, which holds the video it came from; then the video holds what was made from it.
+        S = [sh(2, 'card', lines=[['REVERSE INCEPTION', 54, white], ['THE SAME BREATH AT THREE DEPTHS', 16, gold]], fade_in=6, fade_out=1)]
+        for c in own[:6]:
+            S += [sh(4, 'nest', nm(c), 'THE MADE SCENE HOLDS ITS TWIN, WHICH HOLDS THE VIDEO', 'OUTSIDE IN', clip=c, layers=['build', 'twin', 'plate'], at=0), sh(4, 'nest', nm(c), 'THE VIDEO HOLDS ITS TWIN, WHICH HOLDS THE MADE SCENE', 'INSIDE OUT', clip=c, layers=['plate', 'twin', 'build'], at=0)]
+        S.append(sh(3, 'card', lines=[['WHAT THE ORB MAKES IS WHAT IT IS SHOWN NEXT', 30, white]]))
+        T['reverse-inception'] = timeline('REVERSE INCEPTION', S, 90, look='camcorder90', poster_at=0.2); T['reverse-inception']['frame'] = 'stack'
     tp = os.path.join(N, 'triads.json')
     if os.path.exists(tp):
         TR = json.load(open(tp))['types']; S = []
