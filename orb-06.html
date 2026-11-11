@@ -131,7 +131,13 @@ dustGeo.setAttribute('position', new T.BufferAttribute(dp, 3)); const dustMat = 
 
 /* =============================================================== hologram: every memory material gets the same light treatment */
 const HU = { uHolo: { value: 0 }, uMat: { value: 1 }, uScan: { value: .5 }, uTime: { value: 0 }, uMist: { value: 0 } };
-function holo(mat) { mat.onBeforeCompile = sh => { Object.assign(sh.uniforms, HU);
+/* THE MIST. A memory is kept by what it felt like. Only the piece in hand is solid; every other piece rests as light and grain (HR), except what
+   was felt most (the candles), and the room is a birthday lifted from the archive, shown only where it was bright or warm. ?mist=0 turns it off,
+   ?room=bday_NN chooses the birthday, ?room=0 leaves the room dark. */
+const MISTY = QP.get('mist') !== '0', HR = { uHolo: { value: .92 }, uMat: { value: .9 }, uScan: { value: .3 }, uTime: HU.uTime, uMist: { value: .5 } };
+const restMats = new Map();
+function restOf(m) { if (!MISTY || !m || !m.customProgramCacheKey || m.userData.felt || m.customProgramCacheKey() !== 'holo') return m; let c = restMats.get(m); if (!c) { c = m.clone(); holo(c, HR); restMats.set(m, c); } return c; }
+function holo(mat, U) { mat.onBeforeCompile = sh => { Object.assign(sh.uniforms, U || HU);
     sh.vertexShader = 'varying vec3 vWP; varying vec3 vWN;\n' + sh.vertexShader.replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\n vWP = (modelMatrix * vec4(transformed, 1.0)).xyz; vWN = normalize(mat3(modelMatrix) * objectNormal);');
     sh.fragmentShader = 'uniform float uHolo, uMat, uScan, uTime, uMist; varying vec3 vWP; varying vec3 vWN;\nfloat h3(vec3 p){ return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }\nfloat vnz(vec3 p){ vec3 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f); return mix(mix(mix(h3(i), h3(i + vec3(1,0,0)), f.x), mix(h3(i + vec3(0,1,0)), h3(i + vec3(1,1,0)), f.x), f.y), mix(mix(h3(i + vec3(0,0,1)), h3(i + vec3(1,0,1)), f.x), mix(h3(i + vec3(0,1,1)), h3(i + vec3(1,1,1)), f.x), f.y), f.z); }\n' + sh.fragmentShader.replace('#include <dithering_fragment>', `#include <dithering_fragment>
       if (uMist > 0.001 && h3(floor(vWP * 700.0) + floor(uTime * 6.0) * 0.0) < uMist * 0.93) discard;
@@ -238,9 +244,18 @@ let dirtyDoc = false;
 const strokeMats = {}, strokeMat = c => strokeMats[c] || (strokeMats[c] = holo(new T.MeshStandardMaterial({ color: COLORS[c][1], roughness: .62 })));
 const STROKES = new T.Group(), ITEMG = new T.Group(); CAKE.add(STROKES, ITEMG);
 const PARK = new T.Group(); MEM.add(PARK); const parkMesh = new WeakMap();
+const ROOMP = QP.get('room') === '0' ? null : (QP.get('room') || 'bday_25');
+if (MISTY && ROOMP) { const tx = new T.TextureLoader().load('assets/eye/' + ROOMP + '/plate.webp'), arc = 2.16, y0 = .5;
+  const bd = new T.Mesh(new T.CylinderGeometry(2.05, 2.05, 1.5, 96, 1, true, y0 - Math.PI - arc / 2, arc), new T.ShaderMaterial({ uniforms: { map: { value: tx }, uTime: HU.uTime }, transparent: true, depthWrite: false, side: T.BackSide, blending: T.AdditiveBlending,
+    vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }',
+    fragmentShader: `uniform sampler2D map; uniform float uTime; varying vec2 vUv; float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      void main(){ vec3 c = texture2D(map, vec2(1. - vUv.x, vUv.y)).rgb; float lum = dot(c, vec3(.3, .59, .11)), warm = clamp((c.r - c.b) * 2.2, 0., 1.), felt = clamp(lum * .9 + warm * .9, 0., 1.);
+        float n = h(floor(vUv * vec2(1100., 380.)) + floor(uTime * 2.) * .13); if (n > felt * .8 + .06) discard;
+        float edge = smoothstep(0., .14, vUv.x) * smoothstep(1., .86, vUv.x) * smoothstep(0., .18, vUv.y) * smoothstep(1., .78, vUv.y); gl_FragColor = vec4(c * (.3 + .55 * felt) * edge, 1.); }` }));
+  bd.position.y = 1.2; bd.renderOrder = -2; scene.add(bd); }
 function showOthers(F) { PARK.clear(); const D = Math.PI / 180; (F.others || []).forEach(pc => { const g = new T.Group(), t = pc.tr; g.position.set(t.p[0], BASE_Y + t.p[1], t.p[2]); g.rotation.set(t.r[0] * D, t.r[1] * D, t.r[2] * D, 'YXZ'); g.scale.set(t.s[0] * t.s[2], t.s[0] * t.s[1], t.s[0] * t.s[2]);
     let m = parkMesh.get(pc.clay); if (!m) { const geo = clayGeo(pc.clay.kind); geo.attributes.position.array.set(pc.clay.pos); geo.attributes.color.array.set(pc.clay.col); geo.computeVertexNormals(); m = new T.Mesh(geo, clayMat); m.castShadow = m.receiveShadow = true; parkMesh.set(pc.clay, m); } g.add(m);
-    pc.strokes.forEach(st => g.add(strokeMesh(st))); pc.items.forEach(it => { const o = itemObj(it); applyItem(o, it); g.add(o); o.traverse(x => { if (x.userData.flame) FLAMES.push(x); }); }); g.userData.piece = pc.id; PARK.add(g); }); }
+    pc.strokes.forEach(st => g.add(strokeMesh(st))); pc.items.forEach(it => { const o = itemObj(it); applyItem(o, it); g.add(o); o.traverse(x => { if (x.userData.flame) FLAMES.push(x); }); }); g.userData.piece = pc.id; g.traverse(x => { if (x.isMesh) { if (!x.userData.m0) x.userData.m0 = x.material; x.material = restOf(x.userData.m0); } }); PARK.add(g); }); }
 const meshOf = new WeakMap(), objOf = new WeakMap();
 function strokeMesh(s) { if (meshOf.has(s)) return meshOf.get(s); const pts = []; for (let i = 0; i < s.pts.length; i += 6) pts.push(new T.Vector3(s.pts[i] + s.pts[i + 3] * s.w * .7, s.pts[i + 1] + s.pts[i + 4] * s.w * .7, s.pts[i + 2] + s.pts[i + 5] * s.w * .7));
   if (pts.length < 2) pts.push(pts[0].clone().add(new T.Vector3(.0005, 0, 0))); const curve = new T.CatmullRomCurve3(pts), L = curve.getLength(), seg = Math.max(8, Math.round(L / (s.w * .35))), rs = 10;
@@ -253,6 +268,7 @@ const flameMat = new T.SpriteMaterial({ map: flameTex, blending: T.AdditiveBlend
 const M_CANDLE = holo(new T.MeshStandardMaterial({ map: stripeTex, roughness: .5 })), M_WICK = new T.MeshBasicMaterial({ color: 0x1b1612 }), M_BERRY = holo(new T.MeshStandardMaterial({ color: 0x5a1230, roughness: .3 })), M_CHERRY = holo(new T.MeshPhysicalMaterial({ color: 0x9a0d14, roughness: .15, clearcoat: 1 })), M_STEM = holo(new T.MeshStandardMaterial({ color: 0x4d6b25 }));
 const SPR = ['#e84a5f', '#f6c445', '#5bc0eb', '#9bc53d', '#f6f6f6', '#c86fc9'].map(c => holo(new T.MeshStandardMaterial({ color: c, roughness: .4 })));
 const M_EYEW = holo(new T.MeshPhysicalMaterial({ color: 0xfbf8f2, roughness: .3, clearcoat: .6 })), M_EYEP = holo(new T.MeshPhysicalMaterial({ color: 0x120f0c, roughness: .15, clearcoat: 1 })), M_BUTTON = holo(new T.MeshPhysicalMaterial({ color: 0x2a1710, roughness: .3, clearcoat: .7 })), M_SPIKE = holo(new T.MeshStandardMaterial({ color: 0x3a2114, roughness: .6 }));
+M_CANDLE.userData.felt = true;
 const SWEETM = ['#e8483f', '#f5a623', '#f8e04a', '#58b85c', '#3f8fe0', '#a25bd0'].map(c => holo(new T.MeshPhysicalMaterial({ color: c, roughness: .2, clearcoat: 1 })));
 const G_SPR = new T.CylinderGeometry(.0013, .0013, .007, 6), G_BERRY = new T.SphereGeometry(.0085, 16, 12), G_CHERRY = new T.SphereGeometry(.011, 18, 14), G_ROSE = new T.TorusKnotGeometry(.007, .0028, 64, 8, 2, 7);
 let FLAMES = [];
@@ -279,7 +295,7 @@ function showFrame(t) { // t: optional fractional frame position for tweened pla
   { const TA = trOf(A), TB = trOf(B), k = tween ? sm(u) : 0, L = (x, y) => x + (y - x) * k, ang = (x, y) => x + ((((y - x) % 360) + 540) % 360 - 180) * k;
     CAKE.position.set(L(TA.p[0], TB.p[0]), BASE_Y + L(TA.p[1], TB.p[1]), L(TA.p[2], TB.p[2])); CAKE.rotation.set(ang(TA.r[0], TB.r[0]) * Math.PI / 180, ang(TA.r[1], TB.r[1]) * Math.PI / 180, ang(TA.r[2], TB.r[2]) * Math.PI / 180, 'YXZ');
     const sa = L(TA.s[0], TB.s[0]), sh = L(TA.s[1], TB.s[1]), sw = L(TA.s[2], TB.s[2]); CAKE.scale.set(sa * sw, sa * sh, sa * sw); }
-  mistDirty = true; STROKES.clear(); A.strokes.forEach(s => STROKES.add(strokeMesh(s))); ITEMG.clear(); FLAMES = []; A.items.forEach(it => { const o = itemObj(it); applyItem(o, it); ITEMG.add(o); o.traverse(x => { if (x.userData.flame) FLAMES.push(x); }); }); showOthers(A);
+  mistDirty = true; STROKES.clear(); A.strokes.forEach(s => STROKES.add(strokeMesh(s))); ITEMG.clear(); FLAMES = []; A.items.forEach(it => { const o = itemObj(it); applyItem(o, it); ITEMG.add(o); o.traverse(x => { if (x.userData.flame) FLAMES.push(x); }); }); [STROKES, ITEMG].forEach(G => G.traverse(x => { if (x.isMesh && x.userData.m0) x.material = x.userData.m0; })); showOthers(A);
   // onion skin: earlier frames as cool ghosts, the next as a warm one
   ONION.clear(); if (!CFG.hideGizmo && t == null && S.mode === 'TIME' && ONIONN > 0) { for (let k = 1; k <= ONIONN + 1; k++) { const j = k <= ONIONN ? DOC.cur - k : DOC.cur + 1; if (j < 0 || j >= F.length || !F[j].clay) continue; const g = new T.BufferGeometry(); g.setAttribute('position', new T.BufferAttribute(F[j].clay.pos, 3)); g.setIndex(topology(F[j].clay.kind).idx);
     const m = new T.Mesh(g, new T.MeshBasicMaterial({ color: k <= ONIONN ? 0x5ff0dc : 0xf0b040, wireframe: true, transparent: true, opacity: (k <= ONIONN ? .3 / k : .22), depthWrite: false })); m.rotation.y = (trOf(F[j]).r[1] - trOf(A).r[1]) * Math.PI / 180; ONION.add(m); } }
@@ -1244,6 +1260,7 @@ function update(dt) { NOW += dt; HU.uTime.value = NOW;
   else if (S.mode === 'WEAVE' && !S.play) { const F = DOC.frames; let beats = 0; F.forEach(f => beats += f.hold); let b = S.weave.t * beats, i = 0; while (b >= F[i].hold && i < F.length - 1) { b -= F[i].hold; i++; } const key = i + ':' + b.toFixed(2); if (key !== S.wkey) { S.wkey = key; showFrame(F.length > 1 && PLAYS[S.plays][2] ? i + b / F[i].hold : null); } }
   if (S.takeRec) { S.takeRec.push({ t: NOW - S.takeT, w: { ...S.weave } }); }
   // weave: the memory becomes light; the lab stays as it is
+  HR.uMist.value = .44 + .1 * Math.sin(NOW * .7);
   const weave = S.mode === 'WEAVE', W = S.weave; HU.uHolo.value = lerp(HU.uHolo.value, weave ? 1 : 0, .12); HU.uMat.value = weave ? W.mat : 1; HU.uMist.value = weave ? (W.mist || 0) : 0; HU.uScan.value = W.scan;
   const sc = weave ? W.scale : 1; MEM.scale.setScalar(lerp(MEM.scale.x, sc, .15)); MEM.position.y = BASE_Y * (1 - MEM.scale.x); holoLight.intensity = HU.uHolo.value * (.15 + W.mat * .3);
   const hz = weave ? W.haze : .35; coneMat.uniforms.haze.value = hz; dustMat.opacity = .15 + hz * .6; scene.fog.density = .02 + hz * .07;

@@ -155,6 +155,19 @@ CATERPILLAR (four balls, eyes, a candle per segment), TRAIN (cab, boiler, funnel
 candles), CASTLE (keep, four towers, four cone roofs, the name and six candles on the keep), and HORSE, the film's
 carved horse on a plinth with `6 10 21` piped on it, which is not a cake. Stills: `assets/eye/shots/orb-06-pieces.jpg`.
 
+### The mist
+
+A memory is kept by what it felt like (`docs/mist.md`). In Orb 06 only the piece in hand is solid. Every other piece
+rests as grains of light with a cool rim, breathing slowly; what was felt most (the candles and their flames) stays.
+Taking a piece in hand makes it solid and lets the last one go back to light. The room is a birthday lifted from the
+archive (`assets/eye/<id>/plate.webp`, default `bday_25`), wrapped on the glass and shown only where the frame was
+bright or warm, so faces and the cake come through and the dark does not. `?mist=0` turns the mist off, `?room=bday_NN`
+chooses the birthday, `?room=0` leaves the room dark. Seen: the castle with the keep in hand, then with a roof in hand
+(`assets/eye/shots/memory-maker-keep.jpg`, `memory-maker-roof.jpg`), and a film of solidity passing from piece to
+piece (`assets/eye/memory-maker.mp4`). Not done: a piece condensing over time when taken up (it switches at once),
+the squeeze from Orb 05 driving how solid the piece in hand is, the room in depth (it is a flat plate on the glass),
+sound, and the room chosen to fit the person.
+
 Not checked for pieces: SHOW ME playing these guides at hand speed, picking a piece by touch, undo across a swap,
 TIME frames and WEAVE with several pieces (pieces not in hand do not turn to mist), export of all pieces.
 
