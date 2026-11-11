@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>One Hundred Memories</title>
+<meta name="description" content="One memory for every age from 1 to 100, each made on Field Orb 06 through its rings for a named person, each checked against its plan.">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #040504; --ink: #e9e4d8; --dim: #8a877e; --amb: #f0b040; --line: #2a2a26; --pass: #8fd19e; --fail: #e2725b; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 12px/1.45 "IBM Plex Mono", ui-monospace, monospace; }
+  header { padding: 22px 16px 10px; max-width: 1500px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 6px; letter-spacing: .02em; }
+  header p { margin: 0 0 8px; color: var(--dim); max-width: 760px; } header p b { color: var(--ink); font-weight: 500; }
+  #f { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  #f button { font: inherit; font-size: 11px; color: var(--ink); background: #11120f; border: 1px solid var(--line); border-radius: 3px; padding: 4px 8px; cursor: pointer; } #f button.on { border-color: var(--amb); color: var(--amb); }
+  #g { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; padding: 8px 16px 40px; max-width: 1500px; margin: 0 auto; }
+  a.m { display: block; color: inherit; text-decoration: none; border: 1px solid var(--line); background: #0a0b09; }
+  a.m:hover { border-color: var(--amb); } a.m img { width: 100%; aspect-ratio: 600 / 384; object-fit: cover; display: block; background: #000; }
+  a.m div { padding: 6px 8px 7px; display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: baseline; }
+  a.m b { font-weight: 600; font-size: 15px; color: var(--amb); } a.m span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } a.m small { color: var(--dim); font-size: 10px; display: block; }
+  a.m i { font-style: normal; font-size: 10px; } a.m i.p { color: var(--pass); } a.m i.x { color: var(--fail); }
+  a.m.x { border-color: #5a2a22; }
+</style>
+</head>
+<body>
+<header>
+  <h1>One hundred memories</h1>
+  <p>One for every age from 1 to 100. Each was made on <a href="orb-06.html" style="color:var(--amb)">Field Orb 06</a> by turning its rings through that person's guide, keeping a frame after every step, and then checked against its plan: the pieces of clay, the name written to the end, a lit candle for every year (twelve at most), three children arriving, every candle out in the last frame. <b id="sum"></b></p>
+  <p>The picture is the frame before the blow, with the mist off so everything made can be seen. Open one to watch it on the orb, with the mist and the timeline: the page builds it again through the rings.</p>
+  <div id="f"></div>
+</header>
+<div id="g"></div>
+<script src="assets/memories/memories.js"></script>
+<script>
+const M = Object.values(window.MEMORIES || {}).sort((a, b) => a.n - b.n), g = document.getElementById('g'), f = document.getElementById('f');
+const designs = [...new Set(M.map(m => m.design))].sort(); let cur = 'ALL';
+document.getElementById('sum').textContent = M.length ? M.filter(m => m.pass).length + ' of ' + M.length + ' pass.' : 'None made yet: run node tools/orb06/make100.mjs';
+function draw() {
+  f.innerHTML = ['ALL', 'FAILED'].concat(designs).map(d => `<button class="${d === cur ? 'on' : ''}" data-d="${d}">${d}${d === 'ALL' ? ' ' + M.length : d === 'FAILED' ? ' ' + M.filter(m => !m.pass).length : ' ' + M.filter(m => m.design === d).length}</button>`).join('');
+  g.innerHTML = M.filter(m => cur === 'ALL' || (cur === 'FAILED' ? !m.pass : m.design === cur)).map(m => `<a class="m${m.pass ? '' : ' x'}" href="orb-06.html?${m.q}&seq=1"><img loading="lazy" src="assets/memories/${String(m.n).padStart(3, '0')}.jpg" alt=""><div><b>${m.age}</b><span>${m.name}<small>${m.design.toLowerCase()} · ${m.pieces || 0} piece${m.pieces === 1 ? '' : 's'} · ${m.frames || 0} frames${m.pass ? '' : ' · ' + (m.why || []).join('; ')}</small></span><i class="${m.pass ? 'p' : 'x'}">${m.pass ? 'PASS' : 'FAIL'}</i></div></a>`).join('');
+}
+f.addEventListener('click', e => { const d = e.target.dataset.d; if (d) { cur = d; draw(); } }); draw();
+</script>
+</body>
+</html>

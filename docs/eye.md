@@ -190,3 +190,28 @@ TIME frames and WEAVE with several pieces (pieces not in hand do not turn to mis
 Not run: SMASH, HEDGEHOG and CLASSIC end to end; the steps after the candles (children, blow out, weave) under WHO;
 a phone; sound. Known weak points: on the ladybird the eyes went on away from the camera and the name sits among the
 spots; names are capitals A to Z and digits only, nine characters; the dinosaur and rocket of `cake-for.html` have no guide on the orb yet; number candles are not in the orb.
+
+## One hundred memories (`memories.html`, `tools/orb06/make100.mjs`)
+
+One memory for every age from 1 to 100, each for a named person, each made on Orb 06 by running that person's guide
+through the rings with a frame kept after every step, and each checked against its plan: the number of pieces of
+clay, the name written to the end (where the design carries one), a lit candle for every year up to twelve in the
+frame before the blow, three children arriving after the making, and no candle alight in the last frame.
+
+Result of the run of 2026-11-11: **100 made, 100 pass.** The first run of ages 1 to 14 had two failures (the
+caterpillar and the train kept two candles alight) because BLOW OUT only reached the piece in hand; that was fixed
+in the orb, not in the check, and the hundred were then made from the start.
+
+Ten designs were added for this (snowman, bear, cat, robot, rocket, house, tortoise, stacked tiers, sheet cake,
+bundt ring), with colours and trimmings chosen by a seed per person. All hundred on one sheet:
+`assets/memories/all-100.jpg`.
+
+What the hundred do not show:
+- Variety is thin after childhood. Ages 2 to 13 use twelve different sculpted designs; ages 14 to 100 share five
+  (classic, stacked tiers, sheet, bundt, horse), differing in colour, trimmings and name.
+- The check is against the plan the same code wrote. It proves the rings did what the guide asked on every one; it
+  does not judge whether a memory looks right. Nobody has looked at each of the hundred; the sheet was looked at once.
+- The stills carry the guide caption and the timeline strip over part of the picture, and the three child cut-outs
+  are the same in every one, so the rooms look alike although each uses a different archive birthday.
+- Past twelve the candles stop at twelve. The caterpillar, train and bundt carry no name.
+- Opening a memory from the page builds it again through the rings (`&seq=1`); that link was not tried in a browser.
