@@ -85,7 +85,7 @@ node tools/lift/score.mjs
 ```
 About 18 s per clip on 4 CPU cores for the lift, 3 minutes for scoring. `viz.py` draws the fits over the frames,
 `plates.mjs` renders conditioning plates (eight camera families, depth pass, turntable), `film.mjs` records the Eye,
-`review.mjs` makes sheets for a critic. `plates.mjs`, `film.mjs` and `review.mjs` are written and have not been run.
+`review.mjs` makes sheets for a critic. `film.mjs` made `assets/eye/eye-proof.mp4`; `plates.mjs` and `review.mjs` are written and have not been run.
 
 ## Not done, and why
 
