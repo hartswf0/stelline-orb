@@ -63,10 +63,11 @@ const CFG = {
 /* FIELD ORB 06 = the Memory Weaver (Orb 05) plus WHO. A cake is made for one person: ?name=NOOR&age=5 (&design=SMASH|LADYBIRD|HEDGEHOG|CLASSIC).
    Nothing in the Weaver's grammar changes: ring 1 MODE, ring 2 PICK, then verb, height on the cake, amount, with the reticle at the aimed height.
    Added to it: the verb WRITE · NAME (each click pipes the next stretch of the person's name on the crown, facing where you stand), a candle for
-   every year (up to twelve), the parts a child's sculpted cake needs (EYES, BUTTONS, SWEETS, SPIKES; red, green and black icing), and a guide
+   every year (up to twelve), the parts a child's sculpted cake needs (EYES, BUTTONS, SWEETS, SPIKES; red, green and black icing), many pieces of clay in one memory (the verbs
+   PIECE · DRUM, DOME, TIERS, BALL, BLOCK, POST, CONE, BUNDT set down another piece; PICK or a touch takes a piece in hand; MOVE, TURN and SIZE place it), and a guide
    written for that person, played on the rings by SHOW ME exactly as before. */
 const WHO = (() => { const age = clamp(Math.round(+QP.get('age') || 5), 1, 100), name = (QP.get('name') || 'NOOR').toUpperCase().replace(/[^A-Z0-9 ]/g, '').slice(0, 9) || 'NOOR';
-  const design = (QP.get('design') || (age <= 2 ? 'SMASH' : age <= 5 ? 'LADYBIRD' : age <= 8 ? 'HEDGEHOG' : 'CLASSIC')).toUpperCase(); return { age, name, design, candles: Math.min(age, 12) }; })();
+  const design = (QP.get('design') || (age <= 1 ? 'SMASH' : age === 2 ? 'CATERPILLAR' : age === 4 ? 'TRAIN' : age <= 5 ? 'LADYBIRD' : age === 6 ? 'CASTLE' : age <= 8 ? 'HEDGEHOG' : 'CLASSIC')).toUpperCase(); return { age, name, design, candles: Math.min(age, 12) }; })();
 if (CFG.stageOnly) document.body.classList.add('stage-only');
 if (CFG.museum || CFG.noScreen) document.body.classList.add('museum');
 if (CFG.noText) document.body.classList.add('notext');
@@ -185,6 +186,10 @@ const BASES = {
   DRUM: { loop: false, P: [[0, 0], [.112, 0], [.12, .008], [.12, .082], [.112, .09], [0, .09]] },
   DOME: { loop: false, P: (() => { const p = [[0, 0], [.12, 0], [.12, .02]]; for (let k = 1; k <= 12; k++) { const a = k / 12 * Math.PI / 2; p.push([.12 * Math.cos(a), .02 + .1 * Math.sin(a)]); } return p; })() },
   TIERS: { loop: false, P: [[0, 0], [.13, 0], [.13, .07], [.09, .07], [.09, .135], [0, .135]] },
+  BALL: { loop: false, P: (() => { const p = []; for (let k = 0; k <= 16; k++) { const a = -Math.PI / 2 + k / 16 * Math.PI; p.push([.07 * Math.cos(a), .07 + .07 * Math.sin(a)]); } p[0][0] = 0; p[16][0] = 0; return p; })() },
+  BLOCK: { loop: false, sq: true, P: [[0, 0], [.078, 0], [.085, .007], [.085, .093], [.078, .1], [0, .1]] },
+  POST: { loop: false, P: [[0, 0], [.028, 0], [.03, .004], [.03, .136], [.028, .14], [0, .14]] },
+  CONE: { loop: false, P: [[0, 0], [.066, 0], [.07, .006], [.006, .148], [0, .15]] },
   BUNDT: { loop: true, P: (() => { const p = []; for (let k = 0; k < 40; k++) { const t = -Math.PI / 2 + k / 40 * TAU; p.push([.075 + .05 * Math.cos(t), .05 + .05 * Math.sin(t) * (Math.sin(t) < 0 ? .85 : 1)]); } return p; })() }
 };
 function resample(P, n, loop) { const pts = loop ? P.concat([P[0]]) : P, L = [0]; for (let i = 1; i < pts.length; i++) L.push(L[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
@@ -194,7 +199,7 @@ function topology(kind) { if (TOPO[kind]) return TOPO[kind]; const B = BASES[kin
   const V = (r, y, a) => { pos.push(r * Math.cos(a), y, r * Math.sin(a)); ang.push(a); return pos.length / 3 - 1; };
   let rows = [], p0 = -1, p1 = -1;
   if (B.loop) { for (let i = 0; i < NP; i++) { const row = []; for (let j = 0; j < COLS; j++) { const a = j / COLS * TAU, out = prof[i][0] > .075 ? 1 : 0; const fl = 1 + .075 * Math.cos(11 * a) * out * Math.max(0, (prof[i][0] - .075) / .05); row.push(V(prof[i][0] * fl, prof[i][1], a)); } rows.push(row); } }
-  else { p0 = V(0, prof[0][1], 0); for (let i = 1; i < NP - 1; i++) { const row = []; for (let j = 0; j < COLS; j++) row.push(V(prof[i][0], prof[i][1], j / COLS * TAU)); rows.push(row); } p1 = V(0, prof[NP - 1][1], 0); }
+  else { p0 = V(0, prof[0][1], 0); for (let i = 1; i < NP - 1; i++) { const row = []; for (let j = 0; j < COLS; j++) { const a = j / COLS * TAU; row.push(V(prof[i][0] * (B.sq ? 1 / Math.pow(Math.pow(Math.abs(Math.cos(a)), 6) + Math.pow(Math.abs(Math.sin(a)), 6), 1 / 6) : 1), prof[i][1], a)); } rows.push(row); } p1 = V(0, prof[NP - 1][1], 0); }
   const nr = rows.length, quad = (a, b, c, d) => idx.push(a, b, c, c, b, d);
   for (let i = 0; i < (B.loop ? nr : nr - 1); i++) for (let j = 0; j < COLS; j++) { const i2 = (i + 1) % nr, j2 = (j + 1) % COLS; quad(rows[i][j], rows[i2][j], rows[i][j2], rows[i2][j2]); }
   if (!B.loop) for (let j = 0; j < COLS; j++) { const j2 = (j + 1) % COLS; idx.push(p0, rows[0][j], rows[0][j2]); idx.push(rows[nr - 1][j], p1, rows[nr - 1][j2]); }
@@ -216,11 +221,14 @@ const TOOLS = ['SPAWN', 'GRAB', 'PULL', 'PUSH', 'SMOOTH', 'FLATTEN', 'PAINT', 'P
 const SPINS = ['FREE', 'SPIN 6', 'SPIN 12', 'TURNED'];   // symmetry: none, 6 copies, 12 copies, the whole turn (lathe)
 const PLAYS = [['STEP 12', 12, 0], ['STEP 8', 8, 0], ['STEP 6', 6, 0], ['TWEEN 24', 24, 1]];
 const TR0 = () => ({ p: [0, 0, 0], r: [0, 0, 0], s: [1, 1, 1] });
-const frameNew = () => ({ clay: null, strokes: [], items: [], tr: TR0(), spread: {}, hold: 1 });
+const frameNew = () => ({ clay: null, strokes: [], items: [], tr: TR0(), spread: {}, hold: 1, others: [] });
 const trOf = f => f.tr || (f.tr = { p: [0, f.lift || 0, 0], r: [f.tilt || 0, f.rotY || 0, 0], s: [f.sc || 1, 1, 1] });
 let DOC = { frames: [frameNew()], cur: 0, cast: [] };
 const curF = () => DOC.frames[DOC.cur];
-const copyFrame = f => ({ clay: f.clay ? { kind: f.clay.kind, pos: f.clay.pos.slice(), col: f.clay.col.slice() } : null, strokes: f.strokes.map(s => ({ ...s, pts: s.pts.slice() })), items: f.items.map(i => ({ ...i, rot: i.rot ? i.rot.slice() : undefined })), tr: JSON.parse(JSON.stringify(trOf(f))), spread: { ...(f.spread || {}) }, hold: f.hold, nameFull: f.nameFull, nameR: f.nameR });
+/* A memory is any number of pieces of clay. One is in hand (clay, strokes, items, tr on the frame: everything the rings work on); the others
+   stand where they were left (frame.others). PICK or a touch swaps which one is in hand. */
+const copyPiece = pc => ({ id: pc.id, clay: { kind: pc.clay.kind, pos: pc.clay.pos.slice(), col: pc.clay.col.slice() }, strokes: pc.strokes.map(st => ({ ...st, pts: st.pts.slice() })), items: pc.items.map(i => ({ ...i, rot: i.rot ? i.rot.slice() : undefined })), tr: JSON.parse(JSON.stringify(pc.tr)), nameFull: pc.nameFull, nameR: pc.nameR, nameAt: pc.nameAt });
+const copyFrame = f => ({ clay: f.clay ? { kind: f.clay.kind, pos: f.clay.pos.slice(), col: f.clay.col.slice() } : null, strokes: f.strokes.map(s => ({ ...s, pts: s.pts.slice() })), items: f.items.map(i => ({ ...i, rot: i.rot ? i.rot.slice() : undefined })), tr: JSON.parse(JSON.stringify(trOf(f))), spread: { ...(f.spread || {}) }, hold: f.hold, nameFull: f.nameFull, nameR: f.nameR, nameAt: f.nameAt, pid: f.pid, others: (f.others || []).map(copyPiece) });
 const UNDO = [], REDO = [];
 function snapshot() { UNDO.push({ frames: DOC.frames.map(copyFrame), cur: DOC.cur, cast: DOC.cast.map(c => ({ ...c })) }); if (UNDO.length > 40) UNDO.shift(); REDO.length = 0; dirtyDoc = true; }
 function undo(redo) { const from = redo ? REDO : UNDO, to = redo ? UNDO : REDO; const s = from.pop(); if (!s) { say(redo ? 'NOTHING TO REDO' : 'NOTHING TO UNDO'); tick('dead'); return; } to.push({ frames: DOC.frames.map(copyFrame), cur: DOC.cur, cast: DOC.cast.map(c => ({ ...c })) }); DOC = s; DOC.cast = DOC.cast || []; showFrame(); S.state = 'RECOVERY'; say(redo ? 'REDONE' : 'UNDONE · THE LAST CHANGE IS REVERSED'); }
@@ -229,6 +237,10 @@ let dirtyDoc = false;
 /* =============================================================== show a frame (or a point between two frames) in the room */
 const strokeMats = {}, strokeMat = c => strokeMats[c] || (strokeMats[c] = holo(new T.MeshStandardMaterial({ color: COLORS[c][1], roughness: .62 })));
 const STROKES = new T.Group(), ITEMG = new T.Group(); CAKE.add(STROKES, ITEMG);
+const PARK = new T.Group(); MEM.add(PARK); const parkMesh = new WeakMap();
+function showOthers(F) { PARK.clear(); const D = Math.PI / 180; (F.others || []).forEach(pc => { const g = new T.Group(), t = pc.tr; g.position.set(t.p[0], BASE_Y + t.p[1], t.p[2]); g.rotation.set(t.r[0] * D, t.r[1] * D, t.r[2] * D, 'YXZ'); g.scale.set(t.s[0] * t.s[2], t.s[0] * t.s[1], t.s[0] * t.s[2]);
+    let m = parkMesh.get(pc.clay); if (!m) { const geo = clayGeo(pc.clay.kind); geo.attributes.position.array.set(pc.clay.pos); geo.attributes.color.array.set(pc.clay.col); geo.computeVertexNormals(); m = new T.Mesh(geo, clayMat); m.castShadow = m.receiveShadow = true; parkMesh.set(pc.clay, m); } g.add(m);
+    pc.strokes.forEach(st => g.add(strokeMesh(st))); pc.items.forEach(it => { const o = itemObj(it); applyItem(o, it); g.add(o); o.traverse(x => { if (x.userData.flame) FLAMES.push(x); }); }); g.userData.piece = pc.id; PARK.add(g); }); }
 const meshOf = new WeakMap(), objOf = new WeakMap();
 function strokeMesh(s) { if (meshOf.has(s)) return meshOf.get(s); const pts = []; for (let i = 0; i < s.pts.length; i += 6) pts.push(new T.Vector3(s.pts[i] + s.pts[i + 3] * s.w * .7, s.pts[i + 1] + s.pts[i + 4] * s.w * .7, s.pts[i + 2] + s.pts[i + 5] * s.w * .7));
   if (pts.length < 2) pts.push(pts[0].clone().add(new T.Vector3(.0005, 0, 0))); const curve = new T.CatmullRomCurve3(pts), L = curve.getLength(), seg = Math.max(8, Math.round(L / (s.w * .35))), rs = 10;
@@ -267,7 +279,7 @@ function showFrame(t) { // t: optional fractional frame position for tweened pla
   { const TA = trOf(A), TB = trOf(B), k = tween ? sm(u) : 0, L = (x, y) => x + (y - x) * k, ang = (x, y) => x + ((((y - x) % 360) + 540) % 360 - 180) * k;
     CAKE.position.set(L(TA.p[0], TB.p[0]), BASE_Y + L(TA.p[1], TB.p[1]), L(TA.p[2], TB.p[2])); CAKE.rotation.set(ang(TA.r[0], TB.r[0]) * Math.PI / 180, ang(TA.r[1], TB.r[1]) * Math.PI / 180, ang(TA.r[2], TB.r[2]) * Math.PI / 180, 'YXZ');
     const sa = L(TA.s[0], TB.s[0]), sh = L(TA.s[1], TB.s[1]), sw = L(TA.s[2], TB.s[2]); CAKE.scale.set(sa * sw, sa * sh, sa * sw); }
-  mistDirty = true; STROKES.clear(); A.strokes.forEach(s => STROKES.add(strokeMesh(s))); ITEMG.clear(); FLAMES = []; A.items.forEach(it => { const o = itemObj(it); applyItem(o, it); ITEMG.add(o); o.traverse(x => { if (x.userData.flame) FLAMES.push(x); }); });
+  mistDirty = true; STROKES.clear(); A.strokes.forEach(s => STROKES.add(strokeMesh(s))); ITEMG.clear(); FLAMES = []; A.items.forEach(it => { const o = itemObj(it); applyItem(o, it); ITEMG.add(o); o.traverse(x => { if (x.userData.flame) FLAMES.push(x); }); }); showOthers(A);
   // onion skin: earlier frames as cool ghosts, the next as a warm one
   ONION.clear(); if (!CFG.hideGizmo && t == null && S.mode === 'TIME' && ONIONN > 0) { for (let k = 1; k <= ONIONN + 1; k++) { const j = k <= ONIONN ? DOC.cur - k : DOC.cur + 1; if (j < 0 || j >= F.length || !F[j].clay) continue; const g = new T.BufferGeometry(); g.setAttribute('position', new T.BufferAttribute(F[j].clay.pos, 3)); g.setIndex(topology(F[j].clay.kind).idx);
     const m = new T.Mesh(g, new T.MeshBasicMaterial({ color: k <= ONIONN ? 0x5ff0dc : 0xf0b040, wireframe: true, transparent: true, opacity: (k <= ONIONN ? .3 / k : .22), depthWrite: false })); m.rotation.y = (trOf(F[j]).r[1] - trOf(A).r[1]) * Math.PI / 180; ONION.add(m); } }
@@ -289,25 +301,29 @@ const MODE_SAYS = { LOOK: 'LOOK · CIRCLE, TILT AND COME CLOSER', MAKE: 'MAKE ·
 const isXf = () => S.mode === 'MOVE' || S.mode === 'TURN' || S.mode === 'SIZE';
 const AXC = ['#ff5b4d', '#5fe36e', '#4f8dff'], AXH = [0xff5b4d, 0x5fe36e, 0x4f8dff];
 // MAKE's first ring: every verb the cake needs, in the order a cake is made
-const VERBS = [['BASE · DRUM', 'SPAWN', 0], ['BASE · DOME', 'SPAWN', 1], ['BASE · TIERS', 'SPAWN', 2], ['BASE · BUNDT', 'SPAWN', 3],
+const BK = Object.keys(BASES);
+const VERBS = [['BASE · DRUM', 'SPAWN', BK.indexOf('DRUM')], ['BASE · DOME', 'SPAWN', BK.indexOf('DOME')], ['BASE · TIERS', 'SPAWN', BK.indexOf('TIERS')], ['BASE · BUNDT', 'SPAWN', BK.indexOf('BUNDT')],
+  ...BK.map((k, i) => ['PIECE · ' + k, 'PIECE', i]),
   ['PULL OUT', 'PULL', 3], ['PUSH IN', 'PUSH', 3], ['SMOOTH', 'SMOOTH', 3], ['FLATTEN', 'FLATTEN', 3],
-  ['FROST · CREAM', 'PAINT', 0], ['FROST · ROSE', 'PAINT', 1], ['FROST · CHOCOLATE', 'PAINT', 5], ['FROST · LEMON', 'PAINT', 4], ['FROST · MINT', 'PAINT', 2], ['FROST · WHITE', 'PAINT', 7], ['FROST · RED', 'PAINT', 6], ['FROST · GREEN', 'PAINT', 9], ['FROST · BLACK', 'PAINT', 10],
+  ['FROST · CREAM', 'PAINT', 0], ['FROST · ROSE', 'PAINT', 1], ['FROST · CHOCOLATE', 'PAINT', 5], ['FROST · LEMON', 'PAINT', 4], ['FROST · MINT', 'PAINT', 2], ['FROST · WHITE', 'PAINT', 7], ['FROST · RED', 'PAINT', 6], ['FROST · GREEN', 'PAINT', 9], ['FROST · BLACK', 'PAINT', 10], ['FROST · SKY', 'PAINT', 3], ['FROST · GOLD', 'PAINT', 8],
   ['PIPE · WHITE', 'PIPE', 7], ['PIPE · ROSE', 'PIPE', 1], ['PIPE · CHOCOLATE', 'PIPE', 5], ['PIPE · GOLD', 'PIPE', 8], ['PIPE · RED', 'PIPE', 6],
   ['CANDLES', 'PLACE', 0], ['BERRIES', 'PLACE', 1], ['CHERRIES', 'PLACE', 4], ['ROSETTES', 'PLACE', 3], ['SPRINKLES', 'PLACE', 2], ['EYES', 'PLACE', 5], ['BUTTONS', 'PLACE', 6], ['SWEETS', 'PLACE', 7], ['SPIKES', 'PLACE', 8],
   ['WRITE · NAME RED', 'NAME', 6], ['WRITE · NAME WHITE', 'NAME', 7], ['WRITE · NAME CHOCOLATE', 'NAME', 5],
   ['A CHILD', 'CHILD', 0], ['BLOW OUT', 'SNUFF', 0]];
-function setVerb(k) { if (k !== S.verb) S.amt = 0; S.verb = clamp(k, 0, VERBS.length - 1); const [, t, o] = VERBS[S.verb]; if (TOOLS.indexOf(t) >= 0) { S.tool = TOOLS.indexOf(t); S.opt[t] = o; if (t === 'PIPE') S.opt.PIPE = o; } if (t === 'NAME') { S.tool = TOOLS.indexOf('PIPE'); S.opt.PIPE = o; } S.dialPipe = null; }
+function setVerb(k) { if (k !== S.verb) S.amt = 0; S.verb = clamp(k, 0, VERBS.length - 1); const [, t, o] = VERBS[S.verb]; if (TOOLS.indexOf(t) >= 0) { S.tool = TOOLS.indexOf(t); S.opt[t] = o; if (t === 'PIPE') S.opt.PIPE = o; } if (t === 'NAME') { S.tool = TOOLS.indexOf('PIPE'); S.opt.PIPE = o; } if (t === 'PIECE') { S.tool = TOOLS.indexOf('SPAWN'); S.opt.SPAWN = o; } S.dialPipe = null; }
 const verbTool = () => VERBS[S.verb][1];
 /* the scene graph: the cake, what is on it (in kinds, and one by one), the children */
 const PLURAL = { CANDLE: 'CANDLES', BERRY: 'BERRIES', CHERRY: 'CHERRIES', ROSETTE: 'ROSETTES', SPRINKLE: 'SPRINKLES', EYE: 'EYES', BUTTON: 'BUTTONS', SWEET: 'SWEETS', SPIKE: 'SPIKES' };
-function nodes() { const F = curF(), L = [{ key: 'cake', k: 'cake', name: 'CAKE', depth: 0 }], G = {};
+function nodes() { const F = curF(), L = [{ key: 'cake', k: 'cake', name: (F.others && F.others.length && F.clay) ? 'PIECE ' + (F.pid || 1) + ' · ' + F.clay.kind : 'CAKE', depth: 0 }], G = {};
   F.items.forEach((it, i) => (G[it.t] = G[it.t] || []).push(i));
   for (const t of Object.keys(G)) { const ix = G[t]; L.push({ key: 'g:' + t, k: 'group', t, ix, name: PLURAL[t] + ' ' + ix.length, depth: 1 }); if (t !== 'SPRINKLE' && ix.length <= 24) ix.forEach((i, n) => L.push({ key: 'i:' + i, k: 'item', i, t, name: t + ' ' + (n + 1), depth: 2 })); }
+  (F.others || []).slice().sort((a, b) => a.id - b.id).forEach(pc => L.push({ key: 'p:' + pc.id, k: 'piece', id: pc.id, name: 'PIECE ' + pc.id + ' · ' + pc.clay.kind, depth: 0 }));
   DOC.cast.slice().sort((a, b) => a.i - b.i).forEach(c => L.push({ key: 'c:' + c.id, k: 'child', id: c.id, name: 'CHILD ' + (c.i + 1), depth: 0 }));
   return L; }
 function pickIndex() { const L = nodes(); const k = L.findIndex(n => n.key === S.pickKey); return k < 0 ? 0 : k; }
 function curNode() { const L = nodes(); return L[pickIndex()] || L[0]; }
-function pickTo(key) { if (key === S.pickKey) return; S.pickKey = key; lockChime(); if (S.focus.auto) S.focus.d = null; if (S.mode === 'LOOK') lookAtNode(); oledDirty = true; }
+function pickTo(key) { if (typeof key === 'string' && key.slice(0, 2) === 'p:') { if (activate(+key.slice(2))) { S.pickKey = 'cake'; lockChime(); if (S.focus.auto) S.focus.d = null; if (S.mode === 'LOOK') lookAtNode(); oledDirty = true; say('PIECE ' + curF().pid + ' · ' + curF().clay.kind + ' IN HAND'); } return; }
+  if (key === S.pickKey) return; S.pickKey = key; lockChime(); if (S.focus.auto) S.focus.d = null; if (S.mode === 'LOOK') lookAtNode(); oledDirty = true; }
 function nodeCenter(nd) { nd = nd || curNode(); MEM.updateMatrixWorld(true); CAKE.updateMatrixWorld(true);
   if (nd.k === 'child' && castMesh[nd.id]) { const m = castMesh[nd.id]; return { c: m.getWorldPosition(new T.Vector3()), r: m.scale.y * MEM.scale.x * .5, obj: m }; }
   if (nd.k === 'item') { const it = curF().items[nd.i], o = it && objOf.get(it); if (o) { const b = new T.Box3().setFromObject(o); if (!b.isEmpty()) return { c: b.getCenter(new T.Vector3()), r: Math.max(.012, b.getSize(new T.Vector3()).length() / 2), obj: o }; } }
@@ -452,6 +468,7 @@ function aimHit() { if (!clayMesh) return null; const tp = topology(clayKind), R
 function r0v(tp, k) { const v = tp.rows[k][0]; return [Math.hypot(tp.base[v * 3], tp.base[v * 3 + 2]), tp.base[v * 3 + 1]]; }
 function rowPoint(i, j) { const tp = topology(clayKind), v = tp.rows[i][((j % COLS) + COLS) % COLS], P = clayMesh.geometry.attributes.position, N = clayMesh.geometry.attributes.normal; return { p: new T.Vector3(P.getX(v), P.getY(v), P.getZ(v)), n: new T.Vector3(N.getX(v), N.getY(v), N.getZ(v)).normalize() }; }
 function dialApply(steps) { const t = verbTool(); S.amt += steps; gestureT = NOW; S.counts[t] = (S.counts[t] || 0) + Math.max(0, steps);
+  if (t === 'PIECE') { for (let k = 0; k < Math.abs(steps); k++) steps > 0 ? newPiece(VERBS[S.verb][2]) : dropPiece(); return; }
   if (t === 'SPAWN') { if (steps > 0) { const F = curF(); S.opt.SPAWN = VERBS[S.verb][2]; spawn(!!F.clay); S.pickKey = 'cake'; } else if (curF().clay) { snapshot(); curF().clay = null; curF().strokes = []; curF().items = []; showFrame(); say('THE TABLE IS EMPTY AGAIN'); } return; }
   if (t === 'CHILD') { for (let k = 0; k < Math.abs(steps); k++) steps > 0 ? addChild() : removeChild(); return; }
   if (t === 'SNUFF') { const F = curF(), C = F.items.filter(i => i.t === 'CANDLE'); if (!C.length) { say('NO CANDLES TO BLOW OUT'); tick('dead'); return; } snapshot(); for (let k = 0; k < Math.abs(steps); k++) { const c = steps > 0 ? C.find(i => !i.out) : C.slice().reverse().find(i => i.out); if (c) { c.out = !c.out; objOf.delete(c); } } showFrame(); const lit = C.filter(i => !i.out).length; say(lit ? lit + ' FLAMES LEFT' : 'ALL OUT · MAKE A WISH'); if (!lit) shimmer(); return; }
@@ -483,6 +500,15 @@ function nameLay() { if (!clayMesh) return null; clayMesh.geometry.computeBoundi
   const drop = (gx, gy) => { const P = right.clone().multiplyScalar((gx - Wt / 2) * su).addScaledVector(f, -(gy - 3) * su + .012); P.y = bb.max.y + .05; ray.set(CAKE.localToWorld(P.clone()), dn); const q = ray.intersectObject(clayMesh, false)[0]; if (!q) return null; const lp = CAKE.worldToLocal(q.point.clone()); return [lp.x, lp.y, lp.z, 0, 1, 0]; };
   [...txt].forEach((ch, ci) => (GLY[ch] || []).forEach(st => { const out = []; for (let k = 0; k + 3 < st.length; k += 2) { const x0 = st[k], y0 = st[k + 1], x1 = st[k + 2], y1 = st[k + 3], n = Math.max(1, Math.round(Math.hypot(x1 - x0, y1 - y0) * su / .0028)); for (let q = k ? 1 : 0; q <= n; q++) { const d = drop(ci * adv + x0 + (x1 - x0) * q / n, y0 + (y1 - y0) * q / n); if (d) out.push(d); } } if (out.length > 1) polys.push(out); }));
   return polys; }
+let PID = 1;
+const pieceCount = () => { const F = curF(); return (F.others || []).length + (F.clay ? 1 : 0); };
+const packPiece = F => ({ id: F.pid || (F.pid = PID++), clay: F.clay, strokes: F.strokes, items: F.items, tr: trOf(F), nameFull: F.nameFull, nameR: F.nameR, nameAt: F.nameAt });
+function loadPiece(F, pc) { parkMesh.delete(pc.clay); F.clay = pc.clay; F.strokes = pc.strokes; F.items = pc.items; F.tr = pc.tr; F.nameFull = pc.nameFull; F.nameR = pc.nameR; F.nameAt = pc.nameAt; F.pid = pc.id; S.dialPipe = null; }
+function activate(id) { const F = curF(), O = F.others || (F.others = []), k = O.findIndex(pc => pc.id === id); if (k < 0) return false; snapshot(); const inc = O[k]; if (F.clay) O[k] = packPiece(F); else O.splice(k, 1); loadPiece(F, inc); showFrame(); return true; }
+function newPiece(o) { const F = curF(), O = F.others || (F.others = []); if (O.length >= 15) { say('SIXTEEN PIECES · THE TABLE IS FULL'); tick('dead'); return; } snapshot(); const n = pieceCount(); if (F.clay) O.push(packPiece(F));
+  const kind = Object.keys(BASES)[o], tp = topology(kind), col = new Float32Array(tp.nv * 3); for (let i = 0; i < tp.nv; i++) col.set(CREAM, i * 3);
+  F.clay = { kind, pos: tp.base.slice(), col }; F.strokes = []; F.items = []; F.nameFull = null; F.nameR = 0; F.nameAt = null; F.pid = PID++; const t = TR0(); if (n) t.p[2] = .2; F.tr = t; S.pickKey = 'cake'; showFrame(); S.state = 'READY'; say('PIECE ' + F.pid + ' · ' + kind + (n ? ' · MOVE, TURN AND SIZE SET IT IN PLACE' : ' ON THE TABLE')); }
+function dropPiece() { const F = curF(), O = F.others || []; if (!F.clay) { say('NOTHING TO TAKE AWAY'); tick('dead'); return; } snapshot(); const last = O.pop(); if (last) loadPiece(F, last); else { F.clay = null; F.strokes = []; F.items = []; F.nameFull = null; } showFrame(); say(last ? 'PIECE TAKEN AWAY · PIECE ' + F.pid + ' IN HAND' : 'THE TABLE IS EMPTY AGAIN'); }
 function writeName(steps) { const F = curF(); if (!F.nameFull) { if (steps < 0) return; F.nameFull = nameLay(); F.nameR = 0; if (!F.nameFull || !F.nameFull.length) { F.nameFull = null; say('NO ROOM FOR THE NAME HERE'); tick('dead'); return; } }
   const tot = F.nameFull.reduce((a, p) => a + p.length, 0), per = 3, was = F.nameR; F.nameR = clamp(F.nameR + steps * per, 0, tot); if (F.nameR === was) { say(was >= tot ? 'THE NAME IS WRITTEN · ' + WHO.name : 'NOTHING WRITTEN YET'); return; }
   if (NOW - (S.amtT || -9) > 1.2) snapshot(); S.amtT = NOW; const c = VERBS[S.verb][2];
@@ -851,7 +877,8 @@ function gizmoDrag(d, x, y, prev) { const ud = d.gz, dx = x - prev.x, dy = y - p
     const toCam = cam.position.clone().sub(GZ.position).normalize(), sg = AXV[ud.ax].dot(toCam) >= 0 ? -1 : 1; scrub(ud.ring, sg * da * 57.2958 / rs[ud.ring].st); } }
 // clicking a thing in the room picks it
 function clickPick(x, y) { ndc.set(x / roomEl.clientWidth * 2 - 1, -y / roomEl.clientHeight * 2 + 1); ray.setFromCamera(ndc, cam); MEM.updateMatrixWorld(true);
-  const objs = [...Object.values(castMesh).filter(m => m.visible), ...ITEMG.children, ...(clayMesh ? [clayMesh] : []), ...STROKES.children]; const h = ray.intersectObjects(objs, true)[0]; if (!h) return;
+  const objs = [...Object.values(castMesh).filter(m => m.visible), ...ITEMG.children, ...(clayMesh ? [clayMesh] : []), ...STROKES.children, ...PARK.children]; const h = ray.intersectObjects(objs, true)[0]; if (!h) return;
+  { let q = h.object; while (q && q.userData.piece == null) q = q.parent; if (q) return pickTo('p:' + q.userData.piece); }
   let o = h.object; for (const id in castMesh) if (castMesh[id] === o) return pickTo('c:' + id);
   while (o && o.parent !== ITEMG) o = o.parent; if (o) { const i = curF().items.findIndex(it => objOf.get(it) === o); if (i >= 0) { const it = curF().items[i]; return pickTo(it.t === 'SPRINKLE' ? 'g:SPRINKLE' : 'i:' + i); } }
   pickTo('cake'); }
@@ -975,7 +1002,7 @@ function updDataReticle() {
 const capEl = document.getElementById('cap');
 const kidKey = n => { const c = DOC.cast.find(c => c.i === n); return c ? 'c:' + c.id : 'cake'; };
 const itemKey = (t, n) => { let k = -1, seen = 0; curF().items.forEach((it, i) => { if (it.t === t && seen++ === n) k = i; }); return k < 0 ? 'cake' : 'i:' + k; };
-const vIdx = name => VERBS.findIndex(v => v[0] === name);
+const vIdx = name => { const i = VERBS.findIndex(v => v[0] === name); if (i < 0) throw new Error('no such verb: ' + name); return i; };
 const GSTEPS = [
   { t: 'PUT DOWN THE SPONGE', h: 'MODE ring to MAKE · VERB to BASE · DRUM · turn the last ring up once', done: () => !!curF().clay,
     show: [['ring', 0, () => MODES.indexOf('MAKE')], ['ring', 2, () => vIdx('BASE · DRUM')], ['turn', 4, 1]] },
@@ -1020,6 +1047,29 @@ const GSTEPS = [
     LADYBIRD: [base('DOME'), frost('RED', [.12, .3, .48, .66, .84, .97]), frost('BLACK', [.04], 'BLACK ROUND THE FOOT', 3), put('BUTTONS', 'BUTTON', [[.45, 6], [.7, Math.max(1, Math.min(6, WHO.age * 2 - 6))]].filter(r => r[1] > 0), 'CHOCOLATE-BUTTON SPOTS', 'VERB to BUTTONS · HEIGHT on the shell · two spots a year'), put('EYES', 'EYE', [[.22, 2]], 'TWO EYES', 'Stand at its face · VERB to EYES · HEIGHT low · two clicks'), name('WHITE'), candles(.88)],
     HEDGEHOG: [base('DOME'), frost('CHOCOLATE', [.12, .3, .48, .66, .84, .97]), put('SPIKES', 'SPIKE', [[.34, 14], [.5, 14], [.66, 14]], 'PIPED SPIKES', 'VERB to SPIKES · three rounds up the back, fourteen clicks each'), put('EYES', 'EYE', [[.2, 2]], 'TWO EYES', 'Stand at its face · VERB to EYES · HEIGHT low · two clicks'), put('BUTTONS', 'BUTTON', [[.08, 1]], 'A NOSE', 'VERB to BUTTONS · HEIGHT at the foot · one click'), name('WHITE'), candles(.9)],
     CLASSIC: [base('DRUM'), GSTEPS.find(g => g.t === 'RAISE THE TOP'), frost('LEMON', [.12, .3, .48, .66, .84, .97]), border('WHITE'), put('SWEETS', 'SWEET', [[.1, 12]], 'SWEETS ROUND THE FOOT', 'VERB to SWEETS · HEIGHT low · a dozen clicks'), name('RED'), candles(.78)] };
+  /* memories made of several pieces: each part is set down (PIECE), then TURN, SIZE and MOVE put it in place, then it is worked like any piece */
+  const MODE = m => () => MODES.indexOf(m), xf = (m, v) => v ? [['ring', 0, MODE(m)], ['ring', 1, 0]].concat(v.map((c, ax) => c ? [['turn', 2 + ax, c, .05]] : []).flat()) : [];
+  const part = (i, kind, label, o) => ({ t: 'PIECE ' + (i + 1) + ' · ' + label, h: 'MAKE · VERB to PIECE · ' + kind + ' · one click' + (i ? ' · then TURN, SIZE and MOVE set it in place' : ''), done: () => pieceCount() >= i + 1,
+    show: [['ring', 0, M], ['ring', 2, () => vIdx('PIECE · ' + kind)], ['turn', 4, 1]].concat(xf('TURN', o.turn), xf('SIZE', o.size), xf('MOVE', o.at ? [Math.round(o.at[0] / .01), Math.round((o.at[1] || 0) / .01), Math.round((o.at[2] - (i ? .2 : 0)) / .01)] : null)) });
+  const back = (id, label) => ({ t: 'BACK TO ' + label, h: 'PICK ring to PIECE ' + id + ' (or touch it in the room)', done: () => curF().pid === id, show: [['ring', 1, () => nodes().findIndex(nd => nd.key === 'p:' + id)]] });
+  const few = [.2, .5, .8], seg = clamp(WHO.age + 1, 3, 7);
+  D.CATERPILLAR = [].concat(...Array.from({ length: seg }, (_, i) => { const head = i === seg - 1, st = [part(i, 'BALL', head ? 'THE HEAD' : 'A SEGMENT', { size: [head ? -2 : -4, 0, 0], at: [(i - (seg - 1) / 2) * .1, 0, (i % 2 ? .02 : -.02)] }), frost(i % 2 ? 'GREEN' : 'MINT', few, 'ICE IT ' + (i % 2 ? 'GREEN' : 'MINT'))];
+    if (head) st.push(put('EYES', 'EYE', [[.55, 2]], 'TWO EYES', 'Stand at its face · VERB to EYES · two clicks')); else if (i < WHO.candles) st.push(put('CANDLES', 'CANDLE', [[.97, 1]], 'A CANDLE FOR YEAR ' + NUM[i + 1], 'VERB to CANDLES · HEIGHT at the top · one click')); return st; }));
+  const wag = Math.min(2, Math.max(1, Math.ceil(WHO.candles / 3))), per = Math.ceil(WHO.candles / wag);
+  D.TRAIN = [part(0, 'BLOCK', 'THE CAB', { size: [0, 4, 0], at: [-.08, 0, 0] }), frost('RED', few, 'ICE THE CAB RED'), put('BUTTONS', 'BUTTON', [[.12, 6]], 'BISCUIT WHEELS', 'VERB to BUTTONS · HEIGHT low · six clicks'),
+    part(1, 'POST', 'THE BOILER', { turn: [0, 0, 18], size: [0, 0, 12], at: [.145, .05, 0] }), frost('SKY', few, 'ICE THE BOILER BLUE'),
+    part(2, 'POST', 'THE FUNNEL', { size: [-8, 0, 0], at: [.07, .095, 0] }), frost('LEMON', [.3, .8], 'ICE THE FUNNEL')]
+    .concat(...Array.from({ length: wag }, (_, w) => [part(3 + w, 'BLOCK', 'WAGON ' + NUM[w + 1], { size: [0, -4, 0], at: [-.29 - w * .2, 0, 0] }), frost(w ? 'LEMON' : 'GREEN', few, 'ICE THE WAGON'), put('BUTTONS', 'BUTTON', [[.12, 6]], 'BISCUIT WHEELS', 'VERB to BUTTONS · HEIGHT low · six clicks'), put('SWEETS', 'SWEET', [[.8, 12]], 'A LOAD OF SWEETS', 'VERB to SWEETS · HEIGHT on the top · a dozen clicks'), put('CANDLES', 'CANDLE', [[.92, Math.min(per, WHO.candles - w * per)]], 'CANDLES ON THE WAGON', 'VERB to CANDLES · HEIGHT on the top · one click a year')]));
+  const cx = [[.115, .115], [-.115, .115], [-.115, -.115], [.115, -.115]];
+  D.CASTLE = [part(0, 'DRUM', 'THE KEEP', {}), frost('ROSE', [.12, .3, .48, .66, .84, .97], 'ICE THE KEEP ROSE'), border('WHITE')]
+    .concat(...cx.map((c, k) => [part(1 + k, 'POST', 'TOWER ' + NUM[k + 1], { size: [4, 0, 0], at: [c[0], 0, c[1]] }), frost('ROSE', few, 'ICE THE TOWER')]))
+    .concat(...cx.map((c, k) => [part(5 + k, 'CONE', 'ROOF ' + NUM[k + 1], { size: [-10, 0, 0], at: [c[0], .168, c[1]] }), frost('SKY', few, 'ICE THE ROOF BLUE')]))
+    .concat([back(1, 'THE KEEP'), name('WHITE'), candles(.78)]);
+  /* not a cake: the carved horse of the film, to show the same rings build any memory. The date goes on the plinth as the name would. */
+  D.HORSE = [part(0, 'BLOCK', 'THE PLINTH', { size: [0, -14, 6] }), frost('CHOCOLATE', few, 'STAIN THE PLINTH'),
+    part(1, 'POST', 'THE BODY', { turn: [0, 0, 18], size: [0, 0, 8], at: [.07, .135, 0] }), frost('GOLD', few, 'STAIN THE BODY')]
+    .concat(...[[.045, .022], [.045, -.022], [-.045, .022], [-.045, -.022]].map((c, k) => [part(2 + k, 'POST', 'LEG ' + NUM[k + 1], { size: [-6, 0, 0], at: [c[0], .03, c[1]] }), frost('GOLD', [.3, .8], 'STAIN THE LEG')]))
+    .concat([part(6, 'POST', 'THE NECK', { turn: [0, 0, -7], size: [-7, 0, 4], at: [.06, .15, 0] }), frost('GOLD', [.3, .8], 'STAIN THE NECK'), part(7, 'CONE', 'THE HEAD', { turn: [0, 0, -24], size: [-10, 0, 0], at: [.085, .245, 0] }), frost('GOLD', [.3, .8], 'STAIN THE HEAD'), put('EYES', 'EYE', [[.3, 2]], 'TWO EYES', 'VERB to EYES · two clicks'), back(1, 'THE PLINTH'), name('WHITE')]);
   const blow = tail.find(g => /KEEP A FRAME/.test(g.t)); if (blow) { blow.t = 'KEEP A FRAME · ' + WHO.name + ' BLOWS THEM OUT'; blow.h = 'TIME · DO keeps a frame · then MAKE · VERB to BLOW OUT · ' + NUM[n].toLowerCase() + (n === 1 ? ' click' : ' clicks'); blow.show = blow.show.map(a => a[0] === 'turn' ? ['turn', 4, n, .22] : a); }
   GSTEPS.splice(0, GSTEPS.length, ...(D[WHO.design] || D.CLASSIC), ...tail); })();
 const GUIDE = { i: 0, on: true, q: [], qT: 0, doneT: null, g: { yaw0: S.orbit.yaw }, auto: /[?&]guide=auto/.test(location.search),
@@ -1038,7 +1088,7 @@ const GUIDE = { i: 0, on: true, q: [], qT: 0, doneT: null, g: { yaw0: S.orbit.ya
     if (NOW - (this.drawT || 0) > .25) this.draw(); },
   draw() { this.drawT = NOW; const st = GSTEPS[this.i], n = GSTEPS.length; if (!this.on || PHONE || CFG.noText || CFG.stageOnly) { capEl.innerHTML = ''; return; }
     const key = this.i + '|' + (this.doneT != null) + '|' + this.q.length; if (key === this.key) return; this.key = key;
-    capEl.innerHTML = st ? `<div class="a">A CAKE FOR ${WHO.name} · TURNING ${WHO.age} · ${WHO.design} · ${this.i + 1} OF ${n}</div><div class="b">${this.doneT != null ? 'DONE · ' : ''}${st.t}</div><div class="c">${st.h}</div><div class="d"><button data-g="show">${this.q.length ? 'SHOWING…' : 'SHOW ME'}</button><button data-g="next">NEXT</button><button data-g="off">HIDE</button></div><div class="bar"><i style="width:${(this.i / n * 100).toFixed(0)}%"></i></div>`
+    capEl.innerHTML = st ? `<div class="a">FOR ${WHO.name} · TURNING ${WHO.age} · ${WHO.design} · ${this.i + 1} OF ${n}</div><div class="b">${this.doneT != null ? 'DONE · ' : ''}${st.t}</div><div class="c">${st.h}</div><div class="d"><button data-g="show">${this.q.length ? 'SHOWING…' : 'SHOW ME'}</button><button data-g="next">NEXT</button><button data-g="off">HIDE</button></div><div class="bar"><i style="width:${(this.i / n * 100).toFixed(0)}%"></i></div>`
       : `<div class="a">ANA'S CHAMBER</div><div class="b">HAPPY BIRTHDAY ${WHO.name}</div><div class="c">The memory is made. KEEP writes it out; MODE, PICK and the three rings change anything in it.</div><div class="d"><button data-g="again">AGAIN</button><button data-g="off">HIDE</button></div>`; } };
 capEl.addEventListener('click', e => { const g = e.target.dataset && e.target.dataset.g; if (!g) return; if (g === 'show') GUIDE.show(); else if (g === 'next') GUIDE.next(); else if (g === 'off') { GUIDE.on = false; GUIDE.draw(); } else if (g === 'again') GUIDE.begin(0); });
 
@@ -1131,7 +1181,7 @@ function drawOLED() { const W = OLED.width, H = OLED.height, x = ox; x.fillStyle
   // centre: the operation, drawn
   const cx = W * .485; x.textAlign = 'center';
   if (S.exporting) { EXPORTS.forEach((e, i) => { x.font = (i === S.fmt ? '700 ' : '500 ') + '30px ui-monospace, Menlo, monospace'; x.fillStyle = i === S.fmt ? CY : DIM; x.fillText(e, cx, 52 + i * 36); }); }
-  else if (S.mode === 'MAKE') { const t = toolName(); x.font = '700 46px ui-monospace, Menlo, monospace'; x.fillStyle = CY; x.fillText(VERBS[S.verb][0], cx, 70); drawToolDiagram(x, verbTool() === 'NAME' ? 'PIPE' : verbTool() === 'CHILD' || verbTool() === 'SNUFF' ? 'PLACE' : t, cx, 135); }
+  else if (S.mode === 'MAKE') { const t = toolName(); x.font = '700 46px ui-monospace, Menlo, monospace'; x.fillStyle = CY; x.fillText(VERBS[S.verb][0], cx, 70); drawToolDiagram(x, verbTool() === 'NAME' ? 'PIPE' : verbTool() === 'PIECE' ? 'SPAWN' : verbTool() === 'CHILD' || verbTool() === 'SNUFF' ? 'PLACE' : t, cx, 135); }
   else if (S.mode === 'TIME') { const n = F.length, w = Math.min(70, 560 / n); let tot = 0; F.forEach(f => tot += f.hold); let xx = cx - Math.min(560, tot * w) / 2; const unit = Math.min(560, tot * w) / tot;
     F.forEach((f, i) => { const ww = f.hold * unit; x.fillStyle = i === DOC.cur ? CY : '#164a43'; x.fillRect(xx + 2, 90, ww - 4, 64); if (f.hold > 1) { x.fillStyle = '#020403'; x.fillRect(xx + unit - 2, 118, ww - unit, 8); } xx += ww; });
     x.font = '700 40px ui-monospace, Menlo, monospace'; x.fillStyle = CY; x.fillText(S.play ? 'PLAYING · ' + PLAYS[S.plays][0] : 'STOP-MOTION', cx, 60); }
@@ -1221,7 +1271,7 @@ resize(); showFrame(); drawOLED(); requestAnimationFrame(loop);
 setInterval(() => { oledDirty = true; }, 500);
 
 /* =============================================================== a handle for scripts: tests, and the film */
-window.FORGE = { CFG, S, get DOC() { return DOC; }, turn, press, rings, scrub, nodes, curNode, pickTo, setMode, setVerb, GUIDE, GSTEPS, PAIR, gizmoHit, gizmoDrag, setStretch, VERBS, MODES, spawn, place, hitAt, strokeStart, strokeMove, strokeEnd, snapshot, showFrame, cam, CAKE, ORB, RINGS, BTN, OC, perf: () => perf,
+window.FORGE = { WHO, newPiece, activate, pieceCount, build() { const run = a => { if (a[0] === 'turn') { for (let n = Math.abs(a[2]); n > 0; n--) turn(a[1], Math.sign(a[2])); } else if (a[0] === 'ring') { for (let k = 0; k < 400; k++) { const r = rings()[a[1]], tgt = typeof a[2] === 'function' ? a[2]() : a[2], d = (tgt - r.v()) / r.st; if (Math.abs(d) < .5) break; turn(a[1], Math.sign(d)); } } else if (a[0] === 'press') press(a[1], a[2]); }; GUIDE.on = false; for (const g of GSTEPS) { if (/CHILDREN COME/.test(g.t)) break; g.show.forEach(run); } }, CFG, S, get DOC() { return DOC; }, turn, press, rings, scrub, nodes, curNode, pickTo, setMode, setVerb, GUIDE, GSTEPS, PAIR, gizmoHit, gizmoDrag, setStretch, VERBS, MODES, spawn, place, hitAt, strokeStart, strokeMove, strokeEnd, snapshot, showFrame, cam, CAKE, ORB, RINGS, BTN, OC, perf: () => perf,
   manual() { auto = false; }, setAim(x, y) { hover = x == null ? null : { x, y }; }, aim: () => AIM, advance(dt) { update(dt); render(); }, step(dt) { update(dt); placeCam(); cam.updateMatrixWorld(); }, worldToRoom(v) { const p = v.clone().project(cam); return [(p.x + 1) / 2 * roomEl.clientWidth, (1 - p.y) / 2 * roomEl.clientHeight]; }, local(v) { return CAKE.localToWorld(v.clone()); } };
 </script>
 </body>

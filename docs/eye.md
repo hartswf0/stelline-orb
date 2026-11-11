@@ -141,8 +141,23 @@ red icing, black foot, ten button spots, two eyes, the name, five lit candles (s
 `assets/eye/shots/orb-06-stages.jpg`, film `assets/eye/orb-06-performance.mp4`, sped up four times because the
 headless renderer is slow); the name TOMAS piped on a plain drum (`assets/eye/shots/orb-06-name.jpg`).
 
+### Many pieces of clay, any memory
+
+Orb 05 held one piece of clay. In Orb 06 a memory is any number of pieces (sixteen at most). One piece is in hand
+and everything works on it exactly as before (verb, height, amount, reticle, piping, parts, the name); the others
+stand where they were left. New verbs `PIECE · DRUM / DOME / TIERS / BALL / BLOCK / POST / CONE / BUNDT` set down
+another piece (turning back takes it away). The PICK ring lists the other pieces, and touching one in the room takes
+it in hand. MOVE, TURN and SIZE place the piece in hand. BALL, BLOCK, POST and CONE are plain building shapes, so
+the pieces need not be a cake.
+
+Built through the rings (the guide's own steps run at once by `FORGE.build()`, the same ring turns SHOW ME makes):
+CATERPILLAR (four balls, eyes, a candle per segment), TRAIN (cab, boiler, funnel, two wagons with sweets, wheels and
+candles), CASTLE (keep, four towers, four cone roofs, the name and six candles on the keep), and HORSE, the film's
+carved horse on a plinth with `6 10 21` piped on it, which is not a cake. Stills: `assets/eye/shots/orb-06-pieces.jpg`.
+
+Not checked for pieces: SHOW ME playing these guides at hand speed, picking a piece by touch, undo across a swap,
+TIME frames and WEAVE with several pieces (pieces not in hand do not turn to mist), export of all pieces.
+
 Not run: SMASH, HEDGEHOG and CLASSIC end to end; the steps after the candles (children, blow out, weave) under WHO;
 a phone; sound. Known weak points: on the ladybird the eyes went on away from the camera and the name sits among the
-spots; names are capitals A to Z and digits only, nine characters; a cake is still one piece of clay, so the train,
-castle, caterpillar, dinosaur and rocket of `cake-for.html` cannot be made on the orb yet; number candles are not
-in the orb.
+spots; names are capitals A to Z and digits only, nine characters; the dinosaur and rocket of `cake-for.html` have no guide on the orb yet; number candles are not in the orb.
