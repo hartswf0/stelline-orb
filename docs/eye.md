@@ -196,22 +196,43 @@ spots; names are capitals A to Z and digits only, nine characters; the dinosaur 
 One memory for every age from 1 to 100, each for a named person, each made on Orb 06 by running that person's guide
 through the rings with a frame kept after every step, and each checked against its plan: the number of pieces of
 clay, the name written to the end (where the design carries one), a lit candle for every year up to twelve in the
-frame before the blow, three children arriving after the making, and no candle alight in the last frame.
+frame before the blow, three guests arriving after the making, and no candle alight in the last frame.
 
-Result of the run of 2026-11-11: **100 made, 100 pass.** The first run of ages 1 to 14 had two failures (the
-caterpillar and the train kept two candles alight) because BLOW OUT only reached the piece in hand; that was fixed
-in the orb, not in the check, and the hundred were then made from the start.
+Result of the run of 2026-11-11 (second making): **100 made, 100 pass, across 33 designs.**
 
-Ten designs were added for this (snowman, bear, cat, robot, rocket, house, tortoise, stacked tiers, sheet cake,
-bundt ring), with colours and trimmings chosen by a seed per person. All hundred on one sheet:
-`assets/memories/all-100.jpg`.
+- **Designs.** Age 1 a smash cake; ages 2 to 13 twelve sculpted children's designs; ages 14 to 100 twenty designs
+  in turn: classic, books, stacked tiers, car, gift, sheet, camera, drum with sticks, bundt, record, lighthouse,
+  crown, fir tree, top hat, mountain, sailboat, rook, teapot, garden, and the carved horse. Colours and trimmings are
+  chosen by a seed per person.
+- **Guests from the archive.** `tools/orb06/people.py` cuts the party-goers, unaltered, out of the archive's own
+  birthday clips: the best-lit moment of each clip's hero shot, the cake removed, only figures a person detector
+  confirms, nothing too dark to read. 35 cut-outs from 26 clips (`assets/people/`). Each memory seats three:
+  children for a child, grown people for the grown. `?cast=a.webp,b.webp,c.webp` on the orb.
+- **The room.** Another archive birthday of the same kind, on the glass as felt light. In a browser that can play
+  the clip, the room is the clip itself, moving; otherwise the still frame stays. In this run the stills show the
+  still frame: the headless renderer did not play the clips.
+- **The memory holds.** Lit, with its guests there, every piece is solid. Blown out, it returns to light.
+- **Film frames.** Each still is 1280 x 720, no orb, no text: the eye low across the table from the guests, the
+  moment before the blow (`assets/memories/NNN.jpg`, all on `assets/memories/all-100.jpg`).
+- **Films.** `tools/orb06/film.mjs` shoots a memory frame by frame at 12 frames a second: it assembles out of the
+  mist piece by piece, holds whole and lit while the eye moves in, and falls back to light at the blow (8 seconds,
+  silent). Made so far: ages 5, 6 and 33 (`assets/memories/films/`). One film takes about ten minutes to shoot in
+  this renderer, which is why there are three and not a hundred.
+
+History: the first making used Orb 05's three fixed children and five designs for all the grown ages, with the
+guide's caption over the picture. The first fourteen of that run found a real fault (BLOW OUT only reached the piece
+in hand), fixed in the orb.
 
 What the hundred do not show:
-- Variety is thin after childhood. Ages 2 to 13 use twelve different sculpted designs; ages 14 to 100 share five
-  (classic, stacked tiers, sheet, bundt, horse), differing in colour, trimmings and name.
-- The check is against the plan the same code wrote. It proves the rings did what the guide asked on every one; it
-  does not judge whether a memory looks right. Nobody has looked at each of the hundred; the sheet was looked at once.
-- The stills carry the guide caption and the timeline strip over part of the picture, and the three child cut-outs
-  are the same in every one, so the rooms look alike although each uses a different archive birthday.
-- Past twelve the candles stop at twelve. The caterpillar, train and bundt carry no name.
+- **The grown guests repeat.** The archive has few clips of grown people, so five cut-outs serve the 83 grown memories,
+  and the same faces recur. Twenty rooms serve the hundred.
+- **Cut-outs are as the segmenter left them**: some have holes or a ragged edge, and a few are a pair or a small
+  group rather than one person. They do not move.
+- **The check is against the plan the same code wrote.** It proves the rings did what each guide asked; it does not
+  judge whether a frame is good. The sheet was looked at once; four frames and one film were looked at closely.
+- **Some rooms carry writing.** A few archive clips have a caption drawn into their picture (seen in the room behind
+  Kofi's horse), so those frames are not clean. Rooms should be limited to clips without it.
+- **The other video in the repo is not used yet**: the 60 decomposed moments, the orb films, the flow and generated
+  clips. Only the 77 birthday clips feed the rooms and the guests.
+- Past twelve the candles stop at twelve. The caterpillar, train and bundt carry no name. No sound.
 - Opening a memory from the page builds it again through the rings (`&seq=1`); that link was not tried in a browser.
