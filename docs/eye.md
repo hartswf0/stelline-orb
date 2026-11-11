@@ -244,6 +244,11 @@ guide's caption over the picture. The first fourteen of that run found a real fa
 in hand), fixed in the orb.
 
 What the hundred do not show:
+- **Third making (single pictures).** 100 made, 100 pass. Eleven rooms serve the hundred (five of them the 83 grown
+  memories). 72 memories have one guest cut-out and 28 have two, because most clips yield one usable figure or one
+  group. In several grown frames the guest is poorly placed: partly hidden behind the thing made, or small. With the
+  rooms' people and cakes taken out, most rooms are close to black, so the frames are emptier than the double
+  exposures were. The three films were re-shot the same way.
 - **The grown parties repeat.** The archive has few clips of grown people, so a handful of parties serve the 83
   grown memories and the same faces recur.
 - **Cut-outs are as the segmenter left them**: some have holes or a ragged edge, and a few are a pair or a small
