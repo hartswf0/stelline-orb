@@ -30,7 +30,7 @@ for iid in sorted(lift):
         if not ok: continue
         g = g[:e['world_bottom']]; q = M.people(g); lum = cv2.cvtColor(g, cv2.COLOR_BGR2GRAY)
         sc = float((lum * (q > .5)).sum() / 255.0)
-        if best is None or sc > best[0]: best = (sc, g, q)
+        if best is None or sc > best[0]: best = (sc, g, q, t)
     if best is None: continue
     f = best[1]; H, W = f.shape[:2]
     p = cv2.GaussianBlur(best[2], (0, 0), 2)
@@ -55,8 +55,21 @@ for iid in sorted(lift):
         name = '%s_%d.webp' % (iid, len(ppl)); cv2.imwrite(os.path.join(OUT, name), rgba, [cv2.IMWRITE_WEBP_QUALITY, 84])
         ppl.append(dict(file=name, w=rgba.shape[1], h=rgba.shape[0], cx=round(float(cen[l][0] / W), 3), hfrac=round(float(h / H), 3), area=round(float(st[l, cv2.CC_STAT_AREA] / (W * H)), 3)))
     if not ppl: continue
+    # the room: the same frame with its people and its cake taken out (filled in from what surrounds them and left
+    # soft), so that the guests and the cake being made are the only people and the only cake in the picture
+    RW = 960; rs = RW / W; small = cv2.resize(f, (RW, int(H * rs)), interpolation=cv2.INTER_AREA)
+    away = ((best[2] > .12) | cake).astype(np.uint8)
+    for bx in [[v / (960 / W) for v in e['box']]] + [list(d0[2:]) for d0 in M.detect(f, want=(60,), thresh=.3)[:2]]:      # the cake, by its measured box and by the detector
+        x0, y0, x1, y1 = bx; ex, ey = .12 * (x1 - x0), .12 * (y1 - y0); away[int(max(0, y0 - 3 * ey)):int(min(H, y1 + ey)), int(max(0, x0 - ex)):int(min(W, x1 + ex))] = 1
+    gone = cv2.dilate(away, np.ones((61, 61), np.uint8)); gone = cv2.resize(gone, (small.shape[1], small.shape[0]), interpolation=cv2.INTER_NEAREST)
+    q4 = cv2.resize(small, (240, int(small.shape[0] / 4)), interpolation=cv2.INTER_AREA); g4 = cv2.resize(gone, (q4.shape[1], q4.shape[0]), interpolation=cv2.INTER_NEAREST)
+    fill = cv2.resize(cv2.inpaint(q4, g4 * 255, 9, cv2.INPAINT_TELEA), (small.shape[1], small.shape[0]), interpolation=cv2.INTER_CUBIC); fill = cv2.GaussianBlur(fill, (0, 0), 18)
+    soft = cv2.GaussianBlur(gone.astype(np.float32), (0, 0), 12)[..., None]
+    clean = (small * (1 - soft) + fill * soft).astype(np.uint8)
+    os.makedirs(os.path.join(ROOT, 'assets', 'rooms'), exist_ok=True)
+    cv2.imwrite(os.path.join(ROOT, 'assets', 'rooms', iid + '.webp'), small, [cv2.IMWRITE_WEBP_QUALITY, 80]); cv2.imwrite(os.path.join(ROOT, 'assets', 'rooms', iid + '_clean.webp'), clean, [cv2.IMWRITE_WEBP_QUALITY, 80])
     label = (d['title'] + ' ' + e['file']).lower()
-    db[iid] = dict(id=iid, era=d['era'], title=d['title'], kids=bool(re.search(r'child|kid|girl|boy', label)), people=ppl)
+    db[iid] = dict(id=iid, era=d['era'], title=d['title'], kids=bool(re.search(r'child|kid|girl|boy', label)), t=round(float(best[3]), 3), taken_out=round(float(gone.mean()), 3), people=ppl)
     print(iid, d['era'], 'kids' if db[iid]['kids'] else 'grown', len(ppl), [q['hfrac'] for q in ppl], flush=True)
 json.dump(db, open(os.path.join(OUT, 'people.json'), 'w'), indent=0)
 open(os.path.join(OUT, 'people.js'), 'w').write('window.PEOPLE=' + json.dumps(db, separators=(',', ':')) + ';')

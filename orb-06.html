@@ -40,6 +40,7 @@
 <div class="app"><div id="room"><div id="tl"></div><div id="cap"></div></div><div id="orb"></div></div>
 <script src="assets/three.min.js"></script>
 <script src="assets/eye/lift.js"></script>
+<script src="assets/people/people.js"></script>
 <script src="assets/GLTFExporter.js"></script>
 <script src="assets/OBJExporter.js"></script>
 <script src="assets/v6/qrcode.js"></script>
@@ -251,18 +252,25 @@ let dirtyDoc = false;
 const strokeMats = {}, strokeMat = c => strokeMats[c] || (strokeMats[c] = holo(new T.MeshStandardMaterial({ color: COLORS[c][1], roughness: .62 })));
 const STROKES = new T.Group(), ITEMG = new T.Group(); CAKE.add(STROKES, ITEMG);
 const PARK = new T.Group(); MEM.add(PARK); const parkMesh = new WeakMap();
-const ROOMP = QP.get('room') === '0' ? null : (QP.get('room') || 'bday_25');
-if (MISTY && ROOMP) { const tx = new T.TextureLoader().load('assets/eye/' + ROOMP + '/plate.webp'), arc = 2.16, y0 = .5;
-  const bd = new T.Mesh(new T.CylinderGeometry(2.05, 2.05, 1.5, 96, 1, true, y0 - Math.PI - arc / 2, arc), new T.ShaderMaterial({ uniforms: { map: { value: tx }, uTime: HU.uTime, uvS: { value: new T.Vector2(1, 1) }, uvO: { value: new T.Vector2(0, 0) } }, transparent: true, depthWrite: false, side: T.BackSide, blending: T.AdditiveBlending,
-    vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }',
-    fragmentShader: `uniform sampler2D map; uniform float uTime; uniform vec2 uvS, uvO; varying vec2 vUv; float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-      void main(){ vec3 c = texture2D(map, vec2(1. - vUv.x, vUv.y) * uvS + uvO).rgb; float lum = dot(c, vec3(.3, .59, .11)), warm = clamp((c.r - c.b) * 2.2, 0., 1.), felt = clamp(lum * .9 + warm * .9, 0., 1.);
-        float n = h(floor(vUv * vec2(1100., 380.)) + floor(uTime * 2.) * .13); if (n > felt * .8 + .06) discard;
-        float edge = smoothstep(0., .14, vUv.x) * smoothstep(1., .86, vUv.x) * smoothstep(0., .18, vUv.y) * smoothstep(1., .78, vUv.y); gl_FragColor = vec4(c * (.3 + .55 * felt) * edge, 1.); }` }));
-  bd.position.y = 1.2; bd.renderOrder = -2; scene.add(bd);
-  /* the clip itself, moving, once it can play (the still stays if it cannot): only the picture above the controller is used */
-  const li = (window.LIFT || { items: {} }).items[ROOMP]; if (li && QP.get('still') == null) { const v = document.createElement('video'); v.muted = true; v.loop = true; v.playsInline = true; v.crossOrigin = 'anonymous'; v.src = 'BDAY TRAINING/' + encodeURIComponent(li.file);
-    v.addEventListener('playing', () => { const vt = new T.VideoTexture(v); vt.repeat.set(1, li.world_bottom / li.src_h); vt.offset.set(0, 1 - li.world_bottom / li.src_h); vt.matrixAutoUpdate = true; bd.material.uniforms.map.value = vt; bd.material.uniforms.uvS.value.set(1, li.world_bottom / li.src_h); bd.material.uniforms.uvO.value.set(0, 1 - li.world_bottom / li.src_h); }, { once: true }); v.play().catch(() => {}); } }
+/* THE ROOM. One picture, not two: the room is the guests' own birthday with its people and its cake taken out (assets/rooms/<id>_clean.webp,
+   made by tools/orb06/people.py), so the only people are the guests at the table and the only cake is the one being made. MODE ROOM edits it:
+   ring 3 WHICH birthday (its people come with it), ring 4 SHOW (how much of it there is), ring 5 FOCUS (sharp to soft); DO puts the room's own
+   people and cake back into the picture or takes them out again. ?room=bday_NN, ?room=0 for the dark chamber, ?show= ?soft= ?clean=0. */
+const PEOPLE = window.PEOPLE || {};
+const ROOMS = Object.keys(PEOPLE).filter(k => PEOPLE[k].era !== 'studio_craft').sort();
+const ROOM = { id: QP.get('room') === '0' ? null : (QP.get('room') || 'bday_25'), show: QP.get('show') != null ? +QP.get('show') : .7, soft: QP.get('soft') != null ? +QP.get('soft') : .45, clean: QP.get('clean') !== '0' };
+const roomMat = new T.ShaderMaterial({ uniforms: { map: { value: null }, uTime: HU.uTime, show: { value: 0 }, soft: { value: .45 } }, transparent: true, depthWrite: false, side: T.BackSide,
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }',
+  fragmentShader: `uniform sampler2D map; uniform float uTime, show, soft; varying vec2 vUv; float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+    void main(){ vec2 u = vec2(1. - vUv.x, vUv.y); vec3 c = vec3(0.); float r = soft * .03, w = 0.;
+      for (int i = 0; i < 12; i++) { float a = float(i) * 2.399963, d = sqrt((float(i) + .5) / 12.); vec2 o = vec2(cos(a), sin(a) * 2.6) * d * r; c += texture2D(map, clamp(u + o, 0., 1.)).rgb; w += 1.; } c /= w;
+      float edge = smoothstep(0., .2, vUv.x) * smoothstep(1., .8, vUv.x) * smoothstep(0., .22, vUv.y) * smoothstep(1., .72, vUv.y); c += (h(vUv * 900. + floor(uTime * 12.)) - .5) * .02;
+      gl_FragColor = vec4(c * .8, edge * show); }` });
+const roomTex = {};
+function setRoom(id, quiet) { ROOM.id = id; loadKids(id); if (!id) { roomMat.uniforms.show.value = 0; return; } const key = id + (ROOM.clean ? '_clean' : '');
+  const t = roomTex[key] || (roomTex[key] = new T.TextureLoader().load('assets/rooms/' + key + '.webp', () => {}, undefined, () => { roomTex[key] = new T.TextureLoader().load('assets/eye/' + id + '/plate.webp'); roomMat.uniforms.map.value = roomTex[key]; }));
+  t.minFilter = T.LinearFilter; t.generateMipmaps = false; roomMat.uniforms.map.value = t; if (!quiet) say('ROOM · ' + (PEOPLE[id] ? PEOPLE[id].era.replace(/_/g, ' ').toUpperCase() : id) + (ROOM.clean ? ' · ITS PEOPLE AND CAKE TAKEN OUT' : ' · AS IT WAS FILMED')); }
+{ const arc = 2.16, y0 = .5, bd = new T.Mesh(new T.CylinderGeometry(2.05, 2.05, 1.5, 96, 1, true, y0 - Math.PI - arc / 2, arc), roomMat); bd.position.y = 1.2; bd.renderOrder = -2; scene.add(bd); }
 function showOthers(F) { PARK.clear(); const D = Math.PI / 180; (F.others || []).forEach(pc => { const g = new T.Group(), t = pc.tr; g.position.set(t.p[0], BASE_Y + t.p[1], t.p[2]); g.rotation.set(t.r[0] * D, t.r[1] * D, t.r[2] * D, 'YXZ'); g.scale.set(t.s[0] * t.s[2], t.s[0] * t.s[1], t.s[0] * t.s[2]);
     let m = parkMesh.get(pc.clay); if (!m) { const geo = clayGeo(pc.clay.kind); geo.attributes.position.array.set(pc.clay.pos); geo.attributes.color.array.set(pc.clay.col); geo.computeVertexNormals(); m = new T.Mesh(geo, clayMat); m.castShadow = m.receiveShadow = true; parkMesh.set(pc.clay, m); } g.add(m);
     pc.strokes.forEach(st => g.add(strokeMesh(st))); pc.items.forEach(it => { const o = itemObj(it); applyItem(o, it); g.add(o); o.traverse(x => { if (x.userData.flame) FLAMES.push(x); }); }); g.userData.piece = pc.id; g.traverse(x => { if (x.isMesh) { if (!x.userData.m0) x.userData.m0 = x.material; x.material = restOf(x.userData.m0); } }); PARK.add(g); }); }
@@ -323,8 +331,8 @@ function optList() { const t = toolName(); return t === 'SPAWN' ? Object.keys(BA
 
 /* =============================================================== what each ring does now */
 const EXPORTS = ['GLB · SCENE', 'OBJ · MESH', 'STILL · PNG', 'LOOP · WEBM', 'DOCUMENT · JSON'];
-const MODES = ['LOOK', 'MAKE', 'MOVE', 'TURN', 'SIZE', 'TIME', 'WEAVE'];
-const MODE_SAYS = { LOOK: 'LOOK · CIRCLE, TILT AND COME CLOSER', MAKE: 'MAKE · A VERB, A HEIGHT ON THE CAKE, AND HOW MUCH', MOVE: 'MOVE · SLIDE WHAT YOU PICKED ALONG X, Y, Z', TURN: 'TURN · TURN WHAT YOU PICKED ABOUT X, Y, Z', SIZE: 'SIZE · GROW IT, MAKE IT TALLER, WIDER', TIME: 'TIME · CAPTURE KEEPS A FRAME, PLAY RUNS THE LOOP', WEAVE: 'WEAVE · THE MEMORY BECOMES LIGHT' };
+const MODES = ['LOOK', 'MAKE', 'MOVE', 'TURN', 'SIZE', 'TIME', 'WEAVE', 'ROOM'];
+const MODE_SAYS = { LOOK: 'LOOK · CIRCLE, TILT AND COME CLOSER', MAKE: 'MAKE · A VERB, A HEIGHT ON THE CAKE, AND HOW MUCH', MOVE: 'MOVE · SLIDE WHAT YOU PICKED ALONG X, Y, Z', TURN: 'TURN · TURN WHAT YOU PICKED ABOUT X, Y, Z', SIZE: 'SIZE · GROW IT, MAKE IT TALLER, WIDER', TIME: 'TIME · CAPTURE KEEPS A FRAME, PLAY RUNS THE LOOP', WEAVE: 'WEAVE · THE MEMORY BECOMES LIGHT', ROOM: 'ROOM · WHICH BIRTHDAY, HOW MUCH OF IT, HOW SOFT · DO PUTS ITS PEOPLE BACK OR TAKES THEM OUT' };
 const isXf = () => S.mode === 'MOVE' || S.mode === 'TURN' || S.mode === 'SIZE';
 const AXC = ['#ff5b4d', '#5fe36e', '#4f8dff'], AXH = [0xff5b4d, 0x5fe36e, 0x4f8dff];
 // MAKE's first ring: every verb the cake needs, in the order a cake is made
@@ -404,6 +412,9 @@ function rings() {
     R3 = [{ n: 'FRAME', v: () => DOC.cur, set: v => { DOC.cur = clamp(Math.round(v), 0, F.length - 1); S.play = false; showFrame(); }, st: 1, f: v => (v + 1) + ' OF ' + F.length, lo: 0, hi: Math.max(1, F.length - 1) },
       { n: 'HOLD', v: () => curF().hold, set: v => { curF().hold = clamp(Math.round(v), 1, 12); }, st: 1, f: v => v + (v > 1 ? ' BEATS' : ' BEAT'), undoable: true, lo: 1, hi: 12 },
       { n: 'PLAYBACK', v: () => S.plays, set: v => S.plays = clamp(Math.round(v), 0, PLAYS.length - 1), st: 1, f: v => PLAYS[v][0], lo: 0, hi: PLAYS.length - 1 }]; }
+  else if (S.mode === 'ROOM') R3 = [{ n: 'WHICH', v: () => Math.max(0, ROOMS.indexOf(ROOM.id)), set: v => { const id = ROOMS[clamp(Math.round(v), 0, ROOMS.length - 1)]; if (id !== ROOM.id) setRoom(id); }, st: 1, f: v => ROOMS[v] ? PEOPLE[ROOMS[v]].era.replace(/_/g, ' ').toUpperCase().slice(0, 14) : 'DARK', lo: 0, hi: ROOMS.length - 1 },
+    { n: 'SHOW', v: () => ROOM.show, set: v => ROOM.show = clamp(v, 0, 1), st: .05, f: v => Math.round(v * 100) + '%', lo: 0, hi: 1 },
+    { n: 'FOCUS', v: () => ROOM.soft, set: v => ROOM.soft = clamp(v, 0, 1), st: .05, f: v => v < .08 ? 'SHARP' : Math.round(v * 100) + '% SOFT', lo: 0, hi: 1 }];
   else { const W = S.weave;
     R3 = [{ n: 'TIME', v: () => W.t, set: v => { W.t = ((v % 1) + 1) % 1; S.play = false; }, st: .02, f: v => Math.round(v * 100) + '%', lo: 0, hi: 1 },
       { n: 'MATERIALIZE', v: () => W.mat, set: v => W.mat = clamp(v, 0, 1), st: .05, f: v => Math.round(v * 100) + '%', lo: 0, hi: 1 },
@@ -437,6 +448,7 @@ function capture(long) {
   if (S.mode === 'LOOK') { S.views = S.views || []; if (long || S.views.length >= 4) { const v = S.views[(S.viewI = ((S.viewI || 0) + 1) % Math.max(1, S.views.length))]; if (v) { S.ease = { t: 1.4, y: v.y, d: v.d, p: v.p, yaw: v.yaw }; say('VIEW ' + (S.viewI + 1) + ' RECALLED'); } } else { S.views.push({ yaw: S.orbit.yaw, p: S.orbit.pitch, d: S.orbit.dist, y: S.orbit.tgt.y }); say('VIEW ' + S.views.length + ' KEPT · HOLD CAPTURE TO RECALL'); } return; }
   if (S.mode === 'MAKE') return dialApply(long ? -1 : 1);
   if (S.mode === 'TIME') { snapshot(); if (long) { if (DOC.frames.length > 1) { DOC.frames.splice(DOC.cur, 1); DOC.cur = Math.max(0, DOC.cur - 1); say('FRAME REMOVED'); } } else { DOC.frames.splice(DOC.cur + 1, 0, copyFrame(curF())); DOC.cur++; say('FRAME ' + (DOC.cur + 1) + ' ADDED · CHANGE IT, THE ONION SHOWS THE LAST'); } showFrame(); return; }
+  if (S.mode === 'ROOM') { ROOM.clean = !ROOM.clean; setRoom(ROOM.id); return; }
   if (S.mode === 'WEAVE') { if (S.takeRec) { S.take = S.takeRec; S.takeRec = null; say('TAKE KEPT · ' + S.take.length + ' SAMPLES · PLAY REPLAYS IT'); } else { S.takeRec = []; S.takeT = NOW; say('RECORDING THE RINGS'); } return; }
   // SCULPT: the thumb acts at the reticle in the centre of the room
   const h = AIM || hitAt(roomEl.clientWidth / 2, roomEl.clientHeight / 2); if (toolName() === 'SPAWN') return spawn(long);
@@ -543,7 +555,7 @@ function writeName(steps) { const F = curF(); if (!F.nameFull) { if (steps < 0) 
   F.strokes = F.strokes.filter(st => !st.name); let left = F.nameR, last = null; for (const p of F.nameFull) { if (left < 2) break; const n = Math.min(left, p.length); F.strokes.push({ pts: p.slice(0, n).flat(), w: .0021, c, style: 'line', name: true }); last = p[n - 1]; left -= n; }
   F.nameAt = last ? last.slice(0, 3) : null; if (!F.nameR) F.nameFull = null; showFrame(); S.state = 'CHANGED'; perfDirty = true; say(F.nameR >= tot ? 'THE NAME IS WRITTEN · ' + WHO.name : 'WRITING ' + WHO.name + ' · ' + Math.round(F.nameR / tot * 100) + '%'); }
 let CASTID0 = 1;
-function addChild() { const used = new Set(DOC.cast.map(c => c.i)); const i = [0, 1, 2].find(n => !used.has(n)); if (i == null) { say('ALL THREE CHILDREN ARE HERE'); tick('dead'); return; }
+function addChild() { const used = new Set(DOC.cast.map(c => c.i)); const i = KIDS.map((k, n) => n).find(n => !used.has(n)); if (i == null) { say('EVERYONE IS HERE'); tick('dead'); return; }
   snapshot(); const ca = Math.PI / 2 - S.orbit.yaw, a = ca + Math.PI + KIDS[i].da; const c = { id: CASTID++, i, a, r: .47, yaw: 0, tilt: 0, lift: 0, op: 1, vis: 0, f0: DOC.cur }; DOC.cast.push(c);
   S.pickKey = 'c:' + c.id; S.ease = { t: 1.6, y: .88, d: Math.max(S.orbit.dist, 1.12), p: -.17 }; shimmer(); say('CHILD ' + (i + 1) + ' COMES IN FROM THE DARK'); }
 function removeChild() { const c = DOC.cast[DOC.cast.length - 1]; if (!c) { tick('dead'); return; } snapshot(); DOC.cast.pop(); S.pickKey = 'cake'; say('CHILD ' + (c.i + 1) + ' GOES BACK INTO THE DARK'); }
@@ -662,10 +674,14 @@ function updReticle() {
 /* =============================================================== THE CAST: the children, cut from the film's own frame, added one by one */
 /* the guests: three cut-outs. By default Orb 05's three children; with ?cast=a.webp,b.webp,c.webp (&ch=heights) people cut, unaltered, from the
    archive's own birthday clips by tools/orb06/people.py (assets/people/). */
-const CASTP = (QP.get('cast') || '').split(',').filter(Boolean), CASTH = (QP.get('ch') || '').split(',').map(Number);
 const KIDS0 = [{ file: 'child1.png', h: .50, base: TABLE_Y - .08, da: -.64 }, { file: 'child2.png', h: .27, base: TABLE_Y + .035, da: -.03 }, { file: 'child3.png', h: .54, base: TABLE_Y - .10, da: .60 }];
-const KIDS = CASTP.length >= 3 ? CASTP.slice(0, 3).map((f, i) => ({ file: f, dir: 'assets/people/', h: CASTH[i] || .5, base: TABLE_Y - .1, da: (i - 1) * .62 })) : KIDS0;
-const kidTex = KIDS.map(k => { const t = new T.TextureLoader().load((k.dir || 'assets/weaver/') + k.file, tt => { k.aspect = tt.image.width / tt.image.height; castDirty = true; }); t.encoding = T.sRGBEncoding; return t; });
+/* The guests are the people of the room's own birthday, cut out of it, standing left to right as they stood there (1 to 3 of them).
+   With no such room (?room=0, or a clip without people) they are Orb 05's three children. */
+function kidsFor(id) { const c = PEOPLE[id]; if (!c) return KIDS0; const ps = c.people.filter(q => q.w / q.h <= 2.4).slice().sort((x, y) => y.area - x.area).slice(0, 3).sort((x, y) => x.cx - y.cx); if (!ps.length) return KIDS0;
+  return ps.map((q, i) => ({ file: q.file, dir: 'assets/people/', aspect: q.w / q.h, h: +(.27 + .15 * Math.min(1, q.hfrac)).toFixed(2) * (q.w / q.h > 1.5 ? .8 : 1), base: TABLE_Y - .1, da: ps.length === 1 ? 0 : (i - (ps.length - 1) / 2) * (ps.length === 2 ? .8 : .62) })); }
+let KIDS = KIDS0, kidTex = [];
+function loadKids(id) { KIDS = kidsFor(id); kidTex = KIDS.map(k => { const t = new T.TextureLoader().load((k.dir || 'assets/weaver/') + k.file, tt => { k.aspect = tt.image.width / tt.image.height; castDirty = true; }); t.encoding = T.sRGBEncoding; return t; });
+  for (const id2 in castMesh) { CASTG.remove(castMesh[id2]); delete castMesh[id2]; } if (typeof DOC !== 'undefined') { const had = DOC.cast.length; DOC.cast = DOC.cast.filter(c => c.i < KIDS.length); if (had) for (let k = 0; k < 3 && DOC.cast.length < KIDS.length; k++) { const f = DOC.cast.length ? Math.min(...DOC.cast.map(c => c.f0 || 0)) : DOC.cur; addChild(); DOC.cast[DOC.cast.length - 1].f0 = f; } } castDirty = true; }   /* a new room brings all of its own people */
 const CASTG = new T.Group(); MEM.add(CASTG); const castMesh = {}; let castDirty = true;
 function castObj(c) { if (castMesh[c.id]) return castMesh[c.id]; const k = KIDS[c.i]; const m = new T.Mesh(new T.PlaneGeometry(1, 1), holo(new T.MeshStandardMaterial({ map: kidTex[c.i], emissiveMap: kidTex[c.i], emissive: 0xffe6c4, emissiveIntensity: CFG.grounded ? 1.28 : .9, color: CFG.grounded ? 0x221a14 : 0x000000, roughness: .8, transparent: true, alphaTest: .22, side: T.DoubleSide, depthWrite: true })));
   m.material.customProgramCacheKey = () => 'holo-kid'; m.userData.cast = c.id; CASTG.add(m); castMesh[c.id] = m; return m; }
@@ -1159,6 +1175,8 @@ const GSTEPS = [
   { const c = pk(['ROSE', 'SKY', 'WHITE', 'LEMON', 'MINT']);
     D.TEAPOT = board(pk(['WHITE', 'CREAM', 'CHOCOLATE'].filter(x => x !== c))).concat([part(1, 'BALL', 'THE POT', { size: [3, 0, 0], at: [0, B, 0] }), frost(c, six, 'GLAZE IT'), put('ROSETTES', 'ROSETTE', [[.5, 5]], 'PAINTED FLOWERS', 'VERB to ROSETTES · five clicks'), part(2, 'DRUM', 'THE LID', { size: [-14, 0, 0], at: [0, B + .15, 0] }), frost(c, [.5], 'GLAZE IT'), part(3, 'BALL', 'THE KNOB', { size: [-16, 0, 0], at: [0, B + .176, 0] }), frost('GOLD', [.5], 'GILD IT'),
       part(4, 'CONE', 'THE SPOUT', { turn: [0, 0, -13], size: [-11, 0, -6], at: [.07, B + .06, 0] }), frost(c, [.5], 'GLAZE IT'), part(5, 'BALL', 'THE HANDLE', { size: [-13, 0, 0], at: [-.09, B + .085, 0] }), frost(c, [.5], 'GLAZE IT')], sign('RED')); }
+  { const come = tail.find(g => /CHILDREN COME/.test(g.t)), nk = () => KIDS.length; if (come) { come.t = WHO.age > 13 ? 'THE GUESTS COME' : 'THE CHILDREN COME'; come.h = 'MAKE · VERB to A CHILD · a click for each of them'; come.done = () => DOC.cast.length >= nk(); come.show = come.show.map(a => a[0] === 'turn' ? ['turn', 4, 3, .9] : a); }
+    for (let i = tail.length - 1; i >= 0; i--) if (/TURN A CHILD|LOOK AT THEM/.test(tail[i].t)) tail.splice(i, 1); }
   const blow = tail.find(g => /KEEP A FRAME/.test(g.t)); if (blow) { blow.t = 'KEEP A FRAME · ' + WHO.name + ' BLOWS THEM OUT'; blow.h = 'TIME · DO keeps a frame · then MAKE · VERB to BLOW OUT · ' + NUM[n].toLowerCase() + (n === 1 ? ' click' : ' clicks'); blow.show = blow.show.map(a => a[0] === 'turn' ? ['turn', 4, n, .22] : a); }
   GSTEPS.splice(0, GSTEPS.length, ...(D[WHO.design] || D.CLASSIC), ...tail); })();
 /* THE TIMELINE: the memory in sequence. A row for every piece of clay (white where it was in hand, cyan where it rested as light), the name, the
@@ -1350,6 +1368,7 @@ function update(dt) { NOW += dt; HU.uTime.value = NOW;
   else if (S.mode === 'WEAVE' && !S.play) { const F = DOC.frames; let beats = 0; F.forEach(f => beats += f.hold); let b = S.weave.t * beats, i = 0; while (b >= F[i].hold && i < F.length - 1) { b -= F[i].hold; i++; } const key = i + ':' + b.toFixed(2); if (key !== S.wkey) { S.wkey = key; showFrame(F.length > 1 && PLAYS[S.plays][2] ? i + b / F[i].hold : null); } }
   if (S.takeRec) { S.takeRec.push({ t: NOW - S.takeT, w: { ...S.weave } }); }
   // weave: the memory becomes light; the lab stays as it is
+  roomMat.uniforms.show.value = lerp(roomMat.uniforms.show.value, ROOM.id ? ROOM.show : 0, .1); roomMat.uniforms.soft.value = ROOM.soft;
   { const whole = FLAMES.length > 0 && DOC.cast.some(c => (c.vis || 0) > .5); HR.uMist.value = lerp(HR.uMist.value, whole ? 0 : .44 + .1 * Math.sin(NOW * .7), .08); HR.uHolo.value = lerp(HR.uHolo.value, whole ? 0 : .92, .08); }   /* the memory holds: lit, with its guests, all of it is solid; blown out, it goes back to light */
   const weave = S.mode === 'WEAVE', W = S.weave; HU.uHolo.value = lerp(HU.uHolo.value, weave ? 1 : 0, .12); HU.uMat.value = weave ? W.mat : 1; HU.uMist.value = weave ? (W.mist || 0) : 0; HU.uScan.value = W.scan;
   const sc = weave ? W.scale : 1; MEM.scale.setScalar(lerp(MEM.scale.x, sc, .15)); MEM.position.y = BASE_Y * (1 - MEM.scale.x); holoLight.intensity = HU.uHolo.value * (.15 + W.mat * .3);
@@ -1385,7 +1404,8 @@ function frameIt(push) { const F = curF(), ps = [F].concat(F.others || []).filte
   const o = S.orbit; S.ease = null; S.easeX = null; o.tgt.x = 0; o.tgt.z = 0; o.tgt.y = BASE_Y + top * .5 + .05; o.pitch = -.2; o.dist = clamp(.78 + 1.3 * mx + .95 * top, .9, 2.4) * (push || 1); S.focus.auto = true; S.focus.d = null;
   /* and let the picture settle at once: guests fully there, and the memory whole if it is lit */
   DOC.cast.forEach(c => { c.vis = SHOWN >= (c.f0 || 0) ? (c.op || 0) : 0; }); const whole = FLAMES.length > 0 && DOC.cast.some(c => (c.vis || 0) > .5); HR.uMist.value = whole ? 0 : .44; HR.uHolo.value = whole ? 0 : .92; }
-window.FORGE = { WHO, frameIt, GLIST: () => GSTEPS.map(g => g.t), newPiece, activate, pieceCount, build() { GUIDE.on = false; for (const g of GSTEPS) { if (/CHILDREN COME/.test(g.t)) break; g.show.forEach(runAct); } },
+setRoom(ROOM.id, true);
+window.FORGE = { WHO, frameIt, ROOM, ROOMS, setRoom, get KIDS() { return KIDS; }, GLIST: () => GSTEPS.map(g => g.t), newPiece, activate, pieceCount, build() { GUIDE.on = false; for (const g of GSTEPS) { if (/CHILDREN COME|GUESTS COME/.test(g.t)) break; g.show.forEach(runAct); } },
   /* the whole memory in sequence: every step of the guide through the rings, a frame kept after each */
   sequence(hold) { GUIDE.on = false; for (const g of GSTEPS) { if (/LOOK AT THEM|WALK AROUND|WEAVE IT/.test(g.t)) continue; g.show.forEach(runAct); if (!/KEEP A FRAME/.test(g.t)) { const m = S.mode; S.mode = 'TIME'; capture(false); S.mode = m; } } DOC.frames.forEach(f => f.hold = hold || 4); DOC.cur = 0; showFrame(); }, get SHOWN() { return SHOWN; }, showFrame, CFG, S, get DOC() { return DOC; }, turn, press, rings, scrub, nodes, curNode, pickTo, setMode, setVerb, GUIDE, GSTEPS, PAIR, gizmoHit, gizmoDrag, setStretch, VERBS, MODES, spawn, place, hitAt, strokeStart, strokeMove, strokeEnd, snapshot, showFrame, cam, CAKE, ORB, RINGS, BTN, OC, perf: () => perf,
   manual() { auto = false; }, setAim(x, y) { hover = x == null ? null : { x, y }; }, aim: () => AIM, advance(dt) { update(dt); render(); }, step(dt) { update(dt); placeCam(); cam.updateMatrixWorld(); }, worldToRoom(v) { const p = v.clone().project(cam); return [(p.x + 1) / 2 * roomEl.clientWidth, (1 - p.y) / 2 * roomEl.clientHeight]; }, local(v) { return CAKE.localToWorld(v.clone()); } };

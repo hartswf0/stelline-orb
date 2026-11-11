@@ -191,12 +191,33 @@ Not run: SMASH, HEDGEHOG and CLASSIC end to end; the steps after the candles (ch
 a phone; sound. Known weak points: on the ladybird the eyes went on away from the camera and the name sits among the
 spots; names are capitals A to Z and digits only, nine characters; the dinosaur and rocket of `cake-for.html` have no guide on the orb yet; number candles are not in the orb.
 
+## ROOM mode: one picture, not two
+
+Until this pass every frame was a double exposure: an archive birthday, with its own cake and its own people, showed
+through behind the cake being made and the guests at the table. Now:
+
+- **The room is taken apart once, by `tools/orb06/people.py`.** From the best-lit moment of each clip it writes the
+  people as cut-outs (`assets/people/`), and the room twice: as filmed (`assets/rooms/<id>.webp`) and with its people
+  and its cake taken out, filled from what surrounds them and left soft (`assets/rooms/<id>_clean.webp`). 26 clips.
+- **The guests are the room's own people.** Choosing a room seats the people cut from that same birthday, left to
+  right as they stood (one to three of them). They no longer also appear behind themselves.
+- **The orb has an eighth mode, ROOM.** Ring 3 WHICH birthday (its people come with it), ring 4 SHOW (how much of
+  the room there is), ring 5 FOCUS (sharp to soft). DO puts the room's own people and cake back into the picture, or
+  takes them out again. The default is out. `?room=bday_NN&show=.7&soft=.45&clean=0`, `?room=0` for the dark chamber.
+- The room is drawn as a dim, soft picture on the glass, not as bright grain laid over the scene.
+
+Tried through the rings: WHICH turned to another birthday (the guests changed with it), SHOW turned down, DO pressed
+(the room's people came back). Limits: with so much taken out, many rooms are little more than their colour and
+light; the taking-out is a still frame, so the room does not move (the clip itself would bring its people back);
+a few rooms keep a trace of the cake's flames; nothing yet edits the clip in time (cutting, retiming, or replacing
+the cake inside the moving footage).
+
 ## One hundred memories (`memories.html`, `tools/orb06/make100.mjs`)
 
 One memory for every age from 1 to 100, each for a named person, each made on Orb 06 by running that person's guide
 through the rings with a frame kept after every step, and each checked against its plan: the number of pieces of
 clay, the name written to the end (where the design carries one), a lit candle for every year up to twelve in the
-frame before the blow, three guests arriving after the making, and no candle alight in the last frame.
+frame before the blow, all of the room's guests arriving after the making, and no candle alight in the last frame.
 
 Result of the run of 2026-11-11 (second making): **100 made, 100 pass, across 33 designs.**
 
@@ -206,11 +227,10 @@ Result of the run of 2026-11-11 (second making): **100 made, 100 pass, across 33
   chosen by a seed per person.
 - **Guests from the archive.** `tools/orb06/people.py` cuts the party-goers, unaltered, out of the archive's own
   birthday clips: the best-lit moment of each clip's hero shot, the cake removed, only figures a person detector
-  confirms, nothing too dark to read. 35 cut-outs from 26 clips (`assets/people/`). Each memory seats three:
-  children for a child, grown people for the grown. `?cast=a.webp,b.webp,c.webp` on the orb.
-- **The room.** Another archive birthday of the same kind, on the glass as felt light. In a browser that can play
-  the clip, the room is the clip itself, moving; otherwise the still frame stays. In this run the stills show the
-  still frame: the headless renderer did not play the clips.
+  confirms, nothing too dark to read. 35 cut-outs from 26 clips (`assets/people/`).
+- **The room and its guests are one birthday.** Each memory is given an archive birthday of the right kind
+  (children's for a child, a grown party for the grown); that room's own people sit at the table, and the room is
+  shown with them and its cake taken out (see ROOM mode above).
 - **The memory holds.** Lit, with its guests there, every piece is solid. Blown out, it returns to light.
 - **Film frames.** Each still is 1280 x 720, no orb, no text: the eye low across the table from the guests, the
   moment before the blow (`assets/memories/NNN.jpg`, all on `assets/memories/all-100.jpg`).
@@ -224,14 +244,12 @@ guide's caption over the picture. The first fourteen of that run found a real fa
 in hand), fixed in the orb.
 
 What the hundred do not show:
-- **The grown guests repeat.** The archive has few clips of grown people, so five cut-outs serve the 83 grown memories,
-  and the same faces recur. Twenty rooms serve the hundred.
+- **The grown parties repeat.** The archive has few clips of grown people, so a handful of parties serve the 83
+  grown memories and the same faces recur.
 - **Cut-outs are as the segmenter left them**: some have holes or a ragged edge, and a few are a pair or a small
   group rather than one person. They do not move.
 - **The check is against the plan the same code wrote.** It proves the rings did what each guide asked; it does not
   judge whether a frame is good. The sheet was looked at once; four frames and one film were looked at closely.
-- **Some rooms carry writing.** A few archive clips have a caption drawn into their picture (seen in the room behind
-  Kofi's horse), so those frames are not clean. Rooms should be limited to clips without it.
 - **The other video in the repo is not used yet**: the 60 decomposed moments, the orb films, the flow and generated
   clips. Only the 77 birthday clips feed the rooms and the guests.
 - Past twelve the candles stop at twelve. The caterpillar, train and bundt carry no name. No sound.

@@ -4,6 +4,8 @@
 "era": "1950s_midcentury",
 "title": "Four Children Blowing Out 2-Tier Piped Pastel Birthday Cake",
 "kids": true,
+"t": 9.0,
+"taken_out": 0.932,
 "people": [
 {
 "file": "bday_18_0.webp",
@@ -28,6 +30,8 @@
 "era": "1970s_kodachrome",
 "title": "Reverse-Motion Child at Small Square Pedestal Table",
 "kids": true,
+"t": 2.25,
+"taken_out": 0.897,
 "people": [
 {
 "file": "bday_21_0.webp",
@@ -44,6 +48,8 @@
 "era": "1950s_midcentury",
 "title": "Golden Hologram Ghosts Solidifying Into Five Children Around 2-Tier Cake",
 "kids": true,
+"t": 7.65,
+"taken_out": 0.845,
 "people": [
 {
 "file": "bday_23_0.webp",
@@ -60,6 +66,8 @@
 "era": "1980s_synthwave",
 "title": "Neon Rainbow Orb Materializing 1980s Kids & Magenta-Cyan 2-Tier Cake",
 "kids": true,
+"t": 5.85,
+"taken_out": 0.871,
 "people": [
 {
 "file": "bday_24_0.webp",
@@ -76,6 +84,8 @@
 "era": "1950s_midcentury",
 "title": "1940s Children Materializing One-by-One from Golden Stardust",
 "kids": true,
+"t": 4.05,
+"taken_out": 0.742,
 "people": [
 {
 "file": "bday_25_0.webp",
@@ -100,6 +110,8 @@
 "era": "1980s_synthwave",
 "title": "1980s Kids in Neon Windbreakers & Caps Blowing Out Tall Floral 2-Tier Cake",
 "kids": true,
+"t": 5.85,
+"taken_out": 0.875,
 "people": [
 {
 "file": "bday_26_0.webp",
@@ -116,6 +128,8 @@
 "era": "1990s_pastel",
 "title": "Y2K / Late-90s Kids Blowing Out Pink 2-Tier '2000' Topper Cake",
 "kids": true,
+"t": 4.05,
+"taken_out": 0.852,
 "people": [
 {
 "file": "bday_27_0.webp",
@@ -140,6 +154,8 @@
 "era": "1950s_midcentury",
 "title": "Six Vintage Children Gathered Tightly Around 7-Candle Cream Cake",
 "kids": true,
+"t": 2.25,
+"taken_out": 1.0,
 "people": [
 {
 "file": "bday_28_0.webp",
@@ -156,6 +172,8 @@
 "era": "1950s_midcentury",
 "title": "Seven Children Around Ornate 2-Tier Candlelit Cake",
 "kids": true,
+"t": 4.05,
+"taken_out": 0.945,
 "people": [
 {
 "file": "bday_29_0.webp",
@@ -172,6 +190,8 @@
 "era": "2049_chamber",
 "title": "Multi-Shot Film Cut: \u751f\u65e5\u5feb\u6a02 Cake -> Children -> Close-Up Girl Blowing",
 "kids": true,
+"t": 6.388,
+"taken_out": 0.739,
 "people": [
 {
 "file": "bday_30_0.webp",
@@ -188,6 +208,8 @@
 "era": "2049_chamber",
 "title": "Two Children Close-Up Blowing Out Chocolate-Side Cream-Top Cake",
 "kids": true,
+"t": 7.65,
+"taken_out": 0.95,
 "people": [
 {
 "file": "bday_34_0.webp",
@@ -212,6 +234,8 @@
 "era": "1980s_synthwave",
 "title": "Three Kids Celebrating Around Neon Geometric Memphis Pattern Cake",
 "kids": true,
+"t": 7.65,
+"taken_out": 0.967,
 "people": [
 {
 "file": "bday_35_0.webp",
@@ -228,6 +252,8 @@
 "era": "1950s_midcentury",
 "title": "Four Smiling Children Around Golden Sponge & Piped Rosette Cake",
 "kids": true,
+"t": 2.25,
+"taken_out": 0.974,
 "people": [
 {
 "file": "bday_37_0.webp",
@@ -252,6 +278,8 @@
 "era": "2049_chamber",
 "title": "Wireframe Ghost Outlines Solidifying Into Four Children & 2-Tier Cake",
 "kids": true,
+"t": 9.0,
+"taken_out": 0.874,
 "people": [
 {
 "file": "bday_38_0.webp",
@@ -276,6 +304,8 @@
 "era": "2049_cyberpunk",
 "title": "Cyberpunk Crew Celebrating Around Neon Holographic 'Happy Birthday' 2-Tier Cake",
 "kids": false,
+"t": 7.65,
+"taken_out": 0.91,
 "people": [
 {
 "file": "bday_45_0.webp",
@@ -292,6 +322,8 @@
 "era": "2049_cyberpunk",
 "title": "Cyan Wireframe Children Materializing Around Atomic Hologram Pedestal",
 "kids": true,
+"t": 7.65,
+"taken_out": 0.79,
 "people": [
 {
 "file": "bday_48_0.webp",
@@ -316,6 +348,8 @@
 "era": "studio_craft",
 "title": "Baker Hands Frosting Homemade Sponge Cake w/ Ivory Buttercream & 6 Candles",
 "kids": false,
+"t": 9.0,
+"taken_out": 0.766,
 "people": [
 {
 "file": "bday_54_0.webp",
@@ -332,6 +366,8 @@
 "era": "1920s_speakeasy",
 "title": "Hands Sculpting 1920s Rustic Palette-Knife Cream Cake w/ 5 Tall Tapers",
 "kids": false,
+"t": 2.25,
+"taken_out": 0.804,
 "people": [
 {
 "file": "bday_55_0.webp",
@@ -348,6 +384,8 @@
 "era": "1980s_synthwave",
 "title": "1980s Retro Friends Celebrating Around Glowing Pink-Blue Neon 2-Tier Cake",
 "kids": false,
+"t": 4.05,
+"taken_out": 0.992,
 "people": [
 {
 "file": "bday_66_0.webp",
@@ -364,6 +402,8 @@
 "era": "1920s_speakeasy",
 "title": "1920s Speakeasy Party in Sepia Warmth Around Ornate Cream Cake",
 "kids": false,
+"t": 7.65,
+"taken_out": 0.981,
 "people": [
 {
 "file": "bday_67_0.webp",
@@ -380,6 +420,8 @@
 "era": "1980s_synthwave",
 "title": "1980s Arcade Party Blowing Out Large Neon Geometric Memphis Cake",
 "kids": false,
+"t": 2.25,
+"taken_out": 0.912,
 "people": [
 {
 "file": "bday_68_0.webp",
@@ -396,6 +438,8 @@
 "era": "1970s_kodachrome",
 "title": "1970s Kodachrome Living Room Party w/ Golden Crowned Drip Cake",
 "kids": false,
+"t": 5.85,
+"taken_out": 0.963,
 "people": [
 {
 "file": "bday_70_0.webp",
@@ -412,6 +456,8 @@
 "era": "1970s_kodachrome",
 "title": "1970s Party Cake w/ Twin Blazing Sparklers & Tapers",
 "kids": false,
+"t": 5.85,
+"taken_out": 1.0,
 "people": [
 {
 "file": "bday_72_0.webp",
@@ -436,6 +482,8 @@
 "era": "1950s_midcentury",
 "title": "1950s Mid-Century Family Blowing Out Classic 2-Tier White Party Cake",
 "kids": false,
+"t": 9.0,
+"taken_out": 0.986,
 "people": [
 {
 "file": "bday_73_0.webp",
@@ -460,6 +508,8 @@
 "era": "2049_chamber",
 "title": "Shot 25 Clean: Two Party-Hat Kids Leaning In & Blowing Out 9 Candles",
 "kids": true,
+"t": 2.241,
+"taken_out": 0.956,
 "people": [
 {
 "file": "bday_77_0.webp",
@@ -476,6 +526,8 @@
 "era": "2049_chamber",
 "title": "Stelline Orb Film Master Reference: 3 Chamber Children & 7-Candle Cake",
 "kids": true,
+"t": 7.65,
+"taken_out": 0.958,
 "people": [
 {
 "file": "bday_78_0.webp",
