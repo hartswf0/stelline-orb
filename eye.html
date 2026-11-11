@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>The Eye</title>
+<meta name="description" content="Every birthday in the archive, lifted from its video into three dimensions and seen through one eye. The iris holds all of them; the pupil is the room.">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #040504; --ink: #e9e4d8; --dim: #8a877e; --amb: #f0b040; --line: #2a2a26; --pass: #8fd19e; --fail: #e2725b; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 12px/1.35 "IBM Plex Mono", ui-monospace, monospace; overflow: hidden; user-select: none; -webkit-user-select: none; }
+  .app { height: 100dvh; display: grid; grid-template-rows: minmax(0, 1fr) auto; }
+  #stage { position: relative; overflow: hidden; touch-action: none; }
+  #gl, #ui, #foot { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+  #gl { border-radius: 50%; background: #000; }
+  #foot { border-radius: 50%; overflow: hidden; display: none; background: #000; }
+  #foot video { position: absolute; top: 0; }
+  #ui { cursor: grab; }
+  #panel { border-top: 1px solid var(--line); padding: 8px 12px 10px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 14px; align-items: start; background: #070807; }
+  #title { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #meta { color: var(--dim); font-size: 11px; grid-column: 1 / -1; line-height: 1.5; }
+  #meta b { color: var(--ink); font-weight: 500; }
+  #meta .pass { color: var(--pass); } #meta .fail { color: var(--fail); }
+  #btns { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  button { font: inherit; font-size: 11px; letter-spacing: .06em; color: var(--ink); background: #11120f; border: 1px solid var(--line); border-radius: 3px; padding: 5px 8px; cursor: pointer; }
+  button.on { border-color: var(--amb); color: var(--amb); }
+  a { color: var(--dim); }
+  @media (max-width: 620px) { #panel { grid-template-columns: minmax(0, 1fr); } #btns { justify-content: flex-start; } #title { white-space: normal; } }
+  body.bare #panel, body.bare #ui { display: none; }
+  body.bare #gl { border-radius: 0; left: 0; top: 0; transform: none; }
+  #info { position: absolute; inset: 0; background: rgba(4,5,4,.94); padding: 22px; overflow: auto; display: none; z-index: 5; }
+  #info div { max-width: 640px; margin: 0 auto; line-height: 1.6; }
+  #info h2 { font-size: 14px; margin: 14px 0 4px; color: var(--amb); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div id="stage">
+    <canvas id="gl"></canvas>
+    <div id="foot"><video muted playsinline loop></video></div>
+    <canvas id="ui"></canvas>
+    <div id="info"><div>
+      <h2>THE EYE</h2>
+      The iris is every birthday video in the archive. The pupil is that birthday in three dimensions, measured from its own footage by <a href="tools/lift/lift.py">tools/lift/lift.py</a>. Nothing here is drawn by hand except generation 0.
+      <h2>RINGS</h2>
+      Iris: drag round to choose a birthday. Left arc: generation. Right arc: time through the clip (generation 3). Pupil: drag to move the eye round the cake; wheel or pinch to come closer.
+      <h2>GENERATIONS</h2>
+      G0 RIG: the earlier hand-made lathe and a flat colour.<br>
+      G1 RELIEF: one frame pushed back by estimated depth. True from the front, hollow behind.<br>
+      G2 REVOLVE: the cake measured as a solid of revolution with the footage projected onto it, candles standing on it, in the relief room. The room's depth scale is solved from the cake's own roundness.<br>
+      G3 TIME: G2 measured at seven moments of the clip. The cake being made, in three dimensions.
+      <h2>SCORES</h2>
+      Each generation is drawn by this page and compared with the footage by <a href="tools/lift/score.mjs">tools/lift/score.mjs</a>. SILHOUETTE: overlap with the cake in the frame, seen from the camera's own place. SOLID: the smallest outline the cake keeps as the eye goes half way round, against its outline from the front. COLOUR: how far the drawn cake is from the frame, 0 to 1. A generation passes when silhouette is at least 0.85 and solid at least 0.60.
+      <h2>NOT YET</h2>
+      The back of every cake is the mirror of its front. Hands, faces and smoke stay in the relief. A generated full mesh (image to 3D) is the next generation; its runner is <a href="tools/lift/fal3d.py">tools/lift/fal3d.py</a> and has not been run.
+      <p><button id="infoClose">CLOSE</button> &nbsp; <a href="index.html">index</a> &nbsp; <a href="docs/eye.md">docs/eye.md</a></p>
+    </div></div>
+  </div>
+  <div id="panel">
+    <div id="title">loading</div>
+    <div id="btns">
+      <button id="bFoot">FOOTAGE</button><button id="bScene" class="on">ROOM</button><button id="bTurn">TURN</button><button id="bPlay">PLAY</button><button id="bGlb">GLB</button><button id="bInfo">(i)</button>
+    </div>
+    <div id="meta"></div>
+  </div>
+</div>
+<script src="assets/three.min.js"></script>
+<script src="assets/GLTFExporter.js"></script>
+<script src="assets/bday-training/dataset.js"></script>
+<script src="assets/eye/lift.js"></script>
+<script src="assets/eye/scores.js" onerror="window.EYE_SCORES=null"></script>
+<script>
+(function () {
+'use strict';
+const Q = new URLSearchParams(location.search);
+const BARE = Q.has('bare');
+if (BARE) document.body.classList.add('bare');
+const DB = (window.LIFT || { items: {} }).items;
+const DS = {}; ((window.BDAY_DATASET || {}).items || []).forEach(i => DS[i.id] = i);
+const IDS = Object.keys(DB).filter(k => DB[k].ok).sort();
+const GEN = ['G0 RIG', 'G1 RELIEF', 'G2 REVOLVE', 'G3 TIME'];
+const SEG = 72, D2R = Math.PI / 180;
+const $ = id => document.getElementById(id);
+const S = { i: Math.max(0, IDS.indexOf(Q.get('id'))), gen: Q.has('gen') ? +Q.get('gen') : 2, yaw: +(Q.get('yaw') || 0), elev: null, t: Q.has('t') ? +Q.get('t') : 1,
+  zoom: +(Q.get('zoom') || 1), room: Q.get('room') !== '0', turn: Q.has('turn'), play: Q.has('play'), ortho: false, matte: false, foot: false, ap: 1 };
+
+/* ---------- three ---------- */
+const glc = $('gl');
+const R = new THREE.WebGLRenderer({ canvas: glc, antialias: true, preserveDrawingBuffer: true });
+R.setPixelRatio(BARE ? 1 : Math.min(2, devicePixelRatio || 1));
+R.setClearColor(0x000000, 1);
+const scene = new THREE.Scene();
+const world = new THREE.Group(); scene.add(world);      // the footage's camera space, tipped so the table is level
+const persp = new THREE.PerspectiveCamera(16, 1, 10, 20000);
+const ortho = new THREE.OrthographicCamera(-1, 1, 1, -1, -8000, 8000);
+scene.add(new THREE.HemisphereLight(0xfff0d8, 0x20180c, 1.0));
+const TL = new THREE.TextureLoader();
+const tex = u => { const t = TL.load(u, () => { dirty = true; }); t.minFilter = THREE.LinearFilter; t.generateMipmaps = false; return t; };
+const WHITE = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+let cur = null, dirty = true;
+
+function flameTex() {
+  const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
+  const r = g.createRadialGradient(32, 38, 1, 32, 34, 30); r.addColorStop(0, 'rgba(255,250,225,1)'); r.addColorStop(.25, 'rgba(255,200,110,.85)'); r.addColorStop(1, 'rgba(255,140,40,0)');
+  g.fillStyle = r; g.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c);
+}
+const FLAME = new THREE.SpriteMaterial({ map: flameTex(), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true });
+
+/* Image of a point of the cake. Cake space: x right, h up the axis, z toward the footage's camera.
+   px = xc + x,  py = y_bc - h cos p + z sin p. */
+function uvOf(m, x, h, z, W, H) { return [(m.xc + x) / W, 1 - (m.y_bc - h * m.cp + z * m.sp) / H]; }
+/* The side is seen from the front only. A point at angle a from the camera (0 = facing it) takes its colour from
+   the same ring at the folded angle: exact to 60 degrees, eased to 78 at the outline, mirrored behind. */
+function fold(a) { let b = Math.abs(a); if (b > Math.PI / 2) b = Math.PI - b; const k = 60 * D2R; if (b > k) b = k + (b - k) * 0.6; return a < 0 ? -b : b; }
+
+function lathe(m, W, H) {            // m: {xc, y_bc, cp, sp, prof:[[r,h]...], uvProf?}: uvProf = the profile the texture's own frame measured
+  const P = m.prof, U = m.uvProf || P, n = P.length, pos = [], uv = [], idx = [];
+  for (let i = 0; i < n; i++) for (let j = 0; j <= SEG; j++) {
+    const a = j / SEG * 2 * Math.PI - Math.PI, r = Math.max(P[i][0], 0.01), b = fold(a);
+    pos.push(r * Math.sin(a), P[i][1], r * Math.cos(a));
+    const ur = Math.max(U[i][0], 0.01), u = uvOf(m, ur * Math.sin(b), U[i][1], ur * Math.cos(b), W, H); uv.push(u[0], u[1]);
+  }
+  for (let i = 0; i < n - 1; i++) for (let j = 0; j < SEG; j++) { const a = i * (SEG + 1) + j, b = a + SEG + 1; idx.push(a, b, a + 1, a + 1, b, b + 1); }
+  const top = P[n - 1], ut = U[n - 1], c0 = pos.length / 3;          // the top: seen whole, so it takes its colour straight
+  pos.push(0, top[1], 0); let u = uvOf(m, 0, ut[1], 0, W, H); uv.push(u[0], u[1]);
+  for (let j = 0; j <= SEG; j++) { const a = j / SEG * 2 * Math.PI - Math.PI, r = Math.max(top[0], 0.01), ur = Math.max(ut[0], 0.01); pos.push(r * Math.sin(a), top[1], r * Math.cos(a)); u = uvOf(m, ur * Math.sin(a), ut[1], ur * Math.cos(a), W, H); uv.push(u[0], u[1]); }
+  for (let j = 0; j < SEG; j++) idx.push(c0, c0 + 1 + j, c0 + 2 + j);
+  const b0 = pos.length / 3; pos.push(0, P[0][1], 0); uv.push(u[0], u[1]);      // the base, to close the solid
+  for (let j = 0; j < SEG; j++) idx.push(b0, j + 1, j);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals();
+  return g;
+}
+
+function loadImg(u) { return new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = u; }); }
+
+async function build(id) {
+  const e = DB[id], dir = 'assets/eye/' + id + '/', W = e.w, H = e.h;
+  const o = { id, e, W, H, group: new THREE.Group(), keyTex: {}, glbName: id };
+  const rv = e.revolve, pitch = (rv ? rv.pitch : 15) * D2R;
+  o.pitch = pitch; o.cp = Math.cos(pitch); o.sp = Math.sin(pitch);
+  o.base = rv ? new THREE.Vector3(rv.xc - W / 2, H / 2 - rv.y_bc, 0) : new THREE.Vector3(0, -H / 4, 0);
+  o.hmax = rv ? rv.prof[rv.prof.length - 1][1] : H / 3; o.rmax = rv ? Math.max.apply(0, rv.prof.map(p => p[0])) : H / 3;
+  /* relief: the depth grid as a surface, sheets across depth jumps cut away */
+  const img = await loadImg(dir + 'depth.png');
+  const gw = e.depth_w, gh = e.depth_h, c = document.createElement('canvas'); c.width = gw; c.height = gh;
+  const g2 = c.getContext('2d'); g2.drawImage(img, 0, 0); const px = g2.getImageData(0, 0, gw, gh).data;
+  const pos = new Float32Array(gw * gh * 3), uv = new Float32Array(gw * gh * 2), mk = new Uint8Array(gw * gh);
+  for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) {
+    const k = y * gw + x, q = (px[k * 4] * 256 + px[k * 4 + 1]) / 65535;
+    pos[k * 3] = (x + .5) / gw * W - W / 2; pos[k * 3 + 1] = H / 2 - (y + .5) / gh * H; pos[k * 3 + 2] = (e.z_lo + q * (e.z_hi - e.z_lo)) * W;
+    uv[k * 2] = (x + .5) / gw; uv[k * 2 + 1] = 1 - (y + .5) / gh; mk[k] = px[k * 4 + 2] > 127 ? 1 : 0;
+  }
+  o.mask = mk; o.gw = gw; o.gh = gh;
+  const near = new Uint8Array(gw * gh), NB = 4;       // the room keeps clear of the cake's outline by a few cells
+  for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) if (mk[y * gw + x]) for (let dy = -NB; dy <= NB; dy++) for (let dx = -NB; dx <= NB; dx++) { const yy = y + dy, xx = x + dx; if (yy >= 0 && yy < gh && xx >= 0 && xx < gw) near[yy * gw + xx] = 1; }
+  const all = [], room = [], cake = [], cut = W * 0.035;
+  for (let y = 0; y < gh - 1; y++) for (let x = 0; x < gw - 1; x++) {
+    const a = y * gw + x, b = a + 1, d = a + gw, f = d + 1;
+    const z0 = pos[a * 3 + 2], z1 = pos[b * 3 + 2], z2 = pos[d * 3 + 2], z3 = pos[f * 3 + 2];
+    if (Math.max(z0, z1, z2, z3) - Math.min(z0, z1, z2, z3) > cut) continue;
+    const m = mk[a] + mk[b] + mk[d] + mk[f];
+    all.push(a, d, b, b, d, f); if (!near[a]) room.push(a, d, b, b, d, f); if (m === 4) cake.push(a, d, b, b, d, f);
+  }
+  const rg = new THREE.BufferGeometry(); rg.setAttribute('position', new THREE.BufferAttribute(pos, 3)); rg.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  o.idx = { all, room, cake }; rg.setIndex(all);
+  o.plateTex = tex(dir + 'plate.webp');
+  o.relief = new THREE.Mesh(rg, new THREE.MeshBasicMaterial({ map: o.plateTex, side: THREE.DoubleSide, transparent: true }));
+  o.relief.renderOrder = -1;
+  o.group.add(o.relief);
+  /* the cake as a solid, standing on its base centre, axis tipped by the camera's pitch */
+  o.cake = new THREE.Group(); o.cake.position.copy(o.base); o.cake.rotation.x = pitch; o.group.add(o.cake);
+  if (rv) {
+    o.bodyTex = tex(dir + 'body.webp');
+    o.body = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial({ map: o.bodyTex, side: THREE.DoubleSide })); o.cake.add(o.body);
+    o.candles = new THREE.Group(); o.cake.add(o.candles);
+  }
+  /* G0: the hand-made lathe from the earlier pass, scaled to the measured base, one flat colour */
+  const d = DS[id];
+  if (d && d.segmentation && d.segmentation.profile_m && rv) {
+    const pm = d.segmentation.profile_m.filter(p => p[0] > 0), rm = Math.max.apply(0, pm.map(p => p[0])), k = o.rmax / rm;
+    const g = lathe({ xc: 0, y_bc: 0, cp: 1, sp: 0, prof: pm.map(p => [p[0] * k, p[1] * k]) }, 1, 1);
+    o.rig = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color: new THREE.Color(d.cake_spec.icing_end || '#d8d0c0'), side: THREE.DoubleSide })); o.cake.add(o.rig);
+  }
+  /* level the table: undo the pitch about the cake's base, so yaw turns about the cake's own axis */
+  o.group.position.copy(o.base).multiplyScalar(-1);
+  o.pivot = new THREE.Group(); o.pivot.rotation.x = -pitch; o.pivot.add(o.group);
+  return o;
+}
+
+function keyAt(o, t) {               // measured cake at time t (0..1 over the hero shot)
+  const K = o.e.keys.filter(k => !k.empty), rv = o.e.revolve;
+  if (!K.length) return { m: rv, tex: null, cand: rv.candles };
+  const all = o.e.keys, f = t * (all.length - 1), i0 = Math.min(all.length - 2, Math.floor(f)), u = f - i0, a = all[i0], b = all[i0 + 1];
+  const z = k => k.empty ? { xc: rv.xc, y_bc: rv.y_bc, prof: rv.prof.map(p => [0.01, p[1] * 0.02]), candles: [] } : k;
+  const A = z(a), B = z(b), near = u < .5 ? a : b;
+  return { m: { xc: A.xc + (B.xc - A.xc) * u, y_bc: A.y_bc + (B.y_bc - A.y_bc) * u, prof: A.prof.map((p, j) => [p[0] + (B.prof[j][0] - p[0]) * u, p[1] + (B.prof[j][1] - p[1]) * u]) },
+    tex: near.empty ? null : near.tex, cand: near.empty ? [] : near.candles, texM: near.empty ? null : near };
+}
+
+function apply() {                   // show the chosen generation at the chosen time
+  const o = cur; if (!o) return; const e = o.e, rv = e.revolve, g = rv ? S.gen : 1;
+  o.relief.visible = g === 1 || (S.room && !S.matte);
+  o.relief.geometry.setIndex(g === 1 ? (S.room && !S.matte ? o.idx.all : o.idx.cake) : o.idx.room);
+  o.relief.material = S.matte ? WHITE : o.relief._m || (o.relief._m = o.relief.material);
+  /* the room was seen from one place: it holds for 25 degrees either way and is gone by 65 */
+  let ya = Math.abs(((S.yaw % 360) + 540) % 360 - 180); if (!S.matte) o.relief.material.opacity = g === 1 ? 1 : Math.min(1, Math.max(0, 1 - (ya - 25) / 40));
+  if (g !== 1 && ya >= 65) o.relief.visible = false;
+  if (o.rig) { o.rig.visible = g === 0; o.rig.material = S.matte ? WHITE : o.rig._m || (o.rig._m = o.rig.material); }
+  if (!rv) return;
+  o.body.visible = g >= 2; o.candles.visible = g >= 2;
+  if (g < 2) return;
+  let m = rv, cand = rv.candles, map = o.bodyTex, proj = rv;
+  if (g === 3 && e.keys.length > 1) {
+    const k = keyAt(o, S.t); m = k.m; cand = k.cand;
+    if (k.tex && S.t < 0.995) { map = o.keyTex[k.tex] || (o.keyTex[k.tex] = tex('assets/eye/' + o.id + '/' + k.tex)); proj = k.texM; } else proj = rv;
+  }
+  /* geometry from the interpolated measurement; colour from the nearest measured moment, through that moment's own projection */
+  const gm = lathe({ xc: proj.xc, y_bc: proj.y_bc, cp: o.cp, sp: o.sp, prof: m.prof, uvProf: proj.prof }, o.W, o.H);
+  o.body.geometry.dispose(); o.body.geometry = gm;
+  o.body.position.set(m.xc - rv.xc, (rv.y_bc - m.y_bc) / o.cp, 0);
+  o.body.material = S.matte ? WHITE : o.body._m || (o.body._m = o.body.material);
+  if (!S.matte) o.body.material.map = map;
+  while (o.candles.children.length) o.candles.remove(o.candles.children[0]);
+  const top = m.prof[m.prof.length - 1][1];
+  cand.forEach(c => {
+    const cy = new THREE.Mesh(new THREE.CylinderGeometry(c.w / 2, c.w / 2, c.h, 10), S.matte ? WHITE : new THREE.MeshBasicMaterial({ color: new THREE.Color(c.rgb[0] / 255, c.rgb[1] / 255, c.rgb[2] / 255) }));
+    cy.position.set(c.x, top + c.h / 2, c.z); o.candles.add(cy);
+    if (c.lit && !S.matte) { const f = new THREE.Sprite(FLAME); f.scale.set(c.w * 4.2, c.w * 6.5, 1); f.position.set(c.x, top + c.h + c.w * 1.6, c.z); o.candles.add(f); }
+  });
+  o.candles.position.copy(o.body.position);
+}
+
+function camera() {
+  const o = cur; if (!o) return persp;
+  const el = (S.elev == null ? o.pitch / D2R : S.elev) * D2R, yw = S.yaw * D2R;
+  const tgt = new THREE.Vector3(0, o.hmax * 0.5, 0);
+  const dir = new THREE.Vector3(Math.sin(yw) * Math.cos(el), Math.sin(el), Math.cos(yw) * Math.cos(el));
+  if (S.ortho) {                     // the footage's own framing, for scoring
+    const off = new THREE.Vector3(-o.base.x, -o.base.y, 0).applyAxisAngle(new THREE.Vector3(1, 0, 0), -o.pitch);
+    const c = new THREE.Vector3(0, 0, 0), right = new THREE.Vector3(Math.cos(yw), 0, -Math.sin(yw)), up = new THREE.Vector3().crossVectors(dir, right);
+    ortho.left = -o.W / 2; ortho.right = o.W / 2; ortho.top = o.H / 2; ortho.bottom = -o.H / 2;
+    const ctr = off.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), yw);
+    ortho.position.copy(ctr).addScaledVector(dir, 3000); ortho.up.copy(up); ortho.lookAt(ctr); ortho.updateProjectionMatrix();
+    return ortho;
+  }
+  const fit = Math.max(o.hmax * 1.9, o.rmax * 2.9, o.H * 0.62) / S.zoom;
+  const dist = fit / (2 * Math.tan(persp.fov * D2R / 2));
+  persp.position.copy(tgt).addScaledVector(dir, dist); persp.lookAt(tgt); persp.near = dist * 0.05; persp.far = dist * 6; persp.updateProjectionMatrix();
+  return persp;
+}
+const DEPTH = new THREE.MeshDepthMaterial({ side: THREE.DoubleSide });
+function draw() {
+  apply(); const c = camera();
+  if (S.depthPass && cur) { const d = c.position.distanceTo(new THREE.Vector3(0, cur.hmax * .5, 0)), k = Math.max(cur.rmax * 4, cur.W * .6); c.near = Math.max(1, d - k); c.far = d + k; c.updateProjectionMatrix(); scene.overrideMaterial = DEPTH; } else scene.overrideMaterial = null;
+  R.render(scene, c); dirty = false;
+}
+
+async function show(i, quick) {
+  S.i = (i + IDS.length) % IDS.length; const id = IDS[S.i];
+  if (!quick && !BARE) await blink(0);
+  const o = await build(id);
+  if (cur) { world.remove(cur.pivot); }
+  cur = o; world.add(o.pivot); S.elev = null; if (!Q.has('yaw') || !quick) S.yaw = quick ? S.yaw : 0;
+  FV.src = 'BDAY TRAINING/' + encodeURIComponent(o.e.file); setFoot(S.foot);
+  panel(); dirty = true; draw();
+  if (!quick && !BARE) await blink(1);
+}
+function blink(to) { return new Promise(ok => { const a = S.ap, t0 = performance.now(); (function f() { const u = Math.min(1, (performance.now() - t0) / 130); S.ap = a + (to - a) * u; layout(true); u < 1 ? requestAnimationFrame(f) : ok(); })(); }); }
+
+/* ---------- panel ---------- */
+function panel() {
+  const e = cur.e, rv = e.revolve, sc = (window.EYE_SCORES || {})[cur.id];
+  $('title').textContent = (S.i + 1) + ' / ' + IDS.length + '  ' + e.title;
+  let h = '<b>' + GEN[rv ? S.gen : 1] + '</b>';
+  if (rv) h += ' &nbsp; pitch <b>' + rv.pitch.toFixed(0) + '&deg;</b> ' + ({ depth: 'from depth', edge: 'from the edge ellipse', outline: 'edge read ' + (rv.pitch_read || 0).toFixed(0) + '&deg;, reduced to fit the outline', prior: 'from its shot family (not measured)' }[rv.pitch_method] || '') + ' &nbsp; depth fit <b>' + e.round_r2.toFixed(2) + '</b>' + (e.ruler_ok ? '' : ' (too weak: default depth scale)') + ' &nbsp; candles found <b>' + rv.candles.length + '</b>';
+  else h += ' &nbsp; no solid found in this clip: relief only';
+  if (sc) { const s = sc['g' + (rv ? S.gen : 1)]; if (s) h += '<br>silhouette <b>' + s.iou.toFixed(2) + '</b> &nbsp; solid <b>' + s.solid.toFixed(2) + '</b> &nbsp; colour <b>' + s.color.toFixed(3) + '</b> &nbsp; <span class="' + (s.pass ? 'pass">PASS' : 'fail">FAIL') + '</span>'; }
+  else h += '<br>not scored yet';
+  $('meta').innerHTML = h;
+  ['bScene', 'bTurn', 'bPlay', 'bFoot'].forEach((b, k) => $(b).classList.toggle('on', [S.room, S.turn, S.play, S.foot][k]));
+}
+
+/* ---------- the eye: iris of every birthday, two arcs, one pupil ---------- */
+const FV = document.querySelector('#foot video'); const ui = $('ui'), g = ui.getContext('2d'); let SZ = 600, DPR = 1, irisCv = null, rot = 0, rotTo = 0;
+const thumbs = IDS.map(id => { const im = new Image(); im.onload = () => { irisCv = null; layout(true); }; im.src = 'assets/bday-training/thumbs/' + id + '.webp'; return im; });
+const RP = () => SZ * 0.335, RI0 = () => SZ * 0.347, RI1 = () => SZ * 0.445, RO0 = () => SZ * 0.458, RO1 = () => SZ * 0.492;
+function irisPaint() {
+  const c = document.createElement('canvas'); c.width = c.height = SZ * DPR; const x = c.getContext('2d'); x.scale(DPR, DPR); x.translate(SZ / 2, SZ / 2);
+  const n = IDS.length, w = 2 * Math.PI / n;
+  for (let i = 0; i < n; i++) {
+    const a = i * w - Math.PI / 2; x.save(); x.beginPath(); x.arc(0, 0, RI1(), a - w / 2, a + w / 2); x.arc(0, 0, RI0(), a + w / 2, a - w / 2, true); x.closePath(); x.clip();
+    x.rotate(a + Math.PI / 2); const im = thumbs[i], hh = RI1() - RI0(), ww = hh * 16 / 9 * 1.5;
+    if (im.complete && im.naturalWidth) x.drawImage(im, im.naturalWidth * 0.3, 0, im.naturalWidth * 0.4, im.naturalHeight * 0.62, -ww / 2 * 0.4, -RI1(), ww * 0.4, hh); else { x.fillStyle = '#151612'; x.fillRect(-ww, -RI1(), ww * 2, hh); }
+    x.restore();
+  }
+  x.strokeStyle = 'rgba(0,0,0,.55)'; x.lineWidth = 1; for (let i = 0; i < n; i++) { const a = (i + .5) * w - Math.PI / 2; x.beginPath(); x.moveTo(Math.cos(a) * RI0(), Math.sin(a) * RI0()); x.lineTo(Math.cos(a) * RI1(), Math.sin(a) * RI1()); x.stroke(); }
+  return c;
+}
+const GA = [200, 340], TA = [20, 160];   // arcs in screen degrees clockwise from 12 o'clock: generation on the left, time on the right
+const pol = (r, deg) => [SZ / 2 + r * Math.sin(deg * D2R), SZ / 2 - r * Math.cos(deg * D2R)];
+function layout(only) {
+  const st = $('stage'), w = st.clientWidth, h = st.clientHeight;
+  if (BARE) { const bw = +(Q.get('w') || 768), bh = Q.has('h') ? +Q.get('h') : cur ? Math.round(bw * cur.H / cur.W) : Math.round(bw * .34); if (glc.width !== bw || glc.height !== bh) { R.setSize(bw, bh, true); persp.aspect = bw / bh; } return; }
+  const s = Math.floor(Math.min(w, h) - 8); DPR = Math.min(2, devicePixelRatio || 1);
+  if (s !== SZ || ui.width !== s * DPR) { SZ = s; ui.width = ui.height = s * DPR; ui.style.width = ui.style.height = s + 'px'; irisCv = null; }
+  const pd = Math.round(RP() * 2);
+  if (glc.clientWidth !== pd) { R.setSize(pd, pd, true); persp.aspect = 1; $('foot').style.width = $('foot').style.height = pd + 'px'; dirty = true; }
+  glc.style.clipPath = $('foot').style.clipPath = 'circle(' + (S.ap * 50) + '% at 50% 50%)';
+  if (!irisCv) irisCv = irisPaint();
+  g.setTransform(DPR, 0, 0, DPR, 0, 0); g.clearRect(0, 0, SZ, SZ);
+  g.save(); g.translate(SZ / 2, SZ / 2); g.rotate(rot); g.drawImage(irisCv, -SZ / 2, -SZ / 2, SZ, SZ); g.restore();
+  /* limbus shading so the iris reads as a curved thing, and the mark at 12 o'clock */
+  const sh = g.createRadialGradient(SZ / 2, SZ / 2, RI0(), SZ / 2, SZ / 2, RI1()); sh.addColorStop(0, 'rgba(0,0,0,.55)'); sh.addColorStop(.25, 'rgba(0,0,0,0)'); sh.addColorStop(.8, 'rgba(0,0,0,.1)'); sh.addColorStop(1, 'rgba(0,0,0,.7)');
+  g.fillStyle = sh; g.beginPath(); g.arc(SZ / 2, SZ / 2, RI1(), 0, 7); g.arc(SZ / 2, SZ / 2, RI0(), 0, 7, true); g.fill('evenodd');
+  const w1 = Math.PI / IDS.length; g.strokeStyle = '#f0b040'; g.lineWidth = 2; g.beginPath(); g.arc(SZ / 2, SZ / 2, RI1() + 1, -Math.PI / 2 - w1, -Math.PI / 2 + w1); g.arc(SZ / 2, SZ / 2, RI0() - 1, -Math.PI / 2 + w1, -Math.PI / 2 - w1, true); g.closePath(); g.stroke();
+  /* arcs */
+  const arc = (A, frac, n, lab, live) => {
+    g.lineWidth = RO1() - RO0(); g.strokeStyle = '#11120f'; g.beginPath(); g.arc(SZ / 2, SZ / 2, (RO0() + RO1()) / 2, (A[0] - 90) * D2R, (A[1] - 90) * D2R); g.stroke();
+    g.strokeStyle = live ? '#57544c' : '#2a2a26'; g.lineWidth = 1;
+    for (let i = 0; i < n; i++) { const d = A[0] + (A[1] - A[0]) * i / (n - 1), p = pol(RO0() + 2, d), q = pol(RO1() - 2, d); g.beginPath(); g.moveTo(p[0], p[1]); g.lineTo(q[0], q[1]); g.stroke(); }
+    const d = A[0] + (A[1] - A[0]) * frac, p = pol(RO0() - 1, d), q = pol(RO1() + 1, d); g.strokeStyle = live ? '#f0b040' : '#57544c'; g.lineWidth = 3; g.beginPath(); g.moveTo(p[0], p[1]); g.lineTo(q[0], q[1]); g.stroke();
+    g.fillStyle = live ? '#e9e4d8' : '#57544c'; g.font = '500 ' + Math.max(9, SZ * 0.017) + 'px "IBM Plex Mono", monospace'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    const m = pol(RO1() + Math.max(9, SZ * 0.017), (A[0] + A[1]) / 2 > 180 ? 270 : 90);
+    g.save(); g.translate(SZ / 2 + (m[0] - SZ / 2) * 0.985, m[1]); g.rotate((A[0] + A[1]) / 2 > 180 ? -Math.PI / 2 : Math.PI / 2); g.restore();
+  };
+  arc(GA, 1 - S.gen / 3, 4, '', true); arc(TA, S.t, 7, '', S.gen === 3);
+  g.fillStyle = '#8a877e'; g.font = '500 ' + Math.max(9, Math.round(SZ * 0.018)) + 'px "IBM Plex Mono", monospace'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  const lab = (deg, s, c) => { const p = pol(SZ * 0.475, deg); g.save(); g.translate(p[0], p[1]); let a = deg * D2R; if (deg > 90 && deg < 270) a += Math.PI; g.rotate(a); g.fillStyle = c || '#8a877e'; g.fillText(s, 0, 0); g.restore(); };
+  lab(GA[0] - 9, 'G3'); lab(GA[1] + 9, 'G0'); lab(TA[0] - 9, 'TIME', S.gen === 3 ? '#8a877e' : '#3a3a34'); lab(180, GEN[cur && !cur.e.revolve ? 1 : S.gen], '#f0b040');
+}
+
+/* detent: a 4 ms band-passed noise grain, never a tone */
+let AC = null, lastClick = 0;
+function click(f) {
+  const now = performance.now(); if (now - lastClick < 55) return; lastClick = now;
+  try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const n = Math.floor(AC.sampleRate * 0.004), b = AC.createBuffer(1, n, AC.sampleRate), d = b.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n); const s = AC.createBufferSource(); s.buffer = b; const bp = AC.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f || 1900; bp.Q.value = 2.5; const ga = AC.createGain(); ga.gain.value = 0.25; s.connect(bp); bp.connect(ga); ga.connect(AC.destination); s.start(); } catch (e) {}
+}
+
+/* pointer: which ring the press began on decides what the drag turns */
+let drag = null; const ptrs = new Map();
+function where(ev) { const r = ui.getBoundingClientRect(), x = ev.clientX - r.left - SZ / 2, y = ev.clientY - r.top - SZ / 2, rr = Math.hypot(x, y); let deg = Math.atan2(x, -y) / D2R; if (deg < 0) deg += 360; return { x, y, rr, deg }; }
+function arcSet(p) {
+  if (p.zone === 'gen') { const f = Math.min(1, Math.max(0, (p.deg - GA[0]) / (GA[1] - GA[0]))), gnew = Math.round((1 - f) * 3); if (gnew !== S.gen) { S.gen = gnew; click(2300); panel(); dirty = true; } }
+  if (p.zone === 'time') { const f = Math.min(1, Math.max(0, (p.deg - TA[0]) / (TA[1] - TA[0]))); if (S.gen !== 3) { S.gen = 3; panel(); } const k0 = Math.round(S.t * 6), k1 = Math.round(f * 6); if (k0 !== k1) click(1500); S.t = f; S.play = false; panel(); dirty = true; }
+}
+ui.addEventListener('pointerdown', ev => {
+  ui.setPointerCapture(ev.pointerId); ptrs.set(ev.pointerId, ev); const p = where(ev);
+  p.zone = p.rr < RP() ? 'pupil' : p.rr < RI1() + 3 ? 'iris' : (p.deg > GA[0] - 8 && p.deg < GA[1] + 8) ? 'gen' : (p.deg > TA[0] - 8 && p.deg < TA[1] + 8) ? 'time' : 'none';
+  drag = { p, x: ev.clientX, y: ev.clientY, yaw: S.yaw, elev: S.elev == null ? cur.pitch / D2R : S.elev, rot, moved: 0, pinch: 0, zoom: S.zoom }; arcSet(p);
+});
+ui.addEventListener('pointermove', ev => {
+  if (!drag) return; ptrs.set(ev.pointerId, ev); const p = where(ev); p.zone = drag.p.zone; drag.moved += Math.abs(ev.movementX) + Math.abs(ev.movementY);
+  if (ptrs.size === 2 && drag.p.zone === 'pupil') { const a = [...ptrs.values()], d = Math.hypot(a[0].clientX - a[1].clientX, a[0].clientY - a[1].clientY); if (!drag.pinch) drag.pinch = d; S.zoom = Math.min(3, Math.max(.6, drag.zoom * d / drag.pinch)); dirty = true; return; }
+  if (drag.p.zone === 'pupil') { S.turn = false; S.yaw = drag.yaw - (ev.clientX - drag.x) * 0.45; S.elev = Math.min(80, Math.max(-5, drag.elev + (ev.clientY - drag.y) * 0.3)); dirty = true; panel(); }
+  else if (drag.p.zone === 'iris') { rot = drag.rot + (p.deg - drag.p.deg) * D2R; rotTo = rot; const w = 2 * Math.PI / IDS.length, k = ((Math.round(-rot / w) % IDS.length) + IDS.length) % IDS.length; if (k !== drag.k) { drag.k = k; click(1700); } layout(true); }
+  else arcSet(p);
+});
+const up = ev => {
+  ptrs.delete(ev.pointerId); if (!drag) return; const d = drag; drag = null;
+  if (d.p.zone === 'iris') { const w = 2 * Math.PI / IDS.length; let k;
+    if (d.moved < 5) { const a = (d.p.deg * D2R - rot); k = ((Math.round(a / w) % IDS.length) + IDS.length) % IDS.length; } else k = ((Math.round(-rot / w) % IDS.length) + IDS.length) % IDS.length;
+    go(k); }
+};
+ui.addEventListener('pointerup', up); ui.addEventListener('pointercancel', up);
+ui.addEventListener('wheel', ev => { ev.preventDefault(); const p = where(ev); if (p.rr < RP()) { S.zoom = Math.min(3, Math.max(.6, S.zoom * Math.exp(-ev.deltaY * 0.001))); dirty = true; } else if (Math.abs(ev.deltaY) > 8) go(S.i + (ev.deltaY > 0 ? 1 : -1)); }, { passive: false });
+let busy = false;
+async function go(k) {
+  k = ((k % IDS.length) + IDS.length) % IDS.length; const w = 2 * Math.PI / IDS.length; let target = -k * w;
+  while (target - rot > Math.PI) target -= 2 * Math.PI; while (target - rot < -Math.PI) target += 2 * Math.PI; rotTo = target;
+  if (k === S.i || busy) return; busy = true; click(1700); await show(k); busy = false;
+}
+addEventListener('keydown', ev => {
+  if (ev.key === 'ArrowRight') go(S.i + 1); else if (ev.key === 'ArrowLeft') go(S.i - 1);
+  else if (ev.key === 'ArrowUp') { S.gen = Math.min(3, S.gen + 1); click(2300); panel(); dirty = true; } else if (ev.key === 'ArrowDown') { S.gen = Math.max(0, S.gen - 1); click(2300); panel(); dirty = true; }
+  else if (ev.key === ' ') { $('bPlay').click(); ev.preventDefault(); } else if (ev.key === 'f') $('bFoot').click();
+});
+function setFoot(on) { S.foot = on; $('foot').style.display = on ? 'block' : 'none'; if (on && cur) { const e = cur.e, pd = RP() * 2, vh = pd * e.src_h / e.world_bottom, vw = vh * e.src_w / e.src_h; FV.style.height = vh + 'px'; FV.style.width = vw + 'px'; FV.style.left = (pd / 2 - (e.revolve ? e.revolve.xc / e.w : .5) * vw) + 'px'; FV.play().catch(() => {}); } else FV.pause(); }
+$('bFoot').onclick = () => { setFoot(!S.foot); panel(); };
+$('bScene').onclick = () => { S.room = !S.room; panel(); dirty = true; };
+$('bTurn').onclick = () => { S.turn = !S.turn; panel(); };
+$('bPlay').onclick = () => { S.play = !S.play; if (S.play) { S.gen = 3; if (S.t > .98) S.t = 0; } panel(); dirty = true; };
+$('bInfo').onclick = () => { $('info').style.display = 'block'; }; $('infoClose').onclick = () => { $('info').style.display = 'none'; };
+$('bGlb').onclick = () => {
+  const o = cur, grp = new THREE.Group(), was = S.matte; S.matte = false; apply();
+  [o.body, o.rig].forEach(m => { if (m && m.visible) { const c = m.clone(); grp.add(c); } });
+  if (o.candles && o.candles.visible) o.candles.children.forEach(c => { if (c.isMesh) { const k = c.clone(); grp.add(k); } });
+  if (S.gen === 1 || !o.e.revolve) { const c = o.relief.clone(); grp.add(c); }
+  grp.scale.setScalar(0.25 / Math.max(1, o.rmax * 2));          // a 25 cm cake
+  new THREE.GLTFExporter().parse(grp, buf => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([buf], { type: 'model/gltf-binary' })); a.download = o.id + '-g' + S.gen + '.glb'; a.click(); }, { binary: true });
+  S.matte = was;
+};
+
+/* ---------- loop ---------- */
+let last = performance.now();
+function tick(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  if (!drag && Math.abs(rotTo - rot) > 1e-4) { rot += (rotTo - rot) * Math.min(1, dt * 12); layout(true); }
+  if (S.turn) { S.yaw += dt * 24; dirty = true; }
+  if (S.play && cur) { S.t += dt / 6; if (S.t >= 1) { S.t = 1; S.play = false; panel(); } dirty = true; layout(true); }
+  if (dirty && cur) { draw(); layout(true); }
+  requestAnimationFrame(tick);
+}
+addEventListener('resize', () => { layout(); dirty = true; });
+
+/* ---------- the gate: this page draws, the footage judges ---------- */
+function shot() { const gl = R.getContext(), w = gl.drawingBufferWidth, h = gl.drawingBufferHeight, b = new Uint8Array(w * h * 4); gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, b); return { w, h, b }; }
+async function score(gen) {
+  const o = cur, keep = Object.assign({}, S); Object.assign(S, { gen, ortho: true, room: false, t: 1, yaw: 0, elev: null });
+  const maskAt = (x, y, w, h) => o.mask[Math.min(o.gh - 1, Math.floor((h - 1 - y) / h * o.gh)) * o.gw + Math.min(o.gw - 1, Math.floor(x / w * o.gw))];
+  S.matte = true; draw(); let s = shot(), inter = 0, uni = 0, a0 = 0;
+  for (let y = 0; y < s.h; y++) for (let x = 0; x < s.w; x++) { const r = s.b[(y * s.w + x) * 4] > 127, m = maskAt(x, y, s.w, s.h) === 1; if (r) a0++; if (r && m) inter++; if (r || m) uni++; }
+  const iou = uni ? inter / uni : 0; let mn = 1;
+  for (const yw of [30, 60, 90, 120, 150, 180]) { S.yaw = yw; draw(); const t = shot(); let a = 0; for (let k = 0; k < t.b.length; k += 4) if (t.b[k] > 127) a++; mn = Math.min(mn, a0 ? a / a0 : 0); }
+  S.yaw = 0; S.matte = false; draw(); const c = shot();
+  const pc = document.createElement('canvas'); pc.width = c.w; pc.height = c.h; const px = pc.getContext('2d'); px.drawImage(o.plateTex.image, 0, 0, c.w, c.h); const pd = px.getImageData(0, 0, c.w, c.h).data;
+  let err = 0, n = 0; for (let y = 0; y < c.h; y++) for (let x = 0; x < c.w; x++) { const k = (y * c.w + x) * 4, k2 = ((c.h - 1 - y) * c.w + x) * 4; if (s.b[k] > 127 && maskAt(x, y, c.w, c.h) === 1) { err += (Math.abs(c.b[k] - pd[k2]) + Math.abs(c.b[k + 1] - pd[k2 + 1]) + Math.abs(c.b[k + 2] - pd[k2 + 2])) / 765; n++; } }
+  Object.assign(S, keep); dirty = true;
+  const out = { iou: +iou.toFixed(4), solid: +mn.toFixed(4), color: +(n ? err / n : 1).toFixed(4) }; out.pass = out.iou >= 0.85 && out.solid >= 0.6; return out;
+}
+window.EYE = { IDS, S, DB, go, png: () => glc.toDataURL('image/jpeg', 0.9), show: i => show(typeof i === 'string' ? IDS.indexOf(i) : i, true).then(() => { layout(); draw(); }), score, draw: () => { layout(); draw(); }, set: o => { Object.assign(S, o); dirty = true; draw(); if (!BARE) { panel(); layout(true); } }, ready: false,
+  texReady: () => new Promise(ok => { (function f() { const o = cur; const ts = [o.plateTex, o.bodyTex].filter(Boolean); ts.every(t => t.image && t.image.complete !== false && t.image.width) ? ok() : setTimeout(f, 30); })(); }) };
+
+if (!IDS.length) { $('title').textContent = 'no lifted birthdays: run python3 tools/lift/lift.py'; }
+else { rot = rotTo = -S.i * 2 * Math.PI / IDS.length; layout(); show(S.i, true).then(() => { layout(); draw(); window.EYE.ready = true; requestAnimationFrame(tick); }); }
+})();
+</script>
+</body>
+</html>
