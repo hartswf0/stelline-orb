@@ -39,6 +39,7 @@
 <body>
 <div class="app"><div id="room"><div id="tl"></div><div id="cap"></div></div><div id="orb"></div></div>
 <script src="assets/three.min.js"></script>
+<script src="assets/eye/lift.js"></script>
 <script src="assets/GLTFExporter.js"></script>
 <script src="assets/OBJExporter.js"></script>
 <script src="assets/v6/qrcode.js"></script>
@@ -252,13 +253,16 @@ const STROKES = new T.Group(), ITEMG = new T.Group(); CAKE.add(STROKES, ITEMG);
 const PARK = new T.Group(); MEM.add(PARK); const parkMesh = new WeakMap();
 const ROOMP = QP.get('room') === '0' ? null : (QP.get('room') || 'bday_25');
 if (MISTY && ROOMP) { const tx = new T.TextureLoader().load('assets/eye/' + ROOMP + '/plate.webp'), arc = 2.16, y0 = .5;
-  const bd = new T.Mesh(new T.CylinderGeometry(2.05, 2.05, 1.5, 96, 1, true, y0 - Math.PI - arc / 2, arc), new T.ShaderMaterial({ uniforms: { map: { value: tx }, uTime: HU.uTime }, transparent: true, depthWrite: false, side: T.BackSide, blending: T.AdditiveBlending,
+  const bd = new T.Mesh(new T.CylinderGeometry(2.05, 2.05, 1.5, 96, 1, true, y0 - Math.PI - arc / 2, arc), new T.ShaderMaterial({ uniforms: { map: { value: tx }, uTime: HU.uTime, uvS: { value: new T.Vector2(1, 1) }, uvO: { value: new T.Vector2(0, 0) } }, transparent: true, depthWrite: false, side: T.BackSide, blending: T.AdditiveBlending,
     vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }',
-    fragmentShader: `uniform sampler2D map; uniform float uTime; varying vec2 vUv; float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-      void main(){ vec3 c = texture2D(map, vec2(1. - vUv.x, vUv.y)).rgb; float lum = dot(c, vec3(.3, .59, .11)), warm = clamp((c.r - c.b) * 2.2, 0., 1.), felt = clamp(lum * .9 + warm * .9, 0., 1.);
+    fragmentShader: `uniform sampler2D map; uniform float uTime; uniform vec2 uvS, uvO; varying vec2 vUv; float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      void main(){ vec3 c = texture2D(map, vec2(1. - vUv.x, vUv.y) * uvS + uvO).rgb; float lum = dot(c, vec3(.3, .59, .11)), warm = clamp((c.r - c.b) * 2.2, 0., 1.), felt = clamp(lum * .9 + warm * .9, 0., 1.);
         float n = h(floor(vUv * vec2(1100., 380.)) + floor(uTime * 2.) * .13); if (n > felt * .8 + .06) discard;
         float edge = smoothstep(0., .14, vUv.x) * smoothstep(1., .86, vUv.x) * smoothstep(0., .18, vUv.y) * smoothstep(1., .78, vUv.y); gl_FragColor = vec4(c * (.3 + .55 * felt) * edge, 1.); }` }));
-  bd.position.y = 1.2; bd.renderOrder = -2; scene.add(bd); }
+  bd.position.y = 1.2; bd.renderOrder = -2; scene.add(bd);
+  /* the clip itself, moving, once it can play (the still stays if it cannot): only the picture above the controller is used */
+  const li = (window.LIFT || { items: {} }).items[ROOMP]; if (li && QP.get('still') == null) { const v = document.createElement('video'); v.muted = true; v.loop = true; v.playsInline = true; v.crossOrigin = 'anonymous'; v.src = 'BDAY TRAINING/' + encodeURIComponent(li.file);
+    v.addEventListener('playing', () => { const vt = new T.VideoTexture(v); vt.repeat.set(1, li.world_bottom / li.src_h); vt.offset.set(0, 1 - li.world_bottom / li.src_h); vt.matrixAutoUpdate = true; bd.material.uniforms.map.value = vt; bd.material.uniforms.uvS.value.set(1, li.world_bottom / li.src_h); bd.material.uniforms.uvO.value.set(0, 1 - li.world_bottom / li.src_h); }, { once: true }); v.play().catch(() => {}); } }
 function showOthers(F) { PARK.clear(); const D = Math.PI / 180; (F.others || []).forEach(pc => { const g = new T.Group(), t = pc.tr; g.position.set(t.p[0], BASE_Y + t.p[1], t.p[2]); g.rotation.set(t.r[0] * D, t.r[1] * D, t.r[2] * D, 'YXZ'); g.scale.set(t.s[0] * t.s[2], t.s[0] * t.s[1], t.s[0] * t.s[2]);
     let m = parkMesh.get(pc.clay); if (!m) { const geo = clayGeo(pc.clay.kind); geo.attributes.position.array.set(pc.clay.pos); geo.attributes.color.array.set(pc.clay.col); geo.computeVertexNormals(); m = new T.Mesh(geo, clayMat); m.castShadow = m.receiveShadow = true; parkMesh.set(pc.clay, m); } g.add(m);
     pc.strokes.forEach(st => g.add(strokeMesh(st))); pc.items.forEach(it => { const o = itemObj(it); applyItem(o, it); g.add(o); o.traverse(x => { if (x.userData.flame) FLAMES.push(x); }); }); g.userData.piece = pc.id; g.traverse(x => { if (x.isMesh) { if (!x.userData.m0) x.userData.m0 = x.material; x.material = restOf(x.userData.m0); } }); PARK.add(g); }); }
@@ -520,7 +524,7 @@ const GLY = { A: [[0,0,2,6,4,0],[.8,2.2,3.2,2.2]], B: [[0,0,0,6,2.6,6,3.6,5.2,3.
   6: [[3.8,5.4,3,6,1,6,0,5,0,1,1,0,3,0,4,1,4,2.4,3,3.3,1,3.3,0,2.4]], 7: [[0,6,4,6,1.6,0]], 8: [[1,3.1,0,3.9,0,5,1,6,3,6,4,5,4,3.9,3,3.1,1,3.1,0,2.2,0,1,1,0,3,0,4,1,4,2.2,3,3.1]], 9: [[4,3.6,3,2.7,1,2.7,0,3.6,0,5,1,6,3,6,4,5,4,1,3,0,1,0,.2,.6]] };
 function nameLay() { if (!clayMesh) return null; MEM.updateMatrixWorld(true); CAKE.updateMatrixWorld(true); clayMesh.geometry.computeBoundingBox(); const bb = clayMesh.geometry.boundingBox, Rm = Math.max(bb.max.x, bb.max.z), txt = WHO.name, adv = 5.3, Wt = txt.length * adv - 1.3, su = Math.min(1.45 * Rm / Wt, .0095);
   const cp = CAKE.worldToLocal(cam.position.clone()), f = new T.Vector3(cp.x, 0, cp.z).normalize(), right = new T.Vector3(0, 1, 0).cross(f).normalize(), polys = [], dn = new T.Vector3(0, -1, 0).transformDirection(CAKE.matrixWorld);
-  const edge = clayKind === 'BLOCK' && pieceCount() > 1, su2 = edge ? Math.min(su, .0052) : su, fwd = edge ? Rm * .62 : .012;
+  const edge = clayKind === 'BLOCK' && pieceCount() > 1 && trOf(curF()).s[1] <= .35, su2 = edge ? Math.min(su, .0052) : su, fwd = edge ? Rm * .62 : .012;
   const drop = (gx, gy) => { const P = right.clone().multiplyScalar((gx - Wt / 2) * su2).addScaledVector(f, -(gy - 3) * su2 + fwd); P.y = bb.max.y + .05; ray.set(CAKE.localToWorld(P.clone()), dn); const q = ray.intersectObject(clayMesh, false)[0]; if (!q) return null; const lp = CAKE.worldToLocal(q.point.clone()); return [lp.x, lp.y, lp.z, 0, 1, 0]; };
   [...txt].forEach((ch, ci) => (GLY[ch] || []).forEach(st => { const out = []; for (let k = 0; k + 3 < st.length; k += 2) { const x0 = st[k], y0 = st[k + 1], x1 = st[k + 2], y1 = st[k + 3], n = Math.max(1, Math.round(Math.hypot(x1 - x0, y1 - y0) * su2 / .0028)); for (let q = k ? 1 : 0; q <= n; q++) { const d = drop(ci * adv + x0 + (x1 - x0) * q / n, y0 + (y1 - y0) * q / n); if (d) out.push(d); } } if (out.length > 1) polys.push(out); }));
   return polys; }
@@ -656,8 +660,12 @@ function updReticle() {
 
 
 /* =============================================================== THE CAST: the children, cut from the film's own frame, added one by one */
-const KIDS = [{ file: 'child1.png', h: .50, base: TABLE_Y - .08, da: -.64 }, { file: 'child2.png', h: .27, base: TABLE_Y + .035, da: -.03 }, { file: 'child3.png', h: .54, base: TABLE_Y - .10, da: .60 }];
-const kidTex = KIDS.map(k => { const t = new T.TextureLoader().load('assets/weaver/' + k.file, tt => { k.aspect = tt.image.width / tt.image.height; castDirty = true; }); t.encoding = T.sRGBEncoding; return t; });
+/* the guests: three cut-outs. By default Orb 05's three children; with ?cast=a.webp,b.webp,c.webp (&ch=heights) people cut, unaltered, from the
+   archive's own birthday clips by tools/orb06/people.py (assets/people/). */
+const CASTP = (QP.get('cast') || '').split(',').filter(Boolean), CASTH = (QP.get('ch') || '').split(',').map(Number);
+const KIDS0 = [{ file: 'child1.png', h: .50, base: TABLE_Y - .08, da: -.64 }, { file: 'child2.png', h: .27, base: TABLE_Y + .035, da: -.03 }, { file: 'child3.png', h: .54, base: TABLE_Y - .10, da: .60 }];
+const KIDS = CASTP.length >= 3 ? CASTP.slice(0, 3).map((f, i) => ({ file: f, dir: 'assets/people/', h: CASTH[i] || .5, base: TABLE_Y - .1, da: (i - 1) * .62 })) : KIDS0;
+const kidTex = KIDS.map(k => { const t = new T.TextureLoader().load((k.dir || 'assets/weaver/') + k.file, tt => { k.aspect = tt.image.width / tt.image.height; castDirty = true; }); t.encoding = T.sRGBEncoding; return t; });
 const CASTG = new T.Group(); MEM.add(CASTG); const castMesh = {}; let castDirty = true;
 function castObj(c) { if (castMesh[c.id]) return castMesh[c.id]; const k = KIDS[c.i]; const m = new T.Mesh(new T.PlaneGeometry(1, 1), holo(new T.MeshStandardMaterial({ map: kidTex[c.i], emissiveMap: kidTex[c.i], emissive: 0xffe6c4, emissiveIntensity: CFG.grounded ? 1.28 : .9, color: CFG.grounded ? 0x221a14 : 0x000000, roughness: .8, transparent: true, alphaTest: .22, side: T.DoubleSide, depthWrite: true })));
   m.material.customProgramCacheKey = () => 'holo-kid'; m.userData.cast = c.id; CASTG.add(m); castMesh[c.id] = m; return m; }
@@ -1120,6 +1128,37 @@ const GSTEPS = [
   D.SHEET = [part(0, 'BLOCK', 'THE SHEET', { size: [0, -8, 10] }), frost(pk(['WHITE', 'CREAM', 'ROSE', 'LEMON', 'MINT', 'SKY']), [.12, .3, .48, .66, .84, .97], 'ICE THE SHEET'), border(pk(['WHITE', 'GOLD', 'ROSE', 'CHOCOLATE'])), put('SPRINKLES', 'SPRINKLE', [[.86, 3]], 'SPRINKLES', 'VERB to SPRINKLES · three clicks'), name(pk(['RED', 'CHOCOLATE'])), candles(.78)];
   D.BUNDT = [part(0, 'BUNDT', 'THE RING', {}), frost(pk(['CHOCOLATE', 'LEMON', 'CREAM', 'ROSE']), [.1, .25, .4, .55, .7, .85], 'GLAZE THE RING'), put('ROSETTES', 'ROSETTE', [[.5, 10]], 'ROSETTES ON THE CROWN', 'VERB to ROSETTES · ten clicks'), put('CHERRIES', 'CHERRY', [[.38, 8]], 'CHERRIES', 'VERB to CHERRIES · eight clicks'), candles(.5)];
   D.HORSE = D.HORSE.concat([candles(.62)]);
+  /* for the grown: things a life collects */
+  const ribbon = (c, h, t) => ({ t: t || 'A RIBBON', h: 'VERB to PIPE · ' + c + ' · keep turning until it closes', done: g => since(g, 'rb' + h, curF().strokes.filter(st => !st.name && st.pts.length / 6 >= COLS * .9).length) >= 1, show: [['ring', 0, M], ['ring', 2, () => vIdx('PIPE · ' + c)], ['ring', 3, h], ['turn', 4, 28, .05]] });
+  const six = [.12, .3, .48, .66, .84, .97], bright = ['ROSE', 'SKY', 'LEMON', 'MINT', 'RED', 'GREEN'], pale = ['WHITE', 'CREAM', 'LEMON', 'ROSE', 'MINT', 'SKY'], pipes = ['WHITE', 'GOLD', 'ROSE', 'RED', 'CHOCOLATE'];
+  { const cs = [pk(bright), pk(pale), pk(['CHOCOLATE', 'RED', 'GREEN', 'SKY'])];
+    D.BOOKS = [].concat(...[0, 1, 2].map(k => [part(k, 'BLOCK', ['THE FIRST BOOK', 'THE SECOND BOOK', 'THE THIRD BOOK'][k], { turn: [0, [0, 3, -2][k], 0], size: [[0, -2, -4][k], -12, 4], at: [0, k * .04, 0] }), frost(cs[k], few, 'BIND IT')].concat(k < 2 ? [ribbon('WHITE', .3, 'ITS PAGES')] : [])), [name(cs[2] === 'CHOCOLATE' || cs[2] === 'RED' || cs[2] === 'GREEN' ? 'WHITE' : 'RED'), candles(.78)]); }
+  { const c = pk(bright.concat(pale)), r = pk(['RED', 'GOLD', 'WHITE', 'CHOCOLATE'].filter(x => x !== c));
+    D.GIFT = [part(0, 'BLOCK', 'THE BOX', { size: [3, 0, 0] }), frost(c, six, 'WRAP IT'), ribbon(r, .25), ribbon(r, .5), name(r === 'WHITE' ? 'RED' : r === 'GOLD' ? 'CHOCOLATE' : r), candles(.74)].concat(...[-1, 1].map((sg, k) => [part(1 + k, 'BALL', 'THE BOW', { size: [-13, 0, 0], at: [sg * .028, .115, 0] }), frost(pk(['RED', 'ROSE', 'GOLD']), [.5], 'ICE IT')])); }
+  D.CROWN = [part(0, 'DRUM', 'THE BAND', { size: [0, -4, 0] }), frost('GOLD', six, 'GILD IT'), put('SWEETS', 'SWEET', [[.3, 12]], 'JEWELS', 'VERB to SWEETS · a dozen clicks'), name('RED'), candles(.8)].concat(...Array.from({ length: 6 }, (_, k) => { const a = k / 6 * TAU; return [part(1 + k, 'CONE', 'A POINT', { size: [-13, 0, 0], at: [Math.cos(a) * .1, .07, Math.sin(a) * .1] }), frost('GOLD', [.5], 'GILD IT')]; }));
+  { const c = pk(['BLACK', 'CHOCOLATE', 'SKY']);
+    D.TOPHAT = [part(0, 'DRUM', 'THE BRIM', { size: [0, -14, 0] }), frost(c, [.3, .6, .9], 'ICE IT'), candles(.8), part(1, 'POST', 'THE CROWN', { size: [4, 0, 16], at: [0, .027, 0] }), frost(c, six, 'ICE IT'), ribbon(pk(['RED', 'GOLD', 'WHITE']), .14, 'THE BAND'), name('WHITE')]; }
+  D.LIGHTHOUSE = board(pk(['SKY', 'MINT'])).concat([part(1, 'POST', 'THE TOWER', { size: [8, 0, 8], at: [0, B, 0] }), frost('WHITE', [.14, .5, .86], 'WHITE BANDS'), frost(pk(['RED', 'BLACK', 'SKY']), [.32, .68], 'COLOUR BANDS'), part(2, 'DRUM', 'THE GALLERY', { size: [-13, 0, 0], at: [0, B + .196, 0] }), frost('BLACK', [.5], 'ICE IT'),
+    part(3, 'BALL', 'THE LAMP', { size: [-12, 0, 0], at: [0, B + .225, 0] }), frost('LEMON', [.5], 'ICE IT'), part(4, 'CONE', 'THE ROOF', { size: [-13, 0, 0], at: [0, B + .272, 0] }), frost('RED', [.5], 'ICE IT')], sign('WHITE'));
+  D.TREE = board(pk(['WHITE', 'CREAM', 'CHOCOLATE'])).concat([part(1, 'POST', 'THE TRUNK', { size: [-8, 0, 0], at: [0, B, 0] }), frost('CHOCOLATE', [.5], 'ICE IT')], ...[[0, .06], [-4, .14], [-8, .21]].map((q, k) => [part(2 + k, 'CONE', 'A BOUGH', { size: [q[0], 0, 0], at: [0, B + q[1], 0] }), frost(pk(['GREEN', 'MINT']), few, 'ICE IT'), put('SWEETS', 'SWEET', [[.2, 8 - k * 2]], 'SWEETS ON THE BOUGH', 'VERB to SWEETS')]),
+    [part(5, 'BALL', 'THE STAR', { size: [-15, 0, 0], at: [0, B + .3, 0] }), frost('GOLD', [.5], 'GILD IT')], sign('RED'));
+  { const rock = pk(['CHOCOLATE', 'BLACK', 'GREEN']);
+    D.MOUNTAIN = board(pk(['GREEN', 'MINT', 'SKY'])).concat([part(1, 'CONE', 'THE PEAK', { size: [2, 0, 2], at: [-.015, B, 0] }), frost(rock, [.15, .4, .62], 'ICE THE ROCK'), frost('WHITE', [.84, .97], 'SNOW ON THE PEAK'), part(2, 'CONE', 'THE SHOULDER', { size: [-6, 0, 0], at: [.055, B, .02] }), frost(rock, [.2, .5], 'ICE THE ROCK'), frost('WHITE', [.9], 'SNOW')], sign('WHITE')); }
+  { const c = pk(['RED', 'SKY', 'LEMON', 'GREEN', 'ROSE']);
+    D.CAR = board(pk(['BLACK', 'CHOCOLATE'])).concat(...[-1, 1].map((sg, k) => [part(1 + k, 'BLOCK', k ? 'THE BOOT' : 'THE BONNET', { size: [-6, -6, 0], at: [sg * .052, B, 0] }), frost(c, few, 'PAINT IT'), btn([[.2, 6]], 'WHEELS')]), [part(3, 'BLOCK', 'THE CABIN', { size: [-10, 0, 0], at: [0, B + .049, 0] }), frost(pk(['WHITE', 'SKY', 'CREAM']), few, 'GLAZE IT')], sign('WHITE')); }
+  D.SAILBOAT = board('SKY').concat([part(1, 'BLOCK', 'THE HULL', { size: [-4, -10, 0], at: [0, B, 0] }), frost(pk(['CHOCOLATE', 'RED', 'WHITE']), [.3, .8], 'PAINT IT'), part(2, 'POST', 'THE MAST', { size: [-2, 0, -8], at: [0, B + .04, 0] }), frost('CHOCOLATE', [.5], 'ICE IT'), part(3, 'CONE', 'THE SAIL', { size: [-3, 0, -8], at: [.03, B + .05, 0] }), frost(pk(['WHITE', 'CREAM', 'LEMON', 'ROSE']), few, 'ICE IT')], sign('WHITE'));
+  { const c = pk(['RED', 'SKY', 'GREEN', 'CHOCOLATE']);
+    D.MUSICDRUM = [part(0, 'DRUM', 'THE DRUM', {}), frost(c, [.12, .3, .48], 'PAINT THE SHELL'), frost('CREAM', [.84, .97], 'THE SKIN'), ribbon('GOLD', .12, 'THE LOWER HOOP'), ribbon('GOLD', .5, 'THE UPPER HOOP'), name(c === 'RED' ? 'CHOCOLATE' : 'RED'), candles(.8)].concat(...[-1, 1].map((sg, k) => [part(1 + k, 'POST', 'A STICK', { turn: [0, sg * 4, 18], size: [-4, 0, -9], at: [.05, .105, sg * .02] }), frost('LEMON', [.5], 'ICE IT')])); }
+  D.RECORD = [part(0, 'DRUM', 'THE RECORD', { size: [0, -15, 4] }), frost('BLACK', six, 'PRESS IT'), ribbon('GOLD', .56, 'THE LABEL RING'), name(pk(['WHITE', 'RED'])), candles(.7)];
+  D.CAMERA = board(pk(['CHOCOLATE', 'WHITE', 'SKY'])).concat([part(1, 'BLOCK', 'THE BODY', { size: [0, -4, 0], at: [0, B, -.02] }), frost('BLACK', few, 'ICE IT'), btn([[.7, 1]], 'THE SHUTTER'), part(2, 'POST', 'THE LENS', { turn: [18, 0, 0], size: [-6, 0, 8], at: [0, B + .042, .06] }), frost(pk(['BLACK', 'CHOCOLATE']), [.3, .8], 'ICE IT'), ribbon('GOLD', .8, 'THE LENS RING'),
+    part(3, 'BLOCK', 'THE FLASH', { size: [-14, 0, 0], at: [-.05, B + .08, -.02] }), frost('LEMON', [.5], 'ICE IT')], sign('WHITE'));
+  { const c = pk(['WHITE', 'BLACK', 'CREAM', 'CHOCOLATE']);
+    D.ROOK = board(pk(['CHOCOLATE', 'GREEN', 'BLACK'].filter(x => x !== c))).concat([part(1, 'POST', 'THE TOWER', { size: [8, 0, 10], at: [0, B, 0] }), frost(c, six, 'ICE IT'), part(2, 'DRUM', 'THE HEAD', { size: [-10, 0, 0], at: [0, B + .196, 0] }), frost(c, few, 'ICE IT')], ...[0, 1, 2, 3].map(k => { const a = k / 4 * TAU + .78; return [part(3 + k, 'BLOCK', 'A MERLON', { size: [-15, 0, 0], at: [Math.cos(a) * .04, B + .241, Math.sin(a) * .04] }), frost(c, [.5], 'ICE IT')]; }), sign('WHITE')); }
+  D.GARDEN = [part(0, 'BLOCK', 'THE LAWN', { size: [0, -8, 10] }), frost(pk(['GREEN', 'MINT']), six, 'ICE THE LAWN'), put('ROSETTES', 'ROSETTE', [[.6, 10]], 'A BORDER OF FLOWERS', 'VERB to ROSETTES · ten clicks'), name('WHITE'), candles(.8)]
+    .concat(...[[-.075, -.07], [.07, -.075], [-.01, -.085]].map((q, k) => [part(1 + k, k === 2 ? 'CONE' : 'BALL', k === 2 ? 'A TREE' : 'A BUSH', { size: [k === 2 ? -9 : -12, 0, 0], at: [q[0], .06, q[1]] }), frost(pk(['GREEN', 'MINT', 'ROSE', 'LEMON']), [.5], 'ICE IT')]));
+  { const c = pk(['ROSE', 'SKY', 'WHITE', 'LEMON', 'MINT']);
+    D.TEAPOT = board(pk(['WHITE', 'CREAM', 'CHOCOLATE'].filter(x => x !== c))).concat([part(1, 'BALL', 'THE POT', { size: [3, 0, 0], at: [0, B, 0] }), frost(c, six, 'GLAZE IT'), put('ROSETTES', 'ROSETTE', [[.5, 5]], 'PAINTED FLOWERS', 'VERB to ROSETTES · five clicks'), part(2, 'DRUM', 'THE LID', { size: [-14, 0, 0], at: [0, B + .15, 0] }), frost(c, [.5], 'GLAZE IT'), part(3, 'BALL', 'THE KNOB', { size: [-16, 0, 0], at: [0, B + .176, 0] }), frost('GOLD', [.5], 'GILD IT'),
+      part(4, 'CONE', 'THE SPOUT', { turn: [0, 0, -13], size: [-11, 0, -6], at: [.07, B + .06, 0] }), frost(c, [.5], 'GLAZE IT'), part(5, 'BALL', 'THE HANDLE', { size: [-13, 0, 0], at: [-.09, B + .085, 0] }), frost(c, [.5], 'GLAZE IT')], sign('RED')); }
   const blow = tail.find(g => /KEEP A FRAME/.test(g.t)); if (blow) { blow.t = 'KEEP A FRAME · ' + WHO.name + ' BLOWS THEM OUT'; blow.h = 'TIME · DO keeps a frame · then MAKE · VERB to BLOW OUT · ' + NUM[n].toLowerCase() + (n === 1 ? ' click' : ' clicks'); blow.show = blow.show.map(a => a[0] === 'turn' ? ['turn', 4, n, .22] : a); }
   GSTEPS.splice(0, GSTEPS.length, ...(D[WHO.design] || D.CLASSIC), ...tail); })();
 /* THE TIMELINE: the memory in sequence. A row for every piece of clay (white where it was in hand, cyan where it rested as light), the name, the
@@ -1135,7 +1174,7 @@ const TL = { key: '', tick() { if (CFG.noText || CFG.stageOnly || PHONE || NOW -
     idl.forEach(id => h += row('PIECE ' + id + ' · ' + kindOf(id), i => M[i].has(id) ? (M[i].get(id).hand ? 'hand' : 'rest') : ''));
     if (F.some((f, i) => all(i).some(pc => pc.nameR))) h += row('NAME · ' + WHO.name, i => all(i).some(pc => pc.nameR) ? 'name' : '');
     if (F.some((f, i) => cand(i).length)) h += row('CANDLES', i => { const c = cand(i); return c.length ? (c.some(x => !x.out) ? 'lit' : 'out') : ''; });
-    DOC.cast.slice().sort((a, b) => a.i - b.i).forEach(c => h += row('<img src="assets/weaver/child' + (c.i + 1) + '.png" alt=""> CHILD ' + (c.i + 1), i => i >= (c.f0 || 0) ? 'kid' : '', 'k'));
+    DOC.cast.slice().sort((a, b) => a.i - b.i).forEach(c => h += row('<img src="' + (KIDS[c.i].dir || 'assets/weaver/') + KIDS[c.i].file + '" alt=""> ' + (WHO.age > 13 ? 'GUEST ' : 'CHILD ') + (c.i + 1), i => i >= (c.f0 || 0) ? 'kid' : '', 'k'));
     tlEl.innerHTML = F.length > 1 || idl.length > 1 || DOC.cast.length ? h : ''; } };
 tlEl.addEventListener('click', e => { const f = e.target.dataset && e.target.dataset.f; if (f == null) return; S.play = false; DOC.cur = +f; showFrame(); oledDirty = true; say('FRAME ' + (+f + 1) + ' OF ' + DOC.frames.length); });
 const runAct = a => { if (a[0] === 'turn') { for (let n = Math.abs(a[2]); n > 0; n--) turn(a[1], Math.sign(a[2])); } else if (a[0] === 'ring') { for (let k = 0; k < 400; k++) { const r = rings()[a[1]], tgt = typeof a[2] === 'function' ? a[2]() : a[2], d = (tgt - r.v()) / r.st; if (Math.abs(d) < .5) break; turn(a[1], Math.sign(d)); } } else if (a[0] === 'press') press(a[1], a[2]); };
@@ -1311,7 +1350,7 @@ function update(dt) { NOW += dt; HU.uTime.value = NOW;
   else if (S.mode === 'WEAVE' && !S.play) { const F = DOC.frames; let beats = 0; F.forEach(f => beats += f.hold); let b = S.weave.t * beats, i = 0; while (b >= F[i].hold && i < F.length - 1) { b -= F[i].hold; i++; } const key = i + ':' + b.toFixed(2); if (key !== S.wkey) { S.wkey = key; showFrame(F.length > 1 && PLAYS[S.plays][2] ? i + b / F[i].hold : null); } }
   if (S.takeRec) { S.takeRec.push({ t: NOW - S.takeT, w: { ...S.weave } }); }
   // weave: the memory becomes light; the lab stays as it is
-  HR.uMist.value = .44 + .1 * Math.sin(NOW * .7);
+  { const whole = FLAMES.length > 0 && DOC.cast.some(c => (c.vis || 0) > .5); HR.uMist.value = lerp(HR.uMist.value, whole ? 0 : .44 + .1 * Math.sin(NOW * .7), .08); HR.uHolo.value = lerp(HR.uHolo.value, whole ? 0 : .92, .08); }   /* the memory holds: lit, with its guests, all of it is solid; blown out, it goes back to light */
   const weave = S.mode === 'WEAVE', W = S.weave; HU.uHolo.value = lerp(HU.uHolo.value, weave ? 1 : 0, .12); HU.uMat.value = weave ? W.mat : 1; HU.uMist.value = weave ? (W.mist || 0) : 0; HU.uScan.value = W.scan;
   const sc = weave ? W.scale : 1; MEM.scale.setScalar(lerp(MEM.scale.x, sc, .15)); MEM.position.y = BASE_Y * (1 - MEM.scale.x); holoLight.intensity = HU.uHolo.value * (.15 + W.mat * .3);
   const hz = weave ? W.haze : .35; coneMat.uniforms.haze.value = hz; dustMat.opacity = .15 + hz * .6; scene.fog.density = .02 + hz * .07;
@@ -1340,7 +1379,13 @@ setInterval(() => { oledDirty = true; }, 500);
 
 /* =============================================================== a handle for scripts: tests, and the film */
 if (QP.has('seq')) setTimeout(() => { try { window.FORGE.sequence(4); window.FORGE.setMode('TIME'); } catch (e) { console.error(e); } }, 500);
-window.FORGE = { WHO, GLIST: () => GSTEPS.map(g => g.t), newPiece, activate, pieceCount, build() { GUIDE.on = false; for (const g of GSTEPS) { if (/CHILDREN COME/.test(g.t)) break; g.show.forEach(runAct); } },
+/* a film frame: the eye across the table from the guests, low, close enough that their faces and the flames share the picture */
+function frameIt(push) { const F = curF(), ps = [F].concat(F.others || []).filter(x => x.clay), H = { DRUM: .09, DOME: .12, TIERS: .135, BALL: .14, BLOCK: .1, POST: .14, CONE: .15, BUNDT: .1 };
+  let mx = .12, top = .1; ps.forEach(x => { const t = x.tr || TR0(), sxz = t.s[0] * t.s[2], lying = Math.abs(t.r[2]) > 45 || Math.abs(t.r[0]) > 45; mx = Math.max(mx, Math.hypot(t.p[0], t.p[2]) + .09 * sxz + (lying ? H[x.clay.kind] * t.s[0] * t.s[1] : 0)); top = Math.max(top, t.p[1] + (lying ? .09 * sxz : H[x.clay.kind] * t.s[0] * t.s[1])); });
+  const o = S.orbit; S.ease = null; S.easeX = null; o.tgt.x = 0; o.tgt.z = 0; o.tgt.y = BASE_Y + top * .5 + .05; o.pitch = -.2; o.dist = clamp(.78 + 1.3 * mx + .95 * top, .9, 2.4) * (push || 1); S.focus.auto = true; S.focus.d = null;
+  /* and let the picture settle at once: guests fully there, and the memory whole if it is lit */
+  DOC.cast.forEach(c => { c.vis = SHOWN >= (c.f0 || 0) ? (c.op || 0) : 0; }); const whole = FLAMES.length > 0 && DOC.cast.some(c => (c.vis || 0) > .5); HR.uMist.value = whole ? 0 : .44; HR.uHolo.value = whole ? 0 : .92; }
+window.FORGE = { WHO, frameIt, GLIST: () => GSTEPS.map(g => g.t), newPiece, activate, pieceCount, build() { GUIDE.on = false; for (const g of GSTEPS) { if (/CHILDREN COME/.test(g.t)) break; g.show.forEach(runAct); } },
   /* the whole memory in sequence: every step of the guide through the rings, a frame kept after each */
   sequence(hold) { GUIDE.on = false; for (const g of GSTEPS) { if (/LOOK AT THEM|WALK AROUND|WEAVE IT/.test(g.t)) continue; g.show.forEach(runAct); if (!/KEEP A FRAME/.test(g.t)) { const m = S.mode; S.mode = 'TIME'; capture(false); S.mode = m; } } DOC.frames.forEach(f => f.hold = hold || 4); DOC.cur = 0; showFrame(); }, get SHOWN() { return SHOWN; }, showFrame, CFG, S, get DOC() { return DOC; }, turn, press, rings, scrub, nodes, curNode, pickTo, setMode, setVerb, GUIDE, GSTEPS, PAIR, gizmoHit, gizmoDrag, setStretch, VERBS, MODES, spawn, place, hitAt, strokeStart, strokeMove, strokeEnd, snapshot, showFrame, cam, CAKE, ORB, RINGS, BTN, OC, perf: () => perf,
   manual() { auto = false; }, setAim(x, y) { hover = x == null ? null : { x, y }; }, aim: () => AIM, advance(dt) { update(dt); render(); }, step(dt) { update(dt); placeCam(); cam.updateMatrixWorld(); }, worldToRoom(v) { const p = v.clone().project(cam); return [(p.x + 1) / 2 * roomEl.clientWidth, (1 - p.y) / 2 * roomEl.clientHeight]; }, local(v) { return CAKE.localToWorld(v.clone()); } };
