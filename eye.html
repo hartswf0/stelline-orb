@@ -69,6 +69,7 @@
 <script src="assets/GLTFExporter.js"></script>
 <script src="assets/bday-training/dataset.js"></script>
 <script src="assets/eye/lift.js"></script>
+<script src="assets/eye/cakemodel.js"></script>
 <script src="assets/eye/scores.js" onerror="window.EYE_SCORES=null"></script>
 <script>
 (function () {
@@ -79,10 +80,10 @@ if (BARE) document.body.classList.add('bare');
 const DB = (window.LIFT || { items: {} }).items;
 const DS = {}; ((window.BDAY_DATASET || {}).items || []).forEach(i => DS[i.id] = i);
 const IDS = Object.keys(DB).filter(k => DB[k].ok).sort();
-const GEN = ['G0 RIG', 'G1 RELIEF', 'G2 REVOLVE', 'G3 TIME'];
+const GEN = ['G0 RIG', 'G1 RELIEF', 'G2 REVOLVE', 'G3 TIME', 'G4 MODEL'];
 const SEG = 72, D2R = Math.PI / 180;
 const $ = id => document.getElementById(id);
-const S = { i: Math.max(0, IDS.indexOf(Q.get('id'))), gen: Q.has('gen') ? +Q.get('gen') : 2, yaw: +(Q.get('yaw') || 0), elev: null, t: Q.has('t') ? +Q.get('t') : 1,
+const S = { i: Math.max(0, IDS.indexOf(Q.get('id'))), gen: Q.has('gen') ? +Q.get('gen') : 4, yaw: +(Q.get('yaw') || 0), elev: null, t: Q.has('t') ? +Q.get('t') : 1,
   zoom: +(Q.get('zoom') || 1), room: Q.get('room') !== '0', turn: Q.has('turn'), play: Q.has('play'), ortho: false, matte: false, foot: false, ap: 1 };
 
 /* ---------- three ---------- */
@@ -90,14 +91,15 @@ const glc = $('gl');
 const R = new THREE.WebGLRenderer({ canvas: glc, antialias: true, preserveDrawingBuffer: true });
 R.setPixelRatio(BARE ? 1 : Math.min(2, devicePixelRatio || 1));
 R.setClearColor(0x000000, 1);
+R.outputEncoding = THREE.sRGBEncoding; R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.15; R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFSoftShadowMap; R.physicallyCorrectLights = false;
 const scene = new THREE.Scene();
 const world = new THREE.Group(); scene.add(world);      // the footage's camera space, tipped so the table is level
 const persp = new THREE.PerspectiveCamera(16, 1, 10, 20000);
 const ortho = new THREE.OrthographicCamera(-1, 1, 1, -1, -8000, 8000);
-scene.add(new THREE.HemisphereLight(0xfff0d8, 0x20180c, 1.0));
+scene.add(new THREE.HemisphereLight(0xfff0d8, 0x20180c, 0.55));
 const TL = new THREE.TextureLoader();
-const tex = u => { const t = TL.load(u, () => { dirty = true; }); t.minFilter = THREE.LinearFilter; t.generateMipmaps = false; return t; };
-const WHITE = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+const tex = u => { const t = TL.load(u, () => { dirty = true; }); t.minFilter = THREE.LinearFilter; t.generateMipmaps = false; t.encoding = THREE.sRGBEncoding; return t; };
+const WHITE = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, toneMapped: false });
 let cur = null, dirty = true;
 
 function flameTex() {
@@ -105,7 +107,7 @@ function flameTex() {
   const r = g.createRadialGradient(32, 38, 1, 32, 34, 30); r.addColorStop(0, 'rgba(255,250,225,1)'); r.addColorStop(.25, 'rgba(255,200,110,.85)'); r.addColorStop(1, 'rgba(255,140,40,0)');
   g.fillStyle = r; g.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c);
 }
-const FLAME = new THREE.SpriteMaterial({ map: flameTex(), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true });
+const FLAME = new THREE.SpriteMaterial({ map: flameTex(), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, toneMapped: false });
 
 /* Image of a point of the cake. Cake space: x right, h up the axis, z toward the footage's camera.
    px = xc + x,  py = y_bc - h cos p + z sin p. */
@@ -166,14 +168,14 @@ async function build(id) {
   const rg = new THREE.BufferGeometry(); rg.setAttribute('position', new THREE.BufferAttribute(pos, 3)); rg.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
   o.idx = { all, room, cake }; rg.setIndex(all);
   o.plateTex = tex(dir + 'plate.webp');
-  o.relief = new THREE.Mesh(rg, new THREE.MeshBasicMaterial({ map: o.plateTex, side: THREE.DoubleSide, transparent: true }));
-  o.relief.renderOrder = -1;
+  o.relief = new THREE.Mesh(rg, new THREE.MeshBasicMaterial({ map: o.plateTex, side: THREE.DoubleSide, transparent: true, toneMapped: false }));
+  o.relief.renderOrder = -1; o.relief._m = o.relief.material;
   o.group.add(o.relief);
   /* the cake as a solid, standing on its base centre, axis tipped by the camera's pitch */
   o.cake = new THREE.Group(); o.cake.position.copy(o.base); o.cake.rotation.x = pitch; o.group.add(o.cake);
   if (rv) {
     o.bodyTex = tex(dir + 'body.webp');
-    o.body = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial({ map: o.bodyTex, side: THREE.DoubleSide })); o.cake.add(o.body);
+    o.body = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial({ map: o.bodyTex, side: THREE.DoubleSide, toneMapped: false })); o.body._m = o.body.material; o.cake.add(o.body);
     o.candles = new THREE.Group(); o.cake.add(o.candles);
   }
   /* G0: the hand-made lathe from the earlier pass, scaled to the measured base, one flat colour */
@@ -181,7 +183,7 @@ async function build(id) {
   if (d && d.segmentation && d.segmentation.profile_m && rv) {
     const pm = d.segmentation.profile_m.filter(p => p[0] > 0), rm = Math.max.apply(0, pm.map(p => p[0])), k = o.rmax / rm;
     const g = lathe({ xc: 0, y_bc: 0, cp: 1, sp: 0, prof: pm.map(p => [p[0] * k, p[1] * k]) }, 1, 1);
-    o.rig = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color: new THREE.Color(d.cake_spec.icing_end || '#d8d0c0'), side: THREE.DoubleSide })); o.cake.add(o.rig);
+    o.rig = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color: new THREE.Color(d.cake_spec.icing_end || '#d8d0c0'), side: THREE.DoubleSide })); o.rig._m = o.rig.material; o.cake.add(o.rig);
   }
   /* level the table: undo the pitch about the cake's base, so yaw turns about the cake's own axis */
   o.group.position.copy(o.base).multiplyScalar(-1);
@@ -189,6 +191,24 @@ async function build(id) {
   return o;
 }
 
+/* G4: the cake built as geometry. Colours are read from the footage along the measured rings. */
+function model(o) {
+  const rv = o.e.revolve, im = o.bodyTex.image, c = document.createElement('canvas'); c.width = o.W; c.height = o.H; const x = c.getContext('2d'); x.drawImage(im, 0, 0, o.W, o.H);
+  const px = x.getImageData(0, 0, o.W, o.H).data, P = rv.prof, hmax = P[P.length - 1][1], Rt = P[P.length - 1][0];
+  const rAt = h => { for (let i = 1; i < P.length; i++) if (h <= P[i][1]) { const u = (h - P[i - 1][1]) / Math.max(1e-6, P[i][1] - P[i - 1][1]); return P[i - 1][0] + (P[i][0] - P[i - 1][0]) * u; } return Rt; };
+  const med = pts => { const a = [[], [], []]; pts.forEach(q => { const X = Math.round(rv.xc + q[0]), Y = Math.round(rv.y_bc - q[1] * o.cp + q[2] * o.sp); if (X < 0 || Y < 0 || X >= o.W || Y >= o.H) return; const k = (Y * o.W + X) * 4; if (px[k] + px[k + 1] + px[k + 2] > 735) return; a[0].push(px[k]); a[1].push(px[k + 1]); a[2].push(px[k + 2]); }); if (!a[0].length) return [200, 190, 175]; return a.map(v => { v.sort((p, q) => p - q); return v[v.length >> 1]; }); };
+  const ang = []; for (let d = -45; d <= 45; d += 6) ang.push(d * D2R);
+  let bright = null, bs = 0; for (let k = 0; k < 400; k++) { const h = hmax * Math.random(), a = (Math.random() - .5) * 1.6, r = rAt(h), X = Math.round(rv.xc + r * Math.sin(a)), Y = Math.round(rv.y_bc - h * o.cp + r * Math.cos(a) * o.sp); if (X < 0 || Y < 0 || X >= o.W || Y >= o.H) continue; const i = (Y * o.W + X) * 4, mx = Math.max(px[i], px[i + 1], px[i + 2]), mn = Math.min(px[i], px[i + 1], px[i + 2]), sc = (mx - mn) * mx; if (sc > bs) { bs = sc; bright = [px[i], px[i + 1], px[i + 2]]; } }
+  const sample = { side: h => med(ang.map(a => { const r = rAt(Math.min(hmax, Math.max(0, h))); return [r * Math.sin(a), h, r * Math.cos(a)]; })),
+    top: f => med(Array.from({ length: 24 }, (_, k) => { const a = k / 24 * 2 * Math.PI, r = Rt * Math.max(.05, f) * .92; return [r * Math.sin(a), hmax, r * Math.cos(a)]; })), bright };
+  const M = CAKEMODEL.readProfile(P); if (M.plateR) sample.plate = med(ang.map(a => [M.plateR * .93 * Math.sin(a), M.plateTop, M.plateR * .93 * Math.cos(a)]));
+  const d = DS[o.id] || {}, g = CAKEMODEL.build({ prof: P, spec: d.cake_spec || {}, sample, candles: rv.candles, seed: +o.id.replace(/\D/g, '') });
+  const key = new THREE.DirectionalLight(0xfff2e0, g.userData.flames.length ? .55 : 1.1); key.position.set(-o.rmax * 3, o.hmax * 4, o.rmax * 4); key.castShadow = true; key.shadow.mapSize.set(1024, 1024);
+  const sc = key.shadow.camera, k = o.rmax * 2.6; sc.left = -k; sc.right = k; sc.top = k; sc.bottom = -k; sc.near = 1; sc.far = o.rmax * 14; key.shadow.bias = -.002; key.shadow.radius = 4; g.add(key); g.add(key.target);
+  const rim = new THREE.DirectionalLight(0x9fb8d8, .35); rim.position.set(o.rmax * 3, o.hmax * 2, -o.rmax * 4); g.add(rim);
+  o.ground = new THREE.Mesh(new THREE.CircleGeometry(o.rmax * 4, 48), new THREE.ShadowMaterial({ opacity: .55 })); o.ground.rotation.x = -Math.PI / 2; o.ground.position.y = -1; o.ground.receiveShadow = true; g.add(o.ground);
+  o.model = g; o.cake.add(g); o.modelInfo = g.userData;
+}
 function keyAt(o, t) {               // measured cake at time t (0..1 over the hero shot)
   const K = o.e.keys.filter(k => !k.empty), rv = o.e.revolve;
   if (!K.length) return { m: rv, tex: null, cand: rv.candles };
@@ -209,7 +229,9 @@ function apply() {                   // show the chosen generation at the chosen
   if (g !== 1 && ya >= 65) o.relief.visible = false;
   if (o.rig) { o.rig.visible = g === 0; o.rig.material = S.matte ? WHITE : o.rig._m || (o.rig._m = o.rig.material); }
   if (!rv) return;
-  o.body.visible = g >= 2; o.candles.visible = g >= 2;
+  o.body.visible = g === 2 || g === 3; o.candles.visible = g === 2 || g === 3;
+  if (o.model) o.model.visible = g === 4;
+  if (g === 4) { if (!o.model && o.bodyTex.image && o.bodyTex.image.width) model(o); if (o.model) { o.ground.visible = !S.matte; } return; }
   if (g < 2) return;
   let m = rv, cand = rv.candles, map = o.bodyTex, proj = rv;
   if (g === 3 && e.keys.length > 1) {
@@ -225,7 +247,7 @@ function apply() {                   // show the chosen generation at the chosen
   while (o.candles.children.length) o.candles.remove(o.candles.children[0]);
   const top = m.prof[m.prof.length - 1][1];
   cand.forEach(c => {
-    const cy = new THREE.Mesh(new THREE.CylinderGeometry(c.w / 2, c.w / 2, c.h, 10), S.matte ? WHITE : new THREE.MeshBasicMaterial({ color: new THREE.Color(c.rgb[0] / 255, c.rgb[1] / 255, c.rgb[2] / 255) }));
+    const cy = new THREE.Mesh(new THREE.CylinderGeometry(c.w / 2, c.w / 2, c.h, 10), S.matte ? WHITE : new THREE.MeshBasicMaterial({ color: new THREE.Color(c.rgb[0] / 255, c.rgb[1] / 255, c.rgb[2] / 255).convertSRGBToLinear(), toneMapped: false }));
     cy.position.set(c.x, top + c.h / 2, c.z); o.candles.add(cy);
     if (c.lit && !S.matte) { const f = new THREE.Sprite(FLAME); f.scale.set(c.w * 4.2, c.w * 6.5, 1); f.position.set(c.x, top + c.h + c.w * 1.6, c.z); o.candles.add(f); }
   });
@@ -253,7 +275,8 @@ function camera() {
 const DEPTH = new THREE.MeshDepthMaterial({ side: THREE.DoubleSide });
 function draw() {
   apply(); const c = camera();
-  if (S.depthPass && cur) { const d = c.position.distanceTo(new THREE.Vector3(0, cur.hmax * .5, 0)), k = Math.max(cur.rmax * 4, cur.W * .6); c.near = Math.max(1, d - k); c.far = d + k; c.updateProjectionMatrix(); scene.overrideMaterial = DEPTH; } else scene.overrideMaterial = null;
+  if (S.matte && S.gen === 4) scene.overrideMaterial = WHITE; else if (S.depthPass && cur) { const d = c.position.distanceTo(new THREE.Vector3(0, cur.hmax * .5, 0)), k = Math.max(cur.rmax * 4, cur.W * .6); c.near = Math.max(1, d - k); c.far = d + k; c.updateProjectionMatrix(); scene.overrideMaterial = DEPTH; } else scene.overrideMaterial = null;
+  if (S.matte && S.gen === 4) scene.overrideMaterial = WHITE;
   R.render(scene, c); dirty = false;
 }
 
@@ -276,6 +299,7 @@ function panel() {
   let h = '<b>' + GEN[rv ? S.gen : 1] + '</b>';
   if (rv) h += ' &nbsp; pitch <b>' + rv.pitch.toFixed(0) + '&deg;</b> ' + ({ depth: 'from depth', edge: 'from the edge ellipse', outline: 'edge read ' + (rv.pitch_read || 0).toFixed(0) + '&deg;, reduced to fit the outline', prior: 'from its shot family (not measured)' }[rv.pitch_method] || '') + ' &nbsp; depth fit <b>' + e.round_r2.toFixed(2) + '</b>' + (e.ruler_ok ? '' : ' (too weak: default depth scale)') + ' &nbsp; candles found <b>' + rv.candles.length + '</b>';
   else h += ' &nbsp; no solid found in this clip: relief only';
+  if (S.gen === 4 && cur.modelInfo) h = '<b>G4 MODEL</b> &nbsp; built as geometry: <b>' + cur.modelInfo.tiers + '</b> tier' + (cur.modelInfo.tiers > 1 ? 's' : '') + ', <b>' + cur.modelInfo.candles + '</b> candles, <b>' + cur.modelInfo.parts + '</b> parts &nbsp; ' + ((DS[cur.id] || {}).cake_spec ? [DS[cur.id].cake_spec.finish, DS[cur.id].cake_spec.border, DS[cur.id].cake_spec.candle_style].join(' / ') : '');
   if (sc) { const s = sc['g' + (rv ? S.gen : 1)]; if (s) h += '<br>silhouette <b>' + s.iou.toFixed(2) + '</b> &nbsp; solid <b>' + s.solid.toFixed(2) + '</b> &nbsp; colour <b>' + s.color.toFixed(3) + '</b> &nbsp; <span class="' + (s.pass ? 'pass">PASS' : 'fail">FAIL') + '</span>'; }
   else h += '<br>not scored yet';
   $('meta').innerHTML = h;
@@ -325,10 +349,10 @@ function layout(only) {
     const m = pol(RO1() + Math.max(9, SZ * 0.017), (A[0] + A[1]) / 2 > 180 ? 270 : 90);
     g.save(); g.translate(SZ / 2 + (m[0] - SZ / 2) * 0.985, m[1]); g.rotate((A[0] + A[1]) / 2 > 180 ? -Math.PI / 2 : Math.PI / 2); g.restore();
   };
-  arc(GA, 1 - S.gen / 3, 4, '', true); arc(TA, S.t, 7, '', S.gen === 3);
+  arc(GA, 1 - S.gen / 4, 5, '', true); arc(TA, S.t, 7, '', S.gen === 3);
   g.fillStyle = '#8a877e'; g.font = '500 ' + Math.max(9, Math.round(SZ * 0.018)) + 'px "IBM Plex Mono", monospace'; g.textAlign = 'center'; g.textBaseline = 'middle';
   const lab = (deg, s, c) => { const p = pol(SZ * 0.475, deg); g.save(); g.translate(p[0], p[1]); let a = deg * D2R; if (deg > 90 && deg < 270) a += Math.PI; g.rotate(a); g.fillStyle = c || '#8a877e'; g.fillText(s, 0, 0); g.restore(); };
-  lab(GA[0] - 9, 'G3'); lab(GA[1] + 9, 'G0'); lab(TA[0] - 9, 'TIME', S.gen === 3 ? '#8a877e' : '#3a3a34'); lab(180, GEN[cur && !cur.e.revolve ? 1 : S.gen], '#f0b040');
+  lab(GA[0] - 9, 'G4'); lab(GA[1] + 9, 'G0'); lab(TA[0] - 9, 'TIME', S.gen === 3 ? '#8a877e' : '#3a3a34'); lab(180, GEN[cur && !cur.e.revolve ? 1 : S.gen], '#f0b040');
 }
 
 /* detent: a 4 ms band-passed noise grain, never a tone */
@@ -343,7 +367,7 @@ function click(f) {
 let drag = null; const ptrs = new Map();
 function where(ev) { const r = ui.getBoundingClientRect(), x = ev.clientX - r.left - SZ / 2, y = ev.clientY - r.top - SZ / 2, rr = Math.hypot(x, y); let deg = Math.atan2(x, -y) / D2R; if (deg < 0) deg += 360; return { x, y, rr, deg }; }
 function arcSet(p) {
-  if (p.zone === 'gen') { const f = Math.min(1, Math.max(0, (p.deg - GA[0]) / (GA[1] - GA[0]))), gnew = Math.round((1 - f) * 3); if (gnew !== S.gen) { S.gen = gnew; click(2300); panel(); dirty = true; } }
+  if (p.zone === 'gen') { const f = Math.min(1, Math.max(0, (p.deg - GA[0]) / (GA[1] - GA[0]))), gnew = Math.round((1 - f) * 4); if (gnew !== S.gen) { S.gen = gnew; click(2300); panel(); dirty = true; } }
   if (p.zone === 'time') { const f = Math.min(1, Math.max(0, (p.deg - TA[0]) / (TA[1] - TA[0]))); if (S.gen !== 3) { S.gen = 3; panel(); } const k0 = Math.round(S.t * 6), k1 = Math.round(f * 6); if (k0 !== k1) click(1500); S.t = f; S.play = false; panel(); dirty = true; }
 }
 ui.addEventListener('pointerdown', ev => {
@@ -374,7 +398,7 @@ async function go(k) {
 }
 addEventListener('keydown', ev => {
   if (ev.key === 'ArrowRight') go(S.i + 1); else if (ev.key === 'ArrowLeft') go(S.i - 1);
-  else if (ev.key === 'ArrowUp') { S.gen = Math.min(3, S.gen + 1); click(2300); panel(); dirty = true; } else if (ev.key === 'ArrowDown') { S.gen = Math.max(0, S.gen - 1); click(2300); panel(); dirty = true; }
+  else if (ev.key === 'ArrowUp') { S.gen = Math.min(4, S.gen + 1); click(2300); panel(); dirty = true; } else if (ev.key === 'ArrowDown') { S.gen = Math.max(0, S.gen - 1); click(2300); panel(); dirty = true; }
   else if (ev.key === ' ') { $('bPlay').click(); ev.preventDefault(); } else if (ev.key === 'f') $('bFoot').click();
 });
 function setFoot(on) { S.foot = on; $('foot').style.display = on ? 'block' : 'none'; if (on && cur) { const e = cur.e, pd = RP() * 2, vh = pd * e.src_h / e.world_bottom, vw = vh * e.src_w / e.src_h; FV.style.height = vh + 'px'; FV.style.width = vw + 'px'; FV.style.left = (pd / 2 - (e.revolve ? e.revolve.xc / e.w : .5) * vw) + 'px'; FV.play().catch(() => {}); } else FV.pause(); }

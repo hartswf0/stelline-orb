@@ -24,7 +24,8 @@ Open `eye.html` from a static server (`python3 -m http.server`, then `/eye.html`
 | G1 relief | one frame pushed back by depth; exact from the camera, hollow behind | Depth Anything V2 (ViT-L), run locally |
 | G2 revolve | the cake as a solid of revolution with the footage projected on it, candles standing on it, in the relief room | axis, pitch, profile and candles measured by `lift.py` |
 | G3 time | G2 measured at seven moments of the clip: the cake being made | the same measurement, pitch held |
-| G4 mesh | a generated full mesh per cake | **not run** (`tools/lift/fal3d.py`; fal answered "Exhausted balance") |
+| G4 model | the cake built as geometry (`assets/eye/cakemodel.js`): icing body with ruffles or glaze, drips, piped shells and rosettes, beads, curls, neon lines, plate, candles with wax, wick and flame, lit with shadows | sizes from the measured profile, kinds from the clip's label (`cake_spec`), colours from the footage ring by ring, set to the label's icing colour |
+| (later) | a generated full mesh per cake | **not run** (`tools/lift/fal3d.py`; fal answered "Exhausted balance") |
 
 ## Scores (all 77 clips, drawn by `eye.html`, measured by `tools/lift/score.mjs`)
 
@@ -33,6 +34,7 @@ Open `eye.html` from a static server (`python3 -m http.server`, then `/eye.html`
 | G0 rig | 3 / 77 | 0.684 | 1.000 | 0.215 |
 | G1 relief | 13 / 77 | 0.908 | 0.519 | 0.002 |
 | G2 revolve | 55 / 77 | 0.879 | 0.998 | 0.015 |
+| G4 model | 37 / 77 | 0.838 | 0.995 | 0.261 |
 
 - **silhouette**: overlap (intersection over union) of the drawn cake with the cake's mask in the frame, from the footage's own camera.
 - **solid**: the smallest outline the cake keeps from 30 to 180 degrees round, over its outline from the front.
@@ -40,6 +42,13 @@ Open `eye.html` from a static server (`python3 -m http.server`, then `/eye.html`
 - **pass**: silhouette at least 0.85 and solid at least 0.60. Both thresholds were set before the first full run and not changed.
 
 Read these with their limits:
+
+- G1 and G2 are the footage itself, pushed back or wrapped on a measured shape. They are not modeled cakes. G4 is the
+  first generation that is: every part is a mesh. Its colour error is high because it is lit geometry, not the frame;
+  its silhouette is lower than G2's because it adds a plate, borders and candles the mask does not always include.
+- G4 takes its kind of icing, border and candles from the clip's label, so a wrong label makes a wrong cake. It has no
+  writing, no roses, no figures or toppers yet, and the same seven part types serve all 77 cakes. All 77 on one sheet:
+  `assets/eye/shots/g4-all-77.jpg`.
 
 - The mask the silhouette is judged against comes from this pipeline's own segmenter, not from a person. The score
   shows that the solid agrees with the segmentation, not that the segmentation is right.
