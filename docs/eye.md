@@ -168,6 +168,22 @@ piece (`assets/eye/memory-maker.mp4`). Not done: a piece condensing over time wh
 the squeeze from Orb 05 driving how solid the piece in hand is, the room in depth (it is a flat plate on the glass),
 sound, and the room chosen to fit the person.
 
+### The timeline: the memory in sequence
+
+A strip at the top of the room shows the whole memory through time. One row for every piece of clay (white where it
+was in hand, cyan where it rested as light), a row for the name, a row for the candles (amber lit, grey out) and a
+row for each child with their cut-out, from the frame they arrived. One column for every kept frame, as wide as the
+frame is held; the amber box is the frame in the room; touching a column goes there. Children now arrive at the frame
+in which they were added rather than being present throughout.
+
+`FORGE.sequence()` runs every step of the person's guide through the rings and keeps a frame after each, so PLAY in
+TIME replays the making from the bare table to the blow. Run for ZOE, 6 (castle): 26 frames, nine pieces, the name,
+six candles, three children arriving at frame 23, candles out in the last frame (stills
+`assets/eye/shots/memory-maker-timeline.jpg`, film `assets/eye/memory-maker-sequence.mp4`, sped up about 3.5 times).
+Not done: a clock of their own for each child on the strip (hold one child while the cake runs, the film's central
+act), dragging on the strip to retime, the children's cut-outs taken from the lifted archive instead of the three
+fixed ones, and the strip on a phone.
+
 Not checked for pieces: SHOW ME playing these guides at hand speed, picking a piece by touch, undo across a swap,
 TIME frames and WEAVE with several pieces (pieces not in hand do not turn to mist), export of all pieces.
 

@@ -28,10 +28,16 @@
   body.museum .app { grid-template-rows: minmax(0, 75fr) clamp(150px, 25fr, 195px) !important; }
   body.museum #orb { background: radial-gradient(55% 110% at 50% 50%, #111415 0%, #060708 58%, #030404 100%); border-top: 1px solid rgba(255, 255, 255, 0.08); }
   body.notext #cap { display: none !important; }
+  #tl { position: absolute; left: 14px; top: 10px; width: min(700px, calc(100% - 28px)); font: 9px ui-monospace, Menlo, monospace; color: #9fb5ae; display: grid; gap: 2px; text-shadow: 0 0 4px #000; }
+  #tl .r { display: grid; grid-template-columns: 124px 1fr; align-items: center; gap: 6px; height: 8px; } #tl .r.k { height: 18px; }
+  #tl b { font-weight: 500; white-space: nowrap; overflow: hidden; text-align: right; letter-spacing: .06em; display: flex; justify-content: flex-end; align-items: center; gap: 4px; } #tl b img { height: 18px; }
+  #tl .c { display: flex; gap: 1px; height: 100%; } #tl i { background: rgba(255,255,255,.06); cursor: pointer; }
+  #tl i.rest { background: rgba(95,240,220,.3); } #tl i.hand { background: #e9e4d8; } #tl i.name { background: #d4483e; } #tl i.lit { background: #f0b040; } #tl i.out { background: #5a5348; } #tl i.kid { background: #c9a27a; } #tl i.now { box-shadow: 0 0 0 1px #f0b040; }
+  body.notext #tl, body.stage-only #tl, body.museum #tl { display: none !important; }
 </style>
 </head>
 <body>
-<div class="app"><div id="room"><div id="cap"></div></div><div id="orb"></div></div>
+<div class="app"><div id="room"><div id="tl"></div><div id="cap"></div></div><div id="orb"></div></div>
 <script src="assets/three.min.js"></script>
 <script src="assets/GLTFExporter.js"></script>
 <script src="assets/OBJExporter.js"></script>
@@ -286,8 +292,9 @@ function itemObj(it) { if (objOf.has(it)) return objOf.get(it); const g = new T.
   g.userData.q0 = g.quaternion.clone(); objOf.set(it, g); return g; }
 function applyItem(o, it) { o.position.set(...it.p); const s = it.s || 1; o.scale.set(s * (it.sw || 1), s * (it.sh || 1), s * (it.sw || 1)); o.quaternion.copy(o.userData.q0); if (it.rot) o.quaternion.multiply(new T.Quaternion().setFromEuler(new T.Euler(it.rot[0] * Math.PI / 180, it.rot[1] * Math.PI / 180, it.rot[2] * Math.PI / 180, 'YXZ'))); }
 let ONIONN = 0;
+let SHOWN = 0;
 function showFrame(t) { // t: optional fractional frame position for tweened playback
-  const F = DOC.frames; let i = DOC.cur, u = 0; if (t != null) { i = Math.floor(t) % F.length; u = t - Math.floor(t); }
+  const F = DOC.frames; let i = DOC.cur, u = 0; if (t != null) { i = Math.floor(t) % F.length; u = t - Math.floor(t); } SHOWN = i;
   const A = F[i], B = F[(i + 1) % F.length], tween = t != null && u > 0 && A.clay && B.clay && A.clay.kind === B.clay.kind;
   ensureClay(A.clay ? A.clay.kind : null);
   if (clayMesh) { const p = clayMesh.geometry.attributes.position, c = clayMesh.geometry.attributes.color; if (tween) { const k = sm(u); for (let n = 0; n < p.array.length; n++) { p.array[n] = A.clay.pos[n] + (B.clay.pos[n] - A.clay.pos[n]) * k; c.array[n] = A.clay.col[n] + (B.clay.col[n] - A.clay.col[n]) * k; } } else { p.array.set(A.clay.pos); c.array.set(A.clay.col); }
@@ -532,7 +539,7 @@ function writeName(steps) { const F = curF(); if (!F.nameFull) { if (steps < 0) 
   F.nameAt = last ? last.slice(0, 3) : null; if (!F.nameR) F.nameFull = null; showFrame(); S.state = 'CHANGED'; perfDirty = true; say(F.nameR >= tot ? 'THE NAME IS WRITTEN · ' + WHO.name : 'WRITING ' + WHO.name + ' · ' + Math.round(F.nameR / tot * 100) + '%'); }
 let CASTID0 = 1;
 function addChild() { const used = new Set(DOC.cast.map(c => c.i)); const i = [0, 1, 2].find(n => !used.has(n)); if (i == null) { say('ALL THREE CHILDREN ARE HERE'); tick('dead'); return; }
-  snapshot(); const ca = Math.PI / 2 - S.orbit.yaw, a = ca + Math.PI + KIDS[i].da; const c = { id: CASTID++, i, a, r: .47, yaw: 0, tilt: 0, lift: 0, op: 1, vis: 0 }; DOC.cast.push(c);
+  snapshot(); const ca = Math.PI / 2 - S.orbit.yaw, a = ca + Math.PI + KIDS[i].da; const c = { id: CASTID++, i, a, r: .47, yaw: 0, tilt: 0, lift: 0, op: 1, vis: 0, f0: DOC.cur }; DOC.cast.push(c);
   S.pickKey = 'c:' + c.id; S.ease = { t: 1.6, y: .88, d: Math.max(S.orbit.dist, 1.12), p: -.17 }; shimmer(); say('CHILD ' + (i + 1) + ' COMES IN FROM THE DARK'); }
 function removeChild() { const c = DOC.cast[DOC.cast.length - 1]; if (!c) { tick('dead'); return; } snapshot(); DOC.cast.pop(); S.pickKey = 'cake'; say('CHILD ' + (c.i + 1) + ' GOES BACK INTO THE DARK'); }
 
@@ -655,7 +662,7 @@ function castObj(c) { if (castMesh[c.id]) return castMesh[c.id]; const k = KIDS[
   m.material.customProgramCacheKey = () => 'holo-kid'; m.userData.cast = c.id; CASTG.add(m); castMesh[c.id] = m; return m; }
 function placeCast(dt) { const ids = new Set(DOC.cast.map(c => c.id)); for (const id in castMesh) if (!ids.has(+id)) { CASTG.remove(castMesh[id]); delete castMesh[id]; }
   const cp = cam.position.clone(); MEM.worldToLocal(cp);
-  DOC.cast.forEach(c => { const m = castObj(c), k = KIDS[c.i], asp = k.aspect || .7; c.vis = (c.vis == null ? 0 : c.vis) + ((c.op || 0) - (c.vis || 0)) * Math.min(1, dt * 2.4);
+  DOC.cast.forEach(c => { const m = castObj(c), k = KIDS[c.i], asp = k.aspect || .7; c.vis = (c.vis == null ? 0 : c.vis) + ((SHOWN >= (c.f0 || 0) ? (c.op || 0) : 0) - (c.vis || 0)) * Math.min(1, dt * 2.4);
     const hh = k.h * (c.s || 1) * (c.sh || 1); m.scale.set(k.h * asp * (c.s || 1) * (c.sw || 1), hh, 1); m.position.set(Math.cos(c.a) * c.r, k.base + hh / 2 + (c.lift || 0), Math.sin(c.a) * c.r);
     m.lookAt(MEM.localToWorld(new T.Vector3(cp.x, m.position.y, cp.z))); m.rotateY((c.yaw || 0) * Math.PI / 180); m.rotateX(-(c.tilt || 0) * Math.PI / 180); m.rotateZ((c.roll || 0) * Math.PI / 180);
     m.material.opacity = c.vis; m.visible = c.vis > .02; }); }
@@ -1088,6 +1095,23 @@ const GSTEPS = [
     .concat([part(6, 'POST', 'THE NECK', { turn: [0, 0, -7], size: [-7, 0, 4], at: [.06, .15, 0] }), frost('GOLD', [.3, .8], 'STAIN THE NECK'), part(7, 'CONE', 'THE HEAD', { turn: [0, 0, -24], size: [-10, 0, 0], at: [.085, .245, 0] }), frost('GOLD', [.3, .8], 'STAIN THE HEAD'), put('EYES', 'EYE', [[.3, 2]], 'TWO EYES', 'VERB to EYES · two clicks'), back(1, 'THE PLINTH'), name('WHITE')]);
   const blow = tail.find(g => /KEEP A FRAME/.test(g.t)); if (blow) { blow.t = 'KEEP A FRAME · ' + WHO.name + ' BLOWS THEM OUT'; blow.h = 'TIME · DO keeps a frame · then MAKE · VERB to BLOW OUT · ' + NUM[n].toLowerCase() + (n === 1 ? ' click' : ' clicks'); blow.show = blow.show.map(a => a[0] === 'turn' ? ['turn', 4, n, .22] : a); }
   GSTEPS.splice(0, GSTEPS.length, ...(D[WHO.design] || D.CLASSIC), ...tail); })();
+/* THE TIMELINE: the memory in sequence. A row for every piece of clay (white where it was in hand, cyan where it rested as light), the name, the
+   candles (amber lit, grey out) and each child's cut-out from the frame it arrived; a column for every kept frame, as wide as it is held. The
+   amber box is the frame in the room. Touch a column to go there. */
+const tlEl = document.getElementById('tl');
+const TL = { key: '', tick() { if (CFG.noText || CFG.stageOnly || PHONE || NOW - (this.t || 0) < .2) return; this.t = NOW; const F = DOC.frames, ids = new Set();
+    const M = F.map(f => { const m = new Map(); if (f.clay) m.set(f.pid || 1, { hand: true, kind: f.clay.kind, items: f.items, nameR: f.nameR }); (f.others || []).forEach(pc => m.set(pc.id, { hand: false, kind: pc.clay.kind, items: pc.items, nameR: pc.nameR })); m.forEach((v, id) => ids.add(id)); return m; });
+    const idl = [...ids].sort((a, b) => a - b), all = i => [...M[i].values()], cand = i => all(i).flatMap(pc => pc.items.filter(x => x.t === 'CANDLE'));
+    const key = JSON.stringify([SHOWN, F.map(f => f.hold), DOC.cast.map(c => [c.i, c.f0]), M.map(m => [...m].map(([id, pc]) => [id, pc.hand, pc.nameR || 0])), F.map((f, i) => cand(i).filter(x => !x.out).length + '/' + cand(i).length)]); if (key === this.key) return; this.key = key;
+    const row = (label, cell, cls) => `<div class="r ${cls || ''}"><b>${label}</b><div class="c">${F.map((f, i) => `<i data-f="${i}" style="flex:${f.hold}" class="${cell(i) || ''}${i === SHOWN ? ' now' : ''}"></i>`).join('')}</div></div>`;
+    const kindOf = id => { for (const m of M) if (m.has(id)) return m.get(id).kind; return ''; }; let h = '';
+    idl.forEach(id => h += row('PIECE ' + id + ' · ' + kindOf(id), i => M[i].has(id) ? (M[i].get(id).hand ? 'hand' : 'rest') : ''));
+    if (F.some((f, i) => all(i).some(pc => pc.nameR))) h += row('NAME · ' + WHO.name, i => all(i).some(pc => pc.nameR) ? 'name' : '');
+    if (F.some((f, i) => cand(i).length)) h += row('CANDLES', i => { const c = cand(i); return c.length ? (c.some(x => !x.out) ? 'lit' : 'out') : ''; });
+    DOC.cast.slice().sort((a, b) => a.i - b.i).forEach(c => h += row('<img src="assets/weaver/child' + (c.i + 1) + '.png" alt=""> CHILD ' + (c.i + 1), i => i >= (c.f0 || 0) ? 'kid' : '', 'k'));
+    tlEl.innerHTML = F.length > 1 || idl.length > 1 || DOC.cast.length ? h : ''; } };
+tlEl.addEventListener('click', e => { const f = e.target.dataset && e.target.dataset.f; if (f == null) return; S.play = false; DOC.cur = +f; showFrame(); oledDirty = true; say('FRAME ' + (+f + 1) + ' OF ' + DOC.frames.length); });
+const runAct = a => { if (a[0] === 'turn') { for (let n = Math.abs(a[2]); n > 0; n--) turn(a[1], Math.sign(a[2])); } else if (a[0] === 'ring') { for (let k = 0; k < 400; k++) { const r = rings()[a[1]], tgt = typeof a[2] === 'function' ? a[2]() : a[2], d = (tgt - r.v()) / r.st; if (Math.abs(d) < .5) break; turn(a[1], Math.sign(d)); } } else if (a[0] === 'press') press(a[1], a[2]); };
 const GUIDE = { i: 0, on: true, q: [], qT: 0, doneT: null, g: { yaw0: S.orbit.yaw }, auto: /[?&]guide=auto/.test(location.search),
   begin(i) { this.i = i; this.g = { yaw0: S.orbit.yaw }; this.doneT = null; this.q = []; this.draw(); if (this.auto && this.i < GSTEPS.length) setTimeout(() => {}, 0); },
   show() { if (this.i >= GSTEPS.length) return; this.q = GSTEPS[this.i].show.map(a => a.slice()); this.qT = .35; say('SHOWING · ' + GSTEPS[this.i].t); },
@@ -1278,7 +1302,7 @@ function update(dt) { NOW += dt; HU.uTime.value = NOW;
   if (S.turntable) S.orbit.yaw += dt * .25; if (S.ease) { const e = S.ease, k = Math.min(1, dt * 2.2); S.orbit.tgt.y += (e.y - S.orbit.tgt.y) * k; S.orbit.dist += (e.d - S.orbit.dist) * k; S.orbit.pitch += (e.p - S.orbit.pitch) * k; if (e.yaw != null) S.orbit.yaw += (e.yaw - S.orbit.yaw) * k; e.t -= dt; if (e.t <= 0) S.ease = null; }
   if (!PHONE) { const n = nodeCenter(), k = Math.min(1, dt * 3); S.orbit.tgt.x += (n.c.x - S.orbit.tgt.x) * k; S.orbit.tgt.z += (n.c.z - S.orbit.tgt.z) * k; if (!S.ease) S.orbit.tgt.y += (n.c.y - S.orbit.tgt.y) * k * .5; }
   RINGS.forEach((r, i) => { const want = odrag && odrag.ring === i && odrag.lock === 'x' ? 1 : 0; r.stretch += (want - r.stretch) * Math.min(1, dt * 12); r.g.scale.set(1 + r.stretch * .12, 1 + r.stretch * .05, 1 + r.stretch * .05); r.lp.scale.set(1 + r.stretch * .35, 1 + r.stretch * .35, 1); });
-  drawDialLabels(); GUIDE.tick(dt); if (PHONE) return;
+  drawDialLabels(); GUIDE.tick(dt); TL.tick(); if (PHONE) return;
   placeCast(dt); updFilmReticles(dt); updReticle(); updGizmo(); updDataReticle(); updMist(dt);
 }
 function render() { if (PHONE) { OR.render(OS, OC); return; } renderRoom(); perf = { tris: R.info.render.triangles, calls: R.info.render.calls }; OR.render(OS, OC); }
@@ -1288,7 +1312,9 @@ resize(); showFrame(); drawOLED(); requestAnimationFrame(loop);
 setInterval(() => { oledDirty = true; }, 500);
 
 /* =============================================================== a handle for scripts: tests, and the film */
-window.FORGE = { WHO, newPiece, activate, pieceCount, build() { const run = a => { if (a[0] === 'turn') { for (let n = Math.abs(a[2]); n > 0; n--) turn(a[1], Math.sign(a[2])); } else if (a[0] === 'ring') { for (let k = 0; k < 400; k++) { const r = rings()[a[1]], tgt = typeof a[2] === 'function' ? a[2]() : a[2], d = (tgt - r.v()) / r.st; if (Math.abs(d) < .5) break; turn(a[1], Math.sign(d)); } } else if (a[0] === 'press') press(a[1], a[2]); }; GUIDE.on = false; for (const g of GSTEPS) { if (/CHILDREN COME/.test(g.t)) break; g.show.forEach(run); } }, CFG, S, get DOC() { return DOC; }, turn, press, rings, scrub, nodes, curNode, pickTo, setMode, setVerb, GUIDE, GSTEPS, PAIR, gizmoHit, gizmoDrag, setStretch, VERBS, MODES, spawn, place, hitAt, strokeStart, strokeMove, strokeEnd, snapshot, showFrame, cam, CAKE, ORB, RINGS, BTN, OC, perf: () => perf,
+window.FORGE = { WHO, newPiece, activate, pieceCount, build() { GUIDE.on = false; for (const g of GSTEPS) { if (/CHILDREN COME/.test(g.t)) break; g.show.forEach(runAct); } },
+  /* the whole memory in sequence: every step of the guide through the rings, a frame kept after each */
+  sequence(hold) { GUIDE.on = false; for (const g of GSTEPS) { if (/LOOK AT THEM|WALK AROUND|WEAVE IT/.test(g.t)) continue; g.show.forEach(runAct); if (!/KEEP A FRAME/.test(g.t)) { const m = S.mode; S.mode = 'TIME'; capture(false); S.mode = m; } } DOC.frames.forEach(f => f.hold = hold || 4); DOC.cur = 0; showFrame(); }, get SHOWN() { return SHOWN; }, showFrame, CFG, S, get DOC() { return DOC; }, turn, press, rings, scrub, nodes, curNode, pickTo, setMode, setVerb, GUIDE, GSTEPS, PAIR, gizmoHit, gizmoDrag, setStretch, VERBS, MODES, spawn, place, hitAt, strokeStart, strokeMove, strokeEnd, snapshot, showFrame, cam, CAKE, ORB, RINGS, BTN, OC, perf: () => perf,
   manual() { auto = false; }, setAim(x, y) { hover = x == null ? null : { x, y }; }, aim: () => AIM, advance(dt) { update(dt); render(); }, step(dt) { update(dt); placeCam(); cam.updateMatrixWorld(); }, worldToRoom(v) { const p = v.clone().project(cam); return [(p.x + 1) / 2 * roomEl.clientWidth, (1 - p.y) / 2 * roomEl.clientHeight]; }, local(v) { return CAKE.localToWorld(v.clone()); } };
 </script>
 </body>
