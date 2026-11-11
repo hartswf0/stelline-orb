@@ -118,32 +118,31 @@ Not yet: these cakes are not in the Eye's iris and have no gate of their own (no
 against); the designs are ten fixed sculptures, not a kit a child's request could recombine; faces are two eyes
 and a nose; looked at only as rendered stills at twelve ages.
 
-## Field Orb 06 (`orb-06.html`): the cakes have to be makeable
+## Field Orb 06 (`orb-06.html`): Orb 05 plus WHO
 
-A finished cake that appears is not a performance. Orb 06 holds every cake to one grammar, in the order a baker
-works, and each detent must cause exactly one visible thing:
+A first attempt at Orb 06 was a new five-ring page written from nothing. It had no reticle and none of Orb 05's
+operating theory, and it was removed. Orb 06 is now a fork of the Memory Weaver (`orb-film-studio.html`) and keeps
+all of it: ring 1 MODE, ring 2 PICK, then verb, height on the cake, amount; the reticle beside the cake; the lab and
+the memory as separate layers; frames in TIME; WEAVE; the guide whose SHOW ME plays each step on the rings.
 
-| control | what a detent does |
+What Orb 06 adds, inside that grammar:
+
+| addition | how it is operated |
 |---|---|
-| WHO | one year of age; the plan (design, counts) changes with it |
-| SHAPE | sets down the next piece of bare sponge |
-| COAT | draws icing over the pieces, one after another (12 detents for the whole cake) |
-| DRESS | puts on the next detail or handful: sweets, eyes, spots, wheels, spikes, kisses (at most 24 detents) |
-| WRITE · CANDLES | first ten detents pipe the name under a nozzle; each one after stands a candle |
-| thumb | LIGHT, then BLOW (the room dims with the flames and falls when they go) |
+| WHO | `?name=NOOR&age=5`; the guide's header, steps and counts are written for that person |
+| `WRITE · NAME` (red, white, chocolate) | a verb like any other: stand where the name should face, turn the amount ring; each click pipes the next stretch of single-stroke capitals onto the crown; turning back lifts it off. The letters are strokes, so they tilt and turn with the cake, as the film's lettering does |
+| a candle for every year | the CANDLES step asks for exactly the person's age in clicks (twelve at most) |
+| `EYES`, `BUTTONS`, `SWEETS`, `SPIKES` | new things for the PLACE verbs, set at the aimed height, one per click |
+| `FROST · RED / GREEN / BLACK`, `PIPE · RED` | new colours for the existing verbs |
+| designs by age | 1 to 2 SMASH, 3 to 5 LADYBIRD, 6 to 8 HEDGEHOG, 9 and up CLASSIC; `&design=` overrides |
 
-A hand turn only moves where a ring should be; the machine then steps there at 11.8 detents a second with a grain
-per step. A ring is stiff (dull grain, no movement) until the stage before it is whole. Turning a ring back takes
-the work off again.
+Run and seen: the LADYBIRD guide for NOOR, 5, played by itself on the rings from the bare table through sponge,
+red icing, black foot, ten button spots, two eyes, the name, five lit candles (stills
+`assets/eye/shots/orb-06-stages.jpg`, film `assets/eye/orb-06-performance.mp4`, sped up four times because the
+headless renderer is slow); the name TOMAS piped on a plain drum (`assets/eye/shots/orb-06-name.jpg`).
 
-Cakes were changed to fit the grammar rather than the other way round: the smash cake is now two layers and a dome,
-the hedgehog is carved from three domes, each digit of a number cake is biscuit, cream, biscuit, and the tall cake
-is three sponge layers. Work per ring (shape / coat / dress / write+candles): smash 3/12/24/11, caterpillar
-4/12/18/12, ladybird 8/12/15/13, train 11/12/24/14, dinosaur 19/12/24/15, castle 12/12/24/16, rocket 7/12/24/17,
-hedgehog 4/12/13/18, number 6/12/24/20, tall 3/12/24/12.
-
-Checked: the dinosaur stepped by hand through all stages (stills), and PERFORM run to the end on dinosaur, castle
-and number (film, sped up 2.6 times because the headless renderer is slow). Not checked: the other seven designs
-performed end to end, touch on a real phone, sound. Weak: pieces arrive by popping in, with no hand or tool except
-the piping nozzle; COAT changes colour in place rather than spreading; the film's orb look (museum barrel, dark
-dome) is not applied here yet.
+Not run: SMASH, HEDGEHOG and CLASSIC end to end; the steps after the candles (children, blow out, weave) under WHO;
+a phone; sound. Known weak points: on the ladybird the eyes went on away from the camera and the name sits among the
+spots; names are capitals A to Z and digits only, nine characters; a cake is still one piece of clay, so the train,
+castle, caterpillar, dinosaur and rocket of `cake-for.html` cannot be made on the orb yet; number candles are not
+in the orb.
