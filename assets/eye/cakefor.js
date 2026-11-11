@@ -38,23 +38,23 @@ function relief(text, o) {
   const g = new T.BufferGeometry(); g.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
   return { geo: g, w: o.width, d: H * sc, inside };
 }
-function pipe(g, text, m, width, x, y, z, ry, h) { if (!text) return; const r = relief(text, { width: Math.min(width, text.length * width / 7 + width * .25), height: h || .45, rad: 2.2 }); const o = add(g, r.geo, m, x, y, z); o.rotation.y = ry || 0; return o; }
+function pipe(g, text, m, width, x, y, z, ry, h) { if (!text) return; const r = relief(text, { width: Math.min(width, text.length * width / 7 + width * .25), height: h || .45, rad: 2.2 }); const o = add(g, r.geo, m, x, y, z); o.rotation.y = ry || 0; o.userData.kind = 'write'; return o; }
 
-function board(g, r, c, rect) { const m = new T.MeshPhysicalMaterial({ color: col(c || '#d9dde2'), metalness: .65, roughness: .32 }); return rect ? add(g, rbox(rect[0], .6, rect[1], 1.2), m, 0, -.6, 0) : add(g, CYL, m, 0, -.3, 0, r, .6, r); }
+function board(g, r, c, rect) { const m = new T.MeshPhysicalMaterial({ color: col(c || '#d9dde2'), metalness: .65, roughness: .32 }); const o = rect ? add(g, rbox(rect[0], .6, rect[1], 1.2), m, 0, -.6, 0) : add(g, CYL, m, 0, -.3, 0, r, .6, r); o.userData.kind = 'board'; return o; }
 function sprinkles(g, n, place) { const geo = new T.CylinderGeometry(.09, .09, .55, 6); SWEETS.forEach((c, ci) => g.add(C.ringInstances(geo, gloss(c), Math.ceil(n / SWEETS.length), k => { const p = place(); return { x: p[0], y: p[1] + .08, z: p[2], rx: Math.PI / 2, ry: rnd() * TAU, rz: (rnd() - .5) * .6 }; }))); }
-const digitCandle = (g, ch, x, y, z, c) => { const r = relief(ch, { width: 3.4, height: .9, rad: 3, bold: true, flat: true, font: 'Arial, Helvetica, sans-serif', step: 2 }); const o = add(g, r.geo, C.mat('wax', { color: col(c) }), x, y + 2.6, z); o.rotation.x = -Math.PI / 2; add(g, CYL, new T.MeshStandardMaterial({ color: 0x1a1510 }), x, y + 5.4, z, .06, .7, .06); const f = add(g, C.flameGeo, new T.MeshBasicMaterial({ color: new T.Color(1, .74, .32) }), x, y + 5.7, z, .42); f.castShadow = false; add(g, C.flameGeo, new T.MeshBasicMaterial({ color: new T.Color(1, .97, .86) }), x, y + 5.78, z, .24, .3, .24).castShadow = false; return [x, y + 6.6, z]; };
+const digitCandle = (G0, ch, x, y, z, c) => { const g = new T.Group(); g.userData.kind = 'candle'; G0.add(g); const r = relief(ch, { width: 3.4, height: .9, rad: 3, bold: true, flat: true, font: 'Arial, Helvetica, sans-serif', step: 2 }); const o = add(g, r.geo, C.mat('wax', { color: col(c) }), x, y + 2.6, z); o.rotation.x = -Math.PI / 2; add(g, CYL, new T.MeshStandardMaterial({ color: 0x1a1510 }), x, y + 5.4, z, .06, .7, .06); const f = add(g, C.flameGeo, new T.MeshBasicMaterial({ color: new T.Color(1, .74, .32) }), x, y + 5.7, z, .42); f.castShadow = false; add(g, C.flameGeo, new T.MeshBasicMaterial({ color: new T.Color(1, .97, .86) }), x, y + 5.78, z, .24, .3, .24).castShadow = false; return [x, y + 6.6, z]; };
 
 /* candles: one for every year up to twelve, set where the design says; after that, the age as number candles */
 function candles(g, age, spots, numAt) {
   const tips = [];
-  if (age <= 12) { for (let k = 0; k < age; k++) { const s = spots[k % spots.length], off = Math.floor(k / spots.length) * .9; const c = C.candle({ x: s[0] + off, y: s[1], z: s[2] + off * .6, w: .7, h: 5.2 + rnd() }, 'striped', k, true); g.add(c); tips.push([s[0], s[1] + 7, s[2]]); } }
+  if (age <= 12) { for (let k = 0; k < age; k++) { const s = spots[k % spots.length], off = Math.floor(k / spots.length) * .9; const c = C.candle({ x: s[0] + off, y: s[1], z: s[2] + off * .6, w: .7, h: 5.2 + rnd() }, 'striped', k, true); c.userData.kind = 'candle'; g.add(c); tips.push([s[0], s[1] + 7, s[2]]); } }
   else { const str = String(age), w = 3.6; [...str].forEach((ch, i) => tips.push(digitCandle(g, ch, numAt[0] + (i - (str.length - 1) / 2) * w, numAt[1], numAt[2], SWEETS[(i * 3 + age) % 7]))); }
-  if (tips.length) { const m = tips.reduce((a, t) => [a[0] + t[0], a[1] + t[1], a[2] + t[2]], [0, 0, 0]).map(v => v / tips.length); const L = new T.PointLight(new T.Color(1, .7, .4), 1.1 + Math.min(1.2, tips.length * .12), 90, 2); L.position.set(m[0], m[1] + 1.5, m[2]); L.castShadow = true; L.shadow.mapSize.set(1024, 1024); L.shadow.bias = -.004; g.add(L); }
+  if (tips.length) { const m = tips.reduce((a, t) => [a[0] + t[0], a[1] + t[1], a[2] + t[2]], [0, 0, 0]).map(v => v / tips.length); const L = new T.PointLight(new T.Color(1, .7, .4), 1.1 + Math.min(1.2, tips.length * .12), 90, 2); L.position.set(m[0], m[1] + 1.5, m[2]); L.castShadow = true; L.shadow.mapSize.set(1024, 1024); L.shadow.bias = -.004; L.userData.kind = 'light'; g.add(L); }
 }
 
 const D = {};
 D.smash = (g, p) => {                    /* first birthday: a small tall cake to be put hands into, one candle */
-  board(g, 11); add(g, CYL, cream('#fbe3ea'), 0, 3.5, 0, 6, 7, 6); add(g, SPH, cream('#fbe3ea'), 0, 7, 0, 6, .8, 6);
+  board(g, 11); add(g, CYL, cream('#fbe3ea'), 0, 1.75, 0, 6, 3.5, 6); add(g, CYL, cream('#fbe3ea'), 0, 5.25, 0, 6, 3.5, 6); add(g, SPH, cream('#fbe3ea'), 0, 7, 0, 6, .8, 6);
   const sh = C.shellGeo(1.5, 7); g.add(C.ringInstances(sh, cream('#ffffff'), 22, k => { const a = k / 22 * TAU; return { x: Math.sin(a) * 6, y: 0, z: Math.cos(a) * 6, ry: a + Math.PI }; }));
   g.add(C.ringInstances(C.rosetteGeo(.9, 6), cream('#ffffff'), 12, k => { const a = k / 12 * TAU; return { x: Math.sin(a) * 4.9, y: 7.4, z: Math.cos(a) * 4.9 }; }));
   sprinkles(g, 90, () => { const a = rnd() * TAU, r = 4 * Math.sqrt(rnd()); return [Math.sin(a) * r, 7.75, Math.cos(a) * r]; });
@@ -71,10 +71,10 @@ D.caterpillar = (g, p) => {              /* a segment for every year, sweets for
   pipe(g, p.name, cream('#2f7d3a'), 16, 0, .02, 8.2, 0, .45); spots.reverse(); return { spots, num: [-L / 2 + 2 * r * 1.55, r * 1.9, 0] };
 };
 D.ladybird = (g, p) => {                 /* a dome of sponge under red icing, chocolate buttons for spots */
-  board(g, 21, '#bfe3b4'); add(g, SPH, fondant('#d8322b'), 0, 0, 0, 10.5, 7.6, 12); add(g, SPH, fondant('#161312'), 0, 2.2, 10.6, 5.6, 4.6, 5); add(g, BOX, fondant('#161312'), 0, 7.4, -.6, .35, .5, 21, -.05);
+  board(g, 21, '#bfe3b4'); add(g, SPH, fondant('#d8322b'), 0, 0, 0, 10.5, 7.6, 12); add(g, SPH, fondant('#161312'), 0, 2.2, 10.6, 5.6, 4.6, 5); add(g, BOX, fondant('#161312'), 0, 7.4, -.6, .35, .5, 21, -.05).userData.kind = 'dress';
   const sp = [[-5, 4.5], [5, 4.5], [-6.2, -2], [6.2, -2], [-3.6, -8], [3.6, -8], [-2.6, -1], [2.6, -1]]; sp.slice(0, Math.max(2, Math.min(8, p.age * 2))).forEach(q => { const y = 7.6 * Math.sqrt(Math.max(0, 1 - (q[0] / 10.5) ** 2 - (q[1] / 12) ** 2)); const o = add(g, SPH, gloss('#161312'), q[0], y, q[1], 1.5, .35, 1.5); o.lookAt(q[0] * 2 * 7.6 / 10.5, y * 2 * 10.5 / 7.6, q[1] * 2); o.rotateX(Math.PI / 2); });
   eye(g, -2, 4.6, 14, 1.1); eye(g, 2, 4.6, 14, 1.1); [-1, 1].forEach(s => { add(g, CYL, gloss('#161312'), s * 2.2, 7.4, 12.5, .15, 3, .15, .5, 0, -s * .35); add(g, SPH, gloss('#161312'), s * 2.75, 8.6, 13.3, .45); });
-  for (let k = 0; k < 6; k++) { const s = k < 3 ? -1 : 1, z = -5 + (k % 3) * 5; add(g, CYL, gloss('#161312'), s * 10.6, .5, z, .35, 3.4, .35, 0, 0, Math.PI / 2 - s * .3); }
+  for (let k = 0; k < 6; k++) { const s = k < 3 ? -1 : 1, z = -5 + (k % 3) * 5; add(g, CYL, gloss('#161312'), s * 10.6, .5, z, .35, 3.4, .35, 0, 0, Math.PI / 2 - s * .3).userData.kind = 'dress'; }
   pipe(g, p.name, cream('#d8322b'), 13, 0, .02, 18.4, 0, .45);
   return { spots: sp.map(q => [q[0] * .75, 7.6 * Math.sqrt(Math.max(0, 1 - (q[0] * .75 / 10.5) ** 2 - ((q[1] * .75 + 1.5) / 12) ** 2)) - .2, q[1] * .75 + 1.5]), num: [0, 7.5, 0] };
 };
@@ -119,24 +119,26 @@ D.rocket = (g, p) => {                   /* standing on its fins over a plume of
   pipe(g, p.name, cream('#f8e04a'), 13, 0, .02, 13.2, 0, .45); return { spots, num: [8, 0, 8] };
 };
 D.hedgehog = (g, p) => {                 /* chocolate buttercream dome, piped spikes, a pale face */
-  board(g, 21, '#e7dcc8'); add(g, SPH, cream('#6b4226'), 0, 0, -1, 9.5, 8, 11); add(g, CONE, cream('#e9c9a0'), 0, 3, 11.4, 4.6, 7.5, 4.2, Math.PI / 2 - .12); add(g, SPH, gloss('#141210'), 0, 2.7, 15.2, .95); eye(g, -2, 4.9, 11.6, .7); eye(g, 2, 4.9, 11.6, .7); [-1, 1].forEach(s => add(g, SPH, cream('#e9c9a0'), s * 3.6, 6.2, 9, 1.4, 1.4, .6));
+  board(g, 21, '#e7dcc8'); add(g, SPH, cream('#6b4226'), 0, 0, -6, 8.4, 7.1, 6.2); add(g, SPH, cream('#6b4226'), 0, 0, -1, 9.5, 8, 7); add(g, SPH, cream('#6b4226'), 0, 0, 4.4, 8.6, 7, 6); add(g, CONE, cream('#e9c9a0'), 0, 3, 11.4, 4.6, 7.5, 4.2, Math.PI / 2 - .12); add(g, SPH, gloss('#141210'), 0, 2.7, 15.2, .95); eye(g, -2, 4.9, 11.6, .7); eye(g, 2, 4.9, 11.6, .7); [-1, 1].forEach(s => add(g, SPH, cream('#e9c9a0'), s * 3.6, 6.2, 9, 1.4, 1.4, .6));
   const N = 150, sg = new T.ConeGeometry(.75, 2.6, 7); g.add(C.ringInstances(sg, cream('#4a2c18'), N, k => { const u = (k + .5) / N, th = Math.acos(1 - u * .96), ph = k * 2.399963, nx = Math.sin(th) * Math.cos(ph), ny = Math.cos(th), nz = Math.sin(th) * Math.sin(ph); if (nz > .62 && ny < .75) return { x: 0, y: -50, z: 0 }; return { x: nx * 9.5, y: ny * 8, z: nz * 11 - 1, rx: Math.atan2(Math.hypot(nx, nz), ny) * (nz >= 0 ? 1 : 1), ry: Math.atan2(nx, nz) , s: .9 + .5 * rnd() }; }));
   const spots = []; for (let k = 0; k < 12; k++) { const a = k * 2.399963, r = 1.5 + 4.6 * (k / 12), x = Math.cos(a) * r, z = Math.sin(a) * r - 2; spots.push([x, 8 * Math.sqrt(Math.max(0, 1 - (x / 9.5) ** 2 - ((z + 1) / 11) ** 2)) + .6, z]); }
   pipe(g, p.name, cream('#6b4226'), 13, 0, .02, 18.6, 0, .45); return { spots, num: [0, 8.4, -2] };
 };
 D.number = (g, p) => {                   /* the age itself, cut from sheet cake, covered in piped kisses, berries and sweets */
-  const str = String(p.age), w = 13 * str.length + 4, r = relief(str, { width: w, height: 3.2, rad: 5, bold: true, flat: true, font: '"Arial Rounded MT Bold","Nunito","Arial Black",Arial,sans-serif', step: 2 }); board(g, 0, '#f1e9dd', [w + 9, r.d * .78 + 9]);
-  add(g, r.geo, sponge('#e6c48e'), 0, 0, 0); const top = add(g, r.geo, cream('#fbe3ea'), 0, 2.3, 0, .97, .42, .97);
+  const str = String(p.age), nd = str.length, step = 12.5, r = { inside: [], d: 0 };
+  [...str].forEach((ch, i) => { const q = relief(ch, { width: 15, height: 1.5, rad: 5, bold: true, flat: true, font: '"Arial Rounded MT Bold","Nunito","Arial Black",Arial,sans-serif', step: 2 }), x = (i - (nd - 1) / 2) * step; r.d = Math.max(r.d, q.d);
+    add(g, q.geo, sponge('#e0b878'), x, 0, 0); add(g, q.geo, cream('#fbe3ea'), x, 1.2, 0, .95, .8, .95); add(g, q.geo, sponge('#e0b878'), x, 2.1, 0); q.inside.forEach(t => r.inside.push([t[0] + x, t[1], t[2]])); });
+  board(g, 0, '#f1e9dd', [nd * step + 12, r.d * .78 + 9]);
   const pts = r.inside.filter(q => q[2] > 1.1), pick = () => pts[Math.floor(rnd() * pts.length)], kiss = C.rosetteGeo(.95, 6), n = Math.min(150, Math.round(pts.length / 18));
-  g.add(C.ringInstances(kiss, cream('#ffffff'), n, () => { const q = pick(); return { x: q[0] * .97, y: 3.55, z: q[1] * .97, s: .8 + .5 * rnd() }; })); g.add(C.ringInstances(kiss, cream('#f27fb0'), Math.round(n * .6), () => { const q = pick(); return { x: q[0] * .97, y: 3.55, z: q[1] * .97, s: .7 + .4 * rnd() }; }));
-  for (let k = 0; k < n * .35; k++) { const q = pick(); add(g, SPH, gloss(k % 3 ? '#c0273a' : '#3f3a8a'), q[0] * .97, 4.5, q[1] * .97, .75, k % 3 ? .85 : .7, .75); } for (let k = 0; k < n * .2; k++) { const q = pick(); smartie(g, q[0] * .97, 4.35, q[1] * .97, .8, SWEETS[k % 7], rnd() * .8, rnd() * .8); }
-  const spots = []; for (let k = 0; k < 12; k++) { const q = pts[Math.floor((k + .5) / 12 * pts.length)]; spots.push([q[0] * .97, 3.6, q[1] * .97]); }
-  pipe(g, p.name, cream('#e8769a'), 15, 0, .02, r.d * .39 + 2.6, 0, .45); const mid = pts[pts.length >> 1]; return { spots, num: [0, 3.6, mid[1] * .97 - 1] };
+  g.add(C.ringInstances(kiss, cream('#ffffff'), n, () => { const q = pick(); return { x: q[0], y: 3.55, z: q[1], s: .8 + .5 * rnd() }; })); g.add(C.ringInstances(kiss, cream('#f27fb0'), Math.round(n * .6), () => { const q = pick(); return { x: q[0], y: 3.55, z: q[1], s: .7 + .4 * rnd() }; }));
+  for (let k = 0; k < n * .35; k++) { const q = pick(); add(g, SPH, gloss(k % 3 ? '#c0273a' : '#3f3a8a'), q[0], 4.5, q[1], .75, k % 3 ? .85 : .7, .75); } for (let k = 0; k < n * .2; k++) { const q = pick(); smartie(g, q[0], 4.35, q[1], .8, SWEETS[k % 7], rnd() * .8, rnd() * .8); }
+  const spots = []; for (let k = 0; k < 12; k++) { const q = pts[Math.floor((k + .5) / 12 * pts.length)]; spots.push([q[0], 3.6, q[1]]); }
+  pipe(g, p.name, cream('#e8769a'), 15, 0, .02, r.d * .39 + 2.6, 0, .45); const mid = pts[pts.length >> 1]; return { spots, num: [0, 3.6, mid[1] - 1] };
 };
 D.round = (g, p) => {                    /* for the grown: a tall drip cake, the message piped on top, the age in number candles */
   const kid = p.age < 21, base = kid ? '#bfe6ff' : p.age >= 60 ? '#f4ead4' : '#f3efe6', glz = kid ? '#f27fb0' : p.age >= 60 ? '#b8862b' : '#3b2114'; board(g, 14, '#d9dde2');
-  add(g, CYL, cream(base), 0, 5.5, 0, 9, 11, 9); add(g, CYL, gloss(glz), 0, 11.05, 0, 9.05, .35, 9.05); const lip = add(g, new T.TorusGeometry(9, .42, 10, 80), gloss(glz), 0, 11, 0); lip.rotation.x = Math.PI / 2;
-  for (let k = 0; k < 30; k++) { const a = (k + rnd() * .6) / 30 * TAU, d = add(g, C.dripGeo(1.5 + 5.5 * Math.pow(rnd(), 1.5), .32 + .25 * rnd()), gloss(glz), Math.sin(a) * 9.1, 11, Math.cos(a) * 9.1); d.scale.z = .6; d.rotation.y = a; }
+  for (let k = 0; k < 3; k++) add(g, CYL, cream(base), 0, 11 / 6 + k * 11 / 3, 0, 9, 11 / 3, 9); add(g, CYL, gloss(glz), 0, 11.05, 0, 9.05, .35, 9.05).userData.kind = 'dress'; const lip = add(g, new T.TorusGeometry(9, .42, 10, 80), gloss(glz), 0, 11, 0); lip.rotation.x = Math.PI / 2; lip.userData.kind = 'dress';
+  for (let k = 0; k < 30; k++) { const a = (k + rnd() * .6) / 30 * TAU, d = add(g, C.dripGeo(1.5 + 5.5 * Math.pow(rnd(), 1.5), .32 + .25 * rnd()), gloss(glz), Math.sin(a) * 9.1, 11, Math.cos(a) * 9.1); d.scale.z = .6; d.rotation.y = a; d.userData.kind = 'dress'; }
   g.add(C.ringInstances(C.rosetteGeo(1.25, 6), cream(kid ? '#ffffff' : base), 12, k => { const a = k / 12 * TAU; return { x: Math.sin(a) * 7.3, y: 11.2, z: Math.cos(a) * 7.3 }; })); g.add(C.ringInstances(new T.SphereGeometry(.42, 10, 8), kid ? cream('#ffffff') : gloss('#d9b45a'), 62, k => { const a = k / 62 * TAU; return { x: Math.sin(a) * 9.15, y: .4, z: Math.cos(a) * 9.15 }; }));
   if (kid) sprinkles(g, 120, () => { const a = rnd() * TAU, r = 6 * Math.sqrt(rnd()); return [Math.sin(a) * r, 11.25, Math.cos(a) * r]; });
   pipe(g, p.message || 'Happy Birthday', cream(kid ? '#ffffff' : base === '#f3efe6' ? '#f3efe6' : '#7a4a1e'), 11.5, 0, 11.24, 1.6, 0, .4); pipe(g, p.name, cream(kid ? '#ffffff' : base === '#f3efe6' ? '#f3efe6' : '#7a4a1e'), 9, 0, 11.24, 4.4, 0, .4);

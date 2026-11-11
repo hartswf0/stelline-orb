@@ -117,3 +117,33 @@ ice-cream cones. They are original generic designs, not characters.
 Not yet: these cakes are not in the Eye's iris and have no gate of their own (nothing in the archive to judge them
 against); the designs are ten fixed sculptures, not a kit a child's request could recombine; faces are two eyes
 and a nose; looked at only as rendered stills at twelve ages.
+
+## Field Orb 06 (`orb-06.html`): the cakes have to be makeable
+
+A finished cake that appears is not a performance. Orb 06 holds every cake to one grammar, in the order a baker
+works, and each detent must cause exactly one visible thing:
+
+| control | what a detent does |
+|---|---|
+| WHO | one year of age; the plan (design, counts) changes with it |
+| SHAPE | sets down the next piece of bare sponge |
+| COAT | draws icing over the pieces, one after another (12 detents for the whole cake) |
+| DRESS | puts on the next detail or handful: sweets, eyes, spots, wheels, spikes, kisses (at most 24 detents) |
+| WRITE · CANDLES | first ten detents pipe the name under a nozzle; each one after stands a candle |
+| thumb | LIGHT, then BLOW (the room dims with the flames and falls when they go) |
+
+A hand turn only moves where a ring should be; the machine then steps there at 11.8 detents a second with a grain
+per step. A ring is stiff (dull grain, no movement) until the stage before it is whole. Turning a ring back takes
+the work off again.
+
+Cakes were changed to fit the grammar rather than the other way round: the smash cake is now two layers and a dome,
+the hedgehog is carved from three domes, each digit of a number cake is biscuit, cream, biscuit, and the tall cake
+is three sponge layers. Work per ring (shape / coat / dress / write+candles): smash 3/12/24/11, caterpillar
+4/12/18/12, ladybird 8/12/15/13, train 11/12/24/14, dinosaur 19/12/24/15, castle 12/12/24/16, rocket 7/12/24/17,
+hedgehog 4/12/13/18, number 6/12/24/20, tall 3/12/24/12.
+
+Checked: the dinosaur stepped by hand through all stages (stills), and PERFORM run to the end on dinosaur, castle
+and number (film, sped up 2.6 times because the headless renderer is slow). Not checked: the other seven designs
+performed end to end, touch on a real phone, sound. Weak: pieces arrive by popping in, with no hand or tool except
+the piping nozzle; COAT changes colour in place rather than spreading; the film's orb look (museum barrel, dark
+dome) is not applied here yet.

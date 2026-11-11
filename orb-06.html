@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Field Orb 06</title>
+<meta name="description" content="Field Orb 06: five rings and a thumb that make a birthday cake for one person, in the order a baker does. Every detent sets down one thing.">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #040504; --ink: #e9e4d8; --dim: #8a877e; --amb: #f0b040; --line: #2a2a26; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 12px/1.35 "IBM Plex Mono", ui-monospace, monospace; overflow: hidden; user-select: none; -webkit-user-select: none; }
+  .app { height: 100dvh; display: grid; grid-template-rows: minmax(0, 1fr) auto; }
+  #stage { position: relative; overflow: hidden; touch-action: none; background: radial-gradient(90% 70% at 50% 62%, #14120e 0%, #070706 60%, #020202 100%); }
+  #gl { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; }
+  #cap { position: absolute; left: 14px; top: 12px; right: 14px; pointer-events: none; }
+  #cap b { font-size: 15px; font-weight: 600; } #cap span { color: var(--dim); display: block; margin-top: 2px; min-height: 16px; } #cap span em { color: var(--amb); font-style: normal; }
+  #dev { border-top: 1px solid var(--line); background: linear-gradient(#0b0c0a, #050605); padding: 10px 10px 12px; }
+  #barrel { display: grid; grid-template-columns: 46px repeat(5, minmax(0, 1fr)) 64px; gap: 3px; align-items: stretch; max-width: 900px; margin: 0 auto; height: 108px; }
+  .cap { border-radius: 16px 5px 5px 16px; background: linear-gradient(180deg, #8d887e, #d9d4ca 30%, #8d887e 70%, #4a4741); display: flex; align-items: center; justify-content: center; font-size: 8px; letter-spacing: .1em; color: #2b2925; font-weight: 600; writing-mode: vertical-rl; }
+  .ring { position: relative; border-radius: 7px; overflow: hidden; cursor: ew-resize; touch-action: none; background: linear-gradient(180deg, #2c2b27, #8e897f 18%, #d6d1c6 44%, #e8e3d8 52%, #9a958a 80%, #33322d); box-shadow: inset 0 0 0 1px rgba(0,0,0,.5); }
+  .ring i { position: absolute; inset: 0; opacity: .45; background: repeating-linear-gradient(90deg, rgba(0,0,0,.6) 0 1px, transparent 1px 6px); }
+  .ring b { position: absolute; left: 0; right: 0; top: 8px; text-align: center; font-size: 9px; letter-spacing: .12em; color: #2b2925; }
+  .ring span { position: absolute; left: 0; right: 0; top: 40px; text-align: center; font-weight: 600; font-size: 14px; color: #151412; white-space: nowrap; }
+  .ring u { position: absolute; left: 8px; right: 8px; bottom: 9px; height: 5px; display: flex; gap: 1px; text-decoration: none; }
+  .ring u s { flex: 1; background: rgba(0,0,0,.22); border-radius: 1px; } .ring u s.on { background: #1b1a17; } .ring u s.want { background: var(--amb); }
+  .ring.live { box-shadow: inset 0 0 0 2px var(--amb); } .ring.lock { filter: brightness(.55) saturate(.6); }
+  #thumb { border: 0; border-radius: 5px 30px 30px 5px; background: radial-gradient(circle at 42% 45%, #f6d48a, #c7832a 60%, #6e4310); box-shadow: 0 2px 0 #2b1a06, inset 0 -2px 3px rgba(0,0,0,.35); font: inherit; font-size: 9px; font-weight: 600; letter-spacing: .1em; color: #2b1a06; cursor: pointer; }
+  #thumb.down { transform: translateY(2px); } #thumb.lock { filter: grayscale(1) brightness(.6); }
+  #row { display: flex; gap: 6px; max-width: 900px; margin: 8px auto 0; }
+  input { flex: 1; min-width: 0; font: inherit; font-size: 13px; color: var(--ink); background: #11120f; border: 1px solid var(--line); border-radius: 3px; padding: 6px 9px; user-select: text; -webkit-user-select: text; }
+  button.t, a.t { font: inherit; font-size: 11px; letter-spacing: .06em; color: var(--ink); background: #11120f; border: 1px solid var(--line); border-radius: 3px; padding: 6px 9px; cursor: pointer; text-decoration: none; white-space: nowrap; }
+  body.film #row { display: none; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div id="stage"><canvas id="gl"></canvas><div id="cap"><b id="t1"></b><span id="t2"></span></div></div>
+  <div id="dev">
+    <div id="barrel">
+      <div class="cap">ORB 06</div>
+      <div class="ring" data-k="who"><i></i><b>WHO</b><span></span><u></u></div>
+      <div class="ring" data-k="shape"><i></i><b>SHAPE</b><span></span><u></u></div>
+      <div class="ring" data-k="coat"><i></i><b>COAT</b><span></span><u></u></div>
+      <div class="ring" data-k="dress"><i></i><b>DRESS</b><span></span><u></u></div>
+      <div class="ring" data-k="finish"><i></i><b>WRITE · CANDLES</b><span></span><u></u></div>
+      <button id="thumb">LIGHT</button>
+    </div>
+    <div id="row"><input id="name" placeholder="name" maxlength="14"><button class="t" id="perform">PERFORM</button><button class="t" id="clear">CLEAR</button><a class="t" href="cake-for.html">FINISHED CAKES</a><a class="t" href="index.html">INDEX</a></div>
+  </div>
+</div>
+<script src="assets/three.min.js"></script>
+<script src="assets/eye/cakemodel.js"></script>
+<script src="assets/eye/cakefor.js"></script>
+<script>
+/* FIELD ORB 06. One grammar for every cake, in a baker's order:
+   WHO (age) -> SHAPE (set down sponge pieces) -> COAT (ice them) -> DRESS (sweets, eyes, spikes, kisses)
+   -> WRITE the name, stand the CANDLES (one a year) -> thumb: LIGHT, then BLOW.
+   A hand turn sets where a ring should be; the machine then steps to it at 11.8 detents a second, and every step
+   sets down or takes away exactly one thing. A ring is stiff until the stage before it is finished. Turning a ring
+   back takes the work off again. */
+(function () {
+'use strict';
+const Q = new URLSearchParams(location.search), $ = id => document.getElementById(id), D2R = Math.PI / 180, RATE = 11.8;
+if (Q.has('film')) document.body.classList.add('film');
+const S = { age: +(Q.get('age') || 5), name: Q.get('name') == null ? 'Noor' : Q.get('name'), yaw: +(Q.get('yaw') || 24), elev: 30, zoom: 1, lit: 0, design: Q.get('design') || '' };
+const R = new THREE.WebGLRenderer({ canvas: $('gl'), antialias: true, preserveDrawingBuffer: true });
+R.setPixelRatio(Math.min(2, devicePixelRatio || 1)); R.outputEncoding = THREE.sRGBEncoding; R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.1; R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFSoftShadowMap; R.localClippingEnabled = true; R.setClearColor(0, 0);
+const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(26, 1, 1, 2000);
+const hemi = new THREE.HemisphereLight(0xfff0d8, 0x20180c, .55); scene.add(hemi);
+const key = new THREE.DirectionalLight(0xfff2e0, .95); key.position.set(-40, 70, 50); key.castShadow = true; key.shadow.mapSize.set(2048, 2048); const sc = key.shadow.camera; sc.left = sc.bottom = -45; sc.right = sc.top = 45; sc.far = 220; key.shadow.bias = -.001; key.shadow.radius = 4; scene.add(key);
+const rim = new THREE.DirectionalLight(0x9fb8d8, .4); rim.position.set(40, 30, -50); scene.add(rim);
+const table = new THREE.Mesh(new THREE.CircleGeometry(160, 64), new THREE.MeshStandardMaterial({ color: new THREE.Color('#3a2a1c').convertSRGBToLinear(), roughness: .7 })); table.rotation.x = -Math.PI / 2; table.position.y = -.62; table.receiveShadow = true; scene.add(table);
+/* the piping nozzle: seen only while the name is being written */
+const nozzle = new THREE.Group(); { const m = new THREE.MeshStandardMaterial({ color: 0xcfd3d6, metalness: .9, roughness: .25 }); const tip = new THREE.Mesh(new THREE.ConeGeometry(.7, 2.4, 14), m); tip.rotation.x = Math.PI; tip.position.y = 1.2; const bag = new THREE.Mesh(new THREE.ConeGeometry(2.2, 7, 14), new THREE.MeshStandardMaterial({ color: 0xf2efe6, roughness: .8, transparent: true, opacity: .9 })); bag.rotation.x = Math.PI; bag.position.y = 5.6; nozzle.add(tip, bag); nozzle.rotation.z = -.35; nozzle.visible = false; scene.add(nozzle); }
+const SPONGE = new THREE.Color('#e2c08a').convertSRGBToLinear();
+let cake = null, P = null, box = new THREE.Box3(), dirty = true;
+const ring = { who: { v: 5, to: 5, n: 100 }, shape: { v: 0, to: 0, n: 1 }, coat: { v: 0, to: 0, n: 12 }, dress: { v: 0, to: 0, n: 1 }, finish: { v: 0, to: 0, n: 1 } }, ORDER = ['shape', 'coat', 'dress', 'finish'];
+const pops = [];
+
+function plan() {                         // build the finished cake once, then take it apart into the five stages
+  if (cake) scene.remove(cake);
+  cake = CAKEFOR.make({ age: S.age, name: S.name, design: S.design }); scene.add(cake); cake.updateMatrixWorld(true); box.setFromObject(cake);
+  P = { body: [], dress: [], write: [], candles: [], light: null, design: cake.userData.design, why: cake.userData.why };
+  const bb = new THREE.Box3(), v = new THREE.Vector3();
+  cake.children.slice().forEach(o => {
+    const k = o.userData.kind; o.userData.s0 = o.scale.clone();
+    if (k === 'board') return; if (k === 'light') { P.light = o; o.userData.i0 = o.intensity; return; } if (k === 'candle') { P.candles.push(o); return; }
+    if (k === 'write') { bb.setFromObject(o); o.material = o.material.clone(); o.userData.plane = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0); o.material.clippingPlanes = [o.userData.plane]; o.userData.x0 = bb.min.x; o.userData.x1 = bb.max.x; o.userData.zc = (bb.min.z + bb.max.z) / 2; o.userData.y1 = bb.max.y; P.write.push(o); return; }
+    if (o.isInstancedMesh) { o.userData.count = o.count; const steps = Math.min(6, o.count); for (let i = 1; i <= steps; i++) P.dress.push({ o, upTo: Math.ceil(o.count * i / steps) }); return; }
+    if (!o.isMesh) return; bb.setFromObject(o); bb.getSize(v);
+    if (k !== 'dress' && v.length() >= 5.2) { o.material = o.material.clone(); o.userData.c1 = o.material.color.clone(); o.userData.r1 = o.material.roughness; o.userData.cc = o.material.clearcoat || 0; P.body.push(o); } else P.dress.push({ o });
+  });
+  /* a ring has at most 24 detents: group the work evenly over them */
+  P.dn = Math.min(24, P.dress.length); ring.shape.n = P.body.length; ring.dress.n = Math.max(1, P.dn); P.wn = P.write.length ? 10 : 0; ring.finish.n = P.wn + P.candles.length;
+  ORDER.forEach(k => { ring[k].v = ring[k].to = Math.min(ring[k].to, 0); }); S.lit = 0; show(true); label();
+}
+const done = k => ring[k].v >= ring[k].n, open = k => { const i = ORDER.indexOf(k); return i <= 0 || ORDER.slice(0, i).every(done); };
+const eff = k => open(k) ? ring[k].v : 0;        // what a stage shows: nothing until the stages before it are whole
+function pop(o) { pops.push({ o, t: 0 }); }
+function vis(o, on, quiet) { if (o.visible !== on) { o.visible = on; if (on && !quiet) pop(o); } }
+function show(quiet) {
+  const sh = eff('shape'), co = eff('coat') / ring.coat.n * P.body.length, dr = eff('dress') / ring.dress.n * P.dress.length, fi = eff('finish');
+  P.body.forEach((o, i) => { vis(o, i < sh, quiet); const u = Math.min(1, Math.max(0, co - i)); o.material.color.copy(SPONGE).lerp(o.userData.c1, u); o.material.roughness = .95 + (o.userData.r1 - .95) * u; o.material.clearcoat = o.userData.cc * u; });
+  const inst = new Map(); P.dress.forEach((d, i) => { const on = i < Math.round(dr); if (d.upTo) { if (on) inst.set(d.o, d.upTo); else if (!inst.has(d.o)) inst.set(d.o, 0); } else vis(d.o, on, quiet); });
+  inst.forEach((n, o) => { o.visible = n > 0; if (o.count !== n) { o.count = n; if (n && !quiet) pop(o); } });
+  const wf = P.wn ? Math.min(1, fi / P.wn) : 1; nozzle.visible = false;
+  P.write.forEach((o, i) => { const f = Math.min(1, Math.max(0, wf * P.write.length - i)), x = o.userData.x0 + (o.userData.x1 - o.userData.x0) * f; o.visible = f > 0; o.userData.plane.constant = x; if (f > 0 && f < 1) { nozzle.visible = true; nozzle.position.set(x + .9, o.userData.y1 + .3, o.userData.zc); } });
+  P.candles.forEach((c, i) => { vis(c, i < fi - P.wn, quiet); c.traverse(m => { if (m.isMesh && m.material.type === 'MeshBasicMaterial') m.visible = S.lit === 1; }); });
+  if (P.light) { P.light.visible = S.lit === 1 && fi >= ring.finish.n; }
+  hemi.intensity = S.lit === 1 ? .28 : S.lit === 2 ? .2 : .55; key.intensity = S.lit === 1 ? .35 : S.lit === 2 ? .3 : .95;
+  dirty = true;
+}
+const NAMES = { shape: 'a piece of sponge set down', coat: 'icing drawn over the sponge', dress: 'a detail put on', finish: '' };
+function label(msg) {
+  document.querySelectorAll('.ring').forEach(el => { const k = el.dataset.k, r = ring[k], sp = el.querySelector('span'), u = el.querySelector('u');
+    if (k === 'who') { sp.textContent = S.age; u.innerHTML = ''; el.classList.toggle('live', r.v !== r.to); return; }
+    const lock = !open(k); el.classList.toggle('lock', lock); el.classList.toggle('live', !lock && !done(k) && ORDER.find(q => open(q) && !done(q)) === k);
+    sp.textContent = k === 'finish' ? (r.v <= P.wn ? (P.wn ? Math.round(Math.min(1, r.v / P.wn) * 100) + '%' : '') + (r.v >= P.wn ? ' · 0' : '') : (r.v - P.wn) + ' / ' + P.candles.length) : r.v + ' / ' + r.n;
+    let h = ''; for (let i = 0; i < r.n; i++) h += '<s class="' + (i < r.v ? 'on' : i < r.to ? 'want' : '') + '"></s>'; u.innerHTML = h; });
+  const th = $('thumb'), ready = ORDER.every(done); th.classList.toggle('lock', !ready); th.textContent = S.lit === 1 ? 'BLOW' : S.lit === 2 ? 'RELIGHT' : 'LIGHT';
+  $('t1').textContent = 'A cake for ' + (S.name || 'someone') + ', turning ' + S.age;
+  const nxt = ORDER.find(q => !done(q));
+  $('t2').innerHTML = msg || ('<em>' + P.design.toUpperCase() + '</em> ' + P.why + '. ' + (nxt ? 'Turn <em>' + (nxt === 'finish' ? (ring.finish.v < P.wn ? 'WRITE' : 'CANDLES') : nxt.toUpperCase()) + '</em>.' : S.lit === 1 ? 'Lit. Press the thumb to blow.' : S.lit === 2 ? 'Blown out.' : 'Press the thumb to light the candles.'));
+}
+/* detent: a 4 ms band-passed noise grain, never a tone */
+let AC = null, lastClick = 0;
+function click(f, g) { const now = performance.now(); if (now - lastClick < 55) return; lastClick = now; try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const n = Math.floor(AC.sampleRate * .004), b = AC.createBuffer(1, n, AC.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n); const s = AC.createBufferSource(); s.buffer = b; const bp = AC.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = 2.5; const ga = AC.createGain(); ga.gain.value = g || .25; s.connect(bp); bp.connect(ga); ga.connect(AC.destination); s.start(); } catch (e) {} }
+const TONE = { who: 1300, shape: 1500, coat: 1900, dress: 2300, finish: 2700 };
+function turn(k, s) {                     // the hand: moves where the ring should be
+  const r = ring[k];
+  if (k === 'who') { r.to = Math.min(100, Math.max(1, r.to + s)); click(1100, .12); label(); return; }
+  if (!open(k)) { click(500, .18); label('<em>' + k.toUpperCase() + '</em> is stiff: finish <em>' + ORDER.find(q => !done(q)).toUpperCase() + '</em> first.'); return; }
+  r.to = Math.min(r.n, Math.max(0, r.to + s)); click(1100, .12); label();
+}
+let acc = 0;
+function machine(dt) {                    // the machine: one detent at a time toward where the hand left the ring
+  acc += dt; if (acc < 1 / RATE) return; acc = 0;
+  const w = ring.who; if (w.v !== w.to) { w.v += Math.sign(w.to - w.v); S.age = w.v; S.design = ''; click(TONE.who); ORDER.forEach(k => ring[k].to = 0); plan(); return; }
+  for (const k of ORDER) { const r = ring[k]; if (r.v !== r.to && (open(k) || r.to < r.v)) { r.v += Math.sign(r.to - r.v); if (S.lit && !ORDER.every(done)) S.lit = 0; click(TONE[k]); show(); label(); return; } }
+}
+document.querySelectorAll('.ring').forEach(el => { const k = el.dataset.k, px = k === 'who' ? 12 : 16; let d = null;
+  el.addEventListener('pointerdown', e => { el.setPointerCapture(e.pointerId); d = { x: e.clientX, acc: 0 }; });
+  el.addEventListener('pointermove', e => { if (!d) return; d.acc += e.clientX - d.x; d.x = e.clientX; while (Math.abs(d.acc) >= px) { const s = Math.sign(d.acc); d.acc -= s * px; turn(k, s); } el.firstElementChild.style.backgroundPositionX = (e.clientX % 6) + 'px'; });
+  const up = () => d = null; el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up); el.addEventListener('wheel', e => { e.preventDefault(); turn(k, e.deltaY > 0 ? 1 : -1); }, { passive: false }); });
+function thumb() { if (!ORDER.every(done)) { click(500, .18); label('The thumb waits for the candles.'); return; } S.lit = S.lit === 1 ? 2 : 1; click(S.lit === 1 ? 3100 : 800, .3); show(); label(); }
+$('thumb').addEventListener('pointerdown', () => { $('thumb').classList.add('down'); thumb(); }); addEventListener('pointerup', () => $('thumb').classList.remove('down'));
+$('name').value = S.name; $('name').oninput = e => { S.name = e.target.value; plan(); };
+$('clear').onclick = () => { ORDER.forEach(k => ring[k].to = 0); label(); };
+/* PERFORM: a score played through the same rings a hand would turn */
+let score = null;
+function perform() { const t = []; let at = .6; ORDER.forEach(k => { const n = ring[k].n; for (let i = 1; i <= n; i += 3) { t.push({ at, f: () => turn(k, Math.min(3, n - ring[k].to)) }); at += 3 / RATE; } at += .9; }); t.push({ at: at + .3, f: thumb }); t.push({ at: at + 4.3, f: thumb }); ORDER.forEach(k => { ring[k].to = 0; ring[k].v = 0; }); S.lit = 0; show(true); label(); score = { t, c: 0, i: 0 }; }
+$('perform').onclick = perform;
+let drag = null; $('gl').addEventListener('pointerdown', e => { $('gl').setPointerCapture(e.pointerId); drag = { x: e.clientX, y: e.clientY, yaw: S.yaw, elev: S.elev }; }); $('gl').addEventListener('pointermove', e => { if (!drag) return; S.yaw = drag.yaw - (e.clientX - drag.x) * .4; S.elev = Math.min(85, Math.max(4, drag.elev + (e.clientY - drag.y) * .3)); dirty = true; }); $('gl').addEventListener('pointerup', () => drag = null);
+$('gl').addEventListener('wheel', e => { e.preventDefault(); S.zoom = Math.min(3, Math.max(.5, S.zoom * Math.exp(-e.deltaY * .001))); dirty = true; }, { passive: false });
+function draw() {
+  const st = $('stage'), w = st.clientWidth, h = st.clientHeight; if ($('gl').clientWidth !== w || $('gl').clientHeight !== h || !draw.ok) { R.setSize(w, h, false); cam.aspect = w / h; draw.ok = 1; }
+  const c = box.getCenter(new THREE.Vector3()), sz = box.getSize(new THREE.Vector3()), rad = Math.max(sz.x, sz.z, sz.y * 1.3) * .62 + 4, dist = rad / Math.tan(cam.fov * D2R / 2) / Math.min(1, cam.aspect) / S.zoom, e = S.elev * D2R, y = S.yaw * D2R;
+  cam.position.set(c.x + Math.sin(y) * Math.cos(e) * dist, c.y * .8 + Math.sin(e) * dist, c.z + Math.cos(y) * Math.cos(e) * dist); cam.lookAt(c.x, c.y * .8, c.z); cam.updateProjectionMatrix(); R.render(scene, cam); dirty = false;
+}
+let last = performance.now();
+(function tick(now) { const dt = Math.min(.05, ((now || last) - last) / 1000); last = now || last;
+  if (score) { score.c += dt; while (score.i < score.t.length && score.t[score.i].at <= score.c) score.t[score.i++].f(); if (score.i >= score.t.length) score = null; S.yaw += dt * 5; dirty = true; }
+  machine(dt);
+  for (let i = pops.length - 1; i >= 0; i--) { const p = pops[i]; p.t += dt / .22; const u = Math.min(1, p.t), k = 1 + .28 * Math.sin(u * Math.PI) * (1 - u) + (u - 1) * (1 - u) * 0, s = u < 1 ? (.2 + .8 * u) * k : 1; p.o.scale.copy(p.o.userData.s0).multiplyScalar(s); if (u >= 1) pops.splice(i, 1); dirty = true; }
+  if (dirty) draw(); requestAnimationFrame(tick); })();
+addEventListener('resize', () => dirty = true);
+ring.who.v = ring.who.to = S.age; plan();
+window.ORB = { S, ring, perform, turn, thumb, ready: true, state: () => ({ design: P.design, n: ORDER.map(k => ring[k].n), v: ORDER.map(k => ring[k].v), lit: S.lit, playing: !!score }) };
+if (Q.has('perform')) setTimeout(perform, 400);
+})();
+</script>
+</body>
+</html>
