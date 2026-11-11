@@ -102,3 +102,18 @@ About 18 s per clip on 4 CPU cores for the lift, 3 minutes for scoring. `viz.py`
   request with "Exhausted balance". The test that would settle the video claim is gate F in
   [`scion-generations.md`](scion-generations.md). Until it is run the claim is a hypothesis.
 - **New swarms.** The compiled instruction defines the split (lifter, eye-maker, plate-maker, two critics). None was launched in this pass.
+
+## A cake for someone (`cake-for.html`, `assets/eye/cakefor.js`)
+
+The 77 archive cakes are bakery cakes with nobody in them. A real birthday cake starts from who it is for, so this
+page starts there: age, name, message. Age picks the design (1 smash cake, 2 caterpillar, 3 ladybird, 4 train,
+5 dinosaur, 6 castle, 7 rocket, 8 hedgehog, 9 to 12 and round birthdays the age as a number cake, otherwise a tall
+drip cake); the design ring overrides it. One candle a year up to twelve, number candles after. The name is piped
+as raised geometry from whatever is typed, in any script the browser has a font for.
+
+Every design is built from the parts a home baker uses: sponge shapes, buttercream, fondant, sweets, biscuits,
+ice-cream cones. They are original generic designs, not characters.
+
+Not yet: these cakes are not in the Eye's iris and have no gate of their own (nothing in the archive to judge them
+against); the designs are ten fixed sculptures, not a kit a child's request could recombine; faces are two eyes
+and a nose; looked at only as rendered stills at twelve ages.

@@ -183,5 +183,5 @@ function build(inp) {
   G.userData = { lights, flames, R, hmax: hmax + y0, parts: G.children.length, candles: list.length, tiers: M.edges.length + 1 };
   return G;
 }
-window.CAKEMODEL = { build, readProfile };
+window.CAKEMODEL = { build, readProfile, mat, lin, shellGeo, rosetteGeo, dripGeo, ringInstances, candle, flameGeo };
 })();
