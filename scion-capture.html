@@ -26,8 +26,23 @@
     color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
     line-height: 1.4;
-    padding: 13px 16px 30px;
+    padding: 12px 16px 28px;
     min-height: 100vh;
+  }
+  a { color: var(--cyan); text-decoration: underline; }
+  .file-proto-bar {
+    background: rgba(245, 212, 105, 0.13);
+    border: 1px solid rgba(245, 212, 105, 0.45);
+    color: var(--gold);
+    padding: 8px 13px;
+    border-radius: 9px;
+    font-size: 0.8rem;
+    margin-bottom: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
   }
   .topbar {
     display: flex;
@@ -35,14 +50,14 @@
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    padding-bottom: 11px;
+    padding-bottom: 10px;
     border-bottom: 1px solid var(--border);
-    margin-bottom: 11px;
+    margin-bottom: 10px;
   }
   .brand { display: flex; flex-direction: column; gap: 3px; }
   .brand-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .brand h1 { font-size: 1.16rem; font-weight: 700; letter-spacing: -0.02em; }
-  .subline { font-size: 0.77rem; color: var(--muted); }
+  .brand h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.02em; }
+  .subline { font-size: 0.76rem; color: var(--muted); }
   .badge {
     font-size: 0.67rem;
     font-weight: 700;
@@ -65,6 +80,11 @@
     color: var(--gold);
     border-color: rgba(245, 212, 105, 0.4);
   }
+  .badge.err {
+    background: rgba(255, 92, 108, 0.16);
+    color: var(--danger);
+    border-color: rgba(255, 92, 108, 0.45);
+  }
   .controls-bar {
     display: flex;
     flex-wrap: wrap;
@@ -74,32 +94,32 @@
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 9px 11px;
-    margin-bottom: 12px;
+    margin-bottom: 11px;
   }
   .ctrl-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  .ctrl-sep { width: 1px; height: 22px; background: var(--border); margin: 0 3px; }
+  .ctrl-sep { width: 1px; height: 22px; background: var(--border); margin: 0 2px; }
   button, select {
     background: var(--panel-alt);
     color: var(--text);
     border: 1px solid var(--border);
     border-radius: 7px;
-    padding: 6px 11px;
-    font-size: 0.78rem;
+    padding: 6px 10px;
+    font-size: 0.77rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.13s ease;
     font-family: inherit;
   }
-  select { max-width: 215px; }
+  select { max-width: 200px; }
   button:hover, select:hover { border-color: var(--cyan); }
   button:disabled { opacity: 0.45; cursor: not-allowed; }
   button.hero-cam {
     background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);
     color: #031018;
     border: 1px solid rgba(66, 232, 155, 0.78);
-    font-size: 0.84rem;
+    font-size: 0.83rem;
     font-weight: 800;
-    padding: 8px 15px;
+    padding: 7px 14px;
     box-shadow: 0 0 18px rgba(56, 226, 255, 0.28);
     letter-spacing: 0.02em;
   }
@@ -125,16 +145,14 @@
     border-color: var(--coral);
     color: var(--coral);
   }
-  button.online-ready {
-    border-color: rgba(66, 232, 155, 0.55);
-  }
+  button.online-ready { border-color: rgba(66, 232, 155, 0.55); }
   .toggle-pill {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    padding: 5px 10px;
+    padding: 5px 9px;
     border-radius: 999px;
-    font-size: 0.74rem;
+    font-size: 0.73rem;
     font-weight: 600;
     background: var(--panel-alt);
     border: 1px solid var(--border);
@@ -163,7 +181,7 @@
     overflow: hidden;
   }
   .card-hdr {
-    padding: 9px 13px;
+    padding: 8px 12px;
     background: var(--panel-alt);
     border-bottom: 1px solid var(--border);
     display: flex;
@@ -205,8 +223,17 @@
     padding: 22px;
   }
   .stage-empty.hidden { display: none; }
-  .stage-empty h2 { font-size: 1.14rem; color: var(--text); }
-  .stage-empty p { max-width: 540px; font-size: 0.82rem; color: var(--muted); }
+  .stage-empty h2 { font-size: 1.12rem; color: var(--text); }
+  .stage-empty p { max-width: 540px; font-size: 0.81rem; color: var(--muted); }
+  .progress-pill {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--cyan);
+    background: rgba(56, 226, 255, 0.12);
+    border: 1px solid rgba(56, 226, 255, 0.35);
+    padding: 5px 12px;
+    border-radius: 999px;
+  }
   .layer-bar {
     padding: 8px 12px;
     border-top: 1px solid var(--border);
@@ -239,7 +266,7 @@
   .rig-wrap {
     position: relative;
     width: 100%;
-    height: 288px;
+    height: 286px;
     background: radial-gradient(circle at 50% 35%, #151e30 0%, #090d16 100%);
     cursor: grab;
     touch-action: none;
@@ -277,7 +304,7 @@
     color: var(--muted);
   }
   .mcell .v {
-    font-size: 0.93rem;
+    font-size: 0.92rem;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
     margin-top: 2px;
@@ -293,7 +320,7 @@
     justify-content: space-between;
     align-items: center;
   }
-  .ov-list { display: flex; flex-direction: column; gap: 6px; max-height: 225px; overflow-y: auto; }
+  .ov-list { display: flex; flex-direction: column; gap: 6px; max-height: 222px; overflow-y: auto; }
   .ov-item {
     background: var(--panel-alt);
     border: 1px solid var(--border);
@@ -312,42 +339,54 @@
     line-height: 1.35;
   }
   .orb-slider-row { display: flex; align-items: center; gap: 7px; font-size: 0.72rem; color: var(--muted); }
-  .orb-slider-row input[type="range"] { width: 88px; accent-color: var(--cyan); }
+  .orb-slider-row input[type="range"] { width: 84px; accent-color: var(--cyan); }
   .toast-msg {
     font-size: 0.75rem;
     color: var(--gold);
     padding: 4px 10px;
     border-radius: 6px;
     background: rgba(245, 212, 105, 0.1);
-    border: 1px solid rgba(245, 212, 105, 0.32);
+    border: 1px solid rgba(245, 212, 105, 0.34);
   }
   .hidden { display: none !important; }
 </style>
 </head>
 <body>
 
+<div id="fileProtoBanner" class="file-proto-bar hidden">
+  <span>
+    <strong>Opened directly via <code>file://</code>:</strong> Synthetic 4D Performer is running live!
+    Browsers restrict webcam &amp; WASM CORS on <code>file://</code> — open via GitHub Pages (<code>https://</code>)
+    or local HTTP <a id="localServerLink" href="#">127.0.0.1:8790</a> (<code>python3 -m http.server 8080</code>) for live webcam.
+  </span>
+</div>
+
 <header class="topbar">
   <div class="brand">
     <div class="brand-row">
       <h1>SCION Live Human Camera Studio</h1>
-      <span id="streamBadge" class="badge">READY — CLICK START LIVE CAMERA</span>
-      <span id="serverBadge" class="badge ok">100% BROWSER STANDALONE</span>
+      <span id="streamBadge" class="badge">STARTING CAMERA...</span>
+      <span id="serverBadge" class="badge ok">PURE-BROWSER 256×256 ROI ENGINE</span>
       <span id="abBadge" class="badge ok">SCION ATOMIC REDUCER</span>
     </div>
     <div class="subline">
-      Zero-Server Single-File 4D Capture · 23 Body + 2×21 Hands + iBUG-68 Face + 16-Class Clothed Part Mask + Depth-Sandwich 3D Stelline Orb
+      Full-Sensor 256×256 Adaptive Palm/Face Zoom Crops · 6-Class SelfieMulticlass → 16-Class Clothed Part Mask · K=4 Crossed-Wrist Depth · 3D Stelline Orb
     </div>
   </div>
   <div class="ctrl-group">
+    <select id="poseModelSelect" title="Switch Pose Backbone precision vs speed">
+      <option value="full" selected>Pose: Full (Fast 30fps)</option>
+      <option value="heavy">Pose: Heavy (Max 3D)</option>
+    </select>
     <button id="btnResetEpoch" title="Increment track_epoch and re-lock neutral S_torso scale">↻ Reset Epoch</button>
-    <button id="btnExportJson" title="Download current committed AtomicBodySnapshot as JSON">⬇ Export Snapshot JSON</button>
+    <button id="btnExportJson" title="Download current committed AtomicBodySnapshot as JSON">⬇ Export JSON</button>
   </div>
 </header>
 
 <section class="controls-bar">
   <div class="ctrl-group">
     <button id="btnStartCamera" class="hero-cam">▶ START LIVE CAMERA</button>
-    <button id="btnFlipFacing" title="Flip between Front (Selfie) and Rear (Environment) camera on phones/tablets">🔄 Front / Rear</button>
+    <button id="btnFlipFacing" title="Flip Front (Selfie) / Rear (Environment) camera on phones & tablets">🔄 Front / Rear</button>
     <select id="cameraSelect" title="Physical Webcam Selector (virtual OBS/Camo/NDI cameras auto-skipped)">
       <option value="">Auto Physical Camera (1280×720)</option>
     </select>
@@ -359,14 +398,14 @@
 
   <div class="ctrl-sep"></div>
 
-  <div class="ctrl-group" title="Default is 100% Pure-Browser WebAssembly/WebGL; M3 Max Python (:8787) unlocks automatically on localhost">
-    <button id="btnModeBrowser" class="active">Mode A: Browser Standalone</button>
-    <button id="btnModeNative" class="hidden" title="Native Apple M3 Max Python ScionRuntimeScheduler on 127.0.0.1:8787">Mode B: M3 Max Python (:8787)</button>
+  <div class="ctrl-group">
+    <button id="btnModeBrowser" class="active">Mode A: Browser ROI Engine</button>
+    <button id="btnModeNative" class="hidden" title="Native Apple M3 Max Python ScionRuntimeScheduler">Mode B: M3 Max (:8790)</button>
   </div>
 
   <div class="ctrl-sep"></div>
 
-  <div class="ctrl-group" title="Compare SCION Atomic Reducer vs Stock MediaPipe Raw live on your own body">
+  <div class="ctrl-group" title="Compare SCION Full-Sensor 256px ROI + Chirality Lock vs Uncropped Stock MediaPipe">
     <button id="btnAbScion" class="active-emerald">SCION Atomic</button>
     <button id="btnAbSplit">⚡ Split A/B</button>
     <button id="btnAbRaw">Stock MP Raw</button>
@@ -375,9 +414,9 @@
   <div class="ctrl-sep"></div>
 
   <div class="ctrl-group">
-    <button id="btnSynthPerformer" title="Works anywhere with zero webcam and zero server: procedural 720p human crossing wrists & occluding the 3D Stelline Orb">🧪 Synthetic Performer</button>
-    <button id="btnDemoServerClip" class="hidden" title="Stream 720p Representative Trial clip from local :8787 server">🎬 Test Clip (/demo_video)</button>
-    <button id="btnLocalFile" title="Open any local MP4/WebM video file">📂 Load MP4</button>
+    <button id="btnSynthPerformer" title="Works offline without webcam: procedural 720p performer crossing wrists & occluding the 3D Stelline Orb">🧪 Synthetic Performer</button>
+    <button id="btnDemoServerClip" class="hidden" title="Stream 720p Representative Trial clip from local :8787 server">🎬 Test Clip</button>
+    <button id="btnLocalFile" title="Open any local MP4/WebM video file">📂 MP4</button>
     <input type="file" id="fileInput" accept="video/*" class="hidden" />
   </div>
 
@@ -389,21 +428,21 @@
   <section class="card">
     <div class="card-hdr">
       <span>Live Sensor &amp; Opportunity Wedge Stage (<span id="resLabel">1280×720</span>)</span>
-      <span class="hint" id="hoverProbeLabel">Hover canvas to inspect pixel PartId &amp; pelvis-relative Z</span>
+      <span class="hint" id="hoverProbeLabel">Hover canvas to inspect pixel PartId, Multiclass &amp; Z</span>
     </div>
 
     <div class="stage-wrap" id="stageWrap">
       <canvas id="liveCanvas" width="1280" height="720"></canvas>
       <div id="stageEmpty" class="stage-empty">
-        <h2>Live Real Human Camera 4D Capture (100% Single-File HTML)</h2>
-        <p>
-          Click <strong>▶ START LIVE CAMERA</strong> to open your laptop or phone camera at <code>1280×720</code>
-          (works directly over GitHub Pages or localhost with zero Python server!). Cross your wrists, cover your face,
-          drag the <strong>⚡ Split A/B</strong> divider, and pass your forearm in front of the orbiting <strong>3D Stelline Orb</strong>.
+        <h2 id="stageHeadline">Allow Camera Access or Tap Below to Start Live 4D Capture</h2>
+        <p id="stageSubtext">
+          Runs 100% in your browser over GitHub Pages or localhost: <code>512×288</code> fast body pass +
+          full-sensor <code>256×256</code> adaptive palm/face zoom crops + <code>SelfieMulticlass</code> 16-part clothed mask at ~30 FPS!
         </p>
+        <div id="initProgressPill" class="progress-pill hidden">Initializing models...</div>
         <div class="ctrl-group" style="justify-content:center; margin-top:4px;">
           <button id="btnHeroInline" class="hero-cam">▶ START LIVE CAMERA NOW</button>
-          <button id="btnSynthInline">🧪 Or Run Synthetic Performer (No Camera)</button>
+          <button id="btnSynthInline">🧪 Run Synthetic Performer (No Camera)</button>
         </div>
       </div>
     </div>
@@ -411,13 +450,14 @@
     <div class="layer-bar">
       <div class="ctrl-group">
         <label class="toggle-pill on"><input type="checkbox" id="chkSkeleton" checked /> 23 Body + 42 Finger + 68 Face</label>
-        <label class="toggle-pill on"><input type="checkbox" id="chkPartMask" checked /> 16-Class Part Mask</label>
+        <label class="toggle-pill on"><input type="checkbox" id="chkRoiBoxes" checked /> 256px ROI Zoom Boxes</label>
+        <label class="toggle-pill on"><input type="checkbox" id="chkPartMask" checked /> 16-Class Clothed Mask</label>
         <label class="toggle-pill on"><input type="checkbox" id="chkUnknown" checked /> Contested Boundaries</label>
         <label class="toggle-pill on"><input type="checkbox" id="chkOrb" checked /> Live 3D Stelline Orb</label>
       </div>
       <div class="orb-slider-row">
-        <span>Orb Z Bias:</span>
-        <input type="range" id="rngOrbZ" min="-0.45" max="0.15" step="0.01" value="-0.14" title="Adjust virtual orb depth offset inside [z_front_arm, z_torso] sandwich" />
+        <span>Orb Z:</span>
+        <input type="range" id="rngOrbZ" min="-0.45" max="0.15" step="0.01" value="-0.14" />
         <span id="orbZVal">-0.14</span>
       </div>
     </div>
@@ -425,8 +465,8 @@
     <div class="legend-row">
       <span><i class="dot" style="background:#38e2ff"></i>Performer Left (<code>L</code>)</span>
       <span><i class="dot" style="background:#ff8a54"></i>Performer Right (<code>R</code>)</span>
-      <span><i class="dot" style="background:#f5d469"></i>Axial Midline</span>
-      <span><i class="dot" style="background:#ffb84d"></i>Temporal Carry (≤100ms / ≤50ms)</span>
+      <span><i class="dot" style="background:#42e89b"></i>Merged Crossing ROI (<code>320²</code>)</span>
+      <span><i class="dot" style="background:#ffb84d"></i>Temporal Carry</span>
       <span><i class="dot" style="background:#ff42d2"></i><code>1:unknown</code> Boundary</span>
       <span id="orbOccStats" style="margin-left:auto; color:var(--cyan); font-weight:600;">Orb: waiting for person</span>
     </div>
@@ -437,10 +477,10 @@
     <section class="card">
       <div class="card-hdr">
         <span>3D Pelvis-Frame Avatar Rig (<code>1.0 = S_torso</code>)</span>
-        <span class="hint">Drag to orbit · Pinch/Scroll zoom</span>
+        <span class="hint">Drag to orbit · Scroll to zoom</span>
       </div>
       <div class="rig-wrap" id="rigWrap">
-        <canvas id="rigCanvas" width="520" height="288"></canvas>
+        <canvas id="rigCanvas" width="520" height="286"></canvas>
         <div class="rig-overlay-btns">
           <button id="btnRigFront">Front</button>
           <button id="btnRigSide">Side Z</button>
@@ -452,8 +492,8 @@
 
     <section class="card">
       <div class="card-hdr">
-        <span>Atomic Snapshot Telemetry &amp; Circuit Breakers</span>
-        <span class="hint" id="clockDomainLabel">clock: monotonic_ingest</span>
+        <span>Atomic Snapshot Telemetry &amp; Specialist Cadence</span>
+        <span class="hint" id="cadenceLabel">512p pose + 256p ROIs</span>
       </div>
       <div class="metrics-grid">
         <div class="mcell">
@@ -461,7 +501,7 @@
           <div class="v" id="valFps" style="color:var(--emerald)">0.0 fps</div>
         </div>
         <div class="mcell">
-          <div class="k">Capture→Publish</div>
+          <div class="k">Frame Compute</div>
           <div class="v" id="valLatency">0.0 ms</div>
         </div>
         <div class="mcell">
@@ -474,11 +514,11 @@
         </div>
         <div class="mcell">
           <div class="k">Hands 3D / Chirality</div>
-          <div class="v" id="valHands" style="font-size:0.79rem">— / —</div>
+          <div class="v" id="valHands" style="font-size:0.78rem">— / —</div>
         </div>
         <div class="mcell">
-          <div class="k">Support / Carry</div>
-          <div class="v" id="valSupport" style="font-size:0.79rem">0 px · 0 carry</div>
+          <div class="k">Active Zoom ROIs</div>
+          <div class="v" id="valSupport" style="font-size:0.78rem">—</div>
         </div>
       </div>
 
@@ -489,7 +529,7 @@
         </h3>
         <div id="overlapList" class="ov-list">
           <div class="ov-item" style="color:var(--muted);">
-            Start live camera or Synthetic Performer to inspect wrist-crossing chirality lock, face-cover depth ordering, and K=4 kinematic hypotheses.
+            Cross your wrists, step back 3m to test 256×256 palm zoom crops vs Stock MP Raw (⚡ Split A/B), or pass your forearm in front of the 3D Stelline Orb!
           </div>
         </div>
       </div>
@@ -501,32 +541,39 @@
 
 <script type="module">
 /* ============================================================================
- * SCION Single-File Live Human Camera 4D Capture & Stelline Orb Stage
- * - Default Engine: 100% Pure-Browser Standalone (@mediapipe/tasks-vision@0.10.21
- *   over HTTPS CDN + Google Storage models — works on GitHub Pages anywhere!)
- * - Optional Local M3 Max Bridge: silently probed ONLY when hostname is localhost
- *   or 127.0.0.1 over HTTP (zero mixed-content calls on HTTPS hosts!).
+ * SCION Live Human Camera Studio (v2 — Sequential Init + Full-Sensor 256px ROIs)
+ * 1. Sequential WASM/WebGL initialization (1/4 Pose -> 2/4 Hand ROI -> 3/4 Face ROI
+ *    -> 4/4 SelfieMulticlass 256x256) preventing concurrent Emscripten WebGL collisions.
+ * 2. Fast 512x288 Pose pass + Adaptive Full-Sensor 256x256 Palm/Face crops (and 320x320
+ *    Merged Crossing crop when wrists approach!) in IMAGE mode + staggered Face/Multiclass
+ *    cadence -> ~28-30 FPS AND tracks fingers from 3.5m full-body distance!
+ * 3. Stock MediaPipe Raw runs uncropped full-frame for dramatic live Split A/B proof.
+ * 4. Strictly guarded localhost probe (zero mixed-content calls on HTTPS GitHub Pages!).
  * ============================================================================ */
 
+const IS_FILE_PROTO = (location.protocol === 'file:');
+const IS_HTTPS = (location.protocol === 'https:');
 const IS_LOCAL_HTTP = (
   location.protocol === 'http:' &&
   (location.hostname === '127.0.0.1' || location.hostname === 'localhost')
 );
-const NATIVE_API_ORIGIN = IS_LOCAL_HTTP
-  ? (location.port === '8787' ? location.origin : 'http://127.0.0.1:8787')
-  : '';
-const IS_SERVED_BY_8787 = (IS_LOCAL_HTTP && location.port === '8787');
+const FALLBACK_LOCAL_DAEMON = 'http://127.0.0.1:8790';
+let activeNativeOrigin = IS_LOCAL_HTTP ? location.origin : '';
 
 const VIRT_CAM_RE = /virtual|obs|snap camera|ndi|mmhmm|camo|epoccam|droidcam|hue/i;
 
 const MP_CDN_ESM = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/+esm';
 const MP_CDN_WASM = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/wasm';
 const GCS_MODELS = {
-  pose: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task',
+  pose_full: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task',
+  pose_heavy: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_heavy/float16/1/pose_landmarker_heavy.task',
   hand: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
   face: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
-  seg: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite'
+  seg_multiclass: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite',
+  seg_binary: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite'
 };
+
+const MULTICLASS_NAMES = ['bg', 'hair', 'body-skin', 'face-skin', 'clothes', 'accessories'];
 
 const PART_NAMES = [
   'background', 'unknown', 'head', 'torso',
@@ -537,7 +584,7 @@ const PART_NAMES = [
 
 const PART_PALETTE = [
   [0, 0, 0],         // 0: background
-  [255, 42, 216],    // 1: unknown (bright magenta contested boundary)
+  [255, 42, 216],    // 1: unknown (contested boundary)
   [245, 215, 90],    // 2: head
   [70, 130, 210],    // 3: torso
   [45, 200, 225],    // 4: left_upper_arm (performer left = cyan family)
@@ -614,14 +661,18 @@ const IBUG68_CONTOURS = [
   { start: 60, end: 68, closed: true }
 ];
 
-// DOM References
+// DOM Elements
+const fileProtoBanner = document.getElementById('fileProtoBanner');
+const localServerLink = document.getElementById('localServerLink');
 const videoEl = document.getElementById('srcVideo');
 const liveCanvas = document.getElementById('liveCanvas');
 const liveCtx = liveCanvas.getContext('2d');
 const rigCanvas = document.getElementById('rigCanvas');
 const rigCtx = rigCanvas.getContext('2d');
 const stageEmpty = document.getElementById('stageEmpty');
+const initProgressPill = document.getElementById('initProgressPill');
 
+const poseModelSelect = document.getElementById('poseModelSelect');
 const btnStartCamera = document.getElementById('btnStartCamera');
 const btnFlipFacing = document.getElementById('btnFlipFacing');
 const btnHeroInline = document.getElementById('btnHeroInline');
@@ -643,6 +694,7 @@ const btnResetEpoch = document.getElementById('btnResetEpoch');
 const btnExportJson = document.getElementById('btnExportJson');
 
 const chkSkeleton = document.getElementById('chkSkeleton');
+const chkRoiBoxes = document.getElementById('chkRoiBoxes');
 const chkPartMask = document.getElementById('chkPartMask');
 const chkUnknown = document.getElementById('chkUnknown');
 const chkOrb = document.getElementById('chkOrb');
@@ -666,11 +718,34 @@ const valSupport = document.getElementById('valSupport');
 const breakerTag = document.getElementById('breakerTag');
 const overlapList = document.getElementById('overlapList');
 
-// Offscreen buffers
+// Dedicated Offscreen Sensor & Specialist ROI Canvases (Zero Allocation in Render Loop!)
 const sensorCanvas = document.createElement('canvas');
 sensorCanvas.width = 1280;
 sensorCanvas.height = 720;
 const sensorCtx = sensorCanvas.getContext('2d', { willReadFrequently: true });
+
+// Fast 512x288 whole-body pose canvas
+const poseInputCanvas = document.createElement('canvas');
+poseInputCanvas.width = 512;
+poseInputCanvas.height = 288;
+const poseInputCtx = poseInputCanvas.getContext('2d');
+
+// Full-sensor 256x256 specialist crop canvases + 320x320 merged crossing crop canvas
+const cropCanvas256 = document.createElement('canvas');
+cropCanvas256.width = 256;
+cropCanvas256.height = 256;
+const cropCtx256 = cropCanvas256.getContext('2d');
+
+const cropCanvas320 = document.createElement('canvas');
+cropCanvas320.width = 320;
+cropCanvas320.height = 320;
+const cropCtx320 = cropCanvas320.getContext('2d');
+
+// 256x256 SelfieMulticlass input canvas
+const segInputCanvas = document.createElement('canvas');
+segInputCanvas.width = 256;
+segInputCanvas.height = 256;
+const segInputCtx = segInputCanvas.getContext('2d');
 
 const rawSplitCanvas = document.createElement('canvas');
 rawSplitCanvas.width = 1280;
@@ -682,12 +757,13 @@ const maskOverlayCtx = maskOverlayCanvas.getContext('2d');
 const orbTempCanvas = document.createElement('canvas');
 const orbTempCtx = orbTempCanvas.getContext('2d');
 
-// State
+// Application State
 const appState = {
   sourceKind: 'none', // 'camera' | 'video' | 'synthetic' | 'none'
-  facingMode: 'user', // 'user' | 'environment'
+  facingMode: 'user',
+  poseVariant: 'full', // 'full' | 'heavy'
   activeStream: null,
-  engineMode: 'browser', // DEFAULT IS ALWAYS 'browser' (100% Pure-Browser Standalone!)
+  engineMode: 'browser', // Default is ALWAYS 100% Pure-Browser Standalone!
   abMode: 'scion', // 'scion' | 'split' | 'mp_raw'
   splitRatio: 0.5,
   draggingSplit: false,
@@ -699,6 +775,11 @@ const appState = {
   rafId: 0,
   lastSnapshot: null,
   lastMaskArray: null,
+  lastMulticlass256: null, // Uint8Array(256*256): 0:bg, 1:hair, 2:body-skin, 3:face-skin, 4:clothes, 5:accessories
+  lastMulticlassW: 0,
+  lastMulticlassH: 0,
+  lastFaceResSensor: null,
+  lastActiveRois: [],
   lastMaskW: 0,
   lastMaskH: 0,
   lastRawSnapshot: null,
@@ -710,6 +791,7 @@ const appState = {
   synthTime: 0,
   orbZBias: -0.14,
   currentOrb3D: [0, -0.35, -0.14],
+  lastErrLogTs: 0,
   rigOrbit: { yaw: 0.42, pitch: -0.16, zoom: 1.0, dragging: false, lastX: 0, lastY: 0 }
 };
 
@@ -724,47 +806,74 @@ function showBanner(msg, isErr = false) {
   statusBanner.classList.remove('hidden');
 }
 
+function setInitProgress(text) {
+  if (!text) {
+    initProgressPill.classList.add('hidden');
+    showBanner('');
+    return;
+  }
+  initProgressPill.textContent = text;
+  initProgressPill.classList.remove('hidden');
+  showBanner(text, false);
+}
+
 /* ============================================================================
- * 1. Silent Localhost-Only Health Probe (400ms timeout; NEVER runs on HTTPS!)
+ * 1. Silent Localhost-Only Health Probe (400ms timeout; ZERO calls on HTTPS!)
  * ============================================================================ */
 async function probeNativeHealthIfLocal() {
-  if (!IS_LOCAL_HTTP) {
-    return false;
+  if (!IS_LOCAL_HTTP) return false;
+  const candidates = [location.origin];
+  if (location.origin !== FALLBACK_LOCAL_DAEMON) {
+    candidates.push(FALLBACK_LOCAL_DAEMON);
   }
-  const ctrl = new AbortController();
-  const tid = setTimeout(() => ctrl.abort(), 400);
-  try {
-    const res = await fetch(`${NATIVE_API_ORIGIN}/api/health`, { signal: ctrl.signal, cache: 'no-store' });
-    clearTimeout(tid);
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.ok) {
-        appState.nativeOnline = true;
-        btnModeNative.classList.remove('hidden');
-        btnModeNative.classList.add('online-ready');
-        btnDemoServerClip.classList.remove('hidden');
-        serverBadge.textContent = 'BROWSER DEFAULT · M3 MAX :8787 AVAILABLE';
-        serverBadge.className = 'badge ok';
-        return true;
+  for (const cand of candidates) {
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 400);
+    try {
+      const res = await fetch(`${cand}/api/health`, { signal: ctrl.signal, cache: 'no-store' });
+      clearTimeout(tid);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.ok) {
+          activeNativeOrigin = cand;
+          appState.nativeOnline = true;
+          const portTag = (new URL(cand).port) || 'local';
+          btnModeNative.textContent = `Mode B: M3 Max (:${portTag})`;
+          btnModeNative.classList.remove('hidden');
+          btnModeNative.classList.add('online-ready');
+          btnDemoServerClip.classList.remove('hidden');
+          serverBadge.textContent = `BROWSER 256² ROI · M3 MAX :${portTag} READY`;
+          serverBadge.className = 'badge ok';
+          return true;
+        }
       }
+    } catch (probeErr) {
+      clearTimeout(tid);
+      console.debug('[SCION] local health probe skipped:', cand, probeErr?.message || probeErr);
     }
-  } catch (_) {
-    clearTimeout(tid);
   }
   appState.nativeOnline = false;
   return false;
 }
 
 /* ============================================================================
- * 2. Pure-Browser MediaPipe Tasks Vision Loader (@0.10.21 HTTPS CDN + GCS)
+ * 2. Sequential MediaPipe Tasks Vision Loader (NO concurrent Promise.all!)
+ *    - PoseLandmarker (VIDEO mode on 512x288 fast pass)
+ *    - HandLandmarker (IMAGE mode on 256x256 / 320x320 full-sensor ROI crops!)
+ *    - FaceLandmarker (IMAGE mode on 256x256 full-sensor head ROI crop!)
+ *    - ImageSegmenter (IMAGE mode on 256x256 SelfieMulticlass 6-class model!)
  * ============================================================================ */
 const mpEngine = {
   loading: null,
   ready: false,
+  visionMod: null,
+  fileset: null,
   pose: null,
+  poseVariantLoaded: '',
   hands: null,
   face: null,
   seg: null,
+  isMulticlassSeg: true,
   lastMpTs: 0
 };
 
@@ -775,100 +884,312 @@ function nextMonotonicMpTs() {
 }
 
 async function resolveModelUrl(localFile, gcsUrl) {
-  // Only check /models/<file> when served directly by local port 8787; on GitHub Pages go straight to HTTPS GCS!
-  if (IS_SERVED_BY_8787) {
-    try {
+  if (IS_LOCAL_HTTP) {
+    const bases = [location.origin];
+    if (activeNativeOrigin && activeNativeOrigin !== location.origin) bases.push(activeNativeOrigin);
+    for (const base of bases) {
       const c = new AbortController();
       const t = setTimeout(() => c.abort(), 350);
-      const r = await fetch(`/models/${localFile}`, { method: 'HEAD', signal: c.signal });
-      clearTimeout(t);
-      if (r.ok) return `/models/${localFile}`;
-    } catch (_) {}
+      try {
+        const r = await fetch(`${base}/models/${localFile}`, { method: 'HEAD', signal: c.signal });
+        clearTimeout(t);
+        if (r.ok) return `${base}/models/${localFile}`;
+      } catch (headErr) {
+        clearTimeout(t);
+        console.debug('[SCION] model fallback -> HTTPS GCS:', localFile, headErr?.message || headErr);
+      }
+    }
   }
   return gcsUrl;
 }
 
+async function createTaskSequential(stepLabel, factoryFn) {
+  setInitProgress(stepLabel);
+  // Yield 1 macrotask so UI updates & Emscripten WebGL context settles cleanly between models!
+  await new Promise(r => setTimeout(r, 12));
+  try {
+    return await factoryFn('GPU');
+  } catch (gpuErr) {
+    console.warn(`[SCION] ${stepLabel} GPU delegate fallback -> CPU:`, gpuErr?.message || gpuErr);
+    return await factoryFn('CPU');
+  }
+}
+
+async function loadPoseModelSequential(variant) {
+  const localName = variant === 'heavy' ? 'pose_landmarker_heavy.task' : 'pose_landmarker_full.task';
+  const gcsUrl = variant === 'heavy' ? GCS_MODELS.pose_heavy : GCS_MODELS.pose_full;
+  const poseUrl = await resolveModelUrl(localName, gcsUrl);
+  if (mpEngine.pose) {
+    try { mpEngine.pose.close(); } catch (closeErr) { console.debug('[SCION] pose close:', closeErr); }
+    mpEngine.pose = null;
+  }
+  mpEngine.pose = await createTaskSequential(
+    `[1/4] Loading PoseLandmarker (${variant.toUpperCase()} 512×288)...`,
+    (del) => mpEngine.visionMod.PoseLandmarker.createFromOptions(mpEngine.fileset, {
+      baseOptions: { modelAssetPath: poseUrl, delegate: del },
+      runningMode: 'VIDEO',
+      numPoses: 1,
+      minPoseDetectionConfidence: 0.42,
+      minPosePresenceConfidence: 0.42,
+      minTrackingConfidence: 0.42
+    })
+  );
+  mpEngine.poseVariantLoaded = variant;
+}
+
 async function ensureBrowserEngineReady() {
-  if (mpEngine.ready) return mpEngine;
+  if (mpEngine.ready && mpEngine.poseVariantLoaded === appState.poseVariant) return mpEngine;
   if (mpEngine.loading) return mpEngine.loading;
 
   mpEngine.loading = (async () => {
-    showBanner('Loading pure-browser MediaPipe Vision WASM & 4D models (~15 MB once)...');
-    const visionMod = await import(MP_CDN_ESM);
-    const fileset = await visionMod.FilesetResolver.forVisionTasks(MP_CDN_WASM);
-
-    const [poseUrl, handUrl, faceUrl, segUrl] = await Promise.all([
-      resolveModelUrl('pose_landmarker_full.task', GCS_MODELS.pose),
-      resolveModelUrl('hand_landmarker.task', GCS_MODELS.hand),
-      resolveModelUrl('face_landmarker.task', GCS_MODELS.face),
-      resolveModelUrl('selfie_segmenter.tflite', GCS_MODELS.seg)
-    ]);
-
-    async function createWithDelegateFallback(fn) {
-      try { return await fn('GPU'); }
-      catch (_) { return await fn('CPU'); }
+    if (!mpEngine.visionMod) {
+      setInitProgress('Fetching MediaPipe Vision WASM runtime (@0.10.21)...');
+      mpEngine.visionMod = await import(MP_CDN_ESM);
+      mpEngine.fileset = await mpEngine.visionMod.FilesetResolver.forVisionTasks(MP_CDN_WASM);
     }
 
-    const [pose, hands, face, seg] = await Promise.all([
-      createWithDelegateFallback(del => visionMod.PoseLandmarker.createFromOptions(fileset, {
-        baseOptions: { modelAssetPath: poseUrl, delegate: del },
-        runningMode: 'VIDEO',
-        numPoses: 1,
-        minPoseDetectionConfidence: 0.45,
-        minPosePresenceConfidence: 0.45,
-        minTrackingConfidence: 0.45
-      })),
-      createWithDelegateFallback(del => visionMod.HandLandmarker.createFromOptions(fileset, {
-        baseOptions: { modelAssetPath: handUrl, delegate: del },
-        runningMode: 'VIDEO',
-        numHands: 2,
-        minHandDetectionConfidence: 0.42,
-        minHandPresenceConfidence: 0.42,
-        minTrackingConfidence: 0.42
-      })),
-      createWithDelegateFallback(del => visionMod.FaceLandmarker.createFromOptions(fileset, {
-        baseOptions: { modelAssetPath: faceUrl, delegate: del },
-        runningMode: 'VIDEO',
-        numFaces: 1,
-        minFaceDetectionConfidence: 0.45,
-        minFacePresenceConfidence: 0.45,
-        minTrackingConfidence: 0.45
-      })),
-      createWithDelegateFallback(del => visionMod.ImageSegmenter.createFromOptions(fileset, {
-        baseOptions: { modelAssetPath: segUrl, delegate: del },
-        runningMode: 'VIDEO',
-        outputCategoryMask: true,
-        outputConfidenceMasks: true
-      }))
-    ]);
+    // Strictly SEQUENTIAL initialization: 1/4 -> 2/4 -> 3/4 -> 4/4!
+    if (!mpEngine.pose || mpEngine.poseVariantLoaded !== appState.poseVariant) {
+      await loadPoseModelSequential(appState.poseVariant);
+    }
 
-    mpEngine.pose = pose;
-    mpEngine.hands = hands;
-    mpEngine.face = face;
-    mpEngine.seg = seg;
+    if (!mpEngine.hands) {
+      const handUrl = await resolveModelUrl('hand_landmarker.task', GCS_MODELS.hand);
+      mpEngine.hands = await createTaskSequential(
+        '[2/4] Loading HandLandmarker (Full-Sensor 256×256 ROI Specialist)...',
+        (del) => mpEngine.visionMod.HandLandmarker.createFromOptions(mpEngine.fileset, {
+          baseOptions: { modelAssetPath: handUrl, delegate: del },
+          runningMode: 'IMAGE',
+          numHands: 2,
+          minHandDetectionConfidence: 0.34,
+          minHandPresenceConfidence: 0.34
+        })
+      );
+    }
+
+    if (!mpEngine.face) {
+      const faceUrl = await resolveModelUrl('face_landmarker.task', GCS_MODELS.face);
+      mpEngine.face = await createTaskSequential(
+        '[3/4] Loading FaceLandmarker (Full-Sensor 256×256 Head Specialist)...',
+        (del) => mpEngine.visionMod.FaceLandmarker.createFromOptions(mpEngine.fileset, {
+          baseOptions: { modelAssetPath: faceUrl, delegate: del },
+          runningMode: 'IMAGE',
+          numFaces: 1,
+          minFaceDetectionConfidence: 0.38,
+          minFacePresenceConfidence: 0.38
+        })
+      );
+    }
+
+    if (!mpEngine.seg) {
+      try {
+        const segMultiUrl = await resolveModelUrl('selfie_multiclass_256x256.tflite', GCS_MODELS.seg_multiclass);
+        mpEngine.seg = await createTaskSequential(
+          '[4/4] Loading SelfieMulticlass 256×256 (Hair / Skin / Clothes)...',
+          (del) => mpEngine.visionMod.ImageSegmenter.createFromOptions(mpEngine.fileset, {
+            baseOptions: { modelAssetPath: segMultiUrl, delegate: del },
+            runningMode: 'IMAGE',
+            outputCategoryMask: true,
+            outputConfidenceMasks: false
+          })
+        );
+        mpEngine.isMulticlassSeg = true;
+      } catch (segErr) {
+        console.warn('[SCION] Multiclass segmenter fallback -> binary selfie_segmenter:', segErr);
+        const segBinUrl = await resolveModelUrl('selfie_segmenter.tflite', GCS_MODELS.seg_binary);
+        mpEngine.seg = await createTaskSequential(
+          '[4/4] Loading SelfieSegmenter fallback...',
+          (del) => mpEngine.visionMod.ImageSegmenter.createFromOptions(mpEngine.fileset, {
+            baseOptions: { modelAssetPath: segBinUrl, delegate: del },
+            runningMode: 'IMAGE',
+            outputCategoryMask: true,
+            outputConfidenceMasks: true
+          })
+        );
+        mpEngine.isMulticlassSeg = false;
+      }
+    }
+
     mpEngine.ready = true;
-    showBanner('');
+    setInitProgress('');
     return mpEngine;
   })();
 
   try {
-    return await mpEngine.loading;
+    const res = await mpEngine.loading;
+    mpEngine.loading = null;
+    return res;
   } catch (err) {
     mpEngine.loading = null;
-    showBanner('Model fetch error: ' + (err.message || err), true);
+    const msg = `Model initialization failed: ${err?.message || err}`;
+    setInitProgress('');
+    showBanner(msg, true);
     throw err;
   }
 }
 
 /* ============================================================================
- * 3. Math & In-Browser SCION Atomic Body Snapshot Reducer
+ * 3. Full-Sensor Square ROI Crop Extractor & Exact Invertible 3x3 Back-Projection
+ * ============================================================================ */
+function computeSquareSensorCrop(centerU, centerV, desiredSizePx, W, H) {
+  const maxAllowed = Math.min(W, H);
+  const size = clamp(Math.round(desiredSizePx), 96, maxAllowed);
+  const x0 = clamp(Math.round(centerU - size * 0.5), 0, W - size);
+  const y0 = clamp(Math.round(centerV - size * 0.5), 0, H - size);
+  return { x0, y0, size };
+}
+
+function runSCIONFullSensorSpecialistROIs(W, H, poseRes, frameIdx) {
+  const activeRois = [];
+  const handLandmarksSensor = [];
+  const handWorldList = [];
+  const handCatList = [];
+
+  const lm2d = poseRes?.landmarks?.[0];
+  let faceResMapped = appState.lastFaceResSensor;
+
+  if (lm2d && mpEngine.hands) {
+    const pelU = 0.5 * (lm2d[23].x + lm2d[24].x) * W;
+    const pelV = 0.5 * (lm2d[23].y + lm2d[24].y) * H;
+    const shU = 0.5 * (lm2d[11].x + lm2d[12].x) * W;
+    const shV = 0.5 * (lm2d[11].y + lm2d[12].y) * H;
+    const torsoPx = Math.max(64, Math.hypot(shU - pelU, shV - pelV));
+    const handBoxPx = clamp(Math.round(1.02 * torsoPx), 108, 380);
+
+    const getPalmTarget = (elIdx, wrIdx, sideKey) => {
+      const wr = lm2d[wrIdx], el = lm2d[elIdx];
+      const prevW = scionReducer.prevBodyState[sideKey + '_wrist'];
+      const prevV = scionReducer.wristVel[sideKey] || [0, 0];
+      if ((wr?.visibility ?? 0) >= 0.20) {
+        const wu = wr.x * W, wv = wr.y * H;
+        const eu = el.x * W, ev = el.y * H;
+        // Extrapolate from wrist along forearm->wrist vector + causal velocity to center fingers!
+        return {
+          valid: true,
+          u: wu + 0.34 * (wu - eu) + 0.45 * prevV[0],
+          v: wv + 0.34 * (wv - ev) + 0.45 * prevV[1]
+        };
+      }
+      if (prevW?.uv) {
+        return { valid: true, u: prevW.uv[0] + prevV[0], v: prevW.uv[1] + prevV[1] };
+      }
+      return { valid: false, u: 0, v: 0 };
+    };
+
+    const lPalm = getPalmTarget(13, 15, 'left');
+    const rPalm = getPalmTarget(14, 16, 'right');
+
+    const ingestCropHands = (detRes, cropRect) => {
+      if (!detRes?.landmarks?.length) return;
+      for (let i = 0; i < detRes.landmarks.length; i++) {
+        const h2 = detRes.landmarks[i];
+        // Map normalized [0..1] crop coords back to exact unmirrored sensor [0..1] fractions!
+        const mappedNorm = h2.map(p => ({
+          x: (cropRect.x0 + p.x * cropRect.size) / W,
+          y: (cropRect.y0 + p.y * cropRect.size) / H,
+          z: p.z || 0
+        }));
+        // Dedup if two overlapping crops detected the exact same physical palm
+        const wristU = mappedNorm[0].x * W, wristV = mappedNorm[0].y * H;
+        const isDup = handLandmarksSensor.some(existing =>
+          Math.hypot(existing[0].x * W - wristU, existing[0].y * H - wristV) < 0.14 * handBoxPx
+        );
+        if (!isDup) {
+          handLandmarksSensor.push(mappedNorm);
+          handWorldList.push(detRes.worldLandmarks?.[i] || null);
+          handCatList.push(detRes.handedness?.[i] || [{ categoryName: 'Right', score: 0.5 }]);
+        }
+      }
+    };
+
+    const palmsDist = (lPalm.valid && rPalm.valid) ? Math.hypot(lPalm.u - rPalm.u, lPalm.v - rPalm.v) : Infinity;
+
+    if (lPalm.valid && rPalm.valid && palmsDist < 1.6 * handBoxPx) {
+      // Merged 320x320 Crossing ROI — captures both crossed hands cleanly without edge clipping!
+      const crossSpan = clamp(Math.round(palmsDist + 1.18 * handBoxPx), 150, Math.min(W, H));
+      const crop = computeSquareSensorCrop(0.5 * (lPalm.u + rPalm.u), 0.5 * (lPalm.v + rPalm.v), crossSpan, W, H);
+      cropCtx320.drawImage(sensorCanvas, crop.x0, crop.y0, crop.size, crop.size, 0, 0, 320, 320);
+      const det = mpEngine.hands.detect(cropCanvas320);
+      ingestCropHands(det, crop);
+      activeRois.push({ label: 'CROSS-ROI', ...crop, res: 320, zoom: +(320 / crop.size).toFixed(2), color: '#42e89b' });
+    } else {
+      if (lPalm.valid) {
+        const cropL = computeSquareSensorCrop(lPalm.u, lPalm.v, handBoxPx, W, H);
+        cropCtx256.drawImage(sensorCanvas, cropL.x0, cropL.y0, cropL.size, cropL.size, 0, 0, 256, 256);
+        ingestCropHands(mpEngine.hands.detect(cropCanvas256), cropL);
+        activeRois.push({ label: 'L-ROI', ...cropL, res: 256, zoom: +(256 / cropL.size).toFixed(2), color: '#38e2ff' });
+      }
+      if (rPalm.valid) {
+        const cropR = computeSquareSensorCrop(rPalm.u, rPalm.v, handBoxPx, W, H);
+        cropCtx256.drawImage(sensorCanvas, cropR.x0, cropR.y0, cropR.size, cropR.size, 0, 0, 256, 256);
+        ingestCropHands(mpEngine.hands.detect(cropCanvas256), cropR);
+        activeRois.push({ label: 'R-ROI', ...cropR, res: 256, zoom: +(256 / cropR.size).toFixed(2), color: '#ff8a54' });
+      }
+    }
+
+    // Staggered Even-Frame Full-Sensor 256x256 Head/Face Specialist ROI
+    const nosePt = lm2d[0];
+    if (nosePt && (nosePt.visibility ?? 0.6) >= 0.22) {
+      const faceBoxPx = clamp(Math.round(0.96 * torsoPx), 116, 380);
+      const faceCrop = computeSquareSensorCrop(nosePt.x * W, nosePt.y * H, faceBoxPx, W, H);
+      activeRois.push({ label: 'FACE-ROI', ...faceCrop, res: 256, zoom: +(256 / faceCrop.size).toFixed(2), color: '#f5d469' });
+
+      if (mpEngine.face && (frameIdx % 2 === 0 || !faceResMapped)) {
+        cropCtx256.drawImage(sensorCanvas, faceCrop.x0, faceCrop.y0, faceCrop.size, faceCrop.size, 0, 0, 256, 256);
+        const fDet = mpEngine.face.detect(cropCanvas256);
+        if (fDet?.faceLandmarks?.length) {
+          const mappedFace478 = fDet.faceLandmarks[0].map(p => ({
+            x: (faceCrop.x0 + p.x * faceCrop.size) / W,
+            y: (faceCrop.y0 + p.y * faceCrop.size) / H,
+            z: p.z || 0
+          }));
+          faceResMapped = { faceLandmarks: [mappedFace478], tsMs: performance.now() };
+          appState.lastFaceResSensor = faceResMapped;
+        } else if (faceResMapped && (performance.now() - faceResMapped.tsMs) > 50) {
+          faceResMapped = null;
+          appState.lastFaceResSensor = null;
+        }
+      }
+    }
+  }
+
+  // Staggered Odd-Frame 256x256 SelfieMulticlass 6-Class Segmentation
+  if (mpEngine.seg && (frameIdx % 2 === 1 || !appState.lastMulticlass256)) {
+    segInputCtx.drawImage(sensorCanvas, 0, 0, 256, 256);
+    const segRes = mpEngine.seg.segment(segInputCanvas);
+    try {
+      if (segRes?.categoryMask) {
+        const cm = segRes.categoryMask;
+        appState.lastMulticlassW = cm.width;
+        appState.lastMulticlassH = cm.height;
+        const rawU8 = cm.getAsUint8Array();
+        if (mpEngine.isMulticlassSeg) {
+          appState.lastMulticlass256 = new Uint8Array(rawU8);
+        } else {
+          // Binary fallback: map foreground (>0) to class 4 (clothes/foreground)
+          const conv = new Uint8Array(rawU8.length);
+          for (let i = 0; i < rawU8.length; i++) conv[i] = rawU8[i] > 0 ? 4 : 0;
+          appState.lastMulticlass256 = conv;
+        }
+      }
+    } finally {
+      try { segRes?.close?.(); } catch (closeErr) { console.debug('[SCION] seg close:', closeErr); }
+    }
+  }
+
+  appState.lastActiveRois = activeRois;
+  return {
+    handRes: { landmarks: handLandmarksSensor, worldLandmarks: handWorldList, handedness: handCatList },
+    faceRes: faceResMapped,
+    activeRois
+  };
+}
+
+/* ============================================================================
+ * 4. Math & In-Browser SCION Atomic Body Snapshot Reducer
  * ============================================================================ */
 function cross3(a, b) {
-  return [
-    a[1] * b[2] - a[2] * b[1],
-    a[2] * b[0] - a[0] * b[2],
-    a[0] * b[1] - a[1] * b[0]
-  ];
+  return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 }
 function dot3(a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
 function norm3(a) { return Math.hypot(a[0], a[1], a[2]); }
@@ -885,21 +1206,13 @@ function smoothForeshortenedDz(len3d, dx, dy, deadzone = 0.965) {
 }
 
 function segDist2D(ax, ay, bx, by, cx, cy, dx, dy) {
-  const ux = bx - ax, uy = by - ay;
-  const vx = dx - cx, vy = dy - cy;
-  const wx = ax - cx, wy = ay - cy;
-  const a = ux * ux + uy * uy;
-  const b = ux * vx + uy * vy;
-  const c = vx * vx + vy * vy;
-  const d = ux * wx + uy * wy;
-  const e = vx * wx + vy * wy;
-  const D = a * c - b * b;
+  const ux = bx - ax, uy = by - ay, vx = dx - cx, vy = dy - cy, wx = ax - cx, wy = ay - cy;
+  const a = ux * ux + uy * uy, b = ux * vx + uy * vy, c = vx * vx + vy * vy;
+  const d = ux * wx + uy * wy, e = vx * wx + vy * wy, D = a * c - b * b;
   let sc = D < 1e-6 ? 0 : (b * e - c * d) / D;
   let tc = D < 1e-6 ? (b > c ? d / (b || 1) : e / (c || 1)) : (a * e - b * d) / D;
-  sc = clamp(sc, 0, 1);
-  tc = clamp(tc, 0, 1);
-  const p1x = ax + sc * ux, p1y = ay + sc * uy;
-  const p2x = cx + tc * vx, p2y = cy + tc * vy;
+  sc = clamp(sc, 0, 1); tc = clamp(tc, 0, 1);
+  const p1x = ax + sc * ux, p1y = ay + sc * uy, p2x = cx + tc * vx, p2y = cy + tc * vy;
   return { dist: Math.hypot(p1x - p2x, p1y - p2y), mx: 0.5 * (p1x + p2x), my: 0.5 * (p1y + p2y) };
 }
 
@@ -915,21 +1228,16 @@ function computeAnatomicalChirality3D(pts3d, expectedSide) {
 
   let curlSum = 0, wSum = 0;
   for (const [mcp, pip, tip] of [[5,6,8], [9,10,12], [13,14,16], [17,18,20]]) {
-    const b1 = sub3(pts3d[pip], pts3d[mcp]);
-    const b2 = sub3(pts3d[tip], pts3d[pip]);
+    const b1 = sub3(pts3d[pip], pts3d[mcp]), b2 = sub3(pts3d[tip], pts3d[pip]);
     const l1 = norm3(b1), l2 = norm3(b2);
     if (l1 < 1e-5 || l2 < 1e-5) continue;
-    const u1 = [b1[0]/l1, b1[1]/l1, b1[2]/l1];
-    const u2 = [b2[0]/l2, b2[1]/l2, b2[2]/l2];
+    const u1 = [b1[0]/l1, b1[1]/l1, b1[2]/l1], u2 = [b2[0]/l2, b2[1]/l2, b2[2]/l2];
     const cosA = clamp(dot3(u1, u2), -1, 1);
     const sinA = Math.sqrt(Math.max(0, 1 - cosA * cosA));
     if (sinA >= 0.18) {
       const fx = u2[0] - cosA * u1[0], fy = u2[1] - cosA * u1[1], fz = u2[2] - cosA * u1[2];
       const fn = Math.hypot(fx, fy, fz);
-      if (fn > 1e-5) {
-        curlSum += dot3(palmarExpected, [fx/fn, fy/fn, fz/fn]) * sinA;
-        wSum += sinA;
-      }
+      if (fn > 1e-5) { curlSum += dot3(palmarExpected, [fx/fn, fy/fn, fz/fn]) * sinA; wSum += sinA; }
     }
   }
   const thumbMid = [0.5*(pts3d[1][0]+pts3d[2][0]), 0.5*(pts3d[1][1]+pts3d[2][1]), 0.5*(pts3d[1][2]+pts3d[2][2])];
@@ -954,6 +1262,7 @@ class BrowserScionReducer {
     this.personAbsentSinceMs = null;
     this.lastPelvisUV = null;
     this.prevBodyState = {};
+    this.wristVel = { left: [0, 0], right: [0, 0] };
     this.prevHandState = { left: null, right: null };
     this.prevFaceState = null;
     this.prevWristZ = { left: 0, right: 0 };
@@ -967,11 +1276,12 @@ class BrowserScionReducer {
     this.hadPersonInEpoch = false;
     this.personAbsentSinceMs = null;
     this.prevBodyState = {};
+    this.wristVel = { left: [0, 0], right: [0, 0] };
     this.prevHandState = { left: null, right: null };
     this.prevFaceState = null;
   }
 
-  reduce(W, H, nowMs, poseRes, handRes, faceRes, fgMaskFloat, fgW, fgH, isRawMp) {
+  reduce(W, H, nowMs, poseRes, handRes, faceRes, mcMaskU8, mcW, mcH, isRawMp, activeRois = []) {
     const breakers = [];
     const tsNs = Math.round(nowMs * 1e6);
 
@@ -984,7 +1294,7 @@ class BrowserScionReducer {
       for (const idx of [0, 11, 12, 23, 24]) coreConf += (lm2d[idx]?.visibility ?? 0.75);
       coreConf /= 5;
     }
-    const personDetectedNow = Boolean(lm2d && coreConf >= 0.34);
+    const personDetectedNow = Boolean(lm2d && coreConf >= 0.32);
 
     if (!personDetectedNow) {
       if (this.hadPersonInEpoch && this.personAbsentSinceMs === null) {
@@ -1028,7 +1338,7 @@ class BrowserScionReducer {
       } else if (!this.torsoScaleLocked) {
         const shSpanPx = Math.hypot((p11.x - p12.x) * W, (p11.y - p12.y) * H);
         const uprightRatio = Math.abs(shUV[1] - pelUV[1]) / curTorsoPx;
-        if (coreConf > 0.58 && uprightRatio > 0.82 && (shSpanPx / curTorsoPx) > 0.40) {
+        if (coreConf > 0.56 && uprightRatio > 0.80 && (shSpanPx / curTorsoPx) > 0.38) {
           this.neutralSamplesPx.push(curTorsoPx);
           this.neutralSamplesM.push(curTorsoM);
           const sPx = [...this.neutralSamplesPx].sort((a, b) => a - b);
@@ -1066,7 +1376,7 @@ class BrowserScionReducer {
           breakers.push({ code: 'nonfinite_coord', worker: 'body', detail: jname });
           continue;
         }
-        if (vis >= 0.22 && u >= -0.15 * W && u <= 1.15 * W && v >= -0.15 * H && v <= 1.15 * H) {
+        if (vis >= 0.20 && u >= -0.15 * W && u <= 1.15 * W && v >= -0.15 * H && v <= 1.15 * H) {
           rawJoints[jname] = {
             uv: [u, v],
             xyz: [
@@ -1088,7 +1398,9 @@ class BrowserScionReducer {
       if (cur) {
         let uv = cur.uv, xyz = cur.xyz;
         if (!isRawMp && prev && (nowMs - prev.tsMs) < 90) {
-          const a = 0.68;
+          if (jname === 'left_wrist') this.wristVel.left = [0.6 * (uv[0] - prev.uv[0]), 0.6 * (uv[1] - prev.uv[1])];
+          if (jname === 'right_wrist') this.wristVel.right = [0.6 * (uv[0] - prev.uv[0]), 0.6 * (uv[1] - prev.uv[1])];
+          const a = 0.70;
           uv = [a * uv[0] + (1 - a) * prev.uv[0], a * uv[1] + (1 - a) * prev.uv[1]];
           xyz = [a * xyz[0] + (1 - a) * prev.xyz[0], a * xyz[1] + (1 - a) * prev.xyz[1], a * xyz[2] + (1 - a) * prev.xyz[2]];
         }
@@ -1117,7 +1429,7 @@ class BrowserScionReducer {
       }
     }
 
-    // Hand Disambiguation (Performer-Anatomical Left/Right!)
+    // Anatomical Hand Disambiguation
     const handCands = [];
     if (handRes && handRes.landmarks) {
       for (let i = 0; i < handRes.landmarks.length; i++) {
@@ -1135,23 +1447,26 @@ class BrowserScionReducer {
       }
     }
 
+    const curTorsoApparentPx = (bodyJoints.pelvis.uv && bodyJoints.shoulder_mid.uv)
+      ? Math.max(50, Math.hypot(bodyJoints.shoulder_mid.uv[0] - bodyJoints.pelvis.uv[0], bodyJoints.shoulder_mid.uv[1] - bodyJoints.pelvis.uv[1]))
+      : this.torsoScalePx;
+
     const assignedHands = { left: null, right: null };
     if (handCands.length > 0) {
       if (isRawMp) {
-        // Stock MediaPipe uses raw selfie handedness directly (swaps Left/Right on unmirrored sensor & wrist crossings!)
         for (const c of handCands) {
           const side = (c.rawMpLabel === 'Left') ? 'left' : 'right';
           if (!assignedHands[side]) assignedHands[side] = { ...c, chirality: 0, residualPx: 0 };
         }
       } else {
-        const torsoRef = Math.max(60, this.torsoScalePx);
+        const torsoRef = Math.max(60, curTorsoApparentPx);
         const scoreSide = (cand, side) => {
           const wJoint = bodyJoints[side + '_wrist'];
           const eJoint = bodyJoints[side + '_elbow'];
           let distScore = 0, residPx = 999;
           if (wJoint?.uv) {
             residPx = Math.hypot(cand.uvPts[0][0] - wJoint.uv[0], cand.uvPts[0][1] - wJoint.uv[1]);
-            distScore = 1.65 * Math.exp(-residPx / (0.48 * torsoRef)) - (residPx > 0.95 * torsoRef ? 1.2 : 0);
+            distScore = 1.75 * Math.exp(-residPx / (0.48 * torsoRef)) - (residPx > 0.95 * torsoRef ? 1.2 : 0);
           }
           let dirScore = 0;
           if (wJoint?.uv && eJoint?.uv) {
@@ -1162,23 +1477,34 @@ class BrowserScionReducer {
           }
           const chir = computeAnatomicalChirality3D(cand.local3d, side);
           const mpAnatRight = (cand.rawMpLabel === 'Left') ? 1 : -1;
-          const mpPrior = 0.20 * (side === 'right' ? mpAnatRight : -mpAnatRight);
+          const mpPrior = 0.18 * (side === 'right' ? mpAnatRight : -mpAnatRight);
           return { total: distScore + dirScore + 0.85 * chir + mpPrior, chir, residPx };
         };
 
         if (handCands.length === 1) {
           const sL = scoreSide(handCands[0], 'left'), sR = scoreSide(handCands[0], 'right');
-          if (sL.total >= sR.total && sL.residPx < 1.2 * torsoRef) assignedHands.left = { ...handCands[0], chirality: sL.chir, residualPx: sL.residPx };
-          else if (sR.residPx < 1.2 * torsoRef) assignedHands.right = { ...handCands[0], chirality: sR.chir, residualPx: sR.residPx };
+          if (sL.total >= sR.total && sL.residPx < 1.25 * torsoRef) assignedHands.left = { ...handCands[0], chirality: sL.chir, residualPx: sL.residPx };
+          else if (sR.residPx < 1.25 * torsoRef) assignedHands.right = { ...handCands[0], chirality: sR.chir, residualPx: sR.residPx };
         } else {
           const s0L = scoreSide(handCands[0], 'left'), s0R = scoreSide(handCands[0], 'right');
           const s1L = scoreSide(handCands[1], 'left'), s1R = scoreSide(handCands[1], 'right');
           if (s0L.total + s1R.total >= s0R.total + s1L.total) {
-            if (s0L.residPx < 1.25 * torsoRef) assignedHands.left = { ...handCands[0], chirality: s0L.chir, residualPx: s0L.residPx };
-            if (s1R.residPx < 1.25 * torsoRef) assignedHands.right = { ...handCands[1], chirality: s1R.chir, residualPx: s1R.residPx };
+            if (s0L.residPx < 1.3 * torsoRef) assignedHands.left = { ...handCands[0], chirality: s0L.chir, residualPx: s0L.residPx };
+            if (s1R.residPx < 1.3 * torsoRef) assignedHands.right = { ...handCands[1], chirality: s1R.chir, residualPx: s1R.residPx };
           } else {
-            if (s1L.residPx < 1.25 * torsoRef) assignedHands.left = { ...handCands[1], chirality: s1L.chir, residualPx: s1L.residPx };
-            if (s0R.residPx < 1.25 * torsoRef) assignedHands.right = { ...handCands[0], chirality: s0R.chir, residualPx: s0R.residPx };
+            if (s1L.residPx < 1.3 * torsoRef) assignedHands.left = { ...handCands[1], chirality: s1L.chir, residualPx: s1L.residPx };
+            if (s0R.residPx < 1.3 * torsoRef) assignedHands.right = { ...handCands[0], chirality: s0R.chir, residualPx: s0R.residPx };
+          }
+        }
+      }
+
+      // Snap body wrist 2D tightly onto high-res 256px specialist hand wrist when validated!
+      if (!isRawMp) {
+        for (const side of ['left', 'right']) {
+          const ah = assignedHands[side];
+          const bw = bodyJoints[side + '_wrist'];
+          if (ah && bw?.uv && ah.residualPx < 0.45 * curTorsoApparentPx) {
+            bw.uv = [0.75 * ah.uvPts[0][0] + 0.25 * bw.uv[0], 0.75 * ah.uvPts[0][1] + 0.25 * bw.uv[1]];
           }
         }
       }
@@ -1187,9 +1513,6 @@ class BrowserScionReducer {
     // K=4 Multi-Hypothesis Crossed-Wrist & Shoulder-Turn Depth Solver
     const depthHypotheses = [];
     const overlaps = [];
-    const curTorsoApparentPx = (bodyJoints.pelvis.uv && bodyJoints.shoulder_mid.uv)
-      ? Math.max(50, Math.hypot(bodyJoints.shoulder_mid.uv[0] - bodyJoints.pelvis.uv[0], bodyJoints.shoulder_mid.uv[1] - bodyJoints.pelvis.uv[1]))
-      : this.torsoScalePx;
 
     if (anyBodyActive && !isRawMp) {
       const solveArmModes = (side) => {
@@ -1212,7 +1535,7 @@ class BrowserScionReducer {
           const midU = 0.5 * (pelUV[0] + shMidUV[0]), midV = 0.5 * (pelUV[1] + shMidUV[1]);
           if (Math.abs(wr.uv[0] - midU) < 0.36 * curTorsoApparentPx && Math.abs(wr.uv[1] - midV) < 0.55 * curTorsoApparentPx) frontBodyBonus += 0.65;
         }
-        if (noseUV && Math.hypot(wr.uv[0] - noseUV[0], wr.uv[1] - noseUV[1]) < 0.32 * curTorsoApparentPx) frontBodyBonus += 0.85;
+        if (noseUV && Math.hypot(wr.uv[0] - noseUV[0], wr.uv[1] - noseUV[1]) < 0.34 * curTorsoApparentPx) frontBodyBonus += 0.90;
 
         const prevWZ = this.prevWristZ[side] ?? mpZWr;
         const modes = [
@@ -1241,7 +1564,7 @@ class BrowserScionReducer {
           bodyJoints.left_elbow.uv[0], bodyJoints.left_elbow.uv[1], bodyJoints.left_wrist.uv[0], bodyJoints.left_wrist.uv[1],
           bodyJoints.right_elbow.uv[0], bodyJoints.right_elbow.uv[1], bodyJoints.right_wrist.uv[0], bodyJoints.right_wrist.uv[1]
         );
-        if (dCross.dist < 0.28 * curTorsoApparentPx) {
+        if (dCross.dist < 0.30 * curTorsoApparentPx) {
           const sampleRGB = (u, v) => {
             const d = sensorCtx.getImageData(clamp(Math.round(u), 0, W - 1), clamp(Math.round(v), 0, H - 1), 1, 1).data;
             return [d[0], d[1], d[2]];
@@ -1251,7 +1574,7 @@ class BrowserScionReducer {
           const rMid = sampleRGB(0.5 * (bodyJoints.right_elbow.uv[0] + bodyJoints.right_wrist.uv[0]), 0.5 * (bodyJoints.right_elbow.uv[1] + bodyJoints.right_wrist.uv[1]));
           const diffL = Math.hypot(cMid[0] - lMid[0], cMid[1] - lMid[1], cMid[2] - lMid[2]);
           const diffR = Math.hypot(cMid[0] - rMid[0], cMid[1] - rMid[1], cMid[2] - rMid[2]);
-          crossSegLogit = clamp((diffR - diffL) / 42.0, -0.85, 0.85);
+          crossSegLogit = clamp((diffR - diffL) / 40.0, -0.90, 0.90);
           for (const m of modesL) if (m.zWr < modesR[0].zWr) m.total += Math.max(0, crossSegLogit);
           for (const m of modesR) if (m.zWr < modesL[0].zWr) m.total += Math.max(0, -crossSegLogit);
           modesL.sort((a, b) => b.total - a.total);
@@ -1333,8 +1656,8 @@ class BrowserScionReducer {
       if (lw?.uv && le?.uv && re?.uv && rw?.uv) {
         checkPairOverlap(6, 7, 0.5*(le.uv[0]+lw.uv[0]), 0.5*(le.uv[1]+lw.uv[1]), lw.xyz[2], 0.5*(re.uv[0]+rw.uv[0]), 0.5*(re.uv[1]+rw.uv[1]), rw.xyz[2], 0.38, crossSegLogit);
       }
-      if (lw?.uv && nose?.uv) checkPairOverlap(8, 2, lw.uv[0], lw.uv[1], lw.xyz[2], nose.uv[0], nose.uv[1], nose.xyz[2], 0.38, 0.25);
-      if (rw?.uv && nose?.uv) checkPairOverlap(9, 2, rw.uv[0], rw.uv[1], rw.xyz[2], nose.uv[0], nose.uv[1], nose.xyz[2], 0.38, 0.25);
+      if (lw?.uv && nose?.uv) checkPairOverlap(8, 2, lw.uv[0], lw.uv[1], lw.xyz[2], nose.uv[0], nose.uv[1], nose.xyz[2], 0.40, 0.28);
+      if (rw?.uv && nose?.uv) checkPairOverlap(9, 2, rw.uv[0], rw.uv[1], rw.xyz[2], nose.uv[0], nose.uv[1], nose.xyz[2], 0.40, 0.28);
       if (pel?.uv && shM?.uv) {
         const tu = 0.5 * (pel.uv[0] + shM.uv[0]), tv = 0.5 * (pel.uv[1] + shM.uv[1]), tz = 0.5 * (pel.xyz[2] + shM.xyz[2]);
         if (lw?.uv) checkPairOverlap(6, 3, lw.uv[0], lw.uv[1], lw.xyz[2], tu, tv, tz, 0.48, 0.15);
@@ -1346,7 +1669,7 @@ class BrowserScionReducer {
       const cand = assignedHands[side];
       const wBody = bodyJoints[side + '_wrist'];
       if (cand) {
-        const attached = Boolean(wBody?.xyz && (isRawMp || cand.residualPx < 0.70 * curTorsoApparentPx));
+        const attached = Boolean(wBody?.xyz && (isRawMp || cand.residualPx < 0.72 * curTorsoApparentPx));
         const baseXYZ = attached ? wBody.xyz : [0, 0, 0];
         const sM = Math.max(0.28, this.torsoScaleM);
         const wLocal0 = cand.local3d[0];
@@ -1355,7 +1678,7 @@ class BrowserScionReducer {
           return {
             uv,
             xyz: attached ? [baseXYZ[0] + dLoc[0] / sM, baseXYZ[1] + dLoc[1] / sM, baseXYZ[2] + dLoc[2] / sM] : null,
-            conf: 0.9, support: 'current_pixels'
+            conf: 0.92, support: 'current_pixels'
           };
         });
         const detail = {
@@ -1370,7 +1693,7 @@ class BrowserScionReducer {
       }
       const prevH = this.prevHandState[side];
       if (!isRawMp && prevH && (nowMs - prevH.tsMs) <= 50.0) {
-        return { ...prevH.detail, joints: prevH.detail.joints.map(j => ({ ...j, support: 'temporal_carry', conf: 0.55 })) };
+        return { ...prevH.detail, joints: prevH.detail.joints.map(j => ({ ...j, support: 'temporal_carry', conf: 0.58 })) };
       }
       delete this.prevHandState[side];
       return {
@@ -1381,25 +1704,28 @@ class BrowserScionReducer {
     const leftHand = buildHandDetail('left');
     const rightHand = buildHandDetail('right');
 
+    // Head-Anchored iBUG-68 Face Detail (50ms causal carry with head motion delta!)
     let faceDetail = null;
     if (faceRes && faceRes.faceLandmarks && faceRes.faceLandmarks.length > 0) {
       const f478 = faceRes.faceLandmarks[0];
       const noseBody = bodyJoints.nose;
       const noseFaceUV = [f478[4].x * W, f478[4].y * H];
       const residPx = noseBody?.uv ? Math.hypot(noseFaceUV[0] - noseBody.uv[0], noseFaceUV[1] - noseBody.uv[1]) : 999;
-      const attached = Boolean(noseBody?.xyz && (isRawMp || residPx < 0.45 * curTorsoApparentPx));
+      const attached = Boolean(noseBody?.xyz && (isRawMp || residPx < 0.48 * curTorsoApparentPx));
       const baseXYZ = attached ? noseBody.xyz : [0, -1.3, 0];
+      const isFreshFrame = !faceRes.tsMs || (nowMs - faceRes.tsMs) < 22;
       const lms = MP_FACE478_TO_IBUG68.map(mpIdx => {
         const p = f478[mpIdx] || f478[0];
         const uv = [p.x * W, p.y * H];
         return {
           uv,
           xyz: attached ? [baseXYZ[0] + (uv[0] - noseFaceUV[0]) / curTorsoApparentPx, baseXYZ[1] + (uv[1] - noseFaceUV[1]) / curTorsoApparentPx, baseXYZ[2] + (p.z - f478[4].z) * 1.8] : null,
-          conf: 0.92, support: 'current_pixels'
+          conf: isFreshFrame ? 0.93 : 0.75,
+          support: isFreshFrame ? 'current_pixels' : 'temporal_carry'
         };
       });
       faceDetail = { layout_version: 'ibug68_v1', attached_to_head_3d: attached, attachment_residual_px: +residPx.toFixed(1), landmarks: lms };
-      this.prevFaceState = { detail: faceDetail, tsMs: nowMs };
+      this.prevFaceState = { detail: faceDetail, tsMs: faceRes.tsMs || nowMs };
     } else if (!isRawMp && this.prevFaceState && (nowMs - this.prevFaceState.tsMs) <= 50.0) {
       faceDetail = { ...this.prevFaceState.detail, landmarks: this.prevFaceState.detail.landmarks.map(l => ({ ...l, support: 'temporal_carry', conf: 0.55 })) };
     } else {
@@ -1407,8 +1733,9 @@ class BrowserScionReducer {
       faceDetail = { layout_version: 'ibug68_v1', attached_to_head_3d: false, attachment_residual_px: 0, landmarks: Array.from({ length: 68 }, () => ({ uv: null, xyz: null, conf: 0, support: 'unavailable' })) };
     }
 
-    // 16-Class Clothed Anatomical Part Raster (320x180)
-    const mW = 320, mH = 180;
+    // 16-Class Clothing-Invariant Anatomical Part Raster Fused with 6-Class SelfieMulticlass!
+    // SelfieMulticlass IDs: 0:bg, 1:hair, 2:body-skin, 3:face-skin, 4:clothes, 5:accessories
+    const mW = 256, mH = 144;
     const maskArr = new Uint8Array(mW * mH);
     const partDepthIntervals = {};
 
@@ -1424,21 +1751,21 @@ class BrowserScionReducer {
           part_id: pid, name: PART_NAMES[pid],
           z_min: +(zMean - 0.09).toFixed(3), z_max: +(zMean + 0.09).toFixed(3), z_mean: +zMean.toFixed(3), confidence: 0.88
         };
-        capsules.push({ pid, ax: A.uv[0] * sx, ay: A.uv[1] * sy, bx: B.uv[0] * sx, by: B.uv[1] * sy, r: Math.max(3.5, radRatio * rScale), z: zMean });
+        capsules.push({ pid, ax: A.uv[0] * sx, ay: A.uv[1] * sy, bx: B.uv[0] * sx, by: B.uv[1] * sy, r: Math.max(3.2, radRatio * rScale), z: zMean });
       };
 
-      addCap(2, 'shoulder_mid', 'nose', 0.27, -0.02);
-      addCap(3, 'pelvis', 'shoulder_mid', 0.42, 0.03);
-      addCap(4, 'left_shoulder', 'left_elbow', 0.125);
-      addCap(5, 'right_shoulder', 'right_elbow', 0.125);
-      addCap(6, 'left_elbow', 'left_wrist', 0.105);
-      addCap(7, 'right_elbow', 'right_wrist', 0.105);
-      addCap(8, 'left_wrist', 'left_wrist', 0.145, -0.02);
-      addCap(9, 'right_wrist', 'right_wrist', 0.145, -0.02);
-      addCap(10, 'left_hip', 'left_knee', 0.165);
-      addCap(11, 'right_hip', 'right_knee', 0.165);
-      addCap(12, 'left_knee', 'left_ankle', 0.125);
-      addCap(13, 'right_knee', 'right_ankle', 0.125);
+      addCap(2, 'shoulder_mid', 'nose', 0.28, -0.02);
+      addCap(3, 'pelvis', 'shoulder_mid', 0.44, 0.03);
+      addCap(4, 'left_shoulder', 'left_elbow', 0.135);
+      addCap(5, 'right_shoulder', 'right_elbow', 0.135);
+      addCap(6, 'left_elbow', 'left_wrist', 0.112);
+      addCap(7, 'right_elbow', 'right_wrist', 0.112);
+      addCap(8, 'left_wrist', 'left_wrist', 0.155, -0.025);
+      addCap(9, 'right_wrist', 'right_wrist', 0.155, -0.025);
+      addCap(10, 'left_hip', 'left_knee', 0.17);
+      addCap(11, 'right_hip', 'right_knee', 0.17);
+      addCap(12, 'left_knee', 'left_ankle', 0.13);
+      addCap(13, 'right_knee', 'right_ankle', 0.13);
       addCap(14, 'left_ankle', 'left_foot_index', 0.11);
       addCap(15, 'right_ankle', 'right_foot_index', 0.11);
 
@@ -1446,16 +1773,21 @@ class BrowserScionReducer {
         const p9 = handObj.joints[9]?.uv;
         if (p9) {
           const cap = capsules.find(c => c.pid === pid);
-          if (cap) { cap.bx = p9[0] * sx; cap.by = p9[1] * sy; cap.r = Math.max(cap.r, 0.13 * rScale); }
+          if (cap) { cap.bx = p9[0] * sx; cap.by = p9[1] * sy; cap.r = Math.max(cap.r, 0.14 * rScale); }
         }
       }
 
-      const hasNeuralFg = Boolean(fgMaskFloat && fgW > 0 && fgH > 0);
+      const hasMC = Boolean(mcMaskU8 && mcW > 0 && mcH > 0);
       for (let y = 0; y < mH; y++) {
-        const syFg = hasNeuralFg ? Math.min(fgH - 1, Math.floor(y * fgH / mH)) * fgW : 0;
+        const syMc = hasMC ? Math.min(mcH - 1, Math.floor(y * mcH / mH)) * mcW : 0;
         const rowOff = y * mW;
         for (let x = 0; x < mW; x++) {
-          const fgProb = hasNeuralFg ? fgMaskFloat[syFg + Math.min(fgW - 1, Math.floor(x * fgW / mW))] : 0;
+          const mcClass = hasMC ? mcMaskU8[syMc + Math.min(mcW - 1, Math.floor(x * mcW / mW))] : -1;
+          if (hasMC && mcClass === 0) {
+            maskArr[rowOff + x] = 0;
+            continue;
+          }
+
           let bestPid = 0, bestScore = -999, secondScore = -999, secondPid = 0, minNormDist = 999;
           for (let k = 0; k < capsules.length; k++) {
             const c = capsules[k];
@@ -1464,16 +1796,33 @@ class BrowserScionReducer {
             const t = l2 > 1e-4 ? clamp(((x - c.ax) * vx + (y - c.ay) * vy) / l2, 0, 1) : 0;
             const dNorm = Math.hypot(x - (c.ax + t * vx), y - (c.ay + t * vy)) / c.r;
             if (dNorm < minNormDist) minNormDist = dNorm;
-            if (dNorm > 2.35) continue;
-            const depthBonus = isRawMp ? 0 : clamp(-1.35 * c.z, -0.45, 0.55);
-            const score = (1.65 - dNorm) + depthBonus;
+            if (dNorm > 2.55) continue;
+
+            // Semantic Multiclass Prior:
+            // 1:hair & 3:face-skin strongly favor PartId 2 (head);
+            // 2:body-skin strongly favors bare forearms/hands (6..9) when crossing over clothed torso (4:clothes)!
+            let semBonus = 0;
+            if (!isRawMp && mcClass > 0) {
+              if ((mcClass === 1 || mcClass === 3) && c.pid === 2) semBonus += 0.52;
+              if (mcClass === 2 && (c.pid >= 6 && c.pid <= 9)) semBonus += 0.44;
+              if (mcClass === 2 && c.pid === 3) semBonus -= 0.30;
+              if (mcClass === 4 && (c.pid === 3 || c.pid === 4 || c.pid === 5 || c.pid >= 10)) semBonus += 0.22;
+            }
+            const depthBonus = isRawMp ? 0 : clamp(-1.35 * c.z, -0.45, 0.58);
+            const score = (1.70 - dNorm) + depthBonus + semBonus;
             if (score > bestScore) { secondScore = bestScore; secondPid = bestPid; bestScore = score; bestPid = c.pid; }
             else if (score > secondScore) { secondScore = score; secondPid = c.pid; }
           }
-          const inside = hasNeuralFg ? (fgProb >= 0.42 || (fgProb >= 0.16 && minNormDist < 0.92)) : (minNormDist <= 1.0);
-          if (!inside || bestPid === 0) maskArr[rowOff + x] = 0;
-          else if (!isRawMp && secondPid > 0 && secondPid !== bestPid && (bestScore - secondScore) < 0.11 && secondScore > 0.45) maskArr[rowOff + x] = 1;
-          else maskArr[rowOff + x] = bestPid;
+
+          if (!hasMC && minNormDist > 1.0) {
+            maskArr[rowOff + x] = 0;
+          } else if (bestPid === 0) {
+            maskArr[rowOff + x] = (mcClass === 1 || mcClass === 3) ? 2 : (mcClass > 0 ? 3 : 0);
+          } else if (!isRawMp && secondPid > 0 && secondPid !== bestPid && (bestScore - secondScore) < 0.11 && secondScore > 0.42) {
+            maskArr[rowOff + x] = 1; // Contested 1:unknown boundary!
+          } else {
+            maskArr[rowOff + x] = bestPid;
+          }
         }
       }
     }
@@ -1481,7 +1830,7 @@ class BrowserScionReducer {
     return {
       snapshot: {
         ok: true,
-        engine: isRawMp ? 'mediapipe_raw_ab' : 'scion_browser_wasm',
+        engine: isRawMp ? 'mediapipe_raw_uncropped' : `scion_browser_roi_${appState.poseVariant}`,
         schema_version: 'scion_atomic_snapshot_v1',
         session_id: appState.sessionId,
         frame_index: appState.frameIndex,
@@ -1498,6 +1847,7 @@ class BrowserScionReducer {
         torso_scale: +(this.torsoScaleM).toFixed(4),
         torso_scale_px: Math.round(this.torsoScalePx),
         torso_scale_locked: this.torsoScaleLocked,
+        specialist_rois: activeRois,
         body_joints: bodyJoints,
         left_hand: leftHand,
         right_hand: rightHand,
@@ -1516,43 +1866,36 @@ const scionReducer = new BrowserScionReducer();
 const rawAbReducer = new BrowserScionReducer();
 
 /* ============================================================================
- * 4. Built-in Procedural Synthetic Performer (Works Offline & Without Camera!)
+ * 5. Procedural 720p Synthetic Performer (Works Offline / file:// / No Camera!)
  * ============================================================================ */
 function generateSyntheticPerformerFrame(W, H, t) {
-  // Studio backdrop
   const bg = sensorCtx.createLinearGradient(0, 0, 0, H);
   bg.addColorStop(0, '#101827');
   bg.addColorStop(1, '#090d16');
   sensorCtx.fillStyle = bg;
   sensorCtx.fillRect(0, 0, W, H);
 
-  // Subtle floor horizon lines
   sensorCtx.strokeStyle = 'rgba(56, 226, 255, 0.08)';
   sensorCtx.lineWidth = 1;
   for (let y = 520; y < H; y += 45) {
     sensorCtx.beginPath(); sensorCtx.moveTo(0, y); sensorCtx.lineTo(W, y); sensorCtx.stroke();
   }
 
-  // Choreography cycle: neutral -> multi-depth wrist crossings -> hand-over-face -> forearm orb sweep!
   const pelU = W * 0.5 + 24 * Math.sin(t * 0.55);
   const pelV = H * 0.67;
-  const torsoPx = 215;
-  const shTurn = 0.24 * Math.sin(t * 0.75); // shoulder yaw in depth
+  const torsoPx = 210;
+  const shTurn = 0.24 * Math.sin(t * 0.75);
   const shMidU = pelU + 6 * Math.sin(t * 0.55);
   const shMidV = pelV - torsoPx;
   const noseU = shMidU, noseV = shMidV - 0.36 * torsoPx;
 
   const shSpan = 0.34 * torsoPx * Math.cos(shTurn);
-  // Performer Anatomical Left is sensor +X (image right on unmirrored sensor!); Right is sensor -X!
   const lSh = [shMidU + shSpan, shMidV, -0.34 * Math.sin(shTurn)];
   const rSh = [shMidU - shSpan, shMidV, +0.34 * Math.sin(shTurn)];
 
-  const phase = (t * 0.55) % (Math.PI * 2);
-  // Dynamic crossing & face cover motion
   const crossWave = Math.sin(t * 1.35);
   const faceWave = Math.max(0, Math.sin(t * 0.68 - 1.1));
 
-  // Left arm (performer left = cyan) sweeps across chest & crosses right wrist at closer -Z when crossWave > 0
   const lWrZ = -0.26 - 0.16 * crossWave;
   const rWrZ = -0.24 + 0.16 * crossWave;
 
@@ -1566,15 +1909,11 @@ function generateSyntheticPerformerFrame(W, H, t) {
   const rElU = 0.52 * rSh[0] + 0.48 * rWrU - 34;
   const rElV = 0.5 * (rSh[1] + rWrV) + 38;
 
-  // Draw clothed silhouette onto sensorCanvas in back-to-front Z order!
   const drawCapsule = (x0, y0, x1, y1, r, color) => {
-    sensorCtx.strokeStyle = color;
-    sensorCtx.lineWidth = r * 2;
-    sensorCtx.lineCap = 'round';
+    sensorCtx.strokeStyle = color; sensorCtx.lineWidth = r * 2; sensorCtx.lineCap = 'round';
     sensorCtx.beginPath(); sensorCtx.moveTo(x0, y0); sensorCtx.lineTo(x1, y1); sensorCtx.stroke();
   };
 
-  // Legs & Torso & Head
   drawCapsule(pelU + 44, pelV, pelU + 48, pelV + 170, 30, '#1e293b');
   drawCapsule(pelU - 44, pelV, pelU - 48, pelV + 170, 30, '#1e293b');
   drawCapsule(pelU, pelV, shMidU, shMidV, 78, '#263859');
@@ -1588,8 +1927,7 @@ function generateSyntheticPerformerFrame(W, H, t) {
     sensorCtx.beginPath(); sensorCtx.arc(wrU, wrV, 22 * handScale, 0, Math.PI * 2); sensorCtx.fill();
   };
 
-  const lScale = 1.0 - 0.35 * lWrZ;
-  const rScale = 1.0 - 0.35 * rWrZ;
+  const lScale = 1.0 - 0.35 * lWrZ, rScale = 1.0 - 0.35 * rWrZ;
   if (lWrZ > rWrZ) {
     drawArm(lSh, lElU, lElV, lWrU, lWrV, '#1f4e68', lScale);
     drawArm(rSh, rElU, rElV, rWrU, rWrV, '#5b3228', rScale);
@@ -1598,7 +1936,6 @@ function generateSyntheticPerformerFrame(W, H, t) {
     drawArm(lSh, lElU, lElV, lWrU, lWrV, '#1f4e68', lScale);
   }
 
-  // Construct synthetic MediaPipe-format detections (including raw MediaPipe's classic crossed-hand label swap!)
   const poseLm = Array.from({ length: 33 }, () => ({ x: 0.5, y: 0.5, z: 0, visibility: 0.92 }));
   const worldLm = Array.from({ length: 33 }, () => ({ x: 0, y: 0, z: 0, visibility: 0.92 }));
   const setJoint = (idx, u, v, zTorso) => {
@@ -1627,32 +1964,21 @@ function generateSyntheticPerformerFrame(W, H, t) {
   setJoint(31, pelU + 55, pelV + 325, -0.06);
   setJoint(32, pelU - 55, pelV + 325, -0.06);
 
-  // Build 21-joint anatomically chiral hands (thumb-pinky cross + palmar curl!)
   const makeHand21 = (wrU, wrV, elU, elV, isAnatRight, scaleFactor) => {
-    const dirX = wrU - elU, dirY = wrV - elV;
-    const dn = Math.max(1, Math.hypot(dirX, dirY));
-    const ux = dirX / dn, uy = dirY / dn;
-    const px = -uy, py = ux;
-    const sideSign = isAnatRight ? 1 : -1;
-    const span = 28 * scaleFactor;
-    const lm2 = [], lm3 = [];
+    const dirX = wrU - elU, dirY = wrV - elV, dn = Math.max(1, Math.hypot(dirX, dirY));
+    const ux = dirX / dn, uy = dirY / dn, px = -uy, py = ux, sideSign = isAnatRight ? 1 : -1;
+    const span = 28 * scaleFactor, lm2 = [], lm3 = [];
     for (let i = 0; i < 21; i++) {
       let along = 0, across = 0, zCurl = 0;
-      if (i > 0 && i <= 4) {
-        along = 0.25 * i; across = sideSign * 0.36 * i; zCurl = -0.012 * i;
-      } else if (i >= 5) {
-        const fingerIdx = Math.floor((i - 5) / 4); // 0:index..3:pinky
-        const segIdx = ((i - 5) % 4) + 1;
-        along = 0.42 + 0.26 * segIdx;
-        across = sideSign * (0.42 - 0.28 * fingerIdx);
-        zCurl = -0.008 * segIdx * segIdx; // biomechanical palmar curl toward camera (-Z)
+      if (i > 0 && i <= 4) { along = 0.25 * i; across = sideSign * 0.36 * i; zCurl = -0.012 * i; }
+      else if (i >= 5) {
+        const fingerIdx = Math.floor((i - 5) / 4), segIdx = ((i - 5) % 4) + 1;
+        along = 0.42 + 0.26 * segIdx; across = sideSign * (0.42 - 0.28 * fingerIdx); zCurl = -0.008 * segIdx * segIdx;
       }
-      const u = wrU + (ux * along + px * across) * span;
-      const v = wrV + (uy * along + py * across) * span;
+      const u = wrU + (ux * along + px * across) * span, v = wrV + (uy * along + py * across) * span;
       lm2.push({ x: u / W, y: v / H, z: zCurl });
       lm3.push({ x: ((u - wrU) / torsoPx) * 0.52, y: ((v - wrV) / torsoPx) * 0.52, z: zCurl });
     }
-    // Raw MediaPipe often labels by screen X side when wrists cross!
     const rawSelfieCat = (wrU > shMidU) ? 'Right' : 'Left';
     return { lm2, lm3, cat: [{ categoryName: rawSelfieCat, score: 0.88 }] };
   };
@@ -1666,37 +1992,46 @@ function generateSyntheticPerformerFrame(W, H, t) {
   });
   face478[4] = { x: noseU / W, y: noseV / H, z: -0.04 };
 
-  // Foreground silhouette mask from non-background luminance on sensorCanvas
+  // Build synthetic 6-class multiclass mask (0:bg, 2:body-skin, 3:face-skin, 4:clothes)
   const mW = 160, mH = 90;
-  const fg = new Float32Array(mW * mH);
+  const mc = new Uint8Array(mW * mH);
   const img = sensorCtx.getImageData(0, 0, W, H).data;
   for (let y = 0; y < mH; y++) {
-    const sy = Math.floor(y * H / mH) * W;
+    const sy = Math.floor(y * H / mH);
     for (let x = 0; x < mW; x++) {
-      const idx4 = (sy + Math.floor(x * W / mW)) * 4;
-      const diffBg = Math.abs(img[idx4] - 14) + Math.abs(img[idx4 + 1] - 20) + Math.abs(img[idx4 + 2] - 34);
-      fg[y * mW + x] = diffBg > 28 ? 0.95 : 0.02;
+      const sx = Math.floor(x * W / mW);
+      const idx4 = (sy * W + sx) * 4;
+      const r = img[idx4], g = img[idx4 + 1], b = img[idx4 + 2];
+      const diffBg = Math.abs(r - 14) + Math.abs(g - 20) + Math.abs(b - 34);
+      if (diffBg <= 28) mc[y * mW + x] = 0;
+      else if (r > 180 && g > 130) mc[y * mW + x] = Math.hypot(sx - noseU, sy - noseV) < 48 ? 3 : 2;
+      else mc[y * mW + x] = 4;
     }
   }
+
+  const rois = [];
+  if (Math.hypot(lWrU - rWrU, lWrV - rWrV) < 280) {
+    rois.push({ label: 'CROSS-ROI', ...computeSquareSensorCrop(0.5*(lWrU+rWrU), 0.5*(lWrV+rWrV), 260, W, H), res: 320, zoom: 1.23, color: '#42e89b' });
+  } else {
+    rois.push({ label: 'L-ROI', ...computeSquareSensorCrop(lWrU, lWrV, 180, W, H), res: 256, zoom: 1.42, color: '#38e2ff' });
+    rois.push({ label: 'R-ROI', ...computeSquareSensorCrop(rWrU, rWrV, 180, W, H), res: 256, zoom: 1.42, color: '#ff8a54' });
+  }
+  rois.push({ label: 'FACE-ROI', ...computeSquareSensorCrop(noseU, noseV, 185, W, H), res: 256, zoom: 1.38, color: '#f5d469' });
 
   return {
     poseRes: { landmarks: [poseLm], worldLandmarks: [worldLm] },
     handRes: { landmarks: [hL.lm2, hR.lm2], worldLandmarks: [hL.lm3, hR.lm3], handedness: [hL.cat, hR.cat] },
-    faceRes: { faceLandmarks: [face478] },
-    fg, fgW: mW, fgH: mH
+    faceRes: { faceLandmarks: [face478], tsMs: performance.now() },
+    mc, mcW: mW, mcH: mH, rois
   };
 }
 
-/* ============================================================================
- * 5. Decode RLE Mask from Native M3 Max Server
- * ============================================================================ */
 function decodeMaskRLE(rle, w, h) {
   const out = new Uint8Array(w * h);
   if (!rle || !rle.length) return out;
   let ptr = 0;
   for (let i = 0; i < rle.length; i += 2) {
-    const val = rle[i] & 0xff;
-    const len = rle[i + 1];
+    const val = rle[i] & 0xff, len = rle[i + 1];
     out.fill(val, ptr, Math.min(out.length, ptr + len));
     ptr += len;
   }
@@ -1704,7 +2039,7 @@ function decodeMaskRLE(rle, w, h) {
 }
 
 /* ============================================================================
- * 6. Camera & Video Source Management (Laptop + Mobile Front/Rear + Synthetic)
+ * 6. Camera & Video Acquisition (Auto-Start + Front/Rear + Virtual Cam Skip)
  * ============================================================================ */
 async function refreshCameraList(activeDeviceId = '') {
   if (!navigator.mediaDevices?.enumerateDevices) return;
@@ -1733,7 +2068,9 @@ function stopCurrentSource() {
     videoEl.pause();
     videoEl.srcObject = null;
     videoEl.removeAttribute('src');
-  } catch (_) {}
+  } catch (stopErr) {
+    console.debug('[SCION] video stop:', stopErr);
+  }
   appState.sourceKind = 'none';
   btnStartCamera.textContent = '▶ START LIVE CAMERA';
   btnStartCamera.classList.remove('running');
@@ -1741,13 +2078,13 @@ function stopCurrentSource() {
   streamBadge.className = 'badge';
 }
 
-async function startLiveCamera(preferredDeviceId = '', explicitFacing = null) {
+async function startLiveCamera(preferredDeviceId = '', explicitFacing = null, isAutoBoot = false) {
   try {
     if (!navigator.mediaDevices?.getUserMedia) {
-      throw new Error('Camera API requires HTTPS (e.g. GitHub Pages) or localhost');
+      throw new Error('Camera requires HTTPS (GitHub Pages) or localhost');
     }
     if (explicitFacing) appState.facingMode = explicitFacing;
-    showBanner('Opening live human camera at 1280×720...');
+    if (!isAutoBoot) showBanner('Opening 1280×720 physical human camera...');
 
     const buildConstraints = (devId) => ({
       audio: false,
@@ -1760,7 +2097,6 @@ async function startLiveCamera(preferredDeviceId = '', explicitFacing = null) {
     let stream = await navigator.mediaDevices.getUserMedia(buildConstraints(preferredDeviceId));
     let trackLabel = stream.getVideoTracks()[0]?.label || 'Live Camera';
 
-    // Auto-skip virtual cameras (OBS/Camo/NDI/EpocCam/mmhmm) when picking default physical camera
     if (!preferredDeviceId && !explicitFacing && VIRT_CAM_RE.test(trackLabel)) {
       const allDevs = await navigator.mediaDevices.enumerateDevices();
       const realCams = allDevs.filter(d => d.kind === 'videoinput' && d.deviceId && !VIRT_CAM_RE.test(d.label));
@@ -1776,7 +2112,6 @@ async function startLiveCamera(preferredDeviceId = '', explicitFacing = null) {
     appState.activeStream = stream;
     appState.sourceKind = 'camera';
 
-    // Auto-set Mirror Preview ON for front selfie camera, OFF for rear environment camera
     const mirrorNow = (appState.facingMode !== 'environment');
     appState.mirrorPreview = mirrorNow;
     chkMirror.checked = mirrorNow;
@@ -1789,7 +2124,6 @@ async function startLiveCamera(preferredDeviceId = '', explicitFacing = null) {
     const activeSettings = stream.getVideoTracks()[0]?.getSettings?.() || {};
     await refreshCameraList(activeSettings.deviceId || preferredDeviceId);
 
-    stageEmpty.classList.add('hidden');
     btnStartCamera.textContent = '■ STOP CAMERA';
     btnStartCamera.classList.add('running');
     streamBadge.textContent = `LIVE CAM: ${trackLabel.slice(0, 26)}`;
@@ -1798,16 +2132,23 @@ async function startLiveCamera(preferredDeviceId = '', explicitFacing = null) {
     if (appState.engineMode === 'browser' || appState.abMode !== 'scion') {
       await ensureBrowserEngineReady();
     }
+    stageEmpty.classList.add('hidden');
     resetEpochAll();
     showBanner('');
     ensureLoopRunning();
   } catch (err) {
+    if (isAutoBoot) {
+      streamBadge.textContent = 'CLICK START LIVE CAMERA';
+      streamBadge.className = 'badge warn';
+      return;
+    }
     const msg = /NotAllowed/i.test(err.name)
-      ? 'Camera permission blocked — allow camera access in browser bar, or click "Synthetic Performer"!'
+      ? 'Camera permission blocked — allow camera in address bar, or click "Synthetic Performer"!'
       : /NotFound/i.test(err.name)
-      ? 'No physical camera found — click "Synthetic Performer" to test immediately!'
-      : `Camera error: ${err.message || err}`;
+      ? 'No physical webcam found — starting Synthetic Performer!'
+      : `Camera error: ${err?.message || err}`;
     showBanner(msg, true);
+    if (/NotFound/i.test(err.name)) startSyntheticPerformer();
   }
 }
 
@@ -1817,16 +2158,13 @@ function startSyntheticPerformer() {
   appState.mirrorPreview = true;
   chkMirror.checked = true;
   pillMirror.classList.add('on');
-  sensorCanvas.width = 1280;
-  sensorCanvas.height = 720;
-  liveCanvas.width = 1280;
-  liveCanvas.height = 720;
+  sensorCanvas.width = 1280; sensorCanvas.height = 720;
+  liveCanvas.width = 1280; liveCanvas.height = 720;
   resLabel.textContent = '1280×720 (Synthetic)';
   stageEmpty.classList.add('hidden');
   streamBadge.textContent = 'SYNTHETIC PERFORMER (720P)';
   streamBadge.className = 'badge ok';
   resetEpochAll();
-  showBanner('');
   ensureLoopRunning();
 }
 
@@ -1840,7 +2178,7 @@ async function startVideoUrl(url, labelText) {
   try {
     await new Promise((resolve, reject) => {
       videoEl.onloadeddata = () => resolve(true);
-      videoEl.onerror = () => reject(new Error('Could not decode video'));
+      videoEl.onerror = () => reject(new Error('Video decode failed'));
       videoEl.crossOrigin = 'anonymous';
       videoEl.loop = true;
       videoEl.muted = true;
@@ -1849,23 +2187,23 @@ async function startVideoUrl(url, labelText) {
     });
     await videoEl.play();
     appState.sourceKind = 'video';
-    stageEmpty.classList.add('hidden');
     streamBadge.textContent = labelText;
     streamBadge.className = 'badge ok';
     if (appState.engineMode === 'browser' || appState.abMode !== 'scion') {
       await ensureBrowserEngineReady();
     }
+    stageEmpty.classList.add('hidden');
     resetEpochAll();
     showBanner('');
     ensureLoopRunning();
   } catch (err) {
-    showBanner(`Video load failed (${err.message}) — starting Synthetic Performer instead!`, true);
+    showBanner(`Video load failed (${err?.message || err}) — running Synthetic Performer!`, true);
     startSyntheticPerformer();
   }
 }
 
 /* ============================================================================
- * 7. Main Frame Loop (Strictly 1 Frame In-Flight)
+ * 7. Main Live Frame Loop (Zero Silent Catch; 512p Pose + 256p Sensor ROIs!)
  * ============================================================================ */
 function ensureLoopRunning() {
   if (!appState.rafId) appState.rafId = requestAnimationFrame(tickLoop);
@@ -1890,20 +2228,20 @@ async function tickLoop() {
       appState.synthTime += 1 / 30;
       const syn = generateSyntheticPerformerFrame(W, H, appState.synthTime);
       appState.frameIndex += 1;
+      appState.lastActiveRois = syn.rois;
+      appState.lastMulticlass256 = syn.mc;
+      appState.lastMulticlassW = syn.mcW;
+      appState.lastMulticlassH = syn.mcH;
       const nowMs = performance.now();
-      const scionOut = scionReducer.reduce(W, H, nowMs, syn.poseRes, syn.handRes, syn.faceRes, syn.fg, syn.fgW, syn.fgH, false);
-      const rawOut = rawAbReducer.reduce(W, H, nowMs, syn.poseRes, syn.handRes, syn.faceRes, syn.fg, syn.fgW, syn.fgH, true);
+      const scionOut = scionReducer.reduce(W, H, nowMs, syn.poseRes, syn.handRes, syn.faceRes, syn.mc, syn.mcW, syn.mcH, false, syn.rois);
+      // In Synthetic mode, Raw MP misses far/crossed hand zoom or swaps labels!
+      const rawOut = rawAbReducer.reduce(W, H, nowMs, syn.poseRes, syn.handRes, syn.faceRes, syn.mc, syn.mcW, syn.mcH, true, []);
       const latMs = +(performance.now() - tCapture).toFixed(1);
       scionOut.snapshot.capture_to_publish_ms = latMs;
       rawOut.snapshot.capture_to_publish_ms = latMs;
 
-      if (appState.abMode === 'mp_raw') {
-        appState.lastSnapshot = rawOut.snapshot;
-        appState.lastMaskArray = rawOut.maskArr;
-      } else {
-        appState.lastSnapshot = scionOut.snapshot;
-        appState.lastMaskArray = scionOut.maskArr;
-      }
+      appState.lastSnapshot = appState.abMode === 'mp_raw' ? rawOut.snapshot : scionOut.snapshot;
+      appState.lastMaskArray = appState.abMode === 'mp_raw' ? rawOut.maskArr : scionOut.maskArr;
       appState.lastRawSnapshot = rawOut.snapshot;
       appState.lastRawMaskArray = rawOut.maskArr;
       appState.lastMaskW = scionOut.maskW;
@@ -1917,14 +2255,13 @@ async function tickLoop() {
         rawSplitCanvas.width = W; rawSplitCanvas.height = H;
         resLabel.textContent = `${W}×${H}`;
       }
-      // Always draw unmirrored sensor frame!
       sensorCtx.drawImage(videoEl, 0, 0, W, H);
       appState.frameIndex += 1;
 
       const useNative = (appState.engineMode === 'native' && appState.nativeOnline && appState.abMode === 'scion');
       if (useNative) {
         const blob = await new Promise(res => sensorCanvas.toBlob(res, 'image/jpeg', 0.80));
-        const resp = await fetch(`${NATIVE_API_ORIGIN}/api/infer`, {
+        const resp = await fetch(`${activeNativeOrigin}/api/infer`, {
           method: 'POST',
           headers: {
             'Content-Type': 'image/jpeg',
@@ -1934,55 +2271,69 @@ async function tickLoop() {
           },
           body: blob
         });
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        if (!resp.ok) throw new Error(`Native HTTP ${resp.status}`);
         const data = await resp.json();
-        if (!data.ok) throw new Error(data.error || 'infer error');
+        if (!data.ok) throw new Error(data.error || 'Native infer failed');
         const mW = data.part_mask?.width || W, mH = data.part_mask?.height || H;
         data.capture_to_publish_ms = data.server_infer_ms ?? +(performance.now() - tCapture).toFixed(1);
         appState.lastSnapshot = data;
         appState.lastMaskArray = decodeMaskRLE(data.part_mask?.rle, mW, mH);
         appState.lastMaskW = mW;
         appState.lastMaskH = mH;
+        appState.lastActiveRois = [];
       } else {
         await ensureBrowserEngineReady();
-        const mpTs = nextMonotonicMpTs();
-        const poseRes = mpEngine.pose.detectForVideo(sensorCanvas, mpTs);
-        const handRes = mpEngine.hands.detectForVideo(sensorCanvas, mpTs);
-        const faceRes = mpEngine.face.detectForVideo(sensorCanvas, mpTs);
-        const segRes = mpEngine.seg.segmentForVideo(sensorCanvas, mpTs);
+        // Stage 1: Fast 512x288 whole-body pose pass (~5ms)
+        poseInputCtx.drawImage(sensorCanvas, 0, 0, 512, 288);
+        const poseRes = mpEngine.pose.detectForVideo(poseInputCanvas, nextMonotonicMpTs());
 
-        let fgCopy = null, fgW = 0, fgH = 0;
-        try {
-          if (segRes?.confidenceMasks?.length) {
-            const cm = segRes.confidenceMasks.length > 1 ? segRes.confidenceMasks[1] : segRes.confidenceMasks[0];
-            fgW = cm.width; fgH = cm.height;
-            fgCopy = new Float32Array(cm.getAsFloat32Array());
-          }
-        } finally {
-          try { segRes?.close?.(); } catch (_) {}
+        // Stage 2: SCION Full-Sensor 256x256 / 320x320 Adaptive ROI Specialists + Staggered Multiclass Seg
+        let scionOut = null;
+        if (appState.abMode !== 'mp_raw') {
+          const roiSpec = runSCIONFullSensorSpecialistROIs(W, H, poseRes, appState.frameIndex);
+          scionOut = scionReducer.reduce(
+            W, H, performance.now(),
+            poseRes, roiSpec.handRes, roiSpec.faceRes,
+            appState.lastMulticlass256, appState.lastMulticlassW, appState.lastMulticlassH,
+            false, roiSpec.activeRois
+          );
         }
 
-        const nowMs = performance.now();
-        const scionOut = scionReducer.reduce(W, H, nowMs, poseRes, handRes, faceRes, fgCopy, fgW, fgH, false);
-        const rawOut = (appState.abMode !== 'scion')
-          ? rawAbReducer.reduce(W, H, nowMs, poseRes, handRes, faceRes, fgCopy, fgW, fgH, true)
-          : null;
+        // Stock MediaPipe Raw (uncropped low-res full-frame — misses small far hands & swaps crossed wrists!)
+        let rawOut = null;
+        if (appState.abMode === 'mp_raw' || appState.abMode === 'split') {
+          if (appState.abMode === 'mp_raw' || appState.frameIndex % 2 === 0 || !appState.lastRawSnapshot) {
+            const rawHandsFull = mpEngine.hands.detect(poseInputCanvas);
+            const rawFaceFull = (appState.frameIndex % 4 === 0 && mpEngine.face) ? mpEngine.face.detect(poseInputCanvas) : null;
+            rawOut = rawAbReducer.reduce(
+              W, H, performance.now(),
+              poseRes, rawHandsFull, rawFaceFull,
+              appState.lastMulticlass256, appState.lastMulticlassW, appState.lastMulticlassH,
+              true, []
+            );
+          }
+        }
 
         const latMs = +(performance.now() - tCapture).toFixed(1);
-        scionOut.snapshot.capture_to_publish_ms = latMs;
-        if (rawOut) rawOut.snapshot.capture_to_publish_ms = latMs;
+        if (scionOut) scionOut.snapshot.capture_to_publish_ms = latMs;
+        if (rawOut) {
+          rawOut.snapshot.capture_to_publish_ms = latMs;
+          appState.lastRawSnapshot = rawOut.snapshot;
+          appState.lastRawMaskArray = rawOut.maskArr;
+        }
 
         if (appState.abMode === 'mp_raw' && rawOut) {
           appState.lastSnapshot = rawOut.snapshot;
           appState.lastMaskArray = rawOut.maskArr;
-        } else {
+          appState.lastMaskW = rawOut.maskW;
+          appState.lastMaskH = rawOut.maskH;
+          appState.lastActiveRois = [];
+        } else if (scionOut) {
           appState.lastSnapshot = scionOut.snapshot;
           appState.lastMaskArray = scionOut.maskArr;
+          appState.lastMaskW = scionOut.maskW;
+          appState.lastMaskH = scionOut.maskH;
         }
-        appState.lastRawSnapshot = rawOut ? rawOut.snapshot : null;
-        appState.lastRawMaskArray = rawOut ? rawOut.maskArr : null;
-        appState.lastMaskW = scionOut.maskW;
-        appState.lastMaskH = scionOut.maskH;
       }
     }
 
@@ -1998,7 +2349,15 @@ async function tickLoop() {
     renderLiveStage();
     renderRigViewport();
     updateTelemetryUI();
-  } catch (_) {
+  } catch (err) {
+    const now = performance.now();
+    if (now - appState.lastErrLogTs > 2000) {
+      appState.lastErrLogTs = now;
+      console.error('[SCION Frame Error]', err);
+      breakerTag.textContent = `Err: ${(err?.message || String(err)).slice(0, 26)}`;
+      breakerTag.style.color = 'var(--danger)';
+      showBanner(`Runtime error: ${err?.message || err}`, true);
+    }
     if (appState.engineMode === 'native') {
       setEngineMode('browser');
     }
@@ -2008,7 +2367,7 @@ async function tickLoop() {
 }
 
 /* ============================================================================
- * 8. Render Live Viewport (Supports SCION, Stock MP Raw, and Draggable Split A/B!)
+ * 8. Render Live Stage (ROI Zoom Boxes + 16-Part Mask + Stelline Orb + Split A/B)
  * ============================================================================ */
 function mapSensorUV(u, v, W) {
   return appState.mirrorPreview ? [(W - 1) - u, v] : [u, v];
@@ -2016,10 +2375,7 @@ function mapSensorUV(u, v, W) {
 
 function renderSceneIntoContext(ctx, snap, maskArr, mW, mH, W, H, isRawStyle) {
   ctx.save();
-  if (appState.mirrorPreview) {
-    ctx.translate(W, 0);
-    ctx.scale(-1, 1);
-  }
+  if (appState.mirrorPreview) { ctx.translate(W, 0); ctx.scale(-1, 1); }
   ctx.drawImage(sensorCanvas, 0, 0, W, H);
   ctx.restore();
 
@@ -2044,7 +2400,7 @@ function renderSceneIntoContext(ctx, snap, maskArr, mW, mH, W, H, isRawStyle) {
       } else if (showMask) {
         const col = PART_PALETTE[pid] || [120, 200, 255];
         const p4 = i * 4;
-        px[p4] = col[0]; px[p4 + 1] = col[1]; px[p4 + 2] = col[2]; px[p4 + 3] = isRawStyle ? 55 : 98;
+        px[p4] = col[0]; px[p4 + 1] = col[1]; px[p4 + 2] = col[2]; px[p4 + 3] = isRawStyle ? 52 : 98;
       }
     }
     maskOverlayCtx.putImageData(imgData, 0, 0);
@@ -2059,6 +2415,29 @@ function renderSceneIntoContext(ctx, snap, maskArr, mW, mH, W, H, isRawStyle) {
   let orbStats = { armOccPx: 0, torsoOccPx: 0, zOrb: 0 };
   if (chkOrb.checked && snap.person_present) {
     orbStats = renderStellineOrbIntoContext(ctx, snap, maskArr, mW, mH, W, H, !isRawStyle);
+  }
+
+  // Draw SCION Full-Sensor 256x256 / 320x320 Adaptive ROI Zoom Boxes!
+  if (!isRawStyle && chkRoiBoxes.checked && snap.specialist_rois?.length) {
+    for (const roi of snap.specialist_rois) {
+      const [dx0] = mapSensorUV(roi.x0, roi.y0, W);
+      const [dx1] = mapSensorUV(roi.x0 + roi.size, roi.y0 + roi.size, W);
+      const rx = Math.min(dx0, dx1);
+      ctx.save();
+      ctx.strokeStyle = roi.color || '#38e2ff';
+      ctx.lineWidth = 1.6;
+      ctx.setLineDash([6, 4]);
+      ctx.strokeRect(rx, roi.y0, roi.size, roi.size);
+      ctx.setLineDash([]);
+      const tag = `${roi.label} ${roi.size}px→${roi.res}² (${roi.zoom}×)`;
+      ctx.font = '700 10px ui-monospace, Menlo, monospace';
+      const tw = ctx.measureText(tag).width + 8;
+      ctx.fillStyle = 'rgba(9, 12, 18, 0.85)';
+      ctx.fillRect(rx, Math.max(2, roi.y0 - 15), tw, 14);
+      ctx.fillStyle = roi.color || '#38e2ff';
+      ctx.fillText(tag, rx + 4, Math.max(12, roi.y0 - 5));
+      ctx.restore();
+    }
   }
 
   if (chkSkeleton.checked && snap.person_present) {
@@ -2112,15 +2491,18 @@ function renderSceneIntoContext(ctx, snap, maskArr, mW, mH, W, H, isRawStyle) {
       if (!hand?.joints || hand.joints.length < 21) continue;
       const pts = hand.joints.map(hj => (hj?.uv && hj.support !== 'unavailable') ? mapSensorUV(hj.uv[0], hj.uv[1], W) : null);
       ctx.strokeStyle = col;
-      ctx.lineWidth = 1.8;
+      ctx.lineWidth = 1.9;
       for (const [a, b] of HAND_BONES) {
         if (pts[a] && pts[b]) {
           ctx.beginPath(); ctx.moveTo(pts[a][0], pts[a][1]); ctx.lineTo(pts[b][0], pts[b][1]); ctx.stroke();
         }
       }
+      ctx.fillStyle = col;
+      for (const p of pts) {
+        if (p) { ctx.beginPath(); ctx.arc(p[0], p[1], 2.3, 0, Math.PI * 2); ctx.fill(); }
+      }
       if (pts[9]) {
         ctx.font = '700 11px ui-monospace, monospace';
-        ctx.fillStyle = col;
         ctx.fillText(sideLbl, pts[9][0] + 6, pts[9][1] - 6);
       }
     }
@@ -2128,8 +2510,8 @@ function renderSceneIntoContext(ctx, snap, maskArr, mW, mH, W, H, isRawStyle) {
     const flms = snap.face?.landmarks;
     if (flms && flms.length >= 68) {
       const fpts = flms.map(lm => (lm?.uv && lm.support !== 'unavailable') ? mapSensorUV(lm.uv[0], lm.uv[1], W) : null);
-      ctx.strokeStyle = 'rgba(245, 212, 105, 0.72)';
-      ctx.lineWidth = 1.25;
+      ctx.strokeStyle = 'rgba(245, 212, 105, 0.76)';
+      ctx.lineWidth = 1.3;
       for (const c of IBUG68_CONTOURS) {
         ctx.beginPath();
         let started = false;
@@ -2152,8 +2534,8 @@ function renderSceneIntoContext(ctx, snap, maskArr, mW, mH, W, H, isRawStyle) {
       const [dx1] = mapSensorUV(u1, v1, W);
       const leftX = Math.min(dx0, dx1), boxW = Math.abs(dx1 - dx0), boxH = Math.max(16, v1 - v0);
       ctx.save();
-      ctx.strokeStyle = ov.resolved ? 'rgba(66, 232, 155, 0.85)' : 'rgba(245, 212, 105, 0.85)';
-      ctx.lineWidth = 1.6;
+      ctx.strokeStyle = ov.resolved ? 'rgba(66, 232, 155, 0.88)' : 'rgba(245, 212, 105, 0.88)';
+      ctx.lineWidth = 1.7;
       ctx.setLineDash(ov.resolved ? [] : [5, 4]);
       ctx.strokeRect(leftX, v0, boxW, boxH);
       const label = `${ov.front_name.replace('left_','L_').replace('right_','R_')} ▸ ${ov.back_name.replace('left_','L_').replace('right_','R_')} ${Math.round(ov.prob_front*100)}%`;
@@ -2187,8 +2569,7 @@ function renderStellineOrbIntoContext(ctx, snap, maskArr, mW, mH, W, H, enableDe
     appState.currentOrb3D = [(shM.xyz?.[0] ?? 0) * 0.62 + orbitX, (shM.xyz?.[1] ?? -0.62) * 0.62 + orbitY, zOrb];
   }
 
-  const orbSensorU = chestU + orbitX * torsoPx;
-  const orbSensorV = chestV + orbitY * torsoPx;
+  const orbSensorU = chestU + orbitX * torsoPx, orbSensorV = chestV + orbitY * torsoPx;
   const [orbDispX, orbDispY] = mapSensorUV(orbSensorU, orbSensorV, W);
   const radiusPx = clamp(0.24 * torsoPx * (1 - 0.22 * zOrb), 22, 96);
 
@@ -2221,8 +2602,7 @@ function renderStellineOrbIntoContext(ctx, snap, maskArr, mW, mH, W, H, enableDe
   if (enableDepthOcclusion && maskArr && mW > 0 && mH > 0) {
     const orbImg = orbTempCtx.getImageData(0, 0, boxSize, boxSize);
     const od = orbImg.data;
-    const xStartDisp = Math.round(orbDispX - cx);
-    const yStartDisp = Math.round(orbDispY - cy);
+    const xStartDisp = Math.round(orbDispX - cx), yStartDisp = Math.round(orbDispY - cy);
 
     const partZ = new Float32Array(16);
     partZ.fill(zTorso);
@@ -2246,14 +2626,9 @@ function renderStellineOrbIntoContext(ctx, snap, maskArr, mW, mH, W, H, enableDe
         const maskX = Math.min(mW - 1, Math.floor(sensorU * mW / W));
         const pid = maskArr[maskY + maskX];
         if (pid === 0) continue;
-        if (pid === 1) {
-          od[aIdx] = Math.round(od[aIdx] * 0.48);
-        } else if (partZ[pid] < zOrb - 0.015) {
-          od[aIdx] = 0;
-          armOccPx++;
-        } else if (pid === 3) {
-          torsoOccPx++;
-        }
+        if (pid === 1) od[aIdx] = Math.round(od[aIdx] * 0.48);
+        else if (partZ[pid] < zOrb - 0.015) { od[aIdx] = 0; armOccPx++; }
+        else if (pid === 3) torsoOccPx++;
       }
     }
     orbTempCtx.putImageData(orbImg, 0, 0);
@@ -2284,9 +2659,7 @@ function renderLiveStage() {
     liveCtx.drawImage(rawSplitCanvas, 0, 0);
     liveCtx.restore();
 
-    // Split bar handle & headers
-    liveCtx.strokeStyle = '#ffffff';
-    liveCtx.lineWidth = 2.5;
+    liveCtx.strokeStyle = '#ffffff'; liveCtx.lineWidth = 2.5;
     liveCtx.beginPath(); liveCtx.moveTo(splitX, 0); liveCtx.lineTo(splitX, H); liveCtx.stroke();
     liveCtx.fillStyle = '#090c12';
     liveCtx.beginPath(); liveCtx.arc(splitX, H * 0.5, 16, 0, Math.PI * 2); liveCtx.fill();
@@ -2294,14 +2667,14 @@ function renderLiveStage() {
     liveCtx.fillStyle = '#eaf0fb'; liveCtx.font = '700 12px sans-serif';
     liveCtx.fillText('⇄', splitX - 6, H * 0.5 + 4);
 
-    liveCtx.fillStyle = 'rgba(9, 12, 18, 0.82)';
-    liveCtx.fillRect(12, 12, 178, 24);
-    liveCtx.fillRect(splitX + 12, 12, 205, 24);
+    liveCtx.fillStyle = 'rgba(9, 12, 18, 0.84)';
+    liveCtx.fillRect(12, 12, 224, 24);
+    liveCtx.fillRect(splitX + 12, 12, 226, 24);
     liveCtx.font = '700 12px -apple-system, sans-serif';
     liveCtx.fillStyle = '#42e89b';
-    liveCtx.fillText('◀ SCION ATOMIC REDUCER', 20, 28);
+    liveCtx.fillText('◀ SCION (256px ROIs + K=4 Z)', 20, 28);
     liveCtx.fillStyle = '#ff8a54';
-    liveCtx.fillText('STOCK MEDIAPIPE RAW ▶', splitX + 20, 28);
+    liveCtx.fillText('UNCROPPED STOCK MP RAW ▶', splitX + 20, 28);
   }
 
   if (chkOrb.checked && snap?.person_present) {
@@ -2318,11 +2691,9 @@ function project3DRigPoint(xyz, cw, ch) {
   const { yaw, pitch, zoom } = appState.rigOrbit;
   const x = xyz[0], y = xyz[1] + 0.25, z = xyz[2];
   const cy = Math.cos(yaw), sy = Math.sin(yaw);
-  const x1 = x * cy - z * sy;
-  const z1 = x * sy + z * cy;
+  const x1 = x * cy - z * sy, z1 = x * sy + z * cy;
   const cp = Math.cos(pitch), sp = Math.sin(pitch);
-  const y2 = y * cp - z1 * sp;
-  const z2 = y * sp + z1 * cp;
+  const y2 = y * cp - z1 * sp, z2 = y * sp + z1 * cp;
   const scale = (255 * zoom) / Math.max(0.6, 3.3 + z2);
   return { u: cw * 0.5 + x1 * scale, v: ch * 0.52 + y2 * scale, depth: z2 };
 }
@@ -2411,7 +2782,7 @@ function updateTelemetryUI() {
   if (!snap) return;
 
   valFps.textContent = `${appState.measuredFps.toFixed(1)} fps`;
-  valFps.style.color = appState.measuredFps >= 20 ? 'var(--emerald)' : 'var(--gold)';
+  valFps.style.color = appState.measuredFps >= 22 ? 'var(--emerald)' : 'var(--gold)';
   const lat = snap.capture_to_publish_ms ?? 0;
   valLatency.textContent = `${lat.toFixed(1)} ms`;
   valEpoch.textContent = `#${snap.track_epoch}`;
@@ -2422,14 +2793,17 @@ function updateTelemetryUI() {
   const rStr = rh?.attached_to_body_3d ? `R✓(${rh.chirality_score >= 0 ? '+' : ''}${rh.chirality_score})` : 'R—';
   valHands.textContent = `${lStr} · ${rStr}`;
 
-  const bj = Object.values(snap.body_joints || {});
-  const nPx = bj.filter(j => j.support === 'current_pixels').length;
-  const nCarry = bj.filter(j => j.support === 'temporal_carry').length;
-  valSupport.textContent = `${nPx}/23 px · ${nCarry} carry`;
+  const rois = snap.specialist_rois || [];
+  valSupport.textContent = rois.length ? rois.map(r => `${r.label.replace('-ROI','')}:${r.zoom}×`).join(' ') : 'Uncropped';
 
   const evs = snap.circuit_breaker_events || [];
-  breakerTag.textContent = evs.length === 0 ? 'Breakers: Nominal' : `Breaker: ${evs[0].code}`;
-  breakerTag.style.color = evs.length === 0 ? 'var(--emerald)' : 'var(--amber)';
+  if (evs.length === 0) {
+    breakerTag.textContent = 'Breakers: Nominal';
+    breakerTag.style.color = 'var(--emerald)';
+  } else {
+    breakerTag.textContent = `Breaker: ${evs[0].code}`;
+    breakerTag.style.color = 'var(--amber)';
+  }
 
   const ovs = snap.overlaps || [];
   if (!ovs.length) {
@@ -2455,7 +2829,7 @@ function updateTelemetryUI() {
 }
 
 /* ============================================================================
- * 11. UI Event Listeners
+ * 11. UI Event Listeners & Protocol-Aware Auto-Start
  * ============================================================================ */
 function setEngineMode(mode) {
   if (mode === 'native' && !appState.nativeOnline) return;
@@ -2480,14 +2854,26 @@ function resetEpochAll() {
   scionReducer.bumpEpoch();
   rawAbReducer.bumpEpoch();
   appState.sessionId = 'live_human_' + Math.random().toString(36).slice(2, 8);
-  if (IS_LOCAL_HTTP && appState.nativeOnline) {
-    fetch(`${NATIVE_API_ORIGIN}/api/reset`, {
+  if (IS_LOCAL_HTTP && appState.nativeOnline && activeNativeOrigin) {
+    fetch(`${activeNativeOrigin}/api/reset`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ session_id: appState.sessionId })
-    }).catch(() => {});
+    }).catch((err) => console.debug('[SCION] reset notify:', err));
   }
 }
+
+poseModelSelect.addEventListener('change', async () => {
+  appState.poseVariant = poseModelSelect.value;
+  if (mpEngine.visionMod) {
+    mpEngine.ready = false;
+    try {
+      await ensureBrowserEngineReady();
+    } catch (err) {
+      showBanner(`Pose model switch failed: ${err?.message || err}`, true);
+    }
+  }
+});
 
 btnStartCamera.addEventListener('click', () => {
   if (appState.sourceKind === 'camera') stopCurrentSource();
@@ -2512,7 +2898,7 @@ chkMirror.addEventListener('change', () => {
   pillMirror.classList.toggle('on', appState.mirrorPreview);
 });
 
-for (const chk of [chkSkeleton, chkPartMask, chkUnknown, chkOrb]) {
+for (const chk of [chkSkeleton, chkRoiBoxes, chkPartMask, chkUnknown, chkOrb]) {
   chk.addEventListener('change', () => chk.parentElement.classList.toggle('on', chk.checked));
 }
 
@@ -2528,8 +2914,8 @@ btnAbSplit.addEventListener('click', () => setAbMode('split'));
 btnAbRaw.addEventListener('click', () => setAbMode('mp_raw'));
 
 btnDemoServerClip.addEventListener('click', () => {
-  if (IS_LOCAL_HTTP && appState.nativeOnline) {
-    startVideoUrl(`${NATIVE_API_ORIGIN}/demo_video?clip=maya`, 'TEST CLIP: MAYA 720P');
+  if (IS_LOCAL_HTTP && appState.nativeOnline && activeNativeOrigin) {
+    startVideoUrl(`${activeNativeOrigin}/demo_video?clip=maya`, 'TEST CLIP: MAYA 720P');
   }
 });
 
@@ -2557,7 +2943,6 @@ btnExportJson.addEventListener('click', () => {
   a.click();
 });
 
-// Interactive Split Divider Drag + Hover Pixel Inspector
 liveCanvas.addEventListener('pointerdown', (ev) => {
   if (appState.abMode !== 'split') return;
   const rect = liveCanvas.getBoundingClientRect();
@@ -2583,12 +2968,18 @@ liveCanvas.addEventListener('pointermove', (ev) => {
   const mx = Math.min(appState.lastMaskW - 1, Math.floor(sensorU * appState.lastMaskW / W));
   const my = Math.min(appState.lastMaskH - 1, Math.floor(dispY * appState.lastMaskH / H));
   const pid = maskArr[my * appState.lastMaskW + mx] || 0;
+  let mcTxt = '';
+  if (appState.lastMulticlass256 && appState.lastMulticlassW > 0) {
+    const mcx = Math.min(appState.lastMulticlassW - 1, Math.floor(sensorU * appState.lastMulticlassW / W));
+    const mcy = Math.min(appState.lastMulticlassH - 1, Math.floor(dispY * appState.lastMulticlassH / H));
+    const mcId = appState.lastMulticlass256[mcy * appState.lastMulticlassW + mcx] || 0;
+    mcTxt = `[MC:${MULTICLASS_NAMES[mcId] || mcId}] `;
+  }
   const di = snap.part_depth_intervals?.[String(pid)];
-  hoverProbeLabel.textContent = `Sensor (${Math.round(sensorU)}, ${Math.round(dispY)}) → PartId ${pid}: ${PART_NAMES[pid]} ${di ? `Z=[${di.z_min}, ${di.z_max}]` : ''}`;
+  hoverProbeLabel.textContent = `Sensor (${Math.round(sensorU)}, ${Math.round(dispY)}) → ${mcTxt}PartId ${pid}: ${PART_NAMES[pid]} ${di ? `Z=[${di.z_min}, ${di.z_max}]` : ''}`;
 });
 liveCanvas.addEventListener('pointerup', () => { appState.draggingSplit = false; });
 
-// 3D Rig Orbit Drag & Wheel Zoom
 const rigWrap = document.getElementById('rigWrap');
 rigWrap.addEventListener('pointerdown', (e) => {
   if (e.target.tagName === 'BUTTON') return;
@@ -2617,12 +3008,24 @@ document.getElementById('btnRigSide').addEventListener('click', () => { appState
 document.getElementById('btnRigTop').addEventListener('click', () => { appState.rigOrbit.yaw = 0; appState.rigOrbit.pitch = -1.25; renderRigViewport(); });
 document.getElementById('btnRigReset').addEventListener('click', () => { appState.rigOrbit.yaw = 0.42; appState.rigOrbit.pitch = -0.16; appState.rigOrbit.zoom = 1.0; renderRigViewport(); });
 
-// Boot: keep Browser Standalone as universal default; silently probe :8787 ONLY on local HTTP!
+/* ============================================================================
+ * 12. Boot Sequence: Instant Auto-Start on HTTPS / Localhost; File:// Banner
+ * ============================================================================ */
 renderRigViewport();
 probeNativeHealthIfLocal();
+
 if (navigator.mediaDevices?.enumerateDevices) {
   refreshCameraList().catch(() => {});
   navigator.mediaDevices.addEventListener?.('devicechange', () => refreshCameraList());
+}
+
+if (IS_FILE_PROTO) {
+  localServerLink.href = FALLBACK_LOCAL_DAEMON + '/';
+  fileProtoBanner.classList.remove('hidden');
+  startSyntheticPerformer();
+} else if (IS_HTTPS || IS_LOCAL_HTTP) {
+  // Auto-start live physical human camera immediately on GitHub Pages (HTTPS) & localhost!
+  startLiveCamera('', 'user', true);
 }
 </script>
 </body>
