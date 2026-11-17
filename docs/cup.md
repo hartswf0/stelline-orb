@@ -22,6 +22,11 @@ The cup may be held upright, sideways or upside down, and the phone upright or o
 is read from the print. Checked on four photographs each turned to the left, to the right and upside down: all 16
 views gave the same facing cell and the right lid end.
 
+With a sideways cup fed in as a fake camera and the screen on its side, the page found the cup, read the strip and
+showed the target on the right cell; the twin lies the way the cup is held. When the phone is turned while running
+and the camera picture changes shape, the page takes the new shape and finds the cup again (checked by forcing
+the change; not on a real phone).
+
 What was run: at a phone-sized screen, with a recorded picture fed in as a fake camera, the page asked for the
 camera, found the cup, showed the first target and took a tap on it. A refused camera gives the instruction to
 allow it and a TRY AGAIN button. Simulated touches that were 3 degrees round and 5 mm low gave back exactly that
