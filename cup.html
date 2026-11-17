@@ -90,10 +90,10 @@ async function startCam() {
   vid.srcObject = st; await vid.play(); await new Promise(r => vid.videoWidth ? r() : vid.addEventListener('loadedmetadata', r, { once: true }));
   setSource(vid, vid.videoWidth, vid.videoHeight); try { if (navigator.wakeLock) await navigator.wakeLock.request('screen'); } catch (e) {}
 }
-function setSource(el, w, h) { const k = Math.min(1, 640 / Math.max(w, h)); S.W = Math.round(w * k); S.H = Math.round(h * k); frame.width = S.W; frame.height = S.H; S.src = el; stage.style.aspectRatio = w + ' / ' + h; layout(); }
+function setSource(el, w, h) { S.vw = w; S.vh = h; smooth = null; S.det = null; S.pose = null; S.hold = null; const k = Math.min(1, 640 / Math.max(w, h)); S.W = Math.round(w * k); S.H = Math.round(h * k); frame.width = S.W; frame.height = S.H; S.src = el; stage.style.aspectRatio = w + ' / ' + h; layout(); }
 function layout() { const wrap = $('stageWrap'), ar = S.W && S.H ? S.W / S.H : 3 / 4, ww = wrap.clientWidth, wh = wrap.clientHeight; let h = wh, w = h * ar; if (w > ww) { w = ww; h = w / ar; } stage.style.width = w + 'px'; stage.style.height = h + 'px';
   const dpr = Math.min(3, window.devicePixelRatio || 1); ov.width = Math.round(w * dpr); ov.height = Math.round(h * dpr); }
-addEventListener('resize', layout); addEventListener('orientationchange', () => setTimeout(layout, 200));
+addEventListener('resize', layout); addEventListener('orientationchange', () => { setTimeout(layout, 200); setTimeout(layout, 700); }); if (screen.orientation) screen.orientation.addEventListener('change', () => setTimeout(layout, 300));
 const camWords = e => e.name === 'NotAllowedError' || e.name === 'SecurityError' ? 'The camera was not allowed. Open the site settings for this page (the lock or “aA” in the address bar), set Camera to Allow, then try again.'
   : e.name === 'NotFoundError' || e.name === 'OverconstrainedError' ? 'No camera was found on this device.'
   : e.name === 'NotReadableError' ? 'Another app is using the camera. Close it, then try again.'
@@ -163,16 +163,18 @@ ov.addEventListener('pointerdown', e => { const r = ov.getBoundingClientRect(), 
 let R3 = null, scene, cam3, cup3, patches;
 function twinInit() { const c = $('twin'); R3 = new THREE.WebGLRenderer({ canvas: c, alpha: true, antialias: true }); R3.setPixelRatio(Math.min(2, devicePixelRatio || 1)); R3.outputEncoding = THREE.sRGBEncoding; scene = new THREE.Scene(); scene.add(new THREE.HemisphereLight(0xffffff, 0x334455, 1.05)); const dl = new THREE.DirectionalLight(0xffffff, .5); dl.position.set(1, 2, 3); scene.add(dl);
   cam3 = new THREE.PerspectiveCamera(26, 3 / 4, 10, 3000); cam3.position.set(0, 0, 600); cup3 = new THREE.Group(); cup3.add(CUP.buildModel({})); patches = new THREE.Group(); cup3.add(patches); scene.add(cup3); }
-let tw = 0, tx = 0;
+let tw = 0, tx = 0, tz = 0;
 function twinDraw(lit) { if (!R3) twinInit(); const c = $('twin'), w = c.clientWidth, h = c.clientHeight; if (!w) return; R3.setSize(w, h, false); cam3.aspect = w / h; cam3.updateProjectionMatrix();
   const tgt = S.det && S.det.turn ? -(S.det.face + CAL.da) * D2R : tw; tw += Math.atan2(Math.sin(tgt - tw), Math.cos(tgt - tw)) * .3; tx += ((S.pose ? Math.max(-45, Math.min(45, S.pose.tilt)) * D2R : 0) - tx) * .3;
-  const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(tx + .08, 0, 0)).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0, tw, 0))); cup3.quaternion.copy(q); cup3.position.copy(new THREE.Vector3(0, -sp.H / 2, 0).applyQuaternion(q));
+  const rz = S.det ? Math.atan2(-S.det.a[0], -S.det.a[1]) : tz; tz += Math.atan2(Math.sin(rz - tz), Math.cos(rz - tz)) * .3;   // the twin lies the way the cup is held
+  const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, tz)).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(tx + .08, 0, 0))).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0, tw, 0))); cup3.quaternion.copy(q); cup3.position.copy(new THREE.Vector3(0, -sp.H / 2, 0).applyQuaternion(q));
   while (patches.children.length) patches.remove(patches.children[0]); lit.forEach(([col, band, color]) => patches.add(CUP.cellPatch(col, band, color))); R3.render(scene, cam3); }
 
 /* ---- every frame */
 const TIPS = [[8, 'INDEX'], [4, 'THUMB'], [12, 'MIDDLE'], [16, 'RING'], [20, 'LITTLE']];
 let lastDet = 0, lastVT = -1;
 function tick(now) { requestAnimationFrame(tick); if (!S.src || !S.W) return; const isVid = S.src === vid; if (isVid && vid.readyState < 2) return;
+  if (isVid && vid.videoWidth && (vid.videoWidth !== S.vw || vid.videoHeight !== S.vh)) setSource(vid, vid.videoWidth, vid.videoHeight);   // the phone was turned: the picture changed shape
   if (now - lastDet > 110) { lastDet = now; try { readCup(now); } catch (e) { S.err = e.message; } }
   if (HL && isVid && vid.currentTime !== lastVT) { lastVT = vid.currentTime; try { const r = HL.detectForVideo(vid, now); S.hands = (r.landmarks || []).map((lm, i) => ({ lm, side: r.handedness && r.handedness[i] && r.handedness[i][0] ? r.handedness[i][0].categoryName : '' })); } catch (e) { S.hands = []; } }
   S.tips = []; S.hands.forEach((h, hi) => TIPS.forEach(([k, nm]) => { const px = h.lm[k].x * S.W, py = h.lm[k].y * S.H; S.tips.push(Object.assign({ hand: hi, side: h.side, finger: nm, px, py }, look(px, py))); }));
