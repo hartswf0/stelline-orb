@@ -141,7 +141,7 @@ function decode(U, force) {
    Returns { ok, c:[x,y] centre of the label on the axis, a:[x,y] unit vector along the axis toward the lid, w half-width
    (the cup's radius in pixels), len label length in pixels along its middle, sag pixels the bands bow by (its sign
    says which end leans toward the camera), face angle of the cup that faces the camera at c, conf 0..1, margin } */
-function detect(img) {
+function detect(img, hi) {                                    // hi: the same view at full size, to read the print from
   const W = img.width, H = img.height, d = img.data, n = W * H, gray = new Float32Array(n), br = new Uint8Array(n);
   const hist = new Uint32Array(256); for (let i = 0; i < n; i++) { const r = d[i * 4], g = d[i * 4 + 1], b = d[i * 4 + 2]; gray[i] = r * .3 + g * .59 + b * .11; const mx = Math.max(r, g, b); br[i] = mx; hist[mx]++; }
   let acc = 0, p97 = 255; for (let v = 255; v >= 0; v--) { acc += hist[v]; if (acc > n * .03) { p97 = v; break; } }
@@ -183,7 +183,10 @@ function detect(img) {
     const ex = Math.round((x1 - x0) * .3), ey = Math.round((y1 - y0) * .3), X0 = Math.max(0, x0 - ex), X1 = Math.min(W - 1, x1 + ex), Y0 = Math.max(0, y0 - ey), Y1 = Math.min(H - 1, y1 + ey), pm = new Float32Array(n);
     for (let y = Y0; y <= Y1; y++) for (let x = X0; x <= X1; x++) { const i = y * W + x, r = d[i * 4], g = d[i * 4 + 1] + 1, b2 = d[i * 4 + 2]; pm[i] = (lab[i] === c.id || (gray[i] > .72 * pgy && Math.abs(r / g - pr / (pg + 1)) < .09 && Math.abs(b2 / g - pb / (pg + 1)) < .09)) ? 1 : 0; }
     const m2 = blur(pm), lb2 = new Int32Array(n), seeds = []; for (let i = 0; i < n; i += 7) if (lab[i] === c.id) seeds.push(i); let reg = flood(m2, seeds, 1, lb2); reg = trim(lb2, reg.area) || reg; reg.id = 1; cand.push(reg); }
-  const samp = (x, y) => { if (x < 0 || y < 0 || x > W - 1.001 || y > H - 1.001) return -1; const x0 = x | 0, y0 = y | 0, fx = x - x0, fy = y - y0, i = y0 * W + x0; return gray[i] * (1 - fx) * (1 - fy) + gray[i + 1] * fx * (1 - fy) + gray[i + W] * (1 - fx) * fy + gray[i + W + 1] * fx * fy; };
+  const sampLo = (x, y) => { if (x < 0 || y < 0 || x > W - 1.001 || y > H - 1.001) return -1; const x0 = x | 0, y0 = y | 0, fx = x - x0, fy = y - y0, i = y0 * W + x0; return gray[i] * (1 - fx) * (1 - fy) + gray[i + 1] * fx * (1 - fy) + gray[i + W] * (1 - fx) * fy + gray[i + W + 1] * fx * fy; };
+  /* the label is found in the small picture; the print is read from the large one when there is one */
+  let samp = sampLo; if (hi && hi.width > W * 1.3) { const HW = hi.width, HH = hi.height, hd = hi.data, k = HW / W, taps = Math.max(1, Math.round(k / 2.2)), gh = (xi, yi) => { const q = (yi * HW + xi) * 4; return hd[q] * .3 + hd[q + 1] * .59 + hd[q + 2] * .11; };
+    samp = (x, y) => { if (x < 0 || y < 0 || x > W - 1.001 || y > H - 1.001) return -1; const X = (x + .5) * k - .5, Y = (y + .5) * k - .5; let a = 0, m = 0; for (let dy = 0; dy < taps; dy++) for (let dx = 0; dx < taps; dx++) { const xx = X + (dx - (taps - 1) / 2) * 1.6, yy = Y + (dy - (taps - 1) / 2) * 1.6; if (xx < 0 || yy < 0 || xx > HW - 1.001 || yy > HH - 1.001) continue; const x0 = xx | 0, y0 = yy | 0, fx = xx - x0, fy = yy - y0; a += gh(x0, y0) * (1 - fx) * (1 - fy) + gh(x0 + 1, y0) * fx * (1 - fy) + gh(x0, y0 + 1) * (1 - fx) * fy + gh(x0 + 1, y0 + 1) * fx * fy; m++; } return m ? a / m : -1; }; }
   window.CUP._dbg.cand = cand.map(c => c.lab);
   let hyp = null;
   for (const c of cand) {
@@ -224,7 +227,11 @@ function detect(img) {
     /* the turn: outright if the strip is seen; otherwise only its remainder within one column (phase) */
     let near = null; hyp.cols.forEach(a => { if (near === null || Math.abs(a) < Math.abs(near)) near = a; });
     best = { ok: true, c: [hyp.cx + hyp.a[0] * (hyp.f0[0] + hyp.f1[0]) / 2, hyp.cy + hyp.a[1] * (hyp.f0[0] + hyp.f1[0]) / 2], a: [hyp.a[0] * dir, hyp.a[1] * dir], w: hyp.w, len: hyp.f1[0] - hyp.f0[0], sag: dir * (hyp.f0[2] + hyp.f1[2]) / 2,
-      taper: dir * hyp.taper, strip: hyp.strip, face: hyp.strip === null ? null : norm(-hyp.strip), phase: near === null ? null : near, cols: hyp.cols, pitchSeen: hyp.pitch, conf: hyp.score, dirConf: hyp.dirConf, rho: hyp.rho, area: hyp.area, unwrap: hyp.U }; }
+      taper: dir * hyp.taper, strip: hyp.strip, face: hyp.strip === null ? null : norm(-hyp.strip), phase: near === null ? null : near, cols: hyp.cols, pitchSeen: hyp.pitch, conf: hyp.score, dirConf: hyp.dirConf, rho: hyp.rho, area: hyp.area, unwrap: hyp.U, read: null, lid: 'assumed' };
+    /* the trained reader, when it is loaded: which end is the lid, and the turn read from the print itself */
+    const N = window.CUPNET; if (N && N.ready && !spec.noNet) { const r = N.read(hyp.U); best.net = r;
+      if (Math.abs(r.pLid - .5) > .3) { best.lid = 'read'; if ((r.lidAtTop ? 1 : -1) !== dir) { best.a = [-best.a[0], -best.a[1]]; best.sag = -best.sag; best.taper = -best.taper; best.cols = best.cols.map(v => -v).reverse(); if (best.strip !== null) { best.strip = -best.strip; best.face = norm(-best.strip); } if (best.phase !== null) best.phase = -best.phase; } }
+      if (r.conf > .5) best.read = r.face; } }
   if (!best) return { ok: false, why: 'no label found' }; return best;
 }
 
@@ -234,7 +241,12 @@ function detect(img) {
    between frames). If a reading says the strip should be in view and it is not, the turn is marked unknown again. */
 function track(det, state) {
   if (!det || !det.ok) return state; const p = pitch(), grid = spec.gapDeg / 2 + p / 2;
-  if (det.face !== null) { state.face = det.face; state.known = true; state.how = 'strip'; return state; }
+  if (det.face !== null) { state.face = det.face; state.known = true; state.how = 'strip'; state.pend = null; return state; }
+  if (det.read != null) {                                    // read from the print; made exact by the column ticks when they agree
+    let f = det.read; if (det.phase !== null) { let b = null; for (let k = 0; k < spec.cols; k++) { const c = norm(-(grid + k * p) - det.phase), d = Math.abs(norm(c - det.read)); if (b === null || d < b.d) b = { c, d }; } if (b.d < p * .5) f = b.c; }
+    /* a reading far from where the cup was is believed only when the next one says the same */
+    if (!state.known || Math.abs(norm(f - state.face)) < 25 || (state.pend != null && Math.abs(norm(f - state.pend)) < 12)) { state.face = f; state.known = true; state.how = 'read'; state.pend = null; return state; }
+    state.pend = f; }
   if (!state.known || det.phase === null) { state.how = state.known ? 'held' : 'unknown'; return state; }
   /* a column centre seen at relative angle ph is some column c: face + ph = -(grid + k p)  ->  face = -(grid + k p) - ph */
   let bestF = null; for (let k = 0; k < spec.cols; k++) { const f = norm(-(grid + k * p) - det.phase), d = Math.abs(norm(f - state.face)); if (bestF === null || d < bestF.d) bestF = { f, d }; }

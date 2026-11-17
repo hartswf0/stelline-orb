@@ -47,11 +47,12 @@
     <div id="map"><canvas id="mapcv"></canvas><div id="mapinfo">The label, unwrapped. Lid side up, as the cup stands. Touch a cell.</div></div>
   </div>
   <div id="bar">
-    <button id="bStart">START CAMERA</button><button id="bFlip">OTHER CAMERA</button><button id="bModel">MODEL</button><button id="bMap">MAP</button><button id="bCal">CALIBRATE</button><button id="bGhost" class="on">OVERLAY</button><button id="bLid">LID UP</button><a class="b" href="orb-06.html">ORB 06</a><a class="b" href="index.html">INDEX</a>
+    <button id="bStart">START CAMERA</button><button id="bFlip">OTHER CAMERA</button><button id="bTwin">TWIN</button><button id="bModel">MODEL</button><button id="bMap">MAP</button><button id="bCal">CALIBRATE</button><button id="bGhost" class="on">OVERLAY</button><button id="bLid">LID UP</button><a class="b" href="orb-06.html">ORB 06</a><a class="b" href="index.html">INDEX</a>
   </div>
 </div>
 <script src="assets/three.min.js"></script>
 <script src="assets/cup/cup.js"></script>
+<script src="assets/cup/cupnet.js"></script>
 <script>
 /* CUP ORB AR. The camera frame is read three ways and laid over itself:
      1. CUP.detect finds the printed label, unwraps it and matches it against the label as it was printed: that
@@ -71,7 +72,7 @@ const frame = $('frame'), fx = frame.getContext('2d', { willReadFrequently: true
 const R = new THREE.WebGLRenderer({ canvas: glc, alpha: true, antialias: true, preserveDrawingBuffer: true }); R.setClearColor(0, 0); R.outputEncoding = THREE.sRGBEncoding;
 const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(50, 1, 10, 5000); scene.add(new THREE.HemisphereLight(0xffffff, 0x404040, 1.1)); const dl = new THREE.DirectionalLight(0xffffff, .5); dl.position.set(-200, 400, 300); scene.add(dl);
 let cup = null, patches = new THREE.Group();
-function rebuild() { if (cup) scene.remove(cup); cup = new THREE.Group(); const g = CUP.buildModel({ ghost: !S.model }); cup.add(g); cup.add(patches); cup.matrixAutoUpdate = S.model; scene.add(cup); drawMap(); }
+function rebuild() { if (cup) scene.remove(cup); cup = new THREE.Group(); const g = CUP.buildModel({ ghost: !(S.model || S.twin) }); cup.add(g); cup.add(patches); cup.matrixAutoUpdate = S.model; scene.add(cup); drawMap(); }
 const fpx = () => (Math.max(S.W, S.H) / 2) / Math.tan(S.fov / 2 * D2R);
 
 function size() { const st = $('stage'), sw = st.clientWidth, sh = st.clientHeight; if (!S.W) return; const k = Math.min(sw / S.W, sh / S.H), w = Math.round(S.W * k), h = Math.round(S.H * k);
@@ -85,11 +86,16 @@ async function hands(mode) { if (HL && hlMode === mode) return HL; try { const b
     if (Q.get('hd') === 'cpu') HL = await mk('CPU'); else try { HL = await mk('GPU'); } catch (e) { HL = await mk('CPU'); } hlMode = mode; } catch (e) { S.err = 'hand tracking did not load: ' + e.message; HL = null; } return HL; }
 const TIPS = [[4, 'THUMB'], [8, 'INDEX'], [12, 'MIDDLE'], [16, 'RING'], [20, 'LITTLE']], BONES = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[0,17]];
 
+/* the frame at full size (up to 1600 across), for reading the print */
+const hiC = document.createElement('canvas'), hiX = hiC.getContext('2d', { willReadFrequently: true });
+function hiFrame() { const w = S.src.videoWidth || S.src.naturalWidth || 0, h = S.src.videoHeight || S.src.naturalHeight || 0; if (!w || Math.max(w, h) < S.W * 1.3 && Math.max(w, h) < S.H * 1.3) return null; const k = Math.min(1, 1600 / Math.max(w, h)), W2 = Math.round(S.W * Math.max(w, h) * k / Math.max(S.W, S.H)), H2 = Math.round(S.H * Math.max(w, h) * k / Math.max(S.W, S.H));
+  if (hiC.width !== W2 || hiC.height !== H2) { hiC.width = W2; hiC.height = H2; } hiX.drawImage(S.src, 0, 0, W2, H2); return hiX.getImageData(0, 0, W2, H2); }
+window.hiFrame = hiFrame;
 /* ---- one frame */
 let smooth = null; const TR = {};
 function step(now) {
   if (!S.src || !S.W) return; fx.drawImage(S.src, 0, 0, S.W, S.H); S.n++;
-  if (S.n % 3 === 1 || !S.det) { const d = CUP.detect(fx.getImageData(0, 0, S.W, S.H)); if (d.ok && d.conf > .12) { CUP.track(d, TR); d.turn = !!TR.known; d.how = TR.how; d.face = TR.known ? TR.face : 0; d.cell = TR.known ? CUP.cellAt(d.face, CUP.spec.labelY0 + CUP.spec.labelH / 2) : null; } S.det = d.ok && d.conf > .12 ? d : (S.det && S.n - (S.detN || 0) < 20 ? S.det : null); if (d.ok && d.conf > .12) { S.detN = S.n; S.lastConf = d.conf; }
+  if (S.n % 3 === 1 || !S.det) { const d = CUP.detect(fx.getImageData(0, 0, S.W, S.H), hiFrame()); if (d.ok && d.conf > .12) { CUP.track(d, TR); d.turn = !!TR.known; d.how = TR.how; d.face = TR.known ? TR.face : 0; d.cell = TR.known ? CUP.cellAt(d.face, CUP.spec.labelY0 + CUP.spec.labelH / 2) : null; } S.det = d.ok && d.conf > .12 ? d : (S.det && S.n - (S.detN || 0) < 20 ? S.det : null); if (d.ok && d.conf > .12) { S.detN = S.n; S.lastConf = d.conf; }
     if (S.det === d) { /* ease the outline so the overlay does not shiver; the angle is eased the short way round */
       if (smooth && Math.hypot(d.c[0] - smooth.c[0], d.c[1] - smooth.c[1]) < d.w && d.a[0] * smooth.a[0] + d.a[1] * smooth.a[1] > .5) { const k = .45, L = (x, y) => x + (y - x) * k; smooth = Object.assign({}, d, { c: [L(smooth.c[0], d.c[0]), L(smooth.c[1], d.c[1])], a: (v => { const l = Math.hypot(v[0], v[1]); return [v[0] / l, v[1] / l]; })([L(smooth.a[0], d.a[0]), L(smooth.a[1], d.a[1])]), w: L(smooth.w, d.w), sag: L(smooth.sag, d.sag), face: smooth.face + (((d.face - smooth.face) % 360 + 540) % 360 - 180) * k }); }
       else smooth = d; } }
@@ -105,8 +111,12 @@ function draw() {
   S.hands.forEach(h => { hx.strokeStyle = 'rgba(255,255,255,.75)'; hx.lineWidth = 1.2; hx.beginPath(); BONES.forEach(([a, b]) => { hx.moveTo(h.lm[a].x * S.W, h.lm[a].y * S.H); hx.lineTo(h.lm[b].x * S.W, h.lm[b].y * S.H); }); hx.stroke(); });
   S.fingers.forEach(f => { const on = f.region === 'label'; hx.fillStyle = on ? '#f0b040' : f.region === 'off' ? 'rgba(255,255,255,.6)' : '#5ff0dc'; hx.beginPath(); hx.arc(f.px, f.py, 4, 0, 7); hx.fill(); if (f.region !== 'off') { hx.font = '600 10px ui-monospace, monospace'; hx.fillText(on ? f.id : f.region.toUpperCase(), f.px + 6, f.py - 5); } });
   while (patches.children.length) patches.remove(patches.children[0]);
-  if (S.model) { cup.matrixAutoUpdate = true; cup.position.set(0, -CUP.spec.H / 2, 0); cup.rotation.set(.12, S.turn || 0, 0); cam.fov = 28; cam.aspect = S.W / S.H; cam.position.set(0, 60, 560); cam.lookAt(0, 0, 0); cam.updateProjectionMatrix(); glc.style.display = ''; }
-  else if (S.pose && S.ghost) { cup.matrixAutoUpdate = false; cup.matrix.fromArray(S.pose.m); cup.matrixWorldNeedsUpdate = true; cam.position.set(0, 0, 0); cam.rotation.set(0, 0, 0); cam.fov = 2 * Math.atan((S.H / 2) / fpx()) / D2R; cam.aspect = S.W / S.H; cam.updateProjectionMatrix(); glc.style.display = '';
+  if (S.model) { R.setClearColor(0, 0); cup.matrixAutoUpdate = true; cup.quaternion.set(0, 0, 0, 1); cup.position.set(0, -CUP.spec.H / 2, 0); cup.rotation.set(.12, S.turn || 0, 0); cam.fov = 28; cam.aspect = S.W / S.H; cam.position.set(0, 60, 560); cam.lookAt(0, 0, 0); cam.updateProjectionMatrix(); glc.style.display = ''; }
+  else if (S.twin && S.pose) { cup.matrixAutoUpdate = true; const tgt = S.det.turn ? -S.det.face * D2R : (S.tw || 0); S.tw = (S.tw == null) ? tgt : S.tw + Math.atan2(Math.sin(tgt - S.tw), Math.cos(tgt - S.tw)) * .35; S.tx = (S.tx || 0) + ((Math.max(-50, Math.min(50, S.pose.tilt)) * D2R) - (S.tx || 0)) * .35;
+    cup.position.set(0, 0, 0); cup.rotation.set(0, 0, 0); cup.updateMatrix(); const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(S.tx + .1, 0, 0)).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0, S.tw, 0))); cup.quaternion.copy(q); cup.position.copy(new THREE.Vector3(0, -CUP.spec.H / 2, 0).applyQuaternion(q));
+    cam.fov = 28; cam.aspect = S.W / S.H; cam.position.set(0, 0, 560); cam.lookAt(0, 0, 0); cam.updateProjectionMatrix(); glc.style.display = ''; R.setClearColor(0x000000, .72);
+    const seen = new Set(); S.fingers.forEach(f => { if (f.region === 'label' && f.col && !seen.has(f.id)) { seen.add(f.id); patches.add(CUP.cellPatch(f.col, f.band)); } }); if (S.det.cell && S.det.cell.col) patches.add(CUP.cellPatch(S.det.cell.col, S.det.cell.band, 0x5ff0dc)); }
+  else if (S.pose && S.ghost) { R.setClearColor(0, 0); cup.matrixAutoUpdate = false; cup.matrix.fromArray(S.pose.m); cup.matrixWorldNeedsUpdate = true; cam.position.set(0, 0, 0); cam.rotation.set(0, 0, 0); cam.fov = 2 * Math.atan((S.H / 2) / fpx()) / D2R; cam.aspect = S.W / S.H; cam.updateProjectionMatrix(); glc.style.display = '';
     const seen = new Set(); S.fingers.forEach(f => { if (f.region === 'label' && f.col && !seen.has(f.id)) { seen.add(f.id); patches.add(CUP.cellPatch(f.col, f.band)); } }); if (S.det.cell && S.det.cell.col) patches.add(CUP.cellPatch(S.det.cell.col, S.det.cell.band, 0x5ff0dc)); }
   else glc.style.display = 'none';
   if (glc.style.display !== 'none') R.render(scene, cam);
@@ -129,6 +139,9 @@ $('mapcv').addEventListener('pointerdown', e => { const r = e.target.getBounding
 async function startCam() { try { if (vid.srcObject) vid.srcObject.getTracks().forEach(t => t.stop()); const st = await navigator.mediaDevices.getUserMedia({ video: { facingMode: S.facing, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false }); vid.srcObject = st; await vid.play(); setSource(vid, vid.videoWidth, vid.videoHeight); S.err = ''; await hands('VIDEO'); $('bStart').classList.add('on'); }
   catch (e) { S.err = 'The camera did not start: ' + e.message; draw(); } }
 $('bStart').onclick = startCam; $('bFlip').onclick = () => { S.facing = S.facing === 'environment' ? 'user' : 'environment'; startCam(); };
+$('bTwin').onclick = () => { S.twin = !S.twin; $('bTwin').classList.toggle('on', S.twin); rebuild(); draw(); };
+const netReady = Q.get('net') !== '0' ? CUPNET.load('assets/cup/').catch(e => { S.err = 'the trained reader did not load'; }) : Promise.resolve();
+if (Q.has('twin')) { S.twin = true; $('bTwin').classList.add('on'); } 
 $('bModel').onclick = () => { S.model = !S.model; $('bModel').classList.toggle('on', S.model); if (!S.W) { S.W = 640; S.H = 480; frame.width = 640; frame.height = 480; size(); } rebuild(); draw(); };
 $('bMap').onclick = () => { const m = $('map'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; $('bMap').classList.toggle('on', m.style.display === 'block'); };
 $('bCal').onclick = () => { const c = $('cal'); c.style.display = c.style.display === 'block' ? 'none' : 'block'; $('bCal').classList.toggle('on', c.style.display === 'block'); };
@@ -143,7 +156,7 @@ window.CUPAR = { S, state: null, ready: false, step: () => step(performance.now(
 if (!Q.has('fresh')) loadCal(); else { CAL.forEach(([id, k]) => $(id).value = CUP.spec[k]); $('cF').value = S.fov; }
 rebuild();
 (async function () {
-  if (Q.get('img')) { const im = new Image(); im.onload = async () => { setSource(im, im.naturalWidth, im.naturalHeight); if (Q.get('hands') !== '0') await hands('IMAGE'); step(performance.now()); window.CUPAR.ready = true; }; im.onerror = () => { S.err = 'could not load ' + Q.get('img'); window.CUPAR.ready = true; }; im.src = Q.get('img'); return; }
+  if (Q.get('img')) { const im = new Image(); im.onload = async () => { setSource(im, im.naturalWidth, im.naturalHeight); if (Q.get('hands') !== '0') await hands('IMAGE'); await netReady; step(performance.now()); step(performance.now()); window.CUPAR.ready = true; }; im.onerror = () => { S.err = 'could not load ' + Q.get('img'); window.CUPAR.ready = true; }; im.src = Q.get('img'); return; }
   if (Q.has('model')) $('bModel').click(); window.CUPAR.ready = true;
   (function loop(now) { if (S.src === vid && vid.readyState >= 2) step(now); else if (S.model && !S.src) { S.turn = (S.turn || 0) + (drag ? 0 : .004); draw(); } requestAnimationFrame(loop); })();
 })();
