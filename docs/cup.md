@@ -34,6 +34,17 @@ offset, and other cells touched the same way then came out right. Not run: a rea
 a real cell (MediaPipe loads from a CDN, which this machine cannot reach, so only the tap path was exercised with
 the camera).
 
+## The game (`cup-game.html`)
+
+Turn and Catch. The ring on screen is the label seen from above: 24 columns and the strip. Motes fall toward a
+column; the catcher sits at whichever angle of the cup faces the camera and is three columns wide, because the
+reader is good to about one column. Nothing falls while the cup is not seen. Three misses end the game. Sound is one
+4 ms grain per catch or miss. The front camera is used, so the phone can stand with its screen toward the player.
+
+What was run: by dragging, a player that always turns to the oldest mote scored and lost no lives; left alone the
+game ended after three misses and kept the best score. With a recorded picture as a fake camera the game found the
+cup, read the strip and put the catcher there. Not run: a person turning a real cup.
+
 ## The cup's own frame
 
 Millimetres. `y` runs up the axis from the base. Angle 0 is the middle of the ruler strip and grows to the viewer's
