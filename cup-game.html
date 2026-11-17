@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0b0d10">
+<meta name="description" content="Turn and Catch: a game played by turning the wrapped cup in front of the camera. Motes fall toward numbered columns; turn that column to the camera to catch them.">
+<title>Turn and Catch</title>
+<style>
+  :root { --bg:#0b0d10; --panel:#12161b; --line:#232a32; --ink:#e9edf1; --dim:#8b96a3; --gold:#f0b040; --teal:#5ff0dc; --bad:#ff7a6b; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--ink); font:15px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overscroll-behavior:none; overflow:hidden; }
+  body { display:flex; flex-direction:column; height:100dvh; padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+  header { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; border-bottom:1px solid var(--line); flex:0 0 auto; }
+  header b { letter-spacing:.14em; font-size:13px; } header a { color:var(--dim); text-decoration:none; font-size:12px; letter-spacing:.1em; padding:6px 0 6px 12px; }
+  #play { flex:1 1 auto; min-height:0; position:relative; }
+  #game { position:absolute; inset:0; width:100%; height:100%; touch-action:none; display:block; }
+  #camBox { position:absolute; left:10px; top:10px; width:24%; max-width:130px; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:#000; display:none; }
+  #camBox { transform:scaleX(-1); } #camBox video { display:block; width:100%; height:auto; } #camBox canvas { position:absolute; inset:0; width:100%; height:100%; }
+  #over { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; gap:12px; padding:24px 22px; background:rgba(11,13,16,.94); z-index:3; overflow:auto; }
+  #over h1 { font-size:22px; margin:0; letter-spacing:.06em; } #over p { margin:0; color:var(--dim); } #over p b { color:var(--ink); } #over p.bad { color:var(--bad); }
+  #over .big { font-size:40px; color:var(--gold); font-weight:700; line-height:1; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
+  button { flex:1 1 140px; appearance:none; border:1px solid var(--line); background:#1a2027; color:var(--ink); font:inherit; font-size:13px; letter-spacing:.1em; padding:13px 10px; border-radius:10px; min-height:46px; }
+  button.go { background:var(--gold); border-color:var(--gold); color:#14100a; font-weight:700; }
+</style>
+</head>
+<body>
+<header><b>TURN AND CATCH</b><span><a href="cup.html">CUP ORB</a><a href="index.html">INDEX</a></span></header>
+<div id="play">
+  <canvas id="game"></canvas>
+  <div id="camBox"><video id="vid" playsinline muted autoplay></video><canvas id="camOv"></canvas></div>
+  <div id="over">
+    <h1 id="oTitle">TURN AND CATCH</h1>
+    <div id="oBig" class="big" hidden></div>
+    <p id="oText">Motes fall toward a numbered column of the ring. <b>Turn the cup</b> so the gold catcher is under the mote when it lands: the catcher sits at whichever column of the cup faces the camera. Three misses end the game.</p>
+    <p id="oNote">Prop the phone up with its screen toward you, hold the cup about 25 cm in front of it, and show the camera the ruler strip once to begin.</p>
+    <div class="row"><button id="bCup" class="go">PLAY WITH THE CUP</button><button id="bDrag">PLAY BY DRAGGING</button></div>
+  </div>
+</div>
+<canvas id="frame" hidden></canvas>
+<script src="assets/cup/cup.js"></script>
+<script src="assets/cup/cupnet.js"></script>
+<script type="module">
+/* TURN AND CATCH. The ring on screen is the cup's label seen from above: 24 columns and the ruler strip.
+   The catcher sits at whichever angle of the cup faces the camera. A mote is caught if the catcher is within a
+   column and a half of the mote's column when it lands (the reader is good to about one column).
+   Without a cup: drag sideways, or use the arrow keys. */
+const $ = id => document.getElementById(id), Q = new URLSearchParams(location.search), D2R = Math.PI / 180, TAU = Math.PI * 2;
+const cv = $('game'), g = cv.getContext('2d'), vid = $('vid'), frame = $('frame'), fx = frame.getContext('2d', { willReadFrequently: true }), camOv = $('camOv'), cx2 = camOv.getContext('2d');
+const sp = CUP.spec, pitch = (360 - sp.gapDeg) / sp.cols, norm = a => ((a + 180) % 360 + 360) % 360 - 180;
+const G = { mode: null, state: 'menu', face: 0, target: 0, known: false, score: 0, lives: 3, best: 0, motes: [], next: 0, last: 12, t: 0, flash: 0, seenAt: 0, W: 0, H: 0, det: null };
+try { G.best = +localStorage.getItem('cup.game.best') || 0; } catch (e) {}
+let CALda = 0; try { CALda = (JSON.parse(localStorage.getItem('cup.touch') || '{}').da) || 0; } catch (e) {}
+const TR = {};
+
+/* ---- sound: one 4 ms grain of band-passed noise per catch or miss, nothing else */
+let AC = null; function grain(freq) { if (!AC) return; const n = Math.round(AC.sampleRate * .004), b = AC.createBuffer(1, n, AC.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.sin(Math.PI * i / n); const s = AC.createBufferSource(), f = AC.createBiquadFilter(), v = AC.createGain(); s.buffer = b; f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = 4; v.gain.value = .5; s.connect(f); f.connect(v); v.connect(AC.destination); s.start(); }
+
+/* ---- the camera and the cup */
+async function startCam() { if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw Object.assign(new Error('insecure'), { name: 'Insecure' });
+  const st = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: Q.get('cam') || 'user' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false }); vid.srcObject = st; await vid.play(); await new Promise(r => vid.videoWidth ? r() : vid.addEventListener('loadedmetadata', r, { once: true })); sizeCam(); try { if (navigator.wakeLock) await navigator.wakeLock.request('screen'); } catch (e) {} }
+function sizeCam() { const w = vid.videoWidth, h = vid.videoHeight, k = Math.min(1, 640 / Math.max(w, h)); G.vw = w; G.vh = h; G.W = Math.round(w * k); G.H = Math.round(h * k); frame.width = G.W; frame.height = G.H; camOv.width = G.W; camOv.height = G.H; smooth = null; }
+const camWords = e => e.name === 'NotAllowedError' || e.name === 'SecurityError' ? 'The camera was not allowed. Open the site settings for this page, set Camera to Allow, then try again. Or play by dragging.' : e.name === 'NotFoundError' || e.name === 'OverconstrainedError' ? 'No camera was found. You can play by dragging.' : e.name === 'Insecure' ? 'The camera only works on a secure address (https). You can play by dragging.' : 'The camera did not start (' + e.message + '). You can play by dragging.';
+const hiC = document.createElement('canvas'), hiX = hiC.getContext('2d', { willReadFrequently: true });
+function hiFrame() { const w = vid.videoWidth, h = vid.videoHeight; if (Math.max(w, h) < Math.max(G.W, G.H) * 1.3) return null; const k = Math.min(1, 1280 / Math.max(w, h)), W2 = Math.round(w * k), H2 = Math.round(h * k); if (hiC.width !== W2 || hiC.height !== H2) { hiC.width = W2; hiC.height = H2; } hiX.drawImage(vid, 0, 0, W2, H2); return hiX.getImageData(0, 0, W2, H2); }
+let smooth = null, lastDet = 0;
+function readCup(now) { if (vid.videoWidth !== G.vw || vid.videoHeight !== G.vh) sizeCam(); fx.drawImage(vid, 0, 0, G.W, G.H); const d = CUP.detect(fx.getImageData(0, 0, G.W, G.H), hiFrame());
+  if (d.ok && d.conf > .12) { CUP.track(d, TR); G.det = d; G.seenAt = now; if (TR.known) { G.known = true; G.target = norm(TR.face + CALda); } }
+  else if (now - G.seenAt > 1500) G.det = null;
+  cx2.clearRect(0, 0, G.W, G.H); if (G.det && now - G.seenAt < 400) { const q = G.det, p = [-q.a[1], q.a[0]], l = q.len / 2; cx2.strokeStyle = TR.known ? '#5ff0dc' : '#f0b040'; cx2.lineWidth = 6; cx2.beginPath(); [[1, 1], [1, -1], [-1, -1], [-1, 1]].forEach((s, i) => { const x = q.c[0] + q.a[0] * l * s[0] + p[0] * q.w * s[1], y = q.c[1] + q.a[1] * l * s[0] + p[1] * q.w * s[1]; i ? cx2.lineTo(x, y) : cx2.moveTo(x, y); }); cx2.closePath(); cx2.stroke(); } }
+
+/* ---- dragging instead of a cup */
+let drag = null; cv.addEventListener('pointerdown', e => { if (G.mode === 'drag') drag = { x: e.clientX, f: G.target }; }); cv.addEventListener('pointermove', e => { if (drag) G.target = norm(drag.f + (e.clientX - drag.x) * .7); }); addEventListener('pointerup', () => drag = null);
+const keys = {}; addEventListener('keydown', e => keys[e.key] = true); addEventListener('keyup', e => keys[e.key] = false);
+
+/* ---- the game */
+const colAngle = c => CUP.colAngle(c), screenAng = a => (-90 - a) * D2R;             // the strip at the top, column 01 next to it going clockwise
+function spawn(now) { let c; do { c = G.last + Math.round((Math.random() * 2 - 1) * Math.min(9, 4 + G.score / 4)); c = ((c - 1) % 24 + 24) % 24 + 1; } while (c === G.last); G.last = c; const life = Math.max(2600, 6500 - G.score * 140); G.motes.push({ col: c, t0: now, life }); G.next = now + Math.max(1500, life * (G.score > 10 ? .55 : .9)); }
+function start(mode) { G.mode = mode; G.state = 'play'; G.score = 0; G.lives = 3; G.motes = []; G.next = 0; G.last = 12; G.known = mode === 'drag'; if (mode === 'drag') G.target = G.face = colAngle(12); $('over').style.display = 'none'; $('camBox').style.display = mode === 'cup' ? 'block' : 'none'; }
+function end() { G.state = 'over'; if (G.score > G.best) { G.best = G.score; try { localStorage.setItem('cup.game.best', G.best); } catch (e) {} } $('oTitle').textContent = 'GAME OVER'; $('oBig').hidden = false; $('oBig').textContent = G.score; $('oText').innerHTML = 'caught. Best so far: <b>' + G.best + '</b>.'; $('oText').className = ''; $('oNote').textContent = ''; $('bCup').textContent = G.mode === 'cup' ? 'PLAY AGAIN' : 'PLAY WITH THE CUP'; $('bDrag').textContent = G.mode === 'drag' ? 'PLAY AGAIN' : 'PLAY BY DRAGGING'; $('over').style.display = 'flex'; }
+function step(now, dt) {
+  if (G.mode === 'drag') { if (keys.ArrowLeft) G.target = norm(G.target + 140 * dt); if (keys.ArrowRight) G.target = norm(G.target - 140 * dt); }
+  if (G.mode === 'cup' && now - lastDet > 110 && vid.readyState >= 2) { lastDet = now; try { readCup(now); } catch (e) {} }
+  G.face = norm(G.face + norm(G.target - G.face) * Math.min(1, dt * 12));
+  if (G.state !== 'play') return; const live = G.mode === 'drag' || (G.known && now - G.seenAt < 2500);
+  if (!live) { G.motes.forEach(m => m.t0 += dt * 1000); G.next += dt * 1000; return; }       // nothing falls while the cup is not seen
+  if (now > G.next && G.motes.length < 3) spawn(now);
+  G.motes = G.motes.filter(m => { if (now - m.t0 < m.life) return true; const hit = Math.abs(norm(colAngle(m.col) - G.face)) <= pitch * 1.5; if (hit) { G.score++; G.flash = 1; grain(2400); } else { G.lives--; G.flash = -1; grain(500); } return false; });
+  if (G.lives <= 0) end(); }
+function draw(now) { const dpr = Math.min(3, devicePixelRatio || 1), w = cv.clientWidth, h = cv.clientHeight; if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+  g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h); const cx = w / 2, cy = h / 2, R = Math.min(w, h) * .3, Ro = Math.min(Math.min(w, h) * .47, R * 1.62), fs = Math.max(9, R * .085);
+  /* the ring: 24 columns and the strip */
+  for (let c = 1; c <= 24; c++) { const a0 = screenAng(colAngle(c) + pitch / 2), a1 = screenAng(colAngle(c) - pitch / 2), aim = G.motes.some(m => m.col === c); g.beginPath(); g.arc(cx, cy, R, a0, a1); g.arc(cx, cy, R * .8, a1, a0, true); g.closePath(); g.fillStyle = aim ? 'rgba(95,240,220,.28)' : (c % 2 ? '#161b21' : '#1b2129'); g.fill();
+    const am = screenAng(colAngle(c)); g.fillStyle = aim ? '#5ff0dc' : '#8b96a3'; g.font = (aim ? '700 ' : '') + fs + 'px ui-monospace, monospace'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(c).padStart(2, '0'), cx + Math.cos(am) * R * .9, cy + Math.sin(am) * R * .9); }
+  { const a0 = screenAng(sp.gapDeg / 2), a1 = screenAng(-sp.gapDeg / 2); g.beginPath(); g.arc(cx, cy, R, a0, a1); g.arc(cx, cy, R * .8, a1, a0, true); g.closePath(); g.fillStyle = '#e9edf1'; g.fill(); }
+  /* the catcher */
+  { const a0 = screenAng(G.face + pitch * 1.5), a1 = screenAng(G.face - pitch * 1.5); g.strokeStyle = G.known ? '#f0b040' : 'rgba(240,176,64,.3)'; g.lineWidth = Math.max(5, R * .07); g.lineCap = 'round'; g.beginPath(); g.arc(cx, cy, R * 1.06, a0, a1); g.stroke(); }
+  /* the motes */
+  G.motes.forEach(m => { const f = Math.min(1, (now - m.t0) / m.life), a = screenAng(colAngle(m.col)), r = Ro - (Ro - R * 1.06) * f, x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r; g.strokeStyle = 'rgba(95,240,220,.25)'; g.lineWidth = 1; g.beginPath(); g.moveTo(x, y); g.lineTo(cx + Math.cos(a) * R * 1.06, cy + Math.sin(a) * R * 1.06); g.stroke();
+    g.fillStyle = '#5ff0dc'; g.beginPath(); g.arc(x, y, Math.max(7, R * .085), 0, TAU); g.fill(); g.fillStyle = '#0b0d10'; g.font = '700 ' + Math.max(9, R * .085) + 'px ui-monospace, monospace'; g.fillText(String(m.col).padStart(2, '0'), x, y + .5); });
+  /* the middle: score, lives, what to do */
+  G.flash *= .9; g.fillStyle = G.flash > .05 ? '#f0b040' : G.flash < -.05 ? '#ff7a6b' : '#e9edf1'; g.font = '700 ' + R * .5 + 'px ui-monospace, monospace'; g.fillText(G.score, cx, cy - R * .05);
+  g.font = R * .13 + 'px ui-monospace, monospace'; g.fillStyle = '#ff7a6b'; g.fillText('● '.repeat(Math.max(0, G.lives)).trim(), cx, cy + R * .33);
+  if (G.state === 'play') { const seen = G.det && now - G.seenAt < 2500, msg = G.mode === 'drag' ? (G.score === 0 && !G.motes.length ? '' : '') : !seen ? 'Show the cup to the camera' : !G.known ? 'Turn the ruler strip to the camera' : ''; if (msg) { g.fillStyle = '#f0b040'; g.font = '700 ' + Math.max(13, R * .13) + 'px ui-monospace, monospace'; g.fillText(msg, cx, cy + R * 1.06 + (Ro - R) * .0 + Math.max(26, R * .3) + (h > w ? R * .55 : 0)); }
+    if (G.mode === 'drag' && G.score === 0) { g.fillStyle = '#8b96a3'; g.font = Math.max(12, R * .11) + 'px ui-monospace, monospace'; g.fillText('drag sideways to turn', cx, h - 18); } } }
+let prev = 0; function tick(now) { requestAnimationFrame(tick); const dt = Math.min(.1, (now - prev) / 1000 || 0); prev = now; step(now, dt); draw(now); }
+requestAnimationFrame(tick);
+
+$('bCup').onclick = async () => { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} $('bCup').disabled = true; try { if (!vid.srcObject) { $('oNote').textContent = 'Waiting for the camera…'; await startCam(); await CUPNET.load('assets/cup/').catch(() => {}); } start('cup'); } catch (e) { $('oNote').textContent = camWords(e); $('oNote').className = 'bad'; } $('bCup').disabled = false; };
+$('bDrag').onclick = () => { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} start('drag'); };
+window.CUPGAME = { G, TR, colAngle };      // for other pages and for tests
+</script>
+</body>
+</html>
