@@ -159,6 +159,13 @@
     padding: 8px 12px; background: #0e1513; border-bottom: 1px solid var(--line);
     display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
   }
+  .guide-bar {
+    background: #0a100e; border: 1px solid var(--line); padding: 5px 10px; margin-bottom: 8px;
+    font: 500 10.5px var(--mono); color: var(--dim); letter-spacing: 0.02em;
+    display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center;
+  }
+  details.sec > summary { list-style: none; cursor: pointer; user-select: none; }
+  details.sec > summary::-webkit-details-marker { display: none; }
   .sec-head h2 { margin: 0; font: 700 12px var(--mono); color: var(--amb); letter-spacing: 0.05em; text-transform: uppercase; }
   .sec-body { padding: 10px 12px; overflow-x: auto; }
 
@@ -227,6 +234,7 @@
       padding: 4px 6px; overflow: hidden;
     }
     body[data-mview="split"] .telemetry-strip,
+    body[data-mview="split"] .guide-bar,
     body[data-mview="split"] #panelB,
     body[data-mview="split"] #panelD,
     body[data-mview="split"] .sec { display: none; }
@@ -245,6 +253,7 @@
     body[data-mview="split"] .hero-cam-btn { min-height: 48px; padding: 10px 16px; font-size: 12px; }
 
     body[data-mview="cam"] .telemetry-strip,
+    body[data-mview="cam"] .guide-bar,
     body[data-mview="cam"] #panelB,
     body[data-mview="cam"] #panelC,
     body[data-mview="cam"] #panelD,
@@ -252,6 +261,7 @@
     body[data-mview="cam"] #panelA .canvas-wrap { aspect-ratio: auto; height: calc(100dvh - var(--hdr-h, 76px) - 108px - env(safe-area-inset-bottom)); }
 
     body[data-mview="world"] .telemetry-strip,
+    body[data-mview="world"] .guide-bar,
     body[data-mview="world"] #panelA,
     body[data-mview="world"] #panelB,
     body[data-mview="world"] #panelD,
@@ -259,6 +269,7 @@
     body[data-mview="world"] #panelC .canvas-wrap { aspect-ratio: auto; height: calc(100dvh - var(--hdr-h, 76px) - 116px - env(safe-area-inset-bottom)); }
 
     body[data-mview="matte"] .telemetry-strip,
+    body[data-mview="matte"] .guide-bar,
     body[data-mview="matte"] #panelA,
     body[data-mview="matte"] #panelC,
     body[data-mview="matte"] #panelD,
@@ -279,31 +290,20 @@
     <span id="ortPill" class="pill unk">HYBRID WGSL</span>
   </div>
   <div class="controls">
-    <select id="sourceSelect" title="Input Stream">
+    <select id="sourceSelect" title="Camera / Input Source">
       <option value="synthetic_crucible">Demo Stream (Crucible GPU Sim)</option>
       <option value="webcam">Live Camera (Real-Human 4D)</option>
     </select>
-    <select id="cameraDeviceSelect" title="Physical Camera Device">
+    <select id="cameraDeviceSelect" title="Physical Webcam Device">
       <option value="">Cam: Auto (Physical First)</option>
     </select>
-    <select id="backendSelect" title="Inference Backend">
-      <option value="hybrid_wgsl">Live Human Hybrid + WGSL Solver</option>
-      <option value="ort_distilled">SCION Distilled ONNX (Localhost)</option>
-    </select>
-    <select id="tierSelect" title="Hardware Tier">
-      <option value="Pro-Edge">Pro-Edge (512x384 -> 128x96)</option>
-      <option value="Ultra-Lite">Ultra-Lite (320x256 -> 80x64)</option>
-    </select>
-    <button id="btnFlipCam" title="Flip Front / Rear Camera">FLIP CAM</button>
+    <button id="btnFlipCam" title="Flip Front / Rear Camera">FLIP</button>
     <button id="btnMirror" title="Mirror Selfie Display">MIRROR: OFF</button>
     <button id="btnCompareMP" class="warn">VS MEDIAPIPE: OFF</button>
     <button id="btnRelockBones" title="Reset & Re-lock Online Bayesian Bone Lengths">RE-LOCK BONES</button>
     <button id="btnPhoneQr" title="Scan QR to open Live Camera on Phone">PHONE QR</button>
     <button id="btnPlay" class="active">PAUSE</button>
     <button id="btnStep">STEP</button>
-    <button id="btnClamp" class="active">SO(3) CLAMP: ON</button>
-    <button id="btnLoadOnnx" title="Load Localhost ORT-Web FP32 ONNX">ORT ONNX</button>
-    <button id="btnDetentAudio" title="Optional 4.5ms mechanical detent tick only">DETENT SFX: OFF</button>
   </div>
 </header>
 
@@ -341,12 +341,24 @@
     </div>
   </div>
 
+  <div class="guide-bar">
+    <span><b style="color:var(--cy)">Guide:</b> <b>A</b> Camera + 56-Joint Bone-Locked Rig · <b>B</b> 26-Part Silhouette Matte (hover pixel) · <b>C</b> Orbitable 3D Metric World (drag/pinch, lens at Z=0) · <b>D</b> Covariance Σ_t &amp; Gate</span>
+  </div>
+
   <section class="inspector-grid">
     <!-- Panel A -->
     <div class="panel" id="panelA">
       <div class="panel-head">
         <span>A · LIVE CAMERA + 56-JOINT 3D RIG</span>
         <div class="panel-sub">
+          <select id="backendSelect" title="Runtime Engine Mode" style="min-height:22px;padding:1px 5px;font-size:10px;">
+            <option value="hybrid_wgsl">Hybrid 4D (MP+WGSL)</option>
+            <option value="ort_distilled">SCION Native ONNX (Zero-MP)</option>
+          </select>
+          <select id="tierSelect" title="Hardware Tier" style="min-height:22px;padding:1px 5px;font-size:10px;">
+            <option value="Pro-Edge">Pro-Edge (512x384)</option>
+            <option value="Ultra-Lite">Ultra-Lite (320x256)</option>
+          </select>
           <span id="srcResLabel">512x384</span>
           <span class="ep MEASURED" id="panelAModeBadge">LIVE WGSL</span>
         </div>
@@ -369,7 +381,7 @@
     <!-- Panel B -->
     <div class="panel" id="panelB">
       <div class="panel-head">
-        <span>B · 26-PART SEMANTIC MATTE + CIE-LAB SHADOW GATE</span>
+        <span>B · 26-PART SEMANTIC MATTE + SILHOUETTE GATE</span>
         <div class="panel-sub">
           <span id="hoverPartLabel">hover matte pixel to inspect</span>
           <span class="ep MEASURED">GPU ARGMAX</span>
@@ -421,65 +433,83 @@
     </div>
   </section>
 
-  <!-- Section 1: Comparison vs MediaPipe -->
-  <section class="sec">
-    <div class="sec-head">
-      <h2>1 · SCION 4D vs. MediaPipe Raw 2.5D Holistic + Selfie Mask</h2>
-      <span id="evalTimestamp" class="pill struct">LIVE ON-DEVICE TELEMETRY</span>
-    </div>
-    <div class="sec-body">
-      <table>
-        <thead>
-          <tr><th>Dimension / Metric</th><th>SCION Pro-Edge</th><th>SCION Ultra-Lite</th><th>MediaPipe Raw 2.5D</th><th>Epistemic</th></tr>
-        </thead>
-        <tbody id="benchmarkTbody"></tbody>
-      </table>
-    </div>
-  </section>
+  <!-- Collapsible Advanced Runtime, Benchmarks & Canonical Manifest Drawer -->
+  <details id="advancedDrawer" class="sec">
+    <summary class="sec-head">
+      <h2>ADVANCED RUNTIME, BENCHMARKS &amp; CANONICAL MANIFEST</h2>
+      <div class="panel-sub">
+        <span class="pill unk" id="drawerHintPill">CLICK TO EXPAND</span>
+      </div>
+    </summary>
+    <div class="sec-body" style="display:flex;flex-direction:column;gap:14px;">
+      <div class="controls">
+        <button id="btnLoadOnnx" title="Load Localhost or Dropped .onnx Model (Zero-MediaPipe)">LOAD / DROP .ONNX</button>
+        <input id="onnxFileInput" type="file" accept=".onnx" style="display:none">
+        <button id="btnClamp" class="active">SO(3) CLAMP: ON</button>
+        <button id="btnDetentAudio" title="Optional 4.5ms mechanical detent tick only">DETENT SFX: OFF</button>
+      </div>
 
-  <!-- Section 2: Native Edge Latency -->
-  <section class="sec">
-    <div class="sec-head">
-      <h2>2 · Native CoreML / ONNX / WebGPU Compute Profile</h2>
-      <span id="profileStatusPill" class="pill unk">Standalone Browser Mode</span>
-    </div>
-    <div class="sec-body">
-      <table>
-        <thead>
-          <tr><th>Tier · Backend</th><th>Input Spec</th><th>p50 (ms)</th><th>p95 (ms)</th><th>p99 (ms)</th><th>Cold Init</th><th>RSS (MB)</th><th>Parity vs PT FP32</th><th>Epistemic</th></tr>
-        </thead>
-        <tbody id="edgeProfileTbody"></tbody>
-      </table>
-      <div id="thermalSummaryBox" style="margin-top:8px;font:500 11px var(--mono);color:var(--dim);"></div>
-    </div>
-  </section>
+      <!-- Section 1: Comparison vs MediaPipe -->
+      <section class="sec" style="margin-top:0;">
+        <div class="sec-head">
+          <h2>1 · SCION 4D vs. MediaPipe Raw 2.5D Holistic + Selfie Mask</h2>
+          <span id="evalTimestamp" class="pill">LIVE ON-DEVICE TELEMETRY</span>
+        </div>
+        <div class="sec-body">
+          <table>
+            <thead>
+              <tr><th>Dimension / Metric</th><th>SCION Pro-Edge</th><th>SCION Ultra-Lite</th><th>MediaPipe Raw 2.5D</th><th>Epistemic</th></tr>
+            </thead>
+            <tbody id="benchmarkTbody"></tbody>
+          </table>
+        </div>
+      </section>
 
-  <!-- Section 3: Canonical Contract & Manifest -->
-  <section class="sec">
-    <div class="sec-head">
-      <h2>3 · Canonical SCION_SCHEMA_V1 Contract &amp; SHA-256 Lineage</h2>
-      <span id="schemaShaPill" class="pill">SCHEMA: 00cffa687d6a...</span>
-    </div>
-    <div class="sec-body">
-      <table>
-        <thead>
-          <tr><th>Tier / Artifact</th><th>Status</th><th>SHA-256</th><th>Size / Details</th><th>Rollback Verified</th><th>Epistemic</th></tr>
-        </thead>
-        <tbody id="manifestTbody"></tbody>
-      </table>
-    </div>
-  </section>
+      <!-- Section 2: Native Edge Latency -->
+      <section class="sec" style="margin-top:0;">
+        <div class="sec-head">
+          <h2>2 · Native CoreML / ONNX / WebGPU Compute Profile</h2>
+          <span id="profileStatusPill" class="pill unk">Standalone Browser Mode</span>
+        </div>
+        <div class="sec-body">
+          <table>
+            <thead>
+              <tr><th>Tier · Backend</th><th>Input Spec</th><th>p50 (ms)</th><th>p95 (ms)</th><th>p99 (ms)</th><th>Cold Init</th><th>RSS (MB)</th><th>Parity vs PT FP32</th><th>Epistemic</th></tr>
+            </thead>
+            <tbody id="edgeProfileTbody"></tbody>
+          </table>
+          <div id="thermalSummaryBox" style="margin-top:8px;font:500 11px var(--mono);color:var(--dim);"></div>
+        </div>
+      </section>
 
-  <!-- Section 4: Diagnostic Media Gallery (Localhost only) -->
-  <section class="sec" id="mediaSection" style="display:none;">
-    <div class="sec-head">
-      <h2>4 · Localhost Diagnostic Renders (eval_outputs/)</h2>
-      <span class="ep STRUCTURAL">LOCALHOST ONLY</span>
+      <!-- Section 3: Canonical Contract & Manifest -->
+      <section class="sec" style="margin-top:0;">
+        <div class="sec-head">
+          <h2>3 · Canonical SCION_SCHEMA_V1 Contract &amp; SHA-256 Lineage</h2>
+          <span id="schemaShaPill" class="pill">SCHEMA: 00cffa687d6a...</span>
+        </div>
+        <div class="sec-body">
+          <table>
+            <thead>
+              <tr><th>Tier / Artifact</th><th>Status</th><th>SHA-256</th><th>Size / Details</th><th>Rollback Verified</th><th>Epistemic</th></tr>
+            </thead>
+            <tbody id="manifestTbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Section 4: Diagnostic Media Gallery (Localhost only) -->
+      <section class="sec" id="mediaSection" style="display:none;margin-top:0;">
+        <div class="sec-head">
+          <h2>4 · Localhost Diagnostic Renders (eval_outputs/)</h2>
+          <span class="ep STRUCTURAL">LOCALHOST ONLY</span>
+        </div>
+        <div class="sec-body">
+          <div id="mediaGallery" class="media-grid"></div>
+        </div>
+      </section>
     </div>
-    <div class="sec-body">
-      <div id="mediaGallery" class="media-grid"></div>
-    </div>
-  </section>
+  </details>
 </main>
 
 <!-- Mobile Thumb View Bar (<960px) -->
@@ -2144,7 +2174,7 @@
   // Embedded WGSL Compute Shaders
   const WGSL_PREPROCESS_NORM = "// SCION 4D Body Runtime \u2014 WGSL Compute Shader 1:\n// RGBA texture -> aspect-preserving letterbox + ImageNet normalized NCHW tensor buffer.\n// Supports both FP32 (main_f32) and packed IEEE-754 FP16 (main_f16_packed via pack2x16float).\n\nstruct PreprocessParams {\n    src_w: u32,\n    src_h: u32,\n    dst_w: u32,\n    dst_h: u32,\n    scale: f32,\n    pad_x: f32,\n    pad_y: f32,\n    pad_val: f32,\n    mean_r: f32,\n    mean_g: f32,\n    mean_b: f32,\n    _pad0: f32,\n    inv_std_r: f32,\n    inv_std_g: f32,\n    inv_std_b: f32,\n    _pad1: f32,\n};\n\n@group(0) @binding(0) var<uniform> params: PreprocessParams;\n@group(0) @binding(1) var src_tex: texture_2d<f32>;\n@group(0) @binding(2) var<storage, read_write> out_nchw_f32: array<f32>;\n@group(0) @binding(3) var<storage, read_write> out_nchw_f16_packed: array<u32>;\n\nfn sample_bilinear_rgb(fx: f32, fy: f32) -> vec3<f32> {\n    if (fx < -0.5 || fy < -0.5 || fx > f32(params.src_w) - 0.5 || fy > f32(params.src_h) - 0.5) {\n        return vec3<f32>(params.pad_val, params.pad_val, params.pad_val);\n    }\n    let cx = clamp(fx, 0.0, f32(params.src_w - 1u));\n    let cy = clamp(fy, 0.0, f32(params.src_h - 1u));\n    let x0 = i32(floor(cx));\n    let y0 = i32(floor(cy));\n    let x1 = min(x0 + 1, i32(params.src_w) - 1);\n    let y1 = min(y0 + 1, i32(params.src_h) - 1);\n    let tx = cx - f32(x0);\n    let ty = cy - f32(y0);\n\n    let c00 = textureLoad(src_tex, vec2<i32>(x0, y0), 0).rgb;\n    let c10 = textureLoad(src_tex, vec2<i32>(x1, y0), 0).rgb;\n    let c01 = textureLoad(src_tex, vec2<i32>(x0, y1), 0).rgb;\n    let c11 = textureLoad(src_tex, vec2<i32>(x1, y1), 0).rgb;\n\n    let top = mix(c00, c10, tx);\n    let bot = mix(c01, c11, tx);\n    return mix(top, bot, ty);\n}\n\nfn norm_pixel(dx: u32, dy: u32) -> vec3<f32> {\n    let fx = (f32(dx) + 0.5 - params.pad_x) / params.scale - 0.5;\n    let fy = (f32(dy) + 0.5 - params.pad_y) / params.scale - 0.5;\n    let rgb = sample_bilinear_rgb(fx, fy);\n    return vec3<f32>(\n        (rgb.r - params.mean_r) * params.inv_std_r,\n        (rgb.g - params.mean_g) * params.inv_std_g,\n        (rgb.b - params.mean_b) * params.inv_std_b\n    );\n}\n\n@compute @workgroup_size(8, 8, 1)\nfn main_f32(@builtin(global_invocation_id) gid: vec3<u32>) {\n    if (gid.x >= params.dst_w || gid.y >= params.dst_h) {\n        return;\n    }\n    let plane = params.dst_w * params.dst_h;\n    let idx = gid.y * params.dst_w + gid.x;\n    let n = norm_pixel(gid.x, gid.y);\n    out_nchw_f32[idx] = n.r;\n    out_nchw_f32[plane + idx] = n.g;\n    out_nchw_f32[2u * plane + idx] = n.b;\n}\n\n// Emits packed IEEE-754 float16 pairs into out_nchw_f16_packed (2 pixels per u32 along plane).\n// Requires dst_w * dst_h to be even (true for both 384x512=196608 and 256x320=81920).\n@compute @workgroup_size(64, 1, 1)\nfn main_f16_packed(@builtin(global_invocation_id) gid: vec3<u32>) {\n    let pair_idx = gid.x;\n    let plane = params.dst_w * params.dst_h;\n    let half_plane = plane / 2u;\n    if (pair_idx >= half_plane) {\n        return;\n    }\n    let idx0 = pair_idx * 2u;\n    let idx1 = idx0 + 1u;\n    let x0 = idx0 % params.dst_w;\n    let y0 = idx0 / params.dst_w;\n    let x1 = idx1 % params.dst_w;\n    let y1 = idx1 / params.dst_w;\n\n    let n0 = norm_pixel(x0, y0);\n    let n1 = norm_pixel(x1, y1);\n\n    out_nchw_f16_packed[pair_idx] = pack2x16float(vec2<f32>(n0.r, n1.r));\n    out_nchw_f16_packed[half_plane + pair_idx] = pack2x16float(vec2<f32>(n0.g, n1.g));\n    out_nchw_f16_packed[2u * half_plane + pair_idx] = pack2x16float(vec2<f32>(n0.b, n1.b));\n}";
   const WGSL_SO3_FK_CHAIN = "// SCION 4D Body Runtime \u2014 WGSL Compute Shader 2:\n// Gram-Schmidt 6D -> SO(3) + anatomical XYZ Euler clamping + 56-joint tree FK\n// with locked bone lengths in a single parallel workgroup sweep.\n\nstruct FKUniforms {\n    num_joints: u32,\n    max_depth: u32,\n    clamp_enabled: u32,\n    fk_convention: u32, // 0 = parent (offset = pR * rest_dir * L), 1 = child (offset = jR * rest_dir * L)\n};\n\n// Strictly 16-byte aligned (48 bytes per JointSpec)\nstruct JointSpec {\n    parent_depth_flags: vec4<i32>, // x: parent_idx (-1 for root), y: tree_depth (0..10), z: clamp_flag, w: reserved\n    rest_dir_len: vec4<f32>,       // xyz: canonical T-pose unit rest bone dir (from parent->j), w: reserved\n    euler_min: vec4<f32>,          // xyz: lower anatomical rotation limit (rad), w: reserved\n    euler_max: vec4<f32>,          // xyz: upper anatomical rotation limit (rad), w: reserved\n};\n\n@group(0) @binding(0) var<uniform> u_fk: FKUniforms;\n@group(0) @binding(1) var<storage, read> joint_specs: array<JointSpec>;\n@group(0) @binding(2) var<storage, read> theta_6d: array<f32>;      // 56 * 6 floats (two column vectors a, b)\n@group(0) @binding(3) var<storage, read> root_T: array<f32>;        // 16 floats row-major 4x4 SE(3)\n@group(0) @binding(4) var<storage, read> bone_lengths: array<f32>;  // 55 floats (bone_idx = j - 1)\n@group(0) @binding(5) var<storage, read_write> out_local_R: array<f32>;   // 56 * 9 row-major\n@group(0) @binding(6) var<storage, read_write> out_world_R: array<f32>;   // 56 * 9 row-major\n@group(0) @binding(7) var<storage, read_write> out_joints_xyz: array<f32>; // 56 * 3\n@group(0) @binding(8) var<storage, read_write> out_ortho_err: array<f32>;  // 56 floats ||R^T R - I||_F\n\nvar<workgroup> wg_local_R: array<mat3x3<f32>, 56>;\nvar<workgroup> wg_world_R: array<mat3x3<f32>, 56>;\nvar<workgroup> wg_world_p: array<vec3<f32>, 56>;\n\nfn safe_normalize(v: vec3<f32>, fallback: vec3<f32>) -> vec3<f32> {\n    let n2 = dot(v, v);\n    if (n2 > 1e-12) {\n        return v * inverseSqrt(n2);\n    }\n    return fallback;\n}\n\n// Deterministic Gram-Schmidt 6D -> SO(3) (columns c0, c1, c2; det = +1).\n// Note: WGSL mat3x3<f32>(col0, col1, col2) constructs from column vectors.\nfn gram_schmidt_6d(a: vec3<f32>, b: vec3<f32>) -> mat3x3<f32> {\n    let c0 = safe_normalize(a, vec3<f32>(1.0, 0.0, 0.0));\n    var b_orth = b - dot(c0, b) * c0;\n    if (dot(b_orth, b_orth) < 1e-10) {\n        // Orthogonal fallback vector if a and b are near-collinear\n        let fb = select(vec3<f32>(1.0, 0.0, 0.0), vec3<f32>(0.0, 1.0, 0.0), abs(c0.x) < 0.9);\n        b_orth = fb - dot(c0, fb) * c0;\n    }\n    let c1 = safe_normalize(b_orth, vec3<f32>(0.0, 1.0, 0.0));\n    let c2 = cross(c0, c1);\n    return mat3x3<f32>(c0, c1, c2);\n}\n\n// Convert SO(3) to intrinsic XYZ Euler angles (rx, ry, rz) matching SCION_SCHEMA_V1\n// Note: WGSL mat3x3<f32> is indexed R[col][row], so R[col][row] == R_np[row, col].\nfn mat3_to_euler_xyz(R: mat3x3<f32>) -> vec3<f32> {\n    let sy = clamp(R[2][0], -1.0, 1.0);\n    let ry = asin(sy);\n    let cy = sqrt(max(0.0, 1.0 - sy * sy));\n    var rx: f32 = 0.0;\n    var rz: f32 = 0.0;\n    if (cy > 1e-5) {\n        rx = atan2(-R[2][1], R[2][2]);\n        rz = atan2(-R[1][0], R[0][0]);\n    } else {\n        rx = atan2(R[1][2], R[1][1]);\n        rz = 0.0;\n    }\n    return vec3<f32>(rx, ry, rz);\n}\n\nfn euler_xyz_to_mat3(e: vec3<f32>) -> mat3x3<f32> {\n    let cx = cos(e.x); let sx = sin(e.x);\n    let cy = cos(e.y); let sy = sin(e.y);\n    let cz = cos(e.z); let sz = sin(e.z);\n    // R = Rx(e.x) * Ry(e.y) * Rz(e.z), columns c0, c1, c2:\n    let c0 = vec3<f32>(cy * cz, sx * sy * cz + cx * sz, -cx * sy * cz + sx * sz);\n    let c1 = vec3<f32>(-cy * sz, -sx * sy * sz + cx * cz, cx * sy * sz + sx * cz);\n    let c2 = vec3<f32>(sy, -sx * cy, cx * cy);\n    return mat3x3<f32>(c0, c1, c2);\n}\n\nfn clamp_anatomical(R: mat3x3<f32>, emin: vec3<f32>, emax: vec3<f32>) -> mat3x3<f32> {\n    let e = mat3_to_euler_xyz(R);\n    let ec = clamp(e, emin, emax);\n    return euler_xyz_to_mat3(ec);\n}\n\nfn write_mat3_row_major(base: u32, R: mat3x3<f32>, dst: ptr<storage, array<f32>, read_write>) {\n    // Row 0\n    (*dst)[base + 0u] = R[0][0];\n    (*dst)[base + 1u] = R[1][0];\n    (*dst)[base + 2u] = R[2][0];\n    // Row 1\n    (*dst)[base + 3u] = R[0][1];\n    (*dst)[base + 4u] = R[1][1];\n    (*dst)[base + 5u] = R[2][1];\n    // Row 2\n    (*dst)[base + 6u] = R[0][2];\n    (*dst)[base + 7u] = R[1][2];\n    (*dst)[base + 8u] = R[2][2];\n}\n\nfn ortho_error_frobenius(R: mat3x3<f32>) -> f32 {\n    let RtR = transpose(R) * R;\n    var err2: f32 = 0.0;\n    for (var c: u32 = 0u; c < 3u; c = c + 1u) {\n        for (var r: u32 = 0u; r < 3u; r = r + 1u) {\n            let diag_val = select(0.0, 1.0, c == r);\n            let d = RtR[c][r] - diag_val;\n            err2 = err2 + d * d;\n        }\n    }\n    return sqrt(err2);\n}\n\n@compute @workgroup_size(64, 1, 1)\nfn main(@builtin(local_invocation_id) lid: vec3<u32>) {\n    let j = lid.x;\n    let is_active = j < u_fk.num_joints;\n\n    var spec: JointSpec;\n    if (is_active) {\n        spec = joint_specs[j];\n        let b6 = j * 6u;\n        let a = vec3<f32>(theta_6d[b6 + 0u], theta_6d[b6 + 1u], theta_6d[b6 + 2u]);\n        let b = vec3<f32>(theta_6d[b6 + 3u], theta_6d[b6 + 4u], theta_6d[b6 + 5u]);\n        var R_loc = gram_schmidt_6d(a, b);\n        if (u_fk.clamp_enabled != 0u && spec.parent_depth_flags.z != 0 && j > 0u) {\n            R_loc = clamp_anatomical(R_loc, spec.euler_min.xyz, spec.euler_max.xyz);\n        }\n        wg_local_R[j] = R_loc;\n\n        if (j == 0u) {\n            // Root joint 0: R_global[0] = root_T[:3,:3] @ theta_so3[0] (theta_so3[0] == I in GT)\n            let R_root = mat3x3<f32>(\n                vec3<f32>(root_T[0], root_T[4], root_T[8]),\n                vec3<f32>(root_T[1], root_T[5], root_T[9]),\n                vec3<f32>(root_T[2], root_T[6], root_T[10])\n            );\n            wg_world_R[0] = R_root * R_loc;\n            wg_world_p[0] = vec3<f32>(root_T[3], root_T[7], root_T[11]);\n        }\n    }\n    workgroupBarrier();\n\n    // Level-synchronous FK tree propagation (max depth <= 10)\n    for (var d: i32 = 1; d <= i32(u_fk.max_depth); d = d + 1) {\n        if (is_active && spec.parent_depth_flags.y == d) {\n            let p = u32(spec.parent_depth_flags.x);\n            let pR = wg_world_R[p];\n            let pp = wg_world_p[p];\n            let jR = pR * wg_local_R[j];\n            let bone_len = bone_lengths[j - 1u];\n            var rot_for_bone: mat3x3<f32> = pR;\n            if (u_fk.fk_convention == 1u) {\n                rot_for_bone = jR;\n            }\n            let offset = rot_for_bone * (spec.rest_dir_len.xyz * bone_len);\n            wg_world_p[j] = pp + offset;\n            wg_world_R[j] = jR;\n        }\n        workgroupBarrier();\n    }\n\n    if (is_active) {\n        let base9 = j * 9u;\n        let base3 = j * 3u;\n        write_mat3_row_major(base9, wg_local_R[j], &out_local_R);\n        write_mat3_row_major(base9, wg_world_R[j], &out_world_R);\n        let wp = wg_world_p[j];\n        out_joints_xyz[base3 + 0u] = wp.x;\n        out_joints_xyz[base3 + 1u] = wp.y;\n        out_joints_xyz[base3 + 2u] = wp.z;\n        out_ortho_err[j] = ortho_error_frobenius(wg_world_R[j]);\n    }\n}";
-  const WGSL_ZBUFFER_PART_DEPTH_GATE = "// SCION 4D Body Runtime \u2014 WGSL Compute Shader 3:\n// 26-part softmax + argmax + Shannon entropy + depth boundary edge detector +\n// RGBA semantic matte renderer + Photometric-Kinematic Innovation Gate reprojection residual.\n// Uses <= 7 storage buffers (compatible with baseline WebGPU maxStorageBuffersPerShaderStage = 8).\n\nstruct BoneMeta {\n    u_joint: u32,\n    v_joint: u32,\n    part_id: u32,\n    alt_part_id: u32,\n};\n\nstruct GateUniforms {\n    hs: u32,\n    ws: u32,\n    num_parts: u32,\n    num_bones: u32,\n    fx: f32,\n    fy: f32,\n    cx: f32,\n    cy: f32,\n    depth_boundary_thresh: f32,\n    depth_order_eps_m: f32,\n    matte_alpha: f32,\n    _pad0: f32,\n    part_palette: array<vec4<u32>, 26>, // .x holds packed RGBA8 (0xAABBGGRR)\n    bone_meta: array<BoneMeta, 55>,      // 55 bones, 16 bytes each\n};\n\n// Atomic accumulator for GPU-side Innovation Gate reduction\nstruct GateAtomicStats {\n    visible_samples: atomic<u32>,\n    mismatched_samples: atomic<u32>,\n    depth_violations: atomic<u32>,\n    fg_pixels: atomic<u32>,\n    entropy_sum_fp: atomic<u32>, // fixed-point (x 1024) over foreground pixels\n    boundary_pixels: atomic<u32>,\n};\n\n@group(0) @binding(0) var<uniform> u_gate: GateUniforms;\n@group(0) @binding(1) var<storage, read> part_logits: array<f32>;                // [26, hs, ws]\n@group(0) @binding(2) var<storage, read> depth_m: array<f32>;                    // [hs, ws]\n@group(0) @binding(3) var<storage, read> joints_xyz: array<f32>;                 // [56, 3]\n@group(0) @binding(4) var<storage, read_write> out_part_id: array<u32>;          // [hs, ws]\n@group(0) @binding(5) var<storage, read_write> out_entropy_bnd: array<vec2<f32>>; // [hs, ws] (.x=entropy, .y=rel_grad)\n@group(0) @binding(6) var<storage, read_write> out_matte_rgba: array<u32>;       // [hs, ws] packed RGBA8\n@group(0) @binding(7) var<storage, read_write> out_stats: GateAtomicStats;\n\n@compute @workgroup_size(8, 8, 1)\nfn pass_spatial_metrics(@builtin(global_invocation_id) gid: vec3<u32>) {\n    if (gid.x >= u_gate.ws || gid.y >= u_gate.hs) {\n        return;\n    }\n    let plane = u_gate.hs * u_gate.ws;\n    let idx = gid.y * u_gate.ws + gid.x;\n\n    // 1. Argmax & max logit for numerically stable softmax across 26 classes\n    var best_c: u32 = 0u;\n    var max_logit: f32 = part_logits[idx];\n    for (var c: u32 = 1u; c < u_gate.num_parts; c = c + 1u) {\n        let v = part_logits[c * plane + idx];\n        if (v > max_logit) {\n            max_logit = v;\n            best_c = c;\n        }\n    }\n\n    var sum_exp: f32 = 0.0;\n    for (var c: u32 = 0u; c < u_gate.num_parts; c = c + 1u) {\n        sum_exp = sum_exp + exp(clamp(part_logits[c * plane + idx] - max_logit, -40.0, 0.0));\n    }\n    let inv_sum = 1.0 / max(sum_exp, 1e-8);\n\n    // 2. Shannon entropy H(p) = -sum p * ln(p)\n    var entropy: f32 = 0.0;\n    for (var c: u32 = 0u; c < u_gate.num_parts; c = c + 1u) {\n        let p = exp(clamp(part_logits[c * plane + idx] - max_logit, -40.0, 0.0)) * inv_sum;\n        if (p > 1e-6) {\n            entropy = entropy - p * log(p);\n        }\n    }\n\n    out_part_id[idx] = best_c;\n\n    // 3. Depth gradient boundary check (relative depth jump across 4-neighborhood)\n    let z0 = max(depth_m[idx], 0.15);\n    let x_l = select(gid.x - 1u, 0u, gid.x == 0u);\n    let x_r = min(gid.x + 1u, u_gate.ws - 1u);\n    let y_u = select(gid.y - 1u, 0u, gid.y == 0u);\n    let y_d = min(gid.y + 1u, u_gate.hs - 1u);\n\n    let dzx = abs(depth_m[gid.y * u_gate.ws + x_r] - depth_m[gid.y * u_gate.ws + x_l]);\n    let dzy = abs(depth_m[y_d * u_gate.ws + gid.x] - depth_m[y_u * u_gate.ws + gid.x]);\n    let rel_grad = sqrt(dzx * dzx + dzy * dzy) / z0;\n    let is_boundary = select(0.0, 1.0, rel_grad > u_gate.depth_boundary_thresh);\n    out_entropy_bnd[idx] = vec2<f32>(entropy, rel_grad);\n\n    // 4. Write RGBA8 matte color (boost brightness slightly on depth boundary trimap)\n    let col = u_gate.part_palette[best_c].x;\n    var r = col & 0xFFu;\n    var g = (col >> 8u) & 0xFFu;\n    var b = (col >> 16u) & 0xFFu;\n    var a = select(u32(clamp(u_gate.matte_alpha, 0.0, 1.0) * 255.0), 0u, best_c == 0u);\n\n    if (is_boundary > 0.5 && best_c > 0u) {\n        r = min(255u, r + 60u);\n        g = min(255u, g + 60u);\n        b = min(255u, b + 60u);\n        a = 240u;\n        atomicAdd(&out_stats.boundary_pixels, 1u);\n    }\n    if (best_c > 1u) {\n        atomicAdd(&out_stats.fg_pixels, 1u);\n        atomicAdd(&out_stats.entropy_sum_fp, u32(clamp(entropy * 1024.0, 0.0, 65535.0)));\n    }\n    out_matte_rgba[idx] = r | (g << 8u) | (b << 16u) | (a << 24u);\n}\n\n@compute @workgroup_size(64, 1, 1)\nfn pass_reproj_gate(@builtin(global_invocation_id) gid: vec3<u32>) {\n    let b = gid.x;\n    if (b >= u_gate.num_bones) {\n        return;\n    }\n    let binfo = u_gate.bone_meta[b];\n    let pu = vec3<f32>(\n        joints_xyz[binfo.u_joint * 3u + 0u],\n        joints_xyz[binfo.u_joint * 3u + 1u],\n        joints_xyz[binfo.u_joint * 3u + 2u]\n    );\n    let pv = vec3<f32>(\n        joints_xyz[binfo.v_joint * 3u + 0u],\n        joints_xyz[binfo.v_joint * 3u + 1u],\n        joints_xyz[binfo.v_joint * 3u + 2u]\n    );\n\n    // Sample 5 points along each projected 3D bone segment\n    for (var s: u32 = 0u; s < 5u; s = s + 1u) {\n        let t = (f32(s) + 0.5) / 5.0;\n        let pt = mix(pu, pv, t);\n        if (pt.z <= 0.15) {\n            continue;\n        }\n        let u_px = u_gate.fx * (pt.x / pt.z) + u_gate.cx;\n        let v_px = u_gate.fy * (pt.y / pt.z) + u_gate.cy;\n        let ix = i32(round(u_px));\n        let iy = i32(round(v_px));\n        if (ix < 0 || iy < 0 || ix >= i32(u_gate.ws) || iy >= i32(u_gate.hs)) {\n            continue;\n        }\n        let idx = u32(iy) * u_gate.ws + u32(ix);\n        let obs_part = out_part_id[idx];\n        let obs_z = depth_m[idx];\n\n        // If occluded by explicit occluder_object (1), check depth parity (occluder should be <= pt.z + eps)\n        if (obs_part == 1u) {\n            if (obs_z > pt.z + u_gate.depth_order_eps_m) {\n                atomicAdd(&out_stats.depth_violations, 1u);\n            }\n            continue;\n        }\n\n        atomicAdd(&out_stats.visible_samples, 1u);\n        // Check part containment: match primary part or adjacent alt_part_id\n        if (obs_part != binfo.part_id && obs_part != binfo.alt_part_id) {\n            atomicAdd(&out_stats.mismatched_samples, 1u);\n        } else {\n            // If pixel belongs to this limb part, predicted bone Z shouldn't lag far behind foreground depth\n            if (pt.z - obs_z > u_gate.depth_order_eps_m * 1.5) {\n                atomicAdd(&out_stats.depth_violations, 1u);\n            }\n        }\n    }\n}";
+  const WGSL_ZBUFFER_PART_DEPTH_GATE = "// SCION 4D Body Runtime \u2014 WGSL Compute Shader 3:\n// 26-part softmax + argmax + Shannon entropy + depth boundary edge detector +\n// RGBA semantic matte renderer + Photometric-Kinematic Innovation Gate reprojection residual.\n// Uses <= 7 storage buffers (compatible with baseline WebGPU maxStorageBuffersPerShaderStage = 8).\n\nstruct BoneMeta {\n    u_joint: u32,\n    v_joint: u32,\n    part_id: u32,\n    alt_part_id: u32,\n};\n\nstruct GateUniforms {\n    hs: u32,\n    ws: u32,\n    num_parts: u32,\n    num_bones: u32,\n    fx: f32,\n    fy: f32,\n    cx: f32,\n    cy: f32,\n    depth_boundary_thresh: f32,\n    depth_order_eps_m: f32,\n    matte_alpha: f32,\n    _pad0: f32,\n    part_palette: array<vec4<u32>, 26>, // .x holds packed RGBA8 (0xAABBGGRR)\n    bone_meta: array<BoneMeta, 55>,      // 55 bones, 16 bytes each\n};\n\n// Atomic accumulator for GPU-side Innovation Gate reduction\nstruct GateAtomicStats {\n    visible_samples: atomic<u32>,\n    mismatched_samples: atomic<u32>,\n    depth_violations: atomic<u32>,\n    fg_pixels: atomic<u32>,\n    entropy_sum_fp: atomic<u32>, // fixed-point (x 1024) over foreground pixels\n    boundary_pixels: atomic<u32>,\n};\n\n@group(0) @binding(0) var<uniform> u_gate: GateUniforms;\n@group(0) @binding(1) var<storage, read> part_logits: array<f32>;                // [26, hs, ws]\n@group(0) @binding(2) var<storage, read> depth_m: array<f32>;                    // [hs, ws]\n@group(0) @binding(3) var<storage, read> joints_xyz: array<f32>;                 // [56, 3]\n@group(0) @binding(4) var<storage, read_write> out_part_id: array<u32>;          // [hs, ws]\n@group(0) @binding(5) var<storage, read_write> out_entropy_bnd: array<vec2<f32>>; // [hs, ws] (.x=entropy, .y=rel_grad)\n@group(0) @binding(6) var<storage, read_write> out_matte_rgba: array<u32>;       // [hs, ws] packed RGBA8\n@group(0) @binding(7) var<storage, read_write> out_stats: GateAtomicStats;\n\n@compute @workgroup_size(8, 8, 1)\nfn pass_spatial_metrics(@builtin(global_invocation_id) gid: vec3<u32>) {\n    if (gid.x >= u_gate.ws || gid.y >= u_gate.hs) {\n        return;\n    }\n    let plane = u_gate.hs * u_gate.ws;\n    let idx = gid.y * u_gate.ws + gid.x;\n\n    // 1. Argmax & max logit for numerically stable softmax across 26 classes\n    var best_c: u32 = 0u;\n    var max_logit: f32 = part_logits[idx];\n    for (var c: u32 = 1u; c < u_gate.num_parts; c = c + 1u) {\n        let v = part_logits[c * plane + idx];\n        if (v > max_logit) {\n            max_logit = v;\n            best_c = c;\n        }\n    }\n\n    var sum_exp: f32 = 0.0;\n    for (var c: u32 = 0u; c < u_gate.num_parts; c = c + 1u) {\n        sum_exp = sum_exp + exp(clamp(part_logits[c * plane + idx] - max_logit, -40.0, 0.0));\n    }\n    let inv_sum = 1.0 / max(sum_exp, 1e-8);\n\n    // 2. Shannon entropy H(p) = -sum p * ln(p)\n    var entropy: f32 = 0.0;\n    for (var c: u32 = 0u; c < u_gate.num_parts; c = c + 1u) {\n        let p = exp(clamp(part_logits[c * plane + idx] - max_logit, -40.0, 0.0)) * inv_sum;\n        if (p > 1e-6) {\n            entropy = entropy - p * log(p);\n        }\n    }\n\n    out_part_id[idx] = best_c;\n\n    // 3. Depth gradient boundary check (relative depth jump across 4-neighborhood)\n    let z0 = max(depth_m[idx], 0.15);\n    let x_l = select(gid.x - 1u, 0u, gid.x == 0u);\n    let x_r = min(gid.x + 1u, u_gate.ws - 1u);\n    let y_u = select(gid.y - 1u, 0u, gid.y == 0u);\n    let y_d = min(gid.y + 1u, u_gate.hs - 1u);\n\n    let dzx = abs(depth_m[gid.y * u_gate.ws + x_r] - depth_m[gid.y * u_gate.ws + x_l]);\n    let dzy = abs(depth_m[y_d * u_gate.ws + gid.x] - depth_m[y_u * u_gate.ws + gid.x]);\n    let rel_grad = sqrt(dzx * dzx + dzy * dzy) / z0;\n    let is_boundary = select(0.0, 1.0, rel_grad > u_gate.depth_boundary_thresh);\n    out_entropy_bnd[idx] = vec2<f32>(entropy, rel_grad);\n\n    // 4. Write RGBA8 matte color (boost brightness slightly on depth boundary trimap)\n    let col = u_gate.part_palette[best_c].x;\n    var r = col & 0xFFu;\n    var g = (col >> 8u) & 0xFFu;\n    var b = (col >> 16u) & 0xFFu;\n    var a = select(u32(clamp(u_gate.matte_alpha, 0.0, 1.0) * 255.0), 0u, best_c == 0u);\n\n    if (is_boundary > 0.5 && best_c > 0u) {\n        r = min(255u, r + 60u);\n        g = min(255u, g + 60u);\n        b = min(255u, b + 60u);\n        a = 240u;\n        atomicAdd(&out_stats.boundary_pixels, 1u);\n    }\n    if (best_c > 1u) {\n        atomicAdd(&out_stats.fg_pixels, 1u);\n        atomicAdd(&out_stats.entropy_sum_fp, u32(clamp(entropy * 1024.0, 0.0, 65535.0)));\n    }\n    out_matte_rgba[idx] = r | (g << 8u) | (b << 16u) | (a << 24u);\n}\n\n@compute @workgroup_size(64, 1, 1)\nfn pass_reproj_gate(@builtin(global_invocation_id) gid: vec3<u32>) {\n    let b = gid.x;\n    if (b >= u_gate.num_bones) {\n        return;\n    }\n    let binfo = u_gate.bone_meta[b];\n    if ((binfo.u_joint & 0x80000000u) != 0u) {\n        return;\n    }\n    let u_j = binfo.u_joint & 0xFFFFu;\n    let pu = vec3<f32>(\n        joints_xyz[u_j * 3u + 0u],\n        joints_xyz[u_j * 3u + 1u],\n        joints_xyz[u_j * 3u + 2u]\n    );\n    let pv = vec3<f32>(\n        joints_xyz[binfo.v_joint * 3u + 0u],\n        joints_xyz[binfo.v_joint * 3u + 1u],\n        joints_xyz[binfo.v_joint * 3u + 2u]\n    );\n\n    // Sample 5 points along each projected 3D bone segment\n    for (var s: u32 = 0u; s < 5u; s = s + 1u) {\n        let t = (f32(s) + 0.5) / 5.0;\n        let pt = mix(pu, pv, t);\n        if (pt.z <= 0.15) {\n            continue;\n        }\n        let u_px = u_gate.fx * (pt.x / pt.z) + u_gate.cx;\n        let v_px = u_gate.fy * (pt.y / pt.z) + u_gate.cy;\n        let ix = i32(round(u_px));\n        let iy = i32(round(v_px));\n        if (ix < 0 || iy < 0 || ix >= i32(u_gate.ws) || iy >= i32(u_gate.hs)) {\n            continue;\n        }\n        let idx = u32(iy) * u_gate.ws + u32(ix);\n        let obs_part = out_part_id[idx];\n        let obs_z = depth_m[idx];\n\n        // If occluded by explicit occluder_object (1), check depth parity (occluder should be <= pt.z + eps)\n        if (obs_part == 1u) {\n            if (obs_z > pt.z + u_gate.depth_order_eps_m) {\n                atomicAdd(&out_stats.depth_violations, 1u);\n            }\n            continue;\n        }\n\n        atomicAdd(&out_stats.visible_samples, 1u);\n        let compat = (obs_part == binfo.part_id) || (obs_part == binfo.alt_part_id) || (obs_part >= 2u && pt.z >= obs_z - u_gate.depth_order_eps_m);\n        let same_part_z_tol = max(u_gate.depth_order_eps_m * 2.2, 0.55 * abs(pu.z - pv.z));\n        if (!compat) {\n            atomicAdd(&out_stats.mismatched_samples, 1u);\n        } else if ((obs_part == binfo.part_id || obs_part == binfo.alt_part_id) && (pt.z - obs_z > same_part_z_tol)) {\n            atomicAdd(&out_stats.depth_violations, 1u);\n        }\n    }\n}";
 
   const NUM_JOINTS = 56;
   const NUM_BONES = 55;
@@ -2252,6 +2282,16 @@
   function mat3FromCols(c0, c1, c2) {
     return [c0[0], c1[0], c2[0], c0[1], c1[1], c2[1], c0[2], c1[2], c2[2]];
   }
+  function mat3MulVec(R, v) {
+    return [
+      R[0] * v[0] + R[1] * v[1] + R[2] * v[2],
+      R[3] * v[0] + R[4] * v[1] + R[5] * v[2],
+      R[6] * v[0] + R[7] * v[1] + R[8] * v[2],
+    ];
+  }
+  function reorthoMat3(R) {
+    return gramSchmidt6dToMat3(R[0], R[3], R[6], R[1], R[4], R[7]);
+  }
   function basisFromPrimaryAndHint(primaryVec, hintVec) {
     const c0 = vecNorm(primaryVec[0], primaryVec[1], primaryVec[2]);
     let d = dot3(c0, hintVec);
@@ -2272,6 +2312,40 @@
     // Maps rest frame B columns -> world frame W columns: R = W * B^T
     const Bt = [B[0], B[3], B[6], B[1], B[4], B[7], B[2], B[5], B[8]];
     return mat3Mul(W, Bt);
+  }
+  function mat3ToEulerXYZ(R) {
+    const sy = clamp(R[2], -1, 1);
+    const ry = Math.asin(sy);
+    const cy = Math.sqrt(Math.max(0, 1 - sy * sy));
+    let rx = 0, rz = 0;
+    if (cy > 1e-5) { rx = Math.atan2(-R[5], R[8]); rz = Math.atan2(-R[1], R[0]); }
+    else { rx = Math.atan2(R[7], R[4]); }
+    return [rx, ry, rz];
+  }
+  function eulerXYZToMat3(ex, ey, ez) {
+    const cx = Math.cos(ex), sx = Math.sin(ex), cy = Math.cos(ey), sy = Math.sin(ey), cz = Math.cos(ez), sz = Math.sin(ez);
+    return [
+      cy * cz, -cy * sz, sy,
+      sx * sy * cz + cx * sz, -sx * sy * sz + cx * cz, -sx * cy,
+      -cx * sy * cz + sx * sz, cx * sy * sz + sx * cz, cx * cy,
+    ];
+  }
+  function clampTheta6dToSchemaLimits(theta6d, schema) {
+    const lim = schema.limits;
+    for (let j = 1; j < NUM_JOINTS; j++) {
+      if (!lim.clampFlag[j]) continue;
+      const b = j * 6;
+      const R = gramSchmidt6dToMat3(theta6d[b], theta6d[b + 1], theta6d[b + 2], theta6d[b + 3], theta6d[b + 4], theta6d[b + 5]);
+      const e = mat3ToEulerXYZ(R);
+      const o = j * 3;
+      const Rc = eulerXYZToMat3(
+        clamp(e[0], lim.minArr[o], lim.maxArr[o]),
+        clamp(e[1], lim.minArr[o + 1], lim.maxArr[o + 1]),
+        clamp(e[2], lim.minArr[o + 2], lim.maxArr[o + 2])
+      );
+      theta6d[b] = Rc[0]; theta6d[b + 1] = Rc[3]; theta6d[b + 2] = Rc[6];
+      theta6d[b + 3] = Rc[1]; theta6d[b + 4] = Rc[4]; theta6d[b + 5] = Rc[7];
+    }
   }
   function buildRootTransform(rootRot6d, rootXyNorm, rootLogZ, logFRatio, tierSpec) {
     const R = gramSchmidt6dToMat3(rootRot6d[0], rootRot6d[1], rootRot6d[2], rootRot6d[3], rootRot6d[4], rootRot6d[5]);
@@ -2508,23 +2582,33 @@
       return tb.srcTex;
     }
 
-    async loadOnnxModel(tier, modelUrl) {
-      if (!LOCAL_HOST) throw new Error("ONNX Runtime Web model loading is localhost-only.");
+    async loadOnnxModel(tier, modelSource) {
       if (!globalThis.ort) {
-        await new Promise((resolve, reject) => {
-          const s = document.createElement("script");
-          s.src = "/scion_body4d/edge/vendor/node_modules/onnxruntime-web/dist/ort.all.min.js";
-          s.onload = resolve; s.onerror = () => reject(new Error("Local ORT-Web script missing"));
-          document.head.appendChild(s);
-        });
+        const ortBase = LOCAL_HOST
+          ? "/scion_body4d/edge/vendor/node_modules/onnxruntime-web/dist/"
+          : "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/";
+        if (!globalThis.__scionOrtScriptPromise) {
+          globalThis.__scionOrtScriptPromise = new Promise((resolve, reject) => {
+            const existing = document.getElementById("scionOrtScript");
+            if (existing) { existing.addEventListener("load", resolve, { once: true }); existing.addEventListener("error", () => reject(new Error(`ORT-Web script load failed (${ortBase})`)), { once: true }); return; }
+            const s = document.createElement("script");
+            s.id = "scionOrtScript";
+            s.src = ortBase + "ort.all.min.js";
+            s.onload = resolve; s.onerror = () => reject(new Error(`ORT-Web script load failed (${ortBase})`));
+            document.head.appendChild(s);
+          });
+        }
+        await globalThis.__scionOrtScriptPromise;
       }
-      globalThis.ort.env.wasm.wasmPaths = "/scion_body4d/edge/vendor/node_modules/onnxruntime-web/dist/";
+      globalThis.ort.env.wasm.wasmPaths = LOCAL_HOST
+        ? "/scion_body4d/edge/vendor/node_modules/onnxruntime-web/dist/"
+        : "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/";
       globalThis.ort.env.wasm.simd = true;
       const providers = this.device ? ["webgpu", "wasm"] : ["wasm"];
       let lastErr = null;
       for (const ep of providers) {
         try {
-          const sess = await globalThis.ort.InferenceSession.create(modelUrl, { executionProviders: [ep], graphOptimizationLevel: "all" });
+          const sess = await globalThis.ort.InferenceSession.create(modelSource, { executionProviders: [ep], graphOptimizationLevel: "all" });
           const sp = TIER_SPECS[tier];
           const inName = sess.inputNames[0];
           await sess.run({ [inName]: new globalThis.ort.Tensor("float32", new Float32Array(3 * sp.height * sp.width), [1, 3, sp.height, sp.width]) });
@@ -2596,7 +2680,7 @@
       return { nchwF32, scale, padX, padY, srcW, srcH, prepMs: performance.now() - t0 };
     }
 
-    async runFKAndGate({ tier, theta6d, rootT, boneLengths, partLogits, depthM, K, clampEnabled = true, depthBoundaryThresh = 0.09, depthOrderEps = 0.14, matteAlpha = 0.72, reprojTau = 0.34, prevJointsXyz = null, dtSec = 1 / 30, omegaMaxRadS = 0 }) {
+    async runFKAndGate({ tier, theta6d, rootT, boneLengths, partLogits, depthM, K, clampEnabled = true, depthBoundaryThresh = 0.09, depthOrderEps = 0.14, matteAlpha = 0.72, reprojTau = 0.34, prevJointsXyz = null, dtSec = 1 / 30, omegaMaxRadS = 0, jointLogVar = null }) {
       const sp = TIER_SPECS[tier], nSpatial = sp.h_s * sp.w_s;
       const lengths = boneLengths || this.schema.boneLengths;
       const fx = (K ? K[0] : sp.width * 0.90) * (sp.w_s / sp.width);
@@ -2638,6 +2722,7 @@
         let visibleSamples = 0, mismatchedSamples = 0, depthViolations = 0;
         for (let b = 0; b < NUM_BONES; b++) {
           const v = b + 1, u = this.schema.parents[v];
+          if (jointLogVar && (jointLogVar[u] > -3.0 || jointLogVar[v] > -3.0)) continue;
           const pA = this.schema.boneToPart[b], pB = this.schema.jointToPart[v];
           for (let s = 0; s < 5; s++) {
             const t = (s + 0.5) / 5;
@@ -2650,8 +2735,10 @@
             const obs = partIds[iy * sp.w_s + ix], oz = depthM[iy * sp.w_s + ix];
             if (obs === 1) { if (oz > pz + depthOrderEps) depthViolations++; continue; }
             visibleSamples++;
-            if (obs !== pA && obs !== pB) mismatchedSamples++;
-            else if (pz - oz > depthOrderEps * 1.5) depthViolations++;
+            const compat = (obs === pA) || (obs === pB) || (obs >= 2 && pz >= oz - depthOrderEps);
+            const samePartZTol = Math.max(depthOrderEps * 2.2, 0.55 * Math.abs(jointsXyz[u * 3 + 2] - jointsXyz[v * 3 + 2]));
+            if (!compat) mismatchedSamples++;
+            else if ((obs === pA || obs === pB) && (pz - oz > samePartZTol)) depthViolations++;
           }
         }
         const reprojPartResidual = visibleSamples > 0 ? mismatchedSamples / visibleSamples : 0;
@@ -2676,6 +2763,12 @@
       gu32[0] = sp.h_s; gu32[1] = sp.w_s; gu32[2] = NUM_PARTS; gu32[3] = NUM_BONES;
       gf32[4] = fx; gf32[5] = fy; gf32[6] = cx; gf32[7] = cy;
       gf32[8] = depthBoundaryThresh; gf32[9] = depthOrderEps; gf32[10] = matteAlpha; gf32[11] = 0.0;
+      const bmView = new Uint32Array(this.gateUniformBacking, 48 + 416, NUM_BONES * 4);
+      for (let b = 0; b < NUM_BONES; b++) {
+        const v = b + 1, u = this.schema.parents[v];
+        const lowConf = jointLogVar && (jointLogVar[u] > -3.0 || jointLogVar[v] > -3.0);
+        bmView[b * 4] = u | (lowConf ? 0x80000000 : 0);
+      }
       dev.queue.writeBuffer(sb.gateUniforms, 0, this.gateUniformBacking);
       dev.queue.writeBuffer(sb.gateStats, 0, this.zeroStatsU32);
       dev.queue.writeBuffer(tb.partLogits, 0, partLogits);
@@ -2770,7 +2863,18 @@
         inferenceMs = performance.now() - tInf;
         const g = (k) => res[k]?.data || null;
         const bd = g("bone_delta_log"), bl = new Float32Array(NUM_BONES);
-        for (let b = 0; b < NUM_BONES; b++) bl[b] = this.schema.boneLengths[b] * Math.exp(bd ? bd[b] : 0);
+        for (let b = 0; b < NUM_BONES; b++) bl[b] = this.schema.boneLengths[b] * Math.exp(bd ? clamp(bd[b], -0.45, 0.45) : 0);
+        if (!this.lockedOrtBones) this.lockedOrtBones = {};
+        if (!this.lockedOrtBones[tier]) this.lockedOrtBones[tier] = { count: 0, sum: new Float32Array(NUM_BONES), locked: null };
+        const ob = this.lockedOrtBones[tier];
+        if (!ob.locked) {
+          for (let b = 0; b < NUM_BONES; b++) ob.sum[b] += bl[b];
+          ob.count++;
+          for (let b = 0; b < NUM_BONES; b++) bl[b] = ob.sum[b] / ob.count;
+          if (ob.count >= 12) ob.locked = new Float32Array(bl);
+        } else {
+          bl.set(ob.locked);
+        }
         const built = buildRootTransform(g("root_rot_6d") || [1, 0, 0, 0, 1, 0], g("root_xy_norm") || [0, 0], (g("root_log_z") || [0.5])[0], (g("log_f_ratio") || [0])[0], sp);
         if (!K) K = built.K;
         payload = { theta6d: g("theta_6d"), rootT: built.rootT, boneLengths: bl, partLogits: g("part_logits"), depthM: g("depth_m"), jointLogVar: g("joint_log_var") };
@@ -2783,10 +2887,11 @@
       const fkGate = await this.runFKAndGate({
         tier, theta6d: payload.theta6d, rootT: payload.rootT, boneLengths: payload.boneLengths,
         partLogits: payload.partLogits, depthM: payload.depthM, K, clampEnabled, prevJointsXyz, dtSec, omegaMaxRadS,
+        jointLogVar: payload.jointLogVar || null,
       });
 
       return {
-        tier, backend: this.backend, ortBackend: hasOrt ? this.ortBackend : (payload.isLiveHuman ? "live-human-4d-wgsl" : "demo-crucible-wgsl"),
+        tier, backend: this.backend, ortBackend: hasOrt ? `scion-native-onnx-${this.ortBackend}` : (payload.isLiveHuman ? "live-human-4d-wgsl" : "demo-crucible-wgsl"),
         prepMs: prep.prepMs, inferenceMs, mockGenMs, shaderMs: fkGate.shaderMs,
         gpuComputeMs: prep.prepMs + inferenceMs + fkGate.shaderMs, totalMs: performance.now() - tStart,
         K: K || new Float32Array([sp.width * 0.90, 0, sp.width * 0.5, 0, sp.width * 0.90, sp.height * 0.5, 0, 0, 1]),
@@ -2872,74 +2977,214 @@
   window.ScionWebGPURuntime = ScionWebGPURuntime;
 
   // =========================================================================
-  // 4. Real-Human 4D Perception Engine (MediaPipe Tasks Vision + Bayesian Pinhole + Lie-EKF + Shadow Gate)
+  // 4. Real-Human 4D Perception Engine (Inline Blob Web Worker + Fallback, Exact Desk Anchor, Hole-Free 26-Part Matte)
   // =========================================================================
+  const MP_WORKER_SRC = `
+    (function () {
+      const isBenign = (args) => typeof args[0] === "string" &&
+        /INFO:|gl_context|OpenGL error|Graph successfully|XNNPACK|xnnpack|NORM_RECT|Using NORM_RECT|segmentation_postprocessor|FaceBlendshapes|inference_feedback_manager|Created TensorFlow/i.test(args[0]);
+      const oLog = console.log, oInfo = console.info, oWarn = console.warn, oErr = console.error;
+      console.log = (...a) => { if (!isBenign(a)) oLog(...a); };
+      console.info = (...a) => { if (!isBenign(a)) oInfo(...a); };
+      console.warn = (...a) => { if (!isBenign(a)) oWarn(...a); };
+      console.error = (...a) => { if (!isBenign(a)) oErr(...a); };
+
+      let pose = null, hand = null, face = null, seg = null;
+      let lastTs = 0;
+
+      self.onmessage = async (e) => {
+        const msg = e.data;
+        if (msg.type === "init") {
+          try {
+            const mod = await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/+esm");
+            const { FilesetResolver, PoseLandmarker, HandLandmarker, FaceLandmarker, ImageSegmenter } = mod;
+            const fs = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/wasm");
+            const mk = async (Cls, opts) => {
+              try { return await Cls.createFromOptions(fs, { ...opts, baseOptions: { ...opts.baseOptions, delegate: "GPU" } }); }
+              catch (_) { return await Cls.createFromOptions(fs, { ...opts, baseOptions: { ...opts.baseOptions, delegate: "CPU" } }); }
+            };
+            self.postMessage({ type: "progress", text: "Worker loading Pose model (1/4)..." });
+            pose = await mk(PoseLandmarker, {
+              baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/latest/pose_landmarker_lite.task" },
+              runningMode: "VIDEO", numPoses: 1, minPoseDetectionConfidence: 0.45, minTrackingConfidence: 0.45,
+            });
+            self.postMessage({ type: "pose_ready" });
+            await Promise.all([
+              mk(HandLandmarker, {
+                baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task" },
+                runningMode: "VIDEO", numHands: 2, minHandDetectionConfidence: 0.45, minTrackingConfidence: 0.45,
+              }).then((h) => { hand = h; }).catch(() => {}),
+              mk(FaceLandmarker, {
+                baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task" },
+                runningMode: "VIDEO", numFaces: 1, minFaceDetectionConfidence: 0.45, minTrackingConfidence: 0.45,
+              }).then((f) => { face = f; }).catch(() => {}),
+              mk(ImageSegmenter, {
+                baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite" },
+                runningMode: "VIDEO", outputCategoryMask: true, outputConfidenceMasks: false,
+              }).then((s) => { seg = s; }).catch(() => {}),
+            ]);
+            self.postMessage({ type: "ready" });
+          } catch (err) {
+            self.postMessage({ type: "init_err", error: String((err && err.message) || err) });
+          }
+          return;
+        }
+        if (msg.type === "frame") {
+          const bmp = msg.bitmap;
+          let ts = Math.floor(msg.ts || performance.now());
+          if (ts <= lastTs) ts = lastTs + 1;
+          lastTs = ts;
+          const out = { type: "det", ts, pose2d: null, poseWorld: null, hands2d: null, handsWorld: null, handedness: null, face: null, segMask: null, segW: 0, segH: 0 };
+          try {
+            if (pose) {
+              const pr = pose.detectForVideo(bmp, ts);
+              out.pose2d = pr.landmarks && pr.landmarks[0] ? pr.landmarks[0] : null;
+              out.poseWorld = pr.worldLandmarks && pr.worldLandmarks[0] ? pr.worldLandmarks[0] : null;
+            }
+            const f = msg.detFrame | 0, isM = Boolean(msg.isMobile);
+            if (hand && (!isM || (f % 2 === 0))) {
+              const hr = hand.detectForVideo(bmp, ts);
+              out.hands2d = hr.landmarks || [];
+              out.handsWorld = hr.worldLandmarks || [];
+              out.handedness = hr.handedness || [];
+            }
+            if (face && (f % (isM ? 3 : 2) === 0)) {
+              const fr = face.detectForVideo(bmp, ts);
+              out.face = fr.faceLandmarks && fr.faceLandmarks[0] ? fr.faceLandmarks[0] : null;
+            }
+            if (seg && (f % (isM ? 2 : 1) === (isM ? 1 : 0))) {
+              const sr = seg.segmentForVideo(bmp, ts);
+              if (sr && sr.categoryMask) {
+                const cm = sr.categoryMask;
+                const copy = cm.getAsUint8Array().slice();
+                out.segMask = copy;
+                out.segW = cm.width;
+                out.segH = cm.height;
+                sr.close && sr.close();
+              }
+            }
+          } catch (_) {}
+          bmp.close && bmp.close();
+          const xf = out.segMask ? [out.segMask.buffer] : [];
+          self.postMessage(out, xf);
+        }
+      };
+    })();
+  `;
+
   class LiveHuman4DSolver {
     constructor(schema) {
       this.schema = schema;
-      this.mp = { status: "idle", error: null, pose: null, hand: null, face: null, seg: null, loading: false };
+      this.mp = { status: "idle", error: null, mode: "none", worker: null, workerBusy: false, pose: null, hand: null, face: null, seg: null, loading: false };
       this.lastVideoTs = -1;
       this.detFrame = 0;
       this.latest = { pose2d: null, poseWorld: null, hands2d: [], handsWorld: [], handedness: [], face: null, segMask: null, segW: 0, segH: 0, ts: 0 };
       this.resetLock();
-
-      // Pre-allocated typed buffers per tier
       this.scratch = {};
-      this.segCanvas = document.getElementById("segSourceCanvas");
-      this.segCtx = this.segCanvas.getContext("2d", { willReadFrequently: true });
-      this.bgLab = null;
     }
 
     resetLock() {
       this.calibFrames = 0;
-      this.boneSum = new Float64Array(NUM_BONES);
-      this.boneWeight = new Float64Array(NUM_BONES);
+      this.shHalfSum = 0; this.shHalfWt = 0;
+      this.neckHeadSum = 0; this.neckHeadWt = 0;
+      this.upperArmSum = 0; this.upperArmWt = 0;
+      this.foreArmSum = 0; this.foreArmWt = 0;
       this.lockedLengths = new Float32Array(this.schema.boneLengths);
       this.isLocked = false;
-      this.rootZ = 1.35;
+      this.rootZ = 1.25;
       this.filtWorldR = Array.from({ length: NUM_JOINTS }, () => [1, 0, 0, 0, 1, 0, 0, 0, 1]);
       this.hasFilt = false;
-      this.prevHandAssign = { L: null, R: null };
+      this.prevShMid2 = null;
+      this.prevShVecRaw = null;
+      this.hadHandL = false;
+      this.hadHandR = false;
+      this.hadFace = false;
       this.mpArmLenWindow = [];
-      this.bgLab = null;
+    }
+
+    _installConsoleNoiseFilter() {
+      if (window.__scionErrFiltered) return;
+      window.__scionErrFiltered = true;
+      const isBenign = (a) => typeof a[0] === "string" &&
+        /INFO:|gl_context|OpenGL error|Graph successfully|XNNPACK|xnnpack|NORM_RECT|Using NORM_RECT|segmentation_postprocessor|FaceBlendshapes|inference_feedback_manager|Created TensorFlow/i.test(a[0]);
+      const oErr = console.error.bind(console), oWarn = console.warn.bind(console);
+      console.error = (...a) => { if (isBenign(a)) return; oErr(...a); };
+      console.warn = (...a) => { if (isBenign(a)) return; oWarn(...a); };
     }
 
     async ensureMediaPipeLoaded(onProgress) {
-      if (this.mp.pose || this.mp.loading) return;
+      if (this.mp.status === "pose_ready" || this.mp.status === "ready" || this.mp.loading) return;
       this.mp.loading = true;
       this.mp.status = "loading";
-      onProgress("Loading @mediapipe/tasks-vision 0.10.21...");
+      onProgress("Starting off-main-thread MediaPipe Vision Worker...");
+
+      // 1. Try classic Blob Web Worker first (0 main-thread block, 0 rAF violation)
+      if (typeof Worker !== "undefined" && typeof createImageBitmap === "function") {
+        try {
+          const blobUrl = URL.createObjectURL(new Blob([MP_WORKER_SRC], { type: "application/javascript" }));
+          const w = new Worker(blobUrl);
+          const ok = await new Promise((resolve) => {
+            let settled = false;
+            const done = (val) => { if (!settled) { settled = true; resolve(val); } };
+            const timer = setTimeout(() => { if (!settled) done(false); }, 45000);
+            w.onerror = () => { clearTimeout(timer); done(false); };
+            w.onmessage = (ev) => {
+              const d = ev.data;
+              if (d.type === "progress") onProgress(d.text);
+              else if (d.type === "pose_ready") {
+                this.mp.status = "pose_ready"; this.mp.mode = "worker"; this.mp.worker = w;
+                onProgress("Pose live (Web Worker) · loading Hands, Face & 26-Part Segmenter...");
+                clearTimeout(timer); done(true);
+              } else if (d.type === "ready") {
+                this.mp.status = "ready"; this.mp.loading = false;
+                onProgress("");
+              } else if (d.type === "init_err") {
+                clearTimeout(timer); done(false);
+              } else if (d.type === "det") {
+                this.mp.workerBusy = false;
+                this.latest.pose2d = d.pose2d;
+                this.latest.poseWorld = d.poseWorld;
+                if (d.hands2d !== null) {
+                  this.latest.hands2d = d.hands2d;
+                  this.latest.handsWorld = d.handsWorld || [];
+                  this.latest.handedness = d.handedness || [];
+                }
+                if (d.face !== null) this.latest.face = d.face;
+                if (d.segMask) {
+                  this.latest.segMask = d.segMask;
+                  this.latest.segW = d.segW;
+                  this.latest.segH = d.segH;
+                }
+                this.latest.ts = d.ts;
+              }
+            };
+            w.postMessage({ type: "init" });
+          });
+          URL.revokeObjectURL(blobUrl);
+          if (ok) { this.mp.loading = false; return; }
+          try { w.terminate(); } catch (_) {}
+        } catch (_) {}
+      }
+
+      // 2. Fallback: off-rAF async main-thread initialization
       try {
-        // Emscripten MediaPipe WASM prints benign C++ "INFO: Created TensorFlow Lite XNNPACK delegate" lines via stderr
-        if (!window.__scionErrFiltered) {
-          window.__scionErrFiltered = true;
-          const origErr = console.error.bind(console);
-          console.error = (...args) => {
-            if (typeof args[0] === "string" && args[0].startsWith("INFO: Created TensorFlow Lite")) {
-              console.info(...args);
-              return;
-            }
-            origErr(...args);
-          };
-        }
+        this._installConsoleNoiseFilter();
+        this.mp.mode = "main-async";
+        onProgress("Loading @mediapipe/tasks-vision (async fallback)...");
         const mod = await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/+esm");
         const { FilesetResolver, PoseLandmarker, HandLandmarker, FaceLandmarker, ImageSegmenter } = mod;
         const fs = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/wasm");
-
         const createWithFallback = async (Cls, opts) => {
           try { return await Cls.createFromOptions(fs, { ...opts, baseOptions: { ...opts.baseOptions, delegate: "GPU" } }); }
           catch (_) { return await Cls.createFromOptions(fs, { ...opts, baseOptions: { ...opts.baseOptions, delegate: "CPU" } }); }
         };
-
-        onProgress("Loading Pose model (1/4)...");
         this.mp.pose = await createWithFallback(PoseLandmarker, {
           baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/latest/pose_landmarker_lite.task" },
           runningMode: "VIDEO", numPoses: 1, minPoseDetectionConfidence: 0.45, minTrackingConfidence: 0.45,
         });
         this.mp.status = "pose_ready";
         onProgress("Pose live · loading Hands, Face & 26-Part Segmenter...");
-
-        const tasks = [
+        await Promise.all([
           createWithFallback(HandLandmarker, {
             baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task" },
             runningMode: "VIDEO", numHands: 2, minHandDetectionConfidence: 0.45, minTrackingConfidence: 0.45,
@@ -2952,8 +3197,7 @@
             baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite" },
             runningMode: "VIDEO", outputCategoryMask: true, outputConfidenceMasks: false,
           }).then((s) => { this.mp.seg = s; }).catch(() => {}),
-        ];
-        await Promise.all(tasks);
+        ]);
         this.mp.status = "ready";
       } catch (err) {
         this.mp.status = "error";
@@ -2964,25 +3208,33 @@
       }
     }
 
-    stepDetections(video) {
-      if (!this.mp.pose || video.readyState < 2 || video.videoWidth < 2) return;
+    async pumpDetections(video) {
+      if (video.readyState < 2 || video.videoWidth < 2) return;
+      if (video.width !== video.videoWidth || video.height !== video.videoHeight) {
+        video.width = video.videoWidth; video.height = video.videoHeight;
+      }
+      if (this.mp.mode === "worker" && this.mp.worker) {
+        if (this.mp.workerBusy) return;
+        this.mp.workerBusy = true;
+        try {
+          const bmp = await createImageBitmap(video);
+          const f = this.detFrame++;
+          this.mp.worker.postMessage({ type: "frame", bitmap: bmp, ts: performance.now(), isMobile: window.innerWidth < 960, detFrame: f }, [bmp]);
+        } catch (_) { this.mp.workerBusy = false; }
+        return;
+      }
+      if (!this.mp.pose) return;
       let ts = Math.floor(performance.now());
       if (ts <= this.lastVideoTs) ts = this.lastVideoTs + 1;
       this.lastVideoTs = ts;
       const isMobile = window.innerWidth < 960;
       const f = this.detFrame++;
-
       try {
         const pr = this.mp.pose.detectForVideo(video, ts);
         this.latest.pose2d = pr.landmarks?.[0] || null;
         this.latest.poseWorld = pr.worldLandmarks?.[0] || null;
       } catch (_) {}
-
-      const runHand = !isMobile || (f % 2 === 0);
-      const runSeg = (f % (isMobile ? 2 : 1) === (isMobile ? 1 : 0));
-      const runFace = (f % (isMobile ? 3 : 2) === 0);
-
-      if (runHand && this.mp.hand) {
+      if (this.mp.hand && (!isMobile || (f % 2 === 0))) {
         try {
           const hr = this.mp.hand.detectForVideo(video, ts);
           this.latest.hands2d = hr.landmarks || [];
@@ -2990,24 +3242,21 @@
           this.latest.handedness = hr.handedness || [];
         } catch (_) {}
       }
-      if (runFace && this.mp.face) {
+      if (this.mp.face && (f % (isMobile ? 3 : 2) === 0)) {
         try {
           const fr = this.mp.face.detectForVideo(video, ts);
           this.latest.face = fr.faceLandmarks?.[0] || null;
         } catch (_) {}
       }
-      if (runSeg && this.mp.seg) {
+      if (this.mp.seg && (f % (isMobile ? 2 : 1) === (isMobile ? 1 : 0))) {
         try {
           const sr = this.mp.seg.segmentForVideo(video, ts);
           if (sr && sr.categoryMask) {
             const cm = sr.categoryMask;
             const arr = cm.getAsUint8Array();
-            if (!this.latest.segMask || this.latest.segMask.length !== arr.length) {
-              this.latest.segMask = new Uint8Array(arr.length);
-            }
+            if (!this.latest.segMask || this.latest.segMask.length !== arr.length) this.latest.segMask = new Uint8Array(arr.length);
             this.latest.segMask.set(arr);
-            this.latest.segW = cm.width;
-            this.latest.segH = cm.height;
+            this.latest.segW = cm.width; this.latest.segH = cm.height;
             sr.close?.();
           }
         } catch (_) {}
@@ -3041,7 +3290,6 @@
       const K = new Float32Array([fPx, 0, cx, 0, fPx, cy, 0, 0, 1]);
       const toTier = (lm) => [(lm.x * srcW) * scale + padX, (lm.y * srcH) * scale + padY, lm.visibility ?? 0.9];
 
-      // Landmark extraction
       const L_SH = toTier(p2[11]), R_SH = toTier(p2[12]);
       const L_EL = toTier(p2[13]), R_EL = toTier(p2[14]);
       const L_WR = toTier(p2[15]), R_WR = toTier(p2[16]);
@@ -3052,12 +3300,10 @@
       const L_EAR = toTier(p2[7]), R_EAR = toTier(p2[8]);
       const pw = this.latest.poseWorld;
 
-      // Track MediaPipe raw 2.5D uncalibrated bone breathing (upper+forearm sum in mm std)
       let mpRawBoneStdMm = null;
       if (pw && pw.length > 16) {
         const d3 = (a, b) => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
-        const armL = d3(pw[11], pw[13]) + d3(pw[13], pw[15]);
-        this.mpArmLenWindow.push(armL);
+        this.mpArmLenWindow.push(d3(pw[11], pw[13]) + d3(pw[13], pw[15]));
         if (this.mpArmLenWindow.length > 45) this.mpArmLenWindow.shift();
         if (this.mpArmLenWindow.length >= 6) {
           const mean = this.mpArmLenWindow.reduce((a, b) => a + b, 0) / this.mpArmLenWindow.length;
@@ -3066,19 +3312,20 @@
         }
       }
 
-      // --- 1. Bayesian Pinhole Scale -> Metric Torso Z_root (Immune to reaching hand!) ---
+      // --- 1. Bayesian Pinhole Scale -> Metric Torso Z_root (Immune to forward hand reach!) ---
       let logZNum = 0, logZDen = 0;
       const face = this.latest.face;
       let headYawCos = 1.0;
+      let eyeMid2 = [0.5 * (L_EYE[0] + R_EYE[0]), 0.5 * (L_EYE[1] + R_EYE[1])];
       if (face && face.length > 263) {
         const fNose = toTier(face[1]), fLEyeO = toTier(face[263]), fREyeO = toTier(face[33]);
         const dL = Math.hypot(fNose[0] - fLEyeO[0], fNose[1] - fLEyeO[1]);
         const dR = Math.hypot(fNose[0] - fREyeO[0], fNose[1] - fREyeO[1]);
         headYawCos = clamp(Math.min(dL, dR) / Math.max(dL, dR, 1e-3), 0.58, 1.0);
-        // Prefer exact iris landmarks (468, 473) for 63mm IPD baseline
         const hasIris = face.length >= 478;
         const eL = hasIris ? toTier(face[473]) : toTier(face[386]);
         const eR = hasIris ? toTier(face[468]) : toTier(face[159]);
+        eyeMid2 = [0.5 * (eL[0] + eR[0]), 0.5 * (eL[1] + eR[1])];
         const ipdPx = Math.hypot(eL[0] - eR[0], eL[1] - eR[1]);
         if (ipdPx > 5) {
           const zIpd = clamp((fPx * 0.063 * headYawCos) / ipdPx, 0.32, 5.0);
@@ -3093,18 +3340,25 @@
         }
       } else {
         const ipdPose = Math.hypot(L_EYE[0] - R_EYE[0], L_EYE[1] - R_EYE[1]);
-        if (ipdPose > 6 && L_EYE[2] > 0.5 && R_EYE[2] > 0.5) {
-          const zIpdP = clamp((fPx * 0.063) / ipdPose, 0.35, 5.0);
-          logZNum += 1.8 * Math.log(zIpdP); logZDen += 1.8;
+        if (ipdPose >= 16 && L_EYE[2] > 0.5 && R_EYE[2] > 0.5) {
+          const zIpdP = clamp((fPx * 0.060) / ipdPose, 0.38, 5.0);
+          logZNum += 3.4 * Math.log(zIpdP); logZDen += 3.4;
+        } else if (!(L_EYE[2] > 0.5 && R_EYE[2] > 0.5)) {
+          eyeMid2 = [NOSE[0], NOSE[1] - Math.max(8, Math.hypot(L_SH[0] - R_SH[0], L_SH[1] - R_SH[1]) * 0.14)];
         }
       }
       if (L_SH[2] > 0.55 && R_SH[2] > 0.55) {
         const shPx = Math.hypot(L_SH[0] - R_SH[0], L_SH[1] - R_SH[1]);
-        let torsoYawCos = 1.0;
-        if (pw) torsoYawCos = clamp(1.0 - Math.abs(pw[11].z - pw[12].z) * 1.4, 0.55, 1.0);
+        const shPwLenZ = pw ? Math.hypot(pw[11].x - pw[12].x, pw[11].y - pw[12].y, pw[11].z - pw[12].z) : 0;
+        const shSinZ = shPwLenZ > 0.05 ? clamp((pw[11].z - pw[12].z) / shPwLenZ, -0.38, 0.38) : 0;
+        const torsoYawCos = Math.sqrt(Math.max(0.25, 1 - shSinZ * shSinZ));
+        const calShWidthM = this.isLocked
+          ? clamp(this.lockedLengths[7] * 0.955779 + this.lockedLengths[8] + this.lockedLengths[12] * 0.955779 + this.lockedLengths[13], 0.25, 0.44)
+          : 0.36;
         if (shPx > 18) {
-          const zClav = clamp((fPx * 0.36 * torsoYawCos) / shPx, 0.40, 5.5);
-          logZNum += 2.2 * Math.log(zClav); logZDen += 2.2;
+          const zClav = clamp((fPx * calShWidthM * torsoYawCos) / shPx, 0.38, 5.5);
+          const wClav = this.isLocked ? Math.max(2.6, logZDen * 0.95) : (logZDen > 2.5 ? 1.1 : 2.2);
+          logZNum += wClav * Math.log(zClav); logZDen += wClav;
         }
       }
       if (logZDen > 0) {
@@ -3112,169 +3366,309 @@
         this.rootZ = this.calibFrames < 3 ? zEst : (0.84 * this.rootZ + 0.16 * zEst);
       }
 
-      // Pelvis & shoulder rays -> world anchor
-      const shMid2 = [0.5 * (L_SH[0] + R_SH[0]), 0.5 * (L_SH[1] + R_SH[1])];
-      const hipsVisible = L_HP[2] > 0.40 && R_HP[2] > 0.40;
+      // --- 2. Fix A: Direct Observed Thorax Anchor + Scale-Free Shoulder Yaw ---
+      const rawShMid = [0.5 * (L_SH[0] + R_SH[0]), 0.5 * (L_SH[1] + R_SH[1])];
       const shDistPx = Math.hypot(L_SH[0] - R_SH[0], L_SH[1] - R_SH[1]);
-      const pelvMid2 = hipsVisible
-        ? [0.5 * (L_HP[0] + R_HP[0]), 0.5 * (L_HP[1] + R_HP[1])]
-        : [shMid2[0], shMid2[1] + Math.max(shDistPx * 1.32, (0.48 * fPx) / this.rootZ)];
+      const pxPerM = fPx / Math.max(this.rootZ, 0.32);
+      const shPwLen = pw ? Math.hypot(pw[11].x - pw[12].x, pw[11].y - pw[12].y, pw[11].z - pw[12].z) : 0;
+      const shSinYawPw = shPwLen > 0.05 ? clamp((pw[11].z - pw[12].z) / shPwLen, -0.38, 0.38) : 0;
+      const shCosXY = Math.sqrt(Math.max(0.25, 1 - shSinYawPw * shSinYawPw));
+      const shDx2 = L_SH[0] - R_SH[0], shDy2 = L_SH[1] - R_SH[1], shN2 = Math.max(shDistPx, 1e-4);
+      const shVecRaw = vecNorm((shDx2 / shN2) * shCosXY, (shDy2 / shN2) * shCosXY, shSinYawPw);
+      let shMid2 = rawShMid;
+      if (this.prevShMid2) {
+        const jump = Math.hypot(rawShMid[0] - this.prevShMid2[0], rawShMid[1] - this.prevShMid2[1]);
+        const alphaSh = jump > 18 ? 0.78 : 0.96;
+        shMid2 = [this.prevShMid2[0] * (1 - alphaSh) + rawShMid[0] * alphaSh, this.prevShMid2[1] * (1 - alphaSh) + rawShMid[1] * alphaSh];
+      }
+      this.prevShMid2 = shMid2;
+      this.prevShVecRaw = shVecRaw;
+      const pShMid = [((shMid2[0] - cx) / fPx) * this.rootZ, ((shMid2[1] - cy) / fPx) * this.rootZ, this.rootZ];
 
-      const pThorax = [((shMid2[0] - cx) / fPx) * this.rootZ, ((shMid2[1] - cy) / fPx) * this.rootZ, this.rootZ];
-      const pPelvis = [((pelvMid2[0] - cx) / fPx) * this.rootZ, ((pelvMid2[1] - cy) / fPx) * this.rootZ, this.rootZ + (pw ? clamp(0.5 * (pw[23].z + pw[24].z - pw[11].z - pw[12].z), -0.18, 0.18) : 0)];
+      const hipsTruncated = !(L_HP[2] > 0.45 && R_HP[2] > 0.45) || L_HP[1] > sp.height * 0.88 || R_HP[1] > sp.height * 0.88;
 
-      // Online Bayesian Bone-Length Calibration + Lock
-      if (!this.isLocked && L_SH[2] > 0.65 && R_SH[2] > 0.65) {
-        const obsShHalf = 0.5 * shDistPx * this.rootZ / fPx;
-        const torsoScale = clamp(obsShHalf / 0.185, 0.78, 1.25);
-        for (let b = 0; b < NUM_BONES; b++) {
-          const tgt = this.schema.boneLengths[b] * torsoScale;
-          this.boneSum[b] += tgt;
-          this.boneWeight[b] += 1;
-          this.lockedLengths[b] = this.boneSum[b] / this.boneWeight[b];
+      const shZRef = pw && pw.length > 12 ? 0.5 * (pw[11].z + pw[12].z) : 0;
+      const headRelZ = pw && pw.length > 12 ? clamp(pw[0].z - shZRef, -0.35, 0.25) : -0.05;
+      let torsoDown = [0, 1, 0];
+      if (!hipsTruncated) {
+        const pelvMid2 = [0.5 * (L_HP[0] + R_HP[0]), 0.5 * (L_HP[1] + R_HP[1])];
+        const pPelObs = [((pelvMid2[0] - cx) / fPx) * this.rootZ, ((pelvMid2[1] - cy) / fPx) * this.rootZ, this.rootZ];
+        torsoDown = vecNorm(pPelObs[0] - pShMid[0], pPelObs[1] - pShMid[1], pPelObs[2] - pShMid[2]);
+      } else {
+        const tiltX = clamp(((shMid2[0] - eyeMid2[0]) / fPx) * this.rootZ * 0.5, -0.18, 0.18);
+        const tiltZ = clamp(-headRelZ * 0.14, -0.06, 0.08);
+        torsoDown = vecNorm(tiltX, 1.0, tiltZ);
+      }
+      // Strictly orthogonal Gram-Schmidt torso frame (+X=left, +Y=down, +Z=back)
+      const torsoFrame = basisFromPrimaryAndHint(shVecRaw, torsoDown);
+
+      // Online Bayesian calibration of observable upper-body segments -> locked permanently (Delta L_b = 0.000mm)
+      if (!this.isLocked && L_SH[2] > 0.60 && R_SH[2] > 0.60) {
+        const shCosYaw = Math.max(0.55, Math.hypot(shVecRaw[0], shVecRaw[1]));
+        const obsShHalf = clamp((0.5 * shDistPx) / (pxPerM * shCosYaw), 0.142, 0.25);
+        this.shHalfSum += obsShHalf; this.shHalfWt += 1;
+        const shScale = (this.shHalfSum / this.shHalfWt) / 0.180;
+        this.lockedLengths[7] = this.schema.boneLengths[7] * shScale;
+        this.lockedLengths[8] = this.schema.boneLengths[8] * shScale;
+        this.lockedLengths[12] = this.schema.boneLengths[12] * shScale;
+        this.lockedLengths[13] = this.schema.boneLengths[13] * shScale;
+
+        const obsNeckEyeM = clamp(Math.hypot(shMid2[0] - eyeMid2[0], shMid2[1] - eyeMid2[1]) / pxPerM, 0.09, 0.36);
+        const totalNH = clamp(obsNeckEyeM + 0.294086 * this.lockedLengths[7] - 0.158175 * this.lockedLengths[5], 0.095, 0.36);
+        this.neckHeadSum += totalNH; this.neckHeadWt += 1;
+        const meanNH = this.neckHeadSum / this.neckHeadWt;
+        this.lockedLengths[2] = meanNH * (0.10 / 0.21);
+        this.lockedLengths[3] = meanNH * (0.11 / 0.21);
+
+        // Calibrate arms only when elbow & wrist clearly inside frame & not foreshortened
+        const calArm = (sh, el, wr) => {
+          if (sh[2] > 0.65 && el[2] > 0.65 && wr[2] > 0.65 && el[1] < sp.height * 0.94 && wr[1] < sp.height * 0.94) {
+            const uM = Math.hypot(el[0] - sh[0], el[1] - sh[1]) / pxPerM;
+            const fM = Math.hypot(wr[0] - el[0], wr[1] - el[1]) / pxPerM;
+            if (uM > 0.17 && uM < 0.36 && fM > 0.16 && fM < 0.33) {
+              this.upperArmSum += uM; this.upperArmWt += 1;
+              this.foreArmSum += fM; this.foreArmWt += 1;
+            }
+          }
+        };
+        calArm(L_SH, L_EL, L_WR);
+        calArm(R_SH, R_EL, R_WR);
+        if (this.upperArmWt > 0) {
+          const ua = clamp(this.upperArmSum / this.upperArmWt, 0.20, 0.35);
+          const fa = clamp(this.foreArmSum / this.foreArmWt, 0.19, 0.32);
+          this.lockedLengths[9] = ua; this.lockedLengths[14] = ua;
+          this.lockedLengths[10] = fa * 0.5; this.lockedLengths[11] = fa * 0.5;
+          this.lockedLengths[15] = fa * 0.5; this.lockedLengths[16] = fa * 0.5;
         }
         this.calibFrames++;
-        if (this.calibFrames >= 20) this.isLocked = true;
+        if (this.calibFrames >= 18) this.isLocked = true;
       }
 
-      // Compute shoulder endpoints in world
-      const pxPerM = fPx / Math.max(this.rootZ, 0.35);
-      const shVecRaw = vecNorm(L_SH[0] - R_SH[0], L_SH[1] - R_SH[1], pw ? (pw[11].z - pw[12].z) * pxPerM : 0);
-      const spineVec = vecNorm(pThorax[0] - pPelvis[0], pThorax[1] - pPelvis[1], pThorax[2] - pPelvis[2]);
-      const pShL = [pThorax[0] + shVecRaw[0] * 0.19, pThorax[1] + shVecRaw[1] * 0.19, pThorax[2] + shVecRaw[2] * 0.19];
-      const pShR = [pThorax[0] - shVecRaw[0] * 0.19, pThorax[1] - shVecRaw[1] * 0.19, pThorax[2] - shVecRaw[2] * 0.19];
+      // Compute spine_thoracic world point pThorax & share up to 42% of head lean into R_thoracic (prevents neck +/-0.50 rad clamp!)
+      const rd = (j) => this.schema.restDirs.subarray((j - 1) * 3, (j - 1) * 3 + 3);
+      const clavOffsetY = -0.294086 * this.lockedLengths[7];
+      const shMidOff = mat3MulVec(torsoFrame, [0, clavOffsetY, 0]);
+      const pThorax = [pShMid[0] - shMidOff[0], pShMid[1] - shMidOff[1], pShMid[2] - shMidOff[2]];
+      const eyeTargetApprox = [((eyeMid2[0] - cx) / fPx) * pThorax[2], ((eyeMid2[1] - cy) / fPx) * pThorax[2], pThorax[2]];
+      const spineToEyeDir = vecNorm(eyeTargetApprox[0] - pThorax[0], eyeTargetApprox[1] - pThorax[1], 0);
+      const torsoUpVec = [-torsoFrame[1], -torsoFrame[4], -torsoFrame[7]];
+      const thCross = cross3(torsoUpVec, spineToEyeDir);
+      const thSin = Math.hypot(thCross[0], thCross[1], thCross[2]);
+      let R_thoracic = torsoFrame;
+      if (thSin > 1e-4) {
+        const thAng = Math.min(0.20, Math.atan2(thSin, clamp(dot3(torsoUpVec, spineToEyeDir), -0.999, 0.999)) * 0.38);
+        R_thoracic = reorthoMat3(mat3Mul(mat3Exp([thCross[0] / thSin * thAng, thCross[1] / thSin * thAng, thCross[2] / thSin * thAng]), torsoFrame));
+      }
+      const solveClav = (sh2d, el2d, isLeft) => {
+        const sign = isLeft ? 1 : -1;
+        const elVisible = el2d[2] > 0.55 && shDistPx < sp.width * 0.32 && el2d[0] > -4 && el2d[0] < sp.width + 4 && el2d[1] > -4 && el2d[1] < sp.height * 0.94;
+        if (!elVisible) return torsoFrame;
+        const uRough = vecNorm(el2d[0] - sh2d[0], el2d[1] - sh2d[1], -0.22 * Math.max(20, shDistPx));
+        const uT = [
+          torsoFrame[0] * uRough[0] + torsoFrame[3] * uRough[1] + torsoFrame[6] * uRough[2],
+          torsoFrame[1] * uRough[0] + torsoFrame[4] * uRough[1] + torsoFrame[7] * uRough[2],
+          torsoFrame[2] * uRough[0] + torsoFrame[5] * uRough[1] + torsoFrame[8] * uRough[2],
+        ];
+        // Subtle anatomical shrug only when arm raises (uT[1] < 0); never let off-frame landmarks yank shoulders
+        const shrug = uT[1] < -0.15 ? clamp(uT[1] * 0.14, -0.16, 0.0) : 0.0;
+        const clavRz = isLeft ? shrug : -shrug;
+        const clavRy = clamp(sign * (-uT[2]) * 0.12, -0.16, 0.16);
+        return mat3Mul(torsoFrame, eulerXYZToMat3(0, clavRy, clavRz));
+      };
+      const R_clavL = solveClav(L_SH, L_EL, true);
+      const R_clavR = solveClav(R_SH, R_EL, false);
+      const stepClavL = mat3MulVec(R_thoracic, [rd(8)[0] * this.lockedLengths[7], rd(8)[1] * this.lockedLengths[7], rd(8)[2] * this.lockedLengths[7]]);
+      const stepShL = mat3MulVec(R_clavL, [rd(9)[0] * this.lockedLengths[8], rd(9)[1] * this.lockedLengths[8], rd(9)[2] * this.lockedLengths[8]]);
+      const pShL = [pThorax[0] + stepClavL[0] + stepShL[0], pThorax[1] + stepClavL[1] + stepShL[1], pThorax[2] + stepClavL[2] + stepShL[2]];
+      const stepClavR = mat3MulVec(R_thoracic, [rd(13)[0] * this.lockedLengths[12], rd(13)[1] * this.lockedLengths[12], rd(13)[2] * this.lockedLengths[12]]);
+      const stepShR = mat3MulVec(R_clavR, [rd(14)[0] * this.lockedLengths[13], rd(14)[1] * this.lockedLengths[13], rd(14)[2] * this.lockedLengths[13]]);
+      const pShR = [pThorax[0] + stepClavR[0] + stepShR[0], pThorax[1] + stepClavR[1] + stepShR[1], pThorax[2] + stepClavR[2] + stepShR[2]];
 
-      // --- 2. Chirality-Locked Hand Assignment (Hungarian min-distance vs L/R wrists) ---
+      // --- 3. Chirality-Locked Hand Assignment (Primary-Person Shoulder Reach Gated < 1.35 * maxArmPx) ---
+      const maxReachPxL = ((this.lockedLengths[9] + this.lockedLengths[10] + this.lockedLengths[11]) * 1.35 * fPx) / Math.max(pShL[2], 0.35);
+      const maxReachPxR = ((this.lockedLengths[14] + this.lockedLengths[15] + this.lockedLengths[16]) * 1.35 * fPx) / Math.max(pShR[2], 0.35);
+      const lArmReachOk = Math.hypot(L_WR[0] - L_SH[0], L_WR[1] - L_SH[1]) <= maxReachPxL && Math.hypot(L_EL[0] - L_SH[0], L_EL[1] - L_SH[1]) <= maxReachPxL;
+      const rArmReachOk = Math.hypot(R_WR[0] - R_SH[0], R_WR[1] - R_SH[1]) <= maxReachPxR && Math.hypot(R_EL[0] - R_SH[0], R_EL[1] - R_SH[1]) <= maxReachPxR;
       const hands2d = this.latest.hands2d || [];
       let handIdxL = -1, handIdxR = -1;
       if (hands2d.length === 1) {
         const hW = toTier(hands2d[0][0]);
         const dL = Math.hypot(hW[0] - L_WR[0], hW[1] - L_WR[1]);
         const dR = Math.hypot(hW[0] - R_WR[0], hW[1] - R_WR[1]);
-        if (dL <= dR && dL < sp.width * 0.28) handIdxL = 0;
-        else if (dR < sp.width * 0.28) handIdxR = 0;
+        const shDistL = Math.hypot(hW[0] - L_SH[0], hW[1] - L_SH[1]);
+        const shDistR = Math.hypot(hW[0] - R_SH[0], hW[1] - R_SH[1]);
+        if (dL <= dR && dL < sp.width * 0.28 && shDistL <= maxReachPxL) handIdxL = 0;
+        else if (dR < sp.width * 0.28 && shDistR <= maxReachPxR) handIdxR = 0;
       } else if (hands2d.length >= 2) {
         const h0 = toTier(hands2d[0][0]), h1 = toTier(hands2d[1][0]);
         const cost01 = Math.hypot(h0[0] - L_WR[0], h0[1] - L_WR[1]) + Math.hypot(h1[0] - R_WR[0], h1[1] - R_WR[1]);
         const cost10 = Math.hypot(h1[0] - L_WR[0], h1[1] - L_WR[1]) + Math.hypot(h0[0] - R_WR[0], h0[1] - R_WR[1]);
-        if (cost01 <= cost10) { handIdxL = 0; handIdxR = 1; } else { handIdxL = 1; handIdxR = 0; }
+        const cL = cost01 <= cost10 ? 0 : 1, cR = cost01 <= cost10 ? 1 : 0;
+        const wL = toTier(hands2d[cL][0]), wR = toTier(hands2d[cR][0]);
+        if (Math.hypot(wL[0] - L_SH[0], wL[1] - L_SH[1]) <= maxReachPxL) handIdxL = cL;
+        if (Math.hypot(wR[0] - R_SH[0], wR[1] - R_SH[1]) <= maxReachPxR) handIdxR = cR;
       }
 
-      // --- 3. Forward-Lens Reach & Analytical 2-Bone Arm IK (prevents Z-inversion) ---
-      const solveArm = (shWorld, sh2d, el2d, wr2d, mpShIdx, mpWrIdx, handIdx, upperLen, foreLen, isLeft) => {
-        const wrUse = handIdx >= 0 ? toTier(hands2d[handIdx][0]) : wr2d;
-        const ray = vecNorm((wrUse[0] - cx) / fPx, (wrUse[1] - cy) / fPx, 1.0);
-        const reachMax = (upperLen + foreLen) * 0.992;
-
-        // Estimate target Z along ray using pinhole palm scale + MediaPipe forward delta + foreshortening
-        let zTarget = shWorld[2];
-        if (pw) {
-          const dzMp = pw[mpWrIdx].z - pw[mpShIdx].z;
-          zTarget = shWorld[2] + clamp(dzMp, -reachMax, reachMax * 0.75);
-        }
+      // --- 4. Raw Observation Hand Depth & Analytical 2-Bone Arm IK (Exact Observed 2D Elbow Pole) ---
+      const obsHandWristZ = (shWorldZ, mpShIdx, mpWrIdx, handIdx, reachMax) => {
+        let zT = shWorldZ;
+        if (pw) zT = shWorldZ + clamp(pw[mpWrIdx].z - pw[mpShIdx].z, -reachMax, reachMax * 0.75);
         if (handIdx >= 0) {
           const h = hands2d[handIdx];
           const wPx = toTier(h[0]), midMcp = toTier(h[9]), idxMcp = toTier(h[5]), pnkMcp = toTier(h[17]);
-          const palmChordPx = Math.hypot(midMcp[0] - wPx[0], midMcp[1] - wPx[1]);
-          const palmWidthPx = Math.hypot(idxMcp[0] - pnkMcp[0], idxMcp[1] - pnkMcp[1]);
-          const refPx = Math.max(palmChordPx / 0.088, palmWidthPx / 0.075);
+          const refPx = Math.max(Math.hypot(midMcp[0] - wPx[0], midMcp[1] - wPx[1]) / 0.088, Math.hypot(idxMcp[0] - pnkMcp[0], idxMcp[1] - pnkMcp[1]) / 0.075);
           if (refPx > 12) {
-            const zPalm = clamp(fPx / refPx, 0.24, shWorld[2] + 0.35);
-            // If hand approaches lens (zPalm much smaller than shWorld.z), trust pinhole palm scale strongly!
-            const blend = zPalm < shWorld[2] - 0.12 ? 0.78 : 0.50;
-            zTarget = blend * zPalm + (1 - blend) * zTarget;
+            const zPalm = clamp(fPx / refPx, 0.24, shWorldZ + 0.35);
+            const blend = zPalm < shWorldZ - 0.12 ? 0.78 : 0.50;
+            zT = blend * zPalm + (1 - blend) * zT;
           }
         }
-        // Check 2D arm foreshortening while arm is confident -> prevent backward Z inversion
-        const arm2dPx = Math.hypot(wrUse[0] - sh2d[0], wrUse[1] - sh2d[1]);
+        return clamp(zT, 0.24, 5.5);
+      };
+      const rawWrZL = obsHandWristZ(pShL[2], 11, 15, handIdxL, (this.lockedLengths[9] + this.lockedLengths[10] + this.lockedLengths[11]) * 0.992);
+      const rawWrZR = obsHandWristZ(pShR[2], 12, 16, handIdxR, (this.lockedLengths[14] + this.lockedLengths[15] + this.lockedLengths[16]) * 0.992);
+
+      const solveArm = (shWorld, sh2d, el2d, wr2d, mpShIdx, mpElIdx, mpWrIdx, zObsWr, upperLen, foreLen, isLeft) => {
+        const rawWr = handIdxL >= 0 && isLeft ? toTier(hands2d[handIdxL][0]) : (handIdxR >= 0 && !isLeft ? toTier(hands2d[handIdxR][0]) : wr2d);
+        const reachMax = (upperLen + foreLen) * 0.992;
         const maxArm2dPx = (reachMax * fPx) / Math.max(shWorld[2], 0.35);
+        // Gate multi-person stretched wrist within 1.35 * maxArm2dPx of primary subject's shoulder
+        const wrDx = rawWr[0] - sh2d[0], wrDy = rawWr[1] - sh2d[1], wrSpan = Math.hypot(wrDx, wrDy);
+        const wrUse = wrSpan > 1.35 * maxArm2dPx && wrSpan > 1e-3
+          ? [sh2d[0] + (wrDx / wrSpan) * (1.15 * maxArm2dPx), sh2d[1] + (wrDy / wrSpan) * (1.15 * maxArm2dPx), rawWr[2]]
+          : rawWr;
+        const ray = vecNorm((wrUse[0] - cx) / fPx, (wrUse[1] - cy) / fPx, 1.0);
+        let zTarget = zObsWr;
+        const arm2dPx = Math.hypot(wrUse[0] - sh2d[0], wrUse[1] - sh2d[1]);
         if (arm2dPx < maxArm2dPx * 0.65 && zTarget > shWorld[2]) {
-          // Reaching either directly forward or backward; forward is far closer & typical toward webcam
           const dFwd = Math.sqrt(Math.max(0.01, reachMax * reachMax - (arm2dPx * shWorld[2] / fPx) ** 2));
           zTarget = Math.min(zTarget, Math.max(0.26, shWorld[2] - dFwd * 0.65));
         }
-
-        // Clamp target along ray to lie inside reach sphere around shWorld
         let pWr = [ray[0] * zTarget, ray[1] * zTarget, ray[2] * zTarget];
         let dv = [pWr[0] - shWorld[0], pWr[1] - shWorld[1], pWr[2] - shWorld[2]];
         let dist = Math.hypot(dv[0], dv[1], dv[2]);
         if (dist > reachMax && dist > 1e-5) {
           const s = reachMax / dist;
-          pWr = [shWorld[0] + dv[0] * s, shWorld[1] + dv[1] * s, shWorld[2] + dv[2] * s];
-          dist = reachMax;
+          pWr = [shWorld[0] + dv[0] * s, shWorld[1] + dv[1] * s, shWorld[2] + dv[2] * s]; dist = reachMax;
         } else if (dist < Math.abs(upperLen - foreLen) + 0.04) {
           const s = (Math.abs(upperLen - foreLen) + 0.04) / Math.max(dist, 1e-4);
           pWr = [shWorld[0] + dv[0] * s, shWorld[1] + dv[1] * s, shWorld[2] + dv[2] * s];
           dist = Math.hypot(pWr[0] - shWorld[0], pWr[1] - shWorld[1], pWr[2] - shWorld[2]);
         }
-
-        // Law-of-cosines 2-bone IK pole along observed elbow 2D + anatomical downward/outward bias
         const armAxis = vecNorm(pWr[0] - shWorld[0], pWr[1] - shWorld[1], pWr[2] - shWorld[2]);
-        const elRayBias = [(el2d[0] - sh2d[0]) / fPx * shWorld[2], (el2d[1] - sh2d[1]) / fPx * shWorld[2] + 0.14, 0.08];
+        // Exact perpendicular projection of observed 2D elbow offset (no downward +0.14 gravity override)
+        const elZBias = pw ? clamp((pw[mpElIdx].z - pw[mpShIdx].z) * 0.35, -0.18, 0.25) : 0.06;
+        const elDxM = ((el2d[0] - sh2d[0]) / fPx) * shWorld[2];
+        const elDyM = ((el2d[1] - sh2d[1]) / fPx) * shWorld[2];
+        const elRayBias = [elDxM, elDyM, elZBias];
         const dPole = dot3(elRayBias, armAxis);
         let pole = [elRayBias[0] - dPole * armAxis[0], elRayBias[1] - dPole * armAxis[1], elRayBias[2] - dPole * armAxis[2]];
-        if (Math.hypot(pole[0], pole[1], pole[2]) < 1e-4) pole = [isLeft ? 0.4 : -0.4, 0.9, 0.1];
+        if (Math.hypot(pole[0], pole[1], pole[2]) < 0.025 || el2d[2] < 0.35) {
+          const fb = [isLeft ? 0.55 : -0.55, 0.65, 0.25];
+          const dfb = dot3(fb, armAxis);
+          pole = [fb[0] - dfb * armAxis[0], fb[1] - dfb * armAxis[1], fb[2] - dfb * armAxis[2]];
+        }
         pole = vecNorm(pole[0], pole[1], pole[2]);
         const aProj = clamp((upperLen * upperLen - foreLen * foreLen + dist * dist) / Math.max(2 * dist, 1e-5), -upperLen, upperLen);
         const hEl = Math.sqrt(Math.max(0, upperLen * upperLen - aProj * aProj));
-        const pEl = [
-          shWorld[0] + armAxis[0] * aProj + pole[0] * hEl,
-          shWorld[1] + armAxis[1] * aProj + pole[1] * hEl,
-          shWorld[2] + armAxis[2] * aProj + pole[2] * hEl,
-        ];
+        const pEl = [shWorld[0] + armAxis[0] * aProj + pole[0] * hEl, shWorld[1] + armAxis[1] * aProj + pole[1] * hEl, shWorld[2] + armAxis[2] * aProj + pole[2] * hEl];
         return { pEl, pWr, upperVec: vecNorm(pEl[0] - shWorld[0], pEl[1] - shWorld[1], pEl[2] - shWorld[2]), foreVec: vecNorm(pWr[0] - pEl[0], pWr[1] - pEl[1], pWr[2] - pEl[2]) };
       };
 
-      const armL = solveArm(pShL, L_SH, L_EL, L_WR, 11, 15, handIdxL, this.lockedLengths[9], this.lockedLengths[10] + this.lockedLengths[11], true);
-      const armR = solveArm(pShR, R_SH, R_EL, R_WR, 12, 16, handIdxR, this.lockedLengths[14], this.lockedLengths[15] + this.lockedLengths[16], false);
+      const armL = solveArm(pShL, L_SH, L_EL, L_WR, 11, 13, 15, rawWrZL, this.lockedLengths[9], this.lockedLengths[10] + this.lockedLengths[11], true);
+      const armR = solveArm(pShR, R_SH, R_EL, R_WR, 12, 14, 16, rawWrZR, this.lockedLengths[14], this.lockedLengths[15] + this.lockedLengths[16], false);
 
-      // --- 4. Construct Global SO(3) Orientations per Joint (exact SCION_SCHEMA_V1 frames) ---
+      // --- 5. Anatomical SO(3) Pure-Hinge Frames for All 56 Joints ---
       const R_meas = Array.from({ length: NUM_JOINTS }, () => [1, 0, 0, 0, 1, 0, 0, 0, 1]);
-      const rd = (j) => this.schema.restDirs.subarray((j - 1) * 3, (j - 1) * 3 + 3);
-      const torsoFrame = basisFromPrimaryAndHint(shVecRaw, [-spineVec[0], -spineVec[1], -spineVec[2]]);
-      // In SCION T-pose, +X=left(+shVec), +Y=down(-spineVec), +Z=back
-      const torsoFrameCorrected = mat3FromCols(shVecRaw, [-spineVec[0], -spineVec[1], -spineVec[2]], cross3(shVecRaw, [-spineVec[0], -spineVec[1], -spineVec[2]]));
-      R_meas[0] = torsoFrameCorrected; R_meas[1] = torsoFrameCorrected; R_meas[2] = torsoFrameCorrected; R_meas[3] = torsoFrameCorrected;
-      R_meas[8] = torsoFrameCorrected; R_meas[13] = torsoFrameCorrected;
+      R_meas[0] = torsoFrame; R_meas[1] = torsoFrame; R_meas[2] = R_thoracic;
+      R_meas[8] = R_clavL; R_meas[13] = R_clavR;
 
-      // Cranium + Jaw + Gaze from FaceLandmarker (or Pose ears/nose fallback)
+      let headFrame = torsoFrame;
       if (face && face.length > 263) {
         const fL = toTier(face[263]), fR = toTier(face[33]), fTop = toTier(face[10]), fChin = toTier(face[152]), fNose = toTier(face[1]);
-        const headDepthBias = (fNose[0] - 0.5 * (fL[0] + fR[0])) / Math.max(Math.hypot(fL[0] - fR[0], fL[1] - fR[1]), 8);
-        const hx = vecNorm(fL[0] - fR[0], fL[1] - fR[1], -headDepthBias * 160);
+        const eyeSpan = Math.max(Math.hypot(fL[0] - fR[0], fL[1] - fR[1]), 8);
+        const headDepthBias = (fNose[0] - 0.5 * (fL[0] + fR[0])) / eyeSpan;
+        const dx = fL[0] - fR[0], dy = fL[1] - fR[1];
+        const hx = vecNorm(dx, dy, headDepthBias * Math.hypot(dx, dy) * 2.2);
         const hy = vecNorm(fChin[0] - fTop[0], fChin[1] - fTop[1], 0);
-        const headFrame = basisFromPrimaryAndHint(hx, hy);
+        headFrame = basisFromPrimaryAndHint(hx, hy);
         R_meas[4] = headFrame;
-        // Jaw open aperture
         const lipTop = toTier(face[13]), lipBot = toTier(face[14]);
-        const mouthOpen = clamp((Math.hypot(lipBot[0] - lipTop[0], lipBot[1] - lipTop[1]) / Math.max(Math.hypot(fL[0] - fR[0], fL[1] - fR[1]), 10) - 0.04) * 2.1, 0, 0.48);
+        const mouthOpen = clamp((Math.hypot(lipBot[0] - lipTop[0], lipBot[1] - lipTop[1]) / Math.max(eyeSpan, 10) - 0.04) * 2.1, 0, 0.48);
         R_meas[5] = mat3Mul(headFrame, mat3Exp([mouthOpen, 0, 0]));
-        // Subtle iris gaze if 478 landmarks
         if (face.length >= 478) {
           const iL = toTier(face[473]), cLo = toTier(face[263]), cLi = toTier(face[362]);
           const gx = clamp(((iL[0] - 0.5 * (cLo[0] + cLi[0])) / Math.max(Math.hypot(cLo[0] - cLi[0], cLo[1] - cLi[1]), 6)) * 0.9, -0.35, 0.35);
-          R_meas[6] = mat3Mul(headFrame, mat3Exp([0, -gx, 0]));
-          R_meas[7] = R_meas[6];
+          R_meas[6] = mat3Mul(headFrame, mat3Exp([0, -gx, 0])); R_meas[7] = R_meas[6];
         } else { R_meas[6] = headFrame; R_meas[7] = headFrame; }
       } else {
-        const hx = vecNorm(L_EAR[0] - R_EAR[0], L_EAR[1] - R_EAR[1], (L_EYE[0] - NOSE[0]) - (NOSE[0] - R_EYE[0]));
-        const headFrame = basisFromPrimaryAndHint(hx, [-spineVec[0], -spineVec[1], -spineVec[2]]);
+        const hx = vecNorm(L_EAR[0] - R_EAR[0], L_EAR[1] - R_EAR[1], (NOSE[0] - 0.5 * (L_EYE[0] + R_EYE[0])) * 2.2);
+        headFrame = basisFromPrimaryAndHint(hx, torsoDown);
         R_meas[4] = headFrame; R_meas[5] = headFrame; R_meas[6] = headFrame; R_meas[7] = headFrame;
       }
 
-      // Arms + Radioulnar Pronation/Supination + 15 Finger Joints per Hand
-      const buildArmChain = (jSh, jEl, jRu, jWr, fingerStart, armData, handIdx, isLeft) => {
+      // Neck alignment with cervical yaw sharing & zero premature Z collapse so cranium/eyes hit eyeMid2 cleanly
+      const eyeMidLocal = [0, -0.158175 * this.lockedLengths[5], -0.928 * this.lockedLengths[5]];
+      const eyeMidOff = mat3MulVec(headFrame, eyeMidLocal);
+      const eyeZInit = clamp(pThorax[2] + eyeMidOff[2], 0.25, 5.5);
+      const cranX0 = ((eyeMid2[0] - cx) / fPx) * eyeZInit - eyeMidOff[0];
+      const cranY0 = ((eyeMid2[1] - cy) / fPx) * eyeZInit - eyeMidOff[1];
+      if (!this.isLocked && L_SH[2] > 0.60 && R_SH[2] > 0.60) {
+        const nh3d = clamp(Math.hypot(cranX0 - pThorax[0], cranY0 - pThorax[1]) * 1.03, 0.095, 0.36);
+        // Refine neckHeadSum with exact 3D headFrame-compensated span
+        this.neckHeadSum += (nh3d - (this.lockedLengths[2] + this.lockedLengths[3])) * 0.5;
+        const meanNH = clamp(this.neckHeadSum / Math.max(1, this.neckHeadWt), 0.095, 0.36);
+        this.lockedLengths[2] = meanNH * (0.10 / 0.21);
+        this.lockedLengths[3] = meanNH * (0.11 / 0.21);
+      }
+      const neckStep = mat3MulVec(R_thoracic, [0, -this.lockedLengths[2], 0]);
+      const pNeckTop = [pThorax[0] + neckStep[0], pThorax[1] + neckStep[1], pThorax[2] + neckStep[2]];
+      const neckYawX = [headFrame[0], headFrame[3], headFrame[6]];
+      const neckHintX = vecNorm(0.45 * shVecRaw[0] + 0.55 * neckYawX[0], 0.45 * shVecRaw[1] + 0.55 * neckYawX[1], 0.45 * shVecRaw[2] + 0.55 * neckYawX[2]);
+      const dxy2 = (cranX0 - pNeckTop[0]) ** 2 + (cranY0 - pNeckTop[1]) ** 2;
+      const L3 = this.lockedLengths[3];
+      const dzForeshorten = dxy2 < L3 * L3 * 0.55 ? -Math.min(Math.sqrt(L3 * L3 - dxy2), L3 * 0.20) : 0;
+      const zLeanDir = (pw && pw[0].z - shZRef > 0.04) ? 1 : -1;
+      const pCraniumZ = clamp(pNeckTop[2] + zLeanDir * Math.abs(dzForeshorten), 0.25, 5.5);
+      const eyeZApprox = clamp(pCraniumZ + eyeMidOff[2], 0.25, 5.5);
+      const pEyeTarget = [((eyeMid2[0] - cx) / fPx) * eyeZApprox, ((eyeMid2[1] - cy) / fPx) * eyeZApprox, eyeZApprox];
+      const pCraniumTarget = [pEyeTarget[0] - eyeMidOff[0], pEyeTarget[1] - eyeMidOff[1], pCraniumZ];
+      const neckToCraniumDir = vecNorm(pCraniumTarget[0] - pNeckTop[0], pCraniumTarget[1] - pNeckTop[1], pCraniumTarget[2] - pNeckTop[2]);
+      R_meas[3] = alignSegmentMat3([0, -1, 0], neckToCraniumDir, [1, 0, 0], neckHintX);
+
+      const buildArmChain = (jClav, jSh, jEl, jRu, jWr, fingerStart, armData, handIdx, isLeft) => {
         const sign = isLeft ? 1 : -1;
-        const hingeHint = cross3(armData.upperVec, armData.foreVec);
-        const safeHint = Math.hypot(hingeHint[0], hingeHint[1], hingeHint[2]) > 0.08 ? hingeHint : [0, 0, sign];
-        R_meas[jSh] = alignSegmentMat3([sign, 0, 0], armData.upperVec, [0, 0, sign], safeHint);
-        const R_el = alignSegmentMat3([sign, 0, 0], armData.foreVec, [0, 0, sign], safeHint);
-        R_meas[jEl] = R_el;
+        const RclavW = R_meas[jClav];
+        const mulT = (R, v) => [R[0] * v[0] + R[3] * v[1] + R[6] * v[2], R[1] * v[0] + R[4] * v[1] + R[7] * v[2], R[2] * v[0] + R[5] * v[1] + R[8] * v[2]];
+        const uC = vecNorm(...mulT(RclavW, armData.upperVec));
+        const fC = vecNorm(...mulT(RclavW, armData.foreVec));
+        // Left arm bends +X -> -Z via Ry(+theta) (axis +Y = u x f); Right arm bends -X -> -Z via Ry(-theta) (axis +Y = f x u).
+        const c0Sh = isLeft ? uC : [-uC[0], -uC[1], -uC[2]];
+        const bendCross = isLeft ? cross3(uC, fC) : cross3(fC, uC);
+        const bendSin = Math.hypot(bendCross[0], bendCross[1], bendCross[2]);
+        const anatHint = isLeft ? cross3(uC, [0, 0, -1]) : cross3([0, 0, -1], uC);
+        const wBend = clamp((bendSin - 0.08) / 0.25, 0, 1);
+        const c1Mix = [bendCross[0] * wBend + anatHint[0] * (1 - wBend), bendCross[1] * wBend + anatHint[1] * (1 - wBend), bendCross[2] * wBend + anatHint[2] * (1 - wBend)];
+        // Construct local shoulder matrix with c0=c0Sh, c1 aligned to elbow hinge axis
+        const RshLocRaw = basisFromPrimaryAndHint(c0Sh, c1Mix);
+        const limSh = this.schema.limits;
+        const eSh = mat3ToEulerXYZ(RshLocRaw);
+        const oSh = jSh * 3;
+        const RshW = mat3Mul(RclavW, eulerXYZToMat3(
+          clamp(eSh[0], limSh.minArr[oSh], limSh.maxArr[oSh]),
+          clamp(eSh[1], limSh.minArr[oSh + 1], limSh.maxArr[oSh + 1]),
+          clamp(eSh[2], limSh.minArr[oSh + 2], limSh.maxArr[oSh + 2])
+        ));
+        R_meas[jSh] = RshW;
+
+        const thetaEl = Math.acos(clamp(dot3(uC, fC), -0.999, 0.999));
+        const elRy = isLeft ? clamp(thetaEl, 0, 2.50) : clamp(-thetaEl, -2.50, 0);
+        const RelW = mat3Mul(RshW, eulerXYZToMat3(0, elRy, 0));
+        R_meas[jEl] = RelW;
 
         if (handIdx >= 0) {
           const hw = this.latest.handsWorld?.[handIdx];
           const h2 = hands2d[handIdx];
-          // Build metric hand landmark vectors in OpenCV frame
           const hPt = (idx) => {
             if (hw && hw[idx]) return [hw[idx].x, hw[idx].y, hw[idx].z];
             const p = toTier(h2[idx]), pw0 = toTier(h2[0]);
@@ -3282,92 +3676,144 @@
           };
           const w0 = hPt(0), i5 = hPt(5), m9 = hPt(9), p17 = hPt(17);
           const handFwd = vecNorm(m9[0] - w0[0], m9[1] - w0[1], m9[2] - w0[2]);
-          const palmAcross = vecNorm(p17[0] - i5[0], p17[1] - i5[1], p17[2] - i5[2]);
-          // Palm normal consistent with anatomical chirality
-          const palmNorm = vecNorm(...cross3(handFwd, palmAcross));
-          // Radioulnar pronation/supination: twist forearm toward palm normal around foreVec
-          R_meas[jRu] = alignSegmentMat3([sign, 0, 0], armData.foreVec, [0, 0, 1], palmNorm);
-          // Wrist drives all metacarpals cleanly
-          R_meas[jWr] = alignSegmentMat3([sign, 0, 0], handFwd, [0, 0, 1], palmAcross);
+          const ulnarVec = vecNorm(p17[0] - i5[0], p17[1] - i5[1], p17[2] - i5[2]); // +Z ulnar on both L and R
+          // Radioulnar (Rx pronation/supination twist only)
+          const uLocEl = mulT(RelW, ulnarVec);
+          const rxRu = clamp(Math.atan2(-uLocEl[1], uLocEl[2]), -1.55, 1.55);
+          const RruW = mat3Mul(RelW, eulerXYZToMat3(rxRu, 0, 0));
+          R_meas[jRu] = RruW;
+          // Wrist (Ry radial/ulnar deviation, Rz flexion/extension, small residual Rx roll)
+          const fLocRu = mulT(RruW, handFwd);
+          const ryWr = clamp(sign * Math.atan2(-fLocRu[2], sign * fLocRu[0]), -0.52, 0.52);
+          const rzWr = clamp(sign * Math.atan2(fLocRu[1], Math.hypot(fLocRu[0], fLocRu[2])), -1.20, 1.20);
+          const RwrPre = mat3Mul(RruW, eulerXYZToMat3(0, ryWr, rzWr));
+          const uLocWr = mulT(RwrPre, ulnarVec);
+          const rxWr = clamp(Math.atan2(-uLocWr[1], uLocWr[2]), -0.28, 0.28);
+          const RwrW = mat3Mul(RwrPre, eulerXYZToMat3(rxWr, 0, 0));
+          R_meas[jWr] = RwrW;
 
-          // Map 5 fingers x 3 joints each matching schema order: thumb(0..2), index(3..5), middle(6..8), ring(9..11), pinky(12..14)
-          const chains = [
-            [0, 2, 3, 4],     // thumb
-            [0, 5, 6, 7, 8],  // index
-            [0, 9, 10, 11, 12],
-            [0, 13, 14, 15, 16],
-            [0, 17, 18, 19, 20],
-          ];
+          const chains = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 16], [17, 18, 19, 20]];
           for (let fIdx = 0; fIdx < 5; fIdx++) {
-            const c = chains[fIdx];
-            const jBase = fingerStart + fIdx * 3;
-            for (let k = 0; k < 3; k++) {
-              const jCurr = jBase + k;
-              const pa = hPt(c[k + 1]), pb = hPt(c[Math.min(c.length - 1, k + 2)] || c[k + 1]);
-              const dir = (c.length === 4 && k === 0) ? vecNorm(pa[0] - hPt(c[0])[0], pa[1] - hPt(c[0])[1], pa[2] - hPt(c[0])[2])
-                : vecNorm(pb[0] - pa[0], pb[1] - pa[1], pb[2] - pa[2]);
-              R_meas[jCurr] = alignSegmentMat3(rd(jCurr), dir, [0, -1, 0], palmNorm);
-            }
+            const c = chains[fIdx], jMcp = fingerStart + fIdx * 3, jPip = jMcp + 1, jDip = jMcp + 2;
+            const p0 = hPt(c[0]), p1 = hPt(c[1]), p2 = hPt(c[2]), p3 = hPt(c[3]);
+            const d0W = vecNorm(p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]);
+            const d1W = vecNorm(p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]);
+            const d2W = vecNorm(p3[0] - p2[0], p3[1] - p2[1], p3[2] - p2[2]);
+            const rdPip = rd(jPip), oM = jMcp * 3, oP = jPip * 3, oD = jDip * 3;
+            const d0Loc = mulT(RwrW, d0W);
+            // Curl + abduction relative to schema's metacarpal/phalanx rest frame
+            const baseRz = Math.atan2(rdPip[1], sign * rdPip[0]);
+            const baseRy = Math.atan2(-rdPip[2], sign * rdPip[0]);
+            const mcpRz = clamp(sign * (Math.atan2(d0Loc[1], sign * d0Loc[0]) - baseRz), limSh.minArr[oM + 2], limSh.maxArr[oM + 2]);
+            const mcpRy = clamp(sign * (Math.atan2(-d0Loc[2], sign * d0Loc[0]) - baseRy), limSh.minArr[oM + 1], limSh.maxArr[oM + 1]);
+            const RmcpW = mat3Mul(RwrW, eulerXYZToMat3(0, mcpRy, mcpRz));
+            R_meas[jMcp] = RmcpW;
+
+            const d1Loc = mulT(RmcpW, d1W);
+            const pipRz = clamp(sign * Math.atan2(d1Loc[1], sign * d1Loc[0]), limSh.minArr[oP + 2], limSh.maxArr[oP + 2]);
+            const RpipW = mat3Mul(RmcpW, eulerXYZToMat3(0, 0, pipRz));
+            R_meas[jPip] = RpipW;
+
+            const d2Loc = mulT(RpipW, d2W);
+            const dipRz = clamp(sign * Math.atan2(d2Loc[1], sign * d2Loc[0]), limSh.minArr[oD + 2], limSh.maxArr[oD + 2]);
+            R_meas[jDip] = mat3Mul(RpipW, eulerXYZToMat3(0, 0, dipRz));
           }
         } else {
-          R_meas[jRu] = R_el;
-          R_meas[jWr] = R_el;
-          for (let k = 0; k < 15; k++) R_meas[fingerStart + k] = R_el;
+          R_meas[jRu] = RelW; R_meas[jWr] = RelW;
+          for (let k = 0; k < 15; k++) R_meas[fingerStart + k] = RelW;
         }
       };
 
-      buildArmChain(9, 10, 11, 12, 26, armL, handIdxL, true);
-      buildArmChain(14, 15, 16, 17, 41, armR, handIdxR, false);
+      buildArmChain(8, 9, 10, 11, 12, 26, armL, handIdxL, true);
+      buildArmChain(13, 14, 15, 16, 17, 41, armR, handIdxR, false);
 
-      // Legs (visible driven, cropped widened covariance Sigma_t & neutral stance prior)
-      const legsVisible = hipsVisible && L_KN[2] > 0.45 && R_KN[2] > 0.45;
+      const legsVisible = !hipsTruncated && L_KN[2] > 0.45 && R_KN[2] > 0.45;
       if (legsVisible) {
         const pH = (lm, z0) => [((lm[0] - cx) / fPx) * z0, ((lm[1] - cy) / fPx) * z0, z0];
-        const lH = pH(L_HP, pPelvis[2]), lK = pH(L_KN, pPelvis[2]), lA = L_AN[2] > 0.4 ? pH(L_AN, pPelvis[2]) : [lK[0], lK[1] + 0.39, lK[2]];
-        const rH = pH(R_HP, pPelvis[2]), rK = pH(R_KN, pPelvis[2]), rA = R_AN[2] > 0.4 ? pH(R_AN, pPelvis[2]) : [rK[0], rK[1] + 0.39, rK[2]];
-        R_meas[18] = alignSegmentMat3([0, 1, 0], vecNorm(lK[0] - lH[0], lK[1] - lH[1], lK[2] - lH[2]), [1, 0, 0], shVecRaw);
-        R_meas[19] = alignSegmentMat3([0, 1, 0], vecNorm(lA[0] - lK[0], lA[1] - lK[1], lA[2] - lK[2]), [1, 0, 0], shVecRaw);
-        R_meas[20] = R_meas[19]; R_meas[21] = R_meas[19];
-        R_meas[22] = alignSegmentMat3([0, 1, 0], vecNorm(rK[0] - rH[0], rK[1] - rH[1], rK[2] - rH[2]), [1, 0, 0], shVecRaw);
-        R_meas[23] = alignSegmentMat3([0, 1, 0], vecNorm(rA[0] - rK[0], rA[1] - rK[1], rA[2] - rK[2]), [1, 0, 0], shVecRaw);
-        R_meas[24] = R_meas[23]; R_meas[25] = R_meas[23];
+        const lH = pH(L_HP, this.rootZ), lK = pH(L_KN, this.rootZ), lA = L_AN[2] > 0.4 ? pH(L_AN, this.rootZ) : [lK[0], lK[1] + 0.39, lK[2]];
+        const rH = pH(R_HP, this.rootZ), rK = pH(R_KN, this.rootZ), rA = R_AN[2] > 0.4 ? pH(R_AN, this.rootZ) : [rK[0], rK[1] + 0.39, rK[2]];
+        const solveLeg = (jHip, jKnee, jAnk, jFoot, pHipW, pKneeW, pAnkW) => {
+          const thDir = vecNorm(pKneeW[0] - pHipW[0], pKneeW[1] - pHipW[1], pKneeW[2] - pHipW[2]);
+          const shDir = vecNorm(pAnkW[0] - pKneeW[0], pAnkW[1] - pKneeW[1], pAnkW[2] - pKneeW[2]);
+          const kCross = cross3(thDir, shDir);
+          const kSin = Math.hypot(kCross[0], kCross[1], kCross[2]);
+          const wK = clamp((kSin - 0.10) / 0.25, 0, 1);
+          const hintX = [kCross[0] * wK + shVecRaw[0] * (1 - wK), kCross[1] * wK + shVecRaw[1] * (1 - wK), kCross[2] * wK + shVecRaw[2] * (1 - wK)];
+          const dHx = dot3(hintX, thDir);
+          const c0 = vecNorm(hintX[0] - dHx * thDir[0], hintX[1] - dHx * thDir[1], hintX[2] - dHx * thDir[2]);
+          const c2 = cross3(c0, thDir);
+          const RhipW = mat3FromCols(c0, thDir, c2);
+          R_meas[jHip] = RhipW;
+          const thetaKnee = clamp(Math.acos(clamp(dot3(thDir, shDir), -0.999, 0.999)), 0, 2.45);
+          const RkneeW = mat3Mul(RhipW, eulerXYZToMat3(thetaKnee, 0, 0));
+          R_meas[jKnee] = RkneeW;
+          R_meas[jAnk] = RkneeW; R_meas[jFoot] = RkneeW;
+        };
+        solveLeg(18, 19, 20, 21, lH, lK, lA);
+        solveLeg(22, 23, 24, 25, rH, rK, rA);
       } else {
-        for (let j = 18; j <= 25; j++) R_meas[j] = torsoFrameCorrected;
+        for (let j = 18; j <= 25; j++) R_meas[j] = torsoFrame;
       }
 
-      // --- 5. Velocity-Adaptive Lie-EKF + Covariance Sigma_t ---
+      // --- 6. Velocity-Adaptive Lie-EKF (Re-orthogonalized at every step) + Covariance Sigma_t ---
       let omegaMaxRadS = 0;
-      const safeDt = Math.max(dtSec, 1 / 90);
+      const safeDt = Math.max(dtSec, 1 / 30);
+      const hasFace = !!(face && face.length > 263);
       for (let j = 0; j < NUM_JOINTS; j++) {
+        const isLHandTransition = (j === 11 || j === 12 || (j >= 26 && j <= 40)) && (handIdxL >= 0) !== this.hadHandL;
+        const isRHandTransition = (j === 16 || j === 17 || (j >= 41 && j <= 55)) && (handIdxR >= 0) !== this.hadHandR;
+        const isFaceTransition = (j >= 4 && j <= 7) && hasFace !== this.hadFace;
         if (!this.hasFilt) {
-          this.filtWorldR[j] = R_meas[j].slice();
+          this.filtWorldR[j] = reorthoMat3(R_meas[j]);
+        } else if (isLHandTransition || isRHandTransition || isFaceTransition) {
+          const Rrel = mat3TMul(this.filtWorldR[j], R_meas[j]);
+          const w = mat3Log(Rrel);
+          this.filtWorldR[j] = reorthoMat3(mat3Mul(this.filtWorldR[j], mat3Exp([w[0] * 0.55, w[1] * 0.55, w[2] * 0.55])));
         } else {
           const Rrel = mat3TMul(this.filtWorldR[j], R_meas[j]);
           const w = mat3Log(Rrel);
           const ang = Math.hypot(w[0], w[1], w[2]);
-          const spd = ang / safeDt;
-          if (spd > omegaMaxRadS && j < 26) omegaMaxRadS = spd;
-          const alpha = clamp(0.26 + 0.06 * spd, 0.26, 0.86);
-          this.filtWorldR[j] = mat3Mul(this.filtWorldR[j], mat3Exp([w[0] * alpha, w[1] * alpha, w[2] * alpha]));
+          const rawSpd = ang / safeDt;
+          const baseAlpha = (j <= 2 || j === 8 || j === 13) ? 0.62 : 0.32;
+          const alpha = clamp(baseAlpha + 0.04 * rawSpd, baseAlpha, 0.88);
+          const filtSpd = (ang * alpha) / safeDt;
+          if (filtSpd > omegaMaxRadS && j < 26) omegaMaxRadS = filtSpd;
+          this.filtWorldR[j] = reorthoMat3(mat3Mul(this.filtWorldR[j], mat3Exp([w[0] * alpha, w[1] * alpha, w[2] * alpha])));
         }
-        // Populate covariance log-variance Sigma_t
         let lv = -5.6;
-        if (j >= 18 && j <= 25 && !legsVisible) lv = -2.3;
+        if (j >= 10 && j <= 12 && (L_EL[2] < 0.45 || L_EL[1] > sp.height * 0.98 || !lArmReachOk)) lv = -2.2;
+        else if ((j === 11 || j === 12) && (L_WR[2] < 0.45 || L_WR[1] > sp.height * 0.98 || !lArmReachOk)) lv = -2.2;
+        else if (j >= 15 && j <= 17 && (R_EL[2] < 0.45 || R_EL[1] > sp.height * 0.98 || !rArmReachOk)) lv = -2.2;
+        else if ((j === 16 || j === 17) && (R_WR[2] < 0.45 || R_WR[1] > sp.height * 0.98 || !rArmReachOk)) lv = -2.2;
+        else if (j >= 18 && j <= 25 && !legsVisible) lv = -2.3;
         else if (j >= 26 && j <= 40 && handIdxL < 0) lv = -2.2;
         else if (j >= 41 && j <= 55 && handIdxR < 0) lv = -2.2;
         else if (j >= 4 && j <= 7 && !face) lv = -3.1;
         sc.jointLogVar[j] = lv;
       }
       this.hasFilt = true;
+      this.hadHandL = handIdxL >= 0;
+      this.hadHandR = handIdxR >= 0;
+      this.hadFace = hasFace;
 
-      // Convert filtered world R -> parent-relative theta_6d for WGSL so3_fk_chain
+      // Backward-solve exact pPelvis from pThorax using filtered R0, R1 so FK(pPelvis) hits shoulders to 1e-7m!
+      const R0 = this.filtWorldR[0], R1 = this.filtWorldR[1];
+      const step0 = mat3MulVec(R0, [rd(1)[0] * this.lockedLengths[0], rd(1)[1] * this.lockedLengths[0], rd(1)[2] * this.lockedLengths[0]]);
+      const step1 = mat3MulVec(R1, [rd(2)[0] * this.lockedLengths[1], rd(2)[1] * this.lockedLengths[1], rd(2)[2] * this.lockedLengths[1]]);
+      const pPelvis = [
+        pThorax[0] - step0[0] - step1[0],
+        pThorax[1] - step0[1] - step1[1],
+        pThorax[2] - step0[2] - step1[2],
+      ];
+
       for (let j = 0; j < NUM_JOINTS; j++) {
         const p = DEFAULT_PARENTS[j];
         const Rloc = p < 0 ? [1, 0, 0, 0, 1, 0, 0, 0, 1] : mat3TMul(this.filtWorldR[p], this.filtWorldR[j]);
         sc.theta6d[j * 6 + 0] = Rloc[0]; sc.theta6d[j * 6 + 1] = Rloc[3]; sc.theta6d[j * 6 + 2] = Rloc[6];
         sc.theta6d[j * 6 + 3] = Rloc[1]; sc.theta6d[j * 6 + 4] = Rloc[4]; sc.theta6d[j * 6 + 5] = Rloc[7];
       }
-      const R0 = this.filtWorldR[0];
+      // Enforce exact anatomical limits matching so3_fk_chain.wgsl BEFORE painting 26-part matte
+      clampTheta6dToSchemaLimits(sc.theta6d, this.schema);
       const rootT = new Float32Array([
         R0[0], R0[1], R0[2], pPelvis[0],
         R0[3], R0[4], R0[5], pPelvis[1],
@@ -3375,36 +3821,164 @@
         0, 0, 0, 1,
       ]);
 
-      // --- 6. Fused 26-Part Matte + CIE-Lab Cast-Shadow Rejection ---
+      // --- 7. Rigid SE(3) Root Co-Anchor (Upper-Body Close-Up) + Honest Non-Tautological Raw-Observation Gate ---
       runtime._computeFKPositionsCPU(sc.theta6d, rootT, this.lockedLengths, sc.fkJoints, sc.fkWorldR, sc.fkLocalR);
-      sc.partLogits.fill(-2.6); sc.partLogits.subarray(0, nSp).fill(2.4);
+      if (hipsTruncated) {
+        const eLx = sc.fkJoints[18], eLy = sc.fkJoints[19], eLz = Math.max(0.25, sc.fkJoints[20]);
+        const eRx = sc.fkJoints[21], eRy = sc.fkJoints[22], eRz = Math.max(0.25, sc.fkJoints[23]);
+        const fkEyeX = 0.5 * ((eLx / eLz) * fPx + cx + (eRx / eRz) * fPx + cx);
+        const fkEyeY = 0.5 * ((eLy / eLz) * fPx + cy + (eRy / eRz) * fPx + cy);
+        const exPx = eyeMid2[0] - fkEyeX, eyPx = eyeMid2[1] - fkEyeY;
+        const eErrPx = Math.hypot(exPx, eyPx);
+        if (eErrPx > 16) {
+          const shiftFrac = clamp(0.35 * (eErrPx - 10) / eErrPx, 0, 0.35);
+          const syPx = clamp(eyPx * shiftFrac, -8.0, 8.0);
+          const zEyeM = 0.5 * (eLz + eRz);
+          rootT[7] += (syPx / fPx) * zEyeM;
+          runtime._computeFKPositionsCPU(sc.theta6d, rootT, this.lockedLengths, sc.fkJoints, sc.fkWorldR, sc.fkLocalR);
+        }
+      }
+      sc.partLogits.fill(-2.8); sc.partLogits.subarray(0, nSp).fill(2.4);
       sc.depthM.fill(4.2); sc.winner.fill(0);
 
-      // Capsule projection onto spatial map
-      const fxS = fPx * (sp.w_s / sp.width), fyS = fPx * (sp.h_s / sp.height), cxS = cx * (sp.w_s / sp.width), cyS = cy * (sp.h_s / sp.height);
-      for (let b = 0; b < NUM_BONES; b++) {
-        const v = b + 1, u = DEFAULT_PARENTS[v], pId = DEFAULT_BONE_TO_PART[b];
-        const rPx = v >= 26 ? 2.2 : (v <= 4 ? 6.2 : 3.8), r2 = rPx * rPx;
-        for (let s = 0; s <= 4; s++) {
-          const t = s / 4;
-          const px = sc.fkJoints[u * 3] * (1 - t) + sc.fkJoints[v * 3] * t;
-          const py = sc.fkJoints[u * 3 + 1] * (1 - t) + sc.fkJoints[v * 3 + 1] * t;
-          const pz = sc.fkJoints[u * 3 + 2] * (1 - t) + sc.fkJoints[v * 3 + 2] * t;
-          if (pz <= 0.18) continue;
-          const ux = fxS * (px / pz) + cxS, vy = fyS * (py / pz) + cyS;
-          const x0 = Math.max(0, Math.floor(ux - rPx)), x1 = Math.min(sp.w_s - 1, Math.ceil(ux + rPx));
-          const y0 = Math.max(0, Math.floor(vy - rPx)), y1 = Math.min(sp.h_s - 1, Math.ceil(vy + rPx));
-          for (let y = y0; y <= y1; y++) {
-            const dy2 = (y - vy) * (y - vy), row = y * sp.w_s;
-            for (let x = x0; x <= x1; x++) {
-              if ((x - ux) ** 2 + dy2 <= r2) {
-                const idx = row + x;
+      const sX = sp.w_s / sp.width, sY = sp.h_s / sp.height;
+      const fxS = fPx * sX, fyS = fPx * sY, cxS = cx * sX, cyS = cy * sY;
+      // Independent raw 2D observation segments from MediaPipe pose + hand landmarks (never circularly read from sc.fkJoints!)
+      const activeSegs = [];
+      const addRawSeg = (axP, ayP, bxP, byP, pid, az, bz, isTrunk = false) => {
+        const ax = axP * sX, ay = ayP * sY, bx = bxP * sX, by = byP * sY;
+        const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy + 1e-5;
+        activeSegs.push({ ax, ay, az, dx, dy, dz: bz - az, l2, pid, isTrunk });
+      };
+      const shMidObsX = 0.5 * (L_SH[0] + R_SH[0]), shMidObsY = 0.5 * (L_SH[1] + R_SH[1]);
+      const hpMidObsX = !hipsTruncated ? 0.5 * (L_HP[0] + R_HP[0]) : shMidObsX;
+      const hpMidObsY = !hipsTruncated ? 0.5 * (L_HP[1] + R_HP[1]) : shMidObsY + shDistPx * 1.45;
+      addRawSeg(shMidObsX, shMidObsY + 0.08 * shDistPx, hpMidObsX, hpMidObsY, 6, this.rootZ, this.rootZ, true);
+      if (!hipsTruncated) addRawSeg(L_HP[0], L_HP[1], R_HP[0], R_HP[1], 7, this.rootZ, this.rootZ, true);
+      const zPose = (idx) => (pw && pw[idx] ? clamp(this.rootZ + (pw[idx].z - shZRef), 0.25, 5.5) : this.rootZ);
+      const zHead = Math.max(0.25, this.rootZ + (pw ? headRelZ * 0.5 : -0.06));
+      const rawMouthY = (face && face.length > 14 ? toTier(face[13])[1] : (NOSE[1] + shDistPx * 0.06)) * sY;
+      const rawChinY = (face && face.length > 152 ? toTier(face[152])[1] : (NOSE[1] + shDistPx * 0.15)) * sY;
+      const rawMouthTier = face && face.length > 14 ? toTier(face[13])[1] : (NOSE[1] + shDistPx * 0.06);
+      const rawChinTier = face && face.length > 152 ? toTier(face[152])[1] : (NOSE[1] + shDistPx * 0.15);
+      const rawHeadTopTier = face && face.length > 10 ? toTier(face[10])[1] : (eyeMid2[1] - shDistPx * 0.30);
+      const rawNoseX = face && face.length > 1 ? toTier(face[1])[0] : NOSE[0];
+      addRawSeg(eyeMid2[0], rawHeadTopTier, eyeMid2[0], eyeMid2[1], 2, zHead, zHead);
+      addRawSeg(eyeMid2[0], eyeMid2[1], rawNoseX, rawMouthTier, 3, zHead, zHead);
+      addRawSeg(rawNoseX, rawMouthTier, rawNoseX, rawChinTier, 4, zHead, zHead);
+      addRawSeg(rawNoseX, rawChinTier, shMidObsX, shMidObsY, 5, zHead, this.rootZ);
+      const inFrameLm = (lm) => lm[2] > 0.45 && lm[0] > -6 && lm[0] < sp.width + 6 && lm[1] > -6 && lm[1] < sp.height * 0.97;
+      if (inFrameLm(L_SH) && inFrameLm(L_EL) && Math.hypot(L_EL[0] - L_SH[0], L_EL[1] - L_SH[1]) <= maxReachPxL * 1.4) {
+        addRawSeg(L_SH[0], L_SH[1], L_EL[0], L_EL[1], 8, zPose(11), zPose(13));
+        if (inFrameLm(L_WR) && Math.hypot(L_WR[0] - L_SH[0], L_WR[1] - L_SH[1]) <= maxReachPxL * 1.45) {
+          addRawSeg(L_EL[0], L_EL[1], L_WR[0], L_WR[1], 10, zPose(13), handIdxL >= 0 ? rawWrZL : zPose(15));
+        }
+      } else if (inFrameLm(L_SH) && L_EL[2] > 0.30 && L_EL[1] >= sp.height * 0.92) {
+        const sClip = clamp((sp.height * 0.99 - L_SH[1]) / Math.max(1, L_EL[1] - L_SH[1]), 0.15, 1.0);
+        addRawSeg(L_SH[0], L_SH[1], L_SH[0] + (L_EL[0] - L_SH[0]) * sClip, L_SH[1] + (L_EL[1] - L_SH[1]) * sClip, 8, zPose(11), zPose(13));
+      }
+      if (inFrameLm(R_SH) && inFrameLm(R_EL) && Math.hypot(R_EL[0] - R_SH[0], R_EL[1] - R_SH[1]) <= maxReachPxR * 1.4) {
+        addRawSeg(R_SH[0], R_SH[1], R_EL[0], R_EL[1], 9, zPose(12), zPose(14));
+        if (inFrameLm(R_WR) && Math.hypot(R_WR[0] - R_SH[0], R_WR[1] - R_SH[1]) <= maxReachPxR * 1.45) {
+          addRawSeg(R_EL[0], R_EL[1], R_WR[0], R_WR[1], 11, zPose(14), handIdxR >= 0 ? rawWrZR : zPose(16));
+        }
+      } else if (inFrameLm(R_SH) && R_EL[2] > 0.30 && R_EL[1] >= sp.height * 0.92) {
+        const sClip = clamp((sp.height * 0.99 - R_SH[1]) / Math.max(1, R_EL[1] - R_SH[1]), 0.15, 1.0);
+        addRawSeg(R_SH[0], R_SH[1], R_SH[0] + (R_EL[0] - R_SH[0]) * sClip, R_SH[1] + (R_EL[1] - R_SH[1]) * sClip, 9, zPose(12), zPose(14));
+      }
+      if (legsVisible) {
+        addRawSeg(L_HP[0], L_HP[1], L_KN[0], L_KN[1], 20, zPose(23), zPose(25));
+        addRawSeg(L_KN[0], L_KN[1], L_AN[0], L_AN[1], 22, zPose(25), zPose(27));
+        addRawSeg(R_HP[0], R_HP[1], R_KN[0], R_KN[1], 21, zPose(24), zPose(26));
+        addRawSeg(R_KN[0], R_KN[1], R_AN[0], R_AN[1], 23, zPose(26), zPose(28));
+      }
+      if (handIdxL >= 0) {
+        const hL = hands2d[handIdxL], h0 = toTier(hL[0]), h5 = toTier(hL[5]), h9 = toTier(hL[9]), h17 = toTier(hL[17]);
+        const h4 = toTier(hL[4]), h8 = toTier(hL[8]), h12 = toTier(hL[12]), h20 = toTier(hL[20]), zl = rawWrZL;
+        addRawSeg(h0[0], h0[1], h9[0], h9[1], 12, zl, zl);
+        addRawSeg(h0[0], h0[1], h4[0], h4[1], 14, zl, zl);
+        addRawSeg(h5[0], h5[1], h8[0], h8[1], 16, zl, zl);
+        addRawSeg(h9[0], h9[1], h12[0], h12[1], 16, zl, zl);
+        addRawSeg(h17[0], h17[1], h20[0], h20[1], 18, zl, zl);
+      }
+      if (handIdxR >= 0) {
+        const hR = hands2d[handIdxR], h0 = toTier(hR[0]), h5 = toTier(hR[5]), h9 = toTier(hR[9]), h17 = toTier(hR[17]);
+        const h4 = toTier(hR[4]), h8 = toTier(hR[8]), h12 = toTier(hR[12]), h20 = toTier(hR[20]), zr = rawWrZR;
+        addRawSeg(h0[0], h0[1], h9[0], h9[1], 13, zr, zr);
+        addRawSeg(h0[0], h0[1], h4[0], h4[1], 15, zr, zr);
+        addRawSeg(h5[0], h5[1], h8[0], h8[1], 17, zr, zr);
+        addRawSeg(h9[0], h9[1], h12[0], h12[1], 17, zr, zr);
+        addRawSeg(h17[0], h17[1], h20[0], h20[1], 19, zr, zr);
+      }
+      const trunkHalfW = Math.max(8, 0.56 * shDistPx * sX);
+      const yMouthS = rawMouthY, yChinS = rawChinY;
+      const shMidObsYS = shMidObsY * sY;
+
+      const segMask = this.latest.segMask, segW = this.latest.segW, segH = this.latest.segH;
+      if (segMask && segW > 0 && segH > 0) {
+        const tierToW = sp.width / sp.w_s, tierToH = sp.height / sp.h_s;
+        for (let py = 0; py < sp.h_s; py++) {
+          const vSrc = ((py * tierToH) - padY) / (srcH * scale);
+          const sy = clamp(Math.floor(vSrc * segH), 0, segH - 1);
+          const rowOff = py * sp.w_s;
+          for (let px = 0; px < sp.w_s; px++) {
+            const idx = rowOff + px;
+            const uSrc = ((px * tierToW) - padX) / (srcW * scale);
+            if (uSrc < 0 || uSrc >= 1 || vSrc < 0 || vSrc >= 1) {
+              sc.partLogits[idx] = 5.0; sc.depthM[idx] = 4.2; sc.winner[idx] = 0; continue;
+            }
+            const segCls = segMask[sy * segW + clamp(Math.floor(uSrc * segW), 0, segW - 1)];
+            if (segCls === 0) {
+              sc.partLogits[idx] = 5.0; sc.depthM[idx] = 4.2; sc.winner[idx] = 0; continue;
+            }
+            let winP = 6, winZ = this.rootZ;
+            if (segCls === 1) {
+              winP = 2; winZ = zHead;
+            } else if (segCls === 5) {
+              winP = 1; winZ = Math.max(0.25, zHead - 0.04);
+            } else if (segCls === 3) {
+              winP = py <= yMouthS ? 3 : (py <= yChinS ? 4 : 5);
+              winZ = zHead;
+            } else {
+              // segCls === 2 (body-skin) or 4 (clothes): fill 100% of silhouette via Z-prioritized bone Voronoi
+              let bestScore = 1e12;
+              for (let sIdx = 0; sIdx < activeSegs.length; sIdx++) {
+                const s = activeSegs[sIdx];
+                if (s.pid <= 4 && py > shMidObsYS + 2) continue; // only allow raw head/face Voronoi above shoulders when ImageSegmenter mislabels candlelight face as clothes/skin
+                const t = clamp(((px - s.ax) * s.dx + (py - s.ay) * s.dy) / s.l2, 0, 1);
+                const ddx = px - (s.ax + t * s.dx), ddy = py - (s.ay + t * s.dy);
+                const zSeg = s.az + t * s.dz;
+                const dNorm = s.isTrunk ? Math.hypot(ddx / (trunkHalfW * 0.45), ddy) : Math.hypot(ddx, ddy);
+                // Prioritized front limb if reaching forward in front of torso
+                const score = dNorm + Math.max(0, zSeg - this.rootZ + 0.15) * 4.5;
+                if (score < bestScore) { bestScore = score; winP = s.pid; winZ = zSeg; }
+              }
+            }
+            sc.partLogits[idx] = -2.8;
+            sc.partLogits[winP * nSp + idx] = 6.4;
+            sc.depthM[idx] = winZ;
+            sc.winner[idx] = winP;
+          }
+        }
+      } else {
+        // Fallback capsule fill before ImageSegmenter first frame arrives
+        for (let sIdx = 0; sIdx < activeSegs.length; sIdx++) {
+          const s = activeSegs[sIdx];
+          const rPx = s.isTrunk ? trunkHalfW * 1.25 : ((s.pid >= 2 && s.pid <= 4) ? Math.max(7.2, trunkHalfW * 0.58) : (s.pid === 5 ? Math.max(4.8, trunkHalfW * 0.36) : (s.pid >= 14 ? 2.4 : 4.2)));
+          const x0 = Math.max(0, Math.floor(Math.min(s.ax, s.ax + s.dx) - rPx));
+          const x1 = Math.min(sp.w_s - 1, Math.ceil(Math.max(s.ax, s.ax + s.dx) + rPx));
+          const y0 = Math.max(0, Math.floor(Math.min(s.ay, s.ay + s.dy) - rPx));
+          const y1 = Math.min(sp.h_s - 1, Math.ceil(Math.max(s.ay, s.ay + s.dy) + rPx));
+          for (let py = y0; py <= y1; py++) {
+            const row = py * sp.w_s;
+            for (let px = x0; px <= x1; px++) {
+              const t = clamp(((px - s.ax) * s.dx + (py - s.ay) * s.dy) / s.l2, 0, 1);
+              if (Math.hypot(px - (s.ax + t * s.dx), py - (s.ay + t * s.dy)) <= rPx) {
+                const idx = row + px, pz = s.az + t * s.dz;
                 if (pz <= sc.depthM[idx]) {
-                  sc.depthM[idx] = pz;
                   const pw = sc.winner[idx];
-                  sc.partLogits[pw * nSp + idx] = -2.6;
-                  sc.partLogits[pId * nSp + idx] = 6.2;
-                  sc.winner[idx] = pId;
+                  sc.partLogits[pw * nSp + idx] = -2.8; sc.partLogits[s.pid * nSp + idx] = 6.2;
+                  sc.depthM[idx] = pz; sc.winner[idx] = s.pid;
                 }
               }
             }
@@ -3412,60 +3986,6 @@
         }
       }
 
-      // Fuse ImageSegmenter multiclass mask + CIE-Lab cast-shadow rejection
-      const segMask = this.latest.segMask, segW = this.latest.segW, segH = this.latest.segH;
-      if (segMask && segW > 0 && segH > 0) {
-        if (this.segCanvas.width !== sp.w_s || this.segCanvas.height !== sp.h_s) {
-          this.segCanvas.width = sp.w_s; this.segCanvas.height = sp.h_s; this.bgLab = null;
-        }
-        this.segCtx.fillStyle = "#000"; this.segCtx.fillRect(0, 0, sp.w_s, sp.h_s);
-        this.segCtx.drawImage(video, padX * (sp.w_s / sp.width), padY * (sp.h_s / sp.height), srcW * scale * (sp.w_s / sp.width), srcH * scale * (sp.h_s / sp.height));
-        const rgb = this.segCtx.getImageData(0, 0, sp.w_s, sp.h_s).data;
-        if (!this.bgLab || this.bgLab.length !== nSp * 3) {
-          this.bgLab = new Float32Array(nSp * 3);
-          for (let i = 0; i < nSp; i++) {
-            const r = rgb[i * 4] / 255, g = rgb[i * 4 + 1] / 255, b = rgb[i * 4 + 2] / 255;
-            this.bgLab[i * 3] = 0.299 * r + 0.587 * g + 0.114 * b;
-            this.bgLab[i * 3 + 1] = 0.5 * (r - g);
-            this.bgLab[i * 3 + 2] = 0.5 * (0.5 * (r + g) - b);
-          }
-        }
-        const tierToW = sp.width / sp.w_s, tierToH = sp.height / sp.h_s;
-        for (let py = 0; py < sp.h_s; py++) {
-          const vSrc = ((py * tierToH) - padY) / (srcH * scale);
-          const sy = clamp(Math.floor(vSrc * segH), 0, segH - 1);
-          for (let px = 0; px < sp.w_s; px++) {
-            const idx = py * sp.w_s + px;
-            const uSrc = ((px * tierToW) - padX) / (srcW * scale);
-            if (uSrc < 0 || uSrc >= 1 || vSrc < 0 || vSrc >= 1) {
-              const pw = sc.winner[idx]; sc.partLogits[pw * nSp + idx] = -3.0; sc.partLogits[idx] = 4.5; sc.winner[idx] = 0; continue;
-            }
-            const sx = clamp(Math.floor(uSrc * segW), 0, segW - 1);
-            const segCls = segMask[sy * segW + sx]; // 0=bg, 1=hair, 2=body-skin, 3=face-skin, 4=clothes, 5=other
-            const r = rgb[idx * 4] / 255, g = rgb[idx * 4 + 1] / 255, b = rgb[idx * 4 + 2] / 255;
-            const L = 0.299 * r + 0.587 * g + 0.114 * b, aC = 0.5 * (r - g), bC = 0.5 * (0.5 * (r + g) - b);
-            const dL = L - this.bgLab[idx * 3];
-            const dChr = Math.hypot(aC - this.bgLab[idx * 3 + 1], bC - this.bgLab[idx * 3 + 2]);
-
-            // Cast shadow check: strong negative luminance change with invariant chromaticity near background
-            const isShadow = (dL < -0.06 && dL > -0.35 && dChr < 0.045);
-            if (segCls === 0 || isShadow) {
-              if (segCls === 0) {
-                this.bgLab[idx * 3] = 0.94 * this.bgLab[idx * 3] + 0.06 * L;
-                this.bgLab[idx * 3 + 1] = 0.94 * this.bgLab[idx * 3 + 1] + 0.06 * aC;
-                this.bgLab[idx * 3 + 2] = 0.94 * this.bgLab[idx * 3 + 2] + 0.06 * bC;
-              }
-              const pw = sc.winner[idx]; sc.partLogits[pw * nSp + idx] = -2.4; sc.partLogits[idx] = 4.2; sc.winner[idx] = 0;
-            } else if (segCls === 5 && sc.winner[idx] === 0) {
-              sc.partLogits[idx] = -2.0; sc.partLogits[nSp + idx] = 4.0; sc.winner[idx] = 1; // occluder_object
-            } else if (segCls === 1 && sc.winner[idx] === 0) {
-              sc.partLogits[idx] = -2.0; sc.partLogits[2 * nSp + idx] = 4.0; sc.winner[idx] = 2; // cranium_hair
-            }
-          }
-        }
-      }
-
-      // Collect raw MediaPipe 2D ghost lines (for VS MEDIAPIPE real live comparison!)
       const mpPairs = [[11, 12], [11, 13], [13, 15], [12, 14], [14, 16], [11, 23], [12, 24], [23, 24], [23, 25], [25, 27], [24, 26], [26, 28]];
       const mpGhost2d = mpPairs.filter(([a, b]) => p2[a] && p2[b] && (p2[a].visibility ?? 1) > 0.35 && (p2[b].visibility ?? 1) > 0.35)
         .map(([a, b]) => [toTier(p2[a]), toTier(p2[b])]);
@@ -3477,6 +3997,7 @@
         omegaMaxRadS, mpGhost2d, mpRawBoneStdMm,
         handsDetected: hands2d.length,
         hasFace: Boolean(face),
+        mpAnchors2d: { eyeMid2, L_SH, R_SH },
       };
     }
   }
@@ -3591,6 +4112,10 @@
       streamVideo.srcObject = ms;
       streamVideo.playsInline = true; streamVideo.muted = true;
       await streamVideo.play();
+      if (streamVideo.videoWidth > 1) {
+        streamVideo.width = streamVideo.videoWidth;
+        streamVideo.height = streamVideo.videoHeight;
+      }
       state.sourceMode = "webcam";
       state.camActive = true;
       state.mirror = (state.facingMode === "user");
@@ -3598,9 +4123,13 @@
       document.getElementById("btnMirror").textContent = `MIRROR: ${state.mirror ? "ON" : "OFF"}`;
       document.getElementById("btnMirror").classList.toggle("active", state.mirror);
       document.getElementById("heroCamOverlay").classList.add("hidden");
-      showCamNotice("Live Camera streaming · loading MediaPipe Tasks Vision in background...");
       await refreshCameraDeviceList();
-      solver.ensureMediaPipeLoaded((m) => showCamNotice(m));
+      if (state.backendMode === "ort_distilled") {
+        await switchBackendMode("ort_distilled");
+      } else {
+        showCamNotice("Live Camera streaming · loading MediaPipe Tasks Vision Worker...");
+        solver.ensureMediaPipeLoaded((m) => showCamNotice(m));
+      }
       return true;
     } catch (err) {
       showCamNotice(`Camera unavailable (${err.message || err.name}). Demo Stream stays live.`);
@@ -3658,6 +4187,7 @@
 
     rgbCtx.lineWidth = 2.2;
     for (let j = 1; j < NUM_JOINTS; j++) {
+      if (state.sourceMode === "webcam" && j >= 26 && res.jointLogVar && res.jointLogVar[j] > -3.0) continue;
       const p = DEFAULT_PARENTS[j], name = JOINT_NAMES[j];
       rgbCtx.strokeStyle = name.endsWith("_L") ? "#5ff0dc" : (name.endsWith("_R") ? "#f0b040" : "#ecf0ec");
       rgbCtx.beginPath(); rgbCtx.moveTo(mx(proj[p][0]), proj[p][1]); rgbCtx.lineTo(mx(proj[j][0]), proj[j][1]); rgbCtx.stroke();
@@ -3692,6 +4222,7 @@
     }
 
     for (let j = 0; j < NUM_JOINTS; j++) {
+      if (state.sourceMode === "webcam" && j >= 26 && res.jointLogVar && res.jointLogVar[j] > -3.0) continue;
       const [u, v] = proj[j];
       rgbCtx.fillStyle = j === 0 ? "#ffffff" : (JOINT_NAMES[j].endsWith("_L") ? "#5ff0dc" : "#f0b040");
       rgbCtx.beginPath(); rgbCtx.arc(mx(u), v, j >= 26 ? 2.0 : 3.2, 0, Math.PI * 2); rgbCtx.fill();
@@ -3904,94 +4435,141 @@
   }
 
   // =========================================================================
-  // 7. Frame Loop
+  // 7. Decoupled Async Compute Pump + Pure Synchronous (<2ms) rAF Render Loop
   // =========================================================================
-  async function processCurrentFrame() {
-    const now = performance.now();
-    const dtSec = clamp((now - state.lastTickTs) / 1000, 1 / 120, 0.2);
-    state.lastTickTs = now;
-    state.frameIdx++;
+  let computeBusy = false;
+  let pendingDraw = null;
+  let drawToken = 0;
+  let lastDrawnToken = -1;
+  let orbitalDirty = false;
+  let lastPumpedTs = 0;
 
-    let source = synthCanvas;
-    let payloadOverride = null;
-    let K = null;
-    let omegaMaxRadS = 0;
-
-    if (state.sourceMode === "webcam") {
-      if (streamVideo.readyState >= 2 && streamVideo.videoWidth > 1) {
-        source = streamVideo;
-        const sp = TIER_SPECS[state.tier];
-        const srcW = streamVideo.videoWidth, srcH = streamVideo.videoHeight;
-        const scale = Math.min(sp.width / srcW, sp.height / srcH);
-        const padX = (sp.width - srcW * scale) * 0.5, padY = (sp.height - srcH * scale) * 0.5;
-        if (state.backendMode !== "ort_distilled" || !runtime.ortSessions[state.tier]) {
-          solver.stepDetections(streamVideo);
-          payloadOverride = solver.solvePayload(streamVideo, state.tier, { scale, padX, padY }, dtSec);
-          if (!payloadOverride) {
-            // Strictly NEVER draw fake sine-wave mock on live webcam!
-            const prep = await runtime.preprocessSource(streamVideo, state.tier, false);
-            drawRGBOverlay(streamVideo, { tier: state.tier, ...prep }, true);
-            drawPartMatte({ tier: state.tier }, true);
-            drawOrbital3D(null, true);
-            window.__SCION_INSPECTOR__ = {
-              backend: runtime.backend, ortBackend: "live-cam-awaiting-human", tier: state.tier,
-              frameIdx: state.frameIdx, dispatchCount: runtime.dispatchCount,
-              maxOrthoErr: 0, gateState: { tripped: false, reproj_part_residual: 0, depth_order_parity_ok: true, fg_pixels: 0, mean_fg_entropy: 0, boundary_pixels: 0 },
-              gpuP50Ms: percentile(state.gpuTimesMs, 50), gpuP99Ms: percentile(state.gpuTimesMs, 99),
-              uiP50Ms: percentile(state.uiTimesMs, 50), uiP99Ms: percentile(state.uiTimesMs, 99),
-              p50Ms: percentile(state.frameTimesMs, 50), p99Ms: percentile(state.frameTimesMs, 99),
-              schemaSha256: runtime.schema.schemaSha256,
-            };
-            return;
-          }
-          showCamNotice("");
-          K = payloadOverride.K;
-          omegaMaxRadS = payloadOverride.omegaMaxRadS || 0;
-        }
-      } else {
-        window.__SCION_INSPECTOR__ = window.__SCION_INSPECTOR__ || { backend: runtime.backend, tier: state.tier, frameIdx: state.frameIdx, maxOrthoErr: 0 };
-        return;
-      }
-    } else if (state.sourceMode.startsWith("stream:") && streamVideo.readyState >= 2) {
-      source = streamVideo;
-    } else {
-      drawSyntheticCrucibleScene(state.frameIdx / 30.0);
-      source = synthCanvas;
+  streamVideo.addEventListener("loadedmetadata", () => {
+    if (streamVideo.videoWidth > 1) {
+      streamVideo.width = streamVideo.videoWidth;
+      streamVideo.height = streamVideo.videoHeight;
     }
+  });
 
-    const res = await runtime.processFrame({
-      source, tier: state.tier, tensorOverride: payloadOverride, K,
-      clampEnabled: state.clampEnabled, prevJointsXyz: state.prevJointsXyz, dtSec, omegaMaxRadS,
-    });
-    state.prevJointsXyz = res.jointsXyz;
-    state.lastResult = res;
+  async function processCurrentFrame() {
+    if (computeBusy) return;
+    computeBusy = true;
+    try {
+      const now = performance.now();
+      const dtSec = clamp((now - state.lastTickTs) / 1000, 1 / 120, 0.2);
+      state.lastTickTs = now;
+      state.frameIdx++;
 
-    const tUi0 = performance.now();
-    drawRGBOverlay(source, res, false);
-    drawPartMatte(res, false);
-    drawOrbital3D(res, false);
-    drawTelemetryChart(res);
-    const uiRedrawMs = performance.now() - tUi0;
-    updateTelemetryCards(res, uiRedrawMs);
+      let source = synthCanvas;
+      let payloadOverride = null;
+      let K = null;
+      let omegaMaxRadS = 0;
 
-    window.__SCION_INSPECTOR__ = {
-      backend: res.backend, ortBackend: res.ortBackend, tier: res.tier,
-      frameIdx: state.frameIdx, dispatchCount: runtime.dispatchCount,
-      maxOrthoErr: res.maxOrthoErr, gateState: res.gateState,
-      gpuP50Ms: percentile(state.gpuTimesMs, 50), gpuP99Ms: percentile(state.gpuTimesMs, 99),
-      uiP50Ms: percentile(state.uiTimesMs, 50), uiP99Ms: percentile(state.uiTimesMs, 99),
-      p50Ms: percentile(state.frameTimesMs, 50), p99Ms: percentile(state.frameTimesMs, 99),
-      lastTotalMs: res.totalMs, lastGpuComputeMs: res.gpuComputeMs, lastUiRedrawMs: uiRedrawMs,
-      lastShaderMs: res.shaderMs, lastPrepMs: res.prepMs,
-      schemaSha256: runtime.schema.schemaSha256,
-    };
+      if (state.sourceMode === "webcam") {
+        if (streamVideo.readyState >= 2 && streamVideo.videoWidth > 1) {
+          source = streamVideo;
+          const sp = TIER_SPECS[state.tier];
+          const srcW = streamVideo.videoWidth, srcH = streamVideo.videoHeight;
+          const scale = Math.min(sp.width / srcW, sp.height / srcH);
+          const padX = (sp.width - srcW * scale) * 0.5, padY = (sp.height - srcH * scale) * 0.5;
+          if (state.backendMode !== "ort_distilled" || !runtime.ortSessions[state.tier]) {
+            await solver.pumpDetections(streamVideo);
+            payloadOverride = solver.solvePayload(streamVideo, state.tier, { scale, padX, padY }, dtSec);
+            if (!payloadOverride) {
+              const prep = await runtime.preprocessSource(streamVideo, state.tier, false);
+              pendingDraw = { waiting: true, source: streamVideo, res: { tier: state.tier, ...prep } };
+              drawToken++;
+              window.__SCION_INSPECTOR__ = {
+                backend: runtime.backend, ortBackend: "live-cam-awaiting-human", tier: state.tier,
+                frameIdx: state.frameIdx, dispatchCount: runtime.dispatchCount,
+                maxOrthoErr: 0, gateState: { tripped: false, reproj_part_residual: 0, depth_order_parity_ok: true, fg_pixels: 0, mean_fg_entropy: 0, boundary_pixels: 0 },
+                gpuP50Ms: percentile(state.gpuTimesMs, 50), gpuP99Ms: percentile(state.gpuTimesMs, 99),
+                uiP50Ms: percentile(state.uiTimesMs, 50), uiP99Ms: percentile(state.uiTimesMs, 99),
+                p50Ms: percentile(state.frameTimesMs, 50), p99Ms: percentile(state.frameTimesMs, 99),
+                schemaSha256: runtime.schema.schemaSha256,
+              };
+              return;
+            }
+            if (solver.mp.status === "ready") showCamNotice("");
+            K = payloadOverride.K;
+            omegaMaxRadS = payloadOverride.omegaMaxRadS || 0;
+          }
+        } else {
+          window.__SCION_INSPECTOR__ = window.__SCION_INSPECTOR__ || { backend: runtime.backend, tier: state.tier, frameIdx: state.frameIdx, maxOrthoErr: 0 };
+          return;
+        }
+      } else if (state.sourceMode.startsWith("stream:") && streamVideo.readyState >= 2) {
+        source = streamVideo;
+      } else {
+        drawSyntheticCrucibleScene(state.frameIdx / 30.0);
+        source = synthCanvas;
+      }
+
+      const res = await runtime.processFrame({
+        source, tier: state.tier, tensorOverride: payloadOverride, K,
+        clampEnabled: state.clampEnabled, prevJointsXyz: state.prevJointsXyz, dtSec, omegaMaxRadS,
+      });
+      state.prevJointsXyz = res.jointsXyz;
+      state.lastResult = res;
+      pendingDraw = { waiting: false, source, res, isNew: true };
+      drawToken++;
+
+      window.__SCION_INSPECTOR__ = {
+        backend: res.backend, ortBackend: res.ortBackend, tier: res.tier,
+        frameIdx: state.frameIdx, dispatchCount: runtime.dispatchCount,
+        maxOrthoErr: res.maxOrthoErr, gateState: res.gateState,
+        gpuP50Ms: percentile(state.gpuTimesMs, 50), gpuP99Ms: percentile(state.gpuTimesMs, 99),
+        uiP50Ms: percentile(state.uiTimesMs, 50), uiP99Ms: percentile(state.uiTimesMs, 99),
+        p50Ms: percentile(state.frameTimesMs, 50), p99Ms: percentile(state.frameTimesMs, 99),
+        lastTotalMs: res.totalMs, lastGpuComputeMs: res.gpuComputeMs, lastUiRedrawMs: percentile(state.uiTimesMs, 50),
+        lastShaderMs: res.shaderMs, lastPrepMs: res.prepMs,
+        schemaSha256: runtime.schema.schemaSha256,
+        mpAnchors2d: payloadOverride?.mpAnchors2d || null,
+        jointsXyzSample: [
+          [res.jointsXyz[12], res.jointsXyz[13], res.jointsXyz[14]], // cranium(4)
+          [res.jointsXyz[18], res.jointsXyz[19], res.jointsXyz[20]], // eye_L(6)
+          [res.jointsXyz[21], res.jointsXyz[22], res.jointsXyz[23]], // eye_R(7)
+          [res.jointsXyz[27], res.jointsXyz[28], res.jointsXyz[29]], // shoulder_L(9)
+          [res.jointsXyz[42], res.jointsXyz[43], res.jointsXyz[44]], // shoulder_R(14)
+        ],
+        K: Array.from(res.K),
+      };
+    } finally {
+      computeBusy = false;
+    }
   }
 
-  async function tickLoop() {
-    if (state.playing) {
-      try { await processCurrentFrame(); } catch (e) { console.error("[SCION]", e); }
+  async function computePumpLoop() {
+    while (true) {
+      if (state.playing) {
+        try { await processCurrentFrame(); } catch (e) { console.error("[SCION]", e); }
+      }
+      // Pace smoothly (~8ms min yield in idle/demo so rAF & input stay zero-jank)
+      await new Promise((r) => setTimeout(r, state.sourceMode === "webcam" ? 4 : 8));
     }
-    requestAnimationFrame(tickLoop);
+  }
+
+  function renderFrameLoop() {
+    const tUi0 = performance.now();
+    if (pendingDraw && drawToken !== lastDrawnToken) {
+      lastDrawnToken = drawToken;
+      orbitalDirty = false;
+      if (pendingDraw.waiting) {
+        drawRGBOverlay(pendingDraw.source, pendingDraw.res, true);
+        drawPartMatte({ tier: pendingDraw.res.tier }, true);
+        drawOrbital3D(null, true);
+      } else {
+        drawRGBOverlay(pendingDraw.source, pendingDraw.res, false);
+        drawPartMatte(pendingDraw.res, false);
+        drawOrbital3D(pendingDraw.res, false);
+        drawTelemetryChart(pendingDraw.res);
+        updateTelemetryCards(pendingDraw.res, performance.now() - tUi0);
+      }
+    } else if (orbitalDirty && state.lastResult) {
+      orbitalDirty = false;
+      drawOrbital3D(state.lastResult, false);
+    }
+    requestAnimationFrame(renderFrameLoop);
   }
 
   // =========================================================================
@@ -4117,40 +4695,90 @@
     state.deviceId = e.target.value; playDetentTick();
     if (state.sourceMode === "webcam") startLiveCamera(state.deviceId);
   });
-  document.getElementById("backendSelect").addEventListener("change", async (e) => {
-    state.backendMode = e.target.value; playDetentTick();
-    if (state.backendMode === "ort_distilled") {
-      if (!LOCAL_HOST) {
-        showCamNotice("SCION Distilled ONNX requires localhost server; staying on Live Human Hybrid + WGSL Solver.");
-        state.backendMode = "hybrid_wgsl"; e.target.value = "hybrid_wgsl"; return;
+  async function switchBackendMode(mode, droppedSource = null) {
+    state.backendMode = mode;
+    const sel = document.getElementById("backendSelect");
+    if (sel) sel.value = mode;
+    if (mode === "ort_distilled") {
+      if (solver.mp.worker) {
+        try { solver.mp.worker.terminate(); } catch (_) {}
+        solver.mp.worker = null; solver.mp.mode = "none"; solver.mp.status = "idle"; solver.mp.loading = false;
       }
       const slug = state.tier.toLowerCase().replace("-", "_");
-      try {
-        const info = await runtime.loadOnnxModel(state.tier, `/scion_body4d/canonical/edge_profiles/exports/${slug}/${slug}_fp32.onnx`);
-        document.getElementById("ortPill").textContent = `ORT: ${info.ep.toUpperCase()} (${state.tier})`;
-        document.getElementById("ortPill").className = "pill grn";
-      } catch (err) {
-        showCamNotice(`Local ONNX load unavailable (${err.message}); using Live Hybrid WGSL.`);
-        state.backendMode = "hybrid_wgsl"; e.target.value = "hybrid_wgsl";
+      const src = droppedSource || (LOCAL_HOST ? `/scion_body4d/canonical/edge_profiles/exports/${slug}/${slug}_fp32.onnx` : null);
+      if (!src && !runtime.ortSessions[state.tier]) {
+        showCamNotice("Zero-MediaPipe ONNX: drop any .onnx file onto this window or click LOAD / DROP .ONNX below.");
+        document.getElementById("panelAModeBadge").textContent = "DROP .ONNX";
+        document.getElementById("ortPill").textContent = "AWAITING .ONNX FILE (0-MP)";
+        return false;
       }
+      try {
+        showCamNotice(`Loading Zero-MediaPipe SCION Native ONNX (${state.tier})...`);
+        const info = !droppedSource && runtime.ortSessions[state.tier]
+          ? { ep: runtime.ortSessions[state.tier].ep }
+          : await runtime.loadOnnxModel(state.tier, src);
+        document.getElementById("ortPill").textContent = `NATIVE ONNX: ${info.ep.toUpperCase()} (${state.tier}, 0-MP)`;
+        document.getElementById("ortPill").className = "pill grn";
+        document.getElementById("panelAModeBadge").textContent = "NATIVE ONNX";
+        showCamNotice("");
+        return true;
+      } catch (err) {
+        showCamNotice(`ONNX load note (${err.message}); using Live Hybrid WGSL.`);
+        state.backendMode = "hybrid_wgsl"; if (sel) sel.value = "hybrid_wgsl";
+        document.getElementById("panelAModeBadge").textContent = "LIVE WGSL";
+        return false;
+      }
+    } else {
+      document.getElementById("ortPill").textContent = LOCAL_HOST ? "HYBRID + ORT CAPABLE" : "STANDALONE HYBRID";
+      document.getElementById("ortPill").className = "pill unk";
+      document.getElementById("panelAModeBadge").textContent = "LIVE WGSL";
+      if (state.sourceMode === "webcam") solver.ensureMediaPipeLoaded((m) => showCamNotice(m));
+      return true;
     }
+  }
+  async function handleOnnxFileBlob(file) {
+    if (!file || !file.name.toLowerCase().endsWith(".onnx")) {
+      showCamNotice("Please select a valid SCION .onnx model file.");
+      return;
+    }
+    if (/ultra/i.test(file.name)) state.tier = "Ultra-Lite";
+    else if (/pro/i.test(file.name)) state.tier = "Pro-Edge";
+    document.getElementById("tierSelect").value = state.tier;
+    document.getElementById("srcResLabel").textContent = `${TIER_SPECS[state.tier].width}x${TIER_SPECS[state.tier].height}`;
+    const buf = new Uint8Array(await file.arrayBuffer());
+    await switchBackendMode("ort_distilled", buf);
+  }
+  document.getElementById("backendSelect").addEventListener("change", async (e) => {
+    playDetentTick();
+    await switchBackendMode(e.target.value);
   });
   document.getElementById("btnLoadOnnx").addEventListener("click", async () => {
     playDetentTick();
-    if (!LOCAL_HOST) { showCamNotice("ORT ONNX models run on localhost server (127.0.0.1:8440)."); return; }
-    const slug = state.tier.toLowerCase().replace("-", "_");
-    try {
-      const info = await runtime.loadOnnxModel(state.tier, `/scion_body4d/canonical/edge_profiles/exports/${slug}/${slug}_fp32.onnx`);
-      state.backendMode = "ort_distilled"; document.getElementById("backendSelect").value = "ort_distilled";
-      document.getElementById("ortPill").textContent = `ORT: ${info.ep.toUpperCase()} (${state.tier})`;
-      document.getElementById("ortPill").className = "pill grn";
-    } catch (err) { showCamNotice(`ORT load note: ${err.message}`); }
+    if (LOCAL_HOST) {
+      await switchBackendMode("ort_distilled");
+    } else {
+      document.getElementById("onnxFileInput").click();
+    }
   });
-  document.getElementById("tierSelect").addEventListener("change", (e) => {
+  document.getElementById("onnxFileInput").addEventListener("change", async (e) => {
+    const f = e.target.files?.[0];
+    if (f) await handleOnnxFileBlob(f);
+    e.target.value = "";
+  });
+  document.body.addEventListener("dragover", (e) => { if (e.dataTransfer?.types?.includes("Files")) e.preventDefault(); });
+  document.body.addEventListener("drop", async (e) => {
+    const f = e.dataTransfer?.files?.[0];
+    if (f && f.name.toLowerCase().endsWith(".onnx")) {
+      e.preventDefault();
+      await handleOnnxFileBlob(f);
+    }
+  });
+  document.getElementById("tierSelect").addEventListener("change", async (e) => {
     state.tier = e.target.value;
     const sp = TIER_SPECS[state.tier];
     document.getElementById("srcResLabel").textContent = `${sp.width}x${sp.height}`;
     playDetentTick();
+    if (state.backendMode === "ort_distilled") await switchBackendMode("ort_distilled");
   });
   document.getElementById("btnFlipCam").addEventListener("click", () => {
     state.facingMode = state.facingMode === "user" ? "environment" : "user";
@@ -4217,8 +4845,12 @@
       document.querySelectorAll(".mview-btn").forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
       document.body.setAttribute("data-mview", btn.dataset.mview);
+      if (btn.dataset.mview === "metrics") document.getElementById("advancedDrawer").open = true;
       syncHeaderHeightVar(); playDetentTick();
     });
+  });
+  document.getElementById("advancedDrawer").addEventListener("toggle", (e) => {
+    document.getElementById("drawerHintPill").textContent = e.target.open ? "COLLAPSE" : "CLICK TO EXPAND";
   });
 
   // Orbital Mouse + 1-Finger Touch Orbit + 2-Finger Pinch Zoom
@@ -4229,10 +4861,10 @@
     if (!dragging) return;
     state.orbitYaw += (e.clientX - lastX) * 0.01;
     state.orbitPitch = clamp(state.orbitPitch + (e.clientY - lastY) * 0.01, -1.45, 1.5);
-    lastX = e.clientX; lastY = e.clientY;
+    lastX = e.clientX; lastY = e.clientY; orbitalDirty = true;
   });
   orbitalCanvas.addEventListener("wheel", (e) => {
-    e.preventDefault(); state.orbitZoom = clamp(state.orbitZoom + e.deltaY * 0.002, 0.65, 6.0);
+    e.preventDefault(); state.orbitZoom = clamp(state.orbitZoom + e.deltaY * 0.002, 0.65, 6.0); orbitalDirty = true;
   }, { passive: false });
   orbitalCanvas.addEventListener("touchstart", (e) => {
     e.preventDefault();
@@ -4248,11 +4880,11 @@
       const tx = e.touches[0].clientX, ty = e.touches[0].clientY;
       state.orbitYaw += (tx - lastX) * 0.012;
       state.orbitPitch = clamp(state.orbitPitch + (ty - lastY) * 0.012, -1.45, 1.5);
-      lastX = tx; lastY = ty;
+      lastX = tx; lastY = ty; orbitalDirty = true;
     } else if (e.touches.length === 2) {
       const nd = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
       if (pinchDist > 8 && nd > 8) state.orbitZoom = clamp(state.orbitZoom * (pinchDist / nd), 0.65, 6.0);
-      pinchDist = nd;
+      pinchDist = nd; orbitalDirty = true;
     }
   }, { passive: false });
   orbitalCanvas.addEventListener("touchend", (e) => {
@@ -4266,6 +4898,7 @@
       btn.classList.add("active");
       state.orbitYaw = parseFloat(btn.dataset.yaw);
       state.orbitPitch = parseFloat(btn.dataset.pitch);
+      orbitalDirty = true;
       playDetentTick();
     });
   });
@@ -4304,11 +4937,15 @@
     document.getElementById("ortPill").textContent = LOCAL_HOST ? "HYBRID + ORT CAPABLE" : "STANDALONE HYBRID";
 
     if (LOCAL_HOST) {
-      if (!globalThis.ort) {
-        const s = document.createElement("script");
-        s.src = "/scion_body4d/edge/vendor/node_modules/onnxruntime-web/dist/ort.all.min.js";
-        s.async = true;
-        document.head.appendChild(s);
+      if (!globalThis.ort && !globalThis.__scionOrtScriptPromise) {
+        globalThis.__scionOrtScriptPromise = new Promise((resolve) => {
+          const s = document.createElement("script");
+          s.id = "scionOrtScript";
+          s.src = "/scion_body4d/edge/vendor/node_modules/onnxruntime-web/dist/ort.all.min.js";
+          s.async = true;
+          s.onload = resolve; s.onerror = resolve;
+          document.head.appendChild(s);
+        });
       }
       try {
         const resp = await fetch("/scion_body4d/dashboard/dashboard_data.json", { cache: "no-store" });
@@ -4317,11 +4954,16 @@
     }
 
     refreshCameraDeviceList();
-    if (new URLSearchParams(location.search).get("cam") === "1") {
+    const qParams = new URLSearchParams(location.search);
+    if (qParams.get("engine") === "onnx" || qParams.get("mode") === "native") {
+      await switchBackendMode("ort_distilled");
+    }
+    if (qParams.get("cam") === "1") {
       await startLiveCamera();
     }
     await processCurrentFrame();
-    requestAnimationFrame(tickLoop);
+    requestAnimationFrame(renderFrameLoop);
+    computePumpLoop();
   }
 
   boot();
