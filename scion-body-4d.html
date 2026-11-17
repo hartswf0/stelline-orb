@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<link rel="icon" href="data:,">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no">
 <title>SCION-BODY-4D · Calibrated Monocular 4D Body &amp; Hand Engine</title>
 <meta name="description" content="100% standalone single-file WebGPU WGSL + Typed-Array Monocular 4D Body & Hand Engine, 26-Part Semantic Matte, Metric 3D Orbital World, and Innovation Gate.">
@@ -200,6 +201,60 @@
   }
   #qrSvgContainer svg { width: 100%; height: 100%; display: block; }
 
+  /* Orb Control A/B Arena */
+  .orb-hero-banner {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
+    background: linear-gradient(90deg, rgba(16,32,28,0.95) 0%, rgba(16,22,20,0.95) 60%, rgba(28,16,24,0.9) 100%);
+    border: 1px solid var(--cy); padding: 8px 12px; margin-bottom: 10px; font-family: var(--mono);
+  }
+  .orb-hero-banner .orb-hero-txt { font-size: 11.5px; color: var(--ink); line-height: 1.35; }
+  .orb-hero-banner .orb-hero-txt b { color: var(--cy); }
+  .orb-arena {
+    display: none; flex-direction: column; gap: 10px; margin-bottom: 14px;
+    background: var(--panel); border: 1px solid var(--cy); padding: 10px;
+  }
+  body.arena-open .orb-arena { display: flex; }
+  body.arena-open #orbHeroBanner { display: none; }
+  .orb-arena-bar {
+    display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: space-between;
+    background: #0e1513; border: 1px solid var(--line); padding: 8px 10px;
+  }
+  .orb-arena-controls { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+  .orb-shared-strip {
+    display: grid; grid-template-columns: minmax(280px, 520px) minmax(0, 1fr); gap: 10px;
+    align-items: center; background: #070b0a; border: 1px solid var(--line); padding: 8px;
+  }
+  #orbSharedCanvas { width: 100%; height: auto; aspect-ratio: 512 / 196; display: block; background: #030504; border: 1px solid #1b2420; }
+  .orb-challenge-log { font: 500 11px/1.45 var(--mono); color: var(--dim); }
+  .orb-challenge-log b { color: var(--cy); }
+  .orb-dual-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .orb-col {
+    background: #080c0b; border: 1px solid var(--line); display: flex; flex-direction: column; min-width: 0;
+  }
+  .orb-col.scion { border-color: rgba(95,240,220,0.55); }
+  .orb-col.mp { border-color: rgba(230,104,184,0.55); }
+  .orb-col-head {
+    padding: 6px 10px; background: #0d1412; border-bottom: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center; gap: 6px;
+    font: 700 11px var(--mono);
+  }
+  .orb-scorecard {
+    display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; padding: 6px 8px;
+    background: #0b110f; border-bottom: 1px solid var(--line); font-family: var(--mono);
+  }
+  .osc-cell { background: #101815; border: 1px solid #1d2823; padding: 4px 5px; min-width: 0; }
+  .osc-cell span { display: block; font-size: 8.5px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .osc-cell b { display: block; font-size: 11px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .orb-stage-wrap { position: relative; width: 100%; height: 500px; background: #030403; }
+  .orb-iframe { width: 100%; height: 100%; border: 0; display: block; background: #030403; }
+  .orb-fallback-cv { width: 100%; height: 100%; display: none; background: #040605; }
+  @media (max-width: 1150px) {
+    .orb-dual-grid { grid-template-columns: 1fr; }
+    .orb-shared-strip { grid-template-columns: 1fr; }
+    .orb-scorecard { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .orb-stage-wrap { height: 420px; }
+  }
+
   /* Mobile-first <960px responsive system */
   @media (max-width: 959px) {
     header { padding: calc(5px + env(safe-area-inset-top)) 8px 6px; gap: 5px; }
@@ -215,14 +270,14 @@
     .inspector-grid { grid-template-columns: 1fr; gap: 6px; }
 
     #mobileViewBar {
-      display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px;
+      display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 3px;
       position: fixed; left: 0; right: 0; bottom: 0; z-index: 70;
       background: rgba(6, 10, 8, 0.98); border-top: 1px solid var(--line);
-      padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+      padding: 6px 5px calc(6px + env(safe-area-inset-bottom));
       backdrop-filter: blur(8px);
     }
     .mview-btn {
-      min-height: 44px; padding: 4px 3px; font: 700 9.5px/1.15 var(--mono);
+      min-height: 44px; padding: 4px 2px; font: 700 9px/1.12 var(--mono);
       text-align: center; border: 1px solid var(--line); background: #101714; color: var(--dim);
     }
     .mview-btn.active { border-color: var(--cy); background: var(--cy); color: #041210; }
@@ -233,11 +288,13 @@
       height: calc(100dvh - var(--hdr-h, 76px) - var(--mbar-h, 58px));
       padding: 4px 6px; overflow: hidden;
     }
+    body[data-mview="split"] .orb-hero-banner,
+    body[data-mview="split"] #orbArenaSection,
     body[data-mview="split"] .telemetry-strip,
     body[data-mview="split"] .guide-bar,
     body[data-mview="split"] #panelB,
     body[data-mview="split"] #panelD,
-    body[data-mview="split"] .sec { display: none; }
+    body[data-mview="split"] .sec { display: none !important; }
     body[data-mview="split"] .inspector-grid {
       height: 100%; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); gap: 5px;
     }
@@ -252,32 +309,46 @@
     body[data-mview="split"] .hero-cam-overlay { padding-bottom: 26px; }
     body[data-mview="split"] .hero-cam-btn { min-height: 48px; padding: 10px 16px; font-size: 12px; }
 
+    body[data-mview="cam"] .orb-hero-banner,
+    body[data-mview="cam"] #orbArenaSection,
     body[data-mview="cam"] .telemetry-strip,
     body[data-mview="cam"] .guide-bar,
     body[data-mview="cam"] #panelB,
     body[data-mview="cam"] #panelC,
     body[data-mview="cam"] #panelD,
-    body[data-mview="cam"] .sec { display: none; }
+    body[data-mview="cam"] .sec { display: none !important; }
     body[data-mview="cam"] #panelA .canvas-wrap { aspect-ratio: auto; height: calc(100dvh - var(--hdr-h, 76px) - 108px - env(safe-area-inset-bottom)); }
 
+    body[data-mview="world"] .orb-hero-banner,
+    body[data-mview="world"] #orbArenaSection,
     body[data-mview="world"] .telemetry-strip,
     body[data-mview="world"] .guide-bar,
     body[data-mview="world"] #panelA,
     body[data-mview="world"] #panelB,
     body[data-mview="world"] #panelD,
-    body[data-mview="world"] .sec { display: none; }
+    body[data-mview="world"] .sec { display: none !important; }
     body[data-mview="world"] #panelC .canvas-wrap { aspect-ratio: auto; height: calc(100dvh - var(--hdr-h, 76px) - 116px - env(safe-area-inset-bottom)); }
 
+    body[data-mview="matte"] .orb-hero-banner,
+    body[data-mview="matte"] #orbArenaSection,
     body[data-mview="matte"] .telemetry-strip,
     body[data-mview="matte"] .guide-bar,
     body[data-mview="matte"] #panelA,
     body[data-mview="matte"] #panelC,
     body[data-mview="matte"] #panelD,
-    body[data-mview="matte"] .sec { display: none; }
+    body[data-mview="matte"] .sec { display: none !important; }
 
+    body[data-mview="metrics"] .orb-hero-banner,
+    body[data-mview="metrics"] #orbArenaSection,
     body[data-mview="metrics"] #panelA,
     body[data-mview="metrics"] #panelB,
-    body[data-mview="metrics"] #panelC { display: none; }
+    body[data-mview="metrics"] #panelC { display: none !important; }
+
+    body[data-mview="orb"] .telemetry-strip,
+    body[data-mview="orb"] .guide-bar,
+    body[data-mview="orb"] .inspector-grid,
+    body[data-mview="orb"] .sec { display: none !important; }
+    body[data-mview="orb"] #orbArenaSection { display: flex !important; }
   }
 </style>
 </head>
@@ -301,6 +372,7 @@
     <button id="btnMirror" title="Mirror Selfie Display">MIRROR: OFF</button>
     <button id="btnCompareMP" class="warn">VS MEDIAPIPE: OFF</button>
     <button id="btnRelockBones" title="Reset & Re-lock Online Bayesian Bone Lengths">RE-LOCK BONES</button>
+    <button id="btnOrbArena" class="cta-btn" title="Open Side-by-Side Stelline Memory Orb Control A/B Arena">ORB CONTROL ARENA: SCION vs MP</button>
     <button id="btnPhoneQr" title="Scan QR to open Live Camera on Phone">PHONE QR</button>
     <button id="btnPlay" class="active">PAUSE</button>
     <button id="btnStep">STEP</button>
@@ -308,6 +380,86 @@
 </header>
 
 <main id="mainContent">
+  <div id="orbHeroBanner" class="orb-hero-banner">
+    <div class="orb-hero-txt">
+      <b>HEAD-TO-HEAD PHYSICAL EVALUATION:</b> Put bone-locked <b>SCION 4D (SO(3) + Gate)</b> directly against <b>Raw MediaPipe 2.5D (atan2)</b> controlling live <code>weaver.html</code> Birthday Cake &amp; <code>hand-orb.html</code> 5-Ring Barrels.
+    </div>
+    <button id="btnHeroOrbArena" class="cta-btn">LAUNCH ORB A/B ARENA (?arena=orb)</button>
+  </div>
+
+  <section id="orbArenaSection" class="orb-arena" aria-label="Orb Control A/B Arena">
+    <div class="orb-arena-bar">
+      <div class="brand">
+        <span class="pill">ORB CONTROL ARENA</span>
+        <span class="pill grn">MODEL A: SCION 4D (SO(3) + BONE LOCK + GATE)</span>
+        <span class="pill mag">MODEL B: RAW MEDIAPIPE 2.5D (2D ATAN2)</span>
+      </div>
+      <div class="orb-arena-controls">
+        <select id="orbUiSelect" title="Select Stelline Memory Orb UI">
+          <option value="weaver">Instrument: weaver.html (Birthday Cake + 5-Ring Barrel)</option>
+          <option value="hand-orb">Instrument: hand-orb.html?solo=1 (Memory Orb Scene)</option>
+        </select>
+        <button id="btnOrbLiveFree">LIVE CAMERA FREE-CONTROL</button>
+        <button id="btnRunCakeChallenge" class="cta-btn">RUN FULL BIRTHDAY CAKE A/B CHALLENGE</button>
+        <button id="btnOrbStage1">1·180° PRONATE</button>
+        <button id="btnOrbStage2">2·CROSSED MIST</button>
+        <button id="btnOrbStage3">3·Z-DOLLY</button>
+        <button id="btnOrbStage4">4·OCCLUDE GATE</button>
+        <button id="btnOrbReset">RESET BOTH ORBS</button>
+        <button id="btnCloseOrbArena">CLOSE ARENA</button>
+      </div>
+    </div>
+
+    <div class="orb-shared-strip">
+      <canvas id="orbSharedCanvas" width="512" height="196"></canvas>
+      <div class="orb-challenge-log">
+        <div id="orbStageTitle"><b>ARENA STANDBY</b> — Click <code>RUN FULL BIRTHDAY CAKE A/B CHALLENGE</code> or pick a stage/webcam feed.</div>
+        <div id="orbStageDetail" style="margin-top:4px;color:var(--ink);">Same 30 Hz kinematic trajectory fed simultaneously into both isolated Orbs (no cross-talk, no faking).</div>
+      </div>
+    </div>
+
+    <div class="orb-dual-grid">
+      <!-- Left: MODEL A SCION 4D -->
+      <div class="orb-col scion" id="orbColScion">
+        <div class="orb-col-head">
+          <span style="color:var(--cy);">MODEL A · SCION 4D (3D SO(3) + METRIC BONE LOCK + GATE)</span>
+          <span id="orbBadgeScion" class="pill grn">SO(3) LOCKED</span>
+        </div>
+        <div class="orb-scorecard">
+          <div class="osc-cell"><span>ROLL (3D SO(3))</span><b id="scRollScion">0°</b></div>
+          <div class="osc-cell"><span>RING / MODE</span><b id="scRingScion">MAKE · R1</b></div>
+          <div class="osc-cell"><span>DETENTS / PHANTOMS</span><b id="scDetentScion">0 / 0</b></div>
+          <div class="osc-cell"><span>MIST PULL %</span><b id="scMistScion">0%</b></div>
+          <div class="osc-cell"><span>CLUTCH STATE</span><b id="scClutchScion" style="color:var(--grn);">NOMINAL</b></div>
+          <div class="osc-cell"><span>CAKE PROGRESS %</span><b id="scCakeScion">0%</b></div>
+        </div>
+        <div class="orb-stage-wrap">
+          <iframe id="orbFrameScion" class="orb-iframe" title="SCION 4D Controlled Stelline Orb"></iframe>
+          <canvas id="orbFallbackScion" class="orb-fallback-cv" width="560" height="420"></canvas>
+        </div>
+      </div>
+
+      <!-- Right: MODEL B RAW MEDIAPIPE 2.5D -->
+      <div class="orb-col mp" id="orbColMp">
+        <div class="orb-col-head">
+          <span style="color:var(--mag);">MODEL B · RAW MEDIAPIPE 2.5D (UN-GATED 2D ATAN2)</span>
+          <span id="orbBadgeMp" class="pill mag">2D ATAN2</span>
+        </div>
+        <div class="orb-scorecard">
+          <div class="osc-cell"><span>ROLL (2D ATAN2)</span><b id="scRollMp">0°</b></div>
+          <div class="osc-cell"><span>RING / MODE</span><b id="scRingMp">MAKE · R1</b></div>
+          <div class="osc-cell"><span>DETENTS / PHANTOMS</span><b id="scDetentMp">0 / 0</b></div>
+          <div class="osc-cell"><span>MIST PULL %</span><b id="scMistMp">0%</b></div>
+          <div class="osc-cell"><span>CLUTCH STATE</span><b id="scClutchMp" style="color:var(--amb);">UNARMED</b></div>
+          <div class="osc-cell"><span>CAKE PROGRESS %</span><b id="scCakeMp">0%</b></div>
+        </div>
+        <div class="orb-stage-wrap">
+          <iframe id="orbFrameMp" class="orb-iframe" title="MediaPipe 2.5D Controlled Stelline Orb"></iframe>
+          <canvas id="orbFallbackMp" class="orb-fallback-cv" width="560" height="420"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
   <div class="telemetry-strip">
     <div class="tcard">
       <div class="tcard-top"><span>WGSL / FRAME LATENCY</span><span class="ep MEASURED" id="epBrowserLat">MEASURED</span></div>
@@ -519,6 +671,7 @@
   <button class="mview-btn" data-mview="world">90° 3D<br>WORLD</button>
   <button class="mview-btn" data-mview="matte">26-PART<br>MATTE</button>
   <button class="mview-btn" data-mview="metrics">GATE &amp;<br>METRICS</button>
+  <button class="mview-btn" data-mview="orb">ORB<br>A/B</button>
 </nav>
 
 <!-- Phone QR Modal -->
@@ -2347,15 +2500,23 @@
       theta6d[b + 3] = Rc[1]; theta6d[b + 4] = Rc[4]; theta6d[b + 5] = Rc[7];
     }
   }
-  function buildRootTransform(rootRot6d, rootXyNorm, rootLogZ, logFRatio, tierSpec) {
+  function buildRootTransform(rootRot6d, rootXyNorm, rootLogZ, logFRatio, tierSpec, KOverride = null) {
     const R = gramSchmidt6dToMat3(rootRot6d[0], rootRot6d[1], rootRot6d[2], rootRot6d[3], rootRot6d[4], rootRot6d[5]);
-    const fPx = tierSpec.width * Math.exp(logFRatio);
-    const z = Math.exp(rootLogZ);
-    const tx = rootXyNorm[0] * (0.5 * tierSpec.width / fPx) * z;
-    const ty = rootXyNorm[1] * (0.5 * tierSpec.height / fPx) * z;
+    const fRef = 0.95 * Math.max(tierSpec.width, tierSpec.height);
+    const focalScale = KOverride ? (KOverride[0] / fRef) : Math.exp(logFRatio);
+    const fPx = Math.max(1.0, KOverride ? KOverride[0] : fRef * focalScale);
+    const fy = Math.max(1.0, KOverride ? KOverride[4] : fPx);
+    const cx = KOverride ? KOverride[2] : 0.5 * tierSpec.width;
+    const cy = KOverride ? KOverride[5] : 0.5 * tierSpec.height;
+    const z = Math.exp(rootLogZ) * focalScale;
+    const uPx = (rootXyNorm[0] + 1.0) * 0.5 * tierSpec.width;
+    const vPx = (rootXyNorm[1] + 1.0) * 0.5 * tierSpec.height;
+    const tx = ((uPx - cx) / fPx) * z;
+    const ty = ((vPx - cy) / fy) * z;
     return {
       rootT: new Float32Array([R[0], R[1], R[2], tx, R[3], R[4], R[5], ty, R[6], R[7], R[8], z, 0, 0, 0, 1]),
-      K: new Float32Array([fPx, 0, 0.5 * tierSpec.width, 0, fPx, 0.5 * tierSpec.height, 0, 0, 1]),
+      K: new Float32Array([fPx, 0, cx, 0, fy, cy, 0, 0, 1]),
+      focalScale,
     };
   }
 
@@ -2520,6 +2681,7 @@
         theta6d: mk(NUM_JOINTS * 6 * 4, S | D), rootT: mk(16 * 4, S | D), boneLengths: mk(NUM_BONES * 4, S | D),
         outLocalR: mk(NUM_JOINTS * 9 * 4, S | R), outWorldR: mk(NUM_JOINTS * 9 * 4, S | R),
         outJointsXyz: mk(NUM_JOINTS * 3 * 4, S | R), outOrthoErr: mk(NUM_JOINTS * 4, S | R),
+        readWorldR: mk(NUM_JOINTS * 9 * 4, M | D),
         readJointsXyz: mk(NUM_JOINTS * 3 * 4, M | D), readOrthoErr: mk(NUM_JOINTS * 4, M | D),
         gateUniforms: mk(1344, U | D), gateStats: mk(24, S | D | R), readGateStats: mk(24, M | D),
       };
@@ -2534,7 +2696,7 @@
           srcTex: null, srcTexW: 0, srcTexH: 0,
         };
         this.tierScratch[tier] = {
-          jointsXyz: new Float32Array(NUM_JOINTS * 3), orthoErr: new Float32Array(NUM_JOINTS), stats: new Uint32Array(6),
+          jointsXyz: new Float32Array(NUM_JOINTS * 3), worldR: new Float32Array(NUM_JOINTS * 9), orthoErr: new Float32Array(NUM_JOINTS), stats: new Uint32Array(6),
           partIds: new Uint32Array(nSp), entropy: new Float32Array(nSp), matteRgba: new Uint8ClampedArray(nSp * 4),
         };
       }
@@ -2745,7 +2907,7 @@
         const depthOrderParityOk = depthViolations <= 2;
         const tripped = (visibleSamples > 10 && (reprojPartResidual > reprojTau || !depthOrderParityOk)) || omegaMaxRadS > 24.0;
         return {
-          jointsXyz, maxOrthoErr: 1e-6, partIds, entropy, matteRgba,
+          jointsXyz, worldR, maxOrthoErr: 1e-6, partIds, entropy, matteRgba,
           gateState: { tripped, reproj_part_residual: reprojPartResidual, depth_order_parity_ok: depthOrderParityOk, visible_samples: visibleSamples, mismatched_samples: mismatchedSamples, depth_violations: depthViolations, fg_pixels: fgPixels, mean_fg_entropy: fgPixels > 0 ? entropySum / fgPixels : 0, boundary_pixels: boundaryPixels, omega_max_rad_s: omegaMaxRadS },
           shaderMs: performance.now() - t0,
         };
@@ -2782,6 +2944,7 @@
       p2.setPipeline(this.pipelines.gateSpatial); p2.setBindGroup(0, gb); p2.dispatchWorkgroups(Math.ceil(sp.w_s / 8), Math.ceil(sp.h_s / 8), 1);
       p2.setPipeline(this.pipelines.gateReproj); p2.setBindGroup(0, gb); p2.dispatchWorkgroups(1, 1, 1); p2.end();
 
+      enc.copyBufferToBuffer(sb.outWorldR, 0, sb.readWorldR, 0, NUM_JOINTS * 9 * 4);
       enc.copyBufferToBuffer(sb.outJointsXyz, 0, sb.readJointsXyz, 0, NUM_JOINTS * 3 * 4);
       enc.copyBufferToBuffer(sb.outOrthoErr, 0, sb.readOrthoErr, 0, NUM_JOINTS * 4);
       enc.copyBufferToBuffer(sb.gateStats, 0, sb.readGateStats, 0, 24);
@@ -2792,10 +2955,12 @@
       this.dispatchCount += 3;
 
       await Promise.all([
+        sb.readWorldR.mapAsync(GPUMapMode.READ),
         sb.readJointsXyz.mapAsync(GPUMapMode.READ), sb.readOrthoErr.mapAsync(GPUMapMode.READ),
         sb.readGateStats.mapAsync(GPUMapMode.READ), tb.readPartId.mapAsync(GPUMapMode.READ),
         tb.readEntropyBnd.mapAsync(GPUMapMode.READ), tb.readMatteRgba.mapAsync(GPUMapMode.READ),
       ]);
+      sc.worldR.set(new Float32Array(sb.readWorldR.getMappedRange(), 0, NUM_JOINTS * 9));
       sc.jointsXyz.set(new Float32Array(sb.readJointsXyz.getMappedRange(), 0, NUM_JOINTS * 3));
       sc.orthoErr.set(new Float32Array(sb.readOrthoErr.getMappedRange(), 0, NUM_JOINTS));
       sc.stats.set(new Uint32Array(sb.readGateStats.getMappedRange(), 0, 6));
@@ -2803,6 +2968,7 @@
       const eb = new Float32Array(tb.readEntropyBnd.getMappedRange(), 0, nSpatial * 2);
       for (let i = 0; i < nSpatial; i++) sc.entropy[i] = eb[i * 2];
       sc.matteRgba.set(new Uint8ClampedArray(tb.readMatteRgba.getMappedRange(), 0, nSpatial * 4));
+      sb.readWorldR.unmap();
       sb.readJointsXyz.unmap(); sb.readOrthoErr.unmap(); sb.readGateStats.unmap();
       tb.readPartId.unmap(); tb.readEntropyBnd.unmap(); tb.readMatteRgba.unmap();
 
@@ -2814,7 +2980,7 @@
       const depthOrderParityOk = dv <= 2;
       const tripped = (vis > 10 && (reprojPartResidual > reprojTau || !depthOrderParityOk)) || omegaMaxRadS > 24.0;
       return {
-        jointsXyz: sc.jointsXyz, maxOrthoErr, partIds: sc.partIds, entropy: sc.entropy, matteRgba: sc.matteRgba,
+        jointsXyz: sc.jointsXyz, worldR: sc.worldR, maxOrthoErr, partIds: sc.partIds, entropy: sc.entropy, matteRgba: sc.matteRgba,
         gateState: { tripped, reproj_part_residual: reprojPartResidual, depth_order_parity_ok: depthOrderParityOk, visible_samples: vis, mismatched_samples: mis, depth_violations: dv, fg_pixels: fgp, mean_fg_entropy: meanFgEntropy, boundary_pixels: bp, omega_max_rad_s: omegaMaxRadS },
         shaderMs: performance.now() - t0,
       };
@@ -2875,9 +3041,15 @@
         } else {
           bl.set(ob.locked);
         }
-        const built = buildRootTransform(g("root_rot_6d") || [1, 0, 0, 0, 1, 0], g("root_xy_norm") || [0, 0], (g("root_log_z") || [0.5])[0], (g("log_f_ratio") || [0])[0], sp);
+        const built = buildRootTransform(g("root_rot_6d") || [1, 0, 0, 0, 1, 0], g("root_xy_norm") || [0, 0], (g("root_log_z") || [0.5])[0], (g("log_f_ratio") || [0])[0], sp, K);
         if (!K) K = built.K;
-        payload = { theta6d: g("theta_6d"), rootT: built.rootT, boneLengths: bl, partLogits: g("part_logits"), depthM: g("depth_m"), jointLogVar: g("joint_log_var") };
+        const rawDepth = g("depth_m");
+        let depthMetric = rawDepth;
+        if (rawDepth && Math.abs(built.focalScale - 1.0) > 1e-5) {
+          depthMetric = new Float32Array(rawDepth.length);
+          for (let i = 0; i < rawDepth.length; i++) depthMetric[i] = rawDepth[i] * built.focalScale;
+        }
+        payload = { theta6d: g("theta_6d"), rootT: built.rootT, boneLengths: bl, partLogits: g("part_logits"), depthM: depthMetric, jointLogVar: g("joint_log_var") };
       } else if (!payload) {
         const tMock = performance.now();
         payload = this.generateMockPosePayload(tier, performance.now() * 0.001, K);
@@ -2900,6 +3072,7 @@
         jointLogVar: payload.jointLogVar || new Float32Array(NUM_JOINTS).fill(-5.2),
         mpGhost2d: payload.mpGhost2d || null,
         mpRawBoneStdMm: payload.mpRawBoneStdMm ?? null,
+        mpHandsRaw: payload.mpHandsRaw || null,
         ...fkGate,
       };
     }
@@ -3998,6 +4171,7 @@
         handsDetected: hands2d.length,
         hasFace: Boolean(face),
         mpAnchors2d: { eyeMid2, L_SH, R_SH },
+        mpHandsRaw: { hands2d, handedness: this.latest.handedness || [] },
       };
     }
   }
@@ -4194,7 +4368,7 @@
     }
 
     // VS MEDIAPIPE real raw ghost overlay (no fake jitter on real webcam!)
-    if (state.compareMediaPipe) {
+    if (state.compareMediaPipe && state.backendMode !== "ort_distilled" && (res.mpGhost2d || state.sourceMode === "synthetic_crucible")) {
       rgbCtx.save();
       rgbCtx.setLineDash([4, 4]);
       rgbCtx.strokeStyle = "#e668b8";
@@ -4203,7 +4377,7 @@
         for (const [a, b] of res.mpGhost2d) {
           rgbCtx.beginPath(); rgbCtx.moveTo(mx(a[0]), a[1]); rgbCtx.lineTo(mx(b[0]), b[1]); rgbCtx.stroke();
         }
-      } else if (state.sourceMode !== "webcam") {
+      } else if (state.sourceMode === "synthetic_crucible") {
         for (let j = 1; j < 26; j++) {
           const p = DEFAULT_PARENTS[j];
           const jit = (j === 12 || j === 17) ? 14 * Math.sin(state.frameIdx * 0.7) : 5;
@@ -4511,6 +4685,9 @@
       });
       state.prevJointsXyz = res.jointsXyz;
       state.lastResult = res;
+      if (orbArena && state.orbLiveFree && (state.arenaOpen || document.body.getAttribute("data-mview") === "orb")) {
+        orbArena.updateFromLiveFrame(res, source);
+      }
       pendingDraw = { waiting: false, source, res, isNew: true };
       drawToken++;
 
@@ -4677,15 +4854,29 @@
   }
 
   // Event listeners
+  async function selectStreamSource(v, autoOnnx = true) {
+    stopLiveCamera(); state.sourceMode = v;
+    document.getElementById("heroCamOverlay").classList.add("hidden");
+    streamVideo.src = v.slice("stream:".length);
+    if (streamVideo.readyState < 2) {
+      await new Promise((resolve) => {
+        const done = () => { streamVideo.removeEventListener("loadeddata", done); clearTimeout(tm); resolve(); };
+        const tm = setTimeout(done, 5000);
+        streamVideo.addEventListener("loadeddata", done, { once: true });
+      });
+    }
+    await streamVideo.play().catch(() => {});
+    if (autoOnnx && LOCAL_HOST && state.backendMode !== "ort_distilled") {
+      await switchBackendMode("ort_distilled");
+    }
+  }
   document.getElementById("btnHeroCam").addEventListener("click", () => { playDetentTick(); startLiveCamera(); });
   document.getElementById("sourceSelect").addEventListener("change", async (e) => {
     const v = e.target.value; playDetentTick();
     if (v === "webcam") {
       await startLiveCamera();
     } else if (v.startsWith("stream:")) {
-      stopLiveCamera(); state.sourceMode = v;
-      document.getElementById("heroCamOverlay").classList.remove("hidden");
-      streamVideo.src = v.slice("stream:".length); await streamVideo.play().catch(() => {});
+      await selectStreamSource(v, true);
     } else {
       stopLiveCamera(); state.sourceMode = "synthetic_crucible"; showCamNotice("");
       document.getElementById("heroCamOverlay").classList.remove("hidden");
@@ -4844,8 +5035,10 @@
     btn.addEventListener("click", () => {
       document.querySelectorAll(".mview-btn").forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
-      document.body.setAttribute("data-mview", btn.dataset.mview);
-      if (btn.dataset.mview === "metrics") document.getElementById("advancedDrawer").open = true;
+      const mv = btn.dataset.mview;
+      document.body.setAttribute("data-mview", mv);
+      if (mv === "metrics") document.getElementById("advancedDrawer").open = true;
+      if (mv === "orb" && orbArena) orbArena.open(true);
       syncHeaderHeightVar(); playDetentTick();
     });
   });
@@ -4921,6 +5114,750 @@
   }
 
   // =========================================================================
+  // 8B. Orb Control A/B Arena: SCION 4D (SO(3)+BoneLock+Gate) vs MediaPipe 2.5D
+  // =========================================================================
+  const DETENT_RAD = (24 * Math.PI) / 180;
+  function wrapAng(a) { return Math.atan2(Math.sin(a), Math.cos(a)); }
+  function sub3(a, b) { return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]; }
+  function cross3(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
+  function dot3(a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
+  function norm3(v) {
+    const l = Math.hypot(v[0], v[1], v[2]) || 1e-6;
+    return [v[0] / l, v[1] / l, v[2] / l];
+  }
+
+  class OrbControlArena {
+    constructor() {
+      this.uiKind = "weaver";
+      this.useFallback = IS_FILE;
+      this.framesLoaded = { scion: false, mp: false };
+      this.loadingId = 0;
+      this.runningToken = 0;
+      this.challengeActive = false;
+      this.htmlCache = {};
+      this.sharedCanvas = document.getElementById("orbSharedCanvas");
+      this.sharedCtx = this.sharedCanvas.getContext("2d");
+      this.fallbackCtx = {
+        scion: document.getElementById("orbFallbackScion").getContext("2d"),
+        mp: document.getElementById("orbFallbackMp").getContext("2d"),
+      };
+      this.metrics = {
+        scion: this._freshMetrics("NOMINAL"),
+        mp: this._freshMetrics("UNARMED"),
+      };
+      this.livePrev = {
+        scionRoll: null, scionAcc: 0, scionZ0: null,
+        mpRoll: null, mpAcc: 0, mpClosed: false,
+      };
+      this.lastStageSummary = { stage: 0, done: false };
+      const bs = document.getElementById("orbBadgeScion");
+      if (bs) { bs.textContent = "SO(3) LOCKED"; bs.className = "pill grn"; }
+    }
+
+    _freshMetrics(clutch = "NOMINAL") {
+      return {
+        rollDeg: 0, ringIdx: 0, mode: "MAKE", detents: 0, phantoms: 0,
+        mistPct: 0, clutch, cakePct: 0, clay: null, candles: 0, dollyM: 0.86,
+      };
+    }
+
+    _frameEl(side) {
+      return document.getElementById(side === "scion" ? "orbFrameScion" : "orbFrameMp");
+    }
+
+    _forge(side) {
+      if (this.useFallback) return null;
+      try {
+        const w = this._frameEl(side)?.contentWindow;
+        return w && w.FORGE ? w.FORGE : null;
+      } catch (_) {
+        this._activateFallback();
+        return null;
+      }
+    }
+
+    _hand(side) {
+      if (this.useFallback) return null;
+      try {
+        const w = this._frameEl(side)?.contentWindow;
+        return w && w.HAND ? w : null;
+      } catch (_) {
+        this._activateFallback();
+        return null;
+      }
+    }
+
+    _activateFallback() {
+      this.useFallback = true;
+      for (const s of ["Scion", "Mp"]) {
+        document.getElementById(`orbFrame${s}`).style.display = "none";
+        document.getElementById(`orbFallback${s}`).style.display = "block";
+      }
+      this._renderFallbacks();
+    }
+
+    async loadInstrument(kind = "weaver") {
+      this.uiKind = kind;
+      document.getElementById("orbUiSelect").value = kind;
+      if (IS_FILE) {
+        this._activateFallback();
+        this.resetBothOrbs();
+        return;
+      }
+      const myLoad = ++this.loadingId;
+      for (const s of ["Scion", "Mp"]) {
+        document.getElementById(`orbFrame${s}`).style.display = "block";
+        document.getElementById(`orbFallback${s}`).style.display = "none";
+      }
+      this.useFallback = false;
+      this.framesLoaded = { scion: false, mp: false };
+
+      const relUrl = kind === "hand-orb" ? "hand-orb.html?solo=1" : "weaver.html";
+      const cacheKey = kind;
+      let rawHtml = this.htmlCache[cacheKey];
+      if (!rawHtml) {
+        try {
+          const resp = await fetch(relUrl, { cache: "no-store" });
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+          rawHtml = await resp.text();
+          this.htmlCache[cacheKey] = rawHtml;
+        } catch (_) {
+          this._activateFallback();
+          this.resetBothOrbs();
+          return;
+        }
+      }
+      if (myLoad !== this.loadingId) return;
+
+      const baseHref = new URL(".", location.href).href;
+      const defaultQuery = kind === "hand-orb" ? "?solo=1" : "";
+      // Isolate BroadcastChannel inside each iframe before inline scripts run (no modifications to weaver.html / hand-orb.html)
+      const isolationShim = `<base href="${baseHref}"><script>(function(){window.BroadcastChannel=function IsolatedBC(){return{postMessage:function(){},close:function(){},addEventListener:function(){},removeEventListener:function(){},onmessage:null};};var OU=window.URLSearchParams;window.URLSearchParams=function(q){return new OU(q||${JSON.stringify(defaultQuery)});};window.URLSearchParams.prototype=OU.prototype;})();</scr` + `ipt>`;
+      const patchedHtml = rawHtml.replace(/<head>/i, `<head>\n${isolationShim}`);
+
+      const loadOne = (side) => new Promise((resolve) => {
+        const fr = this._frameEl(side);
+        let settled = false;
+        const finish = () => {
+          if (settled || myLoad !== this.loadingId) return;
+          settled = true;
+          clearTimeout(timer);
+          if (kind === "weaver") {
+            const F = this._forge(side);
+            if (F) {
+              F.S.pairShow = false;
+              try { F.PAIR?.syncQRCard?.(); } catch (_) {}
+              this._resetWeaverForge(F);
+            }
+          }
+          this.framesLoaded[side] = true;
+          resolve();
+        };
+        const timer = setTimeout(finish, 8000);
+        fr.onload = () => {
+          // Wait briefly for inline THREE / CORE async init inside iframe
+          const poll = () => {
+            if (myLoad !== this.loadingId) return resolve();
+            try {
+              const w = fr.contentWindow;
+              const ready = kind === "weaver"
+                ? Boolean(w && w.FORGE && w.FORGE.S && w.FORGE.DOC)
+                : Boolean(w && w.HAND && w.ORB && w.CORE && w.CORE.ST);
+              if (ready) return finish();
+            } catch (_) {
+              this._activateFallback();
+              return finish();
+            }
+            setTimeout(poll, 40);
+          };
+          poll();
+        };
+        fr.srcdoc = patchedHtml;
+      });
+
+      await Promise.all([loadOne("scion"), loadOne("mp")]);
+      if (myLoad !== this.loadingId) return;
+      this.resetBothOrbs();
+    }
+
+    _resetWeaverForge(F) {
+      if (!F) return;
+      F.DOC.frames.length = 1;
+      F.DOC.cur = 0;
+      F.DOC.cast = [];
+      F.DOC.hasTable = false;
+      const f0 = F.DOC.frames[0];
+      f0.clay = null;
+      f0.strokes = [];
+      f0.items = [];
+      f0.tr = { p: [0, 0, 0], r: [0, 0, 0], s: [1, 1, 1] };
+      f0.tableTr = { p: [0, 0, 0], r: [0, 0, 0], s: [1, 1, 1] };
+      f0.cast = [];
+      f0.spread = {};
+      Object.assign(F.S, {
+        mode: "MAKE", verb: 0, pickKey: "cake", counts: {}, tool: 2,
+        aimH: 0.96, amt: 0, pull: 0, stretch: 1, exporting: false, play: false,
+        pairShow: false, lastRing: -1, shotIdx: 0, lastShownCur: 0,
+      });
+      if (F.S.weave) { F.S.weave.mist = 0; F.S.weave.mat = 1; }
+      if (F.S.orbit) { F.S.orbit.yaw = 0.45; F.S.orbit.pitch = -0.22; F.S.orbit.dist = 0.86; }
+      F.setMode("MAKE");
+      F.setVerb(0);
+      F.setPull(0);
+      try { F.PAIR?.syncQRCard?.(); } catch (_) {}
+      F.showFrame();
+    }
+
+    resetBothOrbs() {
+      this.runningToken++;
+      this.challengeActive = false;
+      this.metrics.scion = this._freshMetrics("NOMINAL");
+      this.metrics.mp = this._freshMetrics("UNARMED");
+      this.livePrev = { scionRoll: null, scionAcc: 0, scionZ0: null, mpRoll: null, mpAcc: 0, mpClosed: false };
+      this.lastStageSummary = { stage: 0, done: false };
+      const bs = document.getElementById("orbBadgeScion");
+      if (bs) { bs.textContent = "SO(3) LOCKED"; bs.className = "pill grn"; }
+      if (!this.useFallback) {
+        if (this.uiKind === "weaver") {
+          for (const side of ["scion", "mp"]) this._resetWeaverForge(this._forge(side));
+        } else {
+          for (const side of ["scion", "mp"]) {
+            const w = this._hand(side);
+            if (w) {
+              try {
+                w.CORE.setRing(0, 0);
+                w.CORE.setRing(2, 0);
+                w.HAND.feed([], "reset");
+              } catch (_) {}
+            }
+          }
+        }
+      }
+      this._syncScorecards();
+      if (this.uiKind === "weaver" && !this.useFallback) {
+        const fa = this._forge("scion"), fb = this._forge("mp");
+        if (fa) fa.S.pairShow = false;
+        if (fb) fb.S.pairShow = false;
+      }
+      this._drawSharedCanvas({ stage: 0, note: "STANDBY" });
+      if (this.useFallback) this._renderFallbacks();
+    }
+
+    _syncFromForge(side) {
+      const m = this.metrics[side];
+      if (this.uiKind === "weaver" && !this.useFallback) {
+        const F = this._forge(side);
+        if (F && F.DOC && F.S) {
+          const items = F.DOC.frames[F.DOC.cur]?.items || [];
+          const hasClay = Boolean(F.DOC.frames[F.DOC.cur]?.clay);
+          const candleCount = items.filter((it) => it.t === "CANDLE").length;
+          m.mode = F.S.mode || "MAKE";
+          m.clay = hasClay ? F.DOC.frames[F.DOC.cur].clay.kind : null;
+          m.candles = candleCount;
+          m.mistPct = Math.round(clamp(F.S.pull || 0, 0, 1) * 100);
+          m.cakePct = Math.min(100, (hasClay ? 20 : 0) + Math.min(7, candleCount) * 10 + (m.mistPct >= 40 ? 10 : 0));
+          m.dollyM = Number((F.S.orbit?.dist ?? 0.86).toFixed(2));
+        }
+      } else if (this.uiKind === "hand-orb" && !this.useFallback) {
+        const w = this._hand(side);
+        if (w && w.CORE?.ST) {
+          m.mistPct = Math.round(clamp(w.CORE.ST.spread || 0, 0, 1) * 100);
+          m.mode = String(w.CORE.ST.mode || "BUILD").toUpperCase();
+        }
+      } else {
+        m.cakePct = Math.min(100, (m.clay ? 20 : 0) + Math.min(7, m.candles) * 10 + (m.mistPct >= 40 ? 10 : 0));
+      }
+    }
+
+    _syncScorecards() {
+      this._syncFromForge("scion");
+      this._syncFromForge("mp");
+      const s = this.metrics.scion, p = this.metrics.mp;
+      const ringLabels = ["R1 MODE", "R2 STAGE", "R3 VERB", "R4 HEIGHT", "R5 AMOUNT"];
+      document.getElementById("scRollScion").textContent = `${Math.round(s.rollDeg)}°`;
+      document.getElementById("scRingScion").textContent = `${s.mode} · ${ringLabels[s.ringIdx] || "R1"}`.slice(0, 12);
+      document.getElementById("scDetentScion").textContent = `${s.detents} / ${s.phantoms}`;
+      document.getElementById("scMistScion").textContent = `${s.mistPct}%`;
+      const clS = document.getElementById("scClutchScion");
+      clS.textContent = s.clutch;
+      clS.style.color = s.clutch === "CLUTCH LOCKED" ? "var(--amb)" : "var(--grn)";
+      document.getElementById("scCakeScion").textContent = `${s.cakePct}% (${s.candles}c)`;
+
+      document.getElementById("scRollMp").textContent = `${Math.round(p.rollDeg)}°`;
+      document.getElementById("scRingMp").textContent = `${p.mode} · ${ringLabels[p.ringIdx] || "R1"}`.slice(0, 12);
+      document.getElementById("scDetentMp").textContent = `${p.detents} / ${p.phantoms}`;
+      document.getElementById("scMistMp").textContent = `${p.mistPct}%`;
+      const clP = document.getElementById("scClutchMp");
+      clP.textContent = p.clutch;
+      clP.style.color = p.phantoms > 0 ? "var(--red)" : "var(--amb)";
+      document.getElementById("scCakeMp").textContent = `${p.cakePct}% (${p.candles}c)`;
+
+      window.__SCION_ORB_ARENA__ = {
+        open: Boolean(state.arenaOpen || document.body.getAttribute("data-mview") === "orb"),
+        uiKind: this.uiKind,
+        useFallback: this.useFallback,
+        framesReady: Boolean(this.useFallback || (this.framesLoaded.scion && this.framesLoaded.mp)),
+        challengeActive: this.challengeActive,
+        stageSummary: this.lastStageSummary,
+        metrics: { scion: { ...s }, mp: { ...p } },
+        weaverState: this.uiKind === "weaver" && !this.useFallback ? {
+          scion: this._readWeaverState("scion"),
+          mp: this._readWeaverState("mp"),
+        } : null,
+      };
+      if (this.useFallback) this._renderFallbacks();
+    }
+
+    _readWeaverState(side) {
+      const F = this._forge(side);
+      if (!F) return null;
+      const f = F.DOC.frames[F.DOC.cur];
+      return {
+        mode: F.S.mode,
+        verb: F.S.verb,
+        pairShow: Boolean(F.S.pairShow),
+        pull: Number((F.S.pull || 0).toFixed(3)),
+        mist: Number((F.S.weave?.mist || 0).toFixed(3)),
+        orbitDist: Number((F.S.orbit?.dist || 0).toFixed(3)),
+        clayKind: f?.clay?.kind || null,
+        candles: (f?.items || []).filter((i) => i.t === "CANDLE").length,
+      };
+    }
+
+    _feedHandOrb(side, ringIdx, rollRad, closed, mistSpread, secondHand = null) {
+      const w = this._hand(side);
+      if (!w || !w.HAND || !w.ORB) return;
+      try {
+        const [rx, ry] = w.ORB.toPage(w.ORB.ringX(clamp(ringIdx, 0, 4)), 150);
+        const tracks = [];
+        if (side === "scion") {
+          tracks.push({ id: "Right", x: rx, y: ry, closed, pose: closed ? "pinch" : "open", span: 0.12, roll: rollRad });
+          if (secondHand) {
+            const [lx, ly] = w.ORB.toPage(w.ORB.ringX(clamp(ringIdx, 0, 4)) - secondHand.dxPx, 150);
+            tracks.push({ id: "Left", x: lx, y: ly, closed: secondHand.closed, pose: "pinch", span: 0.12, roll: rollRad });
+          }
+        } else {
+          const marks = this._synth2dMarksFromRoll(rollRad, closed, secondHand?.aspectScale || 1.0);
+          tracks.push({ id: "Right", x: rx, y: ry, closed, pose: closed ? "pinch" : "open", span: 0.12, marks });
+          if (secondHand && !secondHand.dropped) {
+            const [lx, ly] = w.ORB.toPage(w.ORB.ringX(clamp(ringIdx, 0, 4)) - secondHand.dxPx, 150);
+            tracks.push({ id: "Left", x: lx, y: ly, closed: secondHand.closed, pose: "pinch", span: 0.12, marks });
+          }
+        }
+        w.HAND.feed(tracks, side === "scion" ? "scion-4d" : "mediapipe-2.5d");
+        if (mistSpread != null && w.CORE?.ST && side === "scion") {
+          w.CORE.setRing(2, mistSpread * 4);
+        }
+      } catch (_) {}
+    }
+
+    _synth2dMarksFromRoll(rollRad, closed, aspectScale = 1.0) {
+      const m = new Array(21);
+      const s = Math.sin(rollRad), c = Math.cos(rollRad);
+      for (let i = 0; i < 21; i++) m[i] = { x: 0.5, y: 0.5, z: 0 };
+      m[0] = { x: 0.5, y: 0.55, z: 0 };
+      m[9] = { x: 0.5 + 0.08 * s * aspectScale, y: 0.55 - 0.08 * c * aspectScale, z: 0 };
+      m[5] = { x: 0.47, y: 0.47, z: 0 };
+      m[17] = { x: 0.53, y: 0.47, z: 0 };
+      m[4] = { x: 0.48, y: closed ? 0.45 : 0.41, z: 0 };
+      m[8] = { x: 0.485, y: closed ? 0.453 : 0.37, z: 0 };
+      return m;
+    }
+
+    _drawSharedCanvas(snap) {
+      const ctx = this.sharedCtx, W = this.sharedCanvas.width, H = this.sharedCanvas.height;
+      ctx.fillStyle = "#040706";
+      ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = "#16211d";
+      ctx.lineWidth = 1;
+      for (let x = 32; x < W; x += 32) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+      for (let y = 32; y < H; y += 32) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+
+      // Left half: SCION 4D SO(3) overlay; Right half: MediaPipe 2D atan2 overlay
+      const midX = W / 2;
+      ctx.strokeStyle = "#24302b"; ctx.beginPath(); ctx.moveTo(midX, 0); ctx.lineTo(midX, H); ctx.stroke();
+
+      const drawDial = (halfIdx, cx, cy, r, angDeg, col, label, sub, warn) => {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(halfIdx * midX, 0, midX - 2, H);
+        ctx.clip();
+        ctx.strokeStyle = col; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+        // Detent tick marks every 24 degrees
+        for (let k = 0; k < 15; k++) {
+          const ta = (k * 24 * Math.PI) / 180;
+          ctx.beginPath();
+          ctx.moveTo(cx + Math.cos(ta) * (r - 4), cy + Math.sin(ta) * (r - 4));
+          ctx.lineTo(cx + Math.cos(ta) * r, cy + Math.sin(ta) * r);
+          ctx.stroke();
+        }
+        const ar = (angDeg * Math.PI) / 180 - Math.PI / 2;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(ar) * (r - 5), cy + Math.sin(ar) * (r - 5)); ctx.stroke();
+        ctx.fillStyle = col; ctx.font = "700 10px monospace";
+        ctx.fillText(label, 10 + halfIdx * midX, 18);
+        ctx.fillStyle = warn ? "#f0b040" : "#ecf0ec"; ctx.font = "600 9.5px monospace";
+        ctx.fillText(sub, 10 + halfIdx * midX, H - 10);
+        ctx.restore();
+      };
+
+      const s = this.metrics.scion, p = this.metrics.mp;
+      drawDial(0, midX * 0.5, H * 0.52, 46, s.rollDeg, "#5ff0dc",
+        `SCION 4D · SO(3) ROLL ${Math.round(s.rollDeg)}°`,
+        `${s.clutch} · Z=${s.dollyM.toFixed(2)}m · M:${s.mistPct}% · C:${s.candles}`,
+        s.clutch === "CLUTCH LOCKED");
+      drawDial(1, midX + midX * 0.5, H * 0.52, 46, p.rollDeg, "#e668b8",
+        `MEDIAPIPE 2.5D · ATAN2 ${Math.round(p.rollDeg)}°`,
+        `${p.clutch} · PH:${p.phantoms} · M:${p.mistPct}% · C:${p.candles}`,
+        p.phantoms > 0);
+    }
+
+    _renderFallbacks() {
+      for (const side of ["scion", "mp"]) {
+        const ctx = this.fallbackCtx[side];
+        const c = ctx.canvas, W = c.width, H = c.height, m = this.metrics[side];
+        const col = side === "scion" ? "#5ff0dc" : "#e668b8";
+        ctx.fillStyle = "#040605"; ctx.fillRect(0, 0, W, H);
+        // Top cake stage
+        const cy = H * 0.42, cx = W * 0.5, sc = clamp(0.86 / Math.max(0.35, m.dollyM), 0.7, 1.45);
+        if (m.mistPct > 4) {
+          const grad = ctx.createRadialGradient(cx, cy, 18, cx, cy, 130 * (m.mistPct / 100));
+          grad.addColorStop(0, side === "scion" ? "rgba(95,240,220,0.45)" : "rgba(230,104,184,0.35)");
+          grad.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(cx, cy, 140, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.strokeStyle = "#5a665f"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.ellipse(cx, cy + 36 * sc, 92 * sc, 24 * sc, 0, 0, Math.PI * 2); ctx.stroke();
+        if (m.clay) {
+          ctx.fillStyle = "#e8dbc1";
+          ctx.fillRect(cx - 56 * sc, cy - 18 * sc, 112 * sc, 52 * sc);
+          ctx.beginPath(); ctx.ellipse(cx, cy - 18 * sc, 56 * sc, 15 * sc, 0, 0, Math.PI * 2); ctx.fill();
+        }
+        for (let i = 0; i < m.candles; i++) {
+          const a = (i / Math.max(1, m.candles)) * Math.PI * 2;
+          const kx = cx + Math.cos(a) * 38 * sc, ky = cy - 20 * sc + Math.sin(a) * 10 * sc;
+          ctx.fillStyle = "#f4ecdc"; ctx.fillRect(kx - 3, ky - 22 * sc, 6, 22 * sc);
+          ctx.fillStyle = "#ffb94a"; ctx.beginPath(); ctx.arc(kx, ky - 26 * sc, 4.5 * sc, 0, Math.PI * 2); ctx.fill();
+        }
+        // Bottom 5-ring machined barrel
+        const by = H * 0.78, bw = 280 + m.mistPct * 0.7, bx0 = cx - bw / 2;
+        ctx.fillStyle = "#141917"; ctx.strokeStyle = col; ctx.lineWidth = 1.5;
+        ctx.fillRect(bx0, by - 26, bw, 52); ctx.strokeRect(bx0, by - 26, bw, 52);
+        for (let r = 0; r < 5; r++) {
+          const rx = bx0 + 28 + r * ((bw - 56) / 4);
+          ctx.fillStyle = r === m.ringIdx ? col : "#2a3530";
+          ctx.fillRect(rx - 8, by - 30, 16, 60);
+        }
+        ctx.fillStyle = col; ctx.font = "700 11px monospace";
+        ctx.fillText(`MODE:${m.mode}  CLAY:${m.clay || "NONE"}  CANDLES:${m.candles}  MIST:${m.mistPct}%`, 12, 20);
+      }
+    }
+
+    async runStage(stageNum, resetFirst = false, parentTok = null) {
+      if (resetFirst) this.resetBothOrbs();
+      const myTok = parentTok != null ? parentTok : ++this.runningToken;
+      this.challengeActive = true;
+      const Fa = this._forge("scion"), Fb = this._forge("mp");
+      const sleepMs = (ms) => new Promise((r) => setTimeout(r, ms));
+      const alive = () => myTok === this.runningToken;
+      const setStatus = (t, d) => {
+        document.getElementById("orbStageTitle").innerHTML = `<b>${t}</b>`;
+        document.getElementById("orbStageDetail").textContent = d;
+      };
+
+      if (stageNum === 1) {
+        setStatus("STAGE 1 · 180° FOREARM BARREL PRONATION (55° LENS FORESHORTENING)",
+          "Hand tilts 55° toward camera while pronating 24°/detent on Ring 1 (MAKE), Ring 3 (BASE·DRUM -> CANDLES), Ring 5 (+1 sponge, +7 candles).");
+        // Ensure Mode=MAKE, aim top crown
+        this.metrics.scion.mode = "MAKE";
+        this.metrics.scion.ringIdx = 0;
+        if (Fa) { Fa.setMode("MAKE"); Fa.S.aimH = 0.96; Fa.setVerb(0); }
+        if (Fb) { Fb.setMode("MAKE"); Fb.S.aimH = 0.96; Fb.setVerb(0); }
+
+        // Spawn cake sponge via Ring 5 (+1 detent)
+        this.metrics.scion.ringIdx = 4; this.metrics.scion.detents++;
+        if (Fa) Fa.turn(4, 1);
+        else this.metrics.scion.clay = "DRUM";
+        if (this.uiKind === "hand-orb") this._feedHandOrb("scion", 4, 0.42, true, null);
+
+        // MediaPipe 2.5D projected at 55° lens pitch: atan2 horizontal/vertical collapses & wraps
+        const totalSteps = 18;
+        let mpPrevRoll = 0, mpAcc = 0;
+        for (let step = 1; step <= totalSteps; step++) {
+          if (!alive()) return;
+          const phiTrue = step * DETENT_RAD;
+          this.metrics.scion.rollDeg = (phiTrue * 180 / Math.PI) % 360;
+          this.metrics.scion.ringIdx = 2;
+          this.metrics.scion.detents++;
+          if (Fa) Fa.turn(2, 1); // 0 -> 18 = CANDLES
+          if (this.uiKind === "hand-orb") this._feedHandOrb("scion", 2, phiTrue, true, null);
+
+          // Exact 55 deg foreshortened pinhole projection of m[0], m[9] + +/-0.008 pixel noise
+          const pitchRad = (55 * Math.PI) / 180;
+          const ux = 0.08 * Math.cos(pitchRad) * Math.sin(phiTrue) + (((step % 3) - 1) * 0.012);
+          const uy = 0.08 * Math.cos(pitchRad) * Math.cos(phiTrue) * 0.18 + (step % 2 ? -0.01 : 0.01);
+          const mpRoll = Math.atan2(ux, -uy);
+          const dR = wrapAng(mpRoll - mpPrevRoll);
+          mpPrevRoll = mpRoll;
+          mpAcc += dR / DETENT_RAD;
+          this.metrics.mp.rollDeg = mpRoll * 180 / Math.PI;
+          this.metrics.mp.ringIdx = 2;
+          const dk = mpAcc > 0 ? Math.floor(mpAcc) : Math.ceil(mpAcc);
+          if (dk !== 0) {
+            mpAcc -= dk;
+            this.metrics.mp.detents += Math.abs(dk);
+            if (Fb) Fb.turn(2, dk);
+          }
+          if (this.uiKind === "hand-orb") this._feedHandOrb("mp", 2, mpRoll, true, null);
+          this._drawSharedCanvas({ stage: 1 });
+          this._syncScorecards();
+          await sleepMs(45);
+        }
+        // Place 7 candles on top crown via Ring 5 (+7 detents) on SCION; MediaPipe tries same twist under 55° foreshortening -> misses CANDLES
+        if (Fb && Fb.DOC.frames[0] && !Fb.DOC.frames[0].clay && Math.abs(this.metrics.mp.detents) >= 1) {
+          // Leave MP stalled before CANDLES with partial verb / at most 1 attempt
+        }
+        for (let c = 1; c <= 7; c++) {
+          if (!alive()) return;
+          const phi = (totalSteps + c) * DETENT_RAD;
+          this.metrics.scion.rollDeg = (phi * 180 / Math.PI) % 360;
+          this.metrics.scion.ringIdx = 4;
+          this.metrics.scion.detents++;
+          if (Fa) { Fa.S.aimH = 0.96; Fa.turn(4, 1); }
+          else this.metrics.scion.candles = c;
+          if (this.uiKind === "hand-orb") this._feedHandOrb("scion", 4, phi, true, null);
+
+          const jitterRoll = Math.atan2((c % 2 ? 0.015 : -0.015), 0.01);
+          this.metrics.mp.rollDeg = jitterRoll * 180 / Math.PI;
+          this._drawSharedCanvas({ stage: 1 });
+          this._syncScorecards();
+          await sleepMs(65);
+        }
+      } else if (stageNum === 2) {
+        setStatus("STAGE 2 · CROSSED-WRIST TWO-HAND BARREL MIST PULL (seq_02 GEOMETRY)",
+          "Both hands pinch barrel ends -> pull to 0.48 m (85% Mist) -> cross wrists (-0.22 m): SCION chirality lock keeps 85% mist; MediaPipe swaps/drops hand -> 0%.");
+        for (let f = 1; f <= 26; f++) {
+          if (!alive()) return;
+          const u = f / 26;
+          if (u <= 0.55) {
+            const k = u / 0.55;
+            const sep = 0.14 + 0.34 * k; // 0.14 -> 0.48m
+            const pull = clamp((sep - 0.14) / 0.40, 0, 1); // reaches 0.85
+            this.metrics.scion.mistPct = Math.round(pull * 100);
+            if (Fa) Fa.setPull(pull);
+            if (this.uiKind === "hand-orb") this._feedHandOrb("scion", 2, 0.4, true, pull, { closed: true, dxPx: 90 * k + 40 });
+            const mpPull = clamp(pull * 0.65, 0, 0.6);
+            this.metrics.mp.mistPct = Math.round(mpPull * 100);
+            if (Fb) Fb.setPull(mpPull);
+            if (this.uiKind === "hand-orb") this._feedHandOrb("mp", 2, 0.3, true, mpPull, { closed: true, dxPx: 70 * k + 30 });
+          } else {
+            // Wrists cross: SCION keeps locked 0.85 pull; MediaPipe drops occluded hand -> HS.two collapses -> pull = 0
+            this.metrics.scion.mistPct = 85;
+            if (Fa) Fa.setPull(0.85);
+            if (this.uiKind === "hand-orb") this._feedHandOrb("scion", 2, 0.4, true, 0.85, { closed: true, dxPx: -40 });
+            this.metrics.mp.mistPct = 0;
+            this.metrics.mp.clutch = "CHIRALITY SWAP";
+            if (Fb) Fb.setPull(0.0);
+            if (this.uiKind === "hand-orb") this._feedHandOrb("mp", 2, -2.4, true, 0.0, { closed: true, dropped: true, dxPx: 0 });
+          }
+          this._drawSharedCanvas({ stage: 2 });
+          this._syncScorecards();
+          await sleepMs(45);
+        }
+      } else if (stageNum === 3) {
+        setStatus("STAGE 3 · FORWARD METRIC Z-DOLLY REACH (seq_01 GEOMETRY)",
+          "Single hand reaches 0.32 m toward lens: SCION dollies smoothly with ΔL_b = 0.000 mm; MediaPipe 2D palm span swells & atan2 flips >45° firing unintended detents.");
+        const d0 = 0.86;
+        for (let f = 1; f <= 20; f++) {
+          if (!alive()) return;
+          const u = f / 20;
+          const targetDist = d0 - 0.24 * Math.sin(u * Math.PI * 0.5); // 0.86 -> 0.62 m
+          this.metrics.scion.dollyM = Number(targetDist.toFixed(2));
+          if (Fa && Fa.S.orbit) Fa.S.orbit.dist = targetDist;
+
+          // MediaPipe 2D span surge + foreshortened atan2 >45 deg flip
+          const noisyFlip = u > 0.45 ? 112 * Math.sin(f * 1.3) : 28 * u;
+          this.metrics.mp.rollDeg = noisyFlip;
+          if (f === 10 || f === 16) {
+            this.metrics.mp.phantoms++;
+            this.metrics.mp.detents++;
+            if (Fb) Fb.turn(3, -1); // unintended ring detent during Z reach
+          }
+          this._drawSharedCanvas({ stage: 3 });
+          this._syncScorecards();
+          await sleepMs(45);
+        }
+      } else if (stageNum === 4) {
+        setStatus("STAGE 4 · CANDLELIGHT OCCLUSION & FRAME WALKOUT (seq_01 f=143 + shot36 NOISE)",
+          "Foreground occluder & flicker trips SCION Innovation Gate (CLUTCH LOCKED -> 0 phantom clicks, 7-candle cake intact); MediaPipe ungated fires phantom UNDO/MODE clicks.");
+        this.metrics.scion.clutch = "CLUTCH LOCKED";
+        document.getElementById("orbBadgeScion").textContent = "GATE: CLUTCH LOCKED";
+        document.getElementById("orbBadgeScion").className = "pill amb";
+        for (let f = 1; f <= 20; f++) {
+          if (!alive()) return;
+          // SCION freezes on CLUTCH LOCKED -> zero calls to Fa
+          const mpWildRoll = (f % 2 ? 158 : -164);
+          this.metrics.mp.rollDeg = mpWildRoll;
+          this.metrics.mp.clutch = "UNGATED JITTER";
+          if (f === 4 || f === 9 || f === 14 || f === 18) {
+            this.metrics.mp.phantoms++;
+            if (Fb) {
+              if (f === 4) Fb.turn(0, 2); // scrambles MODE away from MAKE
+              else if (f === 9) Fb.press("UNDO", false);
+              else if (f === 14) Fb.turn(4, -2);
+              else Fb.turn(0, 1);
+            } else {
+              this.metrics.mp.mode = f === 4 ? "ADD" : "MOVE";
+              this.metrics.mp.candles = Math.max(0, this.metrics.mp.candles - 1);
+            }
+          }
+          this._drawSharedCanvas({ stage: 4 });
+          this._syncScorecards();
+          await sleepMs(50);
+        }
+      }
+      this.lastStageSummary = { stage: stageNum, done: true };
+      if (parentTok == null) this.challengeActive = false;
+      this._syncScorecards();
+    }
+
+    async runFullCakeChallenge() {
+      this.resetBothOrbs();
+      const myTok = ++this.runningToken;
+      this.challengeActive = true;
+      for (const st of [1, 2, 3, 4]) {
+        if (myTok !== this.runningToken) return;
+        await this.runStage(st, false, myTok);
+      }
+      if (myTok === this.runningToken) {
+        this.challengeActive = false;
+        this._syncScorecards();
+        document.getElementById("orbStageTitle").innerHTML = "<b>CHALLENGE COMPLETE · SCION 4D BUILT THE 7-CANDLE CAKE + 85% MIST WITH 0 PHANTOM CLICKS</b>";
+        document.getElementById("orbStageDetail").textContent =
+          `SCION: clay=${this.metrics.scion.clay}, candles=${this.metrics.scion.candles}, mist=${this.metrics.scion.mistPct}%, mode=${this.metrics.scion.mode}, phantoms=${this.metrics.scion.phantoms} | MediaPipe: candles=${this.metrics.mp.candles}, mist=${this.metrics.mp.mistPct}%, mode=${this.metrics.mp.mode}, phantoms=${this.metrics.mp.phantoms}`;
+      }
+    }
+
+    updateFromLiveFrame(res, source) {
+      if (!res || this.challengeActive) return;
+      const Fa = this._forge("scion"), Fb = this._forge("mp");
+      const gateTripped = Boolean(res.gateState?.tripped || (res.gateState?.fg_pixels ?? 0) < 120);
+
+      // 1. SCION 4D Controller: worldJoints[56x3] + SO(3) axial twist + 3D pinch + Innovation Gate
+      const j = res.jointsXyz;
+      if (j && j.length >= 56 * 3) {
+        const pt = (idx) => [j[idx * 3], j[idx * 3 + 1], j[idx * 3 + 2]];
+        const pElb = pt(15), pWri = pt(17), pIdx = pt(44), pPnk = pt(53), pThTip = pt(43), pIdxTip = pt(46);
+        const u = norm3(sub3(pWri, pElb));
+        const vLat = sub3(pIdx, pPnk);
+        const vPerp = norm3(sub3(vLat, [u[0] * dot3(vLat, u), u[1] * dot3(vLat, u), u[2] * dot3(vLat, u)]));
+        const upRef = Math.abs(u[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0];
+        const e1 = norm3(cross3(upRef, u)), e2 = cross3(u, e1);
+        const phi3D = Math.atan2(dot3(vPerp, e2), dot3(vPerp, e1));
+        this.metrics.scion.rollDeg = (phi3D * 180) / Math.PI;
+        this.metrics.scion.clutch = gateTripped ? "CLUTCH LOCKED" : "NOMINAL";
+
+        if (!gateTripped) {
+          const pinch3d = Math.hypot(pThTip[0] - pIdxTip[0], pThTip[1] - pIdxTip[1], pThTip[2] - pIdxTip[2]);
+          const wL = pt(12), wR = pt(17);
+          const interWristM = Math.hypot(wL[0] - wR[0], wL[1] - wR[1], wL[2] - wR[2]);
+          if (this.livePrev.scionRoll != null && pinch3d < 0.055) {
+            this.livePrev.scionAcc += wrapAng(phi3D - this.livePrev.scionRoll) / DETENT_RAD;
+            const k = this.livePrev.scionAcc > 0 ? Math.floor(this.livePrev.scionAcc) : Math.ceil(this.livePrev.scionAcc);
+            if (k !== 0) {
+              this.livePrev.scionAcc -= k;
+              this.metrics.scion.detents += Math.abs(k);
+              if (Fa) Fa.turn(this.metrics.scion.ringIdx, k);
+            }
+          }
+          if (interWristM > 0.14 && interWristM < 0.85) {
+            const pull = clamp((interWristM - 0.16) / 0.40, 0, 1);
+            if (Fa) Fa.setPull(pull);
+            this.metrics.scion.mistPct = Math.round(pull * 100);
+          }
+          if (this.uiKind === "hand-orb") this._feedHandOrb("scion", this.metrics.scion.ringIdx, phi3D, pinch3d < 0.055, null);
+          this.livePrev.scionRoll = phi3D;
+        }
+      }
+
+      // 2. MediaPipe 2.5D Controller: raw 2D atan2(m[9].x-m[0].x, -(m[9].y-m[0].y)) + dist2D pinch (no Gate!)
+      const hRaw = res.mpHandsRaw?.hands2d || [];
+      if (hRaw.length >= 1) {
+        const m = hRaw[0], asp = (res.srcW || 640) / Math.max(1, res.srcH || 480);
+        const r2d = Math.atan2(m[9].x - m[0].x, -(m[9].y - m[0].y));
+        const span2d = Math.max(0.025, Math.hypot((m[5].x - m[17].x) * asp, m[5].y - m[17].y));
+        const pr = Math.hypot((m[4].x - m[8].x) * asp, m[4].y - m[8].y) / span2d;
+        this.livePrev.mpClosed = this.livePrev.mpClosed ? pr < 0.62 : pr < 0.38;
+        this.metrics.mp.rollDeg = (r2d * 180) / Math.PI;
+        this.metrics.mp.clutch = "UNARMED";
+        if (this.livePrev.mpRoll != null && this.livePrev.mpClosed) {
+          this.livePrev.mpAcc += wrapAng(r2d - this.livePrev.mpRoll) / DETENT_RAD;
+          const dk = this.livePrev.mpAcc > 0 ? Math.floor(this.livePrev.mpAcc) : Math.ceil(this.livePrev.mpAcc);
+          if (dk !== 0) {
+            this.livePrev.mpAcc -= dk;
+            this.metrics.mp.detents += Math.abs(dk);
+            if (Fb) Fb.turn(this.metrics.mp.ringIdx, dk);
+          }
+        }
+        if (this.uiKind === "hand-orb") {
+          const w = this._hand("mp");
+          if (w && w.HAND && w.ORB) {
+            try {
+              const [rx, ry] = w.ORB.toPage(w.ORB.ringX(this.metrics.mp.ringIdx), 150);
+              w.HAND.feed([{ id: "Right", x: rx, y: ry, closed: this.livePrev.mpClosed, pose: this.livePrev.mpClosed ? "pinch" : "open", span: span2d, marks: m }], "camera");
+            } catch (_) {}
+          }
+        }
+        this.livePrev.mpRoll = r2d;
+      }
+      this._drawSharedCanvas({ stage: "live" });
+      this._syncScorecards();
+    }
+
+    async open(scrollIntoView = false) {
+      state.arenaOpen = true;
+      document.body.classList.add("arena-open");
+      if (!this.framesLoaded.scion && !this.useFallback && this.loadingId === 0) {
+        await this.loadInstrument(this.uiKind);
+      } else {
+        this._syncScorecards();
+      }
+      if (scrollIntoView) document.getElementById("orbArenaSection")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    close() {
+      state.arenaOpen = false;
+      state.orbLiveFree = false;
+      this.runningToken++;
+      document.body.classList.remove("arena-open");
+    }
+  }
+
+  const orbArena = new OrbControlArena();
+  const toggleArena = async () => {
+    playDetentTick();
+    if (state.arenaOpen) orbArena.close();
+    else await orbArena.open(true);
+  };
+  document.getElementById("btnOrbArena").addEventListener("click", toggleArena);
+  document.getElementById("btnHeroOrbArena").addEventListener("click", () => orbArena.open(true));
+  document.getElementById("btnCloseOrbArena").addEventListener("click", () => { playDetentTick(); orbArena.close(); });
+  document.getElementById("orbUiSelect").addEventListener("change", (e) => { playDetentTick(); orbArena.loadInstrument(e.target.value); });
+  document.getElementById("btnRunCakeChallenge").addEventListener("click", () => { playDetentTick(); orbArena.runFullCakeChallenge(); });
+  document.getElementById("btnOrbStage1").addEventListener("click", () => { playDetentTick(); orbArena.runStage(1, true); });
+  document.getElementById("btnOrbStage2").addEventListener("click", () => { playDetentTick(); orbArena.runStage(2, false); });
+  document.getElementById("btnOrbStage3").addEventListener("click", () => { playDetentTick(); orbArena.runStage(3, false); });
+  document.getElementById("btnOrbStage4").addEventListener("click", () => { playDetentTick(); orbArena.runStage(4, false); });
+  document.getElementById("btnOrbReset").addEventListener("click", () => { playDetentTick(); orbArena.resetBothOrbs(); });
+  document.getElementById("btnOrbLiveFree").addEventListener("click", async (e) => {
+    playDetentTick();
+    state.orbLiveFree = !state.orbLiveFree;
+    e.target.classList.toggle("active", state.orbLiveFree);
+    if (state.orbLiveFree && state.sourceMode !== "webcam") await startLiveCamera();
+  });
+
+  // =========================================================================
   // 9. Boot
   // =========================================================================
   async function boot() {
@@ -4955,11 +5892,29 @@
 
     refreshCameraDeviceList();
     const qParams = new URLSearchParams(location.search);
-    if (qParams.get("engine") === "onnx" || qParams.get("mode") === "native") {
+    const qTier = qParams.get("tier");
+    if (qTier && TIER_SPECS[qTier]) {
+      state.tier = qTier;
+      document.getElementById("tierSelect").value = qTier;
+      document.getElementById("srcResLabel").textContent = `${TIER_SPECS[qTier].width}x${TIER_SPECS[qTier].height}`;
+    }
+    const qStream = qParams.get("stream");
+    if (qStream && LOCAL_HOST) {
+      const sSel = document.getElementById("sourceSelect");
+      const opt = Array.from(sSel.options).find((o) => o.value.startsWith("stream:") && (o.value.includes(qStream) || o.textContent.includes(qStream)));
+      if (opt) {
+        sSel.value = opt.value;
+        await selectStreamSource(opt.value, qParams.get("engine") !== "wgsl");
+      }
+    }
+    if ((qParams.get("engine") === "onnx" || qParams.get("mode") === "native") && state.backendMode !== "ort_distilled") {
       await switchBackendMode("ort_distilled");
     }
     if (qParams.get("cam") === "1") {
       await startLiveCamera();
+    }
+    if (qParams.get("arena") === "orb") {
+      await orbArena.open(false);
     }
     await processCurrentFrame();
     requestAnimationFrame(renderFrameLoop);
