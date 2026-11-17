@@ -230,7 +230,7 @@ function detect(img, hi) {                                    // hi: the same vi
       taper: dir * hyp.taper, strip: hyp.strip, face: hyp.strip === null ? null : norm(-hyp.strip), phase: near === null ? null : near, cols: hyp.cols, pitchSeen: hyp.pitch, conf: hyp.score, dirConf: hyp.dirConf, rho: hyp.rho, area: hyp.area, unwrap: hyp.U, read: null, lid: 'assumed' };
     /* the trained reader, when it is loaded: which end is the lid, and the turn read from the print itself */
     const N = window.CUPNET; if (N && N.ready && !spec.noNet) { const r = N.read(hyp.U); best.net = r;
-      if (Math.abs(r.pLid - .5) > .3) { best.lid = 'read'; if ((r.lidAtTop ? 1 : -1) !== dir) { best.a = [-best.a[0], -best.a[1]]; best.sag = -best.sag; best.taper = -best.taper; best.cols = best.cols.map(v => -v).reverse(); if (best.strip !== null) { best.strip = -best.strip; best.face = norm(-best.strip); } if (best.phase !== null) best.phase = -best.phase; } }
+      if (Math.abs(r.pLid - .5) > .2) { best.lid = 'read'; if ((r.lidAtTop ? 1 : -1) !== dir) { best.a = [-best.a[0], -best.a[1]]; best.sag = -best.sag; best.taper = -best.taper; best.cols = best.cols.map(v => -v).reverse(); if (best.strip !== null) { best.strip = -best.strip; best.face = norm(-best.strip); } if (best.phase !== null) best.phase = -best.phase; } }
       if (r.conf > .5) best.read = r.face; } }
   if (!best) return { ok: false, why: 'no label found' }; return best;
 }

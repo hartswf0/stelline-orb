@@ -18,6 +18,10 @@ where it truly is. From the four: a turn offset, a height scale and a height off
 to every lookup. If the turn was not yet known, the first touch sets it; an error of whole columns is put right in
 the tracker.
 
+The cup may be held upright, sideways or upside down, and the phone upright or on its side: which end is the lid
+is read from the print. Checked on four photographs each turned to the left, to the right and upside down: all 16
+views gave the same facing cell and the right lid end.
+
 What was run: at a phone-sized screen, with a recorded picture fed in as a fake camera, the page asked for the
 camera, found the cup, showed the first target and took a tap on it. A refused camera gives the instruction to
 allow it and a TRY AGAIN button. Simulated touches that were 3 degrees round and 5 mm low gave back exactly that

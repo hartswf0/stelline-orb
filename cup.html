@@ -39,7 +39,7 @@
   button.go { background:var(--gold); border-color:var(--gold); color:#14100a; font-weight:700; }
   button.on { border-color:var(--teal); color:var(--teal); }
   button[hidden] { display:none; }
-  @media (orientation:landscape) { body { flex-direction:row; flex-wrap:wrap; } header { flex:0 0 100%; } #stageWrap { flex:1 1 55%; height:calc(100dvh - 44px); } #panel { flex:0 0 42%; border-top:0; border-left:1px solid var(--line); display:flex; flex-direction:column; justify-content:center; } }
+  @media (orientation:landscape) { body { flex-direction:row; flex-wrap:wrap; } header { flex:0 0 100%; } #stageWrap { flex:1 1 55%; height:calc(100dvh - 44px); } #twin { width:18%; max-width:110px; } #status { right:22%; } #panel { flex:0 0 42%; border-top:0; border-left:1px solid var(--line); display:flex; flex-direction:column; justify-content:center; } }
 </style>
 </head>
 <body>
@@ -49,7 +49,7 @@
   <div id="intro">
     <h1>CUP ORB</h1>
     <p>Your wrapped cup becomes a controller. The camera reads which cell you touch, and a twin of the cup turns on screen.</p>
-    <ol><li>Allow the camera when the browser asks.</li><li>Hold the cup about 25 cm from the phone, ruler strip toward the camera.</li><li>Touch four cells as they are named. That calibrates it to your hand and your camera.</li></ol>
+    <ol><li>Allow the camera when the browser asks.</li><li>Hold the cup about 25 cm from the phone, upright or sideways, ruler strip toward the camera.</li><li>Touch four cells as they are named. That calibrates it to your hand and your camera.</li></ol>
     <p>The picture stays on this phone. Nothing is uploaded.</p>
   </div>
 </div>
@@ -143,7 +143,7 @@ function touchHint() { const k = S.step + handsState; if (k === hintFor) return;
 /* ---- the steps */
 const STEPS = [
   { title: 'Camera', hint: 'Press the button, then choose Allow.' },
-  { title: 'Show the cup', hint: 'Hold it about 25 cm away, lid up, with the <b>ruler strip</b> toward the camera.' },
+  { title: 'Show the cup', hint: 'Hold it about 25 cm away, upright or sideways, with the <b>ruler strip</b> toward the camera.' },
   {}, {}, {}, {},
   { title: 'Ready', hint: '' } ];
 function setStep(n) { S.step = n; [...$('dots').children].forEach((d, i) => d.className = i < n - 0 && i < 6 ? (i < n ? 'done' : '') : ''); if (n < 6) $('dots').children[n].className = 'on';
