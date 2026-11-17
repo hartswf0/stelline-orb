@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Cup Orb AR</title>
+<meta name="description" content="The physical orb: a tumbler wrapped in a printed grid, modeled in three.js and read by the camera. Which column faces you, how it leans, and which cell each fingertip is on.">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #040504; --ink: #e9e4d8; --dim: #8a877e; --amb: #f0b040; --line: #2a2a26; --cy: #5ff0dc; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 12px/1.4 "IBM Plex Mono", ui-monospace, monospace; overflow: hidden; user-select: none; -webkit-user-select: none; }
+  .app { height: 100dvh; display: grid; grid-template-rows: minmax(0, 1fr) auto; }
+  #stage { position: relative; overflow: hidden; background: #000; }
+  #stage canvas, #stage video { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+  #vid { display: none; }
+  #read { position: absolute; left: 12px; top: 10px; right: 12px; pointer-events: none; text-shadow: 0 0 5px #000, 0 0 2px #000; }
+  #read b { font-size: 15px; font-weight: 600; } #read em { color: var(--amb); font-style: normal; } #read i { color: var(--cy); font-style: normal; } #read span { display: block; color: #cfd6d2; }
+  #bar { border-top: 1px solid var(--line); background: #070807; padding: 8px 10px 10px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  button, a.b { font: inherit; font-size: 11px; letter-spacing: .06em; color: var(--ink); background: #11120f; border: 1px solid var(--line); border-radius: 3px; padding: 7px 9px; cursor: pointer; text-decoration: none; }
+  button.on { border-color: var(--amb); color: var(--amb); }
+  #cal { display: none; position: absolute; right: 10px; bottom: 10px; width: min(330px, calc(100% - 20px)); background: rgba(7,8,7,.94); border: 1px solid var(--line); padding: 10px 12px; }
+  #cal label { display: grid; grid-template-columns: 1fr 86px; gap: 8px; align-items: center; margin: 5px 0; color: #cfd6d2; } #cal input { font: inherit; color: var(--ink); background: #11120f; border: 1px solid var(--line); padding: 4px 6px; width: 100%; user-select: text; -webkit-user-select: text; }
+  #cal p { color: var(--dim); margin: 6px 0 2px; }
+  #map { display: none; position: absolute; left: 0; right: 0; bottom: 0; background: rgba(7,8,7,.9); border-top: 1px solid var(--line); padding: 8px 10px; }
+  #map canvas { position: static; transform: none; width: 100%; height: auto; display: block; }
+  #map div { color: var(--dim); margin-top: 4px; min-height: 16px; } #map div b { color: var(--amb); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div id="stage">
+    <video id="vid" playsinline muted></video>
+    <canvas id="frame"></canvas><canvas id="gl"></canvas><canvas id="hud"></canvas>
+    <div id="read"><b id="r1">CUP ORB</b><span id="r2">Press START and hold the cup where the camera can see its label.</span><span id="r3"></span></div>
+    <div id="cal">
+      <b>CALIBRATE</b>
+      <p>The cup was measured from photographs. A caliper is better: type what you measure.</p>
+      <label>diameter, mm<input id="cD" type="number" step="0.5"></label>
+      <label>height, mm<input id="cH" type="number" step="1"></label>
+      <label>label height, mm<input id="cL" type="number" step="0.5"></label>
+      <label>label foot above base, mm<input id="cY" type="number" step="0.5"></label>
+      <label>seam under the strip, degrees<input id="cG" type="number" step="0.5"></label>
+      <label>camera field of view, long side, degrees<input id="cF" type="number" step="1"></label>
+      <p>Distance scales with diameter and field of view; the turn and the cell under a finger do not.</p>
+    </div>
+    <div id="map"><canvas id="mapcv"></canvas><div id="mapinfo">The label, unwrapped. Lid side up, as the cup stands. Touch a cell.</div></div>
+  </div>
+  <div id="bar">
+    <button id="bStart">START CAMERA</button><button id="bFlip">OTHER CAMERA</button><button id="bModel">MODEL</button><button id="bMap">MAP</button><button id="bCal">CALIBRATE</button><button id="bGhost" class="on">OVERLAY</button><button id="bLid">LID UP</button><a class="b" href="orb-06.html">ORB 06</a><a class="b" href="index.html">INDEX</a>
+  </div>
+</div>
+<script src="assets/three.min.js"></script>
+<script src="assets/cup/cup.js"></script>
+<script>
+/* CUP ORB AR. The camera frame is read three ways and laid over itself:
+     1. CUP.detect finds the printed label, unwraps it and matches it against the label as it was printed: that
+        gives which angle of the cup faces the camera (so which column), and how the cup lies in the picture.
+     2. CUP.poseFrom turns that into where the cup is in space (distance from its known diameter and the lens).
+     3. MediaPipe's hand landmarker finds the hands; each fingertip's ray is met with the cup's surface, which says
+        what that finger is over: a cell (column, letter, band), the strip, the collar, the lid or the base.
+   The model of the cup is drawn where the cup is, and the cells under the fingertips are lit.
+   Everything found is on window.CUPAR.state, in a 'cup:state' event, and on BroadcastChannel('cup') for other pages.
+   ?img=URL reads a still instead of the camera. ?mp=BASE and ?hm=URL point at other copies of MediaPipe and its model. */
+(function () {
+'use strict';
+const Q = new URLSearchParams(location.search), $ = id => document.getElementById(id), D2R = Math.PI / 180;
+const MP = Q.get('mp') || 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21', HM = Q.get('hm') || 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
+const S = { fov: +(Q.get('fov') || 66), facing: 'environment', ghost: true, model: false, pose: null, det: null, hands: [], fingers: [], n: 0, src: null, W: 0, H: 0, err: '' };
+const frame = $('frame'), fx = frame.getContext('2d', { willReadFrequently: true }), hud = $('hud'), hx = hud.getContext('2d'), glc = $('gl'), vid = $('vid');
+const R = new THREE.WebGLRenderer({ canvas: glc, alpha: true, antialias: true, preserveDrawingBuffer: true }); R.setClearColor(0, 0); R.outputEncoding = THREE.sRGBEncoding;
+const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(50, 1, 10, 5000); scene.add(new THREE.HemisphereLight(0xffffff, 0x404040, 1.1)); const dl = new THREE.DirectionalLight(0xffffff, .5); dl.position.set(-200, 400, 300); scene.add(dl);
+let cup = null, patches = new THREE.Group();
+function rebuild() { if (cup) scene.remove(cup); cup = new THREE.Group(); const g = CUP.buildModel({ ghost: !S.model }); cup.add(g); cup.add(patches); cup.matrixAutoUpdate = S.model; scene.add(cup); drawMap(); }
+const fpx = () => (Math.max(S.W, S.H) / 2) / Math.tan(S.fov / 2 * D2R);
+
+function size() { const st = $('stage'), sw = st.clientWidth, sh = st.clientHeight; if (!S.W) return; const k = Math.min(sw / S.W, sh / S.H), w = Math.round(S.W * k), h = Math.round(S.H * k);
+  [frame, hud, glc].forEach(c => { c.style.width = w + 'px'; c.style.height = h + 'px'; }); if (hud.width !== S.W) { hud.width = S.W; hud.height = S.H; } R.setSize(S.W, S.H, false); }
+function setSource(el, w, h) { const k = Math.min(1, 640 / Math.max(w, h)); S.W = Math.round(w * k); S.H = Math.round(h * k); frame.width = S.W; frame.height = S.H; S.src = el; size(); }
+
+/* ---- hands */
+let HL = null, hlMode = 'VIDEO';
+async function hands(mode) { if (HL && hlMode === mode) return HL; try { const base = new URL(MP, location.href).href.replace(/\/$/, ''), v = await import(base + '/vision_bundle.mjs'), fs = await v.FilesetResolver.forVisionTasks(base + '/wasm');
+    const mk = d => v.HandLandmarker.createFromOptions(fs, { baseOptions: { modelAssetPath: new URL(HM, location.href).href, delegate: d }, runningMode: mode, numHands: 2, minHandDetectionConfidence: +(Q.get('hc') || .3), minHandPresenceConfidence: +(Q.get('hc') || .3), minTrackingConfidence: .3 });
+    if (Q.get('hd') === 'cpu') HL = await mk('CPU'); else try { HL = await mk('GPU'); } catch (e) { HL = await mk('CPU'); } hlMode = mode; } catch (e) { S.err = 'hand tracking did not load: ' + e.message; HL = null; } return HL; }
+const TIPS = [[4, 'THUMB'], [8, 'INDEX'], [12, 'MIDDLE'], [16, 'RING'], [20, 'LITTLE']], BONES = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[0,17]];
+
+/* ---- one frame */
+let smooth = null; const TR = {};
+function step(now) {
+  if (!S.src || !S.W) return; fx.drawImage(S.src, 0, 0, S.W, S.H); S.n++;
+  if (S.n % 3 === 1 || !S.det) { const d = CUP.detect(fx.getImageData(0, 0, S.W, S.H)); if (d.ok && d.conf > .12) { CUP.track(d, TR); d.turn = !!TR.known; d.how = TR.how; d.face = TR.known ? TR.face : 0; d.cell = TR.known ? CUP.cellAt(d.face, CUP.spec.labelY0 + CUP.spec.labelH / 2) : null; } S.det = d.ok && d.conf > .12 ? d : (S.det && S.n - (S.detN || 0) < 20 ? S.det : null); if (d.ok && d.conf > .12) { S.detN = S.n; S.lastConf = d.conf; }
+    if (S.det === d) { /* ease the outline so the overlay does not shiver; the angle is eased the short way round */
+      if (smooth && Math.hypot(d.c[0] - smooth.c[0], d.c[1] - smooth.c[1]) < d.w && d.a[0] * smooth.a[0] + d.a[1] * smooth.a[1] > .5) { const k = .45, L = (x, y) => x + (y - x) * k; smooth = Object.assign({}, d, { c: [L(smooth.c[0], d.c[0]), L(smooth.c[1], d.c[1])], a: (v => { const l = Math.hypot(v[0], v[1]); return [v[0] / l, v[1] / l]; })([L(smooth.a[0], d.a[0]), L(smooth.a[1], d.a[1])]), w: L(smooth.w, d.w), sag: L(smooth.sag, d.sag), face: smooth.face + (((d.face - smooth.face) % 360 + 540) % 360 - 180) * k }); }
+      else smooth = d; } }
+  S.pose = S.det && smooth ? CUP.poseFrom(smooth, S.W, S.H, fpx()) : null;
+  S.hands = []; if (HL) { try { const r = hlMode === 'VIDEO' ? HL.detectForVideo(S.src, now) : HL.detect(frame); (r.landmarks || []).forEach((lm, i) => S.hands.push({ lm, side: r.handedness && r.handedness[i] && r.handedness[i][0] ? r.handedness[i][0].categoryName : '' })); } catch (e) { S.err = 'hands: ' + e.message; } }
+  S.fingers = []; if (S.pose) S.hands.forEach((h, hi) => TIPS.forEach(([k, name]) => { const px = h.lm[k].x * S.W, py = h.lm[k].y * S.H, hit = CUP.rayToCup(px, py, S.W, S.H, fpx(), S.pose, 4); if (!S.det.turn && hit.region === 'label') { hit.id = 'B' + hit.band; hit.col = null; } S.fingers.push(Object.assign({ hand: hi, side: h.side, finger: name, px, py }, hit)); }));
+  draw(); publish();
+}
+function draw() {
+  hx.clearRect(0, 0, S.W, S.H); const d = smooth && S.det ? smooth : null;
+  if (d && !S.model) { const p = [-d.a[1], d.a[0]], l = d.len / 2; hx.strokeStyle = 'rgba(95,240,220,.9)'; hx.lineWidth = 1.5; hx.beginPath(); [[1, 1], [1, -1], [-1, -1], [-1, 1]].forEach((q, i) => { const x = d.c[0] + d.a[0] * l * q[0] + p[0] * d.w * q[1], y = d.c[1] + d.a[1] * l * q[0] + p[1] * d.w * q[1]; i ? hx.lineTo(x, y) : hx.moveTo(x, y); }); hx.closePath(); hx.stroke();
+    hx.strokeStyle = '#f0b040'; hx.lineWidth = 2; hx.beginPath(); hx.moveTo(d.c[0], d.c[1]); hx.lineTo(d.c[0] + d.a[0] * (l + 18), d.c[1] + d.a[1] * (l + 18)); hx.stroke(); hx.fillStyle = '#f0b040'; hx.font = '600 11px ui-monospace, monospace'; hx.fillText('LID', d.c[0] + d.a[0] * (l + 24) - 9, d.c[1] + d.a[1] * (l + 24) + 4); }
+  S.hands.forEach(h => { hx.strokeStyle = 'rgba(255,255,255,.75)'; hx.lineWidth = 1.2; hx.beginPath(); BONES.forEach(([a, b]) => { hx.moveTo(h.lm[a].x * S.W, h.lm[a].y * S.H); hx.lineTo(h.lm[b].x * S.W, h.lm[b].y * S.H); }); hx.stroke(); });
+  S.fingers.forEach(f => { const on = f.region === 'label'; hx.fillStyle = on ? '#f0b040' : f.region === 'off' ? 'rgba(255,255,255,.6)' : '#5ff0dc'; hx.beginPath(); hx.arc(f.px, f.py, 4, 0, 7); hx.fill(); if (f.region !== 'off') { hx.font = '600 10px ui-monospace, monospace'; hx.fillText(on ? f.id : f.region.toUpperCase(), f.px + 6, f.py - 5); } });
+  while (patches.children.length) patches.remove(patches.children[0]);
+  if (S.model) { cup.matrixAutoUpdate = true; cup.position.set(0, -CUP.spec.H / 2, 0); cup.rotation.set(.12, S.turn || 0, 0); cam.fov = 28; cam.aspect = S.W / S.H; cam.position.set(0, 60, 560); cam.lookAt(0, 0, 0); cam.updateProjectionMatrix(); glc.style.display = ''; }
+  else if (S.pose && S.ghost) { cup.matrixAutoUpdate = false; cup.matrix.fromArray(S.pose.m); cup.matrixWorldNeedsUpdate = true; cam.position.set(0, 0, 0); cam.rotation.set(0, 0, 0); cam.fov = 2 * Math.atan((S.H / 2) / fpx()) / D2R; cam.aspect = S.W / S.H; cam.updateProjectionMatrix(); glc.style.display = '';
+    const seen = new Set(); S.fingers.forEach(f => { if (f.region === 'label' && f.col && !seen.has(f.id)) { seen.add(f.id); patches.add(CUP.cellPatch(f.col, f.band)); } }); if (S.det.cell && S.det.cell.col) patches.add(CUP.cellPatch(S.det.cell.col, S.det.cell.band, 0x5ff0dc)); }
+  else glc.style.display = 'none';
+  if (glc.style.display !== 'none') R.render(scene, cam);
+  const c = S.det && S.det.cell, sp = CUP.spec;
+  $('r1').innerHTML = S.model ? 'THE CUP, MODELED' : c ? 'FACING ' + (c.col ? '<em>' + c.letter + ' ' + String(c.col).padStart(2, '0') + '</em>' : '<em>THE STRIP</em>') + ' &nbsp; turned ' + S.det.face.toFixed(0) + '&deg; (' + S.det.how + ')' : S.det ? 'CUP SEEN &nbsp; <em>SHOW THE RULER STRIP</em> to set the turn' : 'CUP ORB';
+  $('r2').textContent = S.model ? sp.D + ' mm across, ' + sp.H + ' mm tall. ' + sp.cols + ' columns of ' + ((360 - sp.gapDeg) / sp.cols).toFixed(1) + ' degrees, ' + sp.bands + ' bands of ' + (sp.labelH / sp.bands).toFixed(1) + ' mm. Drag to turn it.' : S.pose ? 'about ' + (S.pose.dist / 10).toFixed(0) + ' cm away · lid leans ' + (S.pose.tilt >= 0 ? 'toward' : 'away from') + ' you by ' + Math.abs(S.pose.tilt).toFixed(0) + '° · match ' + (S.lastConf || 0).toFixed(2) : (S.src ? 'Looking for the label…' : 'Press START and hold the cup where the camera can see its label.');
+  const on = S.fingers.filter(f => f.region !== 'off'); $('r3').innerHTML = S.err ? S.err : on.length ? on.map(f => (f.side ? f.side[0] + ' ' : '') + f.finger + ' <i>' + (f.region === 'label' ? f.id : f.region.toUpperCase()) + '</i>').join(' &nbsp; ') : (S.hands.length ? 'A hand is seen; no fingertip is over the cup.' : '');
+}
+$('bLid').onclick = () => { CUP.spec.lidDown = !CUP.spec.lidDown; $('bLid').textContent = CUP.spec.lidDown ? 'LID DOWN' : 'LID UP'; TR.known = false; };
+let BC = null; try { BC = new BroadcastChannel('cup'); } catch (e) {}
+function publish() { const st = { t: performance.now(), seen: !!S.det, turnKnown: !!(S.det && S.det.turn), how: S.det ? S.det.how : null, face: S.det && S.det.turn ? S.det.face : null, cell: S.det ? S.det.cell : null, conf: S.lastConf || 0, dist: S.pose ? S.pose.dist : null, tilt: S.pose ? S.pose.tilt : null, matrix: S.pose ? S.pose.m : null, hands: S.hands.length, fingers: S.fingers.map(f => ({ hand: f.hand, side: f.side, finger: f.finger, region: f.region, id: f.id, col: f.col, band: f.band, a: f.a, y: f.y })) };
+  window.CUPAR.state = st; window.dispatchEvent(new CustomEvent('cup:state', { detail: st })); if (BC) BC.postMessage(st); }
+
+/* ---- the map: the label unwrapped, to look up a cell by touch */
+function drawMap() { const cv = $('mapcv'), sp = CUP.spec, C = Math.PI * sp.D, s = 4; cv.width = Math.round(C * s); cv.height = Math.round(sp.labelH * s); CUP.paintLabel(cv.getContext('2d'), s, s); }
+$('mapcv').addEventListener('pointerdown', e => { const r = e.target.getBoundingClientRect(), sp = CUP.spec, a = (e.clientX - r.left) / r.width * 360, y = sp.labelY0 + sp.labelH * (1 - (e.clientY - r.top) / r.height), c = CUP.cellAt(a, y);
+  $('mapinfo').innerHTML = c.region === 'label' ? '<b>' + c.id + '</b> &nbsp; column ' + c.col + ' (' + c.letter + '), band ' + c.band + ' &nbsp; centre at ' + CUP.cellCenter(c.col, c.band).a.toFixed(1) + '°, ' + CUP.cellCenter(c.col, c.band).y.toFixed(1) + ' mm up &nbsp; xyz ' + CUP.cellCenter(c.col, c.band).p.map(v => v.toFixed(1)).join(', ') : '<b>' + c.region.toUpperCase() + '</b> at ' + (((a + 180) % 360) - 180).toFixed(1) + '°'; });
+
+/* ---- sources */
+async function startCam() { try { if (vid.srcObject) vid.srcObject.getTracks().forEach(t => t.stop()); const st = await navigator.mediaDevices.getUserMedia({ video: { facingMode: S.facing, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false }); vid.srcObject = st; await vid.play(); setSource(vid, vid.videoWidth, vid.videoHeight); S.err = ''; await hands('VIDEO'); $('bStart').classList.add('on'); }
+  catch (e) { S.err = 'The camera did not start: ' + e.message; draw(); } }
+$('bStart').onclick = startCam; $('bFlip').onclick = () => { S.facing = S.facing === 'environment' ? 'user' : 'environment'; startCam(); };
+$('bModel').onclick = () => { S.model = !S.model; $('bModel').classList.toggle('on', S.model); if (!S.W) { S.W = 640; S.H = 480; frame.width = 640; frame.height = 480; size(); } rebuild(); draw(); };
+$('bMap').onclick = () => { const m = $('map'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; $('bMap').classList.toggle('on', m.style.display === 'block'); };
+$('bCal').onclick = () => { const c = $('cal'); c.style.display = c.style.display === 'block' ? 'none' : 'block'; $('bCal').classList.toggle('on', c.style.display === 'block'); };
+$('bGhost').onclick = () => { S.ghost = !S.ghost; $('bGhost').classList.toggle('on', S.ghost); };
+const CAL = [['cD', 'D'], ['cH', 'H'], ['cL', 'labelH'], ['cY', 'labelY0'], ['cG', 'gapDeg']];
+function loadCal() { try { const s = JSON.parse(localStorage.getItem('cup.spec') || 'null'); if (s) Object.assign(CUP.spec, s.spec || {}), S.fov = s.fov || S.fov; } catch (e) {} CAL.forEach(([id, k]) => $(id).value = CUP.spec[k]); $('cF').value = S.fov; }
+function saveCal() { CAL.forEach(([id, k]) => { const v = +$(id).value; if (v > 0) CUP.spec[k] = v; }); S.fov = +$('cF').value || S.fov; try { localStorage.setItem('cup.spec', JSON.stringify({ spec: Object.fromEntries(CAL.map(([, k]) => [k, CUP.spec[k]])), fov: S.fov })); } catch (e) {} rebuild(); }
+CAL.forEach(([id]) => $(id).onchange = saveCal); $('cF').onchange = saveCal;
+let drag = null; $('stage').addEventListener('pointerdown', e => { if (S.model && e.target.tagName === 'CANVAS' && e.target.id !== 'mapcv') drag = { x: e.clientX, t: S.turn || 0 }; }); addEventListener('pointermove', e => { if (drag) { S.turn = drag.t + (e.clientX - drag.x) * .01; draw(); } }); addEventListener('pointerup', () => drag = null);
+addEventListener('resize', size);
+window.CUPAR = { S, state: null, ready: false, step: () => step(performance.now()) };
+if (!Q.has('fresh')) loadCal(); else { CAL.forEach(([id, k]) => $(id).value = CUP.spec[k]); $('cF').value = S.fov; }
+rebuild();
+(async function () {
+  if (Q.get('img')) { const im = new Image(); im.onload = async () => { setSource(im, im.naturalWidth, im.naturalHeight); if (Q.get('hands') !== '0') await hands('IMAGE'); step(performance.now()); window.CUPAR.ready = true; }; im.onerror = () => { S.err = 'could not load ' + Q.get('img'); window.CUPAR.ready = true; }; im.src = Q.get('img'); return; }
+  if (Q.has('model')) $('bModel').click(); window.CUPAR.ready = true;
+  (function loop(now) { if (S.src === vid && vid.readyState >= 2) step(now); else if (S.model && !S.src) { S.turn = (S.turn || 0) + (drag ? 0 : .004); draw(); } requestAnimationFrame(loop); })();
+})();
+})();
+</script>
+</body>
+</html>
