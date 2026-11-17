@@ -8,6 +8,23 @@ with a white ruler strip over the seam between column 24 and column 01.
   `cellAt`, `cellCenter`, `cellPatch`), the reader (`detect`, `track`), the pose (`poseFrom`) and the finger lookup
   (`rayToCup`).
 
+## The phone page (`cup.html`)
+
+Steps, each with its own words on screen: allow the camera; show the cup; four touches; live.
+
+A touch is the index fingertip held still on the cup for .9 s, or a tap on the picture at that spot. Each touch
+names a cell (A 01 in B3, X 24 in B6, B 02 in B1, W 23 in B4), so it gives where the model thinks the finger is and
+where it truly is. From the four: a turn offset, a height scale and a height offset, kept in the browser and applied
+to every lookup. If the turn was not yet known, the first touch sets it; an error of whole columns is put right in
+the tracker.
+
+What was run: at a phone-sized screen, with a recorded picture fed in as a fake camera, the page asked for the
+camera, found the cup, showed the first target and took a tap on it. A refused camera gives the instruction to
+allow it and a TRY AGAIN button. Simulated touches that were 3 degrees round and 5 mm low gave back exactly that
+offset, and other cells touched the same way then came out right. Not run: a real phone, a real fingertip held on
+a real cell (MediaPipe loads from a CDN, which this machine cannot reach, so only the tap path was exercised with
+the camera).
+
 ## The cup's own frame
 
 Millimetres. `y` runs up the axis from the base. Angle 0 is the middle of the ruler strip and grows to the viewer's
