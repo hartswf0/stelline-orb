@@ -400,6 +400,7 @@
           <option value="hand-orb">Instrument: hand-orb.html?solo=1 (Memory Orb Scene)</option>
         </select>
         <button id="btnOrbLiveFree">LIVE CAMERA FREE-CONTROL</button>
+        <button id="btnOrbLiveStream">LIVE NEURAL VIDEO ORB (seq_01 ONNX)</button>
         <button id="btnRunCakeChallenge" class="cta-btn">RUN FULL BIRTHDAY CAKE A/B CHALLENGE</button>
         <button id="btnOrbStage1">1·180° PRONATE</button>
         <button id="btnOrbStage2">2·CROSSED MIST</button>
@@ -4685,7 +4686,7 @@
       });
       state.prevJointsXyz = res.jointsXyz;
       state.lastResult = res;
-      if (orbArena && state.orbLiveFree && (state.arenaOpen || document.body.getAttribute("data-mview") === "orb")) {
+      if (orbArena && !orbArena.challengeActive && (state.orbLiveFree || state.orbLiveStream) && (state.arenaOpen || document.body.getAttribute("data-mview") === "orb")) {
         orbArena.updateFromLiveFrame(res, source);
       }
       pendingDraw = { waiting: false, source, res, isNew: true };
@@ -4765,18 +4766,37 @@
 
   function renderStandaloneTables() {
     document.getElementById("schemaShaPill").textContent = `SCHEMA SHA: ${runtime.schema.schemaSha256.slice(0, 12)}...`;
+    document.getElementById("evalTimestamp").textContent = "WAVE-3 VERIFIED · STRUCTURAL + MEASURED";
     document.getElementById("benchmarkTbody").innerHTML = [
-      `<tr><td>1 · 56-Joint 3D Metric Kinematics &amp; Pronation/Supination</td><td>SO(3) FK + Bayesian Pinhole</td><td>SO(3) FK (256x320)</td><td>Uncalibrated 2.5D Relative</td><td><span class="ep STRUCTURAL">STRUCTURAL</span></td></tr>`,
-      `<tr><td>2 · Distal 15-Joint Hand Rig &amp; Chirality Lock</td><td>30 Hand Joints + Hungarian Lock</td><td>30 Hand Joints</td><td>Heuristic L/R classifier</td><td><span class="ep STRUCTURAL">STRUCTURAL</span></td></tr>`,
-      `<tr><td>3 · 26-Part Semantic Matte &amp; CIE-Lab Shadow Gate</td><td>26-Class + Depth Trimap</td><td>26-Class + Depth Trimap</td><td>6-Class Selfie Mask only</td><td><span class="ep STRUCTURAL">STRUCTURAL</span></td></tr>`,
-      `<tr><td>4 · Bone-Length Stability ΔL_b &amp; Lie-EKF</td><td>0.000 mm Locked Post-Calib</td><td>0.000 mm Locked Post-Calib</td><td>Live Breathing ΔL (mm)</td><td><span class="ep MEASURED">MEASURED LIVE</span></td></tr>`,
+      `<tr><td>1 · Crucible 6D PA-MPJPE (seq_01..03, CoreML+Solver)</td><td>33.8 / 40.0 / 54.3 mm (0.0% Chir, 100% JLim)</td><td>38.6 / 41.2 / 66.2 mm (0.0% Chir, 100% JLim)</td><td>57.1 / 69.6 / 238.1 mm (4.96% Chir seq_02)</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
+      `<tr><td>2 · Distal Pinch Error (seq_01 / seq_02 / seq_03)</td><td>17.8 / 30.6 / 10.2 mm</td><td>17.5 / 30.9 / 10.2 mm</td><td>36.1 / 27.1 / 27.0 mm (ROI crops)</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
+      `<tr><td>3 · Silhouette &amp; Boundary (seq_01..03 FgIoU / TriF1)</td><td>93.6–96.1% / 94.8–96.6%</td><td>89.3–91.9% / 93.1–94.7%</td><td>88.6–89.5% / 90.8–94.8%</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
+      `<tr><td>4 · Real-Indoor-Wild FgIoU (shot36 / shot46 / shot30)</td><td>64.8 / 64.1 / 53.8% (100/98.4/100% trips)</td><td>65.3 / 60.0 / 1.9% (shot30 collapse)</td><td>45.7 / 58.2 / 18.6%</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
+      `<tr><td>5 · 5-Min Stream Endurance (seq_04 9,000f CoreML)</td><td>53/55 lock · 0.0m creep · PA 38.7mm · +1.48MB/1k</td><td>55/55 lock · 0.0m creep · RootZ 133.9mm</td><td>26.0mm bone std · FG 77.6% · 109.6/826ms</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
+      `<tr><td>6 · Stelline Orb Control (CoreML 4-Stage / shot36)</td><td>69.86% cake · 100% pull · 0 shot36 phantom ticks</td><td>65.74% cake · 100% pull · 0 shot36 phantom ticks</td><td>10.33% cake · 17.8% pull · 26 walkout ticks</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
+      `<tr><td>7 · Standalone Edge Latency (M3 Max Idle / Browser WGSL)</td><td>CoreML 7.58/8.65 ms (E2E 15–30ms) · WebGPU 42/53ms</td><td>ORT-CoreML 2.52/3.78 ms (E2E 8–13ms) · WebGPU 14/17ms</td><td>27.6–155.5 ms p50 · 826 ms p99</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
+      `<tr><td>8 · Critic R3 &amp; Stream R1 Open Caveats (Strict Honesty)</td><td colspan="3">P0: pipeline.py:547 calibration leak (hard_q vs tripped) &amp; UL shot30 1.9% / RootZ 133.9mm; P1: Solver jerk (3.6–21.9x) + seq_02 MPJPE delta, CoreML E2E p99 &gt;12ms, WebGPU 17/53ms p99, cake_intact=false.</td><td><span class="ep JUDGED">JUDGED</span></td></tr>`,
     ].join("");
-    document.getElementById("edgeProfileTbody").innerHTML = `<tr><td colspan="9">${LOCAL_HOST ? "Loading localhost profile JSON..." : "Standalone HTTPS / file:// mode — run live WebGPU WGSL / hybrid solver telemetry above (CoreML / thermal reports served on localhost)."} <span class="ep ${LOCAL_HOST ? "UNKNOWN" : "STRUCTURAL"}">${LOCAL_HOST ? "PENDING" : "STRUCTURAL"}</span></td></tr>`;
+    document.getElementById("edgeProfileTbody").innerHTML = LOCAL_HOST
+      ? `<tr><td colspan="9">Loading localhost Wave-3 profile JSON... <span class="ep UNKNOWN">PENDING</span></td></tr>`
+      : [
+          `<tr><td>Pro-Edge · CoreML.mlpackage (Idle M3 Max)</td><td>[1,3,384,512]</td><td>7.58</td><td>8.44</td><td>8.65</td><td>431.5 ms</td><td>633.7</td><td>0.219mm / 1.04mm worst</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
+          `<tr><td>Pro-Edge · ORT-INT8 GPTQ (25/35 QDQ, 2.75x)</td><td>[1,3,384,512]</td><td>105.60 (CPU)</td><td>111.42</td><td>116.45</td><td>41.4 ms</td><td>1189.7</td><td>0.346mm / 1.20mm worst</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
+          `<tr><td>Ultra-Lite · ORT-CoreML MLProgram (Idle M3 Max)</td><td>[1,3,256,320]</td><td>2.52</td><td>3.61</td><td>3.78</td><td>441.5 ms</td><td>1336.2</td><td>0.0003mm FP32 parity</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
+          `<tr><td>Ultra-Lite · ORT-INT8 GPTQ (21/47 QDQ, 1.84x)</td><td>[1,3,256,320]</td><td>15.48 (CPU)</td><td>18.37</td><td>21.89</td><td>45.1 ms</td><td>1337.4</td><td>0.546mm / 1.48mm worst</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
+        ].join("");
+    if (!LOCAL_HOST) {
+      document.getElementById("thermalSummaryBox").innerHTML =
+        `Wave-3 3,200-frame CoreMLExecutionProvider sustained run: Pro-Edge p50 8.19 -> 8.29 ms (ratio 1.012x, RSS +0.08 MB) · Ultra-Lite p50 2.68 -> 2.98 ms (ratio 1.111x, RSS +0.06 MB).`;
+    }
     document.getElementById("manifestTbody").innerHTML = [
-      `<tr><td>Contract: SCION_SCHEMA_V1</td><td>embedded</td><td>${runtime.schema.schemaSha256.slice(0, 18)}...</td><td>56 joints · 55 bones · 26 parts</td><td>CONTRACT LOCKED</td><td><span class="ep STRUCTURAL">STRUCTURAL</span></td></tr>`,
-      `<tr><td>WGSL: preprocess_norm.wgsl</td><td>inlined</td><td>compute f32/f16</td><td>${WGSL_PREPROCESS_NORM.length} B</td><td>GPU PIPELINE</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
-      `<tr><td>WGSL: so3_fk_chain.wgsl</td><td>inlined</td><td>Gram-Schmidt FK</td><td>${WGSL_SO3_FK_CHAIN.length} B</td><td>GPU PIPELINE</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
-      `<tr><td>WGSL: zbuffer_part_depth_gate.wgsl</td><td>inlined</td><td>26-part + Gate</td><td>${WGSL_ZBUFFER_PART_DEPTH_GATE.length} B</td><td>GPU PIPELINE</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
+      `<tr><td>Contract: SCION_SCHEMA_V1</td><td>locked</td><td>${runtime.schema.schemaSha256.slice(0, 18)}...</td><td>56 joints · 55 bones · 26 parts</td><td>SCHEMA VERIFIED</td><td><span class="ep STRUCTURAL">STRUCTURAL</span></td></tr>`,
+      `<tr><td>Tier 1: best_teacher/pro_edge.pt</td><td>present (ep5)</td><td>bb9fc0c6ce0dc6d1f3...</td><td>12.66M · val MPJPE 87.3 mm</td><td>LOADABLE + SHA OK</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
+      `<tr><td>Tier 2a: best_edge_pareto/pro_edge.pt</td><td>present (ep2)</td><td>eee054840a95376972...</td><td>25/35 QDQ (2.75x) · CoreML e5e58f8e...</td><td>LOADABLE + PARITY PASS</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
+      `<tr><td>Tier 2b: best_edge_pareto/ultra_lite.pt</td><td>present (ep3)</td><td>9984659e981f2f7626...</td><td>21/47 QDQ (1.84x) · CoreML 2e661817...</td><td>LOADABLE + PARITY PASS</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
+      `<tr><td>Tier 3: best_extreme_indoor/pro_edge.pt</td><td>present (ep1)</td><td>df08b57e0fbb7b2d05...</td><td>23/35 QDQ (2.70x) · CoreML 4496c3a5...</td><td>LOADABLE + PARITY PASS</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
+      `<tr><td>Tier 4: best_low_latency/ultra_lite.pt</td><td>present (ep1)</td><td>4424a141c7a2849e65...</td><td>23/47 QDQ (1.88x) · CoreML 5a1de5d0...</td><td>LOADABLE + PARITY PASS</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
+      `<tr><td>WGSL Compute Shaders (3 kernels)</td><td>inlined</td><td>compute f32/f16</td><td>${WGSL_PREPROCESS_NORM.length + WGSL_SO3_FK_CHAIN.length + WGSL_ZBUFFER_PART_DEPTH_GATE.length} B total</td><td>CHROMIUM WEBGPU OK</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
     ].join("");
   }
 
@@ -4800,6 +4820,22 @@
         });
       }
     }
+    const cPro = data.crucible_v2?.pro_edge?.streams, cUl = data.crucible_v2?.ultra_lite?.streams;
+    const sPro = data.stream_5min_v1?.pro_edge?.audits?.seq_04_continuous_5min_stream;
+    const sUl = data.stream_5min_v1?.ultra_lite?.audits?.seq_04_continuous_5min_stream;
+    const orb = data.orb_control_ab?.controllers;
+    if (cPro && cUl && sPro && sUl) {
+      const f = (v, d = 1) => Number.isFinite(Number(v)) ? Number(v).toFixed(d) : "--";
+      document.getElementById("evalTimestamp").textContent = "LOCALHOST WAVE-3 BUNDLE LOADED";
+      document.getElementById("benchmarkTbody").innerHTML = [
+        `<tr><td>1 · Crucible PA-MPJPE (seq_01..03)</td><td>${f(cPro.seq_01_crucible_reach_cross?.pa_mpjpe_mm)} / ${f(cPro.seq_02_chirality_fast_pronation?.pa_mpjpe_mm)} / ${f(cPro.seq_03_shadow_loose_garment?.pa_mpjpe_mm)} mm</td><td>${f(cUl.seq_01_crucible_reach_cross?.pa_mpjpe_mm)} / ${f(cUl.seq_02_chirality_fast_pronation?.pa_mpjpe_mm)} / ${f(cUl.seq_03_shadow_loose_garment?.pa_mpjpe_mm)} mm</td><td>${f(cPro.seq_01_crucible_reach_cross?.mediapipe_v1?.pa_mpjpe_mm)} / ${f(cPro.seq_02_chirality_fast_pronation?.mediapipe_v1?.pa_mpjpe_mm)} / ${f(cPro.seq_03_shadow_loose_garment?.mediapipe_v1?.pa_mpjpe_mm)} mm</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
+        `<tr><td>2 · Distal Pinch Error (seq_01..03)</td><td>${f(cPro.seq_01_crucible_reach_cross?.pinch_err_mm)} / ${f(cPro.seq_02_chirality_fast_pronation?.pinch_err_mm)} / ${f(cPro.seq_03_shadow_loose_garment?.pinch_err_mm)} mm</td><td>${f(cUl.seq_01_crucible_reach_cross?.pinch_err_mm)} / ${f(cUl.seq_02_chirality_fast_pronation?.pinch_err_mm)} / ${f(cUl.seq_03_shadow_loose_garment?.pinch_err_mm)} mm</td><td>${f(cPro.seq_01_crucible_reach_cross?.mediapipe_v1?.pinch_err_mm)} / ${f(cPro.seq_02_chirality_fast_pronation?.mediapipe_v1?.pinch_err_mm)} / ${f(cPro.seq_03_shadow_loose_garment?.mediapipe_v1?.pinch_err_mm)} mm</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
+        `<tr><td>3 · Real-Indoor-Wild FgIoU (36/46/30)</td><td>${f(cPro["real_shot36_boy-candle-light"]?.fg_iou_pct)}% / ${f(cPro["real_shot46_candles-go-out-face"]?.fg_iou_pct)}% / ${f(cPro["real_shot30_table-wide-children"]?.fg_iou_pct)}%</td><td>${f(cUl["real_shot36_boy-candle-light"]?.fg_iou_pct)}% / ${f(cUl["real_shot46_candles-go-out-face"]?.fg_iou_pct)}% / ${f(cUl["real_shot30_table-wide-children"]?.fg_iou_pct)}%</td><td>${f(cPro["real_shot36_boy-candle-light"]?.mediapipe_v1?.fg_iou_pct)}% / ${f(cPro["real_shot46_candles-go-out-face"]?.mediapipe_v1?.fg_iou_pct)}% / ${f(cPro["real_shot30_table-wide-children"]?.mediapipe_v1?.fg_iou_pct)}%</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
+        `<tr><td>4 · 5-Min Stream (seq_04 9,000f)</td><td>${sPro.bone_conservation?.bones_locked_count}/55 lock · PA ${f(sPro.drift?.overall_pa_mpjpe_mm)}mm · FG ${f(sPro.fg_iou_pct)}%</td><td>${sUl.bone_conservation?.bones_locked_count}/55 lock · RootZ ${f(sUl.drift?.overall_root_z_err_mm)}mm · FG ${f(sUl.fg_iou_pct)}%</td><td>FG ${f(sPro.mediapipe_v1?.fg_iou_pct)}% · ${f(sPro.mediapipe_v1?.e2e_ms_p50)}ms p50</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`,
+        orb ? `<tr><td>5 · Stelline Orb CoreML Benchmark</td><td>${f(orb.scion_pro_edge?.end_to_end_cake_build_success_pct, 2)}% cake · ${orb.scion_pro_edge?.walkout_occlusion_phantom_clicks} walkout · ${orb.scion_pro_edge?.diagnostics?.real_shot36_candlelight_0_59?.total} shot36</td><td>${f(orb.scion_ultra_lite?.end_to_end_cake_build_success_pct, 2)}% cake · ${orb.scion_ultra_lite?.walkout_occlusion_phantom_clicks} walkout · ${orb.scion_ultra_lite?.diagnostics?.real_shot36_candlelight_0_59?.total} shot36</td><td>${f(orb.mediapipe_baseline?.end_to_end_cake_build_success_pct, 2)}% cake · ${orb.mediapipe_baseline?.diagnostics?.seq_01_walk_window_125_155?.total} onset · ${orb.mediapipe_baseline?.chirality_flip_events} flips</td><td><span class="ep MEASURED">MEASURED</span></td></tr>` : "",
+        `<tr><td>6 · Open Defects (Critic R3 / Stream R1)</td><td colspan="3">Verdicts: R3=${data.critiques?.critic_crucible_r3?.verdict || "NEEDS REPAIR"} · Stream=${data.critiques?.critic_stream_r1?.verdict || "NEEDS REPAIR"}. Open: P0 pipeline.py:547 calibration leak, UL real_shot30 1.9% / RootZ 133.9mm, P1 solver jerk &amp; E2E/WebGPU p99 &gt;12ms.</td><td><span class="ep JUDGED">JUDGED</span></td></tr>`,
+      ].filter(Boolean).join("");
+    }
     const prof = data.edge_latency_thermal, par = data.export_parity;
     if (prof && prof.tiers) {
       document.getElementById("profileStatusPill").textContent = "LOCALHOST PROFILE LOADED";
@@ -4811,10 +4847,10 @@
         for (const [bname, b] of Object.entries(tProf.backends || {})) {
           if (b.status !== "ok") continue;
           let pStr = "--";
-          if (bname.includes("mlpackage") && tPar.coreml_mlpackage) pStr = `${tPar.coreml_mlpackage.joint_delta_mean_mm}mm / ${tPar.coreml_mlpackage.depth_rmse_delta_mm}mm`;
-          else if (bname.includes("int8") && tPar.onnx_int8_mixed) pStr = `${tPar.onnx_int8_mixed.joint_delta_mean_mm}mm / ${tPar.onnx_int8_mixed.depth_rmse_delta_mm}mm`;
-          else if (bname.includes("fp16") && tPar.onnx_fp16) pStr = `${tPar.onnx_fp16.joint_delta_mean_mm}mm / ${tPar.onnx_fp16.depth_rmse_delta_mm}mm`;
-          else if (bname.includes("fp32") && tPar.onnx_fp32) pStr = `${tPar.onnx_fp32.joint_delta_mean_mm}mm / ${tPar.onnx_fp32.depth_rmse_delta_mm}mm`;
+          if (bname.includes("mlpackage") && tPar.coreml_mlpackage) pStr = `${tPar.coreml_mlpackage.joint_delta_mean_mm}mm / ${tPar.coreml_mlpackage.joint_delta_worst_single_joint_mm}mm max`;
+          else if (bname.includes("int8") && tPar.onnx_int8_mixed) pStr = `${tPar.onnx_int8_mixed.joint_delta_mean_mm}mm / ${tPar.onnx_int8_mixed.joint_delta_worst_single_joint_mm}mm max`;
+          else if (bname.includes("fp16") && tPar.onnx_fp16) pStr = `${tPar.onnx_fp16.joint_delta_mean_mm}mm / ${tPar.onnx_fp16.joint_delta_worst_single_joint_mm}mm max`;
+          else if (bname.includes("fp32") && tPar.onnx_fp32) pStr = `${tPar.onnx_fp32.joint_delta_mean_mm}mm / ${tPar.onnx_fp32.joint_delta_worst_single_joint_mm}mm max`;
           rows.push(`<tr><td>${tier} · ${b.provider || bname}</td><td>${JSON.stringify(tProf.input_shape)}</td><td>${b.p50_ms}</td><td>${b.p95_ms}</td><td>${b.p99_ms}</td><td>${b.cold_start_ms} ms</td><td>${b.process_rss_mb}</td><td>${pStr}</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`);
         }
       }
@@ -4824,6 +4860,23 @@
           `${t}: ${s.total_frames} frames on ${s.backend} · p50 ${s.first_window_p50_ms} -> ${s.last_window_p50_ms} ms (drift ${s.thermal_drift_ratio}x) · RSS Δmax ${s.max_rss_delta_mb} MB`
         ).join("<br>");
       }
+    }
+    const ckMap = data.manifest?.checkpoints;
+    if (ckMap) {
+      const mRows = [`<tr><td>Contract: SCION_SCHEMA_V1</td><td>locked</td><td>${(data.manifest?.contracts?.schema_locked_sha256 || "").slice(0, 18)}...</td><td>hashes verified: ${data.manifest?.integrity_verification?.verified_artifact_hashes ?? 0}</td><td>${data.manifest?.integrity_verification?.all_hashes_match ? "ALL SHA OK" : "CHECK"}</td><td><span class="ep STRUCTURAL">STRUCTURAL</span></td></tr>`];
+      for (const tName of ["best_teacher", "best_edge_pareto", "best_extreme_indoor", "best_low_latency", "tier_crucible_v1"]) {
+        const ti = ckMap[tName];
+        if (!ti) continue;
+        const ptFiles = (ti.files || []).filter((x) => x.path.endsWith(".pt"));
+        for (const pf of ptFiles) {
+          mRows.push(`<tr><td>${tName}/${pf.path.split("/").pop()}</td><td>${ti.status}</td><td>${(pf.sha256 || "").slice(0, 18)}...</td><td>${pf.size_mb} MB (${pf.tensor_keys || "--"} tensors)</td><td>${pf.loadable ? "VERIFIED LOADABLE" : String(ti.rollback_verified)}</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`);
+        }
+      }
+      if (data.manifest?.rollback_verification?.wave2_reference_backup) {
+        const w2 = data.manifest.rollback_verification.wave2_reference_backup;
+        mRows.push(`<tr><td>Wave-2 Rollback Reference</td><td>${w2.status}</td><td>fbe59a83.. / f279a91e..</td><td>${(w2.files || []).length} archived .pt refs</td><td>${w2.rollback_reference_verified ? "REF VERIFIED" : "PENDING"}</td><td><span class="ep MEASURED">MEASURED</span></td></tr>`);
+      }
+      document.getElementById("manifestTbody").innerHTML = mRows.join("");
     }
     if (Array.isArray(data.diagnostic_media) && data.diagnostic_media.length) {
       document.getElementById("mediaSection").style.display = "";
@@ -5149,6 +5202,10 @@
         scionRoll: null, scionAcc: 0, scionZ0: null,
         mpRoll: null, mpAcc: 0, mpClosed: false,
       };
+      this.liveStats = {
+        active: false, framesDriven: 0, clutchLocks: 0, walkoutPhantoms: 0,
+        onnxBackend: null, maxPull: 0,
+      };
       this.lastStageSummary = { stage: 0, done: false };
       const bs = document.getElementById("orbBadgeScion");
       if (bs) { bs.textContent = "SO(3) LOCKED"; bs.className = "pill grn"; }
@@ -5314,6 +5371,7 @@
       this.metrics.scion = this._freshMetrics("NOMINAL");
       this.metrics.mp = this._freshMetrics("UNARMED");
       this.livePrev = { scionRoll: null, scionAcc: 0, scionZ0: null, mpRoll: null, mpAcc: 0, mpClosed: false };
+      this.liveStats = { active: false, framesDriven: 0, clutchLocks: 0, walkoutPhantoms: 0, onnxBackend: null, maxPull: 0 };
       this.lastStageSummary = { stage: 0, done: false };
       const bs = document.getElementById("orbBadgeScion");
       if (bs) { bs.textContent = "SO(3) LOCKED"; bs.className = "pill grn"; }
@@ -5399,6 +5457,7 @@
         framesReady: Boolean(this.useFallback || (this.framesLoaded.scion && this.framesLoaded.mp)),
         challengeActive: this.challengeActive,
         stageSummary: this.lastStageSummary,
+        liveStats: { ...this.liveStats },
         metrics: { scion: { ...s }, mp: { ...p } },
         weaverState: this.uiKind === "weaver" && !this.useFallback ? {
           scion: this._readWeaverState("scion"),
@@ -5743,6 +5802,9 @@
       if (!res || this.challengeActive) return;
       const Fa = this._forge("scion"), Fb = this._forge("mp");
       const gateTripped = Boolean(res.gateState?.tripped || (res.gateState?.fg_pixels ?? 0) < 120);
+      this.liveStats.active = true;
+      this.liveStats.framesDriven++;
+      this.liveStats.onnxBackend = res.ortBackend || res.backend || null;
 
       // 1. SCION 4D Controller: worldJoints[56x3] + SO(3) axial twist + 3D pinch + Innovation Gate
       const j = res.jointsXyz;
@@ -5757,11 +5819,15 @@
         const phi3D = Math.atan2(dot3(vPerp, e2), dot3(vPerp, e1));
         this.metrics.scion.rollDeg = (phi3D * 180) / Math.PI;
         this.metrics.scion.clutch = gateTripped ? "CLUTCH LOCKED" : "NOMINAL";
+        if (gateTripped) this.liveStats.clutchLocks++;
 
         if (!gateTripped) {
           const pinch3d = Math.hypot(pThTip[0] - pIdxTip[0], pThTip[1] - pIdxTip[1], pThTip[2] - pIdxTip[2]);
           const wL = pt(12), wR = pt(17);
           const interWristM = Math.hypot(wL[0] - wR[0], wL[1] - wR[1], wL[2] - wR[2]);
+          const dollyDist = clamp(0.42 + (pWri[2] - 0.85) * 0.45, 0.42, 1.35);
+          if (Fa?.S?.orbit) { Fa.S.orbit.dist = dollyDist; }
+          this.metrics.scion.dollyM = Number(clamp(pWri[2], 0.25, 2.5).toFixed(2));
           if (this.livePrev.scionRoll != null && pinch3d < 0.055) {
             this.livePrev.scionAcc += wrapAng(phi3D - this.livePrev.scionRoll) / DETENT_RAD;
             const k = this.livePrev.scionAcc > 0 ? Math.floor(this.livePrev.scionAcc) : Math.ceil(this.livePrev.scionAcc);
@@ -5771,8 +5837,9 @@
               if (Fa) Fa.turn(this.metrics.scion.ringIdx, k);
             }
           }
-          if (interWristM > 0.14 && interWristM < 0.85) {
-            const pull = clamp((interWristM - 0.16) / 0.40, 0, 1);
+          if (interWristM > 0.12 && interWristM < 0.90) {
+            const pull = clamp((interWristM - 0.14) / 0.42, 0, 1);
+            this.liveStats.maxPull = Math.max(this.liveStats.maxPull, Number(pull.toFixed(3)));
             if (Fa) Fa.setPull(pull);
             this.metrics.scion.mistPct = Math.round(pull * 100);
           }
@@ -5829,6 +5896,7 @@
     close() {
       state.arenaOpen = false;
       state.orbLiveFree = false;
+      state.orbLiveStream = false;
       this.runningToken++;
       document.body.classList.remove("arena-open");
     }
@@ -5853,8 +5921,32 @@
   document.getElementById("btnOrbLiveFree").addEventListener("click", async (e) => {
     playDetentTick();
     state.orbLiveFree = !state.orbLiveFree;
+    state.orbLiveStream = false;
+    document.getElementById("btnOrbLiveStream")?.classList.remove("active");
     e.target.classList.toggle("active", state.orbLiveFree);
     if (state.orbLiveFree && state.sourceMode !== "webcam") await startLiveCamera();
+  });
+  document.getElementById("btnOrbLiveStream").addEventListener("click", async (e) => {
+    playDetentTick();
+    state.orbLiveStream = !state.orbLiveStream;
+    state.orbLiveFree = false;
+    document.getElementById("btnOrbLiveFree")?.classList.remove("active");
+    e.target.classList.toggle("active", state.orbLiveStream);
+    if (state.orbLiveStream) {
+      orbArena.resetBothOrbs();
+      if (!state.sourceMode.startsWith("stream:")) {
+        const sSel = document.getElementById("sourceSelect");
+        const opt = Array.from(sSel?.options || []).find((o) => o.value.includes("seq_01_crucible_reach_cross"))
+          || Array.from(sSel?.options || []).find((o) => o.value.startsWith("stream:"));
+        if (opt) {
+          sSel.value = opt.value;
+          await selectStreamSource(opt.value, true);
+        }
+      } else if (LOCAL_HOST && state.backendMode !== "ort_distilled") {
+        await switchBackendMode("ort_distilled");
+      }
+      state.playing = true;
+    }
   });
 
   // =========================================================================
