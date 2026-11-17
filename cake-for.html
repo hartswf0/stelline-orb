@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>A Cake For</title>
+<meta name="description" content="A birthday cake starts from who it is for. Turn the age, type the name: sculpted cakes for young children, number cakes, piped messages, a candle for every year.">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #040504; --ink: #e9e4d8; --dim: #8a877e; --amb: #f0b040; --line: #2a2a26; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 12px/1.35 "IBM Plex Mono", ui-monospace, monospace; overflow: hidden; user-select: none; -webkit-user-select: none; }
+  .app { height: 100dvh; display: grid; grid-template-rows: minmax(0, 1fr) auto; }
+  #stage { position: relative; overflow: hidden; touch-action: none; background: radial-gradient(90% 70% at 50% 60%, #15130f 0%, #070706 60%, #030303 100%); }
+  #gl { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; }
+  #cap { position: absolute; left: 14px; top: 12px; right: 14px; pointer-events: none; }
+  #cap b { font-size: 15px; font-weight: 600; } #cap span { color: var(--dim); display: block; margin-top: 2px; }
+  #dev { border-top: 1px solid var(--line); background: #070807; padding: 10px 12px 12px; display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 8px; }
+  .ring { position: relative; height: 62px; border-radius: 8px; overflow: hidden; cursor: ew-resize; touch-action: none; background: linear-gradient(180deg, #2c2b27, #8e897f 18%, #d6d1c6 44%, #e8e3d8 52%, #9a958a 80%, #33322d); box-shadow: inset 0 0 0 1px rgba(0,0,0,.5); }
+  .ring i { position: absolute; inset: 0; opacity: .45; background: repeating-linear-gradient(90deg, rgba(0,0,0,.55) 0 1px, transparent 1px 7px); }
+  .ring b { position: absolute; left: 0; right: 0; top: 9px; text-align: center; font-size: 9px; letter-spacing: .12em; color: #2b2925; }
+  .ring span { position: absolute; left: 0; right: 0; bottom: 9px; text-align: center; font-weight: 600; font-size: 15px; color: #151412; white-space: nowrap; }
+  #row { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; }
+  input { flex: 1; min-width: 0; font: inherit; font-size: 13px; color: var(--ink); background: #11120f; border: 1px solid var(--line); border-radius: 3px; padding: 7px 9px; user-select: text; -webkit-user-select: text; }
+  button, a.b { font: inherit; font-size: 11px; letter-spacing: .06em; color: var(--ink); background: #11120f; border: 1px solid var(--line); border-radius: 3px; padding: 7px 9px; cursor: pointer; text-decoration: none; }
+  body.bare #dev, body.bare #cap { display: none; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div id="stage"><canvas id="gl"></canvas><div id="cap"><b id="t1"></b><span id="t2"></span></div></div>
+  <div id="dev">
+    <div class="ring" id="rAge"><i></i><b>AGE</b><span></span></div>
+    <div class="ring" id="rDes"><i></i><b>DESIGN</b><span></span></div>
+    <div class="ring" id="rTurn"><i></i><b>TURN</b><span></span></div>
+    <div id="row"><input id="name" placeholder="name" maxlength="14"><input id="msg" placeholder="message (on the grown-up cakes)" maxlength="18"><button id="glb">GLB</button><a class="b" href="eye.html">EYE</a><a class="b" href="index.html">INDEX</a></div>
+  </div>
+</div>
+<script src="assets/three.min.js"></script>
+<script src="assets/GLTFExporter.js"></script>
+<script src="assets/eye/cakemodel.js"></script>
+<script src="assets/eye/cakefor.js"></script>
+<script>
+(function () {
+'use strict';
+const Q = new URLSearchParams(location.search), BARE = Q.has('bare'); if (BARE) document.body.classList.add('bare');
+const $ = id => document.getElementById(id), D2R = Math.PI / 180;
+const S = { age: +(Q.get('age') || 4), name: Q.get('name') == null ? 'Mia' : Q.get('name'), msg: Q.get('msg') || '', design: Q.get('design') || '', yaw: +(Q.get('yaw') || 25), elev: +(Q.get('elev') || 30), zoom: +(Q.get('zoom') || 1) };
+const R = new THREE.WebGLRenderer({ canvas: $('gl'), antialias: true, preserveDrawingBuffer: true });
+R.setPixelRatio(BARE ? 1 : Math.min(2, devicePixelRatio || 1)); R.outputEncoding = THREE.sRGBEncoding; R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.1; R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFSoftShadowMap; R.setClearColor(0x000000, 0);
+const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(26, 1, 1, 2000);
+scene.add(new THREE.HemisphereLight(0xfff0d8, 0x20180c, .55));
+const key = new THREE.DirectionalLight(0xfff2e0, .95); key.position.set(-40, 70, 50); key.castShadow = true; key.shadow.mapSize.set(2048, 2048); const sc = key.shadow.camera; sc.left = sc.bottom = -45; sc.right = sc.top = 45; sc.far = 220; key.shadow.bias = -.001; key.shadow.radius = 4; scene.add(key);
+const rim = new THREE.DirectionalLight(0x9fb8d8, .4); rim.position.set(40, 30, -50); scene.add(rim);
+const table = new THREE.Mesh(new THREE.CircleGeometry(160, 64), new THREE.MeshStandardMaterial({ color: new THREE.Color('#3a2a1c').convertSRGBToLinear(), roughness: .7 })); table.rotation.x = -Math.PI / 2; table.position.y = -.62; table.receiveShadow = true; scene.add(table);
+let cake = null, box = new THREE.Box3(), dirty = true, timer = 0;
+function rebuild() {
+  if (cake) scene.remove(cake);
+  cake = CAKEFOR.make({ age: S.age, name: S.name, message: S.msg, design: S.design }); scene.add(cake); box.setFromObject(cake);
+  const d = cake.userData; $('t1').textContent = 'A cake for ' + (S.name || 'someone') + ', turning ' + S.age; $('t2').textContent = d.design.toUpperCase() + ': ' + d.why + '. ' + d.candles + '.';
+  $('rAge').lastElementChild.textContent = S.age; $('rDes').lastElementChild.textContent = d.design + (S.design ? '' : ' \u00b7 by age'); dirty = true;
+}
+function draw() {
+  const st = $('stage'), w = BARE ? +(Q.get('w') || 800) : st.clientWidth, h = BARE ? +(Q.get('h') || 800) : st.clientHeight; if ($('gl').width !== w * R.getPixelRatio() || $('gl').height !== h * R.getPixelRatio()) { R.setSize(w, h, !BARE); if (BARE) { $('gl').style.width = w + 'px'; $('gl').style.height = h + 'px'; } cam.aspect = w / h; }
+  const c = box.getCenter(new THREE.Vector3()), sz = box.getSize(new THREE.Vector3()), rad = Math.max(sz.x, sz.z, sz.y * 1.3) * .62 + 4, dist = rad / Math.tan(cam.fov * D2R / 2) / Math.min(1, cam.aspect) / S.zoom, e = S.elev * D2R, y = S.yaw * D2R;
+  cam.position.set(c.x + Math.sin(y) * Math.cos(e) * dist, c.y * .8 + Math.sin(e) * dist, c.z + Math.cos(y) * Math.cos(e) * dist); cam.lookAt(c.x, c.y * .8, c.z); cam.updateProjectionMatrix();
+  $('rTurn').lastElementChild.textContent = ((Math.round(S.yaw) % 360) + 360) % 360 + '°'; R.render(scene, cam); dirty = false;
+}
+/* detent: a 4 ms band-passed noise grain, never a tone */
+let AC = null, lastClick = 0;
+function click(f) { const now = performance.now(); if (now - lastClick < 55) return; lastClick = now; try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const n = Math.floor(AC.sampleRate * .004), b = AC.createBuffer(1, n, AC.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n); const s = AC.createBufferSource(); s.buffer = b; const bp = AC.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = 2.5; const ga = AC.createGain(); ga.gain.value = .25; s.connect(bp); bp.connect(ga); ga.connect(AC.destination); s.start(); } catch (e) {} }
+function ring(el, px, step) { let d = null; el.addEventListener('pointerdown', e => { el.setPointerCapture(e.pointerId); d = { x: e.clientX, acc: 0 }; }); el.addEventListener('pointermove', e => { if (!d) return; d.acc += e.clientX - d.x; d.x = e.clientX; while (Math.abs(d.acc) >= px) { const s = Math.sign(d.acc); d.acc -= s * px; step(s); } el.firstElementChild.style.backgroundPositionX = (e.clientX % 7) + 'px'; }); const up = () => d = null; el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up); el.addEventListener('wheel', e => { e.preventDefault(); step(e.deltaY > 0 ? 1 : -1); }, { passive: false }); }
+const later = () => { clearTimeout(timer); timer = setTimeout(rebuild, 60); };
+ring($('rAge'), 14, s => { S.age = Math.min(100, Math.max(1, S.age + s)); S.design = ''; $('rAge').lastElementChild.textContent = S.age; click(1700); later(); });
+ring($('rDes'), 30, s => { const L = CAKEFOR.designs, i = L.indexOf(S.design || CAKEFOR.pick(S.age)); S.design = L[(i + s + L.length) % L.length]; click(2300); later(); });
+ring($('rTurn'), 3, s => { S.yaw += s * 3; if (Math.round(S.yaw) % 15 === 0) click(1300); dirty = true; });
+let drag = null; $('gl').addEventListener('pointerdown', e => { $('gl').setPointerCapture(e.pointerId); drag = { x: e.clientX, y: e.clientY, yaw: S.yaw, elev: S.elev }; }); $('gl').addEventListener('pointermove', e => { if (!drag) return; S.yaw = drag.yaw - (e.clientX - drag.x) * .4; S.elev = Math.min(85, Math.max(4, drag.elev + (e.clientY - drag.y) * .3)); dirty = true; }); $('gl').addEventListener('pointerup', () => drag = null);
+$('gl').addEventListener('wheel', e => { e.preventDefault(); S.zoom = Math.min(3, Math.max(.5, S.zoom * Math.exp(-e.deltaY * .001))); dirty = true; }, { passive: false });
+$('name').value = S.name; $('msg').value = S.msg; $('name').oninput = e => { S.name = e.target.value; later(); }; $('msg').oninput = e => { S.msg = e.target.value; later(); };
+$('glb').onclick = () => new THREE.GLTFExporter().parse(cake, b => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([b], { type: 'model/gltf-binary' })); a.download = 'cake-for-' + (S.name || 'someone') + '-' + S.age + '.glb'; a.click(); }, { binary: true });
+addEventListener('resize', () => dirty = true);
+window.CF = { S, set: o => { Object.assign(S, o); rebuild(); draw(); }, png: () => $('gl').toDataURL('image/jpeg', .9), ready: false };
+rebuild(); draw(); window.CF.ready = true; (function tick() { if (dirty) draw(); requestAnimationFrame(tick); })();
+})();
+</script>
+</body>
+</html>

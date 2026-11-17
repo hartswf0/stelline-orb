@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0b0d10">
+<meta name="description" content="Cup Orb: point your phone at the wrapped cup, touch four cells to calibrate, then every touch on the cup is read as a cell and a twin turns on screen.">
+<title>Cup Orb</title>
+<style>
+  :root { --bg:#0b0d10; --panel:#12161b; --line:#232a32; --ink:#e9edf1; --dim:#8b96a3; --gold:#f0b040; --teal:#5ff0dc; --bad:#ff7a6b; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--ink); font:15px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overscroll-behavior:none; }
+  body { display:flex; flex-direction:column; min-height:100dvh; padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+  header { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; border-bottom:1px solid var(--line); }
+  header b { letter-spacing:.14em; font-size:13px; }
+  header a { color:var(--dim); text-decoration:none; font-size:12px; letter-spacing:.1em; padding:6px 0 6px 12px; }
+  #stageWrap { flex:1 1 auto; min-height:0; display:flex; align-items:center; justify-content:center; background:#000; position:relative; overflow:hidden; }
+  #stage { position:relative; max-width:100%; max-height:100%; aspect-ratio:3/4; height:100%; }
+  #stage video, #stage img { position:absolute; inset:0; width:100%; height:100%; object-fit:fill; display:block; }
+  #ov { position:absolute; inset:0; width:100%; height:100%; touch-action:none; }
+  #twin { position:absolute; right:8px; top:8px; width:28%; max-width:150px; aspect-ratio:3/4; border:1px solid var(--line); border-radius:8px; background:rgba(8,10,12,.78); display:none; }
+  #status { position:absolute; left:10px; top:8px; right:34%; font-size:12px; color:var(--ink); text-shadow:0 1px 3px #000, 0 0 8px #000; pointer-events:none; }
+  #status em { color:var(--gold); font-style:normal; font-weight:700; }
+  #intro { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; gap:14px; padding:24px 22px; background:var(--bg); z-index:3; overflow:auto; }
+  #intro h1 { font-size:22px; margin:0; letter-spacing:.06em; }
+  #intro p { margin:0; color:var(--dim); }
+  #intro ol { margin:0; padding-left:20px; color:var(--ink); }
+  #intro li { margin:6px 0; }
+  #panel { flex:0 0 auto; background:var(--panel); border-top:1px solid var(--line); padding:12px 16px 14px; }
+  #dots { display:flex; gap:6px; margin-bottom:8px; }
+  #dots i { flex:1; height:3px; border-radius:2px; background:var(--line); }
+  #dots i.on { background:var(--gold); } #dots i.done { background:var(--teal); }
+  #title { font-size:18px; font-weight:700; letter-spacing:.02em; margin:0 0 2px; }
+  #title em { color:var(--gold); font-style:normal; }
+  #hint { color:var(--dim); font-size:13px; min-height:36px; margin:0 0 10px; }
+  #hint.bad { color:var(--bad); }
+  .row { display:flex; gap:8px; }
+  button { flex:1; appearance:none; border:1px solid var(--line); background:#1a2027; color:var(--ink); font:inherit; font-size:13px; letter-spacing:.1em; padding:13px 10px; border-radius:10px; min-height:46px; }
+  button.go { background:var(--gold); border-color:var(--gold); color:#14100a; font-weight:700; }
+  button.on { border-color:var(--teal); color:var(--teal); }
+  button[hidden] { display:none; }
+  @media (orientation:landscape) { body { flex-direction:row; flex-wrap:wrap; } header { flex:0 0 100%; } #stageWrap { flex:1 1 55%; height:calc(100dvh - 44px); } #twin { width:18%; max-width:110px; } #status { right:22%; } #panel { flex:0 0 42%; border-top:0; border-left:1px solid var(--line); display:flex; flex-direction:column; justify-content:center; } }
+</style>
+</head>
+<body>
+<header><b>CUP ORB</b><span><a href="cup-ar.html">BENCH</a><a href="index.html">INDEX</a></span></header>
+<div id="stageWrap">
+  <div id="stage"><video id="vid" playsinline muted autoplay></video><canvas id="ov"></canvas><canvas id="twin"></canvas><div id="status"></div></div>
+  <div id="intro">
+    <h1>CUP ORB</h1>
+    <p>Your wrapped cup becomes a controller. The camera reads which cell you touch, and a twin of the cup turns on screen.</p>
+    <ol><li>Allow the camera when the browser asks.</li><li>Hold the cup about 25 cm from the phone, upright or sideways, ruler strip toward the camera.</li><li>Touch four cells as they are named. That calibrates it to your hand and your camera.</li></ol>
+    <p>The picture stays on this phone. Nothing is uploaded.</p>
+  </div>
+</div>
+<div id="panel">
+  <div id="dots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <p id="title">Camera</p>
+  <p id="hint">Press the button, then choose Allow.</p>
+  <div class="row"><button id="bMain" class="go">ALLOW CAMERA</button><button id="bAlt" hidden>SKIP</button><button id="bCam" hidden>OTHER CAMERA</button></div>
+</div>
+<canvas id="frame" hidden></canvas>
+<script src="assets/three.min.js"></script>
+<script src="assets/cup/cup.js"></script>
+<script src="assets/cup/cupnet.js"></script>
+<script type="module">
+/* CUP ORB, the phone page.
+   Steps: 0 camera permission, 1 find the cup, 2..5 four touches that calibrate, 6 live.
+   A touch is the index fingertip held still on the cup for .9 s, or a tap on the screen at that spot.
+   Each touch gives where the model thinks the finger is (angle, height) and where it truly is (the named cell).
+   From four: a turn offset, a height scale and offset. They are kept in localStorage and applied to every lookup. */
+const $ = id => document.getElementById(id), Q = new URLSearchParams(location.search), D2R = Math.PI / 180;
+const vid = $('vid'), ov = $('ov'), ox = ov.getContext('2d'), frame = $('frame'), fx = frame.getContext('2d', { willReadFrequently: true }), stage = $('stage');
+const S = { step: 0, W: 0, H: 0, src: null, fov: +(Q.get('fov') || 66), facing: 'environment', det: null, detAt: 0, pose: null, hands: [], tips: [], seenRun: 0, touches: [], hold: null, cool: 0, twin: true, err: '' };
+const TR = {};
+const TARGETS = [{ col: 1, band: 3 }, { col: 24, band: 6 }, { col: 2, band: 1 }, { col: 23, band: 4 }];
+let CAL = { da: 0, s: 1, o: 0, n: 0 }; try { if (!Q.has('fresh')) CAL = Object.assign(CAL, JSON.parse(localStorage.getItem('cup.touch') || '{}')); } catch (e) {}
+const sp = CUP.spec, pitch = () => (360 - sp.gapDeg) / sp.cols, bh = () => sp.labelH / sp.bands, norm = a => ((a + 180) % 360 + 360) % 360 - 180;
+const fpx = () => (Math.max(S.W, S.H) / 2) / Math.tan(S.fov / 2 * D2R);
+const name = t => sp.letters[t.col - 1] + ' ' + String(t.col).padStart(2, '0') + ' in band B' + t.band;
+const truth = t => ({ a: CUP.colAngle(t.col), y: sp.labelY0 + (t.band - .5) * bh() });
+const fix = (a, y) => ({ a: norm(a + CAL.da), y: CAL.s * y + CAL.o });                 // model -> true
+const unfix = (a, y) => ({ a: norm(a - CAL.da), y: (y - CAL.o) / CAL.s });             // true -> model
+
+/* ---- camera */
+async function startCam() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw Object.assign(new Error('insecure'), { name: 'Insecure' });
+  if (vid.srcObject) vid.srcObject.getTracks().forEach(t => t.stop());
+  const st = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: S.facing }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+  vid.srcObject = st; await vid.play(); await new Promise(r => vid.videoWidth ? r() : vid.addEventListener('loadedmetadata', r, { once: true }));
+  setSource(vid, vid.videoWidth, vid.videoHeight); try { if (navigator.wakeLock) await navigator.wakeLock.request('screen'); } catch (e) {}
+}
+function setSource(el, w, h) { const k = Math.min(1, 640 / Math.max(w, h)); S.W = Math.round(w * k); S.H = Math.round(h * k); frame.width = S.W; frame.height = S.H; S.src = el; stage.style.aspectRatio = w + ' / ' + h; layout(); }
+function layout() { const wrap = $('stageWrap'), ar = S.W && S.H ? S.W / S.H : 3 / 4, ww = wrap.clientWidth, wh = wrap.clientHeight; let h = wh, w = h * ar; if (w > ww) { w = ww; h = w / ar; } stage.style.width = w + 'px'; stage.style.height = h + 'px';
+  const dpr = Math.min(3, window.devicePixelRatio || 1); ov.width = Math.round(w * dpr); ov.height = Math.round(h * dpr); }
+addEventListener('resize', layout); addEventListener('orientationchange', () => setTimeout(layout, 200));
+const camWords = e => e.name === 'NotAllowedError' || e.name === 'SecurityError' ? 'The camera was not allowed. Open the site settings for this page (the lock or “aA” in the address bar), set Camera to Allow, then try again.'
+  : e.name === 'NotFoundError' || e.name === 'OverconstrainedError' ? 'No camera was found on this device.'
+  : e.name === 'NotReadableError' ? 'Another app is using the camera. Close it, then try again.'
+  : e.name === 'Insecure' ? 'The camera only works on a secure address (https). Open this page from its https link.' : 'The camera did not start: ' + e.message;
+
+/* ---- hands (MediaPipe HandLandmarker) and the trained reader */
+const MP = Q.get('mp') || 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21', HM = Q.get('hm') || 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
+let HL = null, handsState = 'loading';
+async function loadHands() { if (Q.get('hands') === '0') { handsState = 'off'; return; } try { const base = new URL(MP, location.href).href.replace(/\/$/, ''), v = await import(base + '/vision_bundle.mjs'), fs = await v.FilesetResolver.forVisionTasks(base + '/wasm');
+    const mk = d => v.HandLandmarker.createFromOptions(fs, { baseOptions: { modelAssetPath: new URL(HM, location.href).href, delegate: d }, runningMode: 'VIDEO', numHands: 2, minHandDetectionConfidence: .4, minHandPresenceConfidence: .4, minTrackingConfidence: .4 });
+    try { HL = await mk(Q.get('hd') === 'cpu' ? 'CPU' : 'GPU'); } catch (e) { HL = await mk('CPU'); } handsState = 'ready'; } catch (e) { handsState = 'failed'; } }
+const netReady = CUPNET.load('assets/cup/').catch(() => {});
+
+/* ---- reading a frame */
+const hiC = document.createElement('canvas'), hiX = hiC.getContext('2d', { willReadFrequently: true });
+function hiFrame() { const w = S.src.videoWidth || S.src.naturalWidth || 0, h = S.src.videoHeight || S.src.naturalHeight || 0; if (Math.max(w, h) < Math.max(S.W, S.H) * 1.3) return null; const k = Math.min(1, 1280 / Math.max(w, h)), W2 = Math.round(w * k), H2 = Math.round(h * k);
+  if (hiC.width !== W2 || hiC.height !== H2) { hiC.width = W2; hiC.height = H2; } hiX.drawImage(S.src, 0, 0, W2, H2); return hiX.getImageData(0, 0, W2, H2); }
+let smooth = null;
+function readCup(now) { fx.drawImage(S.src, 0, 0, S.W, S.H); const d = CUP.detect(fx.getImageData(0, 0, S.W, S.H), hiFrame()), good = d.ok && d.conf > .12;
+  if (good) { CUP.track(d, TR); d.turn = !!TR.known; d.how = TR.how; d.face = TR.known ? TR.face : 0;
+    if (smooth && Math.hypot(d.c[0] - smooth.c[0], d.c[1] - smooth.c[1]) < d.w && d.a[0] * smooth.a[0] + d.a[1] * smooth.a[1] > .5) { const k = .5, L = (x, y) => x + (y - x) * k, l = Math.hypot(L(smooth.a[0], d.a[0]), L(smooth.a[1], d.a[1])) || 1;
+      smooth = Object.assign({}, d, { c: [L(smooth.c[0], d.c[0]), L(smooth.c[1], d.c[1])], a: [L(smooth.a[0], d.a[0]) / l, L(smooth.a[1], d.a[1]) / l], w: L(smooth.w, d.w), len: L(smooth.len, d.len), face: smooth.face + norm(d.face - smooth.face) * k }); } else smooth = d;
+    S.det = smooth; S.detAt = now; S.seenRun++; S.pose = CUP.poseFrom(smooth, S.W, S.H, fpx()); }
+  else { S.seenRun = 0; if (now - S.detAt > 1500) { S.det = null; S.pose = null; smooth = null; } } }
+function look(px, py, pad) { if (!S.pose) return { region: 'off' }; const h = CUP.rayToCup(px, py, S.W, S.H, fpx(), S.pose, pad == null ? 5 : pad);   // 5 mm: a fingertip's middle rides above the paper
+  if (h.region === 'off') return h; const t = fix(h.a, h.y); return Object.assign({ ma: h.a, my: h.y, a: t.a, y: t.y }, CUP.cellAt(t.a, t.y)); }
+function project(a, y) { const m = S.pose.m, r = sp.D / 2, p = [r * Math.sin(a * D2R), y, r * Math.cos(a * D2R)], n = [Math.sin(a * D2R), 0, Math.cos(a * D2R)], T = (v, w) => [m[0] * v[0] + m[4] * v[1] + m[8] * v[2] + w * m[12], m[1] * v[0] + m[5] * v[1] + m[9] * v[2] + w * m[13], m[2] * v[0] + m[6] * v[1] + m[10] * v[2] + w * m[14]];
+  const c = T(p, 1), nn = T(n, 0), f = fpx(); return { x: S.W / 2 + f * c[0] / -c[2], y: S.H / 2 - f * c[1] / -c[2], front: nn[0] * c[0] + nn[1] * c[1] + nn[2] * c[2] < 0 }; }
+function cellPoly(col, band) { const a0 = CUP.colAngle(col) - pitch() / 2, y0 = sp.labelY0 + (band - 1) * bh(), pts = [], add = (a, y) => { const u = unfix(a, y), q = project(u.a, u.y); pts.push(q); };
+  for (let i = 0; i <= 6; i++) add(a0 + pitch() * i / 6, y0); for (let i = 6; i >= 0; i--) add(a0 + pitch() * i / 6, y0 + bh()); return pts.every(p => p.front) ? pts : null; }
+
+/* ---- touches and the calibration they give */
+function touchAt(px, py, how) { const h = S.pose ? CUP.rayToCup(px, py, S.W, S.H, fpx(), S.pose, how === 'finger' ? 5 : 0) : { region: 'off' }; if (h.region === 'off' || h.y < sp.labelY0 - 15 || h.y > sp.labelY0 + sp.labelH + 15) return false;
+  if (S.step >= 2 && S.step <= 5) { const t = TARGETS[S.step - 2]; S.touches.push({ t, a: h.a, y: h.y, px, py, how, turn: !!(S.det && S.det.turn) }); S.cool = performance.now() + 900; S.hold = null; setStep(S.step + 1); if (S.step === 6) solve(); return true; }
+  return false; }
+function solve() { const T = S.touches; if (!T.length) return;
+  /* if the turn was not known, the first touch sets it; a whole number of columns of error is put right in the tracker */
+  let sx = 0, sy = 0; T.forEach(q => { const d = norm(truth(q.t).a - q.a) * D2R; sx += Math.cos(d); sy += Math.sin(d); }); let da = Math.atan2(sy, sx) / D2R;
+  const slip = Math.round(da / pitch()) * pitch(); if (slip && TR.known) { TR.face = norm(TR.face + slip); da -= slip; } else if (!TR.known) { TR.face = norm(da); TR.known = true; TR.how = 'touch'; da = 0; }
+  let s = 1, o = 0; const ys = T.map(q => q.y), yt = T.map(q => truth(q.t).y), n = T.length, mx = ys.reduce((a, b) => a + b) / n, mt = yt.reduce((a, b) => a + b) / n; let sxx = 0, sxy = 0; ys.forEach((v, i) => { sxx += (v - mx) * (v - mx); sxy += (v - mx) * (yt[i] - mt); });
+  if (sxx > 400) s = Math.max(.7, Math.min(1.4, sxy / sxx)); o = mt - s * mx;
+  CAL = { da, s, o, n, at: Date.now() }; const r = sp.D / 2; let e = 0; T.forEach(q => { const f = fix(q.a, q.y), t = truth(q.t); e += Math.hypot(norm(t.a - f.a) * D2R * r, t.y - f.y); }); CAL.err = e / n;
+  try { localStorage.setItem('cup.touch', JSON.stringify(CAL)); } catch (e2) {} }
+
+let hintFor = '';
+function touchHint() { const k = S.step + handsState; if (k === hintFor) return; hintFor = k; $('hint').className = ''; $('hint').innerHTML = 'Touch ' + (S.step - 1) + ' of 4. ' + (handsState === 'ready' ? 'Hold your index fingertip on it for a second, or tap it in the picture.' : handsState === 'loading' ? 'Hand tracking is still loading: tap the cell in the picture, or wait a moment and touch the cup.' : 'Hand tracking is not available here: tap the cell in the picture.'); }
+/* ---- the steps */
+const STEPS = [
+  { title: 'Camera', hint: 'Press the button, then choose Allow.' },
+  { title: 'Show the cup', hint: 'Hold it about 25 cm away, upright or sideways, with the <b>ruler strip</b> toward the camera.' },
+  {}, {}, {}, {},
+  { title: 'Ready', hint: '' } ];
+function setStep(n) { S.step = n; [...$('dots').children].forEach((d, i) => d.className = i < n - 0 && i < 6 ? (i < n ? 'done' : '') : ''); if (n < 6) $('dots').children[n].className = 'on';
+  const main = $('bMain'), alt = $('bAlt'), cam = $('bCam'); $('hint').className = '';
+  if (n === 0) { $('title').textContent = 'Camera'; $('hint').textContent = STEPS[0].hint; main.textContent = 'ALLOW CAMERA'; main.hidden = false; alt.hidden = true; cam.hidden = true; }
+  else if (n === 1) { $('intro').style.display = 'none'; $('title').textContent = 'Show the cup'; $('hint').innerHTML = STEPS[1].hint; main.hidden = true; alt.hidden = CAL.n ? false : true; alt.textContent = 'USE LAST CALIBRATION'; cam.hidden = false; }
+  else if (n <= 5) { $('twin').style.display = S.twin ? 'block' : 'none'; const t = TARGETS[n - 2]; $('title').innerHTML = 'Touch <em>' + name(t) + '</em>'; touchHint(); main.hidden = true; alt.hidden = false; alt.textContent = 'SKIP CALIBRATION'; cam.hidden = true; }
+  else { main.hidden = false; main.className = ''; main.textContent = 'CALIBRATE AGAIN'; alt.hidden = false; alt.textContent = S.twin ? 'TWIN ON' : 'TWIN OFF'; alt.className = S.twin ? 'on' : ''; cam.hidden = false; $('twin').style.display = S.twin ? 'block' : 'none'; }
+}
+$('bMain').onclick = async () => { if (S.step === 0) { $('bMain').disabled = true; $('hint').textContent = 'Waiting for the camera…'; try { await startCam(); loadHands(); setStep(1); requestAnimationFrame(tick); } catch (e) { $('hint').textContent = camWords(e); $('hint').className = 'bad'; $('bMain').textContent = 'TRY AGAIN'; } $('bMain').disabled = false; }
+  else if (S.step === 6) { S.touches = []; CAL = { da: 0, s: 1, o: 0, n: 0 }; $('bMain').className = 'go'; setStep(S.det ? 2 : 1); } };
+$('bAlt').onclick = () => { if (S.step === 6) { S.twin = !S.twin; setStep(6); } else { S.touches = []; setStep(6); } };
+$('bCam').onclick = async () => { S.facing = S.facing === 'environment' ? 'user' : 'environment'; try { await startCam(); } catch (e) { $('hint').textContent = camWords(e); $('hint').className = 'bad'; } };
+ov.addEventListener('pointerdown', e => { const r = ov.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * S.W, py = (e.clientY - r.top) / r.height * S.H; if (!touchAt(px, py, 'tap') && S.step >= 2 && S.step <= 5) { $('hint').textContent = 'That tap was not on the cup. Tap the named cell in the picture.'; $('hint').className = 'bad'; } });
+
+/* ---- the twin */
+let R3 = null, scene, cam3, cup3, patches;
+function twinInit() { const c = $('twin'); R3 = new THREE.WebGLRenderer({ canvas: c, alpha: true, antialias: true }); R3.setPixelRatio(Math.min(2, devicePixelRatio || 1)); R3.outputEncoding = THREE.sRGBEncoding; scene = new THREE.Scene(); scene.add(new THREE.HemisphereLight(0xffffff, 0x334455, 1.05)); const dl = new THREE.DirectionalLight(0xffffff, .5); dl.position.set(1, 2, 3); scene.add(dl);
+  cam3 = new THREE.PerspectiveCamera(26, 3 / 4, 10, 3000); cam3.position.set(0, 0, 600); cup3 = new THREE.Group(); cup3.add(CUP.buildModel({})); patches = new THREE.Group(); cup3.add(patches); scene.add(cup3); }
+let tw = 0, tx = 0;
+function twinDraw(lit) { if (!R3) twinInit(); const c = $('twin'), w = c.clientWidth, h = c.clientHeight; if (!w) return; R3.setSize(w, h, false); cam3.aspect = w / h; cam3.updateProjectionMatrix();
+  const tgt = S.det && S.det.turn ? -(S.det.face + CAL.da) * D2R : tw; tw += Math.atan2(Math.sin(tgt - tw), Math.cos(tgt - tw)) * .3; tx += ((S.pose ? Math.max(-45, Math.min(45, S.pose.tilt)) * D2R : 0) - tx) * .3;
+  const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(tx + .08, 0, 0)).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0, tw, 0))); cup3.quaternion.copy(q); cup3.position.copy(new THREE.Vector3(0, -sp.H / 2, 0).applyQuaternion(q));
+  while (patches.children.length) patches.remove(patches.children[0]); lit.forEach(([col, band, color]) => patches.add(CUP.cellPatch(col, band, color))); R3.render(scene, cam3); }
+
+/* ---- every frame */
+const TIPS = [[8, 'INDEX'], [4, 'THUMB'], [12, 'MIDDLE'], [16, 'RING'], [20, 'LITTLE']];
+let lastDet = 0, lastVT = -1;
+function tick(now) { requestAnimationFrame(tick); if (!S.src || !S.W) return; const isVid = S.src === vid; if (isVid && vid.readyState < 2) return;
+  if (now - lastDet > 110) { lastDet = now; try { readCup(now); } catch (e) { S.err = e.message; } }
+  if (HL && isVid && vid.currentTime !== lastVT) { lastVT = vid.currentTime; try { const r = HL.detectForVideo(vid, now); S.hands = (r.landmarks || []).map((lm, i) => ({ lm, side: r.handedness && r.handedness[i] && r.handedness[i][0] ? r.handedness[i][0].categoryName : '' })); } catch (e) { S.hands = []; } }
+  S.tips = []; S.hands.forEach((h, hi) => TIPS.forEach(([k, nm]) => { const px = h.lm[k].x * S.W, py = h.lm[k].y * S.H; S.tips.push(Object.assign({ hand: hi, side: h.side, finger: nm, px, py }, look(px, py))); }));
+  if (S.step === 1 && S.seenRun >= 6) setStep(CAL.n && Q.has('keep') ? 6 : 2);
+  /* a held fingertip is a touch */
+  if (S.step >= 2 && S.step <= 5 && now > S.cool) { const tip = S.tips.find(t => t.finger === 'INDEX' && t.region !== 'off'); if (tip) { if (S.hold && Math.hypot(tip.px - S.hold.x, tip.py - S.hold.y) < .03 * Math.max(S.W, S.H)) { S.hold.n++; S.hold.sx += tip.px; S.hold.sy += tip.py; if (now - S.hold.t0 > 900) touchAt(S.hold.sx / S.hold.n, S.hold.sy / S.hold.n, 'finger'); } else S.hold = { x: tip.px, y: tip.py, t0: now, n: 1, sx: tip.px, sy: tip.py }; } else S.hold = null; }
+  draw(now); publish(); }
+function draw(now) { const k = ov.width / S.W, W = ov.width, H = ov.height, lw = Math.max(1.5, W / 260); ox.clearRect(0, 0, W, H); ox.lineJoin = 'round'; const path = pts => { ox.beginPath(); pts.forEach((p, i) => i ? ox.lineTo(p.x * k, p.y * k) : ox.moveTo(p.x * k, p.y * k)); ox.closePath(); };
+  const lit = [];
+  if (S.pose && S.det) { const d = S.det, p = [-d.a[1], d.a[0]], l = d.len / 2; ox.strokeStyle = 'rgba(95,240,220,.55)'; ox.lineWidth = lw; path([[1, 1], [1, -1], [-1, -1], [-1, 1]].map(q => ({ x: d.c[0] + d.a[0] * l * q[0] + p[0] * d.w * q[1], y: d.c[1] + d.a[1] * l * q[0] + p[1] * d.w * q[1] }))); ox.stroke();
+    if (S.step >= 2 && S.step <= 5 && d.turn) { const t = TARGETS[S.step - 2], poly = cellPoly(t.col, t.band); if (poly) { const pulse = .5 + .5 * Math.sin(now / 180); ox.fillStyle = 'rgba(240,176,64,' + (.18 + .25 * pulse) + ')'; ox.strokeStyle = '#f0b040'; ox.lineWidth = lw * 1.6; path(poly); ox.fill(); ox.stroke(); lit.push([t.col, t.band, 0xf0b040]); } }
+    if (S.step === 6 && d.turn) { const seen = new Set(); S.tips.forEach(t => { if (t.region === 'label' && t.col && !seen.has(t.id)) { seen.add(t.id); const poly = cellPoly(t.col, t.band); if (poly) { ox.fillStyle = 'rgba(240,176,64,.3)'; ox.strokeStyle = '#f0b040'; ox.lineWidth = lw * 1.4; path(poly); ox.fill(); ox.stroke(); } lit.push([t.col, t.band, 0xf0b040]); } }); } }
+  S.hands.forEach(h => { ox.strokeStyle = 'rgba(255,255,255,.55)'; ox.lineWidth = lw * .8; ox.beginPath(); [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[0,17]].forEach(([a, b]) => { ox.moveTo(h.lm[a].x * W, h.lm[a].y * H); ox.lineTo(h.lm[b].x * W, h.lm[b].y * H); }); ox.stroke(); });
+  S.tips.forEach(t => { const on = t.region !== 'off', idx = t.finger === 'INDEX'; ox.fillStyle = on ? '#f0b040' : 'rgba(255,255,255,.7)'; ox.beginPath(); ox.arc(t.px * k, t.py * k, (idx ? 2.2 : 1.4) * lw, 0, 7); ox.fill(); });
+  if (S.hold && S.step >= 2 && S.step <= 5) { const f = Math.min(1, (now - S.hold.t0) / 900); ox.strokeStyle = '#f0b040'; ox.lineWidth = lw * 2; ox.beginPath(); ox.arc(S.hold.x * k, S.hold.y * k, 9 * lw, -Math.PI / 2, -Math.PI / 2 + f * Math.PI * 2); ox.stroke(); }
+  if (S.step >= 2 && S.step <= 5 && $('hint').className !== 'bad') touchHint();
+  /* words */
+  const d = S.det, cell = d && d.turn ? CUP.cellAt(norm(d.face + CAL.da), sp.labelY0 + sp.labelH / 2) : null;
+  $('status').innerHTML = !d ? 'Looking for the cup…' : !d.turn ? 'Cup seen. Turn the <em>ruler strip</em> toward the camera.' : 'Facing <em>' + (cell.col ? cell.letter + ' ' + String(cell.col).padStart(2, '0') : 'the strip') + '</em>';
+  if (S.step === 6) { const on = S.tips.filter(t => t.region === 'label' && t.col); $('title').innerHTML = on.length ? on.slice(0, 3).map(t => '<em>' + t.letter + ' ' + String(t.col).padStart(2, '0') + ' · B' + t.band + '</em>').join('  ') : (d ? 'Touch any cell' : 'Show the cup');
+    $('hint').textContent = on.length ? on.slice(0, 3).map(t => (t.side ? t.side.toLowerCase() + ' ' : '') + t.finger.toLowerCase()).join(', ') : CAL.n ? 'Calibrated from ' + CAL.n + ' touches; they agree to about ' + CAL.err.toFixed(0) + ' mm.' : 'Not calibrated. Cells may be off by a few millimetres.'; if (d && d.turn && cell.col) lit.push([cell.col, cell.band, 0x5ff0dc]); }
+  if (S.twin && S.step >= 2) twinDraw(lit); }
+let BC = null; try { BC = new BroadcastChannel('cup'); } catch (e) {}
+function publish() { const d = S.det, st = { t: performance.now(), step: S.step, seen: !!d, turnKnown: !!(d && d.turn), how: d ? d.how : null, face: d && d.turn ? norm(d.face + CAL.da) : null, dist: S.pose ? S.pose.dist : null, tilt: S.pose ? S.pose.tilt : null, matrix: S.pose ? S.pose.m : null, calibration: CAL, hands: S.hands.length,
+    fingers: S.tips.map(t => ({ hand: t.hand, side: t.side, finger: t.finger, region: t.region, id: t.id, col: t.col, band: t.band, a: t.a, y: t.y })) }; window.CUPORB.state = st; window.dispatchEvent(new CustomEvent('cup:state', { detail: st })); if (BC) BC.postMessage(st); }
+
+/* for other pages and for tests */
+window.CUPORB = { S, TR, get CAL() { return CAL; }, touchAt, look, project, truth, unfix, TARGETS, setStep, state: null, ready: false };
+setStep(0); layout();
+/* a still picture instead of the camera: ?img=URL (for checking the page without a camera) */
+if (Q.get('img')) { const im = new Image(); im.onload = async () => { $('vid').replaceWith(im); im.id = 'vid'; setSource(im, im.naturalWidth, im.naturalHeight); await netReady; handsState = 'off'; setStep(1); for (let i = 0; i < 8; i++) { readCup(performance.now()); } requestAnimationFrame(tick); window.CUPORB.ready = true; }; im.src = Q.get('img'); }
+</script>
+</body>
+</html>
